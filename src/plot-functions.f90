@@ -387,6 +387,7 @@ subroutine spo_go(psm)
     use plot_setting_manager
     use DATMAI
     use DATSPD
+    use DATLEN
     use g
     use type_utils
 
@@ -406,9 +407,6 @@ subroutine spo_go(psm)
     real(kind=real64), allocatable :: xSpot(:), ySpot(:)
     real(kind=real64) :: yAvg
     real :: plotScale
-
-    include "DATLEN.INC"
-
     ! TODO:  Distable field here
     call psm%getSpotDiagramSettings(iField, iLambda, iMethod, nRect, nRand, nRing, plotScale)
 

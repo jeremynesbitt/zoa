@@ -422,12 +422,10 @@ end function
 function isUSystem(self) result(boolResult)
    use mod_surface
    use mod_system, only: sys_mode
+   use DATLEN
 implicit none
 class(sys_config) :: self
 logical :: boolResult
-
-include "DATLEN.INC"
-
 boolResult = .FALSE.  
 IF(sys_mode().EQ.2.0D0.OR.sys_mode().EQ.4.0D0) boolResult = .TRUE.
 
@@ -436,12 +434,10 @@ end function
 
 function isFocalSystem(self) result(boolResult)
    use mod_system, only: sys_mode
+   use DATLEN
 
 class(sys_config) :: self
 logical :: boolResult
-
-include "DATLEN.INC"
-
 boolResult = .FALSE.
 IF(sys_mode().EQ.1.0D0.OR.sys_mode().EQ.2.0D0) boolResult = .TRUE.
 
@@ -449,10 +445,9 @@ end function
 
 function isObjectAfInf(self) result(boolResult)
    use mod_surface
+   use DATLEN
 class(sys_config) :: self
 logical :: boolResult
-include "DATLEN.INC"
-
 boolResult = .FALSE.
 ! TODO:  Where do document quantitative definition of infinity?
 if(DABS(surf_thickness(0)).GT.1.0D11) boolResult = .TRUE.
@@ -470,12 +465,10 @@ end function
 
 subroutine updateAsphereTable(self, maxSurf)
    use mod_surface
+   use DATLEN
 class(aspheric_surf_data), intent(inout) :: self
 
 integer :: I, maxSurf
-
-include "DATLEN.INC"
-
 if (allocated(self%conic_constant)) deallocate(self%conic_constant)
 allocate(self%conic_constant(maxSurf))
 if (allocated(self%asphereTerms)) deallocate(self%asphereTerms)
@@ -521,8 +514,7 @@ end subroutine
 
 type(sys_config) function sys_config_constructor() result(self)
 
-  include "DATLEN.INC"
-
+  use DATLEN
   allocate(idText :: self%aperOptions(3))
   allocate(idText :: self%refFieldOptions(3))
   allocate(idText :: self%lensUnits(4))
@@ -672,10 +664,9 @@ end subroutine
 subroutine updateParameters(self)
   use mod_system, only: sys_naox, sys_naoy, sys_pxim, sys_pyim, sys_rxim, sys_ryim, &
      & sys_sax, sys_say, sys_scx, sys_scx_fang, sys_scy, sys_scy_fang, sys_units, sys_wl_ref
+  use DATLEN
   implicit none
   class(sys_config), intent(inout) :: self
-  include "DATLEN.INC"
-
   self%lensTitle = trim(LI)
 
   call self%getApertureFromSystemArr()
@@ -810,10 +801,9 @@ subroutine setRefFieldKDP(self)
   use type_utils, only: real2str
   use mod_system, only: sys_set_pxim, sys_set_pyim, sys_set_rxim, sys_set_ryim, &
      & sys_set_scx, sys_set_scx_fang, sys_set_scy, sys_set_scy_fang
+  use DATLEN
   implicit none
   class(sys_config) :: self
-  include "DATLEN.INC"
-
   select case (self%currFieldID)
 
   case (FIELD_OBJECT_HEIGHT)
@@ -867,9 +857,8 @@ end subroutine
 
 subroutine getRayAimFromSystemArr(self)
  use mod_system, only: sys_aplanatic_aim, sys_ray_aiming, sys_telecentric
+ use DATLEN
  class(sys_config), intent(inout) :: self
- include "DATLEN.INC"
-
  ! Aplanatic on 
  !SYSTEM(70)=1.0D0
  !SYSTEM(62)=0.0D0
@@ -920,9 +909,8 @@ end subroutine
 
 subroutine getApertureFromSystemArr(self)
   use mod_system, only: sys_fno_val_set, sys_na_set, sys_say_float
+  use DATLEN
   class(sys_config), intent(inout) :: self
-  include "DATLEN.INC"
-
   if (sys_na_set().EQ.0.AND.sys_fno_val_set().EQ.0.AND.sys_say_float().EQ.0) then
     self%currApertureID = APER_ENTR_PUPIL_DIAMETER
   else if (sys_na_set().EQ.1) then
@@ -943,9 +931,8 @@ subroutine getFieldRefFromSystemArr(self)
  !use handlers
  use mod_system, only: sys_pxim_fang_set, sys_pyim_fang_set, sys_rxim_fang_set, &
     & sys_ryim_fang_set, sys_scy_fang_set
+  use DATLEN
   class(sys_config), intent(inout) :: self
-  include "DATLEN.INC"
-
      if (sys_scy_fang_set().EQ.0.AND.sys_pxim_fang_set().EQ.0.AND.sys_pyim_fang_set().EQ.0) THEN
        self%currFieldID = FIELD_OBJECT_HEIGHT
        !self%currApertureName = "Object Height"
@@ -1268,10 +1255,9 @@ function getAbsYFieldText(self, idxFld) result(strAbsFld)
 end function
 
 subroutine setNumFields(self, numFields)
+  use DATLEN
   class(sys_config), intent(inout) :: self
   integer, intent(in) :: numFields
-  include "DATLEN.INC"
-
   CFLDCNT = numFields
   self%numFields = numFields
 
@@ -1279,10 +1265,9 @@ end subroutine
 
 subroutine setRefWavelengthIndex(self, refWavelengthIdx)
   use mod_system, only: sys_set_wl_ref
+  use DATLEN
   class(sys_config), intent(inout) :: self
   integer, intent(in) :: refWavelengthIdx
-  include "DATLEN.INC"
-
   self%refWavelengthIndex = refWavelengthIdx
   call sys_set_wl_ref( DBLE(self%refWavelengthIndex))
 
@@ -1298,11 +1283,10 @@ function getWavelength(self, index)result (wavelength)
 end function
 
 subroutine setWavelengths(self, index, wavelength)
+  use DATLEN
   class(sys_config), intent(inout) :: self
   integer, intent(in) :: index
   real, intent(in) :: wavelength
-  include "DATLEN.INC"
-
   self%wavelengths(index) = wavelength
 
   SYSTEM(1:5) = self%wavelengths(1:5)
@@ -1328,11 +1312,10 @@ subroutine setNumberofWavelengths(self)
 end subroutine
 
 subroutine setSpectralWeights(self, index, weight)
+  use DATLEN
   class(sys_config), intent(inout) :: self
   integer, intent(in) :: index
   real, intent(in) :: weight
-  include "DATLEN.INC"
-
   self%spectralWeights(index) = weight
 
   SYSTEM(31:35) = self%spectralWeights(1:5)
@@ -1432,6 +1415,7 @@ subroutine setAbsoluteFields(self, absFields, fieldDir)
   ! fieldDir =2 : Y
   use type_utils, only: real2str, int2str
   use iso_fortran_env, only: real64
+  use DATLEN
   implicit none
 
   class(sys_config), intent(inout) :: self
@@ -1440,9 +1424,6 @@ subroutine setAbsoluteFields(self, absFields, fieldDir)
 
   integer, intent(in) :: fieldDir
   integer :: i
-
-  include "DATLEN.INC"
-
   maxField = 0.0_real64
   ! Figure out which one is maximum
   do i=1,size(absFields)
@@ -1482,12 +1463,11 @@ subroutine setAbsoluteFields(self, absFields, fieldDir)
 end subroutine
 
 subroutine setRelativeFields(self, col, row, newval)
+  use DATLEN
   implicit none
   class(sys_config), intent(inout) :: self
   integer, intent(in) :: col, row
   real, intent(in) :: newval
-  include "DATLEN.INC"
-
   ! Need to convert from absolute to relative
   if (self%refFieldValue(col) < newval) then
      self%refFieldValue(col) = newval
@@ -1501,15 +1481,13 @@ end subroutine
 
 
 subroutine updateApertureSelectionByCode(self, ID_SELECTION, xAp, yAp, xySame)
+  use DATLEN
   implicit none
   class(sys_config), intent(inout) :: self
   integer, intent(in) :: ID_SELECTION
   real :: xAp, yAp, xApertureRadius, yApertureRadius
   integer :: xySame
   character(len=23) :: strXAp, strYAp
-
-  include "DATLEN.INC"
-
   !self%currApertureID = ID_SELECTION
 
   select case (ID_SELECTION)
@@ -1571,10 +1549,9 @@ subroutine updateFieldSelectionByCode(self, ID_SELECTION)
     & sys_set_rxim, sys_set_rxim_fang_set, sys_set_ryim, sys_set_ryim_fang_set, &
     & sys_set_scx, sys_set_scx_fang, sys_set_scx_set, sys_set_scy, sys_set_scy_fang, &
     & sys_set_scy_fang_set, sys_set_scy_set
+ use DATLEN
  class(sys_config), intent(inout) :: self
  integer, intent(in) :: ID_SELECTION
- include "DATLEN.INC"
-
  select case (ID_SELECTION)
  case (FIELD_OBJECT_HEIGHT)
 
@@ -1639,10 +1616,9 @@ end subroutine
 
 subroutine updateRayAimSelectionByCode(self, ID_SELECTION)
  use mod_system, only: sys_set_aplanatic_aim, sys_set_ray_aiming, sys_set_telecentric
+ use DATLEN
  class(sys_config), intent(inout) :: self
  integer, intent(in) :: ID_SELECTION
- include "DATLEN.INC"
-
  select case (ID_SELECTION)
 
  ! !FROM LDM1.FOR
@@ -1746,15 +1722,12 @@ function genKDPCMDToRemovePickup(self) result(outTxt)
 end function  
 
 
-subroutine updateSolveData(self, lData, row, solve_type) 
-
+subroutine updateSolveData(self, lData, row, solve_type)
+ use DATLEN
  class(ksolve) :: self
  type(lens_data) :: lData
  integer :: row, solve_type
  character(len=280) :: outTxt
-
- include "DATLEN.INC"
-
  ! From LDM1.FOR
  ! IF(WC.EQ.'PY') SOLVE(6,SURF)=1.0D0
  ! IF(WC.EQ.'PCY') SOLVE(6,SURF)=2.0D0
@@ -1854,13 +1827,12 @@ subroutine updateLensData(self)
   use command_utils, only: isInputNumber
   use mod_surface
   use mod_system, only: sys_last_surf, sys_ref_surf
+  use DATMAI
+  use DATLEN
   implicit none
   class(lens_data) :: self
   integer :: JJ
   real(kind=real64) :: INDEX, VNUM, RD
-  include "DATMAI.INC"
-  include "DATLEN.INC"
-
   JJ = 0
   call self%set_num_surfaces(INT(sys_last_surf()) + 1)
   self%ref_stop = INT(sys_ref_surf()+1)
@@ -1923,11 +1895,12 @@ end function
 
 
 subroutine calculateFirstOrderParameters(self, lData)
-   use mod_surface
+  use mod_surface
+  use DATLEN
+  implicit none
   class(paraxial_ray_trace_data) :: self
   type(lens_data) :: lData
   integer :: I,J
-  include "DATLEN.INC"
   self%EFL = 0.0
   self%BFL = 0.0
   self%FFL = 0.0
@@ -1995,7 +1968,8 @@ end subroutine
 
 function getObjectThicknessToSetParaxialMag(self, magTgt, lData) result(t0)
   use type_utils, only: real2str
-   use mod_surface
+  use mod_surface
+  use DATLEN
   implicit none
   class(paraxial_ray_trace_data) :: self
   type(lens_data) :: lData
@@ -2003,9 +1977,6 @@ function getObjectThicknessToSetParaxialMag(self, magTgt, lData) result(t0)
   real(kind=real64) :: mag, y, uTgt, uSlope, uOffset, errAllowed
   real(kind=real64), dimension(5) :: tempSolveData
   integer :: s1, s2, maxTries, i
-
-  include "DATLEN.INC"
-
   t0 = 10.0 ! Arbitrary initialization
 
   ! Here is a brief description of the logic here

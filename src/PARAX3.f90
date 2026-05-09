@@ -446,6 +446,7 @@ SUBROUTINE INVAR
    use DATLEN
    use DATMAI
    use mod_system, only: sys_last_surf, sys_wl_ref
+   use mod_lens_data_manager, only: ldm
    IMPLICIT NONE
 !
    INTEGER CW,SF
@@ -483,10 +484,10 @@ SUBROUTINE INVAR
    IF(INT(sys_wl_ref()).GE.6.AND.INT(sys_wl_ref()).LE.10) THEN
       CW=INT(sys_wl_ref())+65
    END IF
-   INVY=((PXTRAY(5,SF)*ALENS(CW,(SF-1))*PXTRAY(2,(SF-1)))&
-   &-(PXTRAY(1,SF)*ALENS(CW,(SF-1))*PXTRAY(6,(SF-1))))
-   INVX=((PXTRAX(5,SF)*ALENS(CW,(SF-1))*PXTRAX(2,(SF-1)))&
-   &-(PXTRAX(1,SF)*ALENS(CW,(SF-1))*PXTRAX(6,(SF-1))))
+   INVY=((PXTRAY(5,SF)*ldm%getSurfIndex(SF-1,INT(sys_wl_ref()))*PXTRAY(2,(SF-1)))&
+   &-(PXTRAY(1,SF)*ldm%getSurfIndex(SF-1,INT(sys_wl_ref()))*PXTRAY(6,(SF-1))))
+   INVX=((PXTRAX(5,SF)*ldm%getSurfIndex(SF-1,INT(sys_wl_ref()))*PXTRAX(2,(SF-1)))&
+   &-(PXTRAX(1,SF)*ldm%getSurfIndex(SF-1,INT(sys_wl_ref()))*PXTRAX(6,(SF-1))))
    WRITE(OUTLYNE,1500)INVY
    CALL SHOWIT(0)
    WRITE(OUTLYNE,1000)
@@ -505,6 +506,7 @@ SUBROUTINE PCD3
    use DATLEN
    use DATMAI
    use mod_system, only: sys_last_surf, sys_mode, sys_wl_ref
+   use mod_lens_data_manager, only: ldm
    IMPLICIT NONE
 !
 !       THIS IS SUBROUTINE PCD3. THIS SUBROUTINE IMPLEMENTS
@@ -592,16 +594,16 @@ SUBROUTINE PCD3
    IF(sys_mode().EQ.1.0D0) THEN
 !       MODE IS FOCAL
       IF(WC.EQ.'PCD3'.OR.WC.EQ.'SCD3')&
-      &INV=-2.0*ALENS(CW,(SF-1))*PXTRAY(2,(SF-1))
+      &INV=-2.0*ldm%getSurfIndex(SF-1,INT(sys_wl_ref()))*PXTRAY(2,(SF-1))
       IF(WC.EQ.'XPCD3'.OR.WC.EQ.'XSCD3')&
-      &INV=-2.0*ALENS(CW,(SF-1))*PXTRAX(2,(SF-1))
+      &INV=-2.0*ldm%getSurfIndex(SF-1,INT(sys_wl_ref()))*PXTRAX(2,(SF-1))
    END IF
    IF(sys_mode().EQ.3.0D0) THEN
 !       MODE IS AFOCAL
       IF(WC.EQ.'PCD3'.OR.WC.EQ.'SCD3')&
-      &INV= 2.0*ALENS(CW,(SF-1))*PXTRAY(1,SF)
+      &INV= 2.0*ldm%getSurfIndex(SF-1,INT(sys_wl_ref()))*PXTRAY(1,SF)
       IF(WC.EQ.'XPCD3'.OR.WC.EQ.'XSCD3')&
-      &INV= 2.0*ALENS(CW,(SF-1))*PXTRAX(1,SF)
+      &INV= 2.0*ldm%getSurfIndex(SF-1,INT(sys_wl_ref()))*PXTRAX(1,SF)
    END IF
    IF(INV.EQ.0.0D0) THEN
       WRITE(OUTLYNE,*)&
@@ -1066,6 +1068,7 @@ SUBROUTINE PCD5
    use DATLEN
    use DATMAI
    use mod_system, only: sys_last_surf, sys_mode, sys_wl_ref
+   use mod_lens_data_manager, only: ldm
    IMPLICIT NONE
 !
 !       THIS IS SUBROUTINE PCD5. THIS SUBROUTINE IMPLEMENTS
@@ -1152,16 +1155,16 @@ SUBROUTINE PCD5
    IF(sys_mode().EQ.1.0D0) THEN
 !       MODE IS FOCAL
       IF(WC.EQ.'PCD5'.OR.WC.EQ.'SCD5')&
-      &INV=-2.0*ALENS(CW,(SF-1))*PXTRAY(2,(SF-1))
+      &INV=-2.0*ldm%getSurfIndex(SF-1,INT(sys_wl_ref()))*PXTRAY(2,(SF-1))
       IF(WC.EQ.'XPCD5'.OR.WC.EQ.'XSCD5')&
-      &INV=-2.0*ALENS(CW,(SF-1))*PXTRAX(2,(SF-1))
+      &INV=-2.0*ldm%getSurfIndex(SF-1,INT(sys_wl_ref()))*PXTRAX(2,(SF-1))
    END IF
    IF(sys_mode().EQ.3.0D0) THEN
 !       MODE IS AFOCAL
       IF(WC.EQ.'PCD5'.OR.WC.EQ.'SCD5')&
-      &INV= 2.0*ALENS(CW,(SF-1))*PXTRAY(1,SF)
+      &INV= 2.0*ldm%getSurfIndex(SF-1,INT(sys_wl_ref()))*PXTRAY(1,SF)
       IF(WC.EQ.'XPCD5'.OR.WC.EQ.'XSCD5')&
-      &INV= 2.0*ALENS(CW,(SF-1))*PXTRAX(1,SF)
+      &INV= 2.0*ldm%getSurfIndex(SF-1,INT(sys_wl_ref()))*PXTRAX(1,SF)
    END IF
    IF(INV.EQ.0.0D0) THEN
       WRITE(OUTLYNE,*)&
@@ -1626,6 +1629,7 @@ SUBROUTINE PCDX5
    use DATLEN
    use DATMAI
    use mod_system, only: sys_last_surf, sys_mode, sys_wl_ref
+   use mod_lens_data_manager, only: ldm
    IMPLICIT NONE
 !
 !       THIS IS SUBROUTINE PCDX5. THIS SUBROUTINE IMPLEMENTS
@@ -1711,16 +1715,16 @@ SUBROUTINE PCDX5
    IF(sys_mode().EQ.1.0D0) THEN
 !       MODE IS FOCAL
       IF(WC.EQ.'PCDX5'.OR.WC.EQ.'SCDX5')&
-      &INV=-2.0*ALENS(CW,(SF-1))*PXTRAY(2,(SF-1))
+      &INV=-2.0*ldm%getSurfIndex(SF-1,INT(sys_wl_ref()))*PXTRAY(2,(SF-1))
       IF(WC.EQ.'XPCDX5'.OR.WC.EQ.'XSCDX5')&
-      &INV=-2.0*ALENS(CW,(SF-1))*PXTRAX(2,(SF-1))
+      &INV=-2.0*ldm%getSurfIndex(SF-1,INT(sys_wl_ref()))*PXTRAX(2,(SF-1))
    END IF
    IF(sys_mode().EQ.3.0D0) THEN
 !       MODE IS AFOCAL
       IF(WC.EQ.'PCDX5'.OR.WC.EQ.'SCDX5')&
-      &INV= 2.0*ALENS(CW,(SF-1))*PXTRAY(1,SF)
+      &INV= 2.0*ldm%getSurfIndex(SF-1,INT(sys_wl_ref()))*PXTRAY(1,SF)
       IF(WC.EQ.'XPCDX5'.OR.WC.EQ.'XSCDX5')&
-      &INV= 2.0*ALENS(CW,(SF-1))*PXTRAX(1,SF)
+      &INV= 2.0*ldm%getSurfIndex(SF-1,INT(sys_wl_ref()))*PXTRAX(1,SF)
    END IF
    IF(INV.EQ.0.0D0) THEN
       WRITE(OUTLYNE,*)&
@@ -2190,6 +2194,7 @@ SUBROUTINE PCDP3
    use DATLEN
    use DATMAI
    use mod_system, only: sys_last_surf, sys_mode, sys_wl_ref
+   use mod_lens_data_manager, only: ldm
    IMPLICIT NONE
 !
 !       THIS IS SUBROUTINE PCDP3. THIS SUBROUTINE IMPLEMENTS
@@ -2275,16 +2280,16 @@ SUBROUTINE PCDP3
    IF(sys_mode().EQ.1.0D0) THEN
 !       MODE IS FOCAL
       IF(WC.EQ.'PCDP3'.OR.WC.EQ.'SCDP3')&
-      &INV=-2.0*ALENS(CW,(SF-1))*PXTRAY(2,(SF-1))
+      &INV=-2.0*ldm%getSurfIndex(SF-1,INT(sys_wl_ref()))*PXTRAY(2,(SF-1))
       IF(WC.EQ.'XPCDP3'.OR.WC.EQ.'XSCDP3')&
-      &INV=-2.0*ALENS(CW,(SF-1))*PXTRAX(2,(SF-1))
+      &INV=-2.0*ldm%getSurfIndex(SF-1,INT(sys_wl_ref()))*PXTRAX(2,(SF-1))
    END IF
    IF(sys_mode().EQ.3.0D0) THEN
 !       MODE IS AFOCAL
       IF(WC.EQ.'PCDP3'.OR.WC.EQ.'SCDP3')&
-      &INV= 2.0*ALENS(CW,(SF-1))*PXTRAY(1,SF)
+      &INV= 2.0*ldm%getSurfIndex(SF-1,INT(sys_wl_ref()))*PXTRAY(1,SF)
       IF(WC.EQ.'XPCDP3'.OR.WC.EQ.'XSCDP3')&
-      &INV= 2.0*ALENS(CW,(SF-1))*PXTRAX(1,SF)
+      &INV= 2.0*ldm%getSurfIndex(SF-1,INT(sys_wl_ref()))*PXTRAX(1,SF)
    END IF
    IF(INV.EQ.0.0D0) THEN
       WRITE(OUTLYNE,*)&
@@ -2751,6 +2756,7 @@ SUBROUTINE PCDSA
    use DATLEN
    use DATMAI
    use mod_system, only: sys_last_surf, sys_mode, sys_wl_ref
+   use mod_lens_data_manager, only: ldm
    IMPLICIT NONE
 !
 !       THIS IS SUBROUTINE PCDSA. THIS SUBROUTINE IMPLEMENTS
@@ -2836,16 +2842,16 @@ SUBROUTINE PCDSA
    IF(sys_mode().EQ.1.0D0) THEN
 !       MODE IS FOCAL
       IF(WC.EQ.'PCDSA'.OR.WC.EQ.'SCDSA')&
-      &INV=-2.0*ALENS(CW,(SF-1))*PXTRAY(2,(SF-1))
+      &INV=-2.0*ldm%getSurfIndex(SF-1,INT(sys_wl_ref()))*PXTRAY(2,(SF-1))
       IF(WC.EQ.'XPCDSA'.OR.WC.EQ.'XSCDSA')&
-      &INV=-2.0*ALENS(CW,(SF-1))*PXTRAX(2,(SF-1))
+      &INV=-2.0*ldm%getSurfIndex(SF-1,INT(sys_wl_ref()))*PXTRAX(2,(SF-1))
    END IF
    IF(sys_mode().EQ.3.0D0) THEN
 !       MODE IS AFOCAL
       IF(WC.EQ.'PCDSA'.OR.WC.EQ.'SCDSA')&
-      &INV= 2.0*ALENS(CW,(SF-1))*PXTRAY(1,SF)
+      &INV= 2.0*ldm%getSurfIndex(SF-1,INT(sys_wl_ref()))*PXTRAY(1,SF)
       IF(WC.EQ.'XPCDSA'.OR.WC.EQ.'XSCDSA')&
-      &INV= 2.0*ALENS(CW,(SF-1))*PXTRAX(1,SF)
+      &INV= 2.0*ldm%getSurfIndex(SF-1,INT(sys_wl_ref()))*PXTRAX(1,SF)
    END IF
    IF(INV.EQ.0.0D0) THEN
       WRITE(OUTLYNE,*)&
@@ -3236,6 +3242,7 @@ SUBROUTINE CCOL
    use DATMAI
    use mod_surface, only: surf_refractive_index
    use mod_system, only: sys_last_surf, sys_wl_pri1, sys_wl_pri2, sys_wl_ref, sys_wl_sec1, sys_wl_sec2
+   use mod_lens_data_manager, only: ldm
    IMPLICIT NONE
 !
 !       THIS SUBROUTINE CALCULATES THE YZ PLANE (ITYPEP=1)
@@ -3300,7 +3307,7 @@ SUBROUTINE CCOL
 !       surf_refractive_index(SURF, 5)
 !
 !       INDICES ARE ADDRESSED IN THE FOLLOWING MANNER
-!       INDEX AT CW IS ALENS(CW,I)
+!       INDEX AT CW IS ldm%getSurfIndex(I,INT(sys_wl_ref()))
 !               SW1 IS ALENS(SW1,I)
 !               SW2 IS ALENS(SW2,I)
 !               PW1 IS ALENS(PW1,I)
@@ -3314,10 +3321,10 @@ SUBROUTINE CCOL
 !
 !       TRANSVERSE COMPONENTS
 !       SETUP
-         PN=ALENS(CW,(I-1))
-         J_NP=ALENS(CW,I)
-         DN=ALENS(PW1,(I-1))-ALENS(PW2,(I-1))
-         DNP=ALENS(PW1,I)-ALENS(PW2,I)
+         PN=ldm%getSurfIndex(I-1,INT(sys_wl_ref()))
+         J_NP=ldm%getSurfIndex(I,INT(sys_wl_ref()))
+         DN=ldm%getSurfDispersion(I-1,INT(sys_wl_pri1()),INT(sys_wl_pri2()))
+         DNP=ldm%getSurfDispersion(I,INT(sys_wl_pri1()),INT(sys_wl_pri2()))
 !       AXIAL COLOR (PRIMARY)
          COLORY(1,I)=((PXTRAY(1,(INT(sys_last_surf())))*PXTRAY(5,I))-&
          &(PXTRAY(5,(INT(sys_last_surf())))*PXTRAY(1,I)))*PXTRAY(3,I)*PN*&
@@ -3342,8 +3349,8 @@ SUBROUTINE CCOL
          END IF
 !
 !       SETUP
-         DN=ALENS(SW1,(I-1))-ALENS(SW2,(I-1))
-         DNP=ALENS(SW1,I)-ALENS(SW2,I)
+         DN=ldm%getSurfDispersion(I-1,INT(sys_wl_sec1()),INT(sys_wl_sec2()))
+         DNP=ldm%getSurfDispersion(I,INT(sys_wl_sec1()),INT(sys_wl_sec2()))
 !       AXIAL  COLOR (SECONDARY)
          COLORY(3,I)=((PXTRAY(1,(INT(sys_last_surf())))*PXTRAY(5,I))-&
          &(PXTRAY(5,(INT(sys_last_surf())))*PXTRAY(1,I)))*PXTRAY(3,I)*PN*&
@@ -3357,10 +3364,10 @@ SUBROUTINE CCOL
          END IF
 !       ANGULAR COMPONENTS
 !       SETUP
-         PN=ALENS(CW,(I-1))
-         J_NP=ALENS(CW,I)
-         DN=ALENS(PW1,(I-1))-ALENS(PW2,(I-1))
-         DNP=ALENS(PW1,I)-ALENS(PW2,I)
+         PN=ldm%getSurfIndex(I-1,INT(sys_wl_ref()))
+         J_NP=ldm%getSurfIndex(I,INT(sys_wl_ref()))
+         DN=ldm%getSurfDispersion(I-1,INT(sys_wl_pri1()),INT(sys_wl_pri2()))
+         DNP=ldm%getSurfDispersion(I,INT(sys_wl_pri1()),INT(sys_wl_pri2()))
 !       AXIAL COLOR (PRIMARY)
          COLORY(5,I)=((PXTRAY(5,I)*PXTRAY(2,((INT(sys_last_surf()))-1)))-&
          &(PXTRAY(1,I)*PXTRAY(6,((INT(sys_last_surf()))-1))))*PXTRAY(3,I)*PN*&
@@ -3374,8 +3381,8 @@ SUBROUTINE CCOL
          END IF
 !
 !       SETUP
-         DN=ALENS(SW1,(I-1))-ALENS(SW2,(I-1))
-         DNP=ALENS(SW1,I)-ALENS(SW2,I)
+         DN=ldm%getSurfDispersion(I-1,INT(sys_wl_sec1()),INT(sys_wl_sec2()))
+         DNP=ldm%getSurfDispersion(I,INT(sys_wl_sec1()),INT(sys_wl_sec2()))
 !       AXIAL  COLOR (SECONDARY)
          COLORY(7,I)=((PXTRAY(5,I)*PXTRAY(2,((INT(sys_last_surf()))-1)))-&
          &(PXTRAY(1,I)*PXTRAY(6,((INT(sys_last_surf()))-1))))*PXTRAY(3,I)*PN*&
@@ -3431,7 +3438,7 @@ SUBROUTINE CCOL
 !       surf_refractive_index(SURF, 5)
 !
 !       INDICES ARE ADDRESSED IN THE FOLLOWING MANNER
-!       INDEX AT CW IS ALENS(CW,I)
+!       INDEX AT CW IS ldm%getSurfIndex(I,INT(sys_wl_ref()))
 !               SW1 IS ALENS(SW1,I)
 !               SW2 IS ALENS(SW2,I)
 !               PW1 IS ALENS(PW1,I)
@@ -3445,10 +3452,10 @@ SUBROUTINE CCOL
 !
 !       TRANSVERSE COMPONENTS
 !       SETUP
-         PN=ALENS(CW,(I-1))
-         J_NP=ALENS(CW,I)
-         DN=ALENS(PW1,(I-1))-ALENS(PW2,(I-1))
-         DNP=ALENS(PW1,I)-ALENS(PW2,I)
+         PN=ldm%getSurfIndex(I-1,INT(sys_wl_ref()))
+         J_NP=ldm%getSurfIndex(I,INT(sys_wl_ref()))
+         DN=ldm%getSurfDispersion(I-1,INT(sys_wl_pri1()),INT(sys_wl_pri2()))
+         DNP=ldm%getSurfDispersion(I,INT(sys_wl_pri1()),INT(sys_wl_pri2()))
 !       AXIAL COLOR (PRIMARY)
          COLORX(1,I)=((PXTRAX(1,(INT(sys_last_surf())))*PXTRAX(5,I))-&
          &(PXTRAX(5,(INT(sys_last_surf())))*PXTRAX(1,I)))*PXTRAX(3,I)*PN*&
@@ -3462,8 +3469,8 @@ SUBROUTINE CCOL
          END IF
 !
 !       SETUP
-         DN=ALENS(SW1,(I-1))-ALENS(SW2,(I-1))
-         DNP=ALENS(SW1,I)-ALENS(SW2,I)
+         DN=ldm%getSurfDispersion(I-1,INT(sys_wl_sec1()),INT(sys_wl_sec2()))
+         DNP=ldm%getSurfDispersion(I,INT(sys_wl_sec1()),INT(sys_wl_sec2()))
 !       AXIAL  COLOR (SECONDARY)
          COLORX(3,I)=((PXTRAX(1,(INT(sys_last_surf())))*PXTRAX(5,I))-&
          &(PXTRAX(5,(INT(sys_last_surf())))*PXTRAX(1,I)))*PXTRAX(3,I)*PN*&
@@ -3477,10 +3484,10 @@ SUBROUTINE CCOL
          END IF
 !       ANGULAR COMPONENTS
 !       SETUP
-         PN=ALENS(CW,(I-1))
-         J_NP=ALENS(CW,I)
-         DN=ALENS(PW1,(I-1))-ALENS(PW2,(I-1))
-         DNP=ALENS(PW1,I)-ALENS(PW2,I)
+         PN=ldm%getSurfIndex(I-1,INT(sys_wl_ref()))
+         J_NP=ldm%getSurfIndex(I,INT(sys_wl_ref()))
+         DN=ldm%getSurfDispersion(I-1,INT(sys_wl_pri1()),INT(sys_wl_pri2()))
+         DNP=ldm%getSurfDispersion(I,INT(sys_wl_pri1()),INT(sys_wl_pri2()))
 !       AXIAL COLOR (PRIMARY)
          COLORX(5,I)=((PXTRAX(5,I)*PXTRAX(2,((INT(sys_last_surf()))-1)))-&
          &(PXTRAX(1,I)*PXTRAX(6,((INT(sys_last_surf()))-1))))*PXTRAX(3,I)*PN*&
@@ -3494,8 +3501,8 @@ SUBROUTINE CCOL
          END IF
 !
 !       SETUP
-         DN=ALENS(SW1,(I-1))-ALENS(SW2,(I-1))
-         DNP=ALENS(SW1,I)-ALENS(SW2,I)
+         DN=ldm%getSurfDispersion(I-1,INT(sys_wl_sec1()),INT(sys_wl_sec2()))
+         DNP=ldm%getSurfDispersion(I,INT(sys_wl_sec1()),INT(sys_wl_sec2()))
 !       AXIAL  COLOR (SECONDARY)
          COLORX(7,I)=((PXTRAX(5,I)*PXTRAX(2,((INT(sys_last_surf()))-1)))-&
          &(PXTRAX(1,I)*PXTRAX(6,((INT(sys_last_surf()))-1))))*PXTRAX(3,I)*PN*&
@@ -3817,6 +3824,7 @@ SUBROUTINE FINIYZ
    use DATMAI
    use mod_surface, only: surf_curvature, surf_thickness, surf_toric_flag, surf_toric_curvature, surf_pickup_count, surf_ideal_efl, surf_asphere_coeff
    use mod_system, only: sys_wl_ref
+   use mod_lens_data_manager, only: ldm
    IMPLICIT NONE
 !
 !       THIS IS SUBROUTINE FINIYZ. THIS IS THE
@@ -3831,21 +3839,8 @@ SUBROUTINE FINIYZ
 !
    REAL*8 CURV
 !
-   INTEGER WWVN
-!
-!
    COMI=FINY
    K=FINY
-   IF(INT(sys_wl_ref()).EQ.1) WWVN=46
-   IF(INT(sys_wl_ref()).EQ.2) WWVN=47
-   IF(INT(sys_wl_ref()).EQ.3) WWVN=48
-   IF(INT(sys_wl_ref()).EQ.4) WWVN=49
-   IF(INT(sys_wl_ref()).EQ.5) WWVN=50
-   IF(INT(sys_wl_ref()).EQ.6) WWVN=71
-   IF(INT(sys_wl_ref()).EQ.7) WWVN=72
-   IF(INT(sys_wl_ref()).EQ.8) WWVN=73
-   IF(INT(sys_wl_ref()).EQ.9) WWVN=74
-   IF(INT(sys_wl_ref()).EQ.10) WWVN=75
 !
 !               VALUES AT SURFACE K
 !       CALL PIKRES FOR THE SURFACE K
@@ -3865,11 +3860,7 @@ SUBROUTINE FINIYZ
          END IF
       END IF
       PXTRAY(2,K)=-CURV*PXTRAY(1,K)*&
-      &(((ALENS(WWVN,K))-&
-      &(ALENS(WWVN,(K-1))))/&
-      &(ALENS(WWVN,K)))+&
-      &((ALENS(WWVN,(K-1)))/&
-      &(ALENS(WWVN,K)))*PXTRAY(2,(K-1))
+      &ldm%getRefractionPowerFactor(K-1,K,INT(sys_wl_ref()))+ldm%getIndexRatio(K-1,K,INT(sys_wl_ref()))*PXTRAY(2,(K-1))
       IF(GLANAM(K,2).EQ.'PERFECT      ')&
       &PXTRAY(2,K)=(-(1.0D0/surf_thickness(K))*PXTRAY(1,K))+PXTRAY(2,K-1)
       IF(GLANAM(K,2).EQ.'IDEAL        ')&
@@ -3886,8 +3877,7 @@ SUBROUTINE FINIYZ
       END IF
       PXTRAY(3,K)=CURV*PXTRAY(1,K)+PXTRAY(2,(K-1))
 !
-      PXTRAY(4,K)=((ALENS((WWVN),(K-1)))/&
-      &(ALENS((WWVN),K)))*PXTRAY(3,K)
+      PXTRAY(4,K)=ldm%getIndexRatio(K-1,K,INT(sys_wl_ref()))*PXTRAY(3,K)
 !
       PXTRAY(5,K)=PXTRAY(5,(K-1))+(surf_thickness(K-1)*PXTRAY(6,(K-1)))
 !
@@ -3901,11 +3891,7 @@ SUBROUTINE FINIYZ
          END IF
       END IF
       PXTRAY(6,K)=-CURV*PXTRAY(5,K)*&
-      &(((ALENS(WWVN,K))-&
-      &(ALENS(WWVN,(K-1))))/&
-      &(ALENS(WWVN,K)))+&
-      &((ALENS(WWVN,(K-1)))/&
-      &(ALENS(WWVN,K)))*PXTRAY(6,(K-1))
+      &ldm%getRefractionPowerFactor(K-1,K,INT(sys_wl_ref()))+ldm%getIndexRatio(K-1,K,INT(sys_wl_ref()))*PXTRAY(6,(K-1))
       IF(GLANAM(K,2).EQ.'PERFECT      ')&
       &PXTRAY(6,K)=(-(1.0D0/surf_thickness(K))*PXTRAY(5,K))+PXTRAY(6,K-1)
       IF(GLANAM(K,2).EQ.'IDEAL        ')&
@@ -3922,8 +3908,7 @@ SUBROUTINE FINIYZ
       END IF
       PXTRAY(7,K)=(CURV*PXTRAY(5,K))+PXTRAY(6,(K-1))
 !
-      PXTRAY(8,K)=((ALENS((WWVN),(K-1)))/&
-      &(ALENS((WWVN),K)))*PXTRAY(7,K)
+      PXTRAY(8,K)=ldm%getIndexRatio(K-1,K,INT(sys_wl_ref()))*PXTRAY(7,K)
       RETURN
    ELSE
       PRINT *, "Add logic for object surface here!"
@@ -3936,6 +3921,7 @@ SUBROUTINE FINIXZ
    use DATMAI
    use mod_surface, only: surf_curvature, surf_thickness, surf_toric_flag, surf_toric_curvature, surf_pickup_count, surf_ideal_efl, surf_asphere_coeff
    use mod_system, only: sys_wl_ref
+   use mod_lens_data_manager, only: ldm
    IMPLICIT NONE
 !
 !       THIS IS SUBROUTINE FINIXZ. THIS IS THE
@@ -3950,19 +3936,8 @@ SUBROUTINE FINIXZ
 !
    REAL*8 CURV
 !
-   INTEGER WWVN
    K=FINY
    COMI=FINY
-   IF(INT(sys_wl_ref()).EQ.1) WWVN=46
-   IF(INT(sys_wl_ref()).EQ.2) WWVN=47
-   IF(INT(sys_wl_ref()).EQ.3) WWVN=48
-   IF(INT(sys_wl_ref()).EQ.4) WWVN=49
-   IF(INT(sys_wl_ref()).EQ.5) WWVN=50
-   IF(INT(sys_wl_ref()).EQ.6) WWVN=71
-   IF(INT(sys_wl_ref()).EQ.7) WWVN=72
-   IF(INT(sys_wl_ref()).EQ.8) WWVN=73
-   IF(INT(sys_wl_ref()).EQ.9) WWVN=74
-   IF(INT(sys_wl_ref()).EQ.10) WWVN=75
 !
 !               VALUES AT SURFACE K
 !       CALL PIKRES FOR THE SURFACE K
@@ -3981,11 +3956,7 @@ SUBROUTINE FINIXZ
       END IF
    END IF
    PXTRAX(2,K)=-CURV*PXTRAX(1,K)*&
-   &(((ALENS(WWVN,K))-&
-   &(ALENS(WWVN,(K-1))))/&
-   &(ALENS(WWVN,K)))+&
-   &((ALENS(WWVN,(K-1)))/&
-   &(ALENS(WWVN,K)))*PXTRAX(2,(K-1))
+   &ldm%getRefractionPowerFactor(K-1,K,INT(sys_wl_ref()))+ldm%getIndexRatio(K-1,K,INT(sys_wl_ref()))*PXTRAX(2,(K-1))
    IF(GLANAM(K,2).EQ.'PERFECT      ')&
    &PXTRAY(2,K)=(-(1.0D0/surf_thickness(K))*PXTRAY(1,K))+PXTRAY(2,K-1)
    IF(GLANAM(K,2).EQ.'IDEAL        ')&
@@ -4002,8 +3973,7 @@ SUBROUTINE FINIXZ
    END IF
    PXTRAX(3,K)=CURV*PXTRAX(1,K)+PXTRAX(2,(K-1))
 !
-   PXTRAX(4,K)=((ALENS((WWVN),(K-1)))/&
-   &(ALENS((WWVN),K)))*PXTRAX(3,K)
+   PXTRAX(4,K)=ldm%getIndexRatio(K-1,K,INT(sys_wl_ref()))*PXTRAX(3,K)
 !
    PXTRAX(5,K)=PXTRAX(5,(K-1))+(surf_thickness(K-1)*PXTRAX(6,(K-1)))
 !
@@ -4017,11 +3987,7 @@ SUBROUTINE FINIXZ
       END IF
    END IF
    PXTRAX(6,K)=-CURV*PXTRAX(5,K)*&
-   &(((ALENS(WWVN,K))-&
-   &(ALENS(WWVN,(K-1))))/&
-   &(ALENS(WWVN,K)))+&
-   &((ALENS(WWVN,(K-1)))/&
-   &(ALENS(WWVN,K)))*PXTRAX(6,(K-1))
+   &ldm%getRefractionPowerFactor(K-1,K,INT(sys_wl_ref()))+ldm%getIndexRatio(K-1,K,INT(sys_wl_ref()))*PXTRAX(6,(K-1))
    IF(GLANAM(K,2).EQ.'PERFECT      ')&
    &PXTRAX(6,K)=(-(1.0D0/surf_thickness(K))*PXTRAX(5,K))+PXTRAX(6,K-1)
    IF(GLANAM(K,2).EQ.'IDEAL        ')&
@@ -4038,8 +4004,7 @@ SUBROUTINE FINIXZ
    END IF
    PXTRAX(7,K)=(CURV*PXTRAX(5,K))+PXTRAX(6,(K-1))
 !
-   PXTRAX(8,K)=((ALENS((WWVN),(K-1)))/&
-   &(ALENS((WWVN),K)))*PXTRAX(7,K)
+   PXTRAX(8,K)=ldm%getIndexRatio(K-1,K,INT(sys_wl_ref()))*PXTRAX(7,K)
 !
    RETURN
 END
@@ -4049,6 +4014,7 @@ SUBROUTINE FCH
    use DATLEN
    use DATMAI
    use mod_system, only: sys_last_surf, sys_mode, sys_wl_ref
+   use mod_lens_data_manager, only: ldm
    IMPLICIT NONE
 !
 !       THIS IS SUBROUTINE FCH. THIS SUBROUTINE IMPLEMENTS
@@ -4078,12 +4044,12 @@ SUBROUTINE FCH
       CW=INT(sys_wl_ref())+65
    END IF
    IF(WC.EQ.'FCHX') THEN
-      INV=((PXTRAX(5,SF)*ALENS(CW,(SF-1))*PXTRAX(2,(SF-1)))-&
-      &(PXTRAX(1,SF)*ALENS(CW,(SF-1))*PXTRAX(6,(SF-1))))
+      INV=((PXTRAX(5,SF)*ldm%getSurfIndex(SF-1,INT(sys_wl_ref()))*PXTRAX(2,(SF-1)))-&
+      &(PXTRAX(1,SF)*ldm%getSurfIndex(SF-1,INT(sys_wl_ref()))*PXTRAX(6,(SF-1))))
    END IF
    IF(WC.EQ.'FCHY') THEN
-      INV=((PXTRAY(5,SF)*ALENS(CW,(SF-1))*PXTRAY(2,(SF-1)))-&
-      &(PXTRAY(1,SF)*ALENS(CW,(SF-1))*PXTRAY(6,(SF-1))))
+      INV=((PXTRAY(5,SF)*ldm%getSurfIndex(SF-1,INT(sys_wl_ref()))*PXTRAY(2,(SF-1)))-&
+      &(PXTRAY(1,SF)*ldm%getSurfIndex(SF-1,INT(sys_wl_ref()))*PXTRAY(6,(SF-1))))
    END IF
 !
    IF(SST.EQ.1.OR.S2.EQ.1.OR.S3.EQ.1.OR.S4.EQ.1.OR.S5.EQ.1) THEN

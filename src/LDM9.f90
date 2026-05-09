@@ -677,6 +677,7 @@ SUBROUTINE RETRES
    use mod_surface
    use DATMAI
    use mod_system, only: sys_last_surf, sys_set_tilt_ret
+   use mod_lens_data_manager, only: ldm
    IMPLICIT NONE
    INTEGER I,RETSURF,SINB
    REAL*8 D11,D12,D13
@@ -690,8 +691,8 @@ SUBROUTINE RETRES
 !     THERE IS A TILT RETURN TO RESOLVE WITH A RETURN TO SURFACE
          RETSURF=INT(surf_ret_surf_num(I))
 !     SET ALL THE TILT AND DECENTERS ON THIS SURFACE TO ZERO
-         ALENS(114:120,I)=0.0D0
-         ALENS(26:31,I)=0.0D0
+         call ldm%clearFocusAndTiltDegData(I)
+         call ldm%clearTiltAnglesAndDecentValues(I)
          call set_surf_decenter_z(I, 0.0D0)
 !
 !     HERE IS WHERE THE MAGIC GOES.

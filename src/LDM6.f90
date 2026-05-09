@@ -1730,6 +1730,7 @@ SUBROUTINE SPIVOTD
    use mod_surface
    use DATMAI
    use mod_system, only: sys_last_surf
+   use mod_lens_data_manager, only: ldm
    use mod_surface
    IMPLICIT NONE
 !
@@ -1794,11 +1795,11 @@ SUBROUTINE SPIVOTD
 !       PROCEED WITH PIVOTD
 !
       call set_surf_pivot_flag(SURF, 0)
-      ALENS(78:79,SURF)=0.0D0
+      call ldm%clearPivotXY(SURF)
       call set_surf_pivot_z(SURF, 0.0D0)
-      ALENS(30:31,SURF)=0.0D0
+      call ldm%clearDecentValues(SURF)
       call set_surf_decenter_z(SURF, 0.0D0)
-      ALENS(114:116,SURF)=0.0D0
+      call ldm%clearFocusData(SURF)
 !
 !       NOW WHAT IF THIS CURRENT SURFACE IS BEING PIKUP UP WITH A
 !       PIKUP YD OR PIKUP XD FROM ANOTHER SURFACE. IF IT IS THEN

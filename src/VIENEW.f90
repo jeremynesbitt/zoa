@@ -499,14 +499,11 @@ END IF ! X plotting
 
 subroutine VIEPROF(angProf, VIEW2, VIEW3, VS2, VS3, VDF2, VDF3)
   use ISO_FORTRAN_ENV, only: real64
+  use DATMAI
   implicit none
   INTEGER VDF2,VDF3,VS2,VS3
   REAL(real64) ::  VIEW2,VIEW3
   REAL(real64) :: angProf
-
-
-  include "DATMAI.INC"
-
 
 !             PLOT PROF common vars
               W1=VIEW2
@@ -535,13 +532,11 @@ end subroutine
 
 subroutine VIE_EDGE(xory, VIEW2, VIEW3, VS2, VS3, VDF2, VDF3)
   use ISO_FORTRAN_ENV, only: real64
+  use DATMAI
   implicit none
   INTEGER VDF2,VDF3,VS2,VS3
   REAL(real64) ::  VIEW2,VIEW3
   character(len=1) :: xory
-
-  include "DATMAI.INC"
-
               W1=VIEW2
               W2=VIEW3
               S1=VS2
@@ -569,12 +564,11 @@ end subroutine
 subroutine VIE_PSM_TRACERAY(xA, yA, rW, Si,Sf)
       use iso_fortran_env, only: real64
       use DATLEN
+      use DATMAI
       implicit none
       integer, intent(in) :: Si, Sf
       REAL(real64) ::  xA, yA
       integer :: rW
-      include "DATMAI.INC"
-
       WW1 = yA
       WW2=  xA
       WW3=  rW
@@ -598,14 +592,12 @@ end subroutine
 subroutine VIE_TRACERAY(xA, yA, rW, VIEW2, VIEW3, VDF2, VDF3, VS2, VS3, CACOCHVIE)
   use ISO_FORTRAN_ENV, only: real64
   use DATLEN
+  use DATMAI
   use type_utils, only: bool2str
   implicit none
   INTEGER VDF2,VDF3,VS2,VS3
   REAL(real64) ::  xA, yA, VIEW2,VIEW3
   integer :: rW, CACOCHVIE
-
-  include "DATMAI.INC"
-  !include "DATLEN.INC"
 
       WW1 = yA
       WW2=  xA

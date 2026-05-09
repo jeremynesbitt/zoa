@@ -54,10 +54,10 @@ module command_utils
 contains
 
   subroutine report_error_and_fail(message, show_code)
+    use DATMAI
     implicit none
     character(len=*), intent(in) :: message
     integer, intent(in) :: show_code
-    include "DATMAI.INC"
     integer :: start_pos, split_pos
     character(len=1) :: lf
     EXTERNAL SHOWIT
@@ -118,31 +118,27 @@ contains
   end subroutine
 
   logical function has_string_input()
+    use DATMAI
     implicit none
-    include "DATMAI.INC"
-
     has_string_input = SST .EQ. 1
   end function
 
   logical function has_qualifier_input()
+    use DATMAI
     implicit none
-    include "DATMAI.INC"
-
     has_qualifier_input = SQ .EQ. 1
   end function
 
   logical function is_command_query()
+    use DATMAI
     implicit none
-    include "DATMAI.INC"
-
     is_command_query = STI .EQ. 1
   end function
 
   logical function has_numeric_input(word_number)
+    use DATMAI
     implicit none
     integer, intent(in) :: word_number
-    include "DATMAI.INC"
-
     select case (word_number)
     case (1)
       has_numeric_input = S1 .EQ. 1
@@ -160,10 +156,9 @@ contains
   end function
 
   logical function is_default_numeric(word_number)
+    use DATMAI
     implicit none
     integer, intent(in) :: word_number
-    include "DATMAI.INC"
-
     select case (word_number)
     case (1)
       is_default_numeric = DF1 .EQ. 1
@@ -271,9 +266,9 @@ contains
   end function
 
   function hasAlphaNumericInput(self) result(flag)
+    use DATMAI
     implicit none
     class(command_parser) :: self
-    include "DATMAI.INC"
     logical :: flag
 
 
@@ -285,7 +280,7 @@ contains
     ! qual_only_err_msg - override error message when input error is encountered
 
     !use kdp_utils
-
+    use DATMAI
     implicit none
     integer, intent(in) :: ID_CMD_TYPE(:) ! only required argument
     integer, optional :: max_num_terms 
@@ -294,8 +289,6 @@ contains
     type(command_parser) :: cp
     logical :: goodInput
     integer :: i, numValidTypes, cmdToProcess
-
-    include "DATMAI.INC"
 
     call currInputData%initialize()
 
@@ -396,13 +389,10 @@ contains
   end function
 
   function isCmdType(ID_CMD_TYPE) result(typeExists)
-
+    use DATMAI
     implicit none
     logical :: typeExists
     integer :: ID_CMD_TYPE
-
-    include "DATMAI.INC"
-
     typeExists = .FALSE.
     select case (ID_CMD_TYPE)
 
@@ -537,13 +527,11 @@ contains
   end subroutine
 
   function cmdOptionExists(cmdTst) result(cmdExists)
+    use DATMAI
     implicit none
     character(len=*) :: cmdTst
     logical :: cmdExists
     integer :: cmdLoc = 0
-
-    include "DATMAI.INC"
-
     cmdLoc = index(WS, cmdTst)
     cmdExists = .FALSE.
     if (cmdLoc>0) cmdExists = .TRUE.
@@ -551,14 +539,13 @@ contains
   end function
 
   function getCmdInputValue(cmdToGet) result(cmdVal)
+    use DATMAI
     implicit none
     character(len=*) :: cmdToGet
     real :: cmdVal
     character(len=80) :: tokens(40)
     integer :: numTokens, fst,  i
   !call checkCommandInput(typeCode,
-    include "DATMAI.INC"
-
     PRINT *, "About to Parse ", WS
     call parseCommandIntoTokens(trim(WS), tokens, numTokens)
     PRINT *, "After parseCommandIntoTokens"
@@ -600,8 +587,8 @@ contains
   end subroutine
 
   subroutine init_parsed_data(self)
+    use DATMAI
     class(input_parsed_data) :: self
-     include "DATMAI.INC"
      self%inputNums(1) = W1
      self%inputNums(2) = W2
      self%inputNums(3) = W3
@@ -661,6 +648,7 @@ contains
   ! If this is in more commands abstract this
   function parseTitleCommand() result(title)
     use strings
+    use DATMAI
     implicit none
     character(len=80) :: title
     character(len=80) :: restOfString
@@ -668,7 +656,6 @@ contains
     character(len=5) :: cmdStr
     integer :: lenInput, lQ, rQ
     integer :: blankLoc
-    include "DATMAI.INC" ! To get INPUT
 
     lenInput = len(trim(INPUT))
 

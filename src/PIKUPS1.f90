@@ -2602,6 +2602,7 @@ END
 ! SUB PIKPRO.FOR
 SUBROUTINE PIKPRO
 !
+   use mod_lens_data_manager, only: ldm
    use DATLEN
    use mod_surface
    use DATMAI
@@ -2790,7 +2791,7 @@ SUBROUTINE PIKPRO
       CALL SHOWIT(1)
    END IF
    ALENS(5:8,SURF)=0.0D0
-   ALENS(81:85,SURF)=0.0D0
+   call ldm%clearHigherOrderAsphericCoeffs(SURF)
 !       TORIC DEFINITION,CONICS,ASPH AND CURVES
    IF(PIKUP(1,SURF,9).GT.0.0D0) THEN
       PIKUP(1:6,SURF,9)=0.0D0
@@ -2835,11 +2836,11 @@ SUBROUTINE PIKPRO
       CALL SHOWIT(1)
    END IF
 !       TORICS
-   ALENS(23:24,SURF)=0.0D0
+   call ldm%clearToricFlagAndCurv(SURF)
 !       SPSRF
    call set_surf_asi_flag(SURF, 0)
 !       ASPHT
-   ALENS(36:40,SURF)=0.0D0
+   call ldm%clearAnamorphicCoeffs(SURF)
 !       CCTOR
    call set_surf_anamorphic_conic(SURF, 0.0D0)
    IF(PIKUP(1,SURF,11).GT.0.0D0) THEN
@@ -2848,12 +2849,12 @@ SUBROUTINE PIKPRO
       WRITE(OUTLYNE,*)'SURFACE',SURF,' :PIKUP (PRO) DELETED'
       CALL SHOWIT(1)
    END IF
-   ALENS(1:2,SURF)=0.0D0
-   ALENS(4:8,SURF)=0.0D0
-   ALENS(81:85,SURF)=0.0D0
-   ALENS(23:24,SURF)=0.0D0
+   call ldm%clearCurvAndConic(SURF)
+   call ldm%clearAsphericCoeffsAndFlag(SURF)
+   call ldm%clearHigherOrderAsphericCoeffs(SURF)
+   call ldm%clearToricFlagAndCurv(SURF)
    call set_surf_asi_flag(SURF, 0)
-   ALENS(36:41,SURF)=0.0D0
+   call ldm%clearAnamorphicData(SURF)
    call set_surf_asphere_coeff(SURF, 2, 0.0D0)
    IF(PIKUP(1,SURF,12).GT.0.0D0) THEN
       PIKUP(1:6,SURF,12)=0.0D0
@@ -2861,12 +2862,12 @@ SUBROUTINE PIKPRO
       WRITE(OUTLYNE,*)'SURFACE',SURF,' :PIKUP (NPRO) DELETED'
       CALL SHOWIT(1)
    END IF
-   ALENS(1:2,SURF)=0.0D0
-   ALENS(4:8,SURF)=0.0D0
-   ALENS(81:85,SURF)=0.0D0
-   ALENS(23:24,SURF)=0.0D0
+   call ldm%clearCurvAndConic(SURF)
+   call ldm%clearAsphericCoeffsAndFlag(SURF)
+   call ldm%clearHigherOrderAsphericCoeffs(SURF)
+   call ldm%clearToricFlagAndCurv(SURF)
    call set_surf_asi_flag(SURF, 0)
-   ALENS(36:41,SURF)=0.0D0
+   call ldm%clearAnamorphicData(SURF)
    call set_surf_asphere_coeff(SURF, 2, 0.0D0)
 !               INCREMENT THEPIKUP COUNTER BY 1.0D0
 !               I.E. surf_special_type(SURF)

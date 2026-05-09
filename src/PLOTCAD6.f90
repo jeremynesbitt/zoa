@@ -303,6 +303,7 @@ SUBROUTINE DODRAWING
    use DATLEN
    use DATMAI
    use mod_system, only: sys_units, sys_wl_ref, sys_wavelength
+   use DATPTS
    IMPLICIT NONE
 !
    REAL*8 CV1,CV2,TMPVAL,DSCFAC,EFL,BFL,FFL,PP1,PP2,DLPF1,DLPF2
@@ -316,8 +317,6 @@ SUBROUTINE DODRAWING
    CHARACTER DRAWVL2*9
 !
    LOGICAL OPEN56,EXIS56,DERROR
-!
-   INCLUDE 'DATPTS.INC'
 !
    IF(sys_units().EQ.1.0D0) UN='INCHES'
    IF(sys_units().EQ.2.0D0) UN='CM    '
@@ -1261,11 +1260,10 @@ SUBROUTINE DRAW_INITIALIZE
    use DATLEN
    use DATMAI
    use mod_system, only: sys_units
+   use DATPTS
    IMPLICIT NONE
 !
    INTEGER I,J
-!
-   INCLUDE 'DATPTS.INC'
    PARTISDRAWING=.FALSE.
    TEST1=0.0D0
    TEST2=0.0D0
@@ -1479,6 +1477,7 @@ SUBROUTINE DRAWLENS(DRAWSF,SCALE_FACTOR,&
    use DATLEN
    use DATMAI
    use mod_system, only: sys_units
+   use DATPTS
    IMPLICIT NONE
 !
 !     INCOMMING OD VALUES ARE RADII
@@ -1491,7 +1490,6 @@ SUBROUTINE DRAWLENS(DRAWSF,SCALE_FACTOR,&
    REAL*8 NXX1,NXX2,NYY1,NYY2
    LOGICAL ERROR
    DIMENSION SAGVAL(:,:)
-   INCLUDE 'DATPTS.INC'
    ALLOCATABLE :: SAGVAL
    ALLOCATE (SAGVAL(1:2,1:180),STAT=ALLOERR)
    CV1=ALENS(1,DRAWSF)
@@ -1829,11 +1827,10 @@ SUBROUTINE PART_DRAW
    use DATMAI
    use command_utils, only: is_command_query
    use mod_system, only: sys_last_surf
+   use DATPTS
    IMPLICIT NONE
 !
    INTEGER N,I
-!
-   INCLUDE 'DATPTS.INC'
 !
    IF(WC.EQ.'PARTDRAW') THEN
       IF(SQ.EQ.0) THEN

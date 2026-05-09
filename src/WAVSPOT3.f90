@@ -903,6 +903,7 @@ SUBROUTINE SPOPD1
    use DATLEN
    use DATMAI
    use mod_surface
+   use mod_lens_data_manager, only: ldm
    IMPLICIT NONE
 !
 !       THIS IS SUBROUTINE SPOPD1.FOR.
@@ -914,27 +915,6 @@ SUBROUTINE SPOPD1
 !
    INTEGER JJ,J
 !
-   INTEGER WWVN,WWRF
-   IF(INT(CURLAM).EQ.1) WWVN=46
-   IF(INT(CURLAM).EQ.2) WWVN=47
-   IF(INT(CURLAM).EQ.3) WWVN=48
-   IF(INT(CURLAM).EQ.4) WWVN=49
-   IF(INT(CURLAM).EQ.5) WWVN=50
-   IF(INT(CURLAM).EQ.6) WWVN=71
-   IF(INT(CURLAM).EQ.7) WWVN=72
-   IF(INT(CURLAM).EQ.8) WWVN=73
-   IF(INT(CURLAM).EQ.9) WWVN=74
-   IF(INT(CURLAM).EQ.10) WWRF=75
-   IF(INT(LFOB(4)).EQ.1) WWRF=46
-   IF(INT(LFOB(4)).EQ.2) WWRF=47
-   IF(INT(LFOB(4)).EQ.3) WWRF=48
-   IF(INT(LFOB(4)).EQ.4) WWRF=49
-   IF(INT(LFOB(4)).EQ.5) WWRF=50
-   IF(INT(LFOB(4)).EQ.6) WWRF=71
-   IF(INT(LFOB(4)).EQ.7) WWRF=72
-   IF(INT(LFOB(4)).EQ.8) WWRF=73
-   IF(INT(LFOB(4)).EQ.9) WWRF=74
-   IF(INT(LFOB(4)).EQ.10) WWRF=75
 !
 !       OPD
    IF(RAYEXT.AND.REFEXT) THEN
@@ -943,7 +923,7 @@ SUBROUTINE SPOPD1
       IF(DABS(surf_thickness(NEWOBJ)).LT.1.0D10) JJ=NEWOBJ+1
       DO J=JJ,NEWIMG
          OOPD=OOPD+RAYRAY(7,J)&
-         &-(REFRY(7,J)*(ALENS(WWVN,J-1)/ALENS(WWRF,J-1)))
+         &-(REFRY(7,J)*(ldm%getSurfIndex(J-1, INT(CURLAM))/ldm%getSurfIndex(J-1, INT(LFOB(4)))))
       END DO
       RETURN
    ELSE
@@ -960,6 +940,7 @@ SUBROUTINE SPOPD2(REFERR,TPT)
    use DATLEN
    use DATMAI
    use mod_system, only: sys_units, sys_mode, sys_wavelength
+   use mod_lens_data_manager, only: ldm
    IMPLICIT NONE
 !
 !       THIS IS SUBROUTINE SPOPD2.FOR.
@@ -972,27 +953,6 @@ SUBROUTINE SPOPD2(REFERR,TPT)
    INTEGER JJ,J,TPT
 !
 !
-   INTEGER WWVN,WWRF
-   IF(INT(CURLAM).EQ.1) WWVN=46
-   IF(INT(CURLAM).EQ.2) WWVN=47
-   IF(INT(CURLAM).EQ.3) WWVN=48
-   IF(INT(CURLAM).EQ.4) WWVN=49
-   IF(INT(CURLAM).EQ.5) WWVN=50
-   IF(INT(CURLAM).EQ.6) WWVN=71
-   IF(INT(CURLAM).EQ.7) WWVN=72
-   IF(INT(CURLAM).EQ.8) WWVN=73
-   IF(INT(CURLAM).EQ.9) WWVN=74
-   IF(INT(CURLAM).EQ.10) WWRF=75
-   IF(INT(LFOB(4)).EQ.1) WWRF=46
-   IF(INT(LFOB(4)).EQ.2) WWRF=47
-   IF(INT(LFOB(4)).EQ.3) WWRF=48
-   IF(INT(LFOB(4)).EQ.4) WWRF=49
-   IF(INT(LFOB(4)).EQ.5) WWRF=50
-   IF(INT(LFOB(4)).EQ.6) WWRF=71
-   IF(INT(LFOB(4)).EQ.7) WWRF=72
-   IF(INT(LFOB(4)).EQ.8) WWRF=73
-   IF(INT(LFOB(4)).EQ.9) WWRF=74
-   IF(INT(LFOB(4)).EQ.10) WWRF=75
 !
 !       OPD
    RCOR=0.0D0
@@ -1004,8 +964,8 @@ SUBROUTINE SPOPD2(REFERR,TPT)
       CALL FOPDS
 !       CALCULATE THEN APPLY ADJUSTMENT FOR THE BEGINNING AND ENDING
 !       REFERENCE SPHERES.
-      OOPD=OOPD-(OCOR*ALENS(WWVN,NEWOBJ))&
-      &+(RCOR*ALENS(WWVN,NEWOBJ))
+      OOPD=OOPD-(OCOR*ldm%getSurfIndex(NEWOBJ, INT(CURLAM)))&
+      &+(RCOR*ldm%getSurfIndex(NEWOBJ, INT(CURLAM)))
       RCOR=0.0D0
       OCOR=0.0D0
       IF(sys_mode().LE.2.0D0) THEN
@@ -1023,8 +983,8 @@ SUBROUTINE SPOPD2(REFERR,TPT)
       IF(REFERR) RETURN
       CENCEN=.FALSE.
       EXPAUT=OLDEXP
-      OOPD=OOPD-(OCOR*ALENS(WWVN,NEWIMG-1))+&
-      &(RCOR*ALENS(WWVN,NEWIMG-1))
+      OOPD=OOPD-(OCOR*ldm%getSurfIndex(NEWIMG-1, INT(CURLAM)))+&
+      &(RCOR*ldm%getSurfIndex(NEWIMG-1, INT(CURLAM)))
    ELSE
 !       MODE AFOCAL
 !               RCOR=0.0D0
@@ -1032,8 +992,8 @@ SUBROUTINE SPOPD2(REFERR,TPT)
       CALL FOPDS
 !       CALCULATE THEN APPLY ADJUSTMENT FOR THE BEGINNING AND ENDING
 !       REFERENCE SPHERES.
-      OOPD=OOPD-(OCOR*ALENS(WWVN,NEWOBJ))&
-      &+(RCOR*ALENS(WWVN,NEWOBJ))
+      OOPD=OOPD-(OCOR*ldm%getSurfIndex(NEWOBJ, INT(CURLAM)))&
+      &+(RCOR*ldm%getSurfIndex(NEWOBJ, INT(CURLAM)))
       RCOR=0.0D0
       OCOR=0.0D0
 !     REFLOC=1= CHIEF RAY
@@ -1051,8 +1011,8 @@ SUBROUTINE SPOPD2(REFERR,TPT)
       IF(REFERR) RETURN
       EXPAUT=OLDEXP
       CENCEN=.FALSE.
-      OOPD=OOPD-(OCOR*ALENS(WWVN,NEWIMG-1))&
-      &+(RCOR*ALENS(WWVN,NEWIMG-1))
+      OOPD=OOPD-(OCOR*ldm%getSurfIndex(NEWIMG-1, INT(CURLAM)))&
+      &+(RCOR*ldm%getSurfIndex(NEWIMG-1, INT(CURLAM)))
    END IF
    LFOBW=sys_wavelength(INT(CURLAM))
    IF(sys_units().EQ.1.0D0) WAV=LFOBW*&
@@ -1133,6 +1093,7 @@ SUBROUTINE GSPOT
    use DATMAI
    use mod_surface
    use mod_system, only: sys_mode, sys_wl_weight
+   use mod_lens_data_manager, only: ldm
    IMPLICIT NONE
 !
    REAL*8 SPT,V1,VALUE &
@@ -1143,7 +1104,7 @@ SUBROUTINE GSPOT
 !
    ALLOCATABLE :: SPOTTY
 !
-   INTEGER WWRF,WWVN,ALLOERR
+   INTEGER ALLOERR
 !
    LOGICAL TCLPRF,SPDTRA,NOFUNC
 !
@@ -1381,26 +1342,6 @@ SUBROUTINE GSPOT
                DSPOT(17)=sys_wl_weight(IWL)
 !     WRITE DATA TO THE ARRAY INSTEAD OF TO A FILE
                OOPD=0.0D0
-               IF(INT(LFOB(4)).EQ.1) WWRF=46
-               IF(INT(LFOB(4)).EQ.2) WWRF=47
-               IF(INT(LFOB(4)).EQ.3) WWRF=48
-               IF(INT(LFOB(4)).EQ.4) WWRF=49
-               IF(INT(LFOB(4)).EQ.5) WWRF=50
-               IF(INT(LFOB(4)).EQ.6) WWRF=71
-               IF(INT(LFOB(4)).EQ.7) WWRF=72
-               IF(INT(LFOB(4)).EQ.8) WWRF=73
-               IF(INT(LFOB(4)).EQ.9) WWRF=74
-               IF(INT(LFOB(4)).EQ.10) WWRF=75
-               IF(IWL.EQ.1) WWVN=46
-               IF(IWL.EQ.2) WWVN=47
-               IF(IWL.EQ.3) WWVN=48
-               IF(IWL.EQ.4) WWVN=49
-               IF(IWL.EQ.5) WWVN=50
-               IF(IWL.EQ.6) WWVN=71
-               IF(IWL.EQ.7) WWVN=72
-               IF(IWL.EQ.8) WWVN=73
-               IF(IWL.EQ.9) WWVN=74
-               IF(IWL.EQ.10) WWVN=75
                IF(RAYEXT.AND.REFEXT) THEN
                   LEN=0.0D0
                   RCOR=0.0D0
@@ -1409,34 +1350,34 @@ SUBROUTINE GSPOT
                   IF(DABS(surf_thickness(NEWOBJ)).LT.1.0D10) JJJ=NEWOBJ+1
                   DO J=JJJ,NEWIMG
                      LEN=LEN+RAYRAY(7,J)&
-                     &-(REFRY(7,J)*(ALENS(WWVN,J-1)/ALENS(WWRF,J-1)))
+                     &-(REFRY(7,J)*(ldm%getSurfIndex(J-1, IWL)/ldm%getSurfIndex(J-1, INT(LFOB(4)))))
                   END DO
                   IF(sys_mode().EQ.1.0D0.OR.sys_mode().EQ.2.0D0) THEN
 !       MODE FOCAL
                      RCOR=0.0D0
                      OCOR=0.0D0
                      CALL FOPD
-                     LEN=LEN-(OCOR*ALENS(WWVN,NEWOBJ))&
-                     &+(RCOR*ALENS(WWVN,NEWOBJ))
+                     LEN=LEN-(OCOR*ldm%getSurfIndex(NEWOBJ, IWL))&
+                     &+(RCOR*ldm%getSurfIndex(NEWOBJ, IWL))
                      RCOR=0.0D0
                      OCOR=0.0D0
                      CENCEN=.FALSE.
                      CALL LOPD
-                     LEN=LEN-(OCOR*ALENS(WWVN,NEWIMG-1))&
-                     &+(RCOR*ALENS(WWVN,NEWIMG-1))
+                     LEN=LEN-(OCOR*ldm%getSurfIndex(NEWIMG-1, IWL))&
+                     &+(RCOR*ldm%getSurfIndex(NEWIMG-1, IWL))
                   ELSE
 !       MODE AFOCAL
                      RCOR=0.0D0
                      OCOR=0.0D0
                      CALL FOPD
-                     LEN=LEN-(OCOR*ALENS(WWVN,NEWOBJ))&
-                     &+(RCOR*ALENS(WWVN,NEWOBJ))
+                     LEN=LEN-(OCOR*ldm%getSurfIndex(NEWOBJ, IWL))&
+                     &+(RCOR*ldm%getSurfIndex(NEWOBJ, IWL))
                      RCOR=0.0D0
                      OCOR=0.0D0
                      CENCEN=.FALSE.
                      CALL LOPD
-                     LEN=LEN-(OCOR*ALENS(WWVN,NEWIMG-1))&
-                     &+(RCOR*ALENS(WWVN,NEWIMG-1))
+                     LEN=LEN-(OCOR*ldm%getSurfIndex(NEWIMG-1, IWL))&
+                     &+(RCOR*ldm%getSurfIndex(NEWIMG-1, IWL))
                   END IF
                   OOPD=LEN
                ELSE
@@ -1557,7 +1498,7 @@ SUBROUTINE GSPOT
    IF(TCLPRF) THEN
 !     REMOVE TEMP CLAP ON NEWREF
       TCLPRF=.FALSE.
-      ALENS(9:15,NEWREF)=0.0D0
+      call ldm%clearApertureTypeAndAllParams(NEWREF)
    END IF
 !
 !
@@ -2036,6 +1977,7 @@ END
 SUBROUTINE SPOT1(TPT)
    USE GLOBALS
 !
+   use mod_lens_data_manager, only: ldm
    use DATSP1
    use DATSPD
    use DATLEN
@@ -2997,7 +2939,7 @@ SUBROUTINE SPOT1(TPT)
    IF(TCLPRF) THEN
 !     REMOVE TEMP CLAP ON NEWREF
       TCLPRF=.FALSE.
-      ALENS(9:15,NEWREF)=0.0D0
+      call ldm%clearApertureTypeAndAllParams(NEWREF)
       IF(WQ.NE.'ACC'.AND.TPT.EQ.1) THEN
          IF(F28.EQ.1.OR.F31.EQ.1) MSGSPD=.FALSE.
          IF(MSGSPD)WRITE(OUTLYNE,301) PXTRAX(1,NEWREF),PXTRAY(1,NEWREF)

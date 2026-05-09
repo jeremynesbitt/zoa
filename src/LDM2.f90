@@ -1511,6 +1511,7 @@ SUBROUTINE STORD
    use mod_surface
    use DATMAI
    use mod_system, only: sys_last_surf
+   use mod_lens_data_manager, only: ldm
    IMPLICIT NONE
 !
 !       THIS IS SUBROUTINE STORD WHICH IMPLEMENTS THE TORD
@@ -1797,8 +1798,7 @@ SUBROUTINE STORD
 !
 !       NOW DUMP THE TORIC DATA COMPLETELY
 !
-         ALENS(23:24,SF)=0.0D0
-         ALENS(36:41,SF)=0.0D0
+         call ldm%clearToricData(SF)
          WRITE(OUTLYNE,*)'TORIC DELETED FROM SURFACE',SF
          CALL SHOWIT(1)
          RETURN
@@ -1813,6 +1813,7 @@ SUBROUTINE STILTD
    use mod_surface
    use DATMAI
    use mod_system, only: sys_last_surf
+   use mod_lens_data_manager, only: ldm
    IMPLICIT NONE
 !
 !       THIS IS SUBROUTINE STILTD WHICH IMPLEMENTS THE TILTD COMMAND
@@ -1878,9 +1879,9 @@ SUBROUTINE STILTD
 !       FIRST SET THE TILT STATUS FLAG surf_tilt_flag(SF) TO ZERO
 !       AND SET surf_alpha(SF) TO surf_gamma(SF) TO ZERO
 !
-      ALENS(25:28,SF)=0.0D0
-      ALENS(118:120,SF)=0.0D0
-      ALENS(90:95,SF)=0.0D0
+      call ldm%clearTiltAngles(SF)
+      call ldm%clearTiltDegAngles(SF)
+      call ldm%clearGlobalCoordData(SF)
       call set_surf_tilt_return_flag(SF, 0)
 !       WHAT IF THE SURFACE HAD ALPHA,BETA OR GAMMA PIKUPS ON IT?
 !
@@ -2876,6 +2877,7 @@ SUBROUTINE STILT
    use mod_surface
    use DATMAI
    use mod_system, only: sys_last_surf, sys_ref_surf
+   use mod_lens_data_manager, only: ldm
    IMPLICIT NONE
 !
 !       THIS IS SUBROUTINE STILT WHICH IMPLEMENTS THE TILT COMMANDS
@@ -2957,7 +2959,7 @@ SUBROUTINE STILT
    END IF
    IF(WC.EQ.'TILT'.AND.SQ.EQ.0) THEN
       call set_surf_tilt_flag(SURF, 0)
-      ALENS(90:95,SURF)=0.0D0
+      call ldm%clearGlobalCoordData(SURF)
       call set_surf_tilt_return_flag(SURF, 0)
       IF(DF1.EQ.1)W1=surf_alpha(SURF)
       IF(DF2.EQ.1)W2=surf_beta(SURF)
@@ -2976,7 +2978,7 @@ SUBROUTINE STILT
 !
    IF(WC.EQ.'RTILT'.AND.SQ.EQ.0) THEN
       call set_surf_tilt_flag(SURF, 0)
-      ALENS(90:95,SURF)=0.0D0
+      call ldm%clearGlobalCoordData(SURF)
       call set_surf_tilt_return_flag(SURF, 0)
       IF(DF1.EQ.1)W1=surf_alpha(SURF)
       IF(DF2.EQ.1)W2=surf_beta(SURF)
@@ -3017,7 +3019,7 @@ SUBROUTINE STILT
       IF(DF2.EQ.1)W2=surf_beta(SURF)
       IF(DF3.EQ.1)W3=surf_gamma(SURF)
       call set_surf_tilt_flag(SURF, 0)
-      ALENS(90:95,SURF)=0.0D0
+      call ldm%clearGlobalCoordData(SURF)
       call set_surf_tilt_return_flag(SURF, 0)
       call set_surf_tilt_flag(SURF, 2)
       call set_surf_alpha(SURF, W1)
@@ -3035,7 +3037,7 @@ SUBROUTINE STILT
          call set_surf_gamma(SURF, 0.0D0)
          call set_surf_gamma_deg(SURF, 0.0D0)
          call set_surf_tilt_flag(SURF, 0)
-         ALENS(90:95,SURF)=0.0D0
+         call ldm%clearGlobalCoordData(SURF)
          call set_surf_tilt_return_flag(SURF, 0)
          call set_surf_tilt_flag(SURF, 4)
          call set_surf_alpha(SURF, W1)
@@ -3065,7 +3067,7 @@ SUBROUTINE STILT
          IF(DF2.EQ.1)W2=surf_beta(SURF)
          IF(DF3.EQ.1)W3=surf_gamma(SURF)
          call set_surf_tilt_flag(SURF, 0)
-         ALENS(90:95,SURF)=0.0D0
+         call ldm%clearGlobalCoordData(SURF)
          call set_surf_tilt_return_flag(SURF, 0)
          call set_surf_tilt_flag(SURF, 5)
          call set_surf_alpha(SURF, W1)
@@ -3086,7 +3088,7 @@ SUBROUTINE STILT
          IF(DF2.EQ.1)W2=surf_beta(SURF)
          IF(DF3.EQ.1)W3=surf_gamma(SURF)
          call set_surf_tilt_flag(SURF, 0)
-         ALENS(90:95,SURF)=0.0D0
+         call ldm%clearGlobalCoordData(SURF)
          call set_surf_tilt_return_flag(SURF, 0)
          call set_surf_tilt_flag(SURF, 7)
          call set_surf_alpha(SURF, W1)
@@ -3155,17 +3157,15 @@ SUBROUTINE STILT
       END IF
 !
       call set_surf_ret_surf_num(SURF, NINT(W1))
-      ALENS(25:28,SURF)=0.0D0
-      ALENS(118:120,SURF)=0.0D0
-      ALENS(90:95,SURF)=0.0D0
+      call ldm%clearTiltAngles(SURF)
+      call ldm%clearTiltDegAngles(SURF)
+      call ldm%clearGlobalCoordData(SURF)
       call set_surf_global_gamma(SURF, 0.0D0)
       call set_surf_tilt_return_flag(SURF, 0)
-      ALENS(114:116,SURF)=0.0D0
-      ALENS(29:31,SURF)=0.0D0
+      call ldm%clearPivotAndFocusData(SURF)
+      call ldm%clearDecentData(SURF)
       call set_surf_decenter_z(SURF, 0.0D0)
-      ALENS(90:95,SURF)=0.0D0
-      ALENS(113:116,SURF)=0.0D0
-      ALENS(118:120,SURF)=0.0D0
+      call ldm%clearGlobalCoordData(SURF)
       call set_surf_tilt_flag(SURF, 6)
    ELSE
    END IF

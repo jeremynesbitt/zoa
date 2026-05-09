@@ -36,6 +36,7 @@ SUBROUTINE AB357
    use DATMAI
    use mod_surface
    use mod_system, only: sys_last_surf, sys_wl_ref
+   use mod_lens_data_manager, only: ldm
    IMPLICIT NONE
 !
    INTEGER IAB,CW,SF,I,J
@@ -61,27 +62,12 @@ SUBROUTINE AB357
 !
    IF(IAB.EQ.1) THEN
 !
-!       THE CONTROL WAVELENGTH NUMBER IS STORED IN
-!       sys_wl_ref()
-      IF(CW.GE.1.AND.CW.LE.5)&
-      &CW= CW+45
-      IF(CW.GE.6.AND.CW.LE.10)&
-      &CW= CW+65
-!
-!       REFRACTIVE INDICES ARE IN surf_refractive_index(SURF, 1) TO
-!       surf_refractive_index(SURF, 5)
-!
-!       INDICES ARE ADDRESSED IN THE FOLLOWING MANNER
-!       INDEX AT:
-!                CW IS ALENS(CW,I)
-!       WHERE I IS THE SURFACE NUMBER
-!
 !       CALCULATE THE OPTICAL INVARIANT
 !
       !PRINT *, "IN AB357"
       SF=INT(sys_last_surf())
-      INV=-((PXTRAY(5,SF)*ALENS(CW,(SF-1))*PXTRAY(2,(SF-1)))-&
-      &(PXTRAY(1,SF)*ALENS(CW,(SF-1))*PXTRAY(6,(SF-1))))
+      INV=-((PXTRAY(5,SF)*ldm%getSurfIndex(SF-1, INT(sys_wl_ref()))*PXTRAY(2,(SF-1)))-&
+      &(PXTRAY(1,SF)*ldm%getSurfIndex(SF-1, INT(sys_wl_ref()))*PXTRAY(6,(SF-1))))
       !PRINT *, "INV is ", INV
       IF(DABS(INV).LE.1.00E-15) THEN
          ! Exit here.  Typically this is an intermediate failure.
@@ -111,8 +97,8 @@ SUBROUTINE AB357
 !       CALCULATE BASIC CONSTANTS SI,SIBAR,
 !       C1I AND C1IBAR
 !
-         N=ALENS(CW,(I-1))
-         J_NP=ALENS(CW,I)
+         N=ldm%getSurfIndex(I-1, INT(sys_wl_ref()))
+         J_NP=ldm%getSurfIndex(I, INT(sys_wl_ref()))
          K=N/J_NP
 
          SI=N*(K-1.0D0)*PXTRAY(1,I)*(PXTRAY(3,I)+PXTRAY(2,I))
@@ -796,26 +782,11 @@ SUBROUTINE AB357
 !       IAB NOT 1
    END IF
    IF(IAB.EQ.2) THEN
-!       THE CONTROL WAVELENGTH NUMBER IS STORED IN
-!       sys_wl_ref()
-      IF(CW.GE.1.AND.CW.LE.5)&
-      &CW= CW+45
-      IF(CW.GE.6.AND.CW.LE.10)&
-      &CW= CW+65
-!
-!       REFRACTIVE INDICES ARE IN surf_refractive_index(SURF, 1) TO
-!       surf_refractive_index(SURF, 5)
-!
-!       INDICES ARE ADDRESSED IN THE FOLLOWING MANNER
-!       INDEX AT:
-!                CW IS ALENS(CW,I)
-!       WHERE I IS THE SURFACE NUMBER
-!
 !       CALCULATE THE OPTICAL INVARIANT
 !
       SF=INT(sys_last_surf())
-      INV=-((PXTRAX(5,SF)*ALENS(CW,(SF-1))*PXTRAX(2,(SF-1)))-&
-      &(PXTRAX(1,SF)*ALENS(CW,(SF-1))*PXTRAX(6,(SF-1))))
+      INV=-((PXTRAX(5,SF)*ldm%getSurfIndex(SF-1, INT(sys_wl_ref()))*PXTRAX(2,(SF-1)))-&
+      &(PXTRAX(1,SF)*ldm%getSurfIndex(SF-1, INT(sys_wl_ref()))*PXTRAX(6,(SF-1))))
       WRITE(OUTLYNE, *) "AB357 INV = ", INV
       CALL SHOWIT(19)
       IF(DABS(INV).LE.1.0D-10) THEN
@@ -843,8 +814,8 @@ SUBROUTINE AB357
 !       CALCULATE BASIC CONSTANTS SI,SIBAR,
 !       C1I AND C1IBAR
 !
-         N=ALENS(CW,(I-1))
-         J_NP=ALENS(CW,I)
+         N=ldm%getSurfIndex(I-1, INT(sys_wl_ref()))
+         J_NP=ldm%getSurfIndex(I, INT(sys_wl_ref()))
          K=N/J_NP
          SI=N*(K-1.0D0)*PXTRAX(1,I)*(PXTRAX(3,I)+PXTRAX(2,I))
          SIBAR=N*(K-1.0D0)*PXTRAX(5,I)*(PXTRAX(7,I)+PXTRAX(6,I))
@@ -1518,6 +1489,7 @@ SUBROUTINE A357I
    use DATLEN
    use DATMAI
    use mod_system, only: sys_last_surf, sys_mode, sys_wl_ref
+   use mod_lens_data_manager, only: ldm
    IMPLICIT NONE
 !
 !       THIS IS SUBROUTINE A357I. THIS SUBROUTINE IMPLEMENTS
@@ -1527,7 +1499,7 @@ SUBROUTINE A357I
 !       THE SUMS FOR 5TH AND 7TH ORDER DO'NT RELATE TO
 !       REAL ABERRATIONS WHICH HAVE A TRANSFERED PART.
 !
-   INTEGER SF,CW,I
+   INTEGER SF,I
 !
    REAL*8 C1,C2,C3
 !
@@ -1584,19 +1556,13 @@ SUBROUTINE A357I
    END IF
 !
    SF=INT(sys_last_surf())
-   IF(INT(sys_wl_ref()).GE.1.AND.INT(sys_wl_ref()).LE.5) THEN
-      CW=INT(sys_wl_ref())+45
-   END IF
-   IF(INT(sys_wl_ref()).GE.6.AND.INT(sys_wl_ref()).LE.10) THEN
-      CW=INT(sys_wl_ref())+65
-   END IF
    INV=1.0D0
    IF(sys_mode().EQ.1.0D0) THEN
 !       MODE IS FOCAL
       IF(WC.EQ.'SA357I')&
-      &INV=-2.0*ALENS(CW,(SF-1))*PXTRAY(2,(SF-1))
+      &INV=-2.0*ldm%getSurfIndex(SF-1, INT(sys_wl_ref()))*PXTRAY(2,(SF-1))
       IF(WC.EQ.'XSA357I')&
-      &INV=-2.0*ALENS(CW,(SF-1))*PXTRAX(2,(SF-1))
+      &INV=-2.0*ldm%getSurfIndex(SF-1, INT(sys_wl_ref()))*PXTRAX(2,(SF-1))
       IF(DABS(INV).LE.1.0D-10) THEN
          CALL MACFAL
          RETURN
@@ -1606,9 +1572,9 @@ SUBROUTINE A357I
    IF(sys_mode().EQ.3.0D0) THEN
 !       MODE IS AFOCAL
       IF(WC.EQ.'SA357I')&
-      &INV= 2.0*ALENS(CW,(SF-1))*PXTRAY(1,SF)
+      &INV= 2.0*ldm%getSurfIndex(SF-1, INT(sys_wl_ref()))*PXTRAY(1,SF)
       IF(WC.EQ.'XSA357I')&
-      &INV= 2.0*ALENS(CW,(SF-1))*PXTRAX(1,SF)
+      &INV= 2.0*ldm%getSurfIndex(SF-1, INT(sys_wl_ref()))*PXTRAX(1,SF)
       IF(DABS(INV).LE.1.0D-10) THEN
          CALL MACFAL
          RETURN
@@ -1941,12 +1907,13 @@ SUBROUTINE AB5I
    use DATLEN
    use DATMAI
    use mod_system, only: sys_last_surf, sys_mode, sys_wl_ref
+   use mod_lens_data_manager, only: ldm
    IMPLICIT NONE
 !
 !       THIS IS SUBROUTINE AB5I. THIS SUBROUTINE IMPLEMENTS
 !       THE MAB5I AND XMAB5I CMD LEVEL COMMAND
 !
-   INTEGER I,SF,CW
+   INTEGER I,SF
 !
    REAL*8 C1,C2,C3,C4,C5,C1T,C2T,C3T,C4T,C5T
 !
@@ -1986,19 +1953,13 @@ SUBROUTINE AB5I
    END IF
 !
    SF=INT(sys_last_surf())
-   IF(INT(sys_wl_ref()).GE.1.AND.INT(sys_wl_ref()).LE.5) THEN
-      CW=INT(sys_wl_ref())+45
-   END IF
-   IF(INT(sys_wl_ref()).GE.6.AND.INT(sys_wl_ref()).LE.10) THEN
-      CW=INT(sys_wl_ref())+65
-   END IF
    INV=1.0D0
    IF(sys_mode().EQ.1.0D0) THEN
 !       MODE IS FOCAL
       IF(WC.EQ.'MAB5I')&
-      &INV=-2.0*ALENS(CW,(SF-1))*PXTRAY(2,(SF-1))
+      &INV=-2.0*ldm%getSurfIndex(SF-1, INT(sys_wl_ref()))*PXTRAY(2,(SF-1))
       IF(WC.EQ.'XMAB5I')&
-      &INV=-2.0*ALENS(CW,(SF-1))*PXTRAX(2,(SF-1))
+      &INV=-2.0*ldm%getSurfIndex(SF-1, INT(sys_wl_ref()))*PXTRAX(2,(SF-1))
       IF(DABS(INV).LE.1.0D-10) THEN
          CALL MACFAL
          RETURN
@@ -2008,9 +1969,9 @@ SUBROUTINE AB5I
    IF(sys_mode().EQ.3.0D0) THEN
 !       MODE IS AFOCAL
       IF(WC.EQ.'MAB5I')&
-      &INV= 2.0*ALENS(CW,(SF-1))*PXTRAY(1,SF)
+      &INV= 2.0*ldm%getSurfIndex(SF-1, INT(sys_wl_ref()))*PXTRAY(1,SF)
       IF(WC.EQ.'XMAB5I')&
-      &INV= 2.0*ALENS(CW,(SF-1))*PXTRAX(1,SF)
+      &INV= 2.0*ldm%getSurfIndex(SF-1, INT(sys_wl_ref()))*PXTRAX(1,SF)
       IF(DABS(INV).LE.1.0D-10) THEN
          CALL MACFAL
          RETURN
@@ -2387,12 +2348,13 @@ SUBROUTINE ABX5I
    use DATLEN
    use DATMAI
    use mod_system, only: sys_last_surf, sys_mode, sys_wl_ref
+   use mod_lens_data_manager, only: ldm
    IMPLICIT NONE
 !
 !       THIS IS SUBROUTINE ABX5I. THIS SUBROUTINE IMPLEMENTS
 !       THE MABX5I XMABX5I CMD LEVEL COMMAND
 !
-   INTEGER I,SF,CW
+   INTEGER I,SF
 !
    REAL*8 C1,C2,C3,C4,C5,C1T,C2T,C3T,C4T,C5T
 !
@@ -2448,19 +2410,13 @@ SUBROUTINE ABX5I
    END IF
 !
    SF=INT(sys_last_surf())
-   IF(INT(sys_wl_ref()).GE.1.AND.INT(sys_wl_ref()).LE.5) THEN
-      CW=INT(sys_wl_ref())+45
-   END IF
-   IF(INT(sys_wl_ref()).GE.6.AND.INT(sys_wl_ref()).LE.10) THEN
-      CW=INT(sys_wl_ref())+65
-   END IF
    INV=1.0D0
    IF(sys_mode().EQ.1.0D0) THEN
 !       MODE IS FOCAL
       IF(WC.EQ.'MABX5I')&
-      &INV=-2.0*ALENS(CW,(SF-1))*PXTRAY(2,(SF-1))
+      &INV=-2.0*ldm%getSurfIndex(SF-1, INT(sys_wl_ref()))*PXTRAY(2,(SF-1))
       IF(WC.EQ.'XMABX5I')&
-      &INV=-2.0*ALENS(CW,(SF-1))*PXTRAX(2,(SF-1))
+      &INV=-2.0*ldm%getSurfIndex(SF-1, INT(sys_wl_ref()))*PXTRAX(2,(SF-1))
       IF(DABS(INV).LE.1.0D-10) THEN
          CALL MACFAL
          RETURN
@@ -2470,9 +2426,9 @@ SUBROUTINE ABX5I
    IF(sys_mode().EQ.3.0D0) THEN
 !       MODE IS AFOCAL
       IF(WC.EQ.'MABX5I')&
-      &INV= 2.0*ALENS(CW,(SF-1))*PXTRAY(1,SF)
+      &INV= 2.0*ldm%getSurfIndex(SF-1, INT(sys_wl_ref()))*PXTRAY(1,SF)
       IF(WC.EQ.'XMABX5I')&
-      &INV= 2.0*ALENS(CW,(SF-1))*PXTRAX(1,SF)
+      &INV= 2.0*ldm%getSurfIndex(SF-1, INT(sys_wl_ref()))*PXTRAX(1,SF)
       IF(DABS(INV).LE.1.0D-10) THEN
          CALL MACFAL
          RETURN
@@ -2852,13 +2808,14 @@ SUBROUTINE MMAB3
    use DATLEN
    use DATMAI
    use mod_system, only: sys_last_surf, sys_mode, sys_wl_ref
+   use mod_lens_data_manager, only: ldm
    IMPLICIT NONE
 !
 !       THIS IS SUBROUTINE MMAB3. THIS SUBROUTINE IMPLEMENTS
 !       THE MAB3 (THIRD ORDER ABERRATION) PRINTOUT AT THE
 !       CMD LEVEL AND IS A MODEL FOR MAB5,MABX5 ETC..
 !
-   INTEGER I,SF,CW
+   INTEGER I,SF
 !
    REAL*8 C1,C2,C3,C4,C5,C1T,C2T,C3T,C4T,C5T
 !
@@ -2915,19 +2872,13 @@ SUBROUTINE MMAB3
    END IF
 !
    SF=INT(sys_last_surf())
-   IF(INT(sys_wl_ref()).GE.1.AND.INT(sys_wl_ref()).LE.5) THEN
-      CW=INT(sys_wl_ref())+45
-   END IF
-   IF(INT(sys_wl_ref()).GE.6.AND.INT(sys_wl_ref()).LE.10) THEN
-      CW=INT(sys_wl_ref())+65
-   END IF
    INV=1.0D0
    IF(sys_mode().EQ.1.0D0) THEN
 !       MODE IS FOCAL
       IF(WC.EQ.'MAB3')&
-      &INV=-2.0*ALENS(CW,(SF-1))*PXTRAY(2,(SF-1))
+      &INV=-2.0*ldm%getSurfIndex(SF-1, INT(sys_wl_ref()))*PXTRAY(2,(SF-1))
       IF(WC.EQ.'XMAB3')&
-      &INV=-2.0*ALENS(CW,(SF-1))*PXTRAX(2,(SF-1))
+      &INV=-2.0*ldm%getSurfIndex(SF-1, INT(sys_wl_ref()))*PXTRAX(2,(SF-1))
       IF(DABS(INV).LE.1.0D-10) THEN
          CALL MACFAL
          RETURN
@@ -2937,9 +2888,9 @@ SUBROUTINE MMAB3
    IF(sys_mode().EQ.3.0D0) THEN
 !       MODE IS AFOCAL
       IF(WC.EQ.'MAB3')&
-      &INV= 2.0*ALENS(CW,(SF-1))*PXTRAY(1,SF)
+      &INV= 2.0*ldm%getSurfIndex(SF-1, INT(sys_wl_ref()))*PXTRAY(1,SF)
       IF(WC.EQ.'XMAB3')&
-      &INV= 2.0*ALENS(CW,(SF-1))*PXTRAX(1,SF)
+      &INV= 2.0*ldm%getSurfIndex(SF-1, INT(sys_wl_ref()))*PXTRAX(1,SF)
       IF(DABS(INV).LE.1.0D-10) THEN
          CALL MACFAL
          RETURN
@@ -3334,11 +3285,12 @@ SUBROUTINE MMAB5
    use DATLEN
    use DATMAI
    use mod_system, only: sys_last_surf, sys_mode, sys_wl_ref
+   use mod_lens_data_manager, only: ldm
    IMPLICIT NONE
 !
 !       THIS IS SUBROUTINE MMAB5. THIS SUBROUTINE IMPLEMENTS
 !       THE MAB5 AND XMAB5 CMD LEVEL COMMAND
-   INTEGER I,SF,CW
+   INTEGER I,SF
 !
    REAL*8 C1,C2,C3,C4,C5,C1T,C2T,C3T,C4T,C5T
 !
@@ -3394,19 +3346,13 @@ SUBROUTINE MMAB5
    END IF
 !
    SF=INT(sys_last_surf())
-   IF(INT(sys_wl_ref()).GE.1.AND.INT(sys_wl_ref()).LE.5) THEN
-      CW=INT(sys_wl_ref())+45
-   END IF
-   IF(INT(sys_wl_ref()).GE.6.AND.INT(sys_wl_ref()).LE.10) THEN
-      CW=INT(sys_wl_ref())+65
-   END IF
    INV=1.0D0
    IF(sys_mode().EQ.1.0D0) THEN
 !       MODE IS FOCAL
       IF(WC.EQ.'MAB5')&
-      &INV=-2.0*ALENS(CW,(SF-1))*PXTRAY(2,(SF-1))
+      &INV=-2.0*ldm%getSurfIndex(SF-1, INT(sys_wl_ref()))*PXTRAY(2,(SF-1))
       IF(WC.EQ.'XMAB5')&
-      &INV=-2.0*ALENS(CW,(SF-1))*PXTRAX(2,(SF-1))
+      &INV=-2.0*ldm%getSurfIndex(SF-1, INT(sys_wl_ref()))*PXTRAX(2,(SF-1))
       IF(DABS(INV).LE.1.0D-10) THEN
          CALL MACFAL
          RETURN
@@ -3416,9 +3362,9 @@ SUBROUTINE MMAB5
    IF(sys_mode().EQ.3.0D0) THEN
 !       MODE IS AFOCAL
       IF(WC.EQ.'MAB5')&
-      &INV= 2.0*ALENS(CW,(SF-1))*PXTRAY(1,SF)
+      &INV= 2.0*ldm%getSurfIndex(SF-1, INT(sys_wl_ref()))*PXTRAY(1,SF)
       IF(WC.EQ.'XMAB5')&
-      &INV= 2.0*ALENS(CW,(SF-1))*PXTRAX(1,SF)
+      &INV= 2.0*ldm%getSurfIndex(SF-1, INT(sys_wl_ref()))*PXTRAX(1,SF)
       IF(DABS(INV).LE.1.0D-10) THEN
          CALL MACFAL
          RETURN
@@ -3794,11 +3740,12 @@ SUBROUTINE MMABX5
    use DATLEN
    use DATMAI
    use mod_system, only: sys_last_surf, sys_mode, sys_wl_ref
+   use mod_lens_data_manager, only: ldm
    IMPLICIT NONE
 !
 !       THIS IS SUBROUTINE MMABX5. THIS SUBROUTINE IMPLEMENTS
 !       THE MABX5 AND XMABX5 CMD LEVEL COMMAND
-   INTEGER I,SF,CW
+   INTEGER I,SF
 !
    REAL*8 C1,C2,C3,C4,C5,C1T,C2T,C3T,C4T,C5T
 !
@@ -3854,19 +3801,13 @@ SUBROUTINE MMABX5
    END IF
 !
    SF=INT(sys_last_surf())
-   IF(INT(sys_wl_ref()).GE.1.AND.INT(sys_wl_ref()).LE.5) THEN
-      CW=INT(sys_wl_ref())+45
-   END IF
-   IF(INT(sys_wl_ref()).GE.6.AND.INT(sys_wl_ref()).LE.10) THEN
-      CW=INT(sys_wl_ref())+65
-   END IF
    INV=1.0D0
    IF(sys_mode().EQ.1.0D0) THEN
 !       MODE IS FOCAL
       IF(WC.EQ.'MABX5')&
-      &INV=-2.0*ALENS(CW,(SF-1))*PXTRAY(2,(SF-1))
+      &INV=-2.0*ldm%getSurfIndex(SF-1, INT(sys_wl_ref()))*PXTRAY(2,(SF-1))
       IF(WC.EQ.'XMABX5')&
-      &INV=-2.0*ALENS(CW,(SF-1))*PXTRAX(2,(SF-1))
+      &INV=-2.0*ldm%getSurfIndex(SF-1, INT(sys_wl_ref()))*PXTRAX(2,(SF-1))
       IF(DABS(INV).LE.1.0D-10) THEN
          CALL MACFAL
          RETURN
@@ -3876,9 +3817,9 @@ SUBROUTINE MMABX5
    IF(sys_mode().EQ.3.0D0) THEN
 !       MODE IS AFOCAL
       IF(WC.EQ.'MABX5')&
-      &INV= 2.0*ALENS(CW,(SF-1))*PXTRAY(1,SF)
+      &INV= 2.0*ldm%getSurfIndex(SF-1, INT(sys_wl_ref()))*PXTRAY(1,SF)
       IF(WC.EQ.'XMABX5')&
-      &INV= 2.0*ALENS(CW,(SF-1))*PXTRAX(1,SF)
+      &INV= 2.0*ldm%getSurfIndex(SF-1, INT(sys_wl_ref()))*PXTRAX(1,SF)
       IF(DABS(INV).LE.1.0D-10) THEN
          CALL MACFAL
          RETURN
@@ -4256,13 +4197,14 @@ SUBROUTINE MMABP3
    use DATLEN
    use DATMAI
    use mod_system, only: sys_last_surf, sys_mode, sys_wl_ref
+   use mod_lens_data_manager, only: ldm
    IMPLICIT NONE
 !
 !       THIS IS SUBROUTINE MMABP3. THIS SUBROUTINE IMPLEMENTS
 !       THE MABP3 AND XMABP3(THIRD ORDER EXIT PUPIL ABERRATION)
 !       PRINTOUT AT THE
 !
-   INTEGER I,SF,CW
+   INTEGER I,SF
 !
    REAL*8 C1,C2,C3,C4,C5,C1T,C2T,C3T,C4T,C5T
 !
@@ -4318,19 +4260,13 @@ SUBROUTINE MMABP3
    END IF
 !
    SF=INT(sys_last_surf())
-   IF(INT(sys_wl_ref()).GE.1.AND.INT(sys_wl_ref()).LE.5) THEN
-      CW=INT(sys_wl_ref())+45
-   END IF
-   IF(INT(sys_wl_ref()).GE.6.AND.INT(sys_wl_ref()).LE.10) THEN
-      CW=INT(sys_wl_ref())+65
-   END IF
    INV=1.0D0
    IF(sys_mode().EQ.1.0D0) THEN
 !       MODE IS FOCAL
       IF(WC.EQ.'MABP3')&
-      &INV=-2.0*ALENS(CW,(SF-1))*PXTRAY(2,(SF-1))
+      &INV=-2.0*ldm%getSurfIndex(SF-1, INT(sys_wl_ref()))*PXTRAY(2,(SF-1))
       IF(WC.EQ.'XMABP3')&
-      &INV=-2.0*ALENS(CW,(SF-1))*PXTRAX(2,(SF-1))
+      &INV=-2.0*ldm%getSurfIndex(SF-1, INT(sys_wl_ref()))*PXTRAX(2,(SF-1))
       IF(DABS(INV).LE.1.0D-10) THEN
          CALL MACFAL
          RETURN
@@ -4340,9 +4276,9 @@ SUBROUTINE MMABP3
    IF(sys_mode().EQ.3.0D0) THEN
 !       MODE IS AFOCAL
       IF(WC.EQ.'MABP3')&
-      &INV= 2.0*ALENS(CW,(SF-1))*PXTRAY(1,SF)
+      &INV= 2.0*ldm%getSurfIndex(SF-1, INT(sys_wl_ref()))*PXTRAY(1,SF)
       IF(WC.EQ.'XMABP3')&
-      &INV= 2.0*ALENS(CW,(SF-1))*PXTRAX(1,SF)
+      &INV= 2.0*ldm%getSurfIndex(SF-1, INT(sys_wl_ref()))*PXTRAX(1,SF)
       IF(DABS(INV).LE.1.0D-10) THEN
          CALL MACFAL
          RETURN
@@ -4720,11 +4656,12 @@ SUBROUTINE SA357
    use DATLEN
    use DATMAI
    use mod_system, only: sys_last_surf, sys_mode, sys_wl_ref
+   use mod_lens_data_manager, only: ldm
    IMPLICIT NONE
 !
 !       THIS IS SUBROUTINE SA357. THIS SUBROUTINE IMPLEMENTS
 !       THE SA357 AND XSA357 CMD LEVEL COMMAND
-   INTEGER I,SF,CW
+   INTEGER I,SF
 !
    REAL*8 C1,C2,C3
 !
@@ -4781,19 +4718,13 @@ SUBROUTINE SA357
    END IF
 !
    SF=INT(sys_last_surf())
-   IF(INT(sys_wl_ref()).GE.1.AND.INT(sys_wl_ref()).LE.5) THEN
-      CW=INT(sys_wl_ref())+45
-   END IF
-   IF(INT(sys_wl_ref()).GE.6.AND.INT(sys_wl_ref()).LE.10) THEN
-      CW=INT(sys_wl_ref())+65
-   END IF
    INV=1.0D0
    IF(sys_mode().EQ.1.0D0) THEN
 !       MODE IS FOCAL
       IF(WC.EQ.'SA357')&
-      &INV=-2.0*ALENS(CW,(SF-1))*PXTRAY(2,(SF-1))
+      &INV=-2.0*ldm%getSurfIndex(SF-1, INT(sys_wl_ref()))*PXTRAY(2,(SF-1))
       IF(WC.EQ.'XSA357')&
-      &INV=-2.0*ALENS(CW,(SF-1))*PXTRAX(2,(SF-1))
+      &INV=-2.0*ldm%getSurfIndex(SF-1, INT(sys_wl_ref()))*PXTRAX(2,(SF-1))
       IF(DABS(INV).LE.1.0D-10) THEN
          CALL MACFAL
          RETURN
@@ -4803,9 +4734,9 @@ SUBROUTINE SA357
    IF(sys_mode().EQ.3.0D0) THEN
 !       MODE IS AFOCAL
       IF(WC.EQ.'SA357')&
-      &INV= 2.0*ALENS(CW,(SF-1))*PXTRAY(1,SF)
+      &INV= 2.0*ldm%getSurfIndex(SF-1, INT(sys_wl_ref()))*PXTRAY(1,SF)
       IF(WC.EQ.'XSA357')&
-      &INV= 2.0*ALENS(CW,(SF-1))*PXTRAX(1,SF)
+      &INV= 2.0*ldm%getSurfIndex(SF-1, INT(sys_wl_ref()))*PXTRAX(1,SF)
       IF(DABS(INV).LE.1.0D-10) THEN
          CALL MACFAL
          RETURN

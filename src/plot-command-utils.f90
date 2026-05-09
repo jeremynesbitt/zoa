@@ -7,6 +7,7 @@ function getKDPSpotPlotCommand(iField, iLambda, iSpotCalcMethod, nGrid, nRand, n
     use type_utils, only: int2str
     use zoa_ui, only: ID_SPOT_RAND, ID_SPOT_RECT, ID_SPOT_RING
     use global_widgets, only: sysConfig
+    use DATSP1
     implicit none
     integer, intent(in) :: iField, iLambda, iSpotCalcMethod
     integer, intent(in) :: nGrid, nRand, nRing
@@ -15,9 +16,6 @@ function getKDPSpotPlotCommand(iField, iLambda, iSpotCalcMethod, nGrid, nRand, n
     character(len=80) :: charTrace
     character(len=1024) :: plotCmd
     integer :: i
-
-    include "DATSP1.INC"
-
     WRITE(charFLD, *) "FOB ", &
     & sysConfig%relativeFields(2,iField) &
     & , ' ' , sysConfig%relativeFields(1,iField)

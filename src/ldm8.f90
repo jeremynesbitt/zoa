@@ -180,6 +180,7 @@ SUBROUTINE SASPHD
    use mod_surface
    use DATMAI
    use mod_system, only: sys_last_surf
+   use mod_lens_data_manager, only: ldm
    IMPLICIT NONE
 !
 !       THIS IS SUBROUTINE SASPHD WHICH IMPLEMENTS THE ASPHD
@@ -249,8 +250,8 @@ SUBROUTINE SASPHD
       IF(WC.EQ.'ASPHD') THEN
          IF(surf_is_asphere(SF)) THEN
             call set_surf_asphere_flag(SF, .FALSE.)
-            ALENS(4:7,SF)=0.0D0
-            ALENS(81:85,SF)=0.0D0
+            call ldm%clearAsphericCoeffs(SF)
+            call ldm%clearHigherOrderAsphericCoeffs(SF)
             call set_surf_asphere_coeff(SF, 2, 0.0D0)
             WRITE(OUTLYNE,*)'ASPHERIC DEFINITION DELETED FROM SURFACE ',SF
             CALL SHOWIT(1)
@@ -498,7 +499,7 @@ SUBROUTINE SASPHD
             CALL SHOWIT(1)
             RETURN
          END IF
-         ALENS(36:40,SF)=0.0D0
+         call ldm%clearAnamorphicCoeffs(SF)
 !
 !       ARE THERE ANAMORPHIC ASPHERIC PIKUPS TO DELETE
 !       EITHER ON THIS SURFACE OR ON A SURFACE REFERENCING
@@ -648,6 +649,7 @@ SUBROUTINE DELDEFIT
    use mod_surface
    use DATMAI
    use mod_system, only: sys_last_surf
+   use mod_lens_data_manager, only: ldm
    IMPLICIT NONE
 !
 !       THIS IS SUBROUTINE DELDEFIT WHICH IMPLEMENTS THE DELDEFOR COMMAND
@@ -704,7 +706,7 @@ SUBROUTINE DELDEFIT
 !
 
       IF(surf_default_flag(SF).EQ.1.0D0) THEN
-         ALENS(103:106,SF)=0.0D0
+         call ldm%clearDeformableData(SF)
          WRITE(OUTLYNE,*)'DEFORMED SURFACE DEFINITION DELETED FROM SURFACE ',SF
          CALL SHOWIT(1)
 502      CONTINUE
@@ -727,6 +729,7 @@ SUBROUTINE SARRAYD
    use mod_surface
    use DATMAI
    use mod_system, only: sys_last_surf
+   use mod_lens_data_manager, only: ldm
    IMPLICIT NONE
 !
 !       THIS IS SUBROUTINE ARRAYD WHICH IMPLEMENTS THE ARRAYD
@@ -788,7 +791,7 @@ SUBROUTINE SARRAYD
       ELSE
       END IF
       IF(surf_array_parity(SF).NE.0.0) THEN
-         ALENS(131:133,SF)=0.0D0
+         call ldm%clearArrayData(SF)
          WRITE(OUTLYNE,*)'ARRAY SURFACE DEFINITION FOR SURFACE',SF,' DELETED'
          CALL SHOWIT(1)
       ELSE
@@ -1130,6 +1133,7 @@ SUBROUTINE SASPH
    use DATMAI
    use command_utils, only: is_command_query
    use mod_system, only: sys_last_surf
+   use mod_lens_data_manager, only: ldm
    IMPLICIT NONE
 !
 !       THIS IS SUBROUTINE SASPH WHICH IMPLEMENTS THE ASPH
@@ -1235,7 +1239,7 @@ SUBROUTINE SASPH
       IF(WC.EQ.'ASPH'.OR.WC.EQ.'AC'.OR.WC.EQ.'AD'.OR.WC.EQ.'AE'.OR.WC.EQ.'AF'.OR.WC.EQ.'AG') THEN
          IF(SN.EQ.0) THEN
             call set_surf_asphere_coeff(SURF, 2, 0.0D0)
-            ALENS(4:7,SURF)=0.0D0
+            call ldm%clearAsphericCoeffs(SURF)
          ELSE
             IF(DF5.EQ.0)call set_surf_asphere_coeff(SURF, 2, W5)
             IF(DF1.EQ.0)call set_surf_asphere_coeff(SURF, 4, W1)
@@ -1246,7 +1250,7 @@ SUBROUTINE SASPH
       END IF
       IF(WC.EQ.'ASPH2'.OR.WC.EQ.'AH'.OR.WC.EQ.'AI'.OR.WC.EQ.'AJ'.OR.WC.EQ.'AK'.OR.WC.EQ.'AL') THEN
          IF(SN.EQ.0) THEN
-            ALENS(81:85,SURF)=0.0D0
+            call ldm%clearHigherOrderAsphericCoeffs(SURF)
          ELSE
             IF(DF1.EQ.0)call set_surf_asphere_coeff(SURF, 12, W1)
             IF(DF2.EQ.0)call set_surf_asphere_coeff(SURF, 14, W2)
@@ -2032,6 +2036,7 @@ SUBROUTINE ZERO
    use DATLEN
    use mod_surface
    use DATMAI
+   use mod_lens_data_manager, only: ldm
    IMPLICIT NONE
 !
    INTEGER I,J,K,SF
@@ -2041,12 +2046,11 @@ SUBROUTINE ZERO
    SOLVE(0:9,SF)=0.0D0
    PIKUP(1:6,SF,1:PSIZ)=0.0D0
    ALENS(1:LSIZ,SF)=0.0D0
-   ALENS(46:50,SF)=1.0D0
-   ALENS(71:75,SF)=1.0D0
-   ALENS(76:85,SF)=0.0D0
-   ALENS(51:70,SF)=0.0D0
-   ALENS(127:128,SF)=0.0D0
-   ALENS(134:137,SF)=0.0D0
+   call ldm%initRefractiveIndices(SF)
+   call ldm%clearPivotAndHigherAspherics(SF)
+   call ldm%clearApertureRegion(SF)
+   call ldm%clearMultiApertureData(SF)
+   call ldm%clearSpiderData(SF)
    MULTCLAP(1:1000,1:3,SF)=0.0D0
    MULTCOBS(1:1000,1:3,SF)=0.0D0
    GLANAM(SF,1)='             '
@@ -2061,6 +2065,7 @@ SUBROUTINE SAPED
    use mod_surface
    use DATMAI
    use mod_system, only: sys_last_surf, sys_ref_surf
+   use mod_lens_data_manager, only: ldm
    IMPLICIT NONE
 !
 !       THIS IS SUBROUTINE SAPED WHICH IMPLEMENTS THE CLAPD
@@ -2122,7 +2127,7 @@ SUBROUTINE SAPED
       IF(WC.EQ.'CLAPD'.AND.surf_clap_type(SF).EQ.0.0D0) THEN
 !       NO CLAP
 !     MAKE SURE CLAP ERASE IS OFF
-         ALENS(51:57,SF)=0.0D0
+         call ldm%clearClearApertureData(SF)
          WRITE(OUTLYNE,*)'SURFACE',SF,' :NO CLEAR APERTURE TO DELETE'
          CALL SHOWIT(1)
       END IF
@@ -2130,7 +2135,7 @@ SUBROUTINE SAPED
       IF(WC.EQ.'COBSD'.AND.surf_coat_type(SF).EQ.0.0D0) THEN
 !       NO COBS
 !     MAKE SURE COBS ERASE IS OFF
-         ALENS(61:67,SF)=0.0D0
+         call ldm%clearObscurationData(SF)
          WRITE(OUTLYNE,*)'SURFACE',SF,' :NO OBSCURATION TO DELETE'
          CALL SHOWIT(1)
       END IF
@@ -2138,8 +2143,8 @@ SUBROUTINE SAPED
       IF(WC.EQ.'CLAPD') THEN
          call set_surf_clap_type(SF, 0)
          call set_surf_multi_clap_flag(SF, 0)
-         ALENS(10:15,SF)=0.0D0
-         ALENS(51:57,SF)=0.0D0
+         call ldm%clearClearApertureParams(SF)
+         call ldm%clearClearApertureData(SF)
 !
 !       WHAT IF THE SURFACE HAD A CLAP PIKUP ON IT?
 !
@@ -2202,8 +2207,8 @@ SUBROUTINE SAPED
 400      CONTINUE
       END IF
       IF(WC.EQ.'COBSD') THEN
-         ALENS(16:22,SF)=0.0D0
-         ALENS(61:67,SF)=0.0D0
+         call ldm%clearObscurationShape(SF)
+         call ldm%clearObscurationData(SF)
 !       WHAT IF THE SURFACE HAD A COBS PIKUP ON IT?
 !
          IF(PIKUP(1,SF,19).NE.0.0D0) THEN
@@ -3236,6 +3241,7 @@ SUBROUTINE MULT_COBS
    use DATLEN
    use mod_surface
    use DATMAI
+   use mod_lens_data_manager, only: ldm
    IMPLICIT NONE
 !
 !       THIS IS SUBROUTINE MULTCOBS WHICH IMPLEMENTS THE MULTCOBS
@@ -3263,7 +3269,7 @@ SUBROUTINE MULT_COBS
    END IF
    IF(SQ.EQ.1.AND.WQ.EQ.'DELETE') THEN
       call set_surf_multi_cobs_flag(SURF, 0)
-      ALENS(134:137,SURF)=0.0D0
+      call ldm%clearSpiderData(SURF)
       MULTCOBS(1:1000,1:3,SURF)=0.0D0
       WRITE(OUTLYNE,*)'DELETEING ANY EXISTING MULTIPLE APERTURE DEFINITIONS'
       CALL SHOWIT(1)
@@ -3317,6 +3323,7 @@ SUBROUTINE SSPIDER
    use DATLEN
    use mod_surface
    use DATMAI
+   use mod_lens_data_manager, only: ldm
    IMPLICIT NONE
 !
 !       THIS IS SUBROUTINE SSPIDER WHICH IMPLEMENTS THE SPIDER
@@ -3345,7 +3352,7 @@ SUBROUTINE SSPIDER
    IF(SQ.EQ.1.AND.WQ.EQ.'DELETE') THEN
       call set_surf_multi_cobs_flag(SURF, 0)
       call set_surf_coat_type(SURF, 0)
-      ALENS(134:137,SURF)=0.0D0
+      call ldm%clearSpiderData(SURF)
       MULTCOBS(1:1000,1:3,SURF)=0.0D0
       WRITE(OUTLYNE,*)'DELETEING ANY EXISTING SPIDER DEFINITION'
       CALL SHOWIT(1)
@@ -3395,7 +3402,7 @@ SUBROUTINE SSPIDER
    call set_surf_coat_type(SURF, 2)
    call set_surf_cobs_poly(SURF, 1, L/2.0D0)
    call set_surf_cobs_poly(SURF, 2, W/2.0D0)
-   ALENS(19:22,SURF)=0.0D0
+   call ldm%clearObscurationShapeParams(SURF)
    call set_surf_multi_cobs_flag(SURF, N)
    THETA=0.0D0
    DTHETA=(TWOPII)/DBLE(N)
@@ -3416,6 +3423,7 @@ SUBROUTINE SANGLE
    use DATLEN
    use mod_surface
    use DATMAI
+   use mod_lens_data_manager, only: ldm
    IMPLICIT NONE
 !
 !       THIS IS SUBROUTINE SANGLE WHICH IMPLEMENTS THE ALPHA
@@ -3482,8 +3490,8 @@ SUBROUTINE SANGLE
 !       THE SURFACE WAS NOT PERVIOUSLY DEFINED AS TILTED
 !       DEFINE IT AS SUCH AND PRINT A MESSAGE
          call set_surf_tilt_flag(SURF, 1)
-         ALENS(26:28,SURF)=0.0D0
-         ALENS(118:120,SURF)=0.0D0
+         call ldm%clearTiltAlphaBetaGamma(SURF)
+         call ldm%clearTiltDegAngles(SURF)
       END IF
       IF(surf_tilt_flag(SURF).NE.0.0D0) THEN
          IF(WC.EQ.'ALPHA') THEN

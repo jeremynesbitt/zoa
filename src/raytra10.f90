@@ -1437,13 +1437,14 @@ SUBROUTINE GETOPD(LEN,LENW,OPDERROR)
    use DATMAI
    use mod_surface, only: surf_thickness
    use mod_system, only: sys_units, sys_mode, sys_last_surf, sys_wavelength
+   use mod_lens_data_manager, only: ldm
    IMPLICIT NONE
 !
 !       THIS IS SUBROUTINE GETOPD WHICH IMPLEMENTS THE GET OPD
 !       AND GET OPDW
 !       COMMANDS AT THE CMD LEVEL.
 !
-   INTEGER J,JJ,WWRF
+   INTEGER J,JJ
 !
    REAL*8 LEN,LENW,WW,WAVE
 !
@@ -1461,16 +1462,6 @@ SUBROUTINE GETOPD(LEN,LENW,OPDERROR)
    IF(INT(CURLAM).EQ.8) WWVN=73
    IF(INT(CURLAM).EQ.9) WWVN=74
    IF(INT(CURLAM).EQ.10) WWVN=75
-   IF(INT(LFOB(4)).EQ.1) WWRF=46
-   IF(INT(LFOB(4)).EQ.2) WWRF=47
-   IF(INT(LFOB(4)).EQ.3) WWRF=48
-   IF(INT(LFOB(4)).EQ.4) WWRF=49
-   IF(INT(LFOB(4)).EQ.5) WWRF=50
-   IF(INT(LFOB(4)).EQ.6) WWRF=71
-   IF(INT(LFOB(4)).EQ.7) WWRF=72
-   IF(INT(LFOB(4)).EQ.8) WWRF=73
-   IF(INT(LFOB(4)).EQ.9) WWRF=74
-   IF(INT(LFOB(4)).EQ.10) WWRF=75
 !
 !               CHECK FOR PRESENCE OF STRING,QUALIFIER,OR NUMERIC
 !               INPUT AND
@@ -1484,7 +1475,7 @@ SUBROUTINE GETOPD(LEN,LENW,OPDERROR)
       IF(DABS(surf_thickness(NEWOBJ)).LT.1.0D10) JJ=NEWOBJ+1
       DO J=JJ,NEWIMG
          LEN=LEN+RAYRAY(7,J)&
-         &-(REFRY(7,J)*(ALENS(WWVN,J-1)/ALENS(WWRF,J-1)))
+         &-(REFRY(7,J)*(ldm%getSurfIndex(J-1,INT(CURLAM))/ldm%getSurfIndex(J-1,INT(LFOB(4)))))
          ! call LogTermFOR("RAYRAY(7) "//real2str(RAYRAY(7,J)))
          ! call LogTermFOR("REFRY(7) "//real2str(REFRY(7,J)))
          ! call LogTermFOR("LEN "//real2str(LEN))
@@ -1500,8 +1491,8 @@ SUBROUTINE GETOPD(LEN,LENW,OPDERROR)
          ! call LogTermFOR("OCOR="//real2str(OCOR))
          ! call LogTermFOR("LEN="//real2str(LEN))
 
-         LEN=LEN-(OCOR*(ALENS(WWVN,NEWOBJ)))&
-         &+(RCOR*(ALENS(WWVN,NEWOBJ)))
+         LEN=LEN-(OCOR*(ldm%getSurfIndex(NEWOBJ,INT(CURLAM))))&
+         &+(RCOR*(ldm%getSurfIndex(NEWOBJ,INT(CURLAM))))
          RCOR=0.0D0
          OCOR=0.0D0
          CENCEN=.FALSE.
@@ -1510,24 +1501,24 @@ SUBROUTINE GETOPD(LEN,LENW,OPDERROR)
          ! call LogTermFOR("OCOR="//real2str(OCOR))
          ! call LogTermFOR("LEN="//real2str(LEN))
 
-         LEN=LEN-(OCOR*(ALENS(WWVN,NEWIMG-1)))&
-         &+(RCOR*(ALENS(WWVN,NEWIMG-1)))
+         LEN=LEN-(OCOR*(ldm%getSurfIndex(NEWIMG-1,INT(CURLAM))))&
+         &+(RCOR*(ldm%getSurfIndex(NEWIMG-1,INT(CURLAM))))
          ! call LogTermFOR("LENPC="//real2str(LEN))
       ELSE
 !       MODE AFOCAL
          RCOR=0.0D0
          OCOR=0.0D0
          CALL FOPD
-         LEN=LEN-((OCOR*ALENS(WWVN,NEWOBJ)))&
-         &+(RCOR*(ALENS(WWVN,NEWOBJ)))
+         LEN=LEN-((OCOR*ldm%getSurfIndex(NEWOBJ,INT(CURLAM))))&
+         &+(RCOR*(ldm%getSurfIndex(NEWOBJ,INT(CURLAM))))
          RCOR=0.0D0
          OCOR=0.0D0
          CENCEN=.FALSE.
          CALL LOPD
          ! call LogTermFOR("RCOR="//real2str(RCOR))
          ! call LogTermFOR("OCOR="//real2str(OCOR))
-         LEN=LEN-(OCOR*(ALENS(WWVN,NEWIMG-1)))&
-         &+(RCOR*(ALENS(WWVN,NEWIMG-1)))
+         LEN=LEN-(OCOR*(ldm%getSurfIndex(NEWIMG-1,INT(CURLAM))))&
+         &+(RCOR*(ldm%getSurfIndex(NEWIMG-1,INT(CURLAM))))
       END IF
 !     CALCULATE LEN IN WAVES AT THE REFERENCE RAY WAVELENGTH
       IF(INT(CURLAM).GE.1.AND.INT(CURLAM).LE.10) THEN

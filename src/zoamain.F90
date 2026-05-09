@@ -12,7 +12,7 @@ program zoa_program
   use handlers
   use zoa_ui
   use global_widgets
-  use GLOBALS, only: zoaVersion
+  use GLOBALS, only: zoaVersion, RELEASE_MODE
   implicit none
 
 #ifdef WINDOWS
@@ -52,6 +52,9 @@ program zoa_program
 #endif
 PRINT *, "Version is ", __VERSION
 zoaVersion = __VERSION
+#ifdef __RELEASE
+  RELEASE_MODE = .TRUE.
+#endif
 
 
 

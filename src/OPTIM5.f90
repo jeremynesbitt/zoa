@@ -13,6 +13,7 @@ SUBROUTINE CALCPRE
    use DATMAI
    use mod_system, only: sys_last_surf, sys_mode, sys_wl_ref, sys_wl_pri1, sys_wl_pri2, &
       sys_wl_weight, sys_set_wl_weight
+   use mod_lens_data_manager, only: ldm
    IMPLICIT NONE
 !
    COMMON/SOLU/X
@@ -27,7 +28,7 @@ SUBROUTINE CALCPRE
 !
    COMMON/WTOPD/OPDWT,GREYOP
 !
-   INTEGER IAUTO,ISFI,ITYP,SF,CW,IV,PREDEFI,I,NF,IIA,JIA,SF1 ,K,II,WVNUMOP,ERROR,ISURF,CLRTYP
+   INTEGER IAUTO,ISFI,ITYP,SF,IV,PREDEFI,I,NF,IIA,JIA,SF1 ,K,II,WVNUMOP,ERROR,ISURF,CLRTYP
 !
    COMMON/AUTOI/IAUTO
 !
@@ -1446,43 +1447,43 @@ SUBROUTINE CALCPRE
          END IF
 !     N1 TO N10
          IF(OPERND(I,17).EQ.488.0D0) THEN
-            REG(9)=ALENS(46,(INT(OPERND(I,8))))
+            REG(9)=ldm%getSurfIndex(INT(OPERND(I,8)), 1)
             GO TO 777
          END IF
          IF(OPERND(I,17).EQ.489.0D0) THEN
-            REG(9)=ALENS(47,(INT(OPERND(I,8))))
+            REG(9)=ldm%getSurfIndex(INT(OPERND(I,8)), 2)
             GO TO 777
          END IF
          IF(OPERND(I,17).EQ.490.0D0) THEN
-            REG(9)=ALENS(48,(INT(OPERND(I,8))))
+            REG(9)=ldm%getSurfIndex(INT(OPERND(I,8)), 3)
             GO TO 777
          END IF
          IF(OPERND(I,17).EQ.491.0D0) THEN
-            REG(9)=ALENS(49,(INT(OPERND(I,8))))
+            REG(9)=ldm%getSurfIndex(INT(OPERND(I,8)), 4)
             GO TO 777
          END IF
          IF(OPERND(I,17).EQ.492.0D0) THEN
-            REG(9)=ALENS(50,(INT(OPERND(I,8))))
+            REG(9)=ldm%getSurfIndex(INT(OPERND(I,8)), 5)
             GO TO 777
          END IF
          IF(OPERND(I,17).EQ.493.0D0) THEN
-            REG(9)=ALENS(71,(INT(OPERND(I,8))))
+            REG(9)=ldm%getSurfIndex(INT(OPERND(I,8)), 6)
             GO TO 777
          END IF
          IF(OPERND(I,17).EQ.494.0D0) THEN
-            REG(9)=ALENS(72,(INT(OPERND(I,8))))
+            REG(9)=ldm%getSurfIndex(INT(OPERND(I,8)), 7)
             GO TO 777
          END IF
          IF(OPERND(I,17).EQ.495.0D0) THEN
-            REG(9)=ALENS(73,(INT(OPERND(I,8))))
+            REG(9)=ldm%getSurfIndex(INT(OPERND(I,8)), 8)
             GO TO 777
          END IF
          IF(OPERND(I,17).EQ.496.0D0) THEN
-            REG(9)=ALENS(74,(INT(OPERND(I,8))))
+            REG(9)=ldm%getSurfIndex(INT(OPERND(I,8)), 9)
             GO TO 777
          END IF
          IF(OPERND(I,17).EQ.497.0D0) THEN
-            REG(9)=ALENS(75,(INT(OPERND(I,8))))
+            REG(9)=ldm%getSurfIndex(INT(OPERND(I,8)), 10)
             GO TO 777
          END IF
 !     VALUE IS 70 TO 90, 92, 93,106 TO 206
@@ -1499,13 +1500,7 @@ SUBROUTINE CALCPRE
          IF(OPERND(I,17).EQ.107.0D0) THEN
             V1=0.0D0
             DO II=INT(OPERND(I,8)),(INT(OPERND(I,9))-1)
-               IF(INT(sys_wl_ref()).GE.1.AND.INT(sys_wl_ref()).LE.5) THEN
-                  CW=INT(sys_wl_ref())+45
-               END IF
-               IF(INT(sys_wl_ref()).GE.6.AND.INT(sys_wl_ref()).LE.10) THEN
-                  CW=INT(sys_wl_ref())+65
-               END IF
-               V1=V1+(surf_thickness(II)*ALENS(CW,II))
+               V1=V1+(surf_thickness(II)*ldm%getSurfIndex(II, INT(sys_wl_ref())))
             END DO
             REG(9)=V1
             GO TO 777
@@ -2036,21 +2031,15 @@ SUBROUTINE CALCPRE
          CALL PRTRB
          SF=INT(sys_last_surf())
          IF(INT(OPERND(I,18)).EQ.0) SF1=OPERND(I,8)
-         IF(INT(sys_wl_ref()).GE.1.AND.INT(sys_wl_ref()).LE.5) THEN
-            CW=INT(sys_wl_ref())+45
-         END IF
-         IF(INT(sys_wl_ref()).GE.6.AND.INT(sys_wl_ref()).LE.10) THEN
-            CW=INT(sys_wl_ref())+65
-         END IF
          INTV=1.0D0
 !       CALCULATE INTV
          IF(OPERND(I,17).EQ.228.0D0.OR.OPERND(I,17).EQ.230.0D0.OR.OPERND(I,17).EQ.232.0D0.OR.OPERND(I,17).EQ.234.0D0) THEN
 !     PACX,PLCX,SACX OR SLCX
-            INTV=((PXTRAX(5,SF)*ALENS(CW,(SF-1))*PXTRAX(2,(SF-1)))-(PXTRAX(1,SF)*ALENS(CW,(SF-1))*PXTRAX(6,(SF-1))))
+            INTV=((PXTRAX(5,SF)*ldm%getSurfIndex((SF-1), INT(sys_wl_ref()))*PXTRAX(2,(SF-1)))-(PXTRAX(1,SF)*ldm%getSurfIndex((SF-1), INT(sys_wl_ref()))*PXTRAX(6,(SF-1))))
          END IF
          IF(OPERND(I,17).EQ.227.0D0.OR.OPERND(I,17).EQ.229.0D0.OR.OPERND(I,17).EQ.231.0D0.OR.OPERND(I,17).EQ.233.0D0) THEN
 !     PACY,PLCY,SACY OR SLCY
-            INTV=((PXTRAY(5,SF)*ALENS(CW,(SF-1))*PXTRAY(2,(SF-1)))-(PXTRAY(1,SF)*ALENS(CW,(SF-1))*PXTRAY(6,(SF-1))))
+            INTV=((PXTRAY(5,SF)*ldm%getSurfIndex((SF-1), INT(sys_wl_ref()))*PXTRAY(2,(SF-1)))-(PXTRAY(1,SF)*ldm%getSurfIndex((SF-1), INT(sys_wl_ref()))*PXTRAY(6,(SF-1))))
          END IF
          IF(INTV.EQ.0.0D0) THEN
 
@@ -3940,22 +3929,16 @@ SUBROUTINE CALCPRE
       IF(OPERND(I,17).EQ.446.0D0) XIS=.TRUE.
       SF=INT(sys_last_surf())
       ISFI=INT(OPERND(I,8))
-      IF(INT(sys_wl_ref()).GE.1.AND.INT(sys_wl_ref()).LE.5) THEN
-         CW=INT(sys_wl_ref())+45
-      END IF
-      IF(INT(sys_wl_ref()).GE.6.AND.INT(sys_wl_ref()).LE.10) THEN
-         CW=INT(sys_wl_ref())+65
-      END IF
       INV=1.0D0
       IF(sys_mode().EQ.1.0D0) THEN
 !       MODE IS FOCAL
-         IF(.NOT.XIS)INV=-2.0*ALENS(CW,(SF-1))*PXTRAY(2,(SF-1))
-         IF(XIS)INV=-2.0*ALENS(CW,(SF-1))*PXTRAX(2,(SF-1))
+         IF(.NOT.XIS)INV=-2.0*ldm%getSurfIndex((SF-1), INT(sys_wl_ref()))*PXTRAY(2,(SF-1))
+         IF(XIS)INV=-2.0*ldm%getSurfIndex((SF-1), INT(sys_wl_ref()))*PXTRAX(2,(SF-1))
       END IF
       IF(sys_mode().EQ.3.0D0) THEN
 !       MODE IS AFOCAL
-         IF(.NOT.XIS)INV= 2.0*ALENS(CW,(SF-1))*PXTRAY(1,SF)
-         IF(XIS)INV= 2.0*ALENS(CW,(SF-1))*PXTRAX(1,SF)
+         IF(.NOT.XIS)INV= 2.0*ldm%getSurfIndex((SF-1), INT(sys_wl_ref()))*PXTRAY(1,SF)
+         IF(XIS)INV= 2.0*ldm%getSurfIndex((SF-1), INT(sys_wl_ref()))*PXTRAX(1,SF)
       END IF
       IF(INV.EQ.0.0D0) THEN
          IF(F28.EQ.1) REG(9)=0.0D0

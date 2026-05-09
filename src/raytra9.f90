@@ -3256,6 +3256,7 @@ SUBROUTINE FANS
    use DATMAI
    use mod_system, only: sys_mode, sys_units, sys_wavelength, sys_wl_pri1, sys_wl_pri2, &
       & sys_wl_ref, sys_wl_sec1, sys_wl_sec2, sys_xz_bilateral, sys_yz_bilateral
+   use mod_lens_data_manager, only: ldm
    IMPLICIT NONE
 !
 !       THIS IS SUBROUTINE FANS.FOR. THIS SUBROUTINE IMPLEMENTS
@@ -3271,7 +3272,7 @@ SUBROUTINE FANS
    INTEGER FANWAV
    COMMON/FANNER/FANWAV
    COMMON/PASFAN/FANNAM,FANQAL
-   INTEGER J,JJ,IX,WWRF,WWVN
+   INTEGER J,JJ,IX
 !
    REAL*8 COSARG,XTEMP,YTEMP,TEMP1,TEMP2,TEMP3,TEMP4,LOWERL,DELTA,OFFSET,FW4,XI,XX,YY,LLR,MMR,NNR,LLP,MMP,NNP,LPWP1,LPWP2,LCW,LSWP1,LSWP2,XXDIF,YYDIF,OOPD,OPDW,WAV,RRDIF,DIF1,DIF2,DIF3,DIF4,PW11,PW12,PW21,PW22,JA,JB,SW11,SW12,SW21,SW22,LAX,LAY,DX,DY,DTY,DTX
 !
@@ -3283,16 +3284,6 @@ SUBROUTINE FANS
 
    JA=COS_A_ANG
    JB=COS_B_ANG
-   IF(INT(LFOB(4)).EQ.1) WWRF=46
-   IF(INT(LFOB(4)).EQ.2) WWRF=47
-   IF(INT(LFOB(4)).EQ.3) WWRF=48
-   IF(INT(LFOB(4)).EQ.4) WWRF=49
-   IF(INT(LFOB(4)).EQ.5) WWRF=50
-   IF(INT(LFOB(4)).EQ.6) WWRF=71
-   IF(INT(LFOB(4)).EQ.7) WWRF=72
-   IF(INT(LFOB(4)).EQ.8) WWRF=73
-   IF(INT(LFOB(4)).EQ.9) WWRF=74
-   IF(INT(LFOB(4)).EQ.10) WWRF=75
 !
    FANEXT=.FALSE.
 !
@@ -3335,16 +3326,6 @@ SUBROUTINE FANS
       WW3=sys_wl_ref()
       FANWAV=INT(WW3)
       WVN=WW3
-      IF(INT(WW3).EQ.1) WWVN=46
-      IF(INT(WW3).EQ.2) WWVN=47
-      IF(INT(WW3).EQ.3) WWVN=48
-      IF(INT(WW3).EQ.4) WWVN=49
-      IF(INT(WW3).EQ.5) WWVN=50
-      IF(INT(WW3).EQ.6) WWVN=71
-      IF(INT(WW3).EQ.7) WWVN=72
-      IF(INT(WW3).EQ.8) WWVN=73
-      IF(INT(WW3).EQ.9) WWVN=74
-      IF(INT(WW3).EQ.10) WWVN=75
    ELSE
 
 !       WAVELENGTH NUMBER NOT DEFAULT
@@ -3356,16 +3337,6 @@ SUBROUTINE FANS
          WW3=W3
          FANWAV=INT(WW3)
          WVN=WW3
-         IF(INT(WW3).EQ.1) WWVN=46
-         IF(INT(WW3).EQ.2) WWVN=47
-         IF(INT(WW3).EQ.3) WWVN=48
-         IF(INT(WW3).EQ.4) WWVN=49
-         IF(INT(WW3).EQ.5) WWVN=50
-         IF(INT(WW3).EQ.6) WWVN=71
-         IF(INT(WW3).EQ.7) WWVN=72
-         IF(INT(WW3).EQ.8) WWVN=73
-         IF(INT(WW3).EQ.9) WWVN=74
-         IF(INT(WW3).EQ.10) WWVN=75
       END IF
    END IF
 !
@@ -4043,7 +4014,7 @@ SUBROUTINE FANS
             IF(DABS(surf_thickness(NEWOBJ)).GE.1.0D10) JJ=NEWOBJ+2
             IF(DABS(surf_thickness(NEWOBJ)).LT.1.0D10) JJ=NEWOBJ+1
             DO J=JJ,NEWIMG
-               OOPD=OOPD+RAYRAY(7,J)-(REFRY(7,J)*(ALENS(WWVN,J-1)/ALENS(WWRF,J-1)))
+               OOPD=OOPD+RAYRAY(7,J)-(REFRY(7,J)*(ldm%getSurfIndex(J-1,INT(WW3))/ldm%getSurfIndex(J-1,INT(LFOB(4)))))
             END DO
             IF(sys_mode().EQ.1.0D0.OR.sys_mode().EQ.2.0D0) THEN
 !       MODE FOCAL
@@ -4052,12 +4023,12 @@ SUBROUTINE FANS
                CALL FOPD
 !       CALCULATE THEN APPLY ADJUSTMENT FOR THE BEGINNING AND ENDING
 !       REFERENCE SPHERES.
-               OOPD=OOPD-(OCOR*ALENS(WWVN,NEWOBJ))+(RCOR*ALENS(WWVN,NEWOBJ))
+               OOPD=OOPD-(OCOR*ldm%getSurfIndex(NEWOBJ,INT(WW3)))+(RCOR*ldm%getSurfIndex(NEWOBJ,INT(WW3)))
                RCOR=0.0D0
                OCOR=0.0D0
                CENCEN=.FALSE.
                CALL LOPD
-               OOPD=OOPD-(OCOR*ALENS(WWVN,NEWIMG-1))+(RCOR*ALENS(WWVN,NEWIMG-1))
+               OOPD=OOPD-(OCOR*ldm%getSurfIndex(NEWIMG-1,INT(WW3)))+(RCOR*ldm%getSurfIndex(NEWIMG-1,INT(WW3)))
             ELSE
 !       MODE AFOCAL
 !               RCOR=0.0D0
@@ -4065,12 +4036,12 @@ SUBROUTINE FANS
                CALL FOPD
 !       CALCULATE THEN APPLY ADJUSTMENT FOR THE BEGINNING AND ENDING
 !       REFERENCE SPHERES.
-               OOPD=OOPD-(OCOR*ALENS(WWVN,NEWOBJ))+(RCOR*ALENS(WWVN,NEWOBJ))
+               OOPD=OOPD-(OCOR*ldm%getSurfIndex(NEWOBJ,INT(WW3)))+(RCOR*ldm%getSurfIndex(NEWOBJ,INT(WW3)))
                RCOR=0.0D0
                OCOR=0.0D0
                CENCEN=.FALSE.
                CALL LOPD
-               OOPD=OOPD-(OCOR*ALENS(WWVN,NEWIMG-1))+(RCOR*ALENS(WWVN,NEWIMG-1))
+               OOPD=OOPD-(OCOR*ldm%getSurfIndex(NEWIMG-1,INT(WW3)))+(RCOR*ldm%getSurfIndex(NEWIMG-1,INT(WW3)))
             END IF
             IF(DABS(OOPD).LT.1.0D-15) OOPD=0.0D0
 
@@ -4399,6 +4370,7 @@ SUBROUTINE FANSOLD
    use DATMAI
    use mod_system, only: sys_mode, sys_units, sys_wavelength, sys_wl_pri1, sys_wl_pri2, &
       & sys_wl_ref, sys_wl_sec1, sys_wl_sec2, sys_xz_bilateral, sys_yz_bilateral
+   use mod_lens_data_manager, only: ldm
    IMPLICIT NONE
 !
 !       THIS IS SUBROUTINE FANS.FOR. THIS SUBROUTINE IMPLEMENTS
@@ -4419,7 +4391,7 @@ SUBROUTINE FANSOLD
 !
    COMMON/PASFAN/FANNAM,FANQAL
 !
-   INTEGER J,JJ,IX,WWRF,WWVN
+   INTEGER J,JJ,IX
 !
    REAL*8 COSARG,XTEMP,YTEMP,TEMP1,TEMP2,TEMP3,TEMP4,LOWERL,DELTA,OFFSET,FW4,XI,XX,YY,LLR,MMR,NNR,LLP,MMP,NNP,LPWP1,LPWP2,LCW,LSWP1,LSWP2,XXDIF,YYDIF,OOPD,OPDW,WAV,RRDIF,DIF1,DIF2,DIF3,DIF4,PW11,PW12,PW21,PW22,JA,JB,SW11,SW12,SW21,SW22,LAX,LAY,DX,DY,DTY,DTX
 !
@@ -4429,16 +4401,6 @@ SUBROUTINE FANSOLD
 !
    JA=COS_A_ANG
    JB=COS_B_ANG
-   IF(INT(LFOB(4)).EQ.1) WWRF=46
-   IF(INT(LFOB(4)).EQ.2) WWRF=47
-   IF(INT(LFOB(4)).EQ.3) WWRF=48
-   IF(INT(LFOB(4)).EQ.4) WWRF=49
-   IF(INT(LFOB(4)).EQ.5) WWRF=50
-   IF(INT(LFOB(4)).EQ.6) WWRF=71
-   IF(INT(LFOB(4)).EQ.7) WWRF=72
-   IF(INT(LFOB(4)).EQ.8) WWRF=73
-   IF(INT(LFOB(4)).EQ.9) WWRF=74
-   IF(INT(LFOB(4)).EQ.10) WWRF=75
 !
    FANEXT=.FALSE.
 !
@@ -4481,16 +4443,6 @@ SUBROUTINE FANSOLD
       WW3=sys_wl_ref()
       FANWAV=INT(WW3)
       WVN=WW3
-      IF(INT(WW3).EQ.1) WWVN=46
-      IF(INT(WW3).EQ.2) WWVN=47
-      IF(INT(WW3).EQ.3) WWVN=48
-      IF(INT(WW3).EQ.4) WWVN=49
-      IF(INT(WW3).EQ.5) WWVN=50
-      IF(INT(WW3).EQ.6) WWVN=71
-      IF(INT(WW3).EQ.7) WWVN=72
-      IF(INT(WW3).EQ.8) WWVN=73
-      IF(INT(WW3).EQ.9) WWVN=74
-      IF(INT(WW3).EQ.10) WWVN=75
    ELSE
 !       WAVELENGTH NUMBER NOT DEFAULT
       IF(W3.NE.1.0D0.AND.W3.NE.2.0D0.AND.W3.NE.3.0D0 .AND.W3.NE.4.0D0.AND.W3.NE.5.0D0.AND.W3.NE.6.0D0.AND.W3.NE.7.0D0.AND.W3.NE.8.0D0 .AND.W3.NE.9.0D0.AND.W3.NE.10.0D0) THEN
@@ -4501,16 +4453,6 @@ SUBROUTINE FANSOLD
          WW3=W3
          FANWAV=INT(WW3)
          WVN=WW3
-         IF(INT(WW3).EQ.1) WWVN=46
-         IF(INT(WW3).EQ.2) WWVN=47
-         IF(INT(WW3).EQ.3) WWVN=48
-         IF(INT(WW3).EQ.4) WWVN=49
-         IF(INT(WW3).EQ.5) WWVN=50
-         IF(INT(WW3).EQ.6) WWVN=71
-         IF(INT(WW3).EQ.7) WWVN=72
-         IF(INT(WW3).EQ.8) WWVN=73
-         IF(INT(WW3).EQ.9) WWVN=74
-         IF(INT(WW3).EQ.10) WWVN=75
       END IF
    END IF
 !
@@ -5065,7 +5007,7 @@ SUBROUTINE FANSOLD
             IF(DABS(surf_thickness(NEWOBJ)).GE.1.0D10) JJ=NEWOBJ+2
             IF(DABS(surf_thickness(NEWOBJ)).LT.1.0D10) JJ=NEWOBJ+1
             DO J=JJ,NEWIMG
-               OOPD=OOPD+RAYRAY(7,J)-(REFRY(7,J)*(ALENS(WWVN,J-1)/ALENS(WWRF,J-1)))
+               OOPD=OOPD+RAYRAY(7,J)-(REFRY(7,J)*(ldm%getSurfIndex(J-1,INT(WW3))/ldm%getSurfIndex(J-1,INT(LFOB(4)))))
             END DO
             IF(sys_mode().EQ.1.0D0.OR.sys_mode().EQ.2.0D0) THEN
 !       MODE FOCAL
@@ -5074,12 +5016,12 @@ SUBROUTINE FANSOLD
                CALL FOPD
 !       CALCULATE THEN APPLY ADJUSTMENT FOR THE BEGINNING AND ENDING
 !       REFERENCE SPHERES.
-               OOPD=OOPD-(OCOR*ALENS(WWVN,NEWOBJ))+(RCOR*ALENS(WWVN,NEWOBJ))
+               OOPD=OOPD-(OCOR*ldm%getSurfIndex(NEWOBJ,INT(WW3)))+(RCOR*ldm%getSurfIndex(NEWOBJ,INT(WW3)))
                RCOR=0.0D0
                OCOR=0.0D0
                CENCEN=.FALSE.
                CALL LOPD
-               OOPD=OOPD-(OCOR*ALENS(WWVN,NEWIMG-1))+(RCOR*ALENS(WWVN,NEWIMG-1))
+               OOPD=OOPD-(OCOR*ldm%getSurfIndex(NEWIMG-1,INT(WW3)))+(RCOR*ldm%getSurfIndex(NEWIMG-1,INT(WW3)))
             ELSE
 !       MODE AFOCAL
 !               RCOR=0.0D0
@@ -5087,12 +5029,12 @@ SUBROUTINE FANSOLD
                CALL FOPD
 !       CALCULATE THEN APPLY ADJUSTMENT FOR THE BEGINNING AND ENDING
 !       REFERENCE SPHERES.
-               OOPD=OOPD-(OCOR*ALENS(WWVN,NEWOBJ))+(RCOR*ALENS(WWVN,NEWOBJ))
+               OOPD=OOPD-(OCOR*ldm%getSurfIndex(NEWOBJ,INT(WW3)))+(RCOR*ldm%getSurfIndex(NEWOBJ,INT(WW3)))
                RCOR=0.0D0
                OCOR=0.0D0
                CENCEN=.FALSE.
                CALL LOPD
-               OOPD=OOPD-(OCOR*ALENS(WWVN,NEWIMG-1))+(RCOR*ALENS(WWVN,NEWIMG-1))
+               OOPD=OOPD-(OCOR*ldm%getSurfIndex(NEWIMG-1,INT(WW3)))+(RCOR*ldm%getSurfIndex(NEWIMG-1,INT(WW3)))
             END IF
             IF(DABS(OOPD).LT.1.0D-15) OOPD=0.0D0
 

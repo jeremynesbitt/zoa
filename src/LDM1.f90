@@ -8,6 +8,7 @@ SUBROUTINE LENNS
    use DATLEN
    use mod_surface
    use DATMAI
+   use mod_lens_data_manager, only: ldm
    use command_utils, only: reject_qualifier_or_numeric_input
    use mod_system, only: sys_scy_fang_set, sys_scx_fang_set, sys_wl_weight, &
       & sys_set_last_surf, sys_set_wavelength, sys_set_wv_default, &
@@ -63,7 +64,7 @@ SUBROUTINE LENNS
 !       ARRAY SYSTEM STORES NUMERIC DATA NOT SPECIFIC TO A
 !       PARTICULAR SURFACE.
    LBL(0)(1:80)=' '
-   ALENS(1:LSIZ,0)=0.0D0
+   call ldm%removeAllSurfaceData(0)
    SOLVE(1:9,0)=0.0D0
    PIKUP(1:6,0,1:PSIZ)=0.0D0
    MULTCLAP(1:1000,1:3,0)=0.0D0
@@ -357,6 +358,7 @@ SUBROUTINE ULQUER
       & sys_wl_pri1, sys_wl_pri2, sys_wl_sec1, sys_wl_sec2, sys_mode, &
       & sys_set_naoy, sys_set_naox, sys_set_fno_hold_y, sys_set_fno_hold_x, &
       & sys_set_fno_val_y, sys_set_fno_val_x
+   use mod_lens_data_manager, only: ldm
    IMPLICIT NONE
 !
 !       THIS SUBROUTINE DISPLAYS THE CURRENT VALUE OF A LENS
@@ -711,18 +713,10 @@ SUBROUTINE ULQUER
          CALL SHOWIT(1)
          WRITE(OUTLYNE,*)'"'//WC(1:4)//'" HAS NOT BEEN EXPLICITLY SET'
          CALL SHOWIT(1)
-         IF(INT(sys_wl_ref()).GE.1.AND.INT(sys_wl_ref()).LE.6) THEN
-            call sys_set_naoy((ALENS(45+INT(sys_wl_ref()),0)*sys_say())/DSQRT((surf_thickness(0)**2)+(sys_say()**2)))
-            call sys_set_naox((ALENS(45+INT(sys_wl_ref()),0)*sys_sax())/DSQRT((surf_thickness(0)**2)+(sys_sax()**2)))
-            call sys_set_fno_hold_y(0.0D0)
-            call sys_set_fno_hold_x(0.0D0)
-         END IF
-         IF(INT(sys_wl_ref()).GE.6.AND.INT(sys_wl_ref()).LE.10) THEN
-            call sys_set_naoy((ALENS(70-5+INT(sys_wl_ref()),0)*sys_say())/DSQRT((surf_thickness(0)**2)+(sys_say()**2)))
-            call sys_set_naox((ALENS(70-5+INT(sys_wl_ref()),0)*sys_sax())/DSQRT((surf_thickness(0)**2)+(sys_sax()**2)))
-            call sys_set_fno_hold_y(0.0D0)
-            call sys_set_fno_hold_x(0.0D0)
-         END IF
+         call sys_set_naoy((ldm%getSurfIndex(0, INT(sys_wl_ref()))*sys_say())/DSQRT((surf_thickness(0)**2)+(sys_say()**2)))
+         call sys_set_naox((ldm%getSurfIndex(0, INT(sys_wl_ref()))*sys_sax())/DSQRT((surf_thickness(0)**2)+(sys_sax()**2)))
+         call sys_set_fno_hold_y(0.0D0)
+         call sys_set_fno_hold_x(0.0D0)
       ELSE
       END IF
       VA1=1
@@ -1695,7 +1689,7 @@ SUBROUTINE ULQUER
    END IF
    IF(WC.EQ.'CLAP') THEN
       IF(ABS(surf_clap_type(SURF)).EQ.0.0D0) THEN
-         ALENS(51:57,SURF)=0.0D0
+         call ldm%clearClearApertureData(SURF)
          WRITE(OUTLYNE,*)'NO "CLEAR APERTURE DATA" ON CURRENT SURFACE"'
          CALL SHOWIT(1)
          CALL MACFAL
@@ -1758,7 +1752,7 @@ SUBROUTINE ULQUER
    END IF
    IF(WC.EQ.'COBS') THEN
       IF(ABS(surf_coat_type(SURF)).EQ.0.0D0) THEN
-         ALENS(61:67,SURF)=0.0D0
+         call ldm%clearObscurationData(SURF)
          WRITE(OUTLYNE,*)'NO "OBSCURATION DATA" ON CURRENT SURFACE"'
          CALL SHOWIT(1)
          CALL MACFAL
@@ -3685,6 +3679,7 @@ SUBROUTINE SGRAT
    use mod_surface
    use DATMAI
    use mod_system, only: sys_last_surf
+   use mod_lens_data_manager, only: ldm
    IMPLICIT NONE
 !
 !       THIS IS SUBROUTINE SGRAT WHICH IMPLEMENTS GRT,GRO,GRS,GRX,GRY
@@ -3777,7 +3772,7 @@ SUBROUTINE SGRAT
    IF(PIKCNT.EQ.0)call set_surf_special_type(SURF, 0)
    IF(WC.EQ.'GRT') THEN
       call set_surf_diffraction_flag(SURF, 1)
-      ALENS(97:99,SURF)=0.0D0
+      call ldm%clearGrtInitData(SURF)
       call set_surf_grating_vy(SURF, 1.0D0)
       call set_surf_grating_vz(SURF, 0.0D0)
    END IF
@@ -3795,6 +3790,7 @@ SUBROUTINE SGRTD
    use DATLEN
    use mod_surface
    use DATMAI
+   use mod_lens_data_manager, only: ldm
    IMPLICIT NONE
 !
 !       THIS IS SUBROUTINE SGRTD WHICH IMPLEMENTS GRTD
@@ -3836,7 +3832,7 @@ SUBROUTINE SGRTD
       END IF
    END DO
    IF(PIKCNT.EQ.0)call set_surf_special_type(SURF, 0)
-   ALENS(96:101,SURF)=0.0D0
+   call ldm%clearGratingData(SURF)
    RETURN
 END
 ! SUB ABSORB.FOR

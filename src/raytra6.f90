@@ -6,6 +6,7 @@ SUBROUTINE FNUMX(VALVAL,ERRR)
    use mod_surface
    use DATMAI
    use mod_system, only: sys_wl_ref, sys_wavelength, sys_units, sys_mode
+   use mod_lens_data_manager, only: ldm
    IMPLICIT NONE
    REAL*8 VALVAL,JAA,JBB,JCC,A1,A2,B1,B2,C1,C2 ,VXHI,VXLO,REFIN
    LOGICAL ERRR
@@ -117,12 +118,7 @@ SUBROUTINE FNUMX(VALVAL,ERRR)
       IF(JCC.NE.0.0D0) VALVAL=DACOS(VALVAL/JCC)/2.0D0
 !     VALVAL IS ANGLE INCLUDED BETWEEN RAYS IN RADIANS
 !     F-NUMBER IS JUST:
-      IF(sys_wl_ref().GE.1.0D0.AND.sys_wl_ref().LE.5.0D0) THEN
-         REFIN=ALENS(45+INT(sys_wl_ref()),NEWIMG-1)
-      END IF
-      IF(sys_wl_ref().GE.6.0D0.AND.sys_wl_ref().LE.10.0D0) THEN
-         REFIN=ALENS(65+INT(sys_wl_ref()),NEWIMG-1)
-      END IF
+      REFIN=ldm%getSurfIndex(NEWIMG-1, INT(sys_wl_ref()))
       VALVAL=1.0D0/(2.0D0*DTAN(VALVAL)*REFIN)
       VALVAL=(RBFNX/DABS(RBFNX))*DABS(VALVAL)
       RETURN
@@ -133,6 +129,7 @@ SUBROUTINE FNUMY(VALVAL,ERRR)
    use mod_surface
    use DATMAI
    use mod_system, only: sys_wl_ref, sys_wavelength, sys_units, sys_mode
+   use mod_lens_data_manager, only: ldm
    IMPLICIT NONE
    REAL*8 VALVAL,JAA,JBB,JCC,A1,A2,B1,B2,C1,C2 ,VYHI,VYLO,REFIN
    LOGICAL ERRR
@@ -244,12 +241,7 @@ SUBROUTINE FNUMY(VALVAL,ERRR)
       IF(JCC.NE.0.0D0) VALVAL=DACOS(VALVAL/JCC)/2.0D0
 !     VALVAL IS ANGLE INCLUDED BETWEEN RAYS IN RADIANS
 !     F-NUMBER IS JUST:
-      IF(sys_wl_ref().GE.1.0D0.AND.sys_wl_ref().LE.5.0D0) THEN
-         REFIN=ALENS(45+INT(sys_wl_ref()),NEWIMG)
-      END IF
-      IF(sys_wl_ref().GE.6.0D0.AND.sys_wl_ref().LE.10.0D0) THEN
-         REFIN=ALENS(65+INT(sys_wl_ref()),NEWIMG)
-      END IF
+      REFIN=ldm%getSurfIndex(NEWIMG, INT(sys_wl_ref()))
       VALVAL=1.0D0/(2.0D0*DTAN(VALVAL)*REFIN)
       VALVAL=(RBFNY/DABS(RBFNY))*DABS(VALVAL)
       RETURN
@@ -260,6 +252,7 @@ SUBROUTINE OBFNUMX(VALVAL,ERRR)
    use mod_surface
    use DATMAI
    use mod_system, only: sys_wl_ref, sys_wavelength, sys_units, sys_mode
+   use mod_lens_data_manager, only: ldm
    IMPLICIT NONE
    REAL*8 VALVAL,JAA,JBB,JCC,A1,A2,B1,B2,C1,C2 ,VXHI,VXLO,REFIN
    LOGICAL ERRR
@@ -371,12 +364,7 @@ SUBROUTINE OBFNUMX(VALVAL,ERRR)
       IF(JCC.NE.0.0D0) VALVAL=DACOS(VALVAL/JCC)/2.0D0
 !     VALVAL IS ANGLE INCLUDED BETWEEN RAYS IN RADIANS
 !     F-NUMBER IS JUST:
-      IF(sys_wl_ref().GE.1.0D0.AND.sys_wl_ref().LE.5.0D0) THEN
-         REFIN=ALENS(45+INT(sys_wl_ref()),NEWOBJ)
-      END IF
-      IF(sys_wl_ref().GE.6.0D0.AND.sys_wl_ref().LE.10.0D0) THEN
-         REFIN=ALENS(65+INT(sys_wl_ref()),NEWOBJ)
-      END IF
+      REFIN=ldm%getSurfIndex(NEWOBJ, INT(sys_wl_ref()))
       VALVAL=1.0D0/(2.0D0*DTAN(VALVAL)*REFIN)
       VALVAL=(RFFNX/DABS(RFFNX))*DABS(VALVAL)
       RETURN
@@ -387,6 +375,7 @@ SUBROUTINE OBFNUMY(VALVAL,ERRR)
    use mod_surface
    use DATMAI
    use mod_system, only: sys_wl_ref, sys_wavelength, sys_units, sys_mode
+   use mod_lens_data_manager, only: ldm
    IMPLICIT NONE
    REAL*8 VALVAL,JAA,JBB,JCC,A1,A2,B1,B2,C1,C2 ,VYHI,VYLO,REFIN
    LOGICAL ERRR
@@ -498,12 +487,7 @@ SUBROUTINE OBFNUMY(VALVAL,ERRR)
       IF(JCC.NE.0.0D0) VALVAL=DACOS(VALVAL/JCC)/2.0D0
 !     VALVAL IS ANGLE INCLUDED BETWEEN RAYS IN RADIANS
 !     F-NUMBER IS JUST:
-      IF(sys_wl_ref().GE.1.0D0.AND.sys_wl_ref().LE.5.0D0) THEN
-         REFIN=ALENS(45+INT(sys_wl_ref()),NEWOBJ)
-      END IF
-      IF(sys_wl_ref().GE.6.0D0.AND.sys_wl_ref().LE.10.0D0) THEN
-         REFIN=ALENS(65+INT(sys_wl_ref()),NEWOBJ)
-      END IF
+      REFIN=ldm%getSurfIndex(NEWOBJ, INT(sys_wl_ref()))
       VALVAL=1.0D0/(2.0D0*DTAN(VALVAL)*REFIN)
       VALVAL=(RFFNY/DABS(RFFNY))*DABS(VALVAL)
       RETURN
@@ -514,6 +498,7 @@ SUBROUTINE ENPDIAY(VALVAL,ERRR)
    use mod_surface
    use DATMAI
    use mod_system, only: sys_wl_ref, sys_wavelength, sys_units, sys_mode
+   use mod_lens_data_manager, only: ldm
    IMPLICIT NONE
    REAL*8 VALVAL,RX0,RY0,RZ0,RLOLD,RMOLD,RNOLD,X1 ,Y1,Z1,L1,M1,N1,XA,XB,YA,YB,ZA,ZB,T ,VYHI,VYLO
    LOGICAL ERRR
@@ -700,6 +685,7 @@ SUBROUTINE EXPDIAX(VALVAL,ERRR)
    use mod_surface
    use DATMAI
    use mod_system, only: sys_wl_ref, sys_wavelength, sys_units, sys_mode
+   use mod_lens_data_manager, only: ldm
    IMPLICIT NONE
    REAL*8 VALVAL,RX0,RY0,RZ0,RLOLD,RMOLD,RNOLD,X1 ,Y1,Z1,L1,M1,N1,XA,XB,YA,YB,ZA,ZB,T ,VXHI,VXLO
    LOGICAL ERRR
@@ -886,6 +872,7 @@ SUBROUTINE EXPDIAY(VALVAL,ERRR)
    use mod_surface
    use DATMAI
    use mod_system, only: sys_wl_ref, sys_wavelength, sys_units, sys_mode
+   use mod_lens_data_manager, only: ldm
    IMPLICIT NONE
    REAL*8 VALVAL,RX0,RY0,RZ0,RLOLD,RMOLD,RNOLD,X1 ,Y1,Z1,L1,M1,N1,XA,XB,YA,YB,ZA,ZB,T ,VYHI,VYLO
    LOGICAL ERRR
@@ -1071,6 +1058,7 @@ SUBROUTINE ENPDIAX(VALVAL,ERRR)
    use mod_surface
    use DATMAI
    use mod_system, only: sys_wl_ref, sys_wavelength, sys_units, sys_mode
+   use mod_lens_data_manager, only: ldm
    IMPLICIT NONE
    REAL*8 VALVAL,RX0,RY0,RZ0,RLOLD,RMOLD,RNOLD,X1 ,Y1,Z1,L1,M1,N1,XA,XB,YA,YB,ZA,ZB,T ,VXHI,VXLO
    LOGICAL ERRR
@@ -1258,6 +1246,7 @@ SUBROUTINE AUXFOB(ERRFOB)
    use mod_surface
    use DATMAI
    use mod_system, only: sys_wl_ref, sys_wavelength, sys_units, sys_mode
+   use mod_lens_data_manager, only: ldm
    IMPLICIT NONE
 !
 !     AUXFOB IS CALLED AFTER FFOB TO CALCULATE DIFFERENTIAL RAY BASED
@@ -1436,6 +1425,7 @@ SUBROUTINE ENERGY_ADJUST(ENERGY_FACTOR,I,J,IA,IAP,RN1,RN2,WA3,POLANG,FACT_PAR,FA
    use mod_surface
    use DATMAI
    use mod_system, only: sys_wl_ref, sys_wavelength, sys_units, sys_mode
+   use mod_lens_data_manager, only: ldm
    IMPLICIT NONE
    INTEGER I,VALUE,J,WA3,K,ALLOERR,NLAY,L
    CHARACTER CNAME*8,AJ4*8,AB*8
@@ -1797,6 +1787,7 @@ SUBROUTINE DIFFRACTION_EFFICIENCY(ENERGY_FACTOR,I,IA,WA3)
    use mod_surface
    use DATMAI
    use mod_system, only: sys_wl_ref, sys_wavelength, sys_units, sys_mode
+   use mod_lens_data_manager, only: ldm
    IMPLICIT NONE
    INTEGER I,WA3
    REAL*8 ENERGY_FACTOR,IA,A,WAV,WAVB,M,B1,B2,B3
@@ -2159,6 +2150,7 @@ LOGICAL FUNCTION INSID1()
    use mod_surface
    use DATMAI
    use mod_system, only: sys_wl_ref, sys_wavelength, sys_units, sys_mode
+   use mod_lens_data_manager, only: ldm
    IMPLICIT NONE
 !
 !  RESULT IS .TRUE. IF (X0,Y0) LIES INSIDE THE NP_GON
@@ -2222,6 +2214,7 @@ LOGICAL FUNCTION INSID2()
    use mod_surface
    use DATMAI
    use mod_system, only: sys_wl_ref, sys_wavelength, sys_units, sys_mode
+   use mod_lens_data_manager, only: ldm
    IMPLICIT NONE
 !
 !  RESULT IS .TRUE. IF (X0,Y0) LIES INSIDE THE NP_GON
@@ -2285,6 +2278,7 @@ SUBROUTINE CTS(VALVAL,TYPE,V1,V2,ERROR)
    use mod_surface
    use DATMAI
    use mod_system, only: sys_wl_ref, sys_wavelength, sys_units, sys_mode
+   use mod_lens_data_manager, only: ldm
    IMPLICIT NONE
    INTEGER ERROR,TYPE
    REAL*8 VALVAL,V1,V2,YMAX,YMIN,YV1,YV2,YV3
@@ -2766,6 +2760,7 @@ SUBROUTINE CLPCEN
    use mod_surface
    use DATMAI
    use mod_system, only: sys_wl_ref, sys_wavelength, sys_units, sys_mode
+   use mod_lens_data_manager, only: ldm
    IMPLICIT NONE
 !
 !     KEEPS TRACK OF FOB 0 0 RAY LOCATIONS AT EACH SURFACE

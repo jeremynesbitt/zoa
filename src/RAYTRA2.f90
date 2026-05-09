@@ -127,6 +127,7 @@ SUBROUTINE HIT17
    use DATLEN
    use DATMAI
    use mod_surface
+   use mod_lens_data_manager, only: ldm
    IMPLICIT NONE
 !
 !       THIS IS SUBROUTINE HIT17.FOR. THIS SUBROUTINE IMPLEMENTS
@@ -144,21 +145,9 @@ SUBROUTINE HIT17
    INTEGER SPDCD1,SPDCD2
    COMMON/SPRA2/SPDCD1,SPDCD2
 !
-   INTEGER WWVN
-   COMMON/WVPASS/WWVN
    PHASE=0.0D0
-   IF(WVN.EQ.1) WWVN=46
-   IF(WVN.EQ.2) WWVN=47
-   IF(WVN.EQ.3) WWVN=48
-   IF(WVN.EQ.4) WWVN=49
-   IF(WVN.EQ.5) WWVN=50
-   IF(WVN.EQ.6) WWVN=71
-   IF(WVN.EQ.7) WWVN=72
-   IF(WVN.EQ.8) WWVN=73
-   IF(WVN.EQ.9) WWVN=74
-   IF(WVN.EQ.10) WWVN=75
-   SNINDX=DABS(ALENS(WWVN,R_I-1))/ALENS(WWVN,R_I-1)
-   SNIND2=DABS(ALENS(WWVN,R_I))/ALENS(WWVN,R_I)
+   SNINDX=DABS(ldm%getSurfIndex(R_I-1, INT(WVN)))/ldm%getSurfIndex(R_I-1, INT(WVN))
+   SNIND2=DABS(ldm%getSurfIndex(R_I, INT(WVN)))/ldm%getSurfIndex(R_I, INT(WVN))
 !
    RR_N=R_N
    RR_Z=R_Z
@@ -222,8 +211,8 @@ SUBROUTINE HIT17
 !
    IF(STOPP.EQ.1) RETURN
 !
-   NUSUBS=((ALENS(WWVN,(R_I-1)))/&
-   &(ALENS(WWVN,R_I)))
+   NUSUBS=((ldm%getSurfIndex(R_I-1, INT(WVN)))/&
+   &(ldm%getSurfIndex(R_I, INT(WVN))))
    SIGNNU=DABS(NUSUBS)/NUSUBS
    NUSUBS=DABS(NUSUBS)
 !
@@ -266,9 +255,9 @@ SUBROUTINE HIT17
          END IF
          IF(COSI.LE.0.0D0) COSIP=-DSQRT(ARG)
          IF(COSI.GT.0.0D0) COSIP=DSQRT(ARG)
-         J=((ALENS(WWVN,R_I)*COSIP)&
-         &-(ALENS(WWVN,(R_I-1))*COSI))/&
-         &(ALENS(WWVN,R_I))
+         J=((ldm%getSurfIndex(R_I, INT(WVN))*COSIP)&
+         &-(ldm%getSurfIndex(R_I-1, INT(WVN))*COSI))/&
+         &(ldm%getSurfIndex(R_I, INT(WVN)))
          R_L=((NUSUBS*R_L)+(J*LN))
          R_M=((NUSUBS*R_M)+(J*MN))
          R_N=((NUSUBS*R_N)+(J*NN))
@@ -661,6 +650,7 @@ SUBROUTINE HITASP(OR_N,OR_Z)
    use DATLEN
    use DATMAI
    use mod_surface
+   use mod_lens_data_manager, only: ldm
    IMPLICIT NONE
 !
 !       THIS IS SUBROUTINE HITASP.FOR. THIS SUBROUTINE IMPLEMENTS
@@ -690,26 +680,13 @@ SUBROUTINE HITASP(OR_N,OR_Z)
    INTEGER SPDCD1,SPDCD2
    COMMON/SPRA2/SPDCD1,SPDCD2
 !
-   INTEGER WWVN
-   COMMON/WVPASS/WWVN
-
    !call logger%logTextWithNum("HitAsp Started for surf ", R_I)
    PHASE=0.0D0
    HV0=0.0D0
    HV1=0.0D0
    HV2=0.0D0
-   IF(WVN.EQ.1) WWVN=46
-   IF(WVN.EQ.2) WWVN=47
-   IF(WVN.EQ.3) WWVN=48
-   IF(WVN.EQ.4) WWVN=49
-   IF(WVN.EQ.5) WWVN=50
-   IF(WVN.EQ.6) WWVN=71
-   IF(WVN.EQ.7) WWVN=72
-   IF(WVN.EQ.8) WWVN=73
-   IF(WVN.EQ.9) WWVN=74
-   IF(WVN.EQ.10) WWVN=75
-   SNINDX=DABS(ALENS(WWVN,R_I-1))/ALENS(WWVN,R_I-1)
-   SNIND2=DABS(ALENS(WWVN,R_I))/ALENS(WWVN,R_I)
+   SNINDX=DABS(ldm%getSurfIndex(R_I-1, INT(WVN)))/ldm%getSurfIndex(R_I-1, INT(WVN))
+   SNIND2=DABS(ldm%getSurfIndex(R_I, INT(WVN)))/ldm%getSurfIndex(R_I, INT(WVN))
 !
 !       SURFACE IS CONIC
    CV=surf_curvature(R_I)
@@ -732,8 +709,8 @@ SUBROUTINE HITASP(OR_N,OR_Z)
       R_Z=R_ZAIM
 !       JUST PROCEED WITH THE DIRECT INTERSECTION TO THE CONIC
    END IF
-   NUSUBS=((ALENS((WWVN),(R_I-1)))/&
-   &(ALENS((WWVN),R_I)))
+   NUSUBS=((ldm%getSurfIndex(R_I-1, INT(WVN)))/&
+   &(ldm%getSurfIndex(R_I, INT(WVN))))
    SIGNNU=DABS(NUSUBS)/NUSUBS
    NUSUBS=DABS(NUSUBS)
 !
@@ -1293,6 +1270,7 @@ SUBROUTINE HITFLA(OR_N,OR_Z)
    use DATLEN
    use DATMAI
    use mod_surface
+   use mod_lens_data_manager, only: ldm
    IMPLICIT NONE
 !
 !       THIS IS SUBROUTINE HITFLA.FOR. THIS SUBROUTINE IMPLEMENTS
@@ -1318,23 +1296,11 @@ SUBROUTINE HITFLA(OR_N,OR_Z)
    INTEGER SPDCD1,SPDCD2,ISURF
    COMMON/SPRA2/SPDCD1,SPDCD2
 !
-   INTEGER WWVN
-   COMMON/WVPASS/WWVN
    PHASE=0.0D0
-   IF(WVN.EQ.1) WWVN=46
-   IF(WVN.EQ.2) WWVN=47
-   IF(WVN.EQ.3) WWVN=48
-   IF(WVN.EQ.4) WWVN=49
-   IF(WVN.EQ.5) WWVN=50
-   IF(WVN.EQ.6) WWVN=71
-   IF(WVN.EQ.7) WWVN=72
-   IF(WVN.EQ.8) WWVN=73
-   IF(WVN.EQ.9) WWVN=74
-   IF(WVN.EQ.10) WWVN=75
-   SNINDX=DABS(ALENS(WWVN,R_I-1))/ALENS(WWVN,R_I-1)
-   SNIND2=DABS(ALENS(WWVN,R_I))/ALENS(WWVN,R_I)
-   NUSUBS=((ALENS(WWVN,(R_I-1)))/&
-   &(ALENS(WWVN,R_I)))
+   SNINDX=DABS(ldm%getSurfIndex(R_I-1, INT(WVN)))/ldm%getSurfIndex(R_I-1, INT(WVN))
+   SNIND2=DABS(ldm%getSurfIndex(R_I, INT(WVN)))/ldm%getSurfIndex(R_I, INT(WVN))
+   NUSUBS=((ldm%getSurfIndex(R_I-1, INT(WVN)))/&
+   &(ldm%getSurfIndex(R_I, INT(WVN))))
    SIGNNU=DABS(NUSUBS)/NUSUBS
    NUSUBS=DABS(NUSUBS)
 !
@@ -1480,6 +1446,7 @@ SUBROUTINE HITPARAX(OR_N,OR_Z)
    use DATLEN
    use DATMAI
    use mod_surface
+   use mod_lens_data_manager, only: ldm
    IMPLICIT NONE
 !
 !       THIS IS SUBROUTINE HITPARAX.FOR. THIS SUBROUTINE IMPLEMENTS
@@ -1502,23 +1469,11 @@ SUBROUTINE HITPARAX(OR_N,OR_Z)
    INTEGER SPDCD1,SPDCD2,ISURF
    COMMON/SPRA2/SPDCD1,SPDCD2
 !
-   INTEGER WWVN
-   COMMON/WVPASS/WWVN
    PHASE=0.0D0
-   IF(WVN.EQ.1) WWVN=46
-   IF(WVN.EQ.2) WWVN=47
-   IF(WVN.EQ.3) WWVN=48
-   IF(WVN.EQ.4) WWVN=49
-   IF(WVN.EQ.5) WWVN=50
-   IF(WVN.EQ.6) WWVN=71
-   IF(WVN.EQ.7) WWVN=72
-   IF(WVN.EQ.8) WWVN=73
-   IF(WVN.EQ.9) WWVN=74
-   IF(WVN.EQ.10) WWVN=75
-   SNINDX=DABS(ALENS(WWVN,R_I-1))/ALENS(WWVN,R_I-1)
-   SNIND2=DABS(ALENS(WWVN,R_I))/ALENS(WWVN,R_I)
-   NUSUBS=((ALENS(WWVN,(R_I-1)))/&
-   &(ALENS(WWVN,R_I)))
+   SNINDX=DABS(ldm%getSurfIndex(R_I-1, INT(WVN)))/ldm%getSurfIndex(R_I-1, INT(WVN))
+   SNIND2=DABS(ldm%getSurfIndex(R_I, INT(WVN)))/ldm%getSurfIndex(R_I, INT(WVN))
+   NUSUBS=((ldm%getSurfIndex(R_I-1, INT(WVN)))/&
+   &(ldm%getSurfIndex(R_I, INT(WVN))))
    SIGNNU=DABS(NUSUBS)/NUSUBS
    NUSUBS=DABS(NUSUBS)
 !
@@ -1618,6 +1573,7 @@ SUBROUTINE HITFRZFL
    use DATLEN
    use DATMAI
    use mod_surface
+   use mod_lens_data_manager, only: ldm
    IMPLICIT NONE
 !
 !     FLAT FREZNEL-1 SURFACE
@@ -1633,21 +1589,9 @@ SUBROUTINE HITFRZFL
    COMMON/SPRA2/SPDCD1,SPDCD2
 !
 !
-   INTEGER WWVN
-   COMMON/WVPASS/WWVN
    PHASE=0.0D0
-   IF(WVN.EQ.1) WWVN=46
-   IF(WVN.EQ.2) WWVN=47
-   IF(WVN.EQ.3) WWVN=48
-   IF(WVN.EQ.4) WWVN=49
-   IF(WVN.EQ.5) WWVN=50
-   IF(WVN.EQ.6) WWVN=71
-   IF(WVN.EQ.7) WWVN=72
-   IF(WVN.EQ.8) WWVN=73
-   IF(WVN.EQ.9) WWVN=74
-   IF(WVN.EQ.10) WWVN=75
-   SNINDX=DABS(ALENS(WWVN,R_I-1))/ALENS(WWVN,R_I-1)
-   SNIND2=DABS(ALENS(WWVN,R_I))/ALENS(WWVN,R_I)
+   SNINDX=DABS(ldm%getSurfIndex(R_I-1, INT(WVN)))/ldm%getSurfIndex(R_I-1, INT(WVN))
+   SNIND2=DABS(ldm%getSurfIndex(R_I, INT(WVN)))/ldm%getSurfIndex(R_I, INT(WVN))
    RR_N=R_N
    RR_Z=R_Z
 !
@@ -1715,8 +1659,8 @@ SUBROUTINE HITFRZFL
          R_Z=0.0D0
       END IF
    END IF
-   NUSUBS=((ALENS((WWVN),(R_I-1)))/&
-   &(ALENS((WWVN),R_I)))
+   NUSUBS=((ldm%getSurfIndex(R_I-1, INT(WVN)))/&
+   &(ldm%getSurfIndex(R_I, INT(WVN))))
    SIGNNU=DABS(NUSUBS)/NUSUBS
    NUSUBS=DABS(NUSUBS)
 !
@@ -1862,9 +1806,9 @@ SUBROUTINE HITFRZFL
          END IF
          IF(COSI.LE.0.0D0) COSIP=-DSQRT(ARG)
          IF(COSI.GT.0.0D0) COSIP=DSQRT(ARG)
-         J=((ALENS((WWVN),R_I)*COSIP)&
-         &-(ALENS((WWVN),(R_I-1))*COSI))/&
-         &(ALENS((WWVN),R_I))
+         J=((ldm%getSurfIndex(R_I, INT(WVN))*COSIP)&
+         &-(ldm%getSurfIndex(R_I-1, INT(WVN))*COSI))/&
+         &(ldm%getSurfIndex(R_I, INT(WVN)))
          R_L=((NUSUBS*R_L)+(J*LN))
          R_M=((NUSUBS*R_M)+(J*MN))
          R_N=((NUSUBS*R_N)+(J*NN))
@@ -1945,6 +1889,7 @@ SUBROUTINE HITFRZCV
    use DATLEN
    use DATMAI
    use mod_surface
+   use mod_lens_data_manager, only: ldm
    IMPLICIT NONE
 !
 !     CURVED FRESNEL-1
@@ -1970,24 +1915,12 @@ SUBROUTINE HITFRZCV
    INTEGER SPDCD1,SPDCD2
    COMMON/SPRA2/SPDCD1,SPDCD2
 !
-   INTEGER WWVN
-   COMMON/WVPASS/WWVN
    PHASE=0.0D0
    HV0=0.0D0
    HV1=0.0D0
    HV2=0.0D0
-   IF(WVN.EQ.1) WWVN=46
-   IF(WVN.EQ.2) WWVN=47
-   IF(WVN.EQ.3) WWVN=48
-   IF(WVN.EQ.4) WWVN=49
-   IF(WVN.EQ.5) WWVN=50
-   IF(WVN.EQ.6) WWVN=71
-   IF(WVN.EQ.7) WWVN=72
-   IF(WVN.EQ.8) WWVN=73
-   IF(WVN.EQ.9) WWVN=74
-   IF(WVN.EQ.10) WWVN=75
-   SNINDX=DABS(ALENS(WWVN,R_I-1))/ALENS(WWVN,R_I-1)
-   SNIND2=DABS(ALENS(WWVN,R_I))/ALENS(WWVN,R_I)
+   SNINDX=DABS(ldm%getSurfIndex(R_I-1, INT(WVN)))/ldm%getSurfIndex(R_I-1, INT(WVN))
+   SNIND2=DABS(ldm%getSurfIndex(R_I, INT(WVN)))/ldm%getSurfIndex(R_I, INT(WVN))
 !
    IF(surf_toric_flag(R_I) == 0) THEN
       CV=surf_curvature(R_I)
@@ -2010,8 +1943,8 @@ SUBROUTINE HITFRZCV
       R_Z=R_ZAIM
 !       JUST PROCEED WITH THE DIRECT INTERSECTION TO THE CONIC
    END IF
-   NUSUBS=((ALENS((WWVN),(R_I-1)))/&
-   &(ALENS((WWVN),R_I)))
+   NUSUBS=((ldm%getSurfIndex(R_I-1, INT(WVN)))/&
+   &(ldm%getSurfIndex(R_I, INT(WVN))))
    SIGNNU=DABS(NUSUBS)/NUSUBS
    NUSUBS=DABS(NUSUBS)
 !
@@ -2523,9 +2456,9 @@ SUBROUTINE HITFRZCV
          END IF
          IF(COSI.LE.0.0D0) COSIP=-DSQRT(ARG)
          IF(COSI.GT.0.0D0) COSIP=DSQRT(ARG)
-         J=((ALENS((WWVN),R_I)*COSIP)&
-         &-(ALENS((WWVN),(R_I-1))*COSI))/&
-         &(ALENS((WWVN),R_I))
+         J=((ldm%getSurfIndex(R_I, INT(WVN))*COSIP)&
+         &-(ldm%getSurfIndex(R_I-1, INT(WVN))*COSI))/&
+         &(ldm%getSurfIndex(R_I, INT(WVN)))
          R_L=((NUSUBS*R_L)+(J*LN))
          R_M=((NUSUBS*R_M)+(J*MN))
          R_N=((NUSUBS*R_N)+(J*NN))
@@ -2606,6 +2539,7 @@ SUBROUTINE HITGRAZ
    use DATLEN
    use DATMAI
    use mod_surface
+   use mod_lens_data_manager, only: ldm
    IMPLICIT NONE
 !
 !       THIS IS SUBROUTINE HITGRAZ.FOR. THIS SUBROUTINE IMPLEMENTS
@@ -2633,25 +2567,13 @@ SUBROUTINE HITGRAZ
    INTEGER SPDCD1,SPDCD2
    COMMON/SPRA2/SPDCD1,SPDCD2
 !
-   INTEGER WWVN
-   COMMON/WVPASS/WWVN
    PHASE=0.0D0
    RR_N=R_N
    HV0=0.0D0
    HV1=0.0D0
    HV2=0.0D0
-   IF(WVN.EQ.1) WWVN=46
-   IF(WVN.EQ.2) WWVN=47
-   IF(WVN.EQ.3) WWVN=48
-   IF(WVN.EQ.4) WWVN=49
-   IF(WVN.EQ.5) WWVN=50
-   IF(WVN.EQ.6) WWVN=71
-   IF(WVN.EQ.7) WWVN=72
-   IF(WVN.EQ.8) WWVN=73
-   IF(WVN.EQ.9) WWVN=74
-   IF(WVN.EQ.10) WWVN=75
-   SNINDX=DABS(ALENS(WWVN,R_I-1))/ALENS(WWVN,R_I-1)
-   SNIND2=DABS(ALENS(WWVN,R_I))/ALENS(WWVN,R_I)
+   SNINDX=DABS(ldm%getSurfIndex(R_I-1, INT(WVN)))/ldm%getSurfIndex(R_I-1, INT(WVN))
+   SNIND2=DABS(ldm%getSurfIndex(R_I, INT(WVN)))/ldm%getSurfIndex(R_I, INT(WVN))
 !
 !       SURFACE IS CONIC BY DEFINITION
    CV=surf_curvature(R_I)
@@ -2669,8 +2591,8 @@ SUBROUTINE HITGRAZ
       R_Z=R_ZAIM
 !       JUST PROCEED WITH THE DIRECT INTERSECTION TO THE CONIC
    END IF
-   NUSUBS=((ALENS((WWVN),(R_I-1)))/&
-   &(ALENS((WWVN),R_I)))
+   NUSUBS=((ldm%getSurfIndex(R_I-1, INT(WVN)))/&
+   &(ldm%getSurfIndex(R_I, INT(WVN))))
    SIGNNU=DABS(NUSUBS)/NUSUBS
    NUSUBS=DABS(NUSUBS)
 !
@@ -3209,6 +3131,7 @@ SUBROUTINE HITANA_old(OR_N,OR_Z)
    use DATLEN
    use DATMAI
    use mod_surface
+   use mod_lens_data_manager, only: ldm
    IMPLICIT NONE
 !
 !       THIS IS SUBROUTINE HITANA.FOR. THIS SUBROUTINE IMPLEMENTS
@@ -3234,24 +3157,12 @@ SUBROUTINE HITANA_old(OR_N,OR_Z)
    INTEGER SPDCD1,SPDCD2,ISURF
    COMMON/SPRA2/SPDCD1,SPDCD2
 !
-   INTEGER WWVN
-   COMMON/WVPASS/WWVN
    PHASE=0.0D0
    HV0=0.0D0
    HV1=0.0D0
    HV2=0.0D0
-   IF(WVN.EQ.1) WWVN=46
-   IF(WVN.EQ.2) WWVN=47
-   IF(WVN.EQ.3) WWVN=48
-   IF(WVN.EQ.4) WWVN=49
-   IF(WVN.EQ.5) WWVN=50
-   IF(WVN.EQ.6) WWVN=71
-   IF(WVN.EQ.7) WWVN=72
-   IF(WVN.EQ.8) WWVN=73
-   IF(WVN.EQ.9) WWVN=74
-   IF(WVN.EQ.10) WWVN=75
-   SNINDX=DABS(ALENS(WWVN,R_I-1))/ALENS(WWVN,R_I-1)
-   SNIND2=DABS(ALENS(WWVN,R_I))/ALENS(WWVN,R_I)
+   SNINDX=DABS(ldm%getSurfIndex(R_I-1, INT(WVN)))/ldm%getSurfIndex(R_I-1, INT(WVN))
+   SNIND2=DABS(ldm%getSurfIndex(R_I, INT(WVN)))/ldm%getSurfIndex(R_I, INT(WVN))
    R1=0.0D0
    R2=0.0D0
    IF(surf_curvature(R_I).NE.0.0D0) R1=1.0D0/surf_curvature(R_I)
@@ -3275,8 +3186,8 @@ SUBROUTINE HITANA_old(OR_N,OR_Z)
       R_Z=R_ZAIM
 !       JUST PROCEED WITH THE DIRECT INTERSECTION TO THE SPHERE
    END IF
-   NUSUBS=((ALENS((WWVN),(R_I-1)))/&
-   &(ALENS((WWVN),R_I)))
+   NUSUBS=((ldm%getSurfIndex(R_I-1, INT(WVN)))/&
+   &(ldm%getSurfIndex(R_I, INT(WVN))))
    SIGNNU=DABS(NUSUBS)/NUSUBS
    NUSUBS=DABS(NUSUBS)
 !
@@ -3573,6 +3484,7 @@ SUBROUTINE HITANA(OR_N,OR_Z)
    use DATLEN
    use DATMAI
    use mod_surface
+   use mod_lens_data_manager, only: ldm
    IMPLICIT NONE
 !
 !       THIS IS SUBROUTINE HITANA.FOR. THIS SUBROUTINE IMPLEMENTS
@@ -3598,24 +3510,12 @@ SUBROUTINE HITANA(OR_N,OR_Z)
    INTEGER SPDCD1,SPDCD2,ISURF
    COMMON/SPRA2/SPDCD1,SPDCD2
 !
-   INTEGER WWVN
-   COMMON/WVPASS/WWVN
    PHASE=0.0D0
    HV0=0.0D0
    HV1=0.0D0
    HV2=0.0D0
-   IF(WVN.EQ.1) WWVN=46
-   IF(WVN.EQ.2) WWVN=47
-   IF(WVN.EQ.3) WWVN=48
-   IF(WVN.EQ.4) WWVN=49
-   IF(WVN.EQ.5) WWVN=50
-   IF(WVN.EQ.6) WWVN=71
-   IF(WVN.EQ.7) WWVN=72
-   IF(WVN.EQ.8) WWVN=73
-   IF(WVN.EQ.9) WWVN=74
-   IF(WVN.EQ.10) WWVN=75
-   SNINDX=DABS(ALENS(WWVN,R_I-1))/ALENS(WWVN,R_I-1)
-   SNIND2=DABS(ALENS(WWVN,R_I))/ALENS(WWVN,R_I)
+   SNINDX=DABS(ldm%getSurfIndex(R_I-1, INT(WVN)))/ldm%getSurfIndex(R_I-1, INT(WVN))
+   SNIND2=DABS(ldm%getSurfIndex(R_I, INT(WVN)))/ldm%getSurfIndex(R_I, INT(WVN))
    R1=0.0D0
    R2=0.0D0
    IF(surf_curvature(R_I).NE.0.0D0) R1=1.0D0/surf_curvature(R_I)
@@ -3639,8 +3539,8 @@ SUBROUTINE HITANA(OR_N,OR_Z)
       R_Z=R_ZAIM
 !       JUST PROCEED WITH THE DIRECT INTERSECTION TO THE ANAMORPH
    END IF
-   NUSUBS=((ALENS((WWVN),(R_I-1)))/&
-   &(ALENS((WWVN),R_I)))
+   NUSUBS=((ldm%getSurfIndex(R_I-1, INT(WVN)))/&
+   &(ldm%getSurfIndex(R_I, INT(WVN))))
    SIGNNU=DABS(NUSUBS)/NUSUBS
    NUSUBS=DABS(NUSUBS)
 !

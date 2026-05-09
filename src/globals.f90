@@ -11,6 +11,7 @@ MODULE globals
 
    logical :: TEST_MODE = .FALSE.
    logical :: HEADLESS_MODE = .FALSE.
+   logical :: RELEASE_MODE = .FALSE.
 !
 !     PROCESS ONE OR 20 COMMANDS
 !

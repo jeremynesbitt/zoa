@@ -1522,6 +1522,7 @@ SUBROUTINE TRACE_HOERAY(XO,YO,ZO,HOE_L,HOE_M,HOE_N)
    use DATMAI
    use mod_surface, only: surf_curvature, surf_thickness, surf_ideal_efl
    use mod_system, only: sys_wl_ref, sys_scy, sys_scx, sys_scy_fang, sys_scy_fang_set, sys_scx_fang, sys_last_surf
+   use mod_lens_data_manager, only: ldm
    IMPLICIT NONE
 !
 !       THIS IS SUBROUTINE HOERAY.FOR. THIS SUBROUTINE IMPLEMENTS
@@ -1731,16 +1732,9 @@ SUBROUTINE TRACE_HOERAY(XO,YO,ZO,HOE_L,HOE_M,HOE_N)
    H_RAY(7,0)=0.0D0
    H_RAY(8,0)=0.0D0
    H_RAY(25,0)=WW4
-   IF(INT(WW3).GE.1.AND.INT(WW3).LE.5) THEN
-      SNIND2=DABS(ALENS(45+INT(WW3),0))/ALENS(45+INT(WW3),0)
-      RN1=(ALENS(45+INT(WW3),0))
-      RN2=(ALENS(45+INT(WW3),0))
-   END IF
-   IF(INT(WW3).GE.6.AND.INT(WW3).LE.10) THEN
-      SNIND2=DABS(ALENS(65+INT(WW3),0))/ALENS(65+INT(WW3),0)
-      RN1=(ALENS(65+INT(WW3),0))
-      RN2=(ALENS(65+INT(WW3),0))
-   END IF
+   RN1=ldm%getSurfIndex(0,INT(WW3))
+   RN2=RN1
+   SNIND2=DABS(RN1)/RN1
    IF(SNIND2.GT.0.0D0) H_RAY(24,0)=1.0D0
    IF(SNIND2.LT.0.0D0) H_RAY(24,0)=-1.0D0
    IF(SNIND2.GT.0.0D0) POSRAY=.TRUE.
@@ -1877,18 +1871,10 @@ SUBROUTINE TRACE_HOERAY(XO,YO,ZO,HOE_L,HOE_M,HOE_N)
       H_RAY(10,I)=COSIP
 !
 !     WHAT IS THE SIGN OF THE INDEX IN THE I-1 SPACE
-      IF(INT(WW3).GE.1.AND.INT(WW3).LE.5) THEN
-         SNINDX=DABS(ALENS(45+INT(WW3),I-1))/ALENS(45+INT(WW3),I-1)
-         SNIND2=DABS(ALENS(45+INT(WW3),I))/ALENS(45+INT(WW3),I)
-         RN1=(ALENS(45+INT(WW3),I-1))
-         RN2=(ALENS(45+INT(WW3),I))
-      END IF
-      IF(INT(WW3).GE.6.AND.INT(WW3).LE.10) THEN
-         SNINDX=DABS(ALENS(65+INT(WW3),I-1))/ALENS(65+INT(WW3),I-1)
-         SNIND2=DABS(ALENS(65+INT(WW3),I))/ALENS(65+INT(WW3),I)
-         RN1=(ALENS(65+INT(WW3),I-1))
-         RN2=(ALENS(65+INT(WW3),I))
-      END IF
+      RN1=ldm%getSurfIndex(I-1,INT(WW3))
+      RN2=ldm%getSurfIndex(I,INT(WW3))
+      SNINDX=DABS(RN1)/RN1
+      SNIND2=DABS(RN2)/RN2
       H_RAY(29,I)=YL
       H_RAY(30,I)=YM
       H_RAY(31,I)=YN
@@ -1922,10 +1908,7 @@ SUBROUTINE TRACE_HOERAY(XO,YO,ZO,HOE_L,HOE_M,HOE_N)
          H_RAY(8,I)=-(surf_ideal_efl(I-1)-surf_thickness(I-1))*H_RAY(6,I-1)
       END IF
 
-      IF(INT(WW3).GE.1.AND.INT(WW3).LE.5)&
-      &H_RAY(7,I)=H_RAY(8,I)*DABS(ALENS(45+INT(WW3),(I-1)))
-      IF(INT(WW3).GE.6.AND.INT(WW3).LE.10)&
-      &H_RAY(7,I)=H_RAY(8,I)*DABS(ALENS(65+INT(WW3),(I-1)))
+      H_RAY(7,I)=H_RAY(8,I)*DABS(ldm%getSurfIndex(I-1,INT(WW3)))
       IF(.NOT.RV) H_RAY(7,I)=H_RAY(7,I)+PHASE
       IF(RV) H_RAY(7,I)=H_RAY(7,I)-PHASE
 !

@@ -468,7 +468,11 @@ module codeV_commands
                 return
             end if
                 
-            !PRINT *, "About to crash with fcn pointer?"
+            if (.not. associated(zoaCmds(ii)%execFunc)) then
+                print *, "BUG: null execFunc for cmd=[", trim(zoaCmds(ii)%cmd), "] iptCmd=[", trim(iptCmd), "] ii=", ii
+                boolResult = .FALSE.
+                return
+            end if
             call zoaCmds(ii)%execFunc(currentCommand)
             boolResult = .TRUE.
             return
@@ -956,7 +960,7 @@ module codeV_commands
 
         logical :: boolResult
         character(len=*) :: tstCmd
-        type(string) :: tstCmds(17+size(zoaCmds))
+        type(string) :: tstCmds(6+size(zoaCmds))
         integer :: i
 
 
@@ -973,20 +977,20 @@ module codeV_commands
         !tstCmds(1)%s = 'YAN'
         !tstCmds(2)%s = 'TIT'
         !tstCmds(3)%s = 'WL'
-        tstCmds(6)%s = 'GO'
-        tstCmds(7)%s = 'DIM'
         !tstCmds(8)%s = 'RDY'
         !tstCmds(9)%s = 'THI'
         !tstCmds(10)%s = 'INS'
         !tstCmds(11)%s = 'GLA'
-        tstCmds(12)%s = 'PIM'
-        tstCmds(13)%s = 'EPD'
         !tstCmds(14)%s = 'CUY'
-        tstCmds(15)%s = 'DEL'
-        !tstCmds(16)%s = 'RED'
-        tstCmds(17)%s = 'SETC'
+        !tstCmds(16)%s = 'RED'        
+        tstCmds(1)%s = 'GO'
+        tstCmds(2)%s = 'DIM'
+        tstCmds(3)%s = 'PIM'
+        tstCmds(4)%s = 'EPD'
+        tstCmds(5)%s = 'DEL'
+        tstCmds(6)%s = 'SETC'
         do i=1,size(zoaCmds)
-            tstCmds(17+i)%s = zoaCmds(i)%cmd
+            tstCmds(6+i)%s = zoaCmds(i)%cmd
         end do
 
 

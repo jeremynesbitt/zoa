@@ -29,6 +29,9 @@ module mod_lens_data_manager
      procedure, public, pass(self) :: getSurfCurv, getSurfRad
      procedure, public, pass(self) :: getConicConstant
      procedure, public, pass(self) :: getSurfIndex
+     procedure, public, pass(self) :: getIndexRatio
+     procedure, public, pass(self) :: getRefractionPowerFactor
+     procedure, public, pass(self) :: getSurfDispersion
      procedure, public, pass(self) :: getLastSurf
      procedure, public, pass(self) :: getEFL
      procedure, public, pass(self) :: getTrackLength
@@ -44,6 +47,51 @@ module mod_lens_data_manager
      procedure :: getSurfacePointer, incrementSurfacePointer
      procedure, public, pass(self) :: genSaveOutputText => genLDMSaveOutputText
      procedure :: outputPikupText, genSurfPikupSavText, getSurfTypeName, getExtraParamCmd
+     procedure, public, pass(self) :: removeAllSurfaceData
+     procedure, public, pass(self) :: clearClearApertureData
+     procedure, public, pass(self) :: clearObscurationData
+     procedure, public, pass(self) :: clearGrtInitData
+     procedure, public, pass(self) :: clearGratingData
+     procedure, public, pass(self) :: clearToricData
+     procedure, public, pass(self) :: clearTiltAngles
+     procedure, public, pass(self) :: clearTiltDegAngles
+     procedure, public, pass(self) :: clearGlobalCoordData
+     procedure, public, pass(self) :: clearDecentData
+     procedure, public, pass(self) :: clearPivotAndFocusData
+     procedure, public, pass(self) :: initRefractiveIndices
+     procedure, public, pass(self) :: clearCurvAndConic
+     procedure, public, pass(self) :: clearAsphericCoeffs
+     procedure, public, pass(self) :: clearAsphericData
+     procedure, public, pass(self) :: clearClearApertureParams
+     procedure, public, pass(self) :: clearObscurationShape
+     procedure, public, pass(self) :: clearObscurationShapeParams
+     procedure, public, pass(self) :: clearToricFlagAndCurv
+     procedure, public, pass(self) :: clearTiltAlphaBetaGamma
+     procedure, public, pass(self) :: clearTiltAnglesAndDecentValues
+     procedure, public, pass(self) :: clearTiltAndDecentData
+     procedure, public, pass(self) :: clearDecentFlagAndY
+     procedure, public, pass(self) :: clearDecentValues
+     procedure, public, pass(self) :: clearDecentAnamAndConfig
+     procedure, public, pass(self) :: clearXDecentAnamAndConfig
+     procedure, public, pass(self) :: clearSolvesAndSurfType
+     procedure, public, pass(self) :: clearAnamorphicCoeffs
+     procedure, public, pass(self) :: clearApertureRegion
+     procedure, public, pass(self) :: clearPivotData
+     procedure, public, pass(self) :: clearPivotXY
+     procedure, public, pass(self) :: clearPivotAndHigherAspherics
+     procedure, public, pass(self) :: clearHigherOrderAsphericCoeffs
+     procedure, public, pass(self) :: clearDeformableData
+     procedure, public, pass(self) :: clearFocusData
+     procedure, public, pass(self) :: clearFocusAndTiltDegData
+     procedure, public, pass(self) :: clearGlassColorData
+     procedure, public, pass(self) :: clearMultiApertureData
+     procedure, public, pass(self) :: clearArrayData
+     procedure, public, pass(self) :: clearSpiderData
+     procedure, public, pass(self) :: clearExtendedSurfaceData
+     procedure, public, pass(self) :: clearAsphericCoeffsAndFlag
+     procedure, public, pass(self) :: clearAnamorphicData
+     procedure, public, pass(self) :: clearApertureTypeAndParams
+     procedure, public, pass(self) :: clearApertureTypeAndAllParams
 
     end type
 
@@ -327,6 +375,28 @@ module mod_lens_data_manager
 
         index = ALENS(WWVN,surfIdx)
 
+    end function
+
+    function getIndexRatio(self, surfPrev, surfCurr, wlNum) result(ratio)
+        class(lens_data_manager) :: self
+        integer, intent(in) :: surfPrev, surfCurr, wlNum
+        real(kind=real64) :: ratio
+        ratio = self%getSurfIndex(surfPrev, wlNum) / self%getSurfIndex(surfCurr, wlNum)
+    end function
+
+    function getRefractionPowerFactor(self, surfPrev, surfCurr, wlNum) result(factor)
+        class(lens_data_manager) :: self
+        integer, intent(in) :: surfPrev, surfCurr, wlNum
+        real(kind=real64) :: factor
+        factor = (self%getSurfIndex(surfCurr, wlNum) - self%getSurfIndex(surfPrev, wlNum)) / &
+                 self%getSurfIndex(surfCurr, wlNum)
+    end function
+
+    function getSurfDispersion(self, surfIdx, wl1Num, wl2Num) result(disp)
+        class(lens_data_manager) :: self
+        integer, intent(in) :: surfIdx, wl1Num, wl2Num
+        real(kind=real64) :: disp
+        disp = self%getSurfIndex(surfIdx, wl1Num) - self%getSurfIndex(surfIdx, wl2Num)
     end function
 
     subroutine updateOptimVars(self, varName, s0,sf,intCode)
@@ -663,8 +733,325 @@ module mod_lens_data_manager
         ! Now that we are done send GO cmd to leave lens update level
         call self%outputPikupText(fID)
         write(fID, *) "GO"
-      
+
       end subroutine
-      
+
+      subroutine removeAllSurfaceData(self, surfIdx)
+        use DATLEN, only: ALENS, LSIZ
+        class(lens_data_manager), intent(inout) :: self
+        integer, intent(in) :: surfIdx
+        ALENS(1:LSIZ, surfIdx) = 0.0D0
+      end subroutine
+
+      subroutine clearClearApertureData(self, surfIdx)
+        use DATLEN, only: ALENS
+        class(lens_data_manager), intent(inout) :: self
+        integer, intent(in) :: surfIdx
+        ALENS(51:57, surfIdx) = 0.0D0
+      end subroutine
+
+      subroutine clearObscurationData(self, surfIdx)
+        use DATLEN, only: ALENS
+        class(lens_data_manager), intent(inout) :: self
+        integer, intent(in) :: surfIdx
+        ALENS(61:67, surfIdx) = 0.0D0
+      end subroutine
+
+      subroutine clearGrtInitData(self, surfIdx)
+        use DATLEN, only: ALENS
+        class(lens_data_manager), intent(inout) :: self
+        integer, intent(in) :: surfIdx
+        ALENS(97:99, surfIdx) = 0.0D0
+      end subroutine
+
+      subroutine clearGratingData(self, surfIdx)
+        use DATLEN, only: ALENS
+        class(lens_data_manager), intent(inout) :: self
+        integer, intent(in) :: surfIdx
+        ALENS(96:101, surfIdx) = 0.0D0
+      end subroutine
+
+      subroutine clearToricData(self, surfIdx)
+        use DATLEN, only: ALENS
+        class(lens_data_manager), intent(inout) :: self
+        integer, intent(in) :: surfIdx
+        ALENS(23:24, surfIdx) = 0.0D0
+        ALENS(36:41, surfIdx) = 0.0D0
+      end subroutine
+
+      subroutine clearTiltAngles(self, surfIdx)
+        use DATLEN, only: ALENS
+        class(lens_data_manager), intent(inout) :: self
+        integer, intent(in) :: surfIdx
+        ALENS(25:28, surfIdx) = 0.0D0
+      end subroutine
+
+      subroutine clearTiltDegAngles(self, surfIdx)
+        use DATLEN, only: ALENS
+        class(lens_data_manager), intent(inout) :: self
+        integer, intent(in) :: surfIdx
+        ALENS(118:120, surfIdx) = 0.0D0
+      end subroutine
+
+      subroutine clearGlobalCoordData(self, surfIdx)
+        use DATLEN, only: ALENS
+        class(lens_data_manager), intent(inout) :: self
+        integer, intent(in) :: surfIdx
+        ALENS(90:95, surfIdx) = 0.0D0
+      end subroutine
+
+      subroutine clearDecentData(self, surfIdx)
+        use DATLEN, only: ALENS
+        class(lens_data_manager), intent(inout) :: self
+        integer, intent(in) :: surfIdx
+        ALENS(29:31, surfIdx) = 0.0D0
+      end subroutine
+
+      subroutine clearPivotAndFocusData(self, surfIdx)
+        use DATLEN, only: ALENS
+        class(lens_data_manager), intent(inout) :: self
+        integer, intent(in) :: surfIdx
+        ALENS(113:116, surfIdx) = 0.0D0
+      end subroutine
+
+      subroutine initRefractiveIndices(self, surfIdx)
+        use DATLEN, only: ALENS
+        class(lens_data_manager), intent(inout) :: self
+        integer, intent(in) :: surfIdx
+        ALENS(46:50, surfIdx) = 1.0D0
+        ALENS(71:75, surfIdx) = 1.0D0
+      end subroutine
+
+      subroutine clearCurvAndConic(self, surfIdx)
+        use DATLEN, only: ALENS
+        class(lens_data_manager), intent(inout) :: self
+        integer, intent(in) :: surfIdx
+        ALENS(1:2, surfIdx) = 0.0D0
+      end subroutine
+
+      subroutine clearAsphericCoeffs(self, surfIdx)
+        use DATLEN, only: ALENS
+        class(lens_data_manager), intent(inout) :: self
+        integer, intent(in) :: surfIdx
+        ALENS(4:7, surfIdx) = 0.0D0
+      end subroutine
+
+      subroutine clearAsphericData(self, surfIdx)
+        use DATLEN, only: ALENS
+        class(lens_data_manager), intent(inout) :: self
+        integer, intent(in) :: surfIdx
+        ALENS(4:9, surfIdx) = 0.0D0
+      end subroutine
+
+      subroutine clearClearApertureParams(self, surfIdx)
+        use DATLEN, only: ALENS
+        class(lens_data_manager), intent(inout) :: self
+        integer, intent(in) :: surfIdx
+        ALENS(10:15, surfIdx) = 0.0D0
+      end subroutine
+
+      subroutine clearObscurationShape(self, surfIdx)
+        use DATLEN, only: ALENS
+        class(lens_data_manager), intent(inout) :: self
+        integer, intent(in) :: surfIdx
+        ALENS(16:22, surfIdx) = 0.0D0
+      end subroutine
+
+      subroutine clearObscurationShapeParams(self, surfIdx)
+        use DATLEN, only: ALENS
+        class(lens_data_manager), intent(inout) :: self
+        integer, intent(in) :: surfIdx
+        ALENS(19:22, surfIdx) = 0.0D0
+      end subroutine
+
+      subroutine clearToricFlagAndCurv(self, surfIdx)
+        use DATLEN, only: ALENS
+        class(lens_data_manager), intent(inout) :: self
+        integer, intent(in) :: surfIdx
+        ALENS(23:24, surfIdx) = 0.0D0
+      end subroutine
+
+      subroutine clearTiltAlphaBetaGamma(self, surfIdx)
+        use DATLEN, only: ALENS
+        class(lens_data_manager), intent(inout) :: self
+        integer, intent(in) :: surfIdx
+        ALENS(26:28, surfIdx) = 0.0D0
+      end subroutine
+
+      subroutine clearTiltAnglesAndDecentValues(self, surfIdx)
+        use DATLEN, only: ALENS
+        class(lens_data_manager), intent(inout) :: self
+        integer, intent(in) :: surfIdx
+        ALENS(26:31, surfIdx) = 0.0D0
+      end subroutine
+
+      subroutine clearTiltAndDecentData(self, surfIdx)
+        use DATLEN, only: ALENS
+        class(lens_data_manager), intent(inout) :: self
+        integer, intent(in) :: surfIdx
+        ALENS(25:31, surfIdx) = 0.0D0
+      end subroutine
+
+      subroutine clearDecentFlagAndY(self, surfIdx)
+        use DATLEN, only: ALENS
+        class(lens_data_manager), intent(inout) :: self
+        integer, intent(in) :: surfIdx
+        ALENS(29:30, surfIdx) = 0.0D0
+      end subroutine
+
+      subroutine clearDecentValues(self, surfIdx)
+        use DATLEN, only: ALENS
+        class(lens_data_manager), intent(inout) :: self
+        integer, intent(in) :: surfIdx
+        ALENS(30:31, surfIdx) = 0.0D0
+      end subroutine
+
+      subroutine clearDecentAnamAndConfig(self, surfIdx)
+        use DATLEN, only: ALENS
+        class(lens_data_manager), intent(inout) :: self
+        integer, intent(in) :: surfIdx
+        ALENS(30:43, surfIdx) = 0.0D0
+      end subroutine
+
+      subroutine clearXDecentAnamAndConfig(self, surfIdx)
+        use DATLEN, only: ALENS
+        class(lens_data_manager), intent(inout) :: self
+        integer, intent(in) :: surfIdx
+        ALENS(31:43, surfIdx) = 0.0D0
+      end subroutine
+
+      subroutine clearSolvesAndSurfType(self, surfIdx)
+        use DATLEN, only: ALENS
+        class(lens_data_manager), intent(inout) :: self
+        integer, intent(in) :: surfIdx
+        ALENS(33:34, surfIdx) = 0.0D0
+      end subroutine
+
+      subroutine clearAnamorphicCoeffs(self, surfIdx)
+        use DATLEN, only: ALENS
+        class(lens_data_manager), intent(inout) :: self
+        integer, intent(in) :: surfIdx
+        ALENS(36:40, surfIdx) = 0.0D0
+      end subroutine
+
+      subroutine clearApertureRegion(self, surfIdx)
+        use DATLEN, only: ALENS
+        class(lens_data_manager), intent(inout) :: self
+        integer, intent(in) :: surfIdx
+        ALENS(51:70, surfIdx) = 0.0D0
+      end subroutine
+
+      subroutine clearPivotData(self, surfIdx)
+        use DATLEN, only: ALENS
+        class(lens_data_manager), intent(inout) :: self
+        integer, intent(in) :: surfIdx
+        ALENS(77:80, surfIdx) = 0.0D0
+      end subroutine
+
+      subroutine clearPivotXY(self, surfIdx)
+        use DATLEN, only: ALENS
+        class(lens_data_manager), intent(inout) :: self
+        integer, intent(in) :: surfIdx
+        ALENS(78:79, surfIdx) = 0.0D0
+      end subroutine
+
+      subroutine clearPivotAndHigherAspherics(self, surfIdx)
+        use DATLEN, only: ALENS
+        class(lens_data_manager), intent(inout) :: self
+        integer, intent(in) :: surfIdx
+        ALENS(76:85, surfIdx) = 0.0D0
+      end subroutine
+
+      subroutine clearHigherOrderAsphericCoeffs(self, surfIdx)
+        use DATLEN, only: ALENS
+        class(lens_data_manager), intent(inout) :: self
+        integer, intent(in) :: surfIdx
+        ALENS(81:85, surfIdx) = 0.0D0
+      end subroutine
+
+      subroutine clearDeformableData(self, surfIdx)
+        use DATLEN, only: ALENS
+        class(lens_data_manager), intent(inout) :: self
+        integer, intent(in) :: surfIdx
+        ALENS(103:106, surfIdx) = 0.0D0
+      end subroutine
+
+      subroutine clearFocusData(self, surfIdx)
+        use DATLEN, only: ALENS
+        class(lens_data_manager), intent(inout) :: self
+        integer, intent(in) :: surfIdx
+        ALENS(114:116, surfIdx) = 0.0D0
+      end subroutine
+
+      subroutine clearFocusAndTiltDegData(self, surfIdx)
+        use DATLEN, only: ALENS
+        class(lens_data_manager), intent(inout) :: self
+        integer, intent(in) :: surfIdx
+        ALENS(114:120, surfIdx) = 0.0D0
+      end subroutine
+
+      subroutine clearGlassColorData(self, surfIdx)
+        use DATLEN, only: ALENS
+        class(lens_data_manager), intent(inout) :: self
+        integer, intent(in) :: surfIdx
+        ALENS(122:123, surfIdx) = 0.0D0
+      end subroutine
+
+      subroutine clearMultiApertureData(self, surfIdx)
+        use DATLEN, only: ALENS
+        class(lens_data_manager), intent(inout) :: self
+        integer, intent(in) :: surfIdx
+        ALENS(127:128, surfIdx) = 0.0D0
+      end subroutine
+
+      subroutine clearArrayData(self, surfIdx)
+        use DATLEN, only: ALENS
+        class(lens_data_manager), intent(inout) :: self
+        integer, intent(in) :: surfIdx
+        ALENS(131:133, surfIdx) = 0.0D0
+      end subroutine
+
+      subroutine clearSpiderData(self, surfIdx)
+        use DATLEN, only: ALENS
+        class(lens_data_manager), intent(inout) :: self
+        integer, intent(in) :: surfIdx
+        ALENS(134:137, surfIdx) = 0.0D0
+      end subroutine
+
+      subroutine clearExtendedSurfaceData(self, surfIdx)
+        use DATLEN, only: ALENS
+        class(lens_data_manager), intent(inout) :: self
+        integer, intent(in) :: surfIdx
+        ALENS(77:110, surfIdx) = 0.0D0
+      end subroutine
+
+      subroutine clearAsphericCoeffsAndFlag(self, surfIdx)
+        use DATLEN, only: ALENS
+        class(lens_data_manager), intent(inout) :: self
+        integer, intent(in) :: surfIdx
+        ALENS(4:8, surfIdx) = 0.0D0
+      end subroutine
+
+      subroutine clearAnamorphicData(self, surfIdx)
+        use DATLEN, only: ALENS
+        class(lens_data_manager), intent(inout) :: self
+        integer, intent(in) :: surfIdx
+        ALENS(36:41, surfIdx) = 0.0D0
+      end subroutine
+
+      subroutine clearApertureTypeAndParams(self, surfIdx)
+        use DATLEN, only: ALENS
+        class(lens_data_manager), intent(inout) :: self
+        integer, intent(in) :: surfIdx
+        ALENS(9:14, surfIdx) = 0.0D0
+      end subroutine
+
+      subroutine clearApertureTypeAndAllParams(self, surfIdx)
+        use DATLEN, only: ALENS
+        class(lens_data_manager), intent(inout) :: self
+        integer, intent(in) :: surfIdx
+        ALENS(9:15, surfIdx) = 0.0D0
+      end subroutine
+
 
 end module

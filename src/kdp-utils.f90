@@ -11,10 +11,9 @@ module kdp_utils
     contains
   
   subroutine OUTKDP(txt, code)
+    use DATMAI, only: OUTLYNE, OUTLYNE_LONG
     character(len=*) :: txt
     integer, optional :: code
-
-    include "DATMAI.INC"
 
     if(len(txt) > 140) then
       PRINT *, "WARNING:  output text truncated due to input character length longer than OUTLYNE"
@@ -36,8 +35,8 @@ module kdp_utils
   end subroutine
 
   function inLensUpdateLevel() result(boolResult)
+    use DATMAI, only: F1, F5, F6
     logical :: boolResult
-    include "DATMAI.INC"
 
     boolResult = .FALSE.
     IF (F1.EQ.0.AND.F5.EQ.1) boolResult = .TRUE.

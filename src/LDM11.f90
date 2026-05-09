@@ -4025,6 +4025,7 @@ SUBROUTINE CVFLIP
    use DATMAI
    use mod_system, only: sys_high_cfg
    use command_utils, only: is_command_query
+   use mod_lens_data_manager, only: ldm
    IMPLICIT NONE
 !
 !     THIS DOES THE CMD LEVEL COMMAND "FLIP"
@@ -4184,13 +4185,13 @@ SUBROUTINE CVFLIP
       ALENS(4:45,K)=TEMPLEN(4:45,BCNT)
       ALENS(51:70,K)=TEMPLEN(51:70,BCNT)
       ALENS(75:105,K)=TEMPLEN(75:105,BCNT)
-      ALENS(25:31,K)=0.0D0
-      ALENS(33:34,K)=0.0D0
-      ALENS(90:95,K)=0.0D0
+      call ldm%clearTiltAndDecentData(K)
+      call ldm%clearSolvesAndSurfType(K)
+      call ldm%clearGlobalCoordData(K)
       call set_surf_pivot_flag(K, 0)
       call set_surf_focus_dz(K, 0.0D0)
       call set_surf_ret_surf_num(K, 0)
-      ALENS(77:80,K)=0.0D0
+      call ldm%clearPivotData(K)
 !     FLIP CURVATURE SIGNS
       call set_surf_curvature(K, -surf_curvature(K))
       ALENS(4:7,K)=-ALENS(4:7,K)
@@ -4203,8 +4204,7 @@ SUBROUTINE CVFLIP
    DO K=I,JJ
       BCNT=I+(JJ-K)
       call set_surf_thickness(K, TEMPLEN(3,BCNT))
-      ALENS(46:50,K)=1.0D0
-      ALENS(71:75,K)=1.0D0
+      call ldm%initRefractiveIndices(K)
       GLANAM(K,1:2)=TEMPGLA(BCNT,1:2)
    END DO
    F1=0

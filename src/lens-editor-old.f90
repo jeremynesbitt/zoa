@@ -1591,8 +1591,7 @@ end subroutine
   end function
 
   function getSurfaceNames() result(surfName_array)
-    include "DATLEN.INC"
-    character(len=40), dimension(curr_lens_data%num_surfaces) :: surfName_array
+    use DATLEN    character(len=40), dimension(curr_lens_data%num_surfaces) :: surfName_array
     integer :: i
     do i=1,curr_lens_data%num_surfaces-1
       surfName_array(i) = LBL(i-1)(1:40)

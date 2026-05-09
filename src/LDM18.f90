@@ -5,6 +5,7 @@ SUBROUTINE FLUSHNEXT
    use DATLEN
    use mod_surface
    use DATMAI
+   use mod_lens_data_manager, only: ldm
    IMPLICIT NONE
 !     ALL THE ARRAY VALUES FOR THE NEXT SURFACE ARE SET TO THEIR
 !     PROPER STARTING DEFAULT VALUES
@@ -14,13 +15,12 @@ SUBROUTINE FLUSHNEXT
    NUMHITS(SURF)=1
    SOLVE(1:9,SURF)=0.0D0
    PIKUP(1:6,SURF,1:PSIZ)=0.0D0
-   ALENS(1:LSIZ,SURF)=0.0D0
-   ALENS(46:50,SURF)=1.0D0
-   ALENS(71:75,SURF)=1.0D0
-   ALENS(76:85,SURF)=0.0D0
-   ALENS(51:70,SURF)=0.0D0
-   ALENS(127:128,SURF)=0.0D0
-   ALENS(134:137,SURF)=0.0D0
+   call ldm%removeAllSurfaceData(SURF)
+   call ldm%initRefractiveIndices(SURF)
+   call ldm%clearPivotAndHigherAspherics(SURF)
+   call ldm%clearApertureRegion(SURF)
+   call ldm%clearMultiApertureData(SURF)
+   call ldm%clearSpiderData(SURF)
    MULTCLAP(1:1000,1:3,SURF)=0.0D0
    MULTCOBS(1:1000,1:3,SURF)=0.0D0
    GLANAM(SURF,1)='             '

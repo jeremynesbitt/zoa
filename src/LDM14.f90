@@ -222,6 +222,7 @@ SUBROUTINE SAIR
    use mod_surface
    use DATMAI
    use mod_system, only: sys_last_surf, sys_set_last_surf
+   use mod_lens_data_manager, only: ldm
    IMPLICIT NONE
 !
 !       THIS IS SUBROUTINE SAIR WHICH IMPLEMENTS THE AIR
@@ -256,8 +257,7 @@ SUBROUTINE SAIR
 !
 !               WE ARE AT LENS INPUT OR LENS UPDATE LEVEL
 !
-      ALENS(46:50,SURF)=1.0
-      ALENS(71:75,SURF)=1.0
+      call ldm%initRefractiveIndices(SURF)
       GLANAM(SURF,1)='             '
       GLANAM(SURF,2)='AIR          '
 !
@@ -322,6 +322,7 @@ SUBROUTINE GLSCAT
    use mod_surface
    use DATMAI
    use mod_system, only: sys_last_surf, sys_set_last_surf
+   use mod_lens_data_manager, only: ldm
    IMPLICIT NONE
 !
 !       THIS IS SUBROUTINE GLSCAT WHICH IMPLEMENTS THE SCHOTT
@@ -357,8 +358,7 @@ SUBROUTINE GLSCAT
    ELSE
    END IF
 !
-   ALENS(46:50,SURF)=1.0D0
-   ALENS(71:75,SURF)=1.0D0
+   call ldm%initRefractiveIndices(SURF)
    GLANAM(SURF,1)=WC(1:8)//'   '
    GLANAM(SURF,2)= WS(1:13)
 
@@ -492,6 +492,7 @@ SUBROUTINE SINDEX
    use mod_surface
    use DATMAI
    use mod_system, only: sys_wl_pri1, sys_wl_pri2, sys_wl_ref
+   use mod_lens_data_manager, only: ldm
    IMPLICIT NONE
 !
 !       THIS IS SUBROUTINE SINDEX. THIS IS THE SUBROUTINE WHICH
@@ -561,6 +562,7 @@ SUBROUTINE SPERFECT
    use mod_surface
    use DATMAI
    use mod_system, only: sys_last_surf, sys_set_last_surf
+   use mod_lens_data_manager, only: ldm
    IMPLICIT NONE
 !
 !       THIS IS SUBROUTINE SPERFECT WHICH IMPLEMENTS THE PERFECT
@@ -576,8 +578,7 @@ SUBROUTINE SPERFECT
    ELSE
    END IF
 !
-   ALENS(46:50,SURF)=1.0
-   ALENS(71:75,SURF)=1.0
+   call ldm%initRefractiveIndices(SURF)
    GLANAM(SURF,1)='             '
    GLANAM(SURF,2)='PERFECT      '
 !
@@ -638,6 +639,7 @@ SUBROUTINE SIDEAL
    use mod_surface
    use DATMAI
    use mod_system, only: sys_last_surf, sys_set_last_surf
+   use mod_lens_data_manager, only: ldm
    IMPLICIT NONE
 !
 !       THIS IS SUBROUTINE SIDEAL WHICH IMPLEMENTS THE IDEAL
@@ -676,8 +678,7 @@ SUBROUTINE SIDEAL
    END IF
 !
    call set_surf_ideal_efl(SURF, W1)
-   ALENS(46:50,SURF)=1.0
-   ALENS(71:75,SURF)=1.0
+   call ldm%initRefractiveIndices(SURF)
    GLANAM(SURF,1)='             '
    GLANAM(SURF,2)='IDEAL        '
 !
@@ -750,6 +751,7 @@ SUBROUTINE LQUERY
       & sys_wrx, sys_wry, sys_x1_scx, sys_x1_scx_fang, sys_y1_scy, &
       & sys_y1_scy_fang, sys_set_fno_val_x, sys_set_fno_val_y, &
       & sys_set_naox, sys_set_naoy, sys_set_sax_float, sys_set_say_float
+   use mod_lens_data_manager, only: ldm
    IMPLICIT NONE
 !
 !       THIS SUBROUTINE DISPLAYS THE CURRENT VALUE OF A LENS
@@ -2024,7 +2026,7 @@ SUBROUTINE LQUERY
    END IF
    IF(WC.EQ.'CLAP') THEN
       IF(ABS(surf_clap_type(SURF)).EQ.0.0D0) THEN
-         ALENS(51:57,SURF)=0.0D0
+         call ldm%clearClearApertureData(SURF)
          CALL REPORT_ERROR_AND_FAIL('NO "CLEAR APERTURE DATA" ON CURRENT SURFACE"', 1)
          GO TO 200
       ELSE
@@ -2054,7 +2056,7 @@ SUBROUTINE LQUERY
    END IF
    IF(WC.EQ.'CLAP') THEN
       IF(ABS(surf_cobs_ape_type(SURF)).EQ.0.0D0) THEN
-         ALENS(51:57,SURF)=0.0D0
+         call ldm%clearClearApertureData(SURF)
          CALL REPORT_ERROR_AND_FAIL('NO "CLEAR APERTURE ERASE DATA" ON CURRENT SURFACE"', 1)
          GO TO 200
       ELSE
@@ -2084,7 +2086,7 @@ SUBROUTINE LQUERY
    END IF
    IF(WC.EQ.'COBS') THEN
       IF(ABS(surf_coat_type(SURF)).EQ.0.0D0) THEN
-         ALENS(61:67,SURF)=0.0D0
+         call ldm%clearObscurationData(SURF)
          CALL REPORT_ERROR_AND_FAIL('NO "OBSCURATION DATA" ON CURRENT SURFACE"', 1)
          GO TO 200
       ELSE
@@ -2114,7 +2116,7 @@ SUBROUTINE LQUERY
    END IF
    IF(WC.EQ.'COBS') THEN
       IF(ABS(surf_cobs_era_type(SURF)).EQ.0.0D0) THEN
-         ALENS(61:67,SURF)=0.0D0
+         call ldm%clearObscurationData(SURF)
          CALL REPORT_ERROR_AND_FAIL('NO "OBSCURATION ERASE DATA" ON CURRENT SURFACE"', 1)
          GO TO 200
       ELSE

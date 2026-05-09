@@ -208,6 +208,7 @@ SUBROUTINE TILT_RETURN(ERCODE,TRYES)
    use mod_surface
    use DATMAI
    use mod_system, only: sys_last_surf
+   use mod_lens_data_manager, only: ldm
    IMPLICIT NONE
    INTEGER I,J
    LOGICAL ERCODE,TRYES
@@ -221,12 +222,12 @@ SUBROUTINE TILT_RETURN(ERCODE,TRYES)
          IF(surf_tilt_flag(J) == 6) THEN
 !     TILT RET REFERS TO A SURFACE WHICH HAS A TILT RET ON IT, DROP THE
 !     TILT RETURN
-            ALENS(25:28,I)=0.0D0
-            ALENS(118:120,I)=0.0D0
+            call ldm%clearTiltAngles(I)
+            call ldm%clearTiltDegAngles(I)
             call set_surf_ret_surf_num(I, 0)
-            ALENS(77:80,I)=0.0D0
+            call ldm%clearPivotData(I)
             call set_surf_pivot_flag(I, 0)
-            ALENS(90:95,I)=0.0D0
+            call ldm%clearGlobalCoordData(I)
             ERCODE=.TRUE.
             WRITE(OUTLYNE,*)'"TILT RET" ON SURFACE ',I
             CALL SHOWIT(1)
@@ -248,12 +249,12 @@ SUBROUTINE TILT_RETURN(ERCODE,TRYES)
             IF(surf_tilt_flag(J) == 2.OR.surf_tilt_flag(J) == 3) THEN
 !     PREVIOUS TILT AUTO FOUND
 !     DELETE THE TILT RET ON I
-               ALENS(25:28,I)=0.0D0
-               ALENS(118:120,I)=0.0D0
+               call ldm%clearTiltAngles(I)
+               call ldm%clearTiltDegAngles(I)
                call set_surf_ret_surf_num(I, 0)
-               ALENS(77:80,I)=0.0D0
+               call ldm%clearPivotData(I)
                call set_surf_pivot_flag(I, 0)
-               ALENS(90:95,I)=0.0D0
+               call ldm%clearGlobalCoordData(I)
                ERCODE=.TRUE.
                WRITE(OUTLYNE,*)'"TILT RET" ON SURFACE ',I
                CALL SHOWIT(1)
@@ -316,6 +317,7 @@ SUBROUTINE LNSEOS1
       & sys_set_x1_scx, sys_set_x1_scx_fang, sys_set_x1_scx_fang_set, sys_set_x1_scx_set, &
       & sys_set_xz_bilateral, sys_set_y1_scy, sys_set_y1_scy_fang, &
       & sys_ref_orient, sys_set_y1_scy_fang_set, sys_set_y1_scy_set, sys_set_yz_bilateral
+   use mod_lens_data_manager, only: ldm
    IMPLICIT NONE
 !
 !       THIS IS SUBROUTINE LNSEOS. THIS IS THE SUBROUTINE WHICH
@@ -1960,12 +1962,12 @@ SUBROUTINE LNSEOS1
 !     RESOLVE CHARACTERISTICS OF IDEAL LENSES
    I=INT(sys_last_surf())-1
    IF(GLANAM(I,2).EQ.'IDEAL        ') THEN
-      ALENS(1:2,I)=0.0D0
-      ALENS(4:9,I)=0.0D0
+      call ldm%clearCurvAndConic(I)
+      call ldm%clearAsphericData(I)
       call set_surf_multi_clap_flag(I, 0)
-      ALENS(23:24,I)=0.0D0
+      call ldm%clearToricFlagAndCurv(I)
       call set_surf_decenter_flag(I, 0)
-      ALENS(30:43,I)=0.0D0
+      call ldm%clearDecentAnamAndConfig(I)
       ALENS(45,I)=0.0D0
       call set_surf_cobs_ape_type(I, 0)
       call set_surf_pivot_flag(I, 0)
@@ -1973,17 +1975,17 @@ SUBROUTINE LNSEOS1
       call set_surf_dummy_val(I, 1)
       call set_surf_decenter_z(I, 0.0D0)
       call set_surf_ret_surf_num(I, 0)
-      ALENS(77:110,I)=0.0D0
-      ALENS(25:28,I)=0.0D0
-      ALENS(114:120,I)=0.0D0
+      call ldm%clearExtendedSurfaceData(I)
+      call ldm%clearTiltAngles(I)
+      call ldm%clearFocusAndTiltDegData(I)
       I=INT(sys_last_surf())
-      ALENS(1:2,I)=0.0D0
-      ALENS(4:9,I)=0.0D0
+      call ldm%clearCurvAndConic(I)
+      call ldm%clearAsphericData(I)
       call set_surf_multi_clap_flag(I, 0)
-      ALENS(23:24,I)=0.0D0
-      ALENS(29:30,I)=0.0D0
-      ALENS(114:116,I)=0.0D0
-      ALENS(31:43,I)=0.0D0
+      call ldm%clearToricFlagAndCurv(I)
+      call ldm%clearDecentFlagAndY(I)
+      call ldm%clearFocusData(I)
+      call ldm%clearXDecentAnamAndConfig(I)
       ALENS(45,I)=0.0D0
       call set_surf_cobs_ape_type(I, 0)
       call set_surf_pivot_flag(I, 0)
@@ -1991,9 +1993,9 @@ SUBROUTINE LNSEOS1
       call set_surf_dummy_val(I, 1)
       call set_surf_decenter_z(I, 0.0D0)
       call set_surf_ret_surf_num(I, 0)
-      ALENS(77:110,I)=0.0D0
-      ALENS(25:28,I)=0.0D0
-      ALENS(118:120,I)=0.0D0
+      call ldm%clearExtendedSurfaceData(I)
+      call ldm%clearTiltAngles(I)
+      call ldm%clearTiltDegAngles(I)
    END IF
    I=INT(sys_last_surf())-1
    IF(GLANAM(I,2).EQ.'IDEAL        ') THEN

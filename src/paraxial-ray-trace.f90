@@ -48,17 +48,6 @@ module paraxial_ray_trace_test
             COMMON/PIKCOM/COMI
     !
             !INCLUDE 'DATLEN.INC'
-          INTEGER WWVN
-          IF(INT(sys_wl_ref()).EQ.1) WWVN=46
-          IF(INT(sys_wl_ref()).EQ.2) WWVN=47
-          IF(INT(sys_wl_ref()).EQ.3) WWVN=48
-          IF(INT(sys_wl_ref()).EQ.4) WWVN=49
-          IF(INT(sys_wl_ref()).EQ.5) WWVN=50
-          IF(INT(sys_wl_ref()).EQ.6) WWVN=71
-          IF(INT(sys_wl_ref()).EQ.7) WWVN=72
-          IF(INT(sys_wl_ref()).EQ.8) WWVN=73
-          IF(INT(sys_wl_ref()).EQ.9) WWVN=74
-          IF(INT(sys_wl_ref()).EQ.10) WWVN=75
     !
     
           !call LogTermDebug"NEW PRTRA ROUTINE STARTED! ")
@@ -461,11 +450,8 @@ module paraxial_ray_trace_test
                     END IF
                     END IF
             PXTRAX(2,1)=-CURV*PXTRAX(1,1)* &
-            (((ALENS(WWVN,1))- &
-            (ALENS(WWVN,0)))/ &
-            (ALENS(WWVN,1)))+ &
-            ((ALENS(WWVN,0))/ &
-            (ALENS(WWVN,1)))*PXTRAX(2,0)
+            ldm%getRefractionPowerFactor(0,1,INT(sys_wl_ref()))+ &
+            ldm%getIndexRatio(0,1,INT(sys_wl_ref()))*PXTRAX(2,0)
             IF(GLANAM(1,2).EQ.'PERFECT      ') &
           PXTRAX(2,1)=(-(1.0D0/surf_thickness(1))*PXTRAX(1,1))+PXTRAX(2,1-1)
             IF(GLANAM(1,2).EQ.'IDEAL        ') &
@@ -487,8 +473,7 @@ module paraxial_ray_trace_test
                     PXTRAX(3,1)=CURV*PXTRAX(1,1)+PXTRAX(2,0)
     !
     !       PIX'(1)=(N/N')*PIX(1)
-                    PXTRAX(4,1)=((ALENS((WWVN),0))/ &
-                    (ALENS((WWVN),1)))*PXTRAX(3,1)
+                    PXTRAX(4,1)=ldm%getIndexRatio(0,1,INT(sys_wl_ref()))*PXTRAX(3,1)
     !
     !       PCX(1)=(ADJUSTMENT ON SURFACE 1 IF ANY)
                             PXTRAX(5,1)=CON
@@ -506,11 +491,8 @@ module paraxial_ray_trace_test
                     END IF
                     END IF
             PXTRAX(6,1)=-CURV*PXTRAX(5,1)* &
-            (((ALENS(WWVN,1))- &
-            (ALENS(WWVN,0)))/ &
-            (ALENS(WWVN,1)))+ &
-            ((ALENS(WWVN,0))/ &
-            (ALENS(WWVN,1)))*PXTRAX(6,0)
+            ldm%getRefractionPowerFactor(0,1,INT(sys_wl_ref()))+ &
+            ldm%getIndexRatio(0,1,INT(sys_wl_ref()))*PXTRAX(6,0)
           IF(GLANAM(1,2).EQ.'PERFECT      ') &
           PXTRAX(6,1)=(-(1.0D0/surf_thickness(1))*PXTRAX(5,1))+PXTRAX(6,1-1)
           IF(GLANAM(1,2).EQ.'IDEAL        ') &
@@ -530,8 +512,7 @@ module paraxial_ray_trace_test
                     END IF
                     PXTRAX(7,1)=(CURV*PXTRAX(5,1))+PXTRAX(6,0)
     !       PICX'(1)
-                    PXTRAX(8,1)=((ALENS((WWVN),0))/ &
-                    (ALENS((WWVN),1)))*PXTRAX(7,1)
+                    PXTRAX(8,1)=ldm%getIndexRatio(0,1,INT(sys_wl_ref()))*PXTRAX(7,1)
     !
     !       THIS COMPLETES THE INITIAL VALUE CALCULATIONS FOR SURFACES 0 AND 1
     ! *****************************************************************************
@@ -562,11 +543,8 @@ module paraxial_ray_trace_test
                     END IF
                     END IF
             PXTRAX(2,L)=-CURV*PXTRAX(1,L)* &
-            (((ALENS(WWVN,L))- &
-            (ALENS(WWVN,(L-1))))/ &
-            (ALENS(WWVN,L)))+ &
-            ((ALENS(WWVN,(L-1)))/ &
-            (ALENS(WWVN,L)))*PXTRAX(2,(L-1))
+            ldm%getRefractionPowerFactor(L-1,L,INT(sys_wl_ref()))+ &
+            ldm%getIndexRatio(L-1,L,INT(sys_wl_ref()))*PXTRAX(2,(L-1))
             IF(GLANAM(L,2).EQ.'PERFECT      ') &
           PXTRAX(2,L)=(-(1.0D0/surf_thickness(L))*PXTRAX(1,L))+PXTRAX(2,L-1)
             IF(GLANAM(L,2).EQ.'IDEAL        ') &
@@ -587,8 +565,7 @@ module paraxial_ray_trace_test
                     PXTRAX(3,L)=CURV*PXTRAX(1,L)+PXTRAX(2,(L-1))
     !
     !       PIX'(L)=(N/N')*PIX(L)
-                    PXTRAX(4,L)=((ALENS((WWVN),(L-1)))/ &
-                    (ALENS((WWVN),L)))*PXTRAX(3,L)
+                    PXTRAX(4,L)=ldm%getIndexRatio(L-1,L,INT(sys_wl_ref()))*PXTRAX(3,L)
     !
     !       PCX(L) = PCX(L-1)+TH(L-1)*PUCX(L-1) ; THIS IS THE TRANSFER EQUATION
             PXTRAX(5,L)=PXTRAX(5,(L-1))+(surf_thickness(L-1)*PXTRAX(6,(L-1)))
@@ -606,11 +583,8 @@ module paraxial_ray_trace_test
                     END IF
                     END IF
             PXTRAX(6,L)=-CURV*PXTRAX(5,L)* &
-            (((ALENS(WWVN,L))- &
-            (ALENS(WWVN,(L-1))))/ &
-            (ALENS(WWVN,L)))+ &
-            ((ALENS(WWVN,(L-1)))/ &
-            (ALENS(WWVN,L)))*PXTRAX(6,(L-1))
+            ldm%getRefractionPowerFactor(L-1,L,INT(sys_wl_ref()))+ &
+            ldm%getIndexRatio(L-1,L,INT(sys_wl_ref()))*PXTRAX(6,(L-1))
           IF(GLANAM(L,2).EQ.'PERFECT      ') &
           PXTRAX(6,L)=(-(1.0D0/surf_thickness(L))*PXTRAX(5,L))+PXTRAX(6,L-1)
           IF(GLANAM(L,2).EQ.'IDEAL        ') &
@@ -630,8 +604,7 @@ module paraxial_ray_trace_test
                     END IF
                     PXTRAX(7,L)=(CURV*PXTRAX(5,L))+PXTRAX(6,(L-1))
     !       PICX'(L)
-                    PXTRAX(8,L)=((ALENS((WWVN),(L-1)))/ &
-                    (ALENS((WWVN),L)))*PXTRAX(7,L)
+                    PXTRAX(8,L)=ldm%getIndexRatio(L-1,L,INT(sys_wl_ref()))*PXTRAX(7,L)
     !
     !       THIS COMPLETES THE INITIAL VALUE CALCULATIONS FOR SURFACES 2 TO ASTOP
     !       WHEN ASTOP IS NOT ON SURFACE 1
@@ -721,10 +694,8 @@ module paraxial_ray_trace_test
                     END IF
                     END IF
             PXTRAX(2,1)=-CURV*PXTRAX(1,1)* &
-            (((ALENS(WWVN,1))- &
-            (ALENS(WWVN,0)))/ &
-            (ALENS(WWVN,1)))+((ALENS(WWVN,0))/ &
-            (ALENS(WWVN,1)))*PXTRAX(2,0)
+            ldm%getRefractionPowerFactor(0,1,INT(sys_wl_ref()))+ &
+            ldm%getIndexRatio(0,1,INT(sys_wl_ref()))*PXTRAX(2,0)
             IF(GLANAM(1,2).EQ.'PERFECT      ') &
           PXTRAX(2,1)=(-(1.0D0/surf_thickness(1))*PXTRAX(1,1))+PXTRAX(2,1-1)
             IF(GLANAM(1,2).EQ.'IDEAL        ') &
@@ -745,8 +716,7 @@ module paraxial_ray_trace_test
                     PXTRAX(3,1)=CURV*PXTRAX(1,1)+PXTRAX(2,0)
     !
     !       PIX'(1)=(N/N')*PIX(1)
-                    PXTRAX(4,1)=((ALENS((WWVN),0))/ &
-                    (ALENS((WWVN),1)))*PXTRAX(3,1)
+                    PXTRAX(4,1)=ldm%getIndexRatio(0,1,INT(sys_wl_ref()))*PXTRAX(3,1)
     !
     !       PCX(1)=(ADJUSTMENT ON SURFACE 1 IF ANY)
                             PXTRAX(5,1)=sys_x1_scx()
@@ -764,10 +734,8 @@ module paraxial_ray_trace_test
                     END IF
                     END IF
             PXTRAX(6,1)=-CURV*PXTRAX(5,1)* &
-            (((ALENS(WWVN,1))- &
-            (ALENS(WWVN,0)))/ &
-            (ALENS(WWVN,1)))+((ALENS(WWVN,0))/ &
-            (ALENS(WWVN,1)))*PXTRAX(6,0)
+            ldm%getRefractionPowerFactor(0,1,INT(sys_wl_ref()))+ &
+            ldm%getIndexRatio(0,1,INT(sys_wl_ref()))*PXTRAX(6,0)
           IF(GLANAM(1,2).EQ.'PERFECT      ') &
           PXTRAX(6,1)=(-(1.0D0/surf_thickness(1))*PXTRAX(5,1))+PXTRAX(6,1-1)
           IF(GLANAM(1,2).EQ.'IDEAL        ') &
@@ -787,8 +755,7 @@ module paraxial_ray_trace_test
                     END IF
                     PXTRAX(7,1)=(CURV*PXTRAX(5,1))+PXTRAX(6,0)
     !       PICX'(1)
-                    PXTRAX(8,1)=((ALENS((WWVN),0))/ &
-                    (ALENS((WWVN),1)))*PXTRAX(7,1)
+                    PXTRAX(8,1)=ldm%getIndexRatio(0,1,INT(sys_wl_ref()))*PXTRAX(7,1)
     !
     !       THIS COMPLETES THE INITIAL VALUE CALCULATIONS FOR SURFACES 0 AND 1
     ! *****************************************************************************
@@ -819,11 +786,8 @@ module paraxial_ray_trace_test
                     END IF
                     END IF
             PXTRAX(2,L)=-CURV*PXTRAX(1,L)* &
-            (((ALENS(WWVN,L))- &
-            (ALENS(WWVN,(L-1))))/ &
-            (ALENS(WWVN,L)))+ &
-            ((ALENS(WWVN,(L-1)))/ &
-            (ALENS(WWVN,L)))*PXTRAX(2,(L-1))
+            ldm%getRefractionPowerFactor(L-1,L,INT(sys_wl_ref()))+ &
+            ldm%getIndexRatio(L-1,L,INT(sys_wl_ref()))*PXTRAX(2,(L-1))
             IF(GLANAM(L,2).EQ.'PERFECT      ') &
           PXTRAX(2,L)=(-(1.0D0/surf_thickness(L))*PXTRAX(1,L))+PXTRAX(2,L-1)
             IF(GLANAM(L,2).EQ.'IDEAL        ') &
@@ -844,8 +808,7 @@ module paraxial_ray_trace_test
                     PXTRAX(3,L)=CURV*PXTRAX(1,L)+PXTRAX(2,(L-1))
     !
     !       PIX'(L)=(N/N')*PIX(L)
-                    PXTRAX(4,L)=((ALENS((WWVN),(L-1)))/ &
-                    (ALENS((WWVN),L)))*PXTRAX(3,L)
+                    PXTRAX(4,L)=ldm%getIndexRatio(L-1,L,INT(sys_wl_ref()))*PXTRAX(3,L)
     !
     !       PCX(L) = PCX(L-1)+TH(L-1)*PUCX(L-1) ; THIS IS THE TRANSFER EQUATION
             PXTRAX(5,L)=PXTRAX(5,(L-1))+(surf_thickness(L-1)*PXTRAX(6,(L-1)))
@@ -863,11 +826,8 @@ module paraxial_ray_trace_test
                     END IF
                     END IF
             PXTRAX(6,L)=-CURV*PXTRAX(5,L)* &
-            (((ALENS(WWVN,L))- &
-            (ALENS(WWVN,(L-1))))/ &
-            (ALENS(WWVN,L)))+ &
-            ((ALENS(WWVN,(L-1)))/ &
-            (ALENS(WWVN,L)))*PXTRAX(6,(L-1))
+            ldm%getRefractionPowerFactor(L-1,L,INT(sys_wl_ref()))+ &
+            ldm%getIndexRatio(L-1,L,INT(sys_wl_ref()))*PXTRAX(6,(L-1))
           IF(GLANAM(L,2).EQ.'PERFECT      ') &
           PXTRAX(6,L)=(-(1.0D0/surf_thickness(L))*PXTRAX(5,L))+PXTRAX(6,L-1)
           IF(GLANAM(L,2).EQ.'IDEAL        ') &
@@ -887,8 +847,7 @@ module paraxial_ray_trace_test
                     END IF
                     PXTRAX(7,L)=(CURV*PXTRAX(5,L))+PXTRAX(6,(L-1))
     !       PICX'(L)
-                    PXTRAX(8,L)=((ALENS((WWVN),(L-1)))/ &
-                    (ALENS((WWVN),L)))*PXTRAX(7,L)
+                    PXTRAX(8,L)=ldm%getIndexRatio(L-1,L,INT(sys_wl_ref()))*PXTRAX(7,L)
     !
     !
      7000                     CONTINUE
@@ -948,11 +907,8 @@ module paraxial_ray_trace_test
                     END IF
                     END IF
             PXTRAX(2,L)=-CURV*PXTRAX(1,L)* &
-            (((ALENS(WWVN,L))- &
-            (ALENS(WWVN,(L-1))))/ &
-            (ALENS(WWVN,L)))+ &
-            ((ALENS(WWVN,(L-1)))/ &
-            (ALENS(WWVN,L)))*PXTRAX(2,(L-1))
+            ldm%getRefractionPowerFactor(L-1,L,INT(sys_wl_ref()))+ &
+            ldm%getIndexRatio(L-1,L,INT(sys_wl_ref()))*PXTRAX(2,(L-1))
             IF(GLANAM(L,2).EQ.'PERFECT      ') &
           PXTRAX(2,L)=(-(1.0D0/surf_thickness(L))*PXTRAX(1,L))+PXTRAX(2,L-1)
             IF(GLANAM(L,2).EQ.'IDEAL        ') &
@@ -973,8 +929,7 @@ module paraxial_ray_trace_test
                     PXTRAX(3,L)=CURV*PXTRAX(1,L)+PXTRAX(2,(L-1))
     !
     !       PIX'(L)=(N/N')*PIX(L)
-                    PXTRAX(4,L)=((ALENS((WWVN),(L-1)))/ &
-                    (ALENS((WWVN),L)))*PXTRAX(3,L)
+                    PXTRAX(4,L)=ldm%getIndexRatio(L-1,L,INT(sys_wl_ref()))*PXTRAX(3,L)
     !
     !       PCX(L) = PCX(L-1)+TH(L-1)*PUCX(L-1) ; THIS IS THE TRANSFER EQUATION
     !       NO CALCULATE PCX VALUE
@@ -996,11 +951,8 @@ module paraxial_ray_trace_test
                     END IF
                     END IF
             PXTRAX(6,L)=-CURV*PXTRAX(5,L)* &
-            (((ALENS(WWVN,L))- &
-            (ALENS(WWVN,(L-1))))/ &
-            (ALENS(WWVN,L)))+ &
-            ((ALENS(WWVN,(L-1)))/ &
-            (ALENS(WWVN,L)))*PXTRAX(6,(L-1))
+            ldm%getRefractionPowerFactor(L-1,L,INT(sys_wl_ref()))+ &
+            ldm%getIndexRatio(L-1,L,INT(sys_wl_ref()))*PXTRAX(6,(L-1))
           IF(GLANAM(L,2).EQ.'PERFECT      ') &
           PXTRAX(6,L)=(-(1.0D0/surf_thickness(L))*PXTRAX(5,L))+PXTRAX(6,L-1)
           IF(GLANAM(L,2).EQ.'IDEAL        ') &
@@ -1020,8 +972,7 @@ module paraxial_ray_trace_test
                     END IF
                     PXTRAX(7,L)=(CURV*PXTRAX(5,L))+PXTRAX(6,(L-1))
     !       PICX'(L)
-                    PXTRAX(8,L)=((ALENS((WWVN),(L-1)))/ &
-                    (ALENS((WWVN),L)))*PXTRAX(7,L)
+                    PXTRAX(8,L)=ldm%getIndexRatio(L-1,L,INT(sys_wl_ref()))*PXTRAX(7,L)
     !
     !                       SOLVES ON SURFACE L
     !***************************************************************************
@@ -1111,11 +1062,8 @@ module paraxial_ray_trace_test
                     END IF
                     END IF
             PXTRAX(2,1)=-CURV*PXTRAX(1,1)* &
-            (((ALENS(WWVN,1))- &
-            (ALENS(WWVN,0)))/ &
-            (ALENS(WWVN,1)))+ &
-            ((ALENS(WWVN,0))/ &
-            (ALENS(WWVN,1)))*PXTRAX(2,0)
+            ldm%getRefractionPowerFactor(0,1,INT(sys_wl_ref()))+ &
+            ldm%getIndexRatio(0,1,INT(sys_wl_ref()))*PXTRAX(2,0)
             IF(GLANAM(1,2).EQ.'PERFECT      ') &
           PXTRAX(2,1)=(-(1.0D0/surf_thickness(1))*PXTRAX(1,1))+PXTRAX(2,1-1)
             IF(GLANAM(1,2).EQ.'IDEAL        ') &
@@ -1136,8 +1084,7 @@ module paraxial_ray_trace_test
                     PXTRAX(3,1)=CURV*PXTRAX(1,1)+PXTRAX(2,0)
     !
     !       PIX'(1)=(N/N')*PIX(1)
-                    PXTRAX(4,1)=((ALENS((WWVN),0))/ &
-                    (ALENS((WWVN),1)))*PXTRAX(3,1)
+                    PXTRAX(4,1)=ldm%getIndexRatio(0,1,INT(sys_wl_ref()))*PXTRAX(3,1)
     !
     !       PCX(1)=(ADJUSTMENT ON SURFACE 1 IF ANY)
             IF(sys_telecentric().EQ.0.0D0) PXTRAX(5,1)=sys_x1_scx()
@@ -1156,11 +1103,8 @@ module paraxial_ray_trace_test
                     END IF
                     END IF
             PXTRAX(6,1)=-CURV*PXTRAX(5,1)* &
-            (((ALENS(WWVN,1))- &
-            (ALENS(WWVN,0)))/ &
-            (ALENS(WWVN,1)))+ &
-            ((ALENS(WWVN,0))/ &
-            (ALENS(WWVN,1)))*PXTRAX(6,0)
+            ldm%getRefractionPowerFactor(0,1,INT(sys_wl_ref()))+ &
+            ldm%getIndexRatio(0,1,INT(sys_wl_ref()))*PXTRAX(6,0)
           IF(GLANAM(1,2).EQ.'PERFECT      ') &
           PXTRAX(6,1)=(-(1.0D0/surf_thickness(1))*PXTRAX(5,1))+PXTRAX(6,1-1)
           IF(GLANAM(1,2).EQ.'IDEAL        ') &
@@ -1180,8 +1124,7 @@ module paraxial_ray_trace_test
                     END IF
                     PXTRAX(7,1)=(CURV*PXTRAX(5,1))+PXTRAX(6,0)
     !       PICX'(1)
-                    PXTRAX(8,1)=((ALENS((WWVN),0))/ &
-                    (ALENS((WWVN),1)))*PXTRAX(7,1)
+                    PXTRAX(8,1)=ldm%getIndexRatio(0,1,INT(sys_wl_ref()))*PXTRAX(7,1)
     !
     !       THIS COMPLETES THE INITIAL VALUE CALCULATIONS FOR SURFACES 0 AND 1
     !
@@ -1233,11 +1176,8 @@ module paraxial_ray_trace_test
                     END IF
                     END IF
             PXTRAX(2,L)=-CURV*PXTRAX(1,L)* &
-            (((ALENS(WWVN,L))- &
-            (ALENS(WWVN,(L-1))))/ &
-            (ALENS(WWVN,L)))+ &
-            ((ALENS(WWVN,(L-1)))/ &
-            (ALENS(WWVN,L)))*PXTRAX(2,(L-1))
+            ldm%getRefractionPowerFactor(L-1,L,INT(sys_wl_ref()))+ &
+            ldm%getIndexRatio(L-1,L,INT(sys_wl_ref()))*PXTRAX(2,(L-1))
             IF(GLANAM(L,2).EQ.'PERFECT      ') &
           PXTRAX(2,L)=(-(1.0D0/surf_thickness(L))*PXTRAX(1,L))+PXTRAX(2,L-1)
             IF(GLANAM(L,2).EQ.'IDEAL        ') &
@@ -1258,8 +1198,7 @@ module paraxial_ray_trace_test
                     PXTRAX(3,L)=CURV*PXTRAX(1,L)+PXTRAX(2,(L-1))
     !
     !       PIX'(L)=(N/N')*PIX(L)
-                    PXTRAX(4,L)=((ALENS((WWVN),(L-1)))/ &
-                    (ALENS((WWVN),L)))*PXTRAX(3,L)
+                    PXTRAX(4,L)=ldm%getIndexRatio(L-1,L,INT(sys_wl_ref()))*PXTRAX(3,L)
     !
     !       PCX(L) = PCX(L-1)+TH(L-1)*PUCX(L-1) ; THIS IS THE TRANSFER EQUATION
     !*******************************************************************************
@@ -1282,11 +1221,8 @@ module paraxial_ray_trace_test
                     END IF
                     END IF
             PXTRAX(6,L)=-CURV*PXTRAX(5,L)* &
-            (((ALENS(WWVN,L))- &
-            (ALENS(WWVN,(L-1))))/ &
-            (ALENS(WWVN,L)))+ &
-            ((ALENS(WWVN,(L-1)))/ &
-            (ALENS(WWVN,L)))*PXTRAX(6,(L-1))
+            ldm%getRefractionPowerFactor(L-1,L,INT(sys_wl_ref()))+ &
+            ldm%getIndexRatio(L-1,L,INT(sys_wl_ref()))*PXTRAX(6,(L-1))
           IF(GLANAM(L,2).EQ.'PERFECT      ') &
           PXTRAX(6,L)=(-(1.0D0/surf_thickness(L))*PXTRAX(5,L))+PXTRAX(6,L-1)
           IF(GLANAM(L,2).EQ.'IDEAL        ') &
@@ -1306,8 +1242,7 @@ module paraxial_ray_trace_test
                     END IF
                     PXTRAX(7,L)=(CURV*PXTRAX(5,L))+PXTRAX(6,(L-1))
     !       PICX'(L)
-                    PXTRAX(8,L)=((ALENS((WWVN),(L-1)))/ &
-                    (ALENS((WWVN),L)))*PXTRAX(7,L)
+                    PXTRAX(8,L)=ldm%getIndexRatio(L-1,L,INT(sys_wl_ref()))*PXTRAX(7,L)
     !
     !                       NOW HANDLE SOLVES ON SURFACE L
     !***************************************************************************
@@ -1397,17 +1332,6 @@ module paraxial_ray_trace_test
             COMMON/PIKCOM/COMI
     !
             !INCLUDE 'DATLEN.INC'
-          INTEGER WWVN
-          IF(INT(sys_wl_ref()).EQ.1) WWVN=46
-          IF(INT(sys_wl_ref()).EQ.2) WWVN=47
-          IF(INT(sys_wl_ref()).EQ.3) WWVN=48
-          IF(INT(sys_wl_ref()).EQ.4) WWVN=49
-          IF(INT(sys_wl_ref()).EQ.5) WWVN=50
-          IF(INT(sys_wl_ref()).EQ.6) WWVN=71
-          IF(INT(sys_wl_ref()).EQ.7) WWVN=72
-          IF(INT(sys_wl_ref()).EQ.8) WWVN=73
-          IF(INT(sys_wl_ref()).EQ.9) WWVN=74
-          IF(INT(sys_wl_ref()).EQ.10) WWVN=75
     !
     
           OUTLYNE = "NEW PRTRA ROUTINE STARTED! "
@@ -1583,11 +1507,8 @@ module paraxial_ray_trace_test
                     END IF
                     END IF
             PXTRAY(2,1)=-CURV*PXTRAY(1,1)* &
-            (((ALENS(WWVN,1))- &
-            (ALENS(WWVN,0)))/ &
-            (ALENS(WWVN,1)))+ &
-            ((ALENS(WWVN,0))/ &
-            (ALENS(WWVN,1)))*PXTRAY(2,0)
+            ldm%getRefractionPowerFactor(0,1,INT(sys_wl_ref()))+ &
+            ldm%getIndexRatio(0,1,INT(sys_wl_ref()))*PXTRAY(2,0)
 
 
             IF(GLANAM(1,2).EQ.'PERFECT      ') &
@@ -1612,8 +1533,7 @@ module paraxial_ray_trace_test
                     PRINT *, "Old PXTRAY(3,1) is ", PXTRAY(3,1)         
     !
     !       PIY'(1)=(N/N')*PIY(1)
-                    PXTRAY(4,1)=((ALENS((WWVN),0))/ &
-                    (ALENS((WWVN),1)))*PXTRAY(3,1)
+                    PXTRAY(4,1)=ldm%getIndexRatio(0,1,INT(sys_wl_ref()))*PXTRAY(3,1)
     !
     !       PCY(1)=(ADJUSTMENT ON SURFACE 1 IF ANY)
             PXTRAY(5,1)=CON
@@ -1631,11 +1551,8 @@ module paraxial_ray_trace_test
                     END IF
                     END IF
             PXTRAY(6,1)=-CURV*PXTRAY(5,1)* &
-            (((ALENS(WWVN,1))- &
-            (ALENS(WWVN,0)))/ &
-            (ALENS(WWVN,1)))+ &
-            ((ALENS(WWVN,0))/ &
-            (ALENS(WWVN,1)))*PXTRAY(6,0)
+            ldm%getRefractionPowerFactor(0,1,INT(sys_wl_ref()))+ &
+            ldm%getIndexRatio(0,1,INT(sys_wl_ref()))*PXTRAY(6,0)
           IF(GLANAM(1,2).EQ.'PERFECT      ') &
           PXTRAY(6,1)=(-(1.0D0/surf_thickness(1))*PXTRAY(5,1))+PXTRAY(6,1-1)
           IF(GLANAM(1,2).EQ.'IDEAL        ') &
@@ -1655,8 +1572,7 @@ module paraxial_ray_trace_test
                     END IF
                     PXTRAY(7,1)=(CURV*PXTRAY(5,1))+PXTRAY(6,0)
     !       PICY'(1)
-                    PXTRAY(8,1)=((ALENS((WWVN),0))/ &
-                    (ALENS((WWVN),1)))*PXTRAY(7,1)
+                    PXTRAY(8,1)=ldm%getIndexRatio(0,1,INT(sys_wl_ref()))*PXTRAY(7,1)
                 end if        
     
             PRINT *, "Old way PXTRAY(1:8,1) is ", PXTRAY(1:8,0:1)
@@ -1771,10 +1687,8 @@ module paraxial_ray_trace_test
                     END IF
                     END IF
             PXTRAY(2,1)=-CURV*PXTRAY(1,1)* &
-            (((ALENS(WWVN,1))- &
-            (ALENS(WWVN,0)))/ &
-            (ALENS(WWVN,1)))+((ALENS(WWVN,0))/ &
-            (ALENS(WWVN,1)))*PXTRAY(2,0)
+            ldm%getRefractionPowerFactor(0,1,INT(sys_wl_ref()))+ &
+            ldm%getIndexRatio(0,1,INT(sys_wl_ref()))*PXTRAY(2,0)
             IF(GLANAM(1,2).EQ.'PERFECT      ') &
           PXTRAY(2,1)=(-(1.0D0/surf_thickness(1))*PXTRAY(1,1))+PXTRAY(2,1-1)
             IF(GLANAM(1,2).EQ.'IDEAL        ') &
@@ -1796,8 +1710,7 @@ module paraxial_ray_trace_test
         !PRINT *, "Old PXTRAY(3,1) is ", PXTRAY(3,1)
     !
     !       PIY'(1)=(N/N')*PIY(1)
-                    PXTRAY(4,1)=((ALENS((WWVN),0))/ &
-                    (ALENS((WWVN),1)))*PXTRAY(3,1)
+                    PXTRAY(4,1)=ldm%getIndexRatio(0,1,INT(sys_wl_ref()))*PXTRAY(3,1)
     !
     !       PCY(1)=(ADJUSTMENT ON SURFACE 1 IF ANY)
                             PXTRAY(5,1)=sys_y1_scy()
@@ -1815,10 +1728,8 @@ module paraxial_ray_trace_test
                     END IF
                     END IF
             PXTRAY(6,1)=-CURV*PXTRAY(5,1)* &
-            (((ALENS(WWVN,1))- &
-            (ALENS(WWVN,0)))/ &
-            (ALENS(WWVN,1)))+((ALENS(WWVN,0))/ &
-            (ALENS(WWVN,1)))*PXTRAY(6,0)
+            ldm%getRefractionPowerFactor(0,1,INT(sys_wl_ref()))+ &
+            ldm%getIndexRatio(0,1,INT(sys_wl_ref()))*PXTRAY(6,0)
           IF(GLANAM(1,2).EQ.'PERFECT      ') &
           PXTRAY(6,1)=(-(1.0D0/surf_thickness(1))*PXTRAY(5,1))+PXTRAY(6,1-1)
           IF(GLANAM(1,2).EQ.'IDEAL        ') &
@@ -1838,8 +1749,7 @@ module paraxial_ray_trace_test
                     END IF
                     PXTRAY(7,1)=(CURV*PXTRAY(5,1))+PXTRAY(6,0)
     !       PICY'(1)
-                    PXTRAY(8,1)=((ALENS((WWVN),0))/ &
-                    (ALENS((WWVN),1)))*PXTRAY(7,1)
+                    PXTRAY(8,1)=ldm%getIndexRatio(0,1,INT(sys_wl_ref()))*PXTRAY(7,1)
     !
     !       THIS COMPLETES THE INITIAL VALUE CALCULATIONS FOR SURFACES 0 AND 1
     ! *****************************************************************************
@@ -1870,11 +1780,8 @@ module paraxial_ray_trace_test
                     END IF
                     END IF
             PXTRAY(2,L)=-CURV*PXTRAY(1,L)* &
-            (((ALENS(WWVN,L))- &
-            (ALENS(WWVN,(L-1))))/ &
-            (ALENS(WWVN,L)))+ &
-            ((ALENS(WWVN,(L-1)))/ &
-            (ALENS(WWVN,L)))*PXTRAY(2,(L-1))
+            ldm%getRefractionPowerFactor(L-1,L,INT(sys_wl_ref()))+ &
+            ldm%getIndexRatio(L-1,L,INT(sys_wl_ref()))*PXTRAY(2,(L-1))
             IF(GLANAM(L,2).EQ.'PERFECT      ') &
           PXTRAY(2,L)=(-(1.0D0/surf_thickness(L))*PXTRAY(1,L))+PXTRAY(2,L-1)
             IF(GLANAM(L,2).EQ.'IDEAL        ') &
@@ -1895,8 +1802,7 @@ module paraxial_ray_trace_test
                     PXTRAY(3,L)=CURV*PXTRAY(1,L)+PXTRAY(2,(L-1))
     !
     !       PIY'(L)=(N/N')*PIY(L)
-                    PXTRAY(4,L)=((ALENS((WWVN),(L-1)))/ &
-                    (ALENS((WWVN),L)))*PXTRAY(3,L)
+                    PXTRAY(4,L)=ldm%getIndexRatio(L-1,L,INT(sys_wl_ref()))*PXTRAY(3,L)
     !
     !       PCY(L) = PCY(L-1)+TH(L-1)*PUCY(L-1) ; THIS IS THE TRANSFER EQUATION
             PXTRAY(5,L)=PXTRAY(5,(L-1))+(surf_thickness(L-1)*PXTRAY(6,(L-1)))
@@ -1914,11 +1820,8 @@ module paraxial_ray_trace_test
                     END IF
                     END IF
             PXTRAY(6,L)=-CURV*PXTRAY(5,L)* &
-            (((ALENS(WWVN,L))- &
-            (ALENS(WWVN,(L-1))))/ &
-            (ALENS(WWVN,L)))+ &
-            ((ALENS(WWVN,(L-1)))/ &
-            (ALENS(WWVN,L)))*PXTRAY(6,(L-1))
+            ldm%getRefractionPowerFactor(L-1,L,INT(sys_wl_ref()))+ &
+            ldm%getIndexRatio(L-1,L,INT(sys_wl_ref()))*PXTRAY(6,(L-1))
           IF(GLANAM(L,2).EQ.'PERFECT      ') &
           PXTRAY(6,L)=(-(1.0D0/surf_thickness(L))*PXTRAY(5,L))+PXTRAY(6,L-1)
           IF(GLANAM(L,2).EQ.'IDEAL        ') &
@@ -1938,8 +1841,7 @@ module paraxial_ray_trace_test
                     END IF
                     PXTRAY(7,L)=(CURV*PXTRAY(5,L))+PXTRAY(6,(L-1))
     !       PICY'(L)
-                    PXTRAY(8,L)=((ALENS((WWVN),(L-1)))/ &
-                    (ALENS((WWVN),L)))*PXTRAY(7,L)
+                    PXTRAY(8,L)=ldm%getIndexRatio(L-1,L,INT(sys_wl_ref()))*PXTRAY(7,L)
     !
     !
      70                     CONTINUE
@@ -1998,11 +1900,8 @@ module paraxial_ray_trace_test
                     END IF
                     END IF
             PXTRAY(2,L)=-CURV*PXTRAY(1,L)* &
-            (((ALENS(WWVN,L))- &
-            (ALENS(WWVN,(L-1))))/ &
-            (ALENS(WWVN,L)))+ &
-            ((ALENS(WWVN,(L-1)))/ &
-            (ALENS(WWVN,L)))*PXTRAY(2,(L-1))
+            ldm%getRefractionPowerFactor(L-1,L,INT(sys_wl_ref()))+ &
+            ldm%getIndexRatio(L-1,L,INT(sys_wl_ref()))*PXTRAY(2,(L-1))
             IF(GLANAM(L,2).EQ.'PERFECT      ') &
           PXTRAY(2,L)=(-(1.0D0/surf_thickness(L))*PXTRAY(1,L))+PXTRAY(2,L-1)
             IF(GLANAM(L,2).EQ.'IDEAL        ') &
@@ -2023,8 +1922,7 @@ module paraxial_ray_trace_test
                     PXTRAY(3,L)=CURV*PXTRAY(1,L)+PXTRAY(2,(L-1))
     !
     !       PIY'(L)=(N/N')*PIY(L)
-                    PXTRAY(4,L)=((ALENS((WWVN),(L-1)))/ &
-                    (ALENS((WWVN),L)))*PXTRAY(3,L)
+                    PXTRAY(4,L)=ldm%getIndexRatio(L-1,L,INT(sys_wl_ref()))*PXTRAY(3,L)
     !
     !       PCY(L) = PCY(L-1)+TH(L-1)*PUCY(L-1) ; THIS IS THE TRANSFER EQUATION
     !       NO CALCULATE PCY VALUE
@@ -2046,11 +1944,8 @@ module paraxial_ray_trace_test
                     END IF
                     END IF
             PXTRAY(6,L)=-CURV*PXTRAY(5,L)* &
-            (((ALENS(WWVN,L))- &
-            (ALENS(WWVN,(L-1))))/ &
-            (ALENS(WWVN,L)))+ &
-            ((ALENS(WWVN,(L-1)))/ &
-            (ALENS(WWVN,L)))*PXTRAY(6,(L-1))
+            ldm%getRefractionPowerFactor(L-1,L,INT(sys_wl_ref()))+ &
+            ldm%getIndexRatio(L-1,L,INT(sys_wl_ref()))*PXTRAY(6,(L-1))
           IF(GLANAM(L,2).EQ.'PERFECT      ') &
           PXTRAY(6,L)=(-(1.0D0/surf_thickness(L))*PXTRAY(5,L))+PXTRAY(6,L-1)
           IF(GLANAM(L,2).EQ.'IDEAL        ') &
@@ -2070,8 +1965,7 @@ module paraxial_ray_trace_test
                     END IF
                     PXTRAY(7,L)=(CURV*PXTRAY(5,L))+PXTRAY(6,(L-1))
     !       PICY'(L)
-                    PXTRAY(8,L)=((ALENS((WWVN),(L-1)))/ &
-                    (ALENS((WWVN),L)))*PXTRAY(7,L)
+                    PXTRAY(8,L)=ldm%getIndexRatio(L-1,L,INT(sys_wl_ref()))*PXTRAY(7,L)
     !
     !                       SOLVES ON SURFACE L
     !***************************************************************************
@@ -2172,11 +2066,8 @@ module paraxial_ray_trace_test
                     END IF
                     END IF
             PXTRAY(2,1)=-CURV*PXTRAY(1,1)* &
-            (((ALENS(WWVN,1))- &
-            (ALENS(WWVN,0)))/ &
-            (ALENS(WWVN,1)))+ &
-            ((ALENS(WWVN,0))/ &
-            (ALENS(WWVN,1)))*PXTRAY(2,0)
+            ldm%getRefractionPowerFactor(0,1,INT(sys_wl_ref()))+ &
+            ldm%getIndexRatio(0,1,INT(sys_wl_ref()))*PXTRAY(2,0)
             IF(GLANAM(1,2).EQ.'PERFECT      ') &
           PXTRAY(2,1)=(-(1.0D0/surf_thickness(1))*PXTRAY(1,1))+PXTRAY(2,1-1)
             IF(GLANAM(1,2).EQ.'IDEAL        ') &
@@ -2197,8 +2088,7 @@ module paraxial_ray_trace_test
                     PXTRAY(3,1)=CURV*PXTRAY(1,1)+PXTRAY(2,0)
     !
     !       PIY'(1)=(N/N')*PIY(1)
-                    PXTRAY(4,1)=((ALENS((WWVN),0))/ &
-                    (ALENS((WWVN),1)))*PXTRAY(3,1)
+                    PXTRAY(4,1)=ldm%getIndexRatio(0,1,INT(sys_wl_ref()))*PXTRAY(3,1)
     !
     !       PCY(1)=(ADJUSTMENT ON SURFACE 1 IF ANY)
             IF(sys_telecentric().EQ.0.0D0) PXTRAY(5,1)=sys_y1_scy()
@@ -2217,11 +2107,8 @@ module paraxial_ray_trace_test
                     END IF
                     END IF
             PXTRAY(6,1)=-CURV*PXTRAY(5,1)* &
-            (((ALENS(WWVN,1))- &
-            (ALENS(WWVN,0)))/ &
-            (ALENS(WWVN,1)))+ &
-            ((ALENS(WWVN,0))/ &
-            (ALENS(WWVN,1)))*PXTRAY(6,0)
+            ldm%getRefractionPowerFactor(0,1,INT(sys_wl_ref()))+ &
+            ldm%getIndexRatio(0,1,INT(sys_wl_ref()))*PXTRAY(6,0)
           IF(GLANAM(1,2).EQ.'PERFECT      ') &
           PXTRAY(6,1)=(-(1.0D0/surf_thickness(1))*PXTRAY(5,1))+PXTRAY(6,1-1)
           IF(GLANAM(1,2).EQ.'IDEAL        ') &
@@ -2241,8 +2128,7 @@ module paraxial_ray_trace_test
                     END IF
                     PXTRAY(7,1)=(CURV*PXTRAY(5,1))+PXTRAY(6,0)
     !       PICY'(1)
-                    PXTRAY(8,1)=((ALENS((WWVN),0))/ &
-                    (ALENS((WWVN),1)))*PXTRAY(7,1)
+                    PXTRAY(8,1)=ldm%getIndexRatio(0,1,INT(sys_wl_ref()))*PXTRAY(7,1)
     !
     !       THIS COMPLETES THE INITIAL VALUE CALCULATIONS FOR SURFACES 0 AND 1
     !
@@ -2294,11 +2180,8 @@ module paraxial_ray_trace_test
                     END IF
                     END IF
             PXTRAY(2,L)=-CURV*PXTRAY(1,L)* &
-            (((ALENS(WWVN,L))- &
-            (ALENS(WWVN,(L-1))))/ &
-            (ALENS(WWVN,L)))+ &
-            ((ALENS(WWVN,(L-1)))/ &
-            (ALENS(WWVN,L)))*PXTRAY(2,(L-1))
+            ldm%getRefractionPowerFactor(L-1,L,INT(sys_wl_ref()))+ &
+            ldm%getIndexRatio(L-1,L,INT(sys_wl_ref()))*PXTRAY(2,(L-1))
             IF(GLANAM(L,2).EQ.'PERFECT      ') &
           PXTRAY(2,L)=(-(1.0D0/surf_thickness(L))*PXTRAY(1,L))+PXTRAY(2,L-1)
             IF(GLANAM(L,2).EQ.'IDEAL        ') &
@@ -2319,8 +2202,7 @@ module paraxial_ray_trace_test
                     PXTRAY(3,L)=CURV*PXTRAY(1,L)+PXTRAY(2,(L-1))
     !
     !       PIY'(L)=(N/N')*PIY(L)
-                    PXTRAY(4,L)=((ALENS((WWVN),(L-1)))/ &
-                    (ALENS((WWVN),L)))*PXTRAY(3,L)
+                    PXTRAY(4,L)=ldm%getIndexRatio(L-1,L,INT(sys_wl_ref()))*PXTRAY(3,L)
     !
     !       PCY(L) = PCY(L-1)+TH(L-1)*PUCY(L-1) ; THIS IS THE TRANSFER EQUATION
     !*******************************************************************************
@@ -2343,11 +2225,8 @@ module paraxial_ray_trace_test
                     END IF
                     END IF
             PXTRAY(6,L)=-CURV*PXTRAY(5,L)* &
-            (((ALENS(WWVN,L))- &
-            (ALENS(WWVN,(L-1))))/ &
-            (ALENS(WWVN,L)))+ &
-            ((ALENS(WWVN,(L-1)))/ &
-            (ALENS(WWVN,L)))*PXTRAY(6,(L-1))
+            ldm%getRefractionPowerFactor(L-1,L,INT(sys_wl_ref()))+ &
+            ldm%getIndexRatio(L-1,L,INT(sys_wl_ref()))*PXTRAY(6,(L-1))
           IF(GLANAM(L,2).EQ.'PERFECT      ') &
           PXTRAY(6,L)=(-(1.0D0/surf_thickness(L))*PXTRAY(5,L))+PXTRAY(6,L-1)
           IF(GLANAM(L,2).EQ.'IDEAL        ') &
@@ -2367,8 +2246,7 @@ module paraxial_ray_trace_test
                     END IF
                     PXTRAY(7,L)=(CURV*PXTRAY(5,L))+PXTRAY(6,(L-1))
     !       PICY'(L)
-                    PXTRAY(8,L)=((ALENS((WWVN),(L-1)))/ &
-                    (ALENS((WWVN),L)))*PXTRAY(7,L)
+                    PXTRAY(8,L)=ldm%getIndexRatio(L-1,L,INT(sys_wl_ref()))*PXTRAY(7,L)
     !
     !                       NOW HANDLE SOLVES ON SURFACE L
     !***************************************************************************
@@ -2536,11 +2414,8 @@ module paraxial_ray_trace_test
                     END IF
                     END IF
             PXTRAX(2,1)=-CURV*PXTRAX(1,1)* &
-            (((ALENS(WWVN,1))- &
-            (ALENS(WWVN,0)))/ &
-            (ALENS(WWVN,1)))+ &
-            ((ALENS(WWVN,0))/ &
-            (ALENS(WWVN,1)))*PXTRAX(2,0)
+            ldm%getRefractionPowerFactor(0,1,INT(sys_wl_ref()))+ &
+            ldm%getIndexRatio(0,1,INT(sys_wl_ref()))*PXTRAX(2,0)
             IF(GLANAM(1,2).EQ.'PERFECT      ') &
           PXTRAX(2,1)=(-(1.0D0/surf_thickness(1))*PXTRAX(1,1))+PXTRAX(2,1-1)
             IF(GLANAM(1,2).EQ.'IDEAL        ') &
@@ -2562,8 +2437,7 @@ module paraxial_ray_trace_test
                     PXTRAX(3,1)=CURV*PXTRAX(1,1)+PXTRAX(2,0)
     !
     !       PIX'(1)=(N/N')*PIX(1)
-                    PXTRAX(4,1)=((ALENS((WWVN),0))/ &
-                    (ALENS((WWVN),1)))*PXTRAX(3,1)
+                    PXTRAX(4,1)=ldm%getIndexRatio(0,1,INT(sys_wl_ref()))*PXTRAX(3,1)
     !
     !       PCX(1)=(ADJUSTMENT ON SURFACE 1 IF ANY)
                             PXTRAX(5,1)=CON
@@ -2581,11 +2455,8 @@ module paraxial_ray_trace_test
                     END IF
                     END IF
             PXTRAX(6,1)=-CURV*PXTRAX(5,1)* &
-            (((ALENS(WWVN,1))- &
-            (ALENS(WWVN,0)))/ &
-            (ALENS(WWVN,1)))+ &
-            ((ALENS(WWVN,0))/ &
-            (ALENS(WWVN,1)))*PXTRAX(6,0)
+            ldm%getRefractionPowerFactor(0,1,INT(sys_wl_ref()))+ &
+            ldm%getIndexRatio(0,1,INT(sys_wl_ref()))*PXTRAX(6,0)
           IF(GLANAM(1,2).EQ.'PERFECT      ') &
           PXTRAX(6,1)=(-(1.0D0/surf_thickness(1))*PXTRAX(5,1))+PXTRAX(6,1-1)
           IF(GLANAM(1,2).EQ.'IDEAL        ') &
@@ -2605,8 +2476,7 @@ module paraxial_ray_trace_test
                     END IF
                     PXTRAX(7,1)=(CURV*PXTRAX(5,1))+PXTRAX(6,0)
     !       PICX'(1)
-                    PXTRAX(8,1)=((ALENS((WWVN),0))/ &
-                    (ALENS((WWVN),1)))*PXTRAX(7,1)
+                    PXTRAX(8,1)=ldm%getIndexRatio(0,1,INT(sys_wl_ref()))*PXTRAX(7,1)
     !
     !       THIS COMPLETES THE INITIAL VALUE CALCULATIONS FOR SURFACES 0 AND 1
     ! *****************************************************************************
@@ -2637,11 +2507,8 @@ module paraxial_ray_trace_test
                     END IF
                     END IF
             PXTRAX(2,L)=-CURV*PXTRAX(1,L)* &
-            (((ALENS(WWVN,L))- &
-            (ALENS(WWVN,(L-1))))/ &
-            (ALENS(WWVN,L)))+ &
-            ((ALENS(WWVN,(L-1)))/ &
-            (ALENS(WWVN,L)))*PXTRAX(2,(L-1))
+            ldm%getRefractionPowerFactor(L-1,L,INT(sys_wl_ref()))+ &
+            ldm%getIndexRatio(L-1,L,INT(sys_wl_ref()))*PXTRAX(2,(L-1))
             IF(GLANAM(L,2).EQ.'PERFECT      ') &
           PXTRAX(2,L)=(-(1.0D0/surf_thickness(L))*PXTRAX(1,L))+PXTRAX(2,L-1)
             IF(GLANAM(L,2).EQ.'IDEAL        ') &
@@ -2662,8 +2529,7 @@ module paraxial_ray_trace_test
                     PXTRAX(3,L)=CURV*PXTRAX(1,L)+PXTRAX(2,(L-1))
     !
     !       PIX'(L)=(N/N')*PIX(L)
-                    PXTRAX(4,L)=((ALENS((WWVN),(L-1)))/ &
-                    (ALENS((WWVN),L)))*PXTRAX(3,L)
+                    PXTRAX(4,L)=ldm%getIndexRatio(L-1,L,INT(sys_wl_ref()))*PXTRAX(3,L)
     !
     !       PCX(L) = PCX(L-1)+TH(L-1)*PUCX(L-1) ; THIS IS THE TRANSFER EQUATION
             PXTRAX(5,L)=PXTRAX(5,(L-1))+(surf_thickness(L-1)*PXTRAX(6,(L-1)))
@@ -2681,11 +2547,8 @@ module paraxial_ray_trace_test
                     END IF
                     END IF
             PXTRAX(6,L)=-CURV*PXTRAX(5,L)* &
-            (((ALENS(WWVN,L))- &
-            (ALENS(WWVN,(L-1))))/ &
-            (ALENS(WWVN,L)))+ &
-            ((ALENS(WWVN,(L-1)))/ &
-            (ALENS(WWVN,L)))*PXTRAX(6,(L-1))
+            ldm%getRefractionPowerFactor(L-1,L,INT(sys_wl_ref()))+ &
+            ldm%getIndexRatio(L-1,L,INT(sys_wl_ref()))*PXTRAX(6,(L-1))
           IF(GLANAM(L,2).EQ.'PERFECT      ') &
           PXTRAX(6,L)=(-(1.0D0/surf_thickness(L))*PXTRAX(5,L))+PXTRAX(6,L-1)
           IF(GLANAM(L,2).EQ.'IDEAL        ') &
@@ -2705,8 +2568,7 @@ module paraxial_ray_trace_test
                     END IF
                     PXTRAX(7,L)=(CURV*PXTRAX(5,L))+PXTRAX(6,(L-1))
     !       PICX'(L)
-                    PXTRAX(8,L)=((ALENS((WWVN),(L-1)))/ &
-                    (ALENS((WWVN),L)))*PXTRAX(7,L)
+                    PXTRAX(8,L)=ldm%getIndexRatio(L-1,L,INT(sys_wl_ref()))*PXTRAX(7,L)
     !
     !       THIS COMPLETES THE INITIAL VALUE CALCULATIONS FOR SURFACES 2 TO ASTOP
     !       WHEN ASTOP IS NOT ON SURFACE 1
@@ -2796,10 +2658,8 @@ module paraxial_ray_trace_test
                     END IF
                     END IF
             PXTRAX(2,1)=-CURV*PXTRAX(1,1)* &
-            (((ALENS(WWVN,1))- &
-            (ALENS(WWVN,0)))/ &
-            (ALENS(WWVN,1)))+((ALENS(WWVN,0))/ &
-            (ALENS(WWVN,1)))*PXTRAX(2,0)
+            ldm%getRefractionPowerFactor(0,1,INT(sys_wl_ref()))+ &
+            ldm%getIndexRatio(0,1,INT(sys_wl_ref()))*PXTRAX(2,0)
             IF(GLANAM(1,2).EQ.'PERFECT      ') &
           PXTRAX(2,1)=(-(1.0D0/surf_thickness(1))*PXTRAX(1,1))+PXTRAX(2,1-1)
             IF(GLANAM(1,2).EQ.'IDEAL        ') &
@@ -2820,8 +2680,7 @@ module paraxial_ray_trace_test
                     PXTRAX(3,1)=CURV*PXTRAX(1,1)+PXTRAX(2,0)
     !
     !       PIX'(1)=(N/N')*PIX(1)
-                    PXTRAX(4,1)=((ALENS((WWVN),0))/ &
-                    (ALENS((WWVN),1)))*PXTRAX(3,1)
+                    PXTRAX(4,1)=ldm%getIndexRatio(0,1,INT(sys_wl_ref()))*PXTRAX(3,1)
     !
     !       PCX(1)=(ADJUSTMENT ON SURFACE 1 IF ANY)
                             PXTRAX(5,1)=sys_x1_scx()
@@ -2839,10 +2698,8 @@ module paraxial_ray_trace_test
                     END IF
                     END IF
             PXTRAX(6,1)=-CURV*PXTRAX(5,1)* &
-            (((ALENS(WWVN,1))- &
-            (ALENS(WWVN,0)))/ &
-            (ALENS(WWVN,1)))+((ALENS(WWVN,0))/ &
-            (ALENS(WWVN,1)))*PXTRAX(6,0)
+            ldm%getRefractionPowerFactor(0,1,INT(sys_wl_ref()))+ &
+            ldm%getIndexRatio(0,1,INT(sys_wl_ref()))*PXTRAX(6,0)
           IF(GLANAM(1,2).EQ.'PERFECT      ') &
           PXTRAX(6,1)=(-(1.0D0/surf_thickness(1))*PXTRAX(5,1))+PXTRAX(6,1-1)
           IF(GLANAM(1,2).EQ.'IDEAL        ') &
@@ -2862,8 +2719,7 @@ module paraxial_ray_trace_test
                     END IF
                     PXTRAX(7,1)=(CURV*PXTRAX(5,1))+PXTRAX(6,0)
     !       PICX'(1)
-                    PXTRAX(8,1)=((ALENS((WWVN),0))/ &
-                    (ALENS((WWVN),1)))*PXTRAX(7,1)
+                    PXTRAX(8,1)=ldm%getIndexRatio(0,1,INT(sys_wl_ref()))*PXTRAX(7,1)
     !
     !       THIS COMPLETES THE INITIAL VALUE CALCULATIONS FOR SURFACES 0 AND 1
     ! *****************************************************************************
@@ -2894,11 +2750,8 @@ module paraxial_ray_trace_test
                     END IF
                     END IF
             PXTRAX(2,L)=-CURV*PXTRAX(1,L)* &
-            (((ALENS(WWVN,L))- &
-            (ALENS(WWVN,(L-1))))/ &
-            (ALENS(WWVN,L)))+ &
-            ((ALENS(WWVN,(L-1)))/ &
-            (ALENS(WWVN,L)))*PXTRAX(2,(L-1))
+            ldm%getRefractionPowerFactor(L-1,L,INT(sys_wl_ref()))+ &
+            ldm%getIndexRatio(L-1,L,INT(sys_wl_ref()))*PXTRAX(2,(L-1))
             IF(GLANAM(L,2).EQ.'PERFECT      ') &
           PXTRAX(2,L)=(-(1.0D0/surf_thickness(L))*PXTRAX(1,L))+PXTRAX(2,L-1)
             IF(GLANAM(L,2).EQ.'IDEAL        ') &
@@ -2919,8 +2772,7 @@ module paraxial_ray_trace_test
                     PXTRAX(3,L)=CURV*PXTRAX(1,L)+PXTRAX(2,(L-1))
     !
     !       PIX'(L)=(N/N')*PIX(L)
-                    PXTRAX(4,L)=((ALENS((WWVN),(L-1)))/ &
-                    (ALENS((WWVN),L)))*PXTRAX(3,L)
+                    PXTRAX(4,L)=ldm%getIndexRatio(L-1,L,INT(sys_wl_ref()))*PXTRAX(3,L)
     !
     !       PCX(L) = PCX(L-1)+TH(L-1)*PUCX(L-1) ; THIS IS THE TRANSFER EQUATION
             PXTRAX(5,L)=PXTRAX(5,(L-1))+(surf_thickness(L-1)*PXTRAX(6,(L-1)))
@@ -2938,11 +2790,8 @@ module paraxial_ray_trace_test
                     END IF
                     END IF
             PXTRAX(6,L)=-CURV*PXTRAX(5,L)* &
-            (((ALENS(WWVN,L))- &
-            (ALENS(WWVN,(L-1))))/ &
-            (ALENS(WWVN,L)))+ &
-            ((ALENS(WWVN,(L-1)))/ &
-            (ALENS(WWVN,L)))*PXTRAX(6,(L-1))
+            ldm%getRefractionPowerFactor(L-1,L,INT(sys_wl_ref()))+ &
+            ldm%getIndexRatio(L-1,L,INT(sys_wl_ref()))*PXTRAX(6,(L-1))
           IF(GLANAM(L,2).EQ.'PERFECT      ') &
           PXTRAX(6,L)=(-(1.0D0/surf_thickness(L))*PXTRAX(5,L))+PXTRAX(6,L-1)
           IF(GLANAM(L,2).EQ.'IDEAL        ') &
@@ -2962,8 +2811,7 @@ module paraxial_ray_trace_test
                     END IF
                     PXTRAX(7,L)=(CURV*PXTRAX(5,L))+PXTRAX(6,(L-1))
     !       PICX'(L)
-                    PXTRAX(8,L)=((ALENS((WWVN),(L-1)))/ &
-                    (ALENS((WWVN),L)))*PXTRAX(7,L)
+                    PXTRAX(8,L)=ldm%getIndexRatio(L-1,L,INT(sys_wl_ref()))*PXTRAX(7,L)
     !
     !
      7000                     CONTINUE
@@ -3023,11 +2871,8 @@ module paraxial_ray_trace_test
                     END IF
                     END IF
             PXTRAX(2,L)=-CURV*PXTRAX(1,L)* &
-            (((ALENS(WWVN,L))- &
-            (ALENS(WWVN,(L-1))))/ &
-            (ALENS(WWVN,L)))+ &
-            ((ALENS(WWVN,(L-1)))/ &
-            (ALENS(WWVN,L)))*PXTRAX(2,(L-1))
+            ldm%getRefractionPowerFactor(L-1,L,INT(sys_wl_ref()))+ &
+            ldm%getIndexRatio(L-1,L,INT(sys_wl_ref()))*PXTRAX(2,(L-1))
             IF(GLANAM(L,2).EQ.'PERFECT      ') &
           PXTRAX(2,L)=(-(1.0D0/surf_thickness(L))*PXTRAX(1,L))+PXTRAX(2,L-1)
             IF(GLANAM(L,2).EQ.'IDEAL        ') &
@@ -3048,8 +2893,7 @@ module paraxial_ray_trace_test
                     PXTRAX(3,L)=CURV*PXTRAX(1,L)+PXTRAX(2,(L-1))
     !
     !       PIX'(L)=(N/N')*PIX(L)
-                    PXTRAX(4,L)=((ALENS((WWVN),(L-1)))/ &
-                    (ALENS((WWVN),L)))*PXTRAX(3,L)
+                    PXTRAX(4,L)=ldm%getIndexRatio(L-1,L,INT(sys_wl_ref()))*PXTRAX(3,L)
     !
     !       PCX(L) = PCX(L-1)+TH(L-1)*PUCX(L-1) ; THIS IS THE TRANSFER EQUATION
     !       NO CALCULATE PCX VALUE
@@ -3071,11 +2915,8 @@ module paraxial_ray_trace_test
                     END IF
                     END IF
             PXTRAX(6,L)=-CURV*PXTRAX(5,L)* &
-            (((ALENS(WWVN,L))- &
-            (ALENS(WWVN,(L-1))))/ &
-            (ALENS(WWVN,L)))+ &
-            ((ALENS(WWVN,(L-1)))/ &
-            (ALENS(WWVN,L)))*PXTRAX(6,(L-1))
+            ldm%getRefractionPowerFactor(L-1,L,INT(sys_wl_ref()))+ &
+            ldm%getIndexRatio(L-1,L,INT(sys_wl_ref()))*PXTRAX(6,(L-1))
           IF(GLANAM(L,2).EQ.'PERFECT      ') &
           PXTRAX(6,L)=(-(1.0D0/surf_thickness(L))*PXTRAX(5,L))+PXTRAX(6,L-1)
           IF(GLANAM(L,2).EQ.'IDEAL        ') &
@@ -3095,8 +2936,7 @@ module paraxial_ray_trace_test
                     END IF
                     PXTRAX(7,L)=(CURV*PXTRAX(5,L))+PXTRAX(6,(L-1))
     !       PICX'(L)
-                    PXTRAX(8,L)=((ALENS((WWVN),(L-1)))/ &
-                    (ALENS((WWVN),L)))*PXTRAX(7,L)
+                    PXTRAX(8,L)=ldm%getIndexRatio(L-1,L,INT(sys_wl_ref()))*PXTRAX(7,L)
     !
     !                       SOLVES ON SURFACE L
     !***************************************************************************
@@ -3186,11 +3026,8 @@ module paraxial_ray_trace_test
                     END IF
                     END IF
             PXTRAX(2,1)=-CURV*PXTRAX(1,1)* &
-            (((ALENS(WWVN,1))- &
-            (ALENS(WWVN,0)))/ &
-            (ALENS(WWVN,1)))+ &
-            ((ALENS(WWVN,0))/ &
-            (ALENS(WWVN,1)))*PXTRAX(2,0)
+            ldm%getRefractionPowerFactor(0,1,INT(sys_wl_ref()))+ &
+            ldm%getIndexRatio(0,1,INT(sys_wl_ref()))*PXTRAX(2,0)
             IF(GLANAM(1,2).EQ.'PERFECT      ') &
           PXTRAX(2,1)=(-(1.0D0/surf_thickness(1))*PXTRAX(1,1))+PXTRAX(2,1-1)
             IF(GLANAM(1,2).EQ.'IDEAL        ') &
@@ -3211,8 +3048,7 @@ module paraxial_ray_trace_test
                     PXTRAX(3,1)=CURV*PXTRAX(1,1)+PXTRAX(2,0)
     !
     !       PIX'(1)=(N/N')*PIX(1)
-                    PXTRAX(4,1)=((ALENS((WWVN),0))/ &
-                    (ALENS((WWVN),1)))*PXTRAX(3,1)
+                    PXTRAX(4,1)=ldm%getIndexRatio(0,1,INT(sys_wl_ref()))*PXTRAX(3,1)
     !
     !       PCX(1)=(ADJUSTMENT ON SURFACE 1 IF ANY)
             IF(sys_telecentric().EQ.0.0D0) PXTRAX(5,1)=sys_x1_scx()
@@ -3231,11 +3067,8 @@ module paraxial_ray_trace_test
                     END IF
                     END IF
             PXTRAX(6,1)=-CURV*PXTRAX(5,1)* &
-            (((ALENS(WWVN,1))- &
-            (ALENS(WWVN,0)))/ &
-            (ALENS(WWVN,1)))+ &
-            ((ALENS(WWVN,0))/ &
-            (ALENS(WWVN,1)))*PXTRAX(6,0)
+            ldm%getRefractionPowerFactor(0,1,INT(sys_wl_ref()))+ &
+            ldm%getIndexRatio(0,1,INT(sys_wl_ref()))*PXTRAX(6,0)
           IF(GLANAM(1,2).EQ.'PERFECT      ') &
           PXTRAX(6,1)=(-(1.0D0/surf_thickness(1))*PXTRAX(5,1))+PXTRAX(6,1-1)
           IF(GLANAM(1,2).EQ.'IDEAL        ') &
@@ -3255,8 +3088,7 @@ module paraxial_ray_trace_test
                     END IF
                     PXTRAX(7,1)=(CURV*PXTRAX(5,1))+PXTRAX(6,0)
     !       PICX'(1)
-                    PXTRAX(8,1)=((ALENS((WWVN),0))/ &
-                    (ALENS((WWVN),1)))*PXTRAX(7,1)
+                    PXTRAX(8,1)=ldm%getIndexRatio(0,1,INT(sys_wl_ref()))*PXTRAX(7,1)
     !
     !       THIS COMPLETES THE INITIAL VALUE CALCULATIONS FOR SURFACES 0 AND 1
     !
@@ -3308,11 +3140,8 @@ module paraxial_ray_trace_test
                     END IF
                     END IF
             PXTRAX(2,L)=-CURV*PXTRAX(1,L)* &
-            (((ALENS(WWVN,L))- &
-            (ALENS(WWVN,(L-1))))/ &
-            (ALENS(WWVN,L)))+ &
-            ((ALENS(WWVN,(L-1)))/ &
-            (ALENS(WWVN,L)))*PXTRAX(2,(L-1))
+            ldm%getRefractionPowerFactor(L-1,L,INT(sys_wl_ref()))+ &
+            ldm%getIndexRatio(L-1,L,INT(sys_wl_ref()))*PXTRAX(2,(L-1))
             IF(GLANAM(L,2).EQ.'PERFECT      ') &
           PXTRAX(2,L)=(-(1.0D0/surf_thickness(L))*PXTRAX(1,L))+PXTRAX(2,L-1)
             IF(GLANAM(L,2).EQ.'IDEAL        ') &
@@ -3333,8 +3162,7 @@ module paraxial_ray_trace_test
                     PXTRAX(3,L)=CURV*PXTRAX(1,L)+PXTRAX(2,(L-1))
     !
     !       PIX'(L)=(N/N')*PIX(L)
-                    PXTRAX(4,L)=((ALENS((WWVN),(L-1)))/ &
-                    (ALENS((WWVN),L)))*PXTRAX(3,L)
+                    PXTRAX(4,L)=ldm%getIndexRatio(L-1,L,INT(sys_wl_ref()))*PXTRAX(3,L)
     !
     !       PCX(L) = PCX(L-1)+TH(L-1)*PUCX(L-1) ; THIS IS THE TRANSFER EQUATION
     !*******************************************************************************
@@ -3357,11 +3185,8 @@ module paraxial_ray_trace_test
                     END IF
                     END IF
             PXTRAX(6,L)=-CURV*PXTRAX(5,L)* &
-            (((ALENS(WWVN,L))- &
-            (ALENS(WWVN,(L-1))))/ &
-            (ALENS(WWVN,L)))+ &
-            ((ALENS(WWVN,(L-1)))/ &
-            (ALENS(WWVN,L)))*PXTRAX(6,(L-1))
+            ldm%getRefractionPowerFactor(L-1,L,INT(sys_wl_ref()))+ &
+            ldm%getIndexRatio(L-1,L,INT(sys_wl_ref()))*PXTRAX(6,(L-1))
           IF(GLANAM(L,2).EQ.'PERFECT      ') &
           PXTRAX(6,L)=(-(1.0D0/surf_thickness(L))*PXTRAX(5,L))+PXTRAX(6,L-1)
           IF(GLANAM(L,2).EQ.'IDEAL        ') &
@@ -3381,8 +3206,7 @@ module paraxial_ray_trace_test
                     END IF
                     PXTRAX(7,L)=(CURV*PXTRAX(5,L))+PXTRAX(6,(L-1))
     !       PICX'(L)
-                    PXTRAX(8,L)=((ALENS((WWVN),(L-1)))/ &
-                    (ALENS((WWVN),L)))*PXTRAX(7,L)
+                    PXTRAX(8,L)=ldm%getIndexRatio(L-1,L,INT(sys_wl_ref()))*PXTRAX(7,L)
     !
     !                       NOW HANDLE SOLVES ON SURFACE L
     !***************************************************************************

@@ -526,7 +526,7 @@ function buildLensEditTable() result(store)
   end function
 
   function getSurfaceNames() result(surfName_array)
-    include "DATLEN.INC"
+    use DATLEN
     character(len=40), dimension(curr_lens_data%num_surfaces) :: surfName_array
     integer :: i
     do i=1,curr_lens_data%num_surfaces-1

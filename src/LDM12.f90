@@ -2909,6 +2909,7 @@ SUBROUTINE GLSRES
    use mod_surface
    use DATMAI
    use mod_system, only: sys_last_surf
+   use mod_lens_data_manager, only: ldm
    IMPLICIT NONE
 !
 !       THIS IS SUBROUTINE GLSRES. THIS IS THE SUBROUTINE WHICH
@@ -2973,9 +2974,8 @@ SUBROUTINE GLSRES
             if(.not.boolResult) then
 
                BADGLS=.TRUE.
-               ALENS(122:123,I)=0.0D0
-               ALENS(46:50,I)=1.0D0
-               ALENS(71:75,I)=1.0D0
+               call ldm%clearGlassColorData(I)
+               call ldm%initRefractiveIndices(I)
                GO TO 10
             end if
 !       PROCEED, THE GLASS IS DEFINED WITHIN THE CURRENT
@@ -3032,9 +3032,8 @@ SUBROUTINE GLSRES
                   CALL SHOWIT(1)
                   OUTLYNE='REFRACTIVE INDICES FOR SURFACE SET TO 1.0'
                   CALL SHOWIT(1)
-                  ALENS(122:123,I)=0.0D0
-                  ALENS(46:50,I)=1.0D0
-                  ALENS(71:75,I)=1.0D0
+                  call ldm%clearGlassColorData(I)
+                  call ldm%initRefractiveIndices(I)
                END IF
             ELSE
 !     FLTP WAS NOT BLANK
@@ -3078,9 +3077,8 @@ SUBROUTINE GLSRES
                if(.not.boolResult) then
 
                   BADGLS=.TRUE.
-                  ALENS(122:123,I)=0.0D0
-                  ALENS(46:50,I)=1.0D0
-                  ALENS(71:75,I)=1.0D0
+                  call ldm%clearGlassColorData(I)
+                  call ldm%initRefractiveIndices(I)
                   GO TO 10
                end if
 
@@ -3093,9 +3091,8 @@ SUBROUTINE GLSRES
                CALL SHOWIT(1)
                OUTLYNE='REFRACTIVE INDICES FOR SURFACE SET TO 1.0'
                CALL SHOWIT(1)
-               ALENS(122:123,I)=0.0D0
-               ALENS(46:50,I)=1.0D0
-               ALENS(71:75,I)=1.0D0
+               call ldm%clearGlassColorData(I)
+               call ldm%initRefractiveIndices(I)
             ELSE
 !     FLTP NOT MULTI
             END IF

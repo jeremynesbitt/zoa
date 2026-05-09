@@ -8394,7 +8394,7 @@ END
 !     ---------------------------------------------------------------
 SUBROUTINE SHOW_INVALID_CMD(ERRMSG)
    USE GLOBALS
-   INCLUDE 'DATMAI.INC'
+   use DATMAI
    CHARACTER*(*) ERRMSG
    OUTLYNE=ERRMSG
    CALL SHOWIT(1)

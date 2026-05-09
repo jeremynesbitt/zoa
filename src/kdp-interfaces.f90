@@ -317,12 +317,10 @@ subroutine FIR
   use iso_fortran_env, only: real64
   use type_utils, only: real2str
   use zoa_output, only: zoa_emit
+  use DATMAI
 
   implicit none
   !real(kind=real64) :: epRad, epPos
-
-  include "DATMAI.INC"
-
   ! TODO:  This needs cleanup
   ! All these values should be calculated elsewhere
   ! Make sure that calcs are correct for all focal/afocal conditions
@@ -405,10 +403,9 @@ end subroutine EDITOR
 
 subroutine PTSTUFF
   use type_utils, only: real2str, int2str
+  use DATLEN
 
   integer :: i
-  
-  include "DATLEN.INC"
   call LogTermFOR("SYSTEM DUMP")
   do i=1,150
     call LogTermFOR("i="//trim(int2str(i)//" "//real2str(SYSTEM(i))))

@@ -72,7 +72,7 @@ module zoa_file_handler
       end subroutine
 
       function isSPOFileOpen(fileTest) result(res)
-        include "DATMAI.INC"
+        use DATMAI
         character(len=*) :: fileTest
         logical :: res
         res = .FALSE.
@@ -564,7 +564,7 @@ subroutine setGlassCatalogDir(dir)
 end subroutine
 
 function getGlassCatalogDir() result(res)
-  include 'DATMAI.INC'
+  use DATMAI
   character(len=1024) :: res
   if (len_trim(glassCatalogDirOverride) > 0) then
     res = glassCatalogDirOverride
@@ -577,7 +577,7 @@ end function
 ! INITKDP unconditionally sets LIBGLA from basePath, so we override
 ! it here if the user has set a custom glass catalog directory.
 subroutine applyGlassCatalogDirFromPrefs()
-  include 'DATMAI.INC'
+  use DATMAI
   if (len_trim(glassCatalogDirOverride) > 0) then
     LIBGLA = glassCatalogDirOverride
   end if

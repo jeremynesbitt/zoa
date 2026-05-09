@@ -3693,6 +3693,7 @@ SUBROUTINE INTERACK(OR_N,OR_Z)
    use mod_surface
    use DATMAI
    use mod_system, only: sys_units, sys_wavelength
+   use mod_lens_data_manager, only: ldm
    IMPLICIT NONE
 !
 !     ERROR RAY VARIABLES 3/5/2006
@@ -3729,8 +3730,6 @@ SUBROUTINE INTERACK(OR_N,OR_Z)
 !
    COMMON/SAGPAS/XPASS,YPASS,ZPASS
 !
-   INTEGER WWVN
-   COMMON/WVPASS/WWVN
    LOGICAL TIR
    COMMON/RIT/TIR
 !
@@ -3762,17 +3761,7 @@ SUBROUTINE INTERACK(OR_N,OR_Z)
    PHASE=0.0D0
    RR_Z=OR_Z
    RR_N=OR_N
-   IF(WVN.EQ.1) WWVN=46
-   IF(WVN.EQ.2) WWVN=47
-   IF(WVN.EQ.3) WWVN=48
-   IF(WVN.EQ.4) WWVN=49
-   IF(WVN.EQ.5) WWVN=50
-   IF(WVN.EQ.6) WWVN=71
-   IF(WVN.EQ.7) WWVN=72
-   IF(WVN.EQ.8) WWVN=73
-   IF(WVN.EQ.9) WWVN=74
-   IF(WVN.EQ.10) WWVN=75
-   SNINDX=DABS(ALENS(WWVN,R_I-1))/ALENS(WWVN,R_I-1)
+   SNINDX=DABS(ldm%getSurfIndex(R_I-1, INT(WVN)))/ldm%getSurfIndex(R_I-1, INT(WVN))
    IF((1.0D0-(COSI**2)).LT.0.0D0) THEN
       SINI=0.0D0
    ELSE
@@ -3782,9 +3771,9 @@ SUBROUTINE INTERACK(OR_N,OR_Z)
    IF(TIRTESTER.GT.1.0D0) TIR=.TRUE.
 !     TIRTESTER IS USED DURING A REFLECTION SPECIFIED WITH A REFLTIRO
 !     THIS MEANS THAT THE REFLECTION ONLY WORKS IF TIRTESTER>1.0
-   SNIND2=DABS(ALENS(WWVN,R_I))/ALENS(WWVN,R_I)
-   NUSUBS=((ALENS((WWVN),(R_I-1)))/&
-   &(ALENS((WWVN),R_I)))
+   SNIND2=DABS(ldm%getSurfIndex(R_I, INT(WVN)))/ldm%getSurfIndex(R_I, INT(WVN))
+   NUSUBS=((ldm%getSurfIndex(R_I-1, INT(WVN)))/&
+   &(ldm%getSurfIndex(R_I, INT(WVN))))
    SIGNNU=DABS(NUSUBS)/NUSUBS
    NUSUBS=DABS(NUSUBS)
    NUSUBS=DABS(NUSUBS)
@@ -3981,7 +3970,7 @@ SUBROUTINE INTERACK(OR_N,OR_Z)
       IF(sys_units().EQ.4.0D0)&
       &WLU=sys_wavelength(INT(WVN))*1.0D-6
 !
-      BLAM=-(GRO*WLU)/((DSPACE)*DABS(ALENS((WWVN),R_I)))
+      BLAM=-(GRO*WLU)/((DSPACE)*DABS(ldm%getSurfIndex(R_I, INT(WVN))))
 !
       BTERM=2.0D0*SMU*((R_L*LN)+(R_M*MN)+(R_N*NN))
       CTERM=(SMU**2)-1.0D0+(BLAM**2)&
@@ -4240,7 +4229,7 @@ SUBROUTINE INTERACK(OR_N,OR_Z)
          NR=NR/MAGR
       END IF
 !     BTA
-      BTA=(EMM*LAMP)/(LAMC*DABS(ALENS((WWVN),R_I)))
+      BTA=(EMM*LAMP)/(LAMC*DABS(ldm%getSurfIndex(R_I, INT(WVN))))
       AX=BTA*(LO-LR)
       AY=BTA*(MO-MR)
       AZ=BTA*(NO-NR)
@@ -4302,7 +4291,7 @@ SUBROUTINE INTERACK(OR_N,OR_Z)
          IF(DABS(FACTOR).GT.1E-6) DSPACE=GRS/FACTOR
          IF(DABS(FACTOR).LE.1E-6) DSPACE=1.0D20
          GRO=FTFL01(1,R_I)
-         BLAM=(GRO*WLU)/((DSPACE)*DABS(ALENS((WWVN),R_I)))
+         BLAM=(GRO*WLU)/((DSPACE)*DABS(ldm%getSurfIndex(R_I, INT(WVN))))
       END IF
 !     NOW CALC BIG GAMMA AND SMALL MU
       SMU=NUSUBS
@@ -4497,9 +4486,9 @@ SUBROUTINE INTERACK(OR_N,OR_Z)
             END IF
             IF(COSI.LE.0.0D0) COSIP=-DSQRT(ARG)
             IF(COSI.GT.0.0D0) COSIP=DSQRT(ARG)
-            J=((DABS(ALENS((WWVN),R_I))*COSIP)&
-            &-(DABS(ALENS((WWVN),(R_I-1)))*COSI))/&
-            &(DABS(ALENS((WWVN),R_I)))
+            J=((DABS(ldm%getSurfIndex(R_I, INT(WVN)))*COSIP)&
+            &-(DABS(ldm%getSurfIndex(R_I-1, INT(WVN)))*COSI))/&
+            &(DABS(ldm%getSurfIndex(R_I, INT(WVN))))
             R_L0=(NUSUBS*R_L0)+(J*LN)
             R_M0=(NUSUBS*R_M0)+(J*MN)
             R_N0=(NUSUBS*R_N0)+(J*NN)
@@ -4555,9 +4544,9 @@ SUBROUTINE INTERACK(OR_N,OR_Z)
             END IF
             IF(COSI.LE.0.0D0) COSIP=-DSQRT(ARG)
             IF(COSI.GT.0.0D0) COSIP=DSQRT(ARG)
-            J=((DABS(ALENS((WWVN),R_I))*COSIP)&
-            &-(DABS(ALENS((WWVN),(R_I-1)))*COSI))/&
-            &(DABS(ALENS((WWVN),R_I)))
+            J=((DABS(ldm%getSurfIndex(R_I, INT(WVN)))*COSIP)&
+            &-(DABS(ldm%getSurfIndex(R_I-1, INT(WVN)))*COSI))/&
+            &(DABS(ldm%getSurfIndex(R_I, INT(WVN))))
             R_L0=(NUSUBS*R_L0)+(J*LN)
             R_M0=(NUSUBS*R_M0)+(J*MN)
             R_N0=(NUSUBS*R_N0)+(J*NN)

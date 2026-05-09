@@ -327,7 +327,8 @@ if zmq_dep.found()
     link_with: [zoa_lib, plotcad5_lib],
     dependencies: [zoa_deps, thread_dep, zmq_dep],
     link_language: 'fortran',
-    install: false
+    install: true,
+    install_dir: 'Contents/MacOS'
   )
 endif
 

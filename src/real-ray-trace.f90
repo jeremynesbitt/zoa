@@ -64,6 +64,7 @@ contains
                               sys_telecentric, sys_aplanatic_aim, sys_wavelength, &
                               sys_screen, sys_screen_surf, sys_screen_d, sys_screen_h, sys_screen_s, &
                               sys_fliprefx, sys_fliprefy, sys_screen_excl_angle
+        use mod_lens_data_manager, only: ldm
         IMPLICIT NONE
 !
 !       THIS IS SUBROUTINE RAYTRA.FOR. THIS SUBROUTINE IMPLEMENTS
@@ -617,16 +618,9 @@ contains
                 RAYRAY(6,NEWOBJ)=NSTART
                 RAYRAY(7,NEWOBJ)=0.0D0
                 RAYRAY(8,NEWOBJ)=0.0D0
-      IF(INT(WW3).GE.1.AND.INT(WW3).LE.5) THEN
-      SNIND2=DABS(ALENS(45+INT(WW3),NEWOBJ))/ALENS(45+INT(WW3),NEWOBJ)
-      RN1=(ALENS(45+INT(WW3),NEWOBJ))
-      RN2=(ALENS(45+INT(WW3),NEWOBJ))
-                        END IF
-      IF(INT(WW3).GE.6.AND.INT(WW3).LE.10) THEN
-      SNIND2=DABS(ALENS(65+INT(WW3),NEWOBJ))/ALENS(65+INT(WW3),NEWOBJ)
-      RN1=(ALENS(65+INT(WW3),NEWOBJ))
-      RN2=(ALENS(65+INT(WW3),NEWOBJ))
-                        END IF
+      RN1=ldm%getSurfIndex(NEWOBJ,INT(WW3))
+      RN2=RN1
+      SNIND2=DABS(RN1)/RN1
       IF(SNIND2.GT.0.0D0) RAYRAY(24,NEWOBJ)=1.0D0
       IF(SNIND2.LT.0.0D0) RAYRAY(24,NEWOBJ)=-1.0D0
       IF(SNIND2.GT.0.0D0) POSRAY=.TRUE.
@@ -771,18 +765,10 @@ contains
                 RAYRAY(10,I)=COSIP
 !
 !     WHAT IS THE SIGN OF THE INDEX IN THE I-1 SPACE
-      IF(INT(WW3).GE.1.AND.INT(WW3).LE.5) THEN
-        SNINDX=DABS(ALENS(45+INT(WW3),I-1))/ALENS(45+INT(WW3),I-1)
-        SNIND2=DABS(ALENS(45+INT(WW3),I))/ALENS(45+INT(WW3),I)
-      RN1=(ALENS(45+INT(WW3),I-1))
-      RN2=(ALENS(45+INT(WW3),I))
-                        END IF
-      IF(INT(WW3).GE.6.AND.INT(WW3).LE.10) THEN
-        SNINDX=DABS(ALENS(65+INT(WW3),I-1))/ALENS(65+INT(WW3),I-1)
-        SNIND2=DABS(ALENS(65+INT(WW3),I))/ALENS(65+INT(WW3),I)
-      RN1=(ALENS(65+INT(WW3),I-1))
-      RN2=(ALENS(65+INT(WW3),I))
-                        END IF
+      RN1=ldm%getSurfIndex(I-1,INT(WW3))
+      RN2=ldm%getSurfIndex(I,INT(WW3))
+      SNINDX=DABS(RN1)/RN1
+      SNIND2=DABS(RN2)/RN2
         RAYRAY(29,I)=YL
         RAYRAY(30,I)=YM
         RAYRAY(31,I)=YN
@@ -842,8 +828,7 @@ contains
       IF(GLANAM(I-1,2).EQ.'IDEAL        ') THEN
       RAYRAY(8,I)=-(surf_ideal_efl(I-1)-surf_thickness(I-1))*RAYRAY(6,I-1)
                        END IF
-      IF(INT(WW3).GE.1.AND.INT(WW3).LE.5) RAYRAY(7,I)=RAYRAY(8,I)*DABS(ALENS(45+INT(WW3),(I-1)))
-      IF(INT(WW3).GE.6.AND.INT(WW3).LE.10) RAYRAY(7,I)=RAYRAY(8,I)*DABS(ALENS(65+INT(WW3),(I-1)))
+      RAYRAY(7,I)=RAYRAY(8,I)*DABS(ldm%getSurfIndex(I-1,INT(WW3)))
       IF(.NOT.RV) RAYRAY(7,I)=RAYRAY(7,I)+PHASE
       IF(RV) RAYRAY(7,I)=RAYRAY(7,I)-PHASE
 !
@@ -1447,23 +1432,11 @@ contains
         RAYRAY(25,I)=RAYRAY(25,I-1)
                         END IF
       IF(I.EQ.NEWOBJ) THEN
-      IF(WA3.GE.1.AND.WA3.LE.5) THEN
-      RN1=(ALENS(45+WA3,I))
-      RN2=(ALENS(45+WA3,I))
-                        END IF
-      IF(WA3.GE.6.AND.WA3.LE.10) THEN
-      RN1=(ALENS(65+WA3,I))
-      RN2=(ALENS(65+WA3,I))
-                        END IF
+      RN1=ldm%getSurfIndex(I,WA3)
+      RN2=RN1
                         ELSE
-      IF(WA3.GE.1.AND.WA3.LE.5) THEN
-      RN1=(ALENS(45+WA3,I-1))
-      RN2=(ALENS(45+WA3,I))
-                        END IF
-      IF(WA3.GE.6.AND.WA3.LE.10) THEN
-      RN1=(ALENS(65+WA3,I-1))
-      RN2=(ALENS(65+WA3,I))
-                        END IF
+      RN1=ldm%getSurfIndex(I-1,WA3)
+      RN2=ldm%getSurfIndex(I,WA3)
                         END IF
       IF(surf_special_type(I) == 19) THEN
 !     CALL THE GRIDS ROUTINE WITH ARG = 2
@@ -1721,8 +1694,7 @@ subroutine adjustLastSurface_old(L, RV)
 
       !dOPL = dLen/(sysConfig%getWavelength(INT(WW3))/1E3)
 !
-       IF(INT(WW3).GE.1.AND.INT(WW3).LE.5) dOPL=dLen*DABS(ALENS(45+INT(WW3),(L-1)))
-       IF(INT(WW3).GE.6.AND.INT(WW3).LE.10) dOPL=dLen*DABS(ALENS(65+INT(WW3),(L-1)))
+       dOPL=dLen*DABS(ldm%getSurfIndex(L-1,INT(WW3)))
       IF(.NOT.RV) dOPL=dOPL+PHASE
       IF(RV) dOPL=dOPL-PHASE
 
@@ -1803,8 +1775,7 @@ subroutine adjustLastSurface(L, rayData)
 
       !dOPL = dLen/(sysConfig%getWavelength(INT(WW3))/1E3)
 !
-       IF(INT(WW3).GE.1.AND.INT(WW3).LE.5) dOPL=dLen*DABS(ALENS(45+INT(WW3),(L-1)))
-       IF(INT(WW3).GE.6.AND.INT(WW3).LE.10) dOPL=dLen*DABS(ALENS(65+INT(WW3),(L-1)))
+       dOPL=dLen*DABS(ldm%getSurfIndex(L-1,INT(WW3)))
       IF(.NOT.RV) dOPL=dOPL+PHASE
       IF(RV) dOPL=dOPL-PHASE
 
@@ -1874,8 +1845,7 @@ subroutine adjustLastSurface_2(L, rayData)
 !
        ! Tricky compared to adjustLastSurface
       ! var of interest for wavelength is WW4.
-       IF(INT(WW4).GE.1.AND.INT(WW4).LE.5) dOPL=dLen*DABS(ALENS(45+INT(WW4),(L-1)))
-       IF(INT(WW4).GE.6.AND.INT(WW4).LE.10) dOPL=dLen*DABS(ALENS(65+INT(WW4),(L-1)))
+       dOPL=dLen*DABS(ldm%getSurfIndex(L-1,INT(WW4)))
       IF(.NOT.RV) dOPL=dOPL+PHASE
       IF(RV) dOPL=dOPL-PHASE
 

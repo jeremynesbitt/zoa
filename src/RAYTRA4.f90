@@ -5118,12 +5118,13 @@ SUBROUTINE PROPD
    use DATMAI
    use mod_surface, only: surf_thickness
    use mod_system, only: sys_mode, sys_units, sys_wavelength
+   use mod_lens_data_manager, only: ldm
    IMPLICIT NONE
 !
 !       THIS IS SUBROUTINE PROPD WHICH IMPLEMENTS THE OPD
 !       COMMAND AT THE CMD LEVEL.
 !
-   INTEGER J,JJ,WWRF,WWVN
+   INTEGER J,JJ
 !
    REAL*8 LEN,LENW,WW,WAVE
 !
@@ -5139,26 +5140,6 @@ SUBROUTINE PROPD
       CALL REPORT_ERROR_AND_FAIL('RE-ENTER COMMAND', 1)
       RETURN
    END IF
-   IF(INT(LFOB(4)).EQ.1) WWRF=46
-   IF(INT(LFOB(4)).EQ.2) WWRF=47
-   IF(INT(LFOB(4)).EQ.3) WWRF=48
-   IF(INT(LFOB(4)).EQ.4) WWRF=49
-   IF(INT(LFOB(4)).EQ.5) WWRF=50
-   IF(INT(LFOB(4)).EQ.6) WWRF=71
-   IF(INT(LFOB(4)).EQ.7) WWRF=72
-   IF(INT(LFOB(4)).EQ.8) WWRF=73
-   IF(INT(LFOB(4)).EQ.9) WWRF=74
-   IF(INT(LFOB(4)).EQ.10) WWRF=75
-   IF(INT(CURLAM).EQ.1) WWVN=46
-   IF(INT(CURLAM).EQ.2) WWVN=47
-   IF(INT(CURLAM).EQ.3) WWVN=48
-   IF(INT(CURLAM).EQ.4) WWVN=49
-   IF(INT(CURLAM).EQ.5) WWVN=50
-   IF(INT(CURLAM).EQ.6) WWVN=71
-   IF(INT(CURLAM).EQ.7) WWVN=72
-   IF(INT(CURLAM).EQ.8) WWVN=73
-   IF(INT(CURLAM).EQ.9) WWVN=74
-   IF(INT(CURLAM).EQ.10) WWVN=75
    IF(RAYEXT.AND.REFEXT) THEN
       LEN=0.0D0
       RCOR=0.0D0
@@ -5167,34 +5148,34 @@ SUBROUTINE PROPD
       IF(DABS(surf_thickness(NEWOBJ)).LT.1.0D10) JJ=NEWOBJ+1
       DO J=JJ,NEWIMG
          LEN=LEN+RAYRAY(7,J)&
-         &-(REFRY(7,J)*(ALENS(WWVN,J-1)/ALENS(WWRF,J-1)))
+         &-(REFRY(7,J)*(ldm%getSurfIndex(J-1, INT(CURLAM))/ldm%getSurfIndex(J-1, INT(LFOB(4)))))
       END DO
       IF(sys_mode().EQ.1.0D0.OR.sys_mode().EQ.2.0D0) THEN
 !       MODE FOCAL
          RCOR=0.0D0
          OCOR=0.0D0
          CALL FOPD
-         LEN=LEN-(OCOR*ALENS(WWVN,NEWOBJ))&
-         &+(RCOR*ALENS(WWVN,NEWOBJ))
+         LEN=LEN-(OCOR*ldm%getSurfIndex(NEWOBJ, INT(CURLAM)))&
+         &+(RCOR*ldm%getSurfIndex(NEWOBJ, INT(CURLAM)))
          RCOR=0.0D0
          OCOR=0.0D0
          CENCEN=.FALSE.
          CALL LOPD
-         LEN=LEN-(OCOR*ALENS(WWVN,NEWIMG-1))&
-         &+(RCOR*ALENS(WWVN,NEWIMG-1))
+         LEN=LEN-(OCOR*ldm%getSurfIndex(NEWIMG-1, INT(CURLAM)))&
+         &+(RCOR*ldm%getSurfIndex(NEWIMG-1, INT(CURLAM)))
       ELSE
 !       MODE AFOCAL
          RCOR=0.0D0
          OCOR=0.0D0
          CALL FOPD
-         LEN=LEN-(OCOR*ALENS(WWVN,NEWOBJ))&
-         &+(RCOR*ALENS(WWVN,NEWOBJ))
+         LEN=LEN-(OCOR*ldm%getSurfIndex(NEWOBJ, INT(CURLAM)))&
+         &+(RCOR*ldm%getSurfIndex(NEWOBJ, INT(CURLAM)))
          RCOR=0.0D0
          OCOR=0.0D0
          CENCEN=.FALSE.
          CALL LOPD
-         LEN=LEN-(OCOR*ALENS(WWVN,NEWIMG-1))&
-         &+(RCOR*ALENS(WWVN,NEWIMG-1))
+         LEN=LEN-(OCOR*ldm%getSurfIndex(NEWIMG-1, INT(CURLAM)))&
+         &+(RCOR*ldm%getSurfIndex(NEWIMG-1, INT(CURLAM)))
       END IF
       WRITE(OUTLYNE,100) LEN
       CALL SHOWIT(0)

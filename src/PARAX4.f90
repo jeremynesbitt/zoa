@@ -159,6 +159,7 @@ SUBROUTINE G357
    use DATLEN
    use DATMAI
    use mod_system, only: sys_last_surf, sys_mode, sys_wl_ref
+   use mod_lens_data_manager, only: ldm
    IMPLICIT NONE
 !
 !       SUBROUTINE GET SERVES TO GET THE 3RD, 5TH AND 7TH
@@ -170,7 +171,7 @@ SUBROUTINE G357
 !
    LOGICAL NEG
 !
-   INTEGER SF,CW,I,NUM5
+   INTEGER SF,I,NUM5
 !
    COMMON/GV/VALUE,NUM5
 !
@@ -253,24 +254,18 @@ SUBROUTINE G357
 !
    VALUE=0.0D0
    SF=INT(sys_last_surf())
-   IF(INT(sys_wl_ref()).GE.1.AND.INT(sys_wl_ref()).LE.5) THEN
-      CW=INT(sys_wl_ref())+45
-   END IF
-   IF(INT(sys_wl_ref()).GE.6.AND.INT(sys_wl_ref()).LE.10) THEN
-      CW=INT(sys_wl_ref())+65
-   END IF
    INTV=1.0D0
    IF(sys_mode().EQ.1.0D0.OR.sys_mode().EQ.3.0D0) THEN
 !       CALCULATE INTV
       IF(WQ.EQ.'PACX'.OR.WQ.EQ.'PLCX'.OR.WQ.EQ.'SACX'&
       &.OR.WQ.EQ.'SLCX') THEN
-         INTV=((PXTRAX(5,SF)*ALENS(CW,(SF-1))*PXTRAX(2,(SF-1)))-&
-         &(PXTRAX(1,SF)*ALENS(CW,(SF-1))*PXTRAX(6,(SF-1))))
+         INTV=((PXTRAX(5,SF)*ldm%getSurfIndex(SF-1, INT(sys_wl_ref()))*PXTRAX(2,(SF-1)))-&
+         &(PXTRAX(1,SF)*ldm%getSurfIndex(SF-1, INT(sys_wl_ref()))*PXTRAX(6,(SF-1))))
       END IF
       IF(WQ.EQ.'PACY'.OR.WQ.EQ.'PLCY'.OR.WQ.EQ.'SACY'&
       &.OR.WQ.EQ.'SLCY') THEN
-         INTV=((PXTRAY(5,SF)*ALENS(CW,(SF-1))*PXTRAY(2,(SF-1)))-&
-         &(PXTRAY(1,SF)*ALENS(CW,(SF-1))*PXTRAY(6,(SF-1))))
+         INTV=((PXTRAY(5,SF)*ldm%getSurfIndex(SF-1, INT(sys_wl_ref()))*PXTRAY(2,(SF-1)))-&
+         &(PXTRAY(1,SF)*ldm%getSurfIndex(SF-1, INT(sys_wl_ref()))*PXTRAY(6,(SF-1))))
       END IF
    END IF
 !
@@ -278,16 +273,16 @@ SUBROUTINE G357
    IF(sys_mode().EQ.1.0D0) THEN
 !       MODE IS FOCAL
       IF(WQ(1:1).NE.'X')&
-      &INV=-2.0*ALENS(CW,(SF-1))*PXTRAY(2,(SF-1))
+      &INV=-2.0*ldm%getSurfIndex(SF-1, INT(sys_wl_ref()))*PXTRAY(2,(SF-1))
       IF(WQ(1:1).EQ.'X')&
-      &INV=-2.0*ALENS(CW,(SF-1))*PXTRAX(2,(SF-1))
+      &INV=-2.0*ldm%getSurfIndex(SF-1, INT(sys_wl_ref()))*PXTRAX(2,(SF-1))
    END IF
    IF(sys_mode().EQ.3.0D0) THEN
 !       MODE IS AFOCAL
       IF(WQ(1:1).NE.'X')&
-      &INV= 2.0*ALENS(CW,(SF-1))*PXTRAY(1,SF)
+      &INV= 2.0*ldm%getSurfIndex(SF-1, INT(sys_wl_ref()))*PXTRAY(1,SF)
       IF(WQ(1:1).EQ.'X')&
-      &INV= 2.0*ALENS(CW,(SF-1))*PXTRAX(1,SF)
+      &INV= 2.0*ldm%getSurfIndex(SF-1, INT(sys_wl_ref()))*PXTRAX(1,SF)
    END IF
    IF(INV.EQ.0.0D0) THEN
       WRITE(OUTLYNE,*)&

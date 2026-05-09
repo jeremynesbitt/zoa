@@ -845,6 +845,7 @@ SUBROUTINE CUTOFF
    use DATMAI
    use mod_system, only: sys_mode, sys_units, sys_wl_ref, sys_wavelength, sys_wl_weight
    use command_utils, only: is_command_query
+   use mod_lens_data_manager, only: ldm
    IMPLICIT NONE
 !
 !       THIS IS SUBROUTINE CUTOFF.FOR.
@@ -1056,18 +1057,8 @@ SUBROUTINE CUTOFF
 !
 !     NEXT FEW LINES SCALE THE F/NUMBER FOR INDEX IN SPACE
 !     OF OBJECT OR IMAGE
-         IF(sys_wl_ref().GE.1.0D0.AND.sys_wl_ref().LE.5.0D0) THEN
-            REFIN=ALENS(45+INT(sys_wl_ref()),NEWIMG-1)
-         END IF
-         IF(sys_wl_ref().GE.6.0D0.AND.sys_wl_ref().LE.10.0D0) THEN
-            REFIN=ALENS(65+INT(sys_wl_ref()),NEWIMG-1)
-         END IF
-         IF(SHTNM.GE.1.AND.SHTNM.LE.5) THEN
-            NREFIN=ALENS(45+SHTNM,NEWIMG-1)
-         END IF
-         IF(SHTNM.GE.6.AND.SHTNM.LE.10) THEN
-            NREFIN=ALENS(65+SHTNM,NEWIMG-1)
-         END IF
+         REFIN=ldm%getSurfIndex(NEWIMG-1, INT(sys_wl_ref()))
+         NREFIN=ldm%getSurfIndex(NEWIMG-1, SHTNM)
          GRNX=GRNX*REFIN/NREFIN
          GRNY=GRNY*REFIN/NREFIN
 !
@@ -1103,18 +1094,8 @@ SUBROUTINE CUTOFF
 !
 !     NEXT FEW LINES SCALE THE F/NUMBER FOR INDEX IN SPACE
 !     OF OBJECT OR IMAGE
-         IF(sys_wl_ref().GE.1.0D0.AND.sys_wl_ref().LE.5.0D0) THEN
-            REFIN=ALENS(45+INT(sys_wl_ref()),NEWOBJ)
-         END IF
-         IF(sys_wl_ref().GE.6.0D0.AND.sys_wl_ref().LE.10.0D0) THEN
-            REFIN=ALENS(65+INT(sys_wl_ref()),NEWOBJ)
-         END IF
-         IF(SHTNM.GE.1.AND.SHTNM.LE.5) THEN
-            NREFIN=ALENS(45+SHTNM,NEWOBJ)
-         END IF
-         IF(SHTNM.GE.6.AND.SHTNM.LE.10) THEN
-            NREFIN=ALENS(65+SHTNM,NEWOBJ)
-         END IF
+         REFIN=ldm%getSurfIndex(NEWOBJ, INT(sys_wl_ref()))
+         NREFIN=ldm%getSurfIndex(NEWOBJ, SHTNM)
          GRNX=GRNX*REFIN/NREFIN
          GRNY=GRNY*REFIN/NREFIN
 !
@@ -1176,6 +1157,7 @@ SUBROUTINE CUTTOFF(FREQ1,FREQ2,ERROR)
    use mod_surface
    use DATMAI
    use mod_system, only: sys_mode, sys_units, sys_wl_ref, sys_wavelength, sys_wl_weight
+   use mod_lens_data_manager, only: ldm
    IMPLICIT NONE
 !
    REAL*8 EXPUZMM,FREQ1,FREQ2 ,REFIN,NREFIN,CUTFRX,CUTFRY,VALVAL,GRNX,GRNY
@@ -1319,18 +1301,8 @@ SUBROUTINE CUTTOFF(FREQ1,FREQ2,ERROR)
 !
 !     NEXT FEW LINES SCALE THE F/NUMBER FOR INDEX IN SPACE
 !     OF OBJECT OR IMAGE
-         IF(sys_wl_ref().GE.1.0D0.AND.sys_wl_ref().LE.5.0D0) THEN
-            REFIN=ALENS(45+INT(sys_wl_ref()),NEWIMG-1)
-         END IF
-         IF(sys_wl_ref().GE.6.0D0.AND.sys_wl_ref().LE.10.0D0) THEN
-            REFIN=ALENS(65+INT(sys_wl_ref()),NEWIMG-1)
-         END IF
-         IF(SHTNM.GE.1.AND.SHTNM.LE.5) THEN
-            NREFIN=ALENS(45+SHTNM,NEWIMG-1)
-         END IF
-         IF(SHTNM.GE.6.AND.SHTNM.LE.10) THEN
-            NREFIN=ALENS(65+SHTNM,NEWIMG-1)
-         END IF
+         REFIN=ldm%getSurfIndex(NEWIMG-1, INT(sys_wl_ref()))
+         NREFIN=ldm%getSurfIndex(NEWIMG-1, SHTNM)
          GRNX=GRNX*REFIN/NREFIN
          GRNY=GRNY*REFIN/NREFIN
 !
@@ -1360,18 +1332,8 @@ SUBROUTINE CUTTOFF(FREQ1,FREQ2,ERROR)
 !
 !     NEXT FEW LINES SCALE THE F/NUMBER FOR INDEX IN SPACE
 !     OF OBJECT OR IMAGE
-         IF(sys_wl_ref().GE.1.0D0.AND.sys_wl_ref().LE.5.0D0) THEN
-            REFIN=ALENS(45+INT(sys_wl_ref()),NEWOBJ)
-         END IF
-         IF(sys_wl_ref().GE.6.0D0.AND.sys_wl_ref().LE.10.0D0) THEN
-            REFIN=ALENS(65+INT(sys_wl_ref()),NEWOBJ)
-         END IF
-         IF(SHTNM.GE.1.AND.SHTNM.LE.5) THEN
-            NREFIN=ALENS(45+SHTNM,NEWOBJ)
-         END IF
-         IF(SHTNM.GE.6.AND.SHTNM.LE.10) THEN
-            NREFIN=ALENS(65+SHTNM,NEWOBJ)
-         END IF
+         REFIN=ldm%getSurfIndex(NEWOBJ, INT(sys_wl_ref()))
+         NREFIN=ldm%getSurfIndex(NEWOBJ, SHTNM)
          GRNX=GRNX*REFIN/NREFIN
          GRNY=GRNY*REFIN/NREFIN
 !

@@ -565,17 +565,15 @@ end function
  end function
 
  subroutine findCatalogNameFromGlassName(glassName, catalogName)
+      use DATMAI
       implicit none
-      
+
       character(len=13), intent(in) :: glassName
       character(len=13), intent(inout) :: catalogName
       real*8 :: A0,A1,A2,A3,A4,A5
       character(len=13) :: Name, Number
-      integer :: i, m, uG, TOTAL, J 
+      integer :: i, m, uG, TOTAL, J
       logical :: EXIS36
-
-      include "DATMAI.INC"
-
       
 
       m = size(gdb%catalogs, DIM=1)

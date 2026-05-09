@@ -5,10 +5,10 @@ contains
   function calcEFL() result(EFL)
         use iso_fortran_env, only: real64
         use global_widgets, only: curr_lens_data
+        use DATLEN
         implicit none
         real(kind=real64) :: EFL
         integer :: I, J
-        include "DATLEN.INC"
 
         I=0
         J=curr_lens_data%num_surfaces-2
@@ -27,10 +27,10 @@ contains
   function calcBFL() result(BFL)
         use iso_fortran_env, only: real64
         use global_widgets
+        use DATLEN
         implicit none
         real(kind=real64) :: BFL
         integer :: I, J
-        include "DATLEN.INC"
 
         I=0
         !J=curr_lens_data%num_surfaces-1
@@ -51,10 +51,10 @@ contains
   function calcFFL() result(FFL)
         use iso_fortran_env, only: real64
         use global_widgets
+        use DATLEN
         implicit none
         real(kind=real64) :: FFL
         integer :: I, J
-        include "DATLEN.INC"
 
         I=0
         !J=curr_lens_data%num_surfaces-1
@@ -74,11 +74,11 @@ contains
         use iso_fortran_env
         use mod_surface
         use mod_system, only: sys_last_surf
-
+        use DATMAI
+        use DATLEN
+        implicit none
         real(kind=real64) :: epRadius, epPosition, imgAngle
         integer :: newImage
-        include "DATMAI.INC"
-        include "DATLEN.INC"
 
         newImage = NEWIMG
 
@@ -118,33 +118,23 @@ contains
         use ISO_FORTRAN_ENV, only: real64
         use global_widgets
         use mod_system, only: sys_last_surf, sys_wl_ref
+        use mod_lens_data_manager, only: ldm
+        use DATMAI
+        use DATLEN
         !use global_widgets, only: sysConfig, curr_lens_data
         implicit none
-                        
-        real(kind=real64)  :: INV   
-        integer :: i, CW, SF
 
-
-        include "DATMAI.INC"   
-        include "DATLEN.INC"
+        real(kind=real64)  :: INV
+        integer :: i, SF
 
         SF=INT(sys_last_surf())
-        IF(INT(sys_wl_ref()).GE.1.AND.INT(sys_wl_ref()).LE.5) THEN
-                        CW=INT(sys_wl_ref())+45
-                                END IF
-        IF(INT(sys_wl_ref()).GE.6.AND.INT(sys_wl_ref()).LE.10) THEN
-                        CW=INT(sys_wl_ref())+65
-                                END IF                
-              
                 INV=1.0D0
-        if(sysConfig%isFocalSystem()) THEN        
-        !IF(SYSTEM(30).EQ.1.0D0) THEN
+        if(sysConfig%isFocalSystem()) THEN
           ! MODE IS FOCAL
-          INV=-2.0*ALENS(CW,(SF-1))*PXTRAY(2,(SF-1))
-         
+          INV=-2.0*ldm%getSurfIndex(SF-1,INT(sys_wl_ref()))*PXTRAY(2,(SF-1))
         else
          !MODE IS AFOCAL
-          INV= 2.0*ALENS(CW,(SF-1))*PXTRAY(1,SF)
+          INV= 2.0*ldm%getSurfIndex(SF-1,INT(sys_wl_ref()))*PXTRAY(1,SF)
         end if
  
         IF(DABS(INV).LE.1.0D-10) THEN
@@ -222,18 +212,15 @@ module seidel_calcs
 
          subroutine calcSeidelTerms(INV)
                 ! This routine needs to be called by the MMAB3 routine at present so the MAB3 and COLOR arrays can be populated
-            use ISO_FORTRAN_ENV, only: real64  
-            use kdp_data_types  
+            use ISO_FORTRAN_ENV, only: real64
+            use kdp_data_types
             use global_widgets, only: curr_lens_data, curr_par_ray_trace, sysConfig
-            implicit none            
+            use DATMAI
+            use DATLEN
+            implicit none
 
-            real(kind=real64) :: INV    
+            real(kind=real64) :: INV
             integer :: i
-
-
-
-            include "DATMAI.INC"
-            include "DATLEN.INC"
 
             if (allocated(curr_par_ray_trace%CSeidel)) deallocate(curr_par_ray_trace%CSeidel)
             if (allocated(curr_par_ray_trace%CXSeidel)) deallocate(curr_par_ray_trace%CXSeidel)

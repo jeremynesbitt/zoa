@@ -41,6 +41,9 @@ module handlers
   integer, parameter :: CMD_QUEUE_SIZE = 50
   character(len=140) :: cmd_queue(CMD_QUEUE_SIZE)
   integer :: cmd_queue_count = 0
+  ! Deferred replot: set by gui_notify_replot() during command processing,
+  ! consumed by name_enter after each top-level command finishes.
+  logical :: replot_deferred = .false.
 
 contains
 
@@ -280,6 +283,13 @@ contains
             cmd_queue_count = cmd_queue_count - 1
             call PROCESKDP(trim(ftext))
         end do
+        ! Execute any replot that was requested during command processing.
+        ! Done here so plot commands run at the top level, not reentrantly
+        ! inside a macro or lens update where they would be rejected.
+        if (replot_deferred) then
+            replot_deferred = .false.
+            call zoatabMgr%rePlotIfNeeded()
+        end if
         cmd_in_progress = .false.
     end if
 
@@ -496,7 +506,7 @@ contains
     call gtk_widget_set_vexpand (box1, TRUE)
 
 
-    call gtk_window_set_interactive_debugging(TRUE)
+    if (.not. RELEASE_MODE) call gtk_window_set_interactive_debugging(TRUE)
     call populatezoamenubar(my_window)
 
 
@@ -1041,7 +1051,11 @@ end subroutine
 
   ! Thin wrappers registered as zoa_ui_callbacks at GUI startup
   subroutine gui_notify_replot()
-    call zoatabMgr%rePlotIfNeeded()
+    ! Defer the actual replot until name_enter finishes the current top-level
+    ! command. Calling rePlotIfNeeded() here would dispatch plot commands via
+    ! PROCESKDP while nested inside a macro or lens update, causing
+    ! "INVALID CMD LEVEL COMMAND" errors for VIE, ORIENT, etc.
+    replot_deferred = .true.
   end subroutine
 
   subroutine gui_notify_refresh_status()

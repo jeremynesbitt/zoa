@@ -12,6 +12,7 @@ SUBROUTINE SNAO
       sys_na_set, sys_naoy, sys_naox, sys_xz_data_flag, &
       sys_set_na_set, sys_set_naoy, sys_set_naox, sys_set_fno_val_set, &
       sys_set_say_float, sys_set_sax_float, sys_set_xz_data_flag
+   use mod_lens_data_manager, only: ldm
    IMPLICIT NONE
 !
 !       THIS IS SUBROUTINE SNAO WHICH IMPLEMENTS THE NAO(X OR Y) COMMAND
@@ -39,16 +40,9 @@ SUBROUTINE SNAO
                CALL SHOWIT(1)
                OUTLYNE='"'//WC(1:4)//'" HAS NOT BEEN EXPLICITLY SET'
                CALL SHOWIT(1)
-               IF(INT(sys_wl_ref()).GE.1.AND.INT(sys_wl_ref()).LE.5) THEN
-                  call sys_set_naoy((ALENS(45+INT(sys_wl_ref()),0)*sys_say())/DSQRT((surf_thickness(0)**2)+(sys_say()**2)))
-                  call sys_set_say_float(0.0D0)
-                  call sys_set_sax_float(0.0D0)
-               END IF
-               IF(INT(sys_wl_ref()).GE.6.AND.INT(sys_wl_ref()).LE.10) THEN
-                  call sys_set_naoy((ALENS(70-5+INT(sys_wl_ref()),0)*sys_say())/DSQRT((surf_thickness(0)**2)+(sys_say()**2)))
-                  call sys_set_say_float(0.0D0)
-                  call sys_set_sax_float(0.0D0)
-               END IF
+               call sys_set_naoy((ldm%getSurfIndex(0, INT(sys_wl_ref()))*sys_say())/DSQRT((surf_thickness(0)**2)+(sys_say()**2)))
+               call sys_set_say_float(0.0D0)
+               call sys_set_sax_float(0.0D0)
             END IF
             WRITE(OUTLYNE,2000) sys_naoy()
             CALL SHOWIT(0)
@@ -60,16 +54,9 @@ SUBROUTINE SNAO
                CALL SHOWIT(1)
                OUTLYNE='"'//WC(1:4)//'" HAS NOT BEEN EXPLICITLY SET'
                CALL SHOWIT(1)
-               IF(INT(sys_wl_ref()).GE.1.AND.INT(sys_wl_ref()).LE.5) THEN
-                  call sys_set_naox((ALENS(45+INT(sys_wl_ref()),0)*sys_sax())/DSQRT((surf_thickness(0)**2)+(sys_sax()**2)))
-                  call sys_set_say_float(0.0D0)
-                  call sys_set_sax_float(0.0D0)
-               END IF
-               IF(INT(sys_wl_ref()).GE.6.AND.INT(sys_wl_ref()).LE.10) THEN
-                  call sys_set_naox((ALENS(70-5+INT(sys_wl_ref()),0)*sys_sax())/DSQRT((surf_thickness(0)**2)+(sys_sax()**2)))
-                  call sys_set_say_float(0.0D0)
-                  call sys_set_sax_float(0.0D0)
-               END IF
+               call sys_set_naox((ldm%getSurfIndex(0, INT(sys_wl_ref()))*sys_sax())/DSQRT((surf_thickness(0)**2)+(sys_sax()**2)))
+               call sys_set_say_float(0.0D0)
+               call sys_set_sax_float(0.0D0)
             END IF
             WRITE(OUTLYNE,2001)
             CALL SHOWIT(0)
@@ -537,6 +524,7 @@ SUBROUTINE SLVRS
    use mod_surface
    use DATMAI
    use mod_system, only: sys_wl_ref, sys_last_surf
+   use mod_lens_data_manager, only: ldm
    IMPLICIT NONE
 !
 !       THIS IS SUBROUTINE SLVRS . IT IS USED TO HANDLE
@@ -560,14 +548,8 @@ SUBROUTINE SLVRS
 !       SIMPLIFY THE REPRESENTATION OF THE REFRACTIVE INDICES
 !       AT THE CONTROL WAVELENGTH AT L-1 AND L
       IF(L.NE.0) THEN
-         IF(INT(sys_wl_ref()).GE.1.AND.INT(sys_wl_ref()).LE.5) THEN
-            N=ALENS(45+INT(sys_wl_ref()),(L-1))
-            J_NP=ALENS(45+INT(sys_wl_ref()),(L))
-         END IF
-         IF(INT(sys_wl_ref()).GE.6.AND.INT(sys_wl_ref()).LE.10) THEN
-            N=ALENS(65+INT(sys_wl_ref()),(L-1))
-            J_NP=ALENS(65+INT(sys_wl_ref()),(L))
-         END IF
+         N=ldm%getSurfIndex(L-1, INT(sys_wl_ref()))
+         J_NP=ldm%getSurfIndex(L, INT(sys_wl_ref()))
       END IF
 !
 !                       FIRST,CURVATURE SOLVES
@@ -1322,14 +1304,8 @@ SUBROUTINE SLVRS
 
 !       SIMPLIFY THE REPRESENTATION OF THE REFRACTIVE INDICES
 !       AT THE CONTROL WAVELENGTH AT L-1 AND L
-         IF(INT(sys_wl_ref()).GE.1.AND.INT(sys_wl_ref()).LE.5) THEN
-            N=ALENS(45+INT(sys_wl_ref()),(L-1))
-            J_NP=ALENS(45+INT(sys_wl_ref()),(L))
-         END IF
-         IF(INT(sys_wl_ref()).GE.6.AND.INT(sys_wl_ref()).LE.10) THEN
-            N=ALENS(65+INT(sys_wl_ref()),(L-1))
-            J_NP=ALENS(65+INT(sys_wl_ref()),(L))
-         END IF
+         N=ldm%getSurfIndex(L-1, INT(sys_wl_ref()))
+         J_NP=ldm%getSurfIndex(L, INT(sys_wl_ref()))
 
       END IF
 
