@@ -94,19 +94,10 @@ module zoa_macro_ui
                 CALL PROCESKDP('MDEL '//svalue)
                 call populatemacrolist()
 
-          else if (gtk_check_button_get_active(macrorename).EQ.TRUE) THEN
-                call getmacroeditboxText(entryText)
-                CALL PROCESKDP('MRENAME '//svalue//' '//entryText(1:8))
-                call populatemacrolist()
-                !CALL MACARRAY_LOAD(NUMINLIST)
           else if (gtk_check_button_get_active(macroedit).EQ.TRUE) THEN
                 call macroedit_savetofile(gtk_text_view_get_buffer(macroTextView))
                 call populatemacrolist()
               !call PROCESKDP('MREFRESH')
-          else if (gtk_check_button_get_active(macrocopy).EQ.TRUE) THEN
-                call getmacroeditboxText(entryText)
-                CALL PROCESKDP('MCOPY '//svalue//' '//entryText(1:8))
-                call populatemacrolist()
         end if
 
        else    ! Delete the selected row
@@ -212,19 +203,7 @@ module zoa_macro_ui
     call gtk_window_destroy(gdata)
   end subroutine
 
-  subroutine zoa_macrosaveUI(act, param, win) bind(c)
-      implicit none
-      type(c_ptr), value, intent(in) :: act, param, win
-      !PRINT *, "ABOUT TO CALL MACSAVE!"
-      call PROCESKDP('MACSAVE')
-  end subroutine
 
-  subroutine zoa_macrorestoreUI(act, param, win) bind(c)
-      implicit none
-      type(c_ptr), value, intent(in) :: act, param, win
-
-      call PROCESKDP('MACREST')
-  end subroutine
 
   subroutine zoa_macromanualUI(act, param, win) bind(c)
 

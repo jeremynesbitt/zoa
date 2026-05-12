@@ -90,9 +90,23 @@ contains
       if (ios /= 0) exit
       line_num = line_num + 1
 
-      ! Skip empty lines and comments
+      ! Strip inline ! comments, respecting single-quoted strings
+      block
+        integer :: k
+        logical :: inQuote
+        inQuote = .FALSE.
+        do k = 1, len_trim(line)
+          if (line(k:k) == "'") inQuote = .not. inQuote
+          if (line(k:k) == '!' .and. .not. inQuote) then
+            line = line(1:k-1)
+            exit
+          end if
+        end do
+      end block
+
+      ! Skip empty lines and comment-only lines
       if (len_trim(line) == 0) cycle
-      if (line(1:1) == '!' .or. line(1:1) == '#') cycle
+      if (line(1:1) == '#') cycle
 
       call PROCESKDP(trim(line))
     end do

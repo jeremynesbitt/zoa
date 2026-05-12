@@ -512,6 +512,10 @@ contains
      if(present(tokenLen)) tokenLen(i) = fst-1
      i = i+1
      if (fst<len(cmdInput)) subString = subString(fst+1:len(cmdInput))
+     ! Skip consecutive delimiters so "CMD   ARG" parses the same as "CMD ARG"
+     do while (len(subString) > 0 .and. subString(1:1) == delim)
+       subString = subString(2:len(subString))
+     end do
      !PRINT *, "subString is ", subString
   end do
 
@@ -520,9 +524,22 @@ contains
 
   end if
 
+  ! Compact out empty tokens produced by consecutive delimiters (e.g. "RMD      S1")
+  block
+    integer :: src, dst
+    dst = 0
+    do src = 1, numTokens
+      if (len_trim(tokens(src)) > 0) then
+        dst = dst + 1
+        tokens(dst) = tokens(src)
+      end if
+    end do
+    numTokens = dst
+  end block
+
   if (numTokens > 0 ) PRINT *, "tokens ", tokens(1:numTokens)
   !if(present(tokenLen) PRINT *, "Token Length = ", tokenLen(1:i-2)
-  
+
 
   end subroutine
 
