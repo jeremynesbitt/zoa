@@ -16,6 +16,7 @@ program zoa_test_runner
   use zoa_output, only: zoa_set_output_handler
   use zoa_test_capture
   use zoa_headless, only: zoa_headless_init
+  use zoa_file_handler, only: process_zoa_file
   implicit none
 
   character(len=512) :: test_file, ref_file
@@ -51,7 +52,7 @@ program zoa_test_runner
   call clear_capture()
 
   ! Execute the test script (unit 6 stays suppressed to avoid PRINT noise)
-  call run_test_script(trim(test_file))
+  call process_zoa_file(trim(test_file))
 
   ! Restore stdout for status/output reporting
   open(unit=6, file='/dev/stdout', status='old', action='write')
@@ -72,46 +73,6 @@ program zoa_test_runner
   end if
 
 contains
-
-  subroutine run_test_script(filename)
-    character(len=*), intent(in) :: filename
-    character(len=512) :: line
-    integer :: iu, ios, line_num
-
-    open(newunit=iu, file=filename, status='old', action='read', iostat=ios)
-    if (ios /= 0) then
-      write(*, '(A)') 'ERROR: Cannot open test script: '//trim(filename)
-      call exit(2)
-    end if
-
-    line_num = 0
-    do
-      read(iu, '(A)', iostat=ios) line
-      if (ios /= 0) exit
-      line_num = line_num + 1
-
-      ! Strip inline ! comments, respecting single-quoted strings
-      block
-        integer :: k
-        logical :: inQuote
-        inQuote = .FALSE.
-        do k = 1, len_trim(line)
-          if (line(k:k) == "'") inQuote = .not. inQuote
-          if (line(k:k) == '!' .and. .not. inQuote) then
-            line = line(1:k-1)
-            exit
-          end if
-        end do
-      end block
-
-      ! Skip empty lines and comment-only lines
-      if (len_trim(line) == 0) cycle
-      if (line(1:1) == '#') cycle
-
-      call PROCESKDP(trim(line))
-    end do
-    close(iu)
-  end subroutine
 
   subroutine write_captured_to_stdout()
     call write_captured_to_file('/dev/stdout')

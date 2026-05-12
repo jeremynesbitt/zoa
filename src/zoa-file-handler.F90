@@ -274,19 +274,18 @@ module zoa_file_handler
         implicit none
         character(len=*) :: fileName
         logical, optional :: printOnly
-        integer :: n, ios
+        integer :: n, ios, iu
         character(len=1024) :: line
 
-             
-        open(unit=99, file=trim(fileName), iostat=ios)
+        open(newunit=iu, file=trim(fileName), iostat=ios)
         if ( ios /= 0 ) stop "Error opening file "
-    
+
         n = 0
-    
+
         do
-            read(99, '(A)', iostat=ios) line
+            read(iu, '(A)', iostat=ios) line
             if (ios /= 0) then
-              close(99)
+              close(iu)
               return
             end if
 
