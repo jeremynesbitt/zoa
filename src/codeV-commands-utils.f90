@@ -233,6 +233,7 @@ contains
 
     module procedure processZoaFileInput
         use zoa_file_handler
+        use mod_lens_data_manager, only: ldm
         implicit none
         integer :: locStr, locDot, i
         character(len=1024) :: fileName
@@ -256,6 +257,7 @@ contains
                     call process_zoa_file(trim(fileName), printOnly=.TRUE.)
                 else
                     call process_zoa_file(trim(fileName))
+                    call ldm%load_surfaces_from_alens()
                 end if
             end if
         else
@@ -268,6 +270,7 @@ contains
                     call process_zoa_file(trim(fileName), printOnly=.TRUE.)
                 else
                     call process_zoa_file(trim(fileName))
+                    call ldm%load_surfaces_from_alens()
                 end if
             end if
         end if

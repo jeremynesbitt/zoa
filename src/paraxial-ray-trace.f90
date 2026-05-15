@@ -3304,7 +3304,7 @@ function traNextSurf(lastSurf, surfIdx, lambdaIdx, useXZPlane, overridePos) resu
     logical :: useXZ
     real(kind=real64)  :: nextSurf(4)
 
-    real(kind=real64) :: curv, n, np
+    real(kind=real64) :: curv, n, np, h_out, u_out
 
     if(present(useXZPlane)) then 
         useXZ = useXZPlane 
@@ -3322,7 +3322,21 @@ function traNextSurf(lastSurf, surfIdx, lambdaIdx, useXZPlane, overridePos) resu
     np  = ldm%getSurfIndex(surfIdx, lambdaIdx)
     n   = ldm%getSurfIndex(surfIdx-1, lambdaIdx)
     !PUY(L) =-CV(L)*PY(L)*((N'-N)/N')+(N/N')*PUY(L-1)
-    nextSurf(2) = -curv*nextSurf(1)*((np-n)/np)+(n/np)*lastSurf(2)
+    h_out = 0.0_real64; u_out = 0.0_real64
+    if (.not. useXZ .and. allocated(ldm%surfaces)) then
+      if (surfIdx >= lbound(ldm%surfaces,1) .and. surfIdx <= ubound(ldm%surfaces,1)) then
+        if (allocated(ldm%surfaces(surfIdx)%s)) then
+          call ldm%surfaces(surfIdx)%s%paraxial_trace(nextSurf(1), lastSurf(2), n, np, h_out, u_out)
+          nextSurf(2) = u_out
+        else
+          nextSurf(2) = -curv*nextSurf(1)*((np-n)/np)+(n/np)*lastSurf(2)
+        end if
+      else
+        nextSurf(2) = -curv*nextSurf(1)*((np-n)/np)+(n/np)*lastSurf(2)
+      end if
+    else
+      nextSurf(2) = -curv*nextSurf(1)*((np-n)/np)+(n/np)*lastSurf(2)
+    end if
 
     ! TODO:  figure out how I want to handle non-standard surfaces.
     ! FOr now just copy what is in original code
