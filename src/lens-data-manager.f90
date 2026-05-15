@@ -14,13 +14,20 @@ module mod_lens_data_manager
     use global_widgets, only: curr_lens_data, curr_par_ray_trace, sysConfig
     use globals, only: long
     use zoa_ui
+    use mod_surface_type, only: surface_type, sphere_surface, asphere_surface, surf_slot
 
     implicit none
 
     type lens_data_manager
 
     real(long), dimension(0:499,3) :: vars ! CCY THC GLC for now.  Hard code max of 500 surfaces.  Default is 100
-   
+
+    ! Array of surface type objects indexed 0:last_surf.
+    ! Each slot holds an allocatable CLASS(surface_type) so surfaces can have
+    ! different dynamic types (sphere_surface, asphere_surface, etc.).
+    ! Populated by load_surfaces_from_alens(); accessed as surfaces(i)%s
+    type(surf_slot), allocatable :: surfaces(:)
+
     contains
      procedure :: initialize => init_ldm
      procedure, public, pass(self) :: getSurfThi, setSurfThi
@@ -92,6 +99,8 @@ module mod_lens_data_manager
      procedure, public, pass(self) :: clearAnamorphicData
      procedure, public, pass(self) :: clearApertureTypeAndParams
      procedure, public, pass(self) :: clearApertureTypeAndAllParams
+     procedure, public, pass(self) :: load_surfaces_from_alens
+     procedure, public, pass(self) :: sync_alens_from_surfaces
 
     end type
 
@@ -1052,6 +1061,101 @@ module mod_lens_data_manager
         integer, intent(in) :: surfIdx
         ALENS(9:15, surfIdx) = 0.0D0
       end subroutine
+
+      ! Build self%surfaces(0:last_surf) from current ALENS data.
+      ! Called after every lens load so typed objects reflect the live system.
+      subroutine load_surfaces_from_alens(self)
+        use mod_surface_type, only: make_sphere, make_asphere
+        use mod_surface, only: surf_radius, surf_is_asphere, surf_conic, &
+                               surf_thickness, surf_asphere_coeff, &
+                               surf_refractive_index
+        use DATLEN, only: GLANAM
+        class(lens_data_manager), intent(inout) :: self
+        integer :: s, last, w
+        real(real64) :: coeffs(10)
+
+        last = self%getLastSurf()
+        if (allocated(self%surfaces)) deallocate(self%surfaces)
+        allocate(self%surfaces(0:last))
+
+        do s = 0, last
+          if (surf_is_asphere(s)) then
+            coeffs(1)  = surf_asphere_coeff(s, 4)
+            coeffs(2)  = surf_asphere_coeff(s, 6)
+            coeffs(3)  = surf_asphere_coeff(s, 8)
+            coeffs(4)  = surf_asphere_coeff(s, 10)
+            coeffs(5)  = surf_asphere_coeff(s, 12)
+            coeffs(6)  = surf_asphere_coeff(s, 14)
+            coeffs(7)  = surf_asphere_coeff(s, 16)
+            coeffs(8)  = surf_asphere_coeff(s, 18)
+            coeffs(9)  = surf_asphere_coeff(s, 20)
+            coeffs(10) = surf_asphere_coeff(s, 2)
+            allocate(asphere_surface :: self%surfaces(s)%s)
+            select type(item => self%surfaces(s)%s)
+            type is (asphere_surface)
+              item = make_asphere(surf_radius(s), surf_thickness(s), surf_conic(s), &
+                                  trim(GLANAM(s,2)), trim(GLANAM(s,1)), coeffs)
+            end select
+          else
+            allocate(sphere_surface :: self%surfaces(s)%s)
+            select type(item => self%surfaces(s)%s)
+            type is (sphere_surface)
+              item = make_sphere(surf_radius(s), surf_thickness(s), surf_conic(s), &
+                                 trim(GLANAM(s,2)), trim(GLANAM(s,1)))
+            end select
+          end if
+
+          do w = 1, 10
+            self%surfaces(s)%s%n_post(w) = surf_refractive_index(s, w)
+            if (s > 0) self%surfaces(s)%s%n_pre(w) = surf_refractive_index(s-1, w)
+          end do
+        end do
+      end subroutine load_surfaces_from_alens
+
+      ! Write self%surfaces(:) data back into ALENS so legacy ray-tracing code
+      ! sees any changes made through the typed surface API.
+      ! Retired once all ray-tracing code reads directly from surfaces(:)%s.
+      subroutine sync_alens_from_surfaces(self)
+        use mod_surface, only: set_surf_curvature, set_surf_conic, &
+                               set_surf_thickness, set_surf_asphere_flag, &
+                               set_surf_asphere_coeff
+        use DATLEN, only: GLANAM
+        class(lens_data_manager), intent(inout) :: self
+        integer :: s, last
+        real(real64) :: cv
+
+        if (.not. allocated(self%surfaces)) return
+        last = ubound(self%surfaces, 1)
+
+        do s = 0, last
+          if (.not. allocated(self%surfaces(s)%s)) cycle
+          associate(surf => self%surfaces(s)%s)
+            cv = merge(0.0_real64, 1.0_real64/surf%radius, abs(surf%radius) > 1.0e15_real64)
+            call set_surf_curvature(s, cv)
+            call set_surf_conic(s, surf%conic)
+            call set_surf_thickness(s, surf%thickness)
+            GLANAM(s, 2) = surf%glass_name
+            GLANAM(s, 1) = surf%glass_catalog
+
+            select type(surf)
+            type is (asphere_surface)
+              call set_surf_asphere_flag(s, .true.)
+              call set_surf_asphere_coeff(s, 4,  surf%data(1))
+              call set_surf_asphere_coeff(s, 6,  surf%data(2))
+              call set_surf_asphere_coeff(s, 8,  surf%data(3))
+              call set_surf_asphere_coeff(s, 10, surf%data(4))
+              call set_surf_asphere_coeff(s, 12, surf%data(5))
+              call set_surf_asphere_coeff(s, 14, surf%data(6))
+              call set_surf_asphere_coeff(s, 16, surf%data(7))
+              call set_surf_asphere_coeff(s, 18, surf%data(8))
+              call set_surf_asphere_coeff(s, 20, surf%data(9))
+              call set_surf_asphere_coeff(s, 2,  surf%data(10))
+            type is (sphere_surface)
+              call set_surf_asphere_flag(s, .false.)
+            end select
+          end associate
+        end do
+      end subroutine sync_alens_from_surfaces
 
 
 end module

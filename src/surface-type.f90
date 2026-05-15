@@ -72,6 +72,14 @@ module mod_surface_type
     procedure :: paraxial_trace => asphere_paraxial
   end type
 
+  ! Container wrapper required for heterogeneous polymorphic arrays.
+  ! Fortran does not allow allocating CLASS arrays with mixed dynamic types;
+  ! each element must be allocated individually with a concrete type.
+  ! Usage: ldm%surfaces(i)%s%intersect(ray, tol)
+  type :: surf_slot
+    class(surface_type), allocatable :: s
+  end type
+
   ! Abstract interfaces for the deferred procedures.
   ! These appear AFTER surface_type so that 'import :: surface_type' resolves.
   abstract interface
