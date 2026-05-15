@@ -651,6 +651,7 @@ SUBROUTINE HITASP(OR_N,OR_Z)
    use DATMAI
    use mod_surface
    use mod_lens_data_manager, only: ldm
+   use mod_surface_type, only: surf_ray_data
    IMPLICIT NONE
 !
 !       THIS IS SUBROUTINE HITASP.FOR. THIS SUBROUTINE IMPLEMENTS
@@ -658,6 +659,8 @@ SUBROUTINE HITASP(OR_N,OR_Z)
 !       INTERSECTION TO SPECIAL SURFACES IS DONE BY
 !       SUBROUTINE XYZSP.FOR FOR IF SPECIAL SURFACES ARE
 !       PRESENT AND SET TO "ON" AND IF THEY ARE OF A RECOGNIZED TYPE.
+!
+   type(surf_ray_data) :: typed_ray
 !
    REAL*8 A,B,C,QQ,SIGNNU,CV,CC,OR_Z,OR_N,&
    &TEST1,TEST2,NUSUBS,RR_N,TESTLEN,RR_Z &
@@ -709,6 +712,28 @@ SUBROUTINE HITASP(OR_N,OR_Z)
       R_Z=R_ZAIM
 !       JUST PROCEED WITH THE DIRECT INTERSECTION TO THE CONIC
    END IF
+!
+!     TYPED SURFACE DISPATCH (Stage 4):
+!     For simple sphere/asphere (no special type, array, or paraxial),
+!     delegate to the polymorphic surface object instead of the quadratic + NR2 path.
+   if (surf_special_type(R_I) == 0 .and. surf_default_flag(R_I) == 0 .and. &
+       surf_array_parity(R_I) == 0 .and. surf_paraxial_val(R_I) == 0) then
+     if (allocated(ldm%surfaces)) then
+       if (R_I >= lbound(ldm%surfaces,1)) then
+         if (R_I <= ubound(ldm%surfaces,1)) then
+           if (allocated(ldm%surfaces(R_I)%s)) then
+             typed_ray%x = R_X; typed_ray%y = R_Y; typed_ray%z = R_Z
+             typed_ray%l = R_L; typed_ray%m = R_M; typed_ray%n = R_N
+             call ldm%surfaces(R_I)%s%intersect(typed_ray, SURTOL)
+             R_X = typed_ray%x; R_Y = typed_ray%y; R_Z = typed_ray%z
+             LN = typed_ray%ln; MN = typed_ray%mn; NN = typed_ray%nn
+             return
+           end if
+         end if
+       end if
+     end if
+   end if
+!
    NUSUBS=((ldm%getSurfIndex(R_I-1, INT(WVN)))/&
    &(ldm%getSurfIndex(R_I, INT(WVN))))
    SIGNNU=DABS(NUSUBS)/NUSUBS

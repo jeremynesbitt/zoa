@@ -154,7 +154,7 @@ contains
     q = sqrt(max(1.0_real64 - (conic + 1.0_real64)*cv*cv*rho2, 1.0e-30_real64))
     sag = cv * rho2 / (1.0_real64 + q)
     dsag_drho2 = cv / (1.0_real64 + q)**2 * &
-                 (1.0_real64 + (conic + 1.0_real64)*cv*cv*rho2 / (q*(1.0_real64 + q)))
+                 ((1.0_real64 + q) + (conic + 1.0_real64)*cv*cv*rho2 / (2.0_real64*q))
   end subroutine
 
   ! Newton-Raphson intersection with a conic surface.
