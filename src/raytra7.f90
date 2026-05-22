@@ -3543,8 +3543,7 @@ SUBROUTINE CACHEK(JK1,JK2,JK3,CACOCA)
          SPDCD2=I
          IF(MSG) THEN
             IF(surf_clap_type(I).GT.0.0D0) THEN
-               WRITE(OUTLYNE,*)'RAY FAILURE OCCURRED AT SURFACE ',I
-               CALL SHOWIT(1)
+               CALL RAY_FAILURE(I)
                OUTLYNE='RAY BLOCKED BY CIRCULAR CLEAR APERTURE'
                CALL SHOWIT(1)
             END IF
@@ -3630,8 +3629,7 @@ SUBROUTINE CACHEK(JK1,JK2,JK3,CACOCA)
          SPDCD2=I
          IF(MSG) THEN
             IF(surf_clap_type(I).GT.0.0D0) THEN
-               WRITE(OUTLYNE,*)'RAY FAILURE OCCURRED AT SURFACE ',I
-               CALL SHOWIT(1)
+               CALL RAY_FAILURE(I)
                OUTLYNE='RAY BLOCKED BY RECTANGULAR CLEAR APERTURE'
                CALL SHOWIT(1)
             END IF
@@ -3700,8 +3698,7 @@ SUBROUTINE CACHEK(JK1,JK2,JK3,CACOCA)
 !
          IF(MSG) THEN
             IF(surf_clap_type(I).GT.0.0D0) THEN
-               WRITE(OUTLYNE,*)'RAY FAILURE OCCURRED AT SURFACE ',I
-               CALL SHOWIT(1)
+               CALL RAY_FAILURE(I)
                OUTLYNE='RAY BLOCKED BY ELLIPTICAL CLEAR APERTURE'
                CALL SHOWIT(1)
             END IF
@@ -3869,8 +3866,7 @@ SUBROUTINE CACHEK(JK1,JK2,JK3,CACOCA)
 !
          IF(MSG) THEN
             IF(surf_clap_type(I).GT.0.0D0) THEN
-               WRITE(OUTLYNE,*)'RAY FAILURE OCCURRED AT SURFACE ',I
-               CALL SHOWIT(1)
+               CALL RAY_FAILURE(I)
                OUTLYNE='RAY BLOCKED BY RACETRACK CLEAR APERTURE'
                CALL SHOWIT(1)
             END IF
@@ -3945,8 +3941,7 @@ SUBROUTINE CACHEK(JK1,JK2,JK3,CACOCA)
 !
          IF(MSG) THEN
             IF(surf_clap_type(I).GT.0.0D0) THEN
-               WRITE(OUTLYNE,*)'RAY FAILURE OCCURRED AT SURFACE ',I
-               CALL SHOWIT(1)
+               CALL RAY_FAILURE(I)
                OUTLYNE='RAY BLOCKED BY POLYGON CLEAR APERTURE'
                CALL SHOWIT(1)
             END IF
@@ -4018,8 +4013,7 @@ SUBROUTINE CACHEK(JK1,JK2,JK3,CACOCA)
 !
          IF(MSG) THEN
             IF(surf_clap_type(I).GT.0.0D0) THEN
-               WRITE(OUTLYNE,*)'RAY FAILURE OCCURRED AT SURFACE ',I
-               CALL SHOWIT(1)
+               CALL RAY_FAILURE(I)
                OUTLYNE='RAY BLOCKED BY IRREGULAR POLYGON CLEAR APERTURE'
                CALL SHOWIT(1)
             END IF
@@ -4078,8 +4072,7 @@ SUBROUTINE CACHEK(JK1,JK2,JK3,CACOCA)
 !
          IF(MSG) THEN
             IF(surf_coat_type(I).GT.0.0D0) THEN
-               WRITE(OUTLYNE,*)'RAY FAILURE OCCURRED AT SURFACE ',I
-               CALL SHOWIT(1)
+               CALL RAY_FAILURE(I)
                OUTLYNE='RAY BLOCKED BY CIRCULAR OBSCURATION'
                CALL SHOWIT(1)
             END IF
@@ -4163,8 +4156,7 @@ SUBROUTINE CACHEK(JK1,JK2,JK3,CACOCA)
 !
          IF(MSG) THEN
             IF(surf_coat_type(I).GT.0.0D0) THEN
-               WRITE(OUTLYNE,*)'RAY FAILURE OCCURRED AT SURFACE ',I
-               CALL SHOWIT(1)
+               CALL RAY_FAILURE(I)
                OUTLYNE='RAY BLOCKED BY RECTANGULAR OBSCURATION'
                CALL SHOWIT(1)
             END IF
@@ -4232,8 +4224,7 @@ SUBROUTINE CACHEK(JK1,JK2,JK3,CACOCA)
 !
          IF(MSG) THEN
             IF(surf_coat_type(I).GT.0.0D0) THEN
-               WRITE(OUTLYNE,*)'RAY FAILURE OCCURRED AT SURFACE ',I
-               CALL SHOWIT(1)
+               CALL RAY_FAILURE(I)
                OUTLYNE='RAY BLOCKED BY ELLIPTICAL OBSCURATION'
                CALL SHOWIT(1)
             END IF
@@ -4398,8 +4389,7 @@ SUBROUTINE CACHEK(JK1,JK2,JK3,CACOCA)
 !
          IF(MSG) THEN
             IF(surf_coat_type(I).GT.0.0D0) THEN
-               WRITE(OUTLYNE,*)'RAY FAILURE OCCURRED AT SURFACE ',I
-               CALL SHOWIT(1)
+               CALL RAY_FAILURE(I)
                OUTLYNE='RAY BLOCKED BY RACETRACK OBSCURATION'
                CALL SHOWIT(1)
             END IF
@@ -4473,8 +4463,7 @@ SUBROUTINE CACHEK(JK1,JK2,JK3,CACOCA)
 !
          IF(MSG) THEN
             IF(surf_coat_type(I).GT.0.0D0) THEN
-               WRITE(OUTLYNE,*)'RAY FAILURE OCCURRED AT SURFACE ',I
-               CALL SHOWIT(1)
+               CALL RAY_FAILURE(I)
                OUTLYNE='RAY BLOCKED BY POLYGON OBSCURATION'
                CALL SHOWIT(1)
             END IF
@@ -4544,8 +4533,7 @@ SUBROUTINE CACHEK(JK1,JK2,JK3,CACOCA)
 !
          IF(MSG) THEN
             IF(surf_coat_type(I).GT.0.0D0) THEN
-               WRITE(OUTLYNE,*)'RAY FAILURE OCCURRED AT SURFACE ',I
-               CALL SHOWIT(1)
+               CALL RAY_FAILURE(I)
                OUTLYNE='RAY BLOCKED BY IRREGULAR POLYGON OBSCURATION'
                CALL SHOWIT(1)
             END IF

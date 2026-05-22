@@ -252,9 +252,7 @@ SUBROUTINE FRFDIF
          IF(MSG) THEN
             OUTLYNE='WARNING:'
             CALL SHOWIT(1)
-            WRITE(OUTLYNE,*)&
-            &'RAY FAILURE OCCURRED AT SURFACE ',I
-            CALL SHOWIT(1)
+            CALL RAY_FAILURE(I)
             OUTLYNE=&
             &'WHILE TRACING THE XZ-PLANE CHIEF DIFFERENTIAL RAY'
             CALL SHOWIT(1)
@@ -560,9 +558,7 @@ SUBROUTINE FRFDIF
          IF(MSG) THEN
             OUTLYNE='WARNING:'
             CALL SHOWIT(1)
-            WRITE(OUTLYNE,*)&
-            &'RAY FAILURE OCCURRED AT SURFACE ',I
-            CALL SHOWIT(1)
+            CALL RAY_FAILURE(I)
             OUTLYNE=&
             &'WHILE TRACING THE YZ-PLANE CHIEF DIFFERENTIAL RAY'
             CALL SHOWIT(1)
@@ -1077,9 +1073,7 @@ SUBROUTINE DIFRAY
          IF(MSG) THEN
             OUTLYNE='WARNING:'
             CALL SHOWIT(1)
-            WRITE(OUTLYNE,*)&
-            &'RAY FAILURE OCCURRED AT SURFACE ',I
-            CALL SHOWIT(1)
+            CALL RAY_FAILURE(I)
             OUTLYNE=&
             &'WHILE TRACING THE XZ-PLANE MARGINAL DIFFERENTIAL RAY'
             CALL SHOWIT(1)
@@ -1376,9 +1370,7 @@ SUBROUTINE DIFRAY
          IF(MSG) THEN
             OUTLYNE='WARNING:'
             CALL SHOWIT(1)
-            WRITE(OUTLYNE,*)&
-            &'RAY FAILURE OCCURRED AT SURFACE ',I
-            CALL SHOWIT(1)
+            CALL RAY_FAILURE(I)
             OUTLYNE=&
             &'WHILE TRACING THE YZ-PLANE MARGINAL DIFFERENTIAL RAY'
             CALL SHOWIT(1)
@@ -1822,9 +1814,7 @@ SUBROUTINE FOBDIF
          IF(MSG) THEN
             OUTLYNE='WARNING:'
             CALL SHOWIT(1)
-            WRITE(OUTLYNE,*)&
-            &'RAY FAILURE OCCURRED AT SURFACE ',I
-            CALL SHOWIT(1)
+            CALL RAY_FAILURE(I)
             OUTLYNE=&
             &'WHILE TRACING THE XZ-PLANE MARGINAL DIFFERENTIAL RAY'
             CALL SHOWIT(1)
@@ -2129,9 +2119,7 @@ SUBROUTINE FOBDIF
          IF(MSG) THEN
             OUTLYNE='WARNING:'
             CALL SHOWIT(1)
-            WRITE(OUTLYNE,*)&
-            &'RAY FAILURE OCCURRED AT SURFACE ',I
-            CALL SHOWIT(1)
+            CALL RAY_FAILURE(I)
             OUTLYNE=&
             &'WHILE TRACING THE YZ-PLANE MARGINAL DIFFERENTIAL RAY'
             CALL SHOWIT(1)

@@ -252,20 +252,6 @@ procedure, public, pass(self) :: isConicConstantOnSurface, setSolveData
 
 end type lens_data
 
-type, extends(lens_data) :: aspheric_surf_data
- integer, allocatable :: surface_type(:)
- logical, allocatable :: advancedSurf(:)
- real, dimension(:), allocatable :: conic_constant, toric_conic_constant
- !real :: conic_constant, toric_conic_constant
- real, dimension(:,:), allocatable :: asphereTerms !Second dim is 10
- real, dimension(:,:), allocatable  :: anamorphicTerms !Second term is 4
-
-contains
- procedure, public, pass(self) :: updateAsphereTable
-
-
-end type
-
 !TODO:  Not sure it makes sense for this to extend lens_Data.  perhaps change move all this to parax_calcs.f90?
 type, extends(lens_data) :: paraxial_ray_trace_data
         !integer, allocatable :: surface(:)
@@ -463,54 +449,6 @@ boolResult = .FALSE.
 
 end function
 
-subroutine updateAsphereTable(self, maxSurf)
-   use mod_surface
-   use DATLEN
-class(aspheric_surf_data), intent(inout) :: self
-
-integer :: I, maxSurf
-if (allocated(self%conic_constant)) deallocate(self%conic_constant)
-allocate(self%conic_constant(maxSurf))
-if (allocated(self%asphereTerms)) deallocate(self%asphereTerms)
-allocate(self%asphereTerms(maxSurf,8))
-
-
-! Logic taken from the LOADSHEET.INC routine.
-do I = 0,maxSurf-1
-
-     IF(surf_curvature(I).EQ.0.0D0.AND.surf_conic(I).NE.0.0D0) THEN
-                     call set_surf_conic(I, 0.0D0)
-                     END IF
-     IF(surf_curvature(I).NE.0.0D0.AND.surf_asphere_coeff(I, 2).NE.0.0D0) THEN
-                     call set_surf_asphere_coeff(I, 2, 0.0D0)
-                     END IF
-  !    IF(surf_asphere_coeff(I, 4).EQ.0.0D0.AND.surf_asphere_coeff(I, 8).EQ.0.0D0.AND.     &
-  ! &  surf_asphere_coeff(I, 8).EQ.0.0D0.AND.surf_asphere_coeff(I, 10).EQ.0.0D0.AND.        &
-  ! &  surf_asphere_coeff(I, 12).EQ.0.0D0.AND.surf_asphere_coeff(I, 14).EQ.0.0D0.AND.      &
-  ! &  surf_asphere_coeff(I, 16).EQ.0.0D0.AND.surf_asphere_coeff(I, 18).EQ.0.0D0.AND.      &
-  ! &  surf_asphere_coeff(I, 20).EQ.0.0D0.AND.surf_asphere_coeff(I, 2).EQ.0.0D0) THEN
-  !                    surf_is_asphere(I)=0.0D0
-  !                    END IF
-     IF(surf_toric_flag(I) /= 0.OR.surf_is_asphere(I).OR.      &
-  &  surf_conic(I).NE.0.0D0.OR.surf_asphere_coeff(I, 4).NE.0.0D0.OR.          &
-  &  surf_asphere_coeff(I, 6).NE.0.0D0.OR.surf_asphere_coeff(I, 8).NE.0.0D0.OR.          &
-  &  surf_asphere_coeff(I, 10).NE.0.0D0.OR.surf_anamorphic_flag(I) /= 0.OR.         &
-  &  surf_anamorphic_coeff(I, 4).NE.0.0D0.OR.surf_anamorphic_coeff(I, 6).NE.0.0D0.OR.        &
-  &  surf_anamorphic_coeff(I, 8).NE.0.0D0.OR.surf_anamorphic_coeff(I, 10).NE.0.0D0.OR.        &
-  &  surf_anamorphic_conic(I).NE.0.0D0.OR.surf_asphere_coeff(I, 2).NE.0.0D0.OR.        &
-  &  surf_asphere_coeff(I, 12).NE.0.0D0.OR.surf_asphere_coeff(I, 14).NE.0.0D0.OR.        &
-  &  surf_asphere_coeff(I, 16).NE.0.0D0.OR.surf_asphere_coeff(I, 20).NE.0.0D0.OR.        &
-  &  surf_asphere_coeff(I, 20).NE.0.0D0) THEN
-     self%conic_constant(I+1) = surf_conic(I)
-     self%asphereTerms(I+1,1:4) = ALENS(4:7,I)
-     self%asphereTerms(I+1,5:8) = ALENS(81:84,I)
-   else
-     self%conic_constant(I+1) = 0.0
-     self%asphereTerms(I+1,:) = 0.0
-    END IF
-  end do
-
-end subroutine
 
 type(sys_config) function sys_config_constructor() result(self)
 
@@ -642,10 +580,13 @@ end subroutine
 
 
 subroutine setTextView(self, idTextView)
+  use GLOBALS, only: logger
 
   class(io_config) :: self
 
   integer :: idTextView
+
+  call logger%logTextWithInt("setTextView id=", idTextView)
 
   ! TODO:  Add error checking here
   self%prev_textView = self%textView

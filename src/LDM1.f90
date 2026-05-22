@@ -1,6 +1,25 @@
 !       FIRST FILE FOR LENS DATABASE MANAGER FILES
 
-! SUB LENNS.FOR
+! LENNS — Initialize a new lens (called by LEN NEW and LEN).
+!
+! Arrays zeroed for surface 0 only (unchanged from original):
+!   ALENS(1:LSIZ, 0)     via ldm%removeAllSurfaceData(0)
+!   SOLVE(1:9, 0)
+!   PIKUP(1:6, 0, 1:PSIZ)
+!   MULTCLAP(1:1000, 1:3, 0)
+!   MULTCOBS(1:1000, 1:3, 0)
+!   SYSTEM(1:SSIZ)
+!
+! Arrays zeroed for ALL surfaces 0:499 (added to fix stale-state bug):
+!   PXTRAY, PXTRAX, O_PXTRAY, O_PXTRAX  — paraxial ray heights/angles
+!   RAYRAY, REFRY, OLREFRY               — real ray and reference ray state
+!   These were not zeroed in the original and caused 49,810 "RAY FAILURE
+!   AT SURFACE 0" errors on the second run of any macro that called PIM,
+!   because REDOYOBJ reads PXTRAY(5,last_surf) to scale SCY and stale
+!   values from the prior lens made NR chief-ray aiming diverge.
+!
+! Arrays intentionally NOT zeroed here (set by RES / individual commands):
+!   ALENS(1:LSIZ, 1:499), SOLVE(1:9, 1:499), GLANAM, LBL(1:499)
 SUBROUTINE LENNS
    USE GLOBALS
 !
@@ -71,6 +90,20 @@ SUBROUTINE LENNS
    MULTCOBS(1:1000,1:3,0)=0.0D0
 !
    SYSTEM(1:SSIZ)=0.0D0
+!
+!       Zero paraxial and real ray trace arrays for ALL surfaces so stale
+!       data from a previous lens does not corrupt chief-ray aiming.
+!       PXTRAY(5,last_surf) is read by REDOYOBJ to scale SCY; stale values
+!       from a prior run produce an astronomically wrong SCY that makes
+!       Newton-Raphson chief-ray aiming diverge (49,810 "RAY FAILURE AT
+!       SURFACE 0" on second run of same macro).
+   PXTRAY(1:8,0:499)  =0.0D0
+   PXTRAX(1:8,0:499)  =0.0D0
+   O_PXTRAY(1:8,0:499)=0.0D0
+   O_PXTRAX(1:8,0:499)=0.0D0
+   RAYRAY(1:50,0:499) =0.0D0
+   REFRY(1:50,0:499)  =0.0D0
+   OLREFRY(1:50,0:499)=0.0D0
 !
 !       sys_wl_weight(1) TO sys_wl_weight(5) REPRESENT THE SPTWT VALUES
 !       WHICH DEFAULT TO 1.0 AT LENS START UP.

@@ -61,6 +61,7 @@ srcs += files(
   'analysis-manager.f90',
   'paraxial-ray-trace.f90',
   'real-ray-trace.f90',
+  'ray-failure.f90',
   'plot-setting-manager.f90',
   'kdp-data-types.f90',
   'global_widgets.f90',

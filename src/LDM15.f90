@@ -11,7 +11,9 @@ SUBROUTINE LNSEOS
    use DATLEN
    use mod_surface
    use DATMAI
-   use mod_system, only: sys_autofunc, sys_last_surf, sys_nss_present, sys_set_last_surf
+   use mod_system, only: sys_autofunc, sys_last_surf, sys_nss_present, sys_set_last_surf, &
+      & sys_high_cfg, sys_scy, sys_scy_fang
+   use mod_surface, only: surf_thickness
    IMPLICIT NONE
 !
    LOGICAL SAV2,RES2,EXIS49
@@ -22,8 +24,6 @@ SUBROUTINE LNSEOS
    OF5=F5
    OF6=F6
 
-   OUTLYNE = "LNSEOS ROUTINE STARTING! "
-   CALL SHOWIT(19)
 
 !
    IF(CFLDCNT.EQ.0) THEN
@@ -2284,8 +2284,7 @@ SUBROUTINE LNSEOS1
    END IF
    ! Update the NEW data structures
    call check_clear_apertures(curr_lens_data)
-   call curr_asph_data%updateAsphereTable(INT(sys_last_surf())+1)
-   call sysConfig%updateParameters()
+call sysConfig%updateParameters()
 
    RETURN
 END
