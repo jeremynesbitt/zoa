@@ -158,7 +158,7 @@ module zoa_macro_ui
           exit
         end if
       end do
-      if (i>1) write(31, '(A)') trim(lineTxt)
+      if (i<numLines) write(31, '(A)') trim(lineTxt)
       iterStart = iterEnd
     end do
       CALL CLOSE_FILE(31,1)

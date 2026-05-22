@@ -717,7 +717,7 @@ function createMenuIconBar(parentWin) result(boxIcon)
   type(c_ptr), intent(in) :: parentWin
   type(c_ptr) :: controller_c
   type(c_ptr) :: boxIcon ! Output
-  type(c_ptr), dimension(4) :: btns
+  type(c_ptr), dimension(5) :: btns
   integer :: i
   character(len=100), target :: tstCmd = "LEN NEW" 
   character(len=len(newLensCmd)), pointer :: ptr
@@ -748,13 +748,13 @@ function createMenuIconBar(parentWin) result(boxIcon)
   btns(2) = gtk_button_new_from_icon_name ("open-document"//c_null_char)
   btns(3) = gtk_button_new_from_icon_name ("file-save"//c_null_char)
   btns(4) = gtk_button_new_from_icon_name ("open-ldm"//c_null_char)
-  !btns(4) = gtk_button_new_from_icon_name ("letter-p"//c_null_char)
-
+  btns(5) = gtk_button_new_from_icon_name ("letter-s"//c_null_char)
 
   call gtk_widget_set_tooltip_text(btns(1), "New Lens"//c_null_char)
   call gtk_widget_set_tooltip_text(btns(2), "Open Zoa File"//c_null_char)
   call gtk_widget_set_tooltip_text(btns(3), "Save"//c_null_char)
   call gtk_widget_set_tooltip_text(btns(4), "Lens Editor"//c_null_char)
+  call gtk_widget_set_tooltip_text(btns(5), "System Configuration"//c_null_char)
 
   do i=1,size(btns)
       call gtk_widget_set_valign(btns(i), GTK_ALIGN_START)
@@ -779,14 +779,17 @@ function createMenuIconBar(parentWin) result(boxIcon)
   !I eventually gave up and decided to just use the widget name to pass the info.
   call gtk_widget_set_name(btns(1), newLensCmd//c_null_char)
   call gtk_widget_set_name(btns(4), "EDIT"//c_null_char)
+  call gtk_widget_set_name(btns(5), "SYSCON"//c_null_char)
 
   call g_signal_connect(btns(1), 'clicked'//c_null_char,  &
   & c_funloc(iconMenu_callback), c_null_ptr)
   call g_signal_connect(btns(2), 'clicked'//c_null_char,  &
   & c_funloc(open_zoa), parentWin)
   call g_signal_connect(btns(3), 'clicked'//c_null_char,  &
-  & c_funloc(save_zoa), parentWin)  
+  & c_funloc(save_zoa), parentWin)
   call g_signal_connect(btns(4), 'clicked'//c_null_char,  &
+  & c_funloc(iconMenu_callback), c_null_ptr)
+  call g_signal_connect(btns(5), 'clicked'//c_null_char,  &
   & c_funloc(iconMenu_callback), c_null_ptr)
   
 end function

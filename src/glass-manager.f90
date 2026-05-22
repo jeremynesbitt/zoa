@@ -350,7 +350,7 @@ end function
     end if         
 
 
-  case('WATER')
+  case('WATERKDP')
 !    INTERPOLATE THE H2O
                NUM=21
 
@@ -373,6 +373,20 @@ end function
         n = self%interpolateIndexData(lambda, X(1:NUM), Y(1:NUM))
          !call SPLINT(X,Y,Y2,NUM,lambda,n)
       end if
+
+  case('WATER')
+
+
+      if(lambda == 0.0) then
+        n = 1.0
+      else
+      n =  DSQRT( &
+      ((.7592504D0*(lambda**2))/((lambda**2)-(0.09568208D0)**2))+ &
+      ((.02429797D0*(lambda**2))/((lambda**2)-(1.789668D0)**2))+1.0D0)
+         !call SPLINT(X,Y,Y2,NUM,lambda,n)
+      end if
+
+
 
   case default
     n = 1.0

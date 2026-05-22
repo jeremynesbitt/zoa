@@ -361,8 +361,18 @@ contains
         character(len=*) :: strInput
         character(len=1024) :: strOut
         real(kind=real64) :: nd, vd
+        integer :: colonLoc
+        character(len=20) :: modelLabel
 
-        if (isInputNumber(strInput)) then
+        colonLoc = index(strInput, ':')
+        if (colonLoc > 0) then
+            ! n:v format: e.g. "1.415:47.0" -> nd=1.415, vd=47.0
+            read(strInput(1:colonLoc-1), *) nd
+            read(strInput(colonLoc+1:len_trim(strInput)), *) vd
+            ! Build xyz.abc label to match existing model glass convention
+            write(modelLabel, '(I0,".",I0)') nint((nd - 1.0_real64)*1000), nint(vd*10)
+            strOut = 'MODEL D'//trim(modelLabel)//','//real2str(nd)//','//real2str(vd)
+        else if (isInputNumber(strInput)) then
             call LogTermFOR("Model Glass Entered! "//strInput)
             call parseModelGlassEntry(strInput, nd, vd)
             strOut = 'MODEL D'//strInput//','//real2str(nd)//','//real2str(vd)

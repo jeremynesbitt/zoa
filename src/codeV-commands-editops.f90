@@ -161,11 +161,15 @@ contains
 
     module procedure insertSurf
         use command_utils, only: isInputNumber
+        use mod_lens_data_manager, only: ldm
+        use global_widgets, only: curr_lens_data
         implicit none
 
         integer :: surfNum, i, s0, sf, dotLoc
         character(len=80) :: tokens(40)
         integer :: numTokens
+        logical :: movePIM
+        integer :: pimSurf
 
         call parse(trim(iptStr), ' ', tokens, numTokens)
 
@@ -177,7 +181,15 @@ contains
                     s0 = str2int(tokens(2)(2:dotLoc-1))
                     sf = str2int(tokens(2)(dotLoc+2:len(tokens(2))))
                     do i=s0,sf
+                        ! num_surfaces shifts up by 1 each iteration, so check against current value
+                        movePIM = (i == curr_lens_data%num_surfaces - 1) .AND. &
+                                & ldm%isPIMSolveOnSurf(i - 1)
+                        pimSurf = i - 1
                         call executeCodeVLensUpdateCommand('INSK, '//trim(int2str(i)), exitLensUpdate=.TRUE.)
+                        if (movePIM) then
+                            call executeCodeVLensUpdateCommand('CHG '//trim(int2str(pimSurf))//'; TSD; GO')
+                            call executeCodeVLensUpdateCommand('CHG '//trim(int2str(i))//'; PY, 0; GO')
+                        end if
                     end do
                 else
                     call zoa_emit("Error:  Incorrect surface number input "//trim(tokens(2)), "red")
@@ -185,7 +197,13 @@ contains
             else
                 surfNum = getSurfNumFromSurfCommand(trim(tokens(2)))
                 if (surfNum .NE. -1) then
+                    movePIM = (surfNum == curr_lens_data%num_surfaces - 1) .AND. &
+                            & ldm%isPIMSolveOnSurf(surfNum - 1)
                     call executeCodeVLensUpdateCommand('INSK, '//trim(int2str(surfNum)), exitLensUpdate=.TRUE.)
+                    if (movePIM) then
+                        call executeCodeVLensUpdateCommand('CHG '//trim(int2str(surfNum - 1))//'; TSD; GO')
+                        call executeCodeVLensUpdateCommand('CHG '//trim(int2str(surfNum))//'; PY, 0; GO')
+                    end if
                 else
                     call zoa_emit("Error:  Incorrect surface number input "//trim(tokens(2)), "red")
                 end if

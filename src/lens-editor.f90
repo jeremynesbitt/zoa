@@ -5,6 +5,7 @@ module lens_editor
   use gtk
   use g
   use iso_c_binding
+  use globals, only: INFINITY_DISTANCE, INFINITY_DISPLAY_THRESHOLD
   use global_widgets
   use zoa_ui_callbacks, only: notify_replot
   use zoa_output, only: zoa_emit
@@ -1051,7 +1052,7 @@ buff2 = gtk_entry_get_buffer(widget)
 call c_f_string_copy(gtk_entry_buffer_get_text(buff2), ftext)
 
 print *, "Val is ", trim(ftext)
-if (lowercase(ftext) == 'infinity') ftext='1e14'
+if (lowercase(ftext) == 'infinity') write(ftext, '(ES12.4E2)') INFINITY_DISTANCE
 cStr = gtk_widget_get_name(gtk_widget_get_parent(widget))
 call convert_c_string(cStr, rcCode)  
 print *, "Val is ", trim(rcCode)
@@ -1480,11 +1481,11 @@ subroutine bind_cb(factory,listitem, gdata) bind(c)
     entryCB = gtk_widget_get_first_child(label)  
     buffer = gtk_entry_get_buffer(entryCB)
     !buffer = gtk_entry_get_buffer(label)
-    if (lens_item_get_surface_thickness(item) > 1e13) then 
+    if (abs(lens_item_get_surface_thickness(item)) > INFINITY_DISPLAY_THRESHOLD) then
       call gtk_entry_buffer_set_text(buffer, "Infinity"//c_null_char,-1_c_int)
     else
       call gtk_entry_buffer_set_text(buffer, trim(colName)//c_null_char,-1_c_int)
-    end if    
+    end if
     menuCB = gtk_widget_get_next_sibling(entryCB)
     colName = trim(int2str(lens_item_get_thickness_mod(item)))//c_null_char   
     call gtk_menu_button_set_menu_model(menuCB, createModMenu(menuCB, lens_item_get_surface_number(item), ID_COL)) 

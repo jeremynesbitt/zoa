@@ -356,7 +356,7 @@ subroutine FIR
   call PROCESKDP("GET GPCY")
   call zoa_emit(" HT      "//trim(real2str(reg(9),4)),"blue")
   call PROCESKDP("GET GPUCY")
-  call zoa_emit("ANG       "//trim(real2str(reg(9),4)),"blue")
+  call zoa_emit("ANG       "//trim(real2str(reg(9)*(180.0D0/PII),4))//" DEG","blue")
   call zoa_emit("ENTRANCE PUPIL", "blue")
   call zoa_emit("DIA       "//trim(real2str(curr_par_ray_trace%ENPUPDIA,4)),"blue")
   call zoa_emit("THI       "//trim(real2str(curr_par_ray_trace%ENPUPPOS,4)),"blue")

@@ -12,6 +12,11 @@ MODULE globals
    logical :: TEST_MODE = .FALSE.
    logical :: HEADLESS_MODE = .FALSE.
    logical :: RELEASE_MODE = .FALSE.
+
+   ! Thickness value stored when user enters "Infinity" (e.g. for object-at-infinity)
+   real(kind=long), parameter :: INFINITY_DISTANCE = 1.0e13_long
+   ! Display threshold: show "Infinity" in the lens editor for |thickness| above this
+   real(kind=long), parameter :: INFINITY_DISPLAY_THRESHOLD = 1.0e10_long
 !
 !     PROCESS ONE OR 20 COMMANDS
 !

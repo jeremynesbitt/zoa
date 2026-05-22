@@ -912,8 +912,8 @@ module codeV_commands
 
         boolResult = .FALSE.
         
-        ! Special case:  SO
-        if (tstCmd.EQ.'SO') then
+        ! Special case:  SO or S0 (letter-O and digit-zero both mean the object surface)
+        if (tstCmd.EQ.'SO' .OR. tstCmd.EQ.'S0') then
             boolResult = .TRUE.
             return
         end if
@@ -1082,7 +1082,7 @@ module codeV_commands
             return
         end if
         if(len(iptCmd).EQ.2) then
-            if (iptCmd(2:2).EQ.'O') then ! 'CMD is SO
+            if (iptCmd(2:2).EQ.'O' .OR. iptCmd(2:2).EQ.'0') then ! SO or S0 (letter-O or digit-zero)
                 surfNum = 0
                 return
             end if

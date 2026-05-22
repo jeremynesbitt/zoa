@@ -32,6 +32,7 @@ module mod_lens_data_manager
      procedure :: initialize => init_ldm
      procedure, public, pass(self) :: getSurfThi, setSurfThi
      procedure, public, pass(self) :: isThiSolveOnSurf
+     procedure, public, pass(self) :: isPIMSolveOnSurf
      procedure, public, pass(self) :: isYZCurvSolveOnSurf
      procedure, public, pass(self) :: getSurfCurv, getSurfRad
      procedure, public, pass(self) :: getConicConstant
@@ -305,6 +306,16 @@ module mod_lens_data_manager
 
         boolResult = .FALSE.
         IF(SOLVE(6,surfIdx).NE.0.0D0) boolResult = .TRUE.
+
+    end function
+
+    function isPIMSolveOnSurf(self, surfIdx) result(boolResult)
+        use DATLEN, only: SOLVE
+        class(lens_data_manager) :: self
+        integer :: surfIdx
+        logical :: boolResult
+
+        boolResult = (SOLVE(6,surfIdx) == 1.0D0)
 
     end function
 
