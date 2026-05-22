@@ -752,6 +752,7 @@ subroutine sys_config_new(parent_window)
     call gtk_box_append(box1, expanderRayAim)
     call gtk_window_set_child(sys_config_window, box1)
 
+
   ! call sysconfigwindow%finalizeWindow()
 
   !lblAperture = gtk_label_new_with_mnemonic("_Aperture"//c_null_char)

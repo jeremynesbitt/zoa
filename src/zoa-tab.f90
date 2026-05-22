@@ -390,6 +390,10 @@ function build(self) result(expander)
   end if
 
    call gtk_expander_set_expanded(expander, FALSE)
+   ! Prevent vexpand from child widgets (e.g. GtkTreeView) propagating up to
+   ! the expander and causing dead space when the section is collapsed.
+   call gtk_widget_set_vexpand(expander, FALSE)
+   call gtk_widget_set_vexpand_set(expander, TRUE)
 
 end function
 
