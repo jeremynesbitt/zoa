@@ -187,30 +187,45 @@ module mod_lens_data_manager
         integer, intent(in) :: idx
         character(len=20) :: strName
 
-        strName='Sphere'
-        if(surf_is_asphere(idx)) strName='Asphere'
+        ! Prefer the typed surface's name if available; fall back to ALENS flag.
+        if (allocated(self%surfaces)) then
+          if (idx >= lbound(self%surfaces,1) .and. idx <= ubound(self%surfaces,1)) then
+            if (allocated(self%surfaces(idx)%s)) then
+              strName = trim(self%surfaces(idx)%s%type_name)
+              return
+            end if
+          end if
+        end if
+        strName = 'Sphere'
+        if (surf_is_asphere(idx)) strName = 'Asphere'
 
     end function
 
-    !TODO:  update this when surf type abstraction is ready
-    function getExtraParamCmd(self, surfIdx, colIdx) result (cmd)
+    function getExtraParamCmd(self, surfIdx, colIdx) result(cmd)
         class(lens_data_manager) :: self
         integer, intent(in) :: surfIdx, colIdx
-        character(len=20) :: strName
-        character(len=3)  :: cmd
-        character(len=3), dimension(10) :: extraParamCmds = ['K', 'A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I']
+        character(len=4) :: cmd
 
-        strName = self%getSurfTypeName(surfIdx)
-
-        cmd = '  '
-        select case (trim(strName))
-        case('Sphere') ! No extra params
-            cmd = ' '
-        case('Asphere')
-            if(colIdx < size(extraParamCmds)) then 
-                cmd = extraParamCmds(colIdx)
+        cmd = ' '
+        ! Read from typed surface if available.
+        if (allocated(self%surfaces)) then
+          if (surfIdx >= lbound(self%surfaces,1) .and. surfIdx <= ubound(self%surfaces,1)) then
+            if (allocated(self%surfaces(surfIdx)%s)) then
+              if (colIdx >= 1 .and. colIdx <= self%surfaces(surfIdx)%s%num_params) then
+                cmd = trim(self%surfaces(surfIdx)%s%param_cmds(colIdx))
+              end if
+              return
             end if
-        end select
+          end if
+        end if
+        ! Fallback: hardcoded asphere table.
+        if (trim(self%getSurfTypeName(surfIdx)) == 'Asphere') then
+          block
+            character(len=4), dimension(10) :: t = ['K   ','A   ','B   ','C   ','D   ', &
+                                                     'E   ','F   ','G   ','H   ','I   ']
+            if (colIdx >= 1 .and. colIdx <= size(t)) cmd = t(colIdx)
+          end block
+        end if
 
     end function       
 

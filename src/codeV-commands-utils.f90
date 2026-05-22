@@ -329,4 +329,13 @@ contains
         end if
     end procedure getRayData
 
+    module procedure execTERM
+        use global_widgets, only: ioConfig
+        use zoa_ui, only: ID_TERMINAL_DEFAULT
+        use GLOBALS, only: HEADLESS_MODE
+        if (HEADLESS_MODE) return
+        call ioConfig%setTextView(ID_TERMINAL_DEFAULT)
+        call zoa_emit("Terminal output redirected to default", "black")
+    end procedure execTERM
+
 end submodule mod_codev_utils

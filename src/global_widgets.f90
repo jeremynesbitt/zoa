@@ -3,7 +3,7 @@ module global_widgets
   use iso_c_binding, only: c_ptr, c_char, c_int, c_null_ptr
   use iso_fortran_env, only: real64
   use kdp_data_types, only: sys_config, io_config, lens_data, paraxial_ray_trace_data, &
-  & ray_fan_data, opd_data, aspheric_surf_data
+  & ray_fan_data, opd_data
 
   type(c_ptr) :: my_window
   type(c_ptr) :: my_pixbuf, my_drawing_area
@@ -23,8 +23,7 @@ module global_widgets
   type(io_config)  :: ioConfig
   type(lens_data)  :: curr_lens_data
   type(paraxial_ray_trace_data) :: curr_par_ray_trace
-  type(aspheric_surf_data) :: curr_asph_data
-  type(ray_fan_data) :: curr_ray_fan_data
+type(ray_fan_data) :: curr_ray_fan_data
   type(opd_data) :: curr_opd
   ! Band aid until I figure out how to properly handle this (refactoring KDP code)
   real(real64), allocatable :: curr_psf(:,:)

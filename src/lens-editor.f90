@@ -385,16 +385,27 @@ function getExtraParams(surf, surfType) result(extraParams)
   integer, intent(in) :: surf
   character(len=*), intent(in) :: surfType
   real(kind=real64), dimension(16) :: extraParams
+  integer :: n
 
+  extraParams = 0.0d0
+
+  ! Read from typed surface if available (data(1:num_params) are the display values).
+  if (allocated(ldm%surfaces)) then
+    if (surf >= lbound(ldm%surfaces,1) .and. surf <= ubound(ldm%surfaces,1)) then
+      if (allocated(ldm%surfaces(surf)%s)) then
+        n = min(ldm%surfaces(surf)%s%num_params, 16)
+        extraParams(1:n) = ldm%surfaces(surf)%s%data(1:n)
+        return
+      end if
+    end if
+  end if
+
+  ! Fallback: read directly from ALENS.
   select case(surfType)
-  case('Sphere')
-    extraParams = 0.0d0
   case('Asphere')
-    extraParams(1) = ALENS(2,surf)
-    extraParams(2:5) = ALENS(4:7,surf)
-    extraParams(6:10) = ALENS(81:85,surf)
-    extraParams(11:16) = 0.0d0
-
+    extraParams(1)    = ALENS(2,surf)        ! conic K
+    extraParams(2:5)  = ALENS(4:7,surf)      ! A4-A10
+    extraParams(6:10) = ALENS(81:85,surf)    ! A12-A20
   end select
 
 end function
@@ -538,27 +549,20 @@ function buildLensEditTable() result(store)
   end function
 
   function getSurfaceTypesAsCStringArray() result(c_ptr_array)
+    use mod_surface_type, only: NUM_SURFACE_TYPES, SURFACE_TYPE_NAMES
     integer :: i
-    type(c_ptr), dimension(3) :: c_ptr_array
+    type(c_ptr), dimension(NUM_SURFACE_TYPES+1) :: c_ptr_array
     character(kind=c_char), dimension(:), allocatable :: strTmp
     character(kind=c_char), pointer, dimension(:) :: ptrTmp
-    character(len=80), dimension(2) :: surfList 
 
-    surfList(1) = "Sphere"
-    surfList(2) = "Asphere"
-
-    
-    do i = 1, size(surfList)
-      call convert_f_string(surfList(i), strTmp)
+    do i = 1, NUM_SURFACE_TYPES
+      call convert_f_string(trim(SURFACE_TYPE_NAMES(i)), strTmp)
       allocate(ptrTmp(size(strTmp)))
-      ! A Fortran pointer toward the Fortran string:
       ptrTmp(:) = strTmp(:)
-      ! Store the C address in the array:
       c_ptr_array(i) = c_loc(ptrTmp(1))
       nullify(ptrTmp)
     end do
-    ! The array must be null terminated:
-    c_ptr_array(size(surfList)+1) = c_null_ptr
+    c_ptr_array(NUM_SURFACE_TYPES+1) = c_null_ptr
 
   end function
 
@@ -1317,35 +1321,31 @@ function createModMenu(btn, surf, colIdx) result(menuOptions)
 
 end function
 
-! TODO:  Needs updating when more surfaces are added
 subroutine updateSurfaceType(widget, gdata) bind(c)
   use DATLEN, only: ALENS
+  use mod_lens_data_manager, only: ldm
   type(c_ptr), value, intent(in) :: widget, gdata
   integer :: selection, surfIdx, oldVal
   character(len=100) :: rcCode
-  type(c_ptr) :: cStr 
+  type(c_ptr) :: cStr
 
   cStr = gtk_widget_get_name(widget)
-  call convert_c_string(cStr, rcCode)  
-  print *, "Val is ", trim(rcCode)
-  
+  call convert_c_string(cStr, rcCode)
   surfIdx = getSurfaceIndexFromRowColumnCode(trim(rcCode))
 
   selection = gtk_drop_down_get_selected(widget)
   oldVal = ALENS(8,surfIdx)
   select case (selection)
   case(0) ! Sphere
-    ALENS(8,surfIdx) = 0 
+    ALENS(8,surfIdx) = 0
   case(1) ! Asphere
-    print *, "About to set asphere"
-    ALENS(8,surfIdx) = 1 
-  end select    
-  
-  if (oldVal - ALENS(8,surfIdx) .NE. 0) then 
-    print *, "About to rebuild lens editor table"
+    ALENS(8,surfIdx) = 1
+  end select
+
+  if (oldVal - ALENS(8,surfIdx) .NE. 0) then
+    call ldm%load_surfaces_from_alens()
     call rebuildLensEditorTable()
   end if
-
 
 end subroutine
 
@@ -1418,6 +1418,7 @@ end subroutine
 
 subroutine bind_cb(factory,listitem, gdata) bind(c)
   use type_utils
+  use mod_surface_type, only: surface_type_index
   type(c_ptr), value :: factory
   type(c_ptr), value :: listitem, gdata
   type(c_ptr) :: widget, item, label, buffer, entryCB, menuCB
@@ -1448,14 +1449,8 @@ subroutine bind_cb(factory,listitem, gdata) bind(c)
     call gtk_entry_buffer_set_text(buffer, trim(colName)//c_null_char,-1_c_int)
    case(4)
     cStr = lens_item_get_surface_type(item)
-    call convert_c_string(cStr, colName)  
-    ! Will need to abstract this when more types are added
-    if(colName=='Sphere') then
-      call gtk_drop_down_set_selected(label, 0_c_int)
-    end if
-    if(colName=='Asphere') then 
-      call gtk_drop_down_set_selected(label, 1_c_int)
-    end if
+    call convert_c_string(cStr, colName)
+    call gtk_drop_down_set_selected(label, int(surface_type_index(trim(colName)), c_int))
     !call gtk_label_set_text(label, trim(colName)//c_null_char)    
    case(5)
     colName = trim(real2str(lens_item_get_surface_radius(item)))//c_null_char  
@@ -1683,84 +1678,81 @@ subroutine setLensEditColumns(colView)
 
 end subroutine
 
-subroutine updateColumnHeadersIfNeeded(surfType)
+subroutine updateColumnHeadersIfNeeded(surfIdx)
   use type_utils, only: int2str
+  use mod_lens_data_manager, only: ldm
 
-  character(len=*) :: surfType
-  integer :: ii, numItems, refCol
+  integer, intent(in) :: surfIdx
+  integer :: ii, numItems, refCol, nParams
   type(c_ptr) :: listmodel, cStr, currCol
   character(len=100) :: ftext
-  logical :: foundCol
-  character(kind=c_char, len=20),dimension(16) :: extraParamColNames  
-  character(kind=c_char, len=20),dimension(16) :: extraParamAsphereColNames  
-  integer :: extra_param_start = 9
+  logical :: foundCol, typedFound
+  character(kind=c_char, len=24), dimension(16) :: colNames
+  character(len=24) :: typeName
 
-  ! Hard code for the two types for now. Need to abstract this into types
-
-  do ii=1,size(extraParamColNames)
-    extraParamColNames(ii) = "Par "//trim(int2str(ii))
+  ! Default: generic "Par N" labels.
+  do ii = 1, 16
+    colNames(ii) = "Par "//trim(int2str(ii))
   end do
 
-  extraParamAsphereColNames(1) = "Conic (K)"
-  extraParamAsphereColNames(2) = "4th order (A)"
-  extraParamAsphereColNames(3) = "6th order (B)"
-  extraParamAsphereColNames(4) = "8th order (C)"
-  extraParamAsphereColNames(5) = "10th order (D)"
-  extraParamAsphereColNames(6) = "12th order (E)"
-  extraParamAsphereColNames(7) = "14th order (F)"
-  extraParamAsphereColNames(8) = "16th order (G)"
-  extraParamAsphereColNames(9) = "18th order (H)"
-  extraParamAsphereColNames(10) = "20th order (I)"
-  extraParamAsphereColNames(11:16) = extraParamColNames(11:16)
-
-  !Find First Extra column
-  foundCol = .FALSE.
-  listmodel = gtk_column_view_get_columns(cv)
-  numItems = g_list_model_get_n_items(listmodel) -1
-  do ii=0,numItems
-    currCol = g_list_model_get_object(listmodel,ii)
-    cStr = gtk_column_view_column_get_id(currCol)
-    call convert_c_string(cStr, ftext) 
-    if (trim(ftext) == '9') then 
-         refCol = ii
-         foundCol = .TRUE.
-         exit
+  ! Prefer typed surface's param_names when the surface object is loaded.
+  typedFound = .false.
+  if (allocated(ldm%surfaces)) then
+    if (surfIdx >= lbound(ldm%surfaces,1) .and. surfIdx <= ubound(ldm%surfaces,1)) then
+      if (allocated(ldm%surfaces(surfIdx)%s)) then
+        nParams = ldm%surfaces(surfIdx)%s%num_params
+        do ii = 1, min(nParams, 16)
+          colNames(ii) = trim(ldm%surfaces(surfIdx)%s%param_names(ii))
+        end do
+        typedFound = .true.
+      end if
     end if
-  end do
-
-  if(foundCol) then
-    cStr = gtk_column_view_column_get_title(currCol)
-    call convert_c_string(cStr, ftext)   
-    if (surfType == 'Sphere') then 
-      do ii=1,16
-          call gtk_column_view_column_set_title(currCol, trim(extraParamColNames(ii))//c_null_char)
-          currCol = g_list_model_get_object(listmodel,refCol+ii)
-      end do
-    end if
-    if (surfType == 'Asphere') then 
-      do ii=1,16
-        call gtk_column_view_column_set_title(currCol, trim(extraParamAsphereColNames(ii))//c_null_char)
-        currCol = g_list_model_get_object(listmodel,refCol+ii)
-    end do
-    end if
-
   end if
 
+  ! Fallback: derive column names from the ALENS-based type name so that
+  ! lenses entered manually (not via RES/CV2PRG) still show correct headers.
+  if (.not. typedFound) then
+    typeName = ldm%getSurfTypeName(surfIdx)
+    if (trim(typeName) == 'Asphere') then
+      colNames(1)  = "Conic (K)";      colNames(2)  = "4th order (A)"
+      colNames(3)  = "6th order (B)";  colNames(4)  = "8th order (C)"
+      colNames(5)  = "10th order (D)"; colNames(6)  = "12th order (E)"
+      colNames(7)  = "14th order (F)"; colNames(8)  = "16th order (G)"
+      colNames(9)  = "18th order (H)"; colNames(10) = "20th order (I)"
+    end if
+  end if
 
+  ! Find the first extra-param column (ID = '9') and update all 16 headers.
+  foundCol = .FALSE.
+  listmodel = gtk_column_view_get_columns(cv)
+  numItems = g_list_model_get_n_items(listmodel) - 1
+  do ii = 0, numItems
+    currCol = g_list_model_get_object(listmodel, ii)
+    cStr = gtk_column_view_column_get_id(currCol)
+    call convert_c_string(cStr, ftext)
+    if (trim(ftext) == '9') then
+      refCol = ii
+      foundCol = .TRUE.
+      exit
+    end if
+  end do
+
+  if (foundCol) then
+    do ii = 1, 16
+      call gtk_column_view_column_set_title(currCol, trim(colNames(ii))//c_null_char)
+      if (ii < 16) currCol = g_list_model_get_object(listmodel, refCol+ii)
+    end do
+  end if
 
 end subroutine
 
 subroutine lens_edit_row_selected(widget, position, n_items, userdata) bind(c)
   type(c_ptr), value ::  widget, userdata
   integer(c_int) :: position, n_items
-  type(c_ptr) :: listitem, cStr
-  character(len=100) :: ftext
+  type(c_ptr) :: listitem
   print *, "Row selected! "
   listitem = gtk_single_selection_get_selected_item(widget)
-  cStr = lens_item_get_surface_type(listitem)
-  call convert_c_string(cStr, ftext)   
-  print *, "Surf type is ", trim(ftext)
-  call updateColumnHeadersIfNeeded(trim(ftext))
+  call updateColumnHeadersIfNeeded(lens_item_get_surface_number(listitem))
   call gtk_widget_set_sensitive(dbut, TRUE)
   call gtk_widget_set_sensitive(ibut, TRUE)
 end subroutine

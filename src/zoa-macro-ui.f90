@@ -135,22 +135,30 @@ module zoa_macro_ui
     ! If the editor is not empty, delete the old file and replace it with the text
     ! from the buffer
     if (numLines > 1) then
-      !call clear_file(trim(basePath)//'MAC_EDIT.DAT')
       call delete_file(trim(getMacroDir())//trim(currSelection))
       open(unit=31, iostat=stat, file=trim(getMacroDir())//trim(currSelection), &
       & status='new', action="write")
-      if (stat /= 0) then 
+      if (stat /= 0) then
         ! Error
         return
       end if
-    ! Everything okay, write file   
+    ! Everything okay, write file
     call gtk_text_buffer_get_start_iter(buffer, c_loc(iterStart))
     do i=1,numLines
       boolRet = gtk_text_buffer_get_iter_at_line(buffer, c_loc(iterEnd), i)
       call c_f_string_copy(gtk_text_buffer_get_text(buffer, &
       & c_loc(iterStart),c_loc(iterEnd), FALSE), lineTxt)
-      if (i>1) write(31, *) trim(lineTxt)
-      !PRINT *, "lineTxt is ", trim(lineTxt)
+      ! Strip trailing newline/CR — the buffer text includes the line separator
+      ! but write() adds its own, so we must remove it to avoid double spacing
+      do while (len_trim(lineTxt) > 0)
+        if (lineTxt(len_trim(lineTxt):len_trim(lineTxt)) == char(10) .or. &
+            lineTxt(len_trim(lineTxt):len_trim(lineTxt)) == char(13)) then
+          lineTxt(len_trim(lineTxt):len_trim(lineTxt)) = ' '
+        else
+          exit
+        end if
+      end do
+      if (i>1) write(31, '(A)') trim(lineTxt)
       iterStart = iterEnd
     end do
       CALL CLOSE_FILE(31,1)

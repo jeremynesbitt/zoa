@@ -268,4 +268,7 @@
    module subroutine execEDI(iptStr)
     character(len=*) :: iptStr
    end subroutine execEDI
+   module subroutine execTERM(iptStr)
+    character(len=*) :: iptStr
+   end subroutine execTERM
     end interface

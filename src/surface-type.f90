@@ -4,6 +4,14 @@ module mod_surface_type
 
   integer, parameter :: SURF_DATA_SIZE      = 21
   integer, parameter :: SURF_PARAM_NAME_LEN = 24
+  integer, parameter :: SURF_CMD_LEN        = 4   ! max KDP command length per extra param
+
+  ! Registry of all surface types known to the application.
+  ! Index into this array is the 1-based type number; the GTK dropdown uses
+  ! 0-based indexing so subtract 1 when setting gtk_drop_down_set_selected.
+  integer, parameter :: NUM_SURFACE_TYPES = 2
+  character(len=SURF_PARAM_NAME_LEN), parameter :: SURFACE_TYPE_NAMES(NUM_SURFACE_TYPES) = &
+    [character(len=SURF_PARAM_NAME_LEN) :: "Sphere", "Asphere"]
 
   ! Clear aperture descriptor — shape + half-widths
   type :: aperture_data
@@ -41,14 +49,20 @@ module mod_surface_type
     real(real64)        :: n_post(10) = 1.0_real64       ! index after, per wavelength
     character(len=SURF_PARAM_NAME_LEN) :: glass_name    = ' '
     character(len=SURF_PARAM_NAME_LEN) :: glass_catalog = ' '
-    ! Surface-type-specific extra parameters (asphere coeffs, toric cv, etc.)
+    ! Display name of this surface type — must match an entry in SURFACE_TYPE_NAMES.
+    character(len=SURF_PARAM_NAME_LEN) :: type_name = ' '
+    ! Surface-type-specific extra parameters (asphere coeffs, toric cv, etc.).
+    ! data(1:num_params) are the values shown in the lens editor extra-param columns.
+    ! param_names(i) is the column header; param_cmds(i) is the KDP command used to
+    ! set data(i) (e.g. "K" for conic, "A" for 4th-order asphere coeff).
     real(real64)        :: data(SURF_DATA_SIZE)          = 0.0_real64
     character(len=SURF_PARAM_NAME_LEN) :: param_names(SURF_DATA_SIZE) = ' '
+    character(len=SURF_CMD_LEN)        :: param_cmds(SURF_DATA_SIZE)  = ' '
     integer             :: num_params = 0
   contains
-    procedure(intersect_iface), deferred :: intersect
-    procedure(refract_iface),   deferred :: refract
-    procedure(paraxial_iface),  deferred :: paraxial_trace
+    procedure(intersect_iface),   deferred :: intersect
+    procedure(real_trace_iface),  deferred :: real_trace
+    procedure(paraxial_iface),    deferred :: paraxial_trace
   end type
 
   ! Sphere (or conic, or flat when radius=inf).
@@ -56,7 +70,7 @@ module mod_surface_type
   type, extends(surface_type) :: sphere_surface
   contains
     procedure :: intersect      => sphere_intersect
-    procedure :: refract        => sphere_refract
+    procedure :: real_trace     => sphere_real_trace
     procedure :: paraxial_trace => sphere_paraxial
   end type
 
@@ -68,7 +82,7 @@ module mod_surface_type
   type, extends(surface_type) :: asphere_surface
   contains
     procedure :: intersect      => asphere_intersect
-    procedure :: refract        => asphere_refract
+    procedure :: real_trace     => asphere_real_trace
     procedure :: paraxial_trace => asphere_paraxial
   end type
 
@@ -89,10 +103,14 @@ module mod_surface_type
       type(surf_ray_data), intent(inout) :: ray
       real(real64),        intent(in)    :: tol
     end subroutine
-    subroutine refract_iface(self, ray)
-      import :: surface_type, surf_ray_data
+    ! Full surface interaction: intersection + whatever the surface does
+    ! (refraction, reflection, diffraction, etc.).  This is the generic
+    ! interface that HITSUR dispatches to; it replaces both HITASP and INTERACK.
+    subroutine real_trace_iface(self, ray, tol)
+      import :: surface_type, surf_ray_data, real64
       class(surface_type), intent(in)    :: self
       type(surf_ray_data), intent(inout) :: ray
+      real(real64),        intent(in)    :: tol
     end subroutine
     ! Paraxial refraction at a surface (surface refraction only; transfer is
     ! handled by the caller).  n_in and n_out are provided explicitly so the
@@ -108,6 +126,23 @@ module mod_surface_type
 contains
 
   ! ---------------------------------------------------------------------------
+  ! Registry utilities
+  ! ---------------------------------------------------------------------------
+
+  ! Returns 0-based dropdown index for a type name, or 0 (Sphere) if not found.
+  pure function surface_type_index(name) result(idx)
+    character(len=*), intent(in) :: name
+    integer :: idx, i
+    idx = 0
+    do i = 1, NUM_SURFACE_TYPES
+      if (trim(SURFACE_TYPE_NAMES(i)) == trim(name)) then
+        idx = i - 1
+        return
+      end if
+    end do
+  end function surface_type_index
+
+  ! ---------------------------------------------------------------------------
   ! Factories
   ! ---------------------------------------------------------------------------
 
@@ -115,6 +150,7 @@ contains
     real(real64),     intent(in)           :: radius, thickness, conic
     character(len=*), intent(in), optional :: glass_name, glass_catalog
     type(sphere_surface) :: s
+    s%type_name  = "Sphere"
     s%radius     = radius
     s%thickness  = thickness
     s%conic      = conic
@@ -123,20 +159,44 @@ contains
     if (present(glass_catalog)) s%glass_catalog = glass_catalog
   end function make_sphere
 
+  ! Asphere extra-param data slot convention (matches current lens-editor display):
+  !   data(1)  = conic K          param_cmds(1)  = "K"
+  !   data(2)  = A4  (4th order)  param_cmds(2)  = "A"
+  !   data(3)  = A6  (6th order)  param_cmds(3)  = "B"
+  !   data(4)  = A8  (8th order)  param_cmds(4)  = "C"
+  !   data(5)  = A10 (10th order) param_cmds(5)  = "D"
+  !   data(6)  = A12 (12th order) param_cmds(6)  = "E"
+  !   data(7)  = A14 (14th order) param_cmds(7)  = "F"
+  !   data(8)  = A16 (16th order) param_cmds(8)  = "G"
+  !   data(9)  = A18 (18th order) param_cmds(9)  = "H"
+  !   data(10) = A20 (20th order) param_cmds(10) = "I"
+  !   data(11) = A2  (plano term, internal — excluded from num_params)
+  ! coeffs argument: coeffs(1:9)=A4..A20, coeffs(10)=A2 (unchanged from ALENS loading)
   function make_asphere(radius, thickness, conic, glass_name, glass_catalog, coeffs) result(s)
     real(real64),     intent(in)           :: radius, thickness, conic
     character(len=*), intent(in), optional :: glass_name, glass_catalog
     real(real64),     intent(in), optional :: coeffs(10)
     type(asphere_surface) :: s
+    s%type_name  = "Asphere"
     s%radius     = radius
     s%thickness  = thickness
     s%conic      = conic
     s%num_params = 10
-    s%param_names(1)  = "A4";   s%param_names(2)  = "A6";   s%param_names(3)  = "A8"
-    s%param_names(4)  = "A10";  s%param_names(5)  = "A12";  s%param_names(6)  = "A14"
-    s%param_names(7)  = "A16";  s%param_names(8)  = "A18";  s%param_names(9)  = "A20"
-    s%param_names(10) = "A2"
-    if (present(coeffs))        s%data(1:10)    = coeffs
+    s%data(1)    = conic        ! display/edit slot — mirrors self%conic
+    s%param_names(1)  = "Conic (K)";        s%param_cmds(1)  = "K"
+    s%param_names(2)  = "4th order (A)";    s%param_cmds(2)  = "A"
+    s%param_names(3)  = "6th order (B)";    s%param_cmds(3)  = "B"
+    s%param_names(4)  = "8th order (C)";    s%param_cmds(4)  = "C"
+    s%param_names(5)  = "10th order (D)";   s%param_cmds(5)  = "D"
+    s%param_names(6)  = "12th order (E)";   s%param_cmds(6)  = "E"
+    s%param_names(7)  = "14th order (F)";   s%param_cmds(7)  = "F"
+    s%param_names(8)  = "16th order (G)";   s%param_cmds(8)  = "G"
+    s%param_names(9)  = "18th order (H)";   s%param_cmds(9)  = "H"
+    s%param_names(10) = "20th order (I)";   s%param_cmds(10) = "I"
+    if (present(coeffs)) then
+      s%data(2:10) = coeffs(1:9)   ! A4..A20
+      s%data(11)   = coeffs(10)    ! A2 (plano/internal)
+    end if
     if (present(glass_name))    s%glass_name    = glass_name
     if (present(glass_catalog)) s%glass_catalog = glass_catalog
   end function make_asphere
@@ -259,21 +319,25 @@ contains
   end subroutine intersect_asphere
 
   ! Vector Snell's law: updates ray direction cosines using surface normal and
-  ! n_in/n_out stored in the ray record.  Flags TIR by negating n_out.
+  ! n_in/n_out stored in the ray record.
+  ! Normal convention: ln/mn/nn point from medium 1 to medium 2 (same general
+  ! direction as propagation), matching the HITASP/INTERACK convention where
+  ! cos_i = d · n̂ > 0 for a forward-going ray.
+  ! Flags TIR by negating n_out.
   subroutine apply_snell(ray)
     type(surf_ray_data), intent(inout) :: ray
     real(real64) :: mu, cos_i, cos_t, disc
     mu    = ray%n_in / ray%n_out
-    cos_i = -(ray%l*ray%ln + ray%m*ray%mn + ray%n*ray%nn)
+    cos_i = ray%l*ray%ln + ray%m*ray%mn + ray%n*ray%nn   ! d · n̂  (> 0 for forward ray)
     disc  = 1.0_real64 - mu*mu*(1.0_real64 - cos_i*cos_i)
     if (disc < 0.0_real64) then
       ray%n_out = -abs(ray%n_out)
       return
     end if
     cos_t = sqrt(disc)
-    ray%l = mu*ray%l + (mu*cos_i - cos_t)*ray%ln
-    ray%m = mu*ray%m + (mu*cos_i - cos_t)*ray%mn
-    ray%n = mu*ray%n + (mu*cos_i - cos_t)*ray%nn
+    ray%l = mu*ray%l + (cos_t - mu*cos_i)*ray%ln
+    ray%m = mu*ray%m + (cos_t - mu*cos_i)*ray%mn
+    ray%n = mu*ray%n + (cos_t - mu*cos_i)*ray%nn
     ray%opl = ray%opl + ray%path * ray%n_in
   end subroutine apply_snell
 
@@ -298,9 +362,11 @@ contains
     call intersect_conic(self%radius, self%conic, ray, tol)
   end subroutine
 
-  subroutine sphere_refract(self, ray)
+  subroutine sphere_real_trace(self, ray, tol)
     class(sphere_surface), intent(in)    :: self
     type(surf_ray_data),   intent(inout) :: ray
+    real(real64),          intent(in)    :: tol
+    call intersect_conic(self%radius, self%conic, ray, tol)
     call apply_snell(ray)
   end subroutine
 
@@ -319,12 +385,15 @@ contains
     class(asphere_surface), intent(in)    :: self
     type(surf_ray_data),    intent(inout) :: ray
     real(real64),           intent(in)    :: tol
-    call intersect_asphere(self%radius, self%conic, self%data(1:10), ray, tol)
+    ! data(2:10)=A4..A20, data(11)=A2 — matches intersect_asphere coeffs(1:9)+coeffs(10)
+    call intersect_asphere(self%radius, self%conic, self%data(2:11), ray, tol)
   end subroutine
 
-  subroutine asphere_refract(self, ray)
+  subroutine asphere_real_trace(self, ray, tol)
     class(asphere_surface), intent(in)    :: self
     type(surf_ray_data),    intent(inout) :: ray
+    real(real64),           intent(in)    :: tol
+    call intersect_asphere(self%radius, self%conic, self%data(2:11), ray, tol)
     call apply_snell(ray)
   end subroutine
 
@@ -332,10 +401,10 @@ contains
     class(asphere_surface), intent(in) :: self
     real(real64), intent(in)  :: h_in, u_in, n_in, n_out
     real(real64), intent(out) :: h_out, u_out
-    ! A2 (data(10)) gives an effective curvature correction for plano-aspheres
+    ! A2 (data(11)) gives an effective curvature correction for plano-aspheres
     real(real64) :: cv_base, cv_eff, eff_radius
     cv_base    = merge(0.0_real64, 1.0_real64/self%radius, abs(self%radius) > 1.0e15_real64)
-    cv_eff     = cv_base + 2.0_real64*self%data(10)
+    cv_eff     = cv_base + 2.0_real64*self%data(11)
     eff_radius = merge(huge(0.0_real64), 1.0_real64/cv_eff, abs(cv_eff) < 1.0e-30_real64)
     call paraxial_refract(eff_radius, h_in, u_in, n_in, n_out, h_out, u_out)
   end subroutine

@@ -443,6 +443,8 @@ module codeV_commands
         zoaCmds(681)%execFunc => execRMD
         zoaCmds(682)%cmd = "EDI"
         zoaCmds(682)%execFunc => execEDI
+        zoaCmds(683)%cmd = "TERM"
+        zoaCmds(683)%execFunc => execTERM
 
 
     end subroutine

@@ -155,7 +155,7 @@ SUBROUTINE CONTRO
    !use handlers, only: zoatabMgr
    use zoa_file_handler, only: getPermMacroDir
    use global_widgets, only: lens_editor_window,&
-   &curr_asph_data, sysConfig, curr_lens_data
+   &sysConfig, curr_lens_data
    use lens_editor
    use codeV_commands, only: startCodeVLensUpdateCmd,&
    &isCodeVCommand
@@ -4106,8 +4106,7 @@ SUBROUTINE CONTRO
          IF(WC.EQ.'EOS') YESEOS=.TRUE.
          IF(WC.NE.'EOS') YESEOS=.FALSE.
          call curr_lens_data%update()
-         call curr_asph_data%updateAsphereTable(INT(sys_last_surf())+1)
-         call sysConfig%updateParameters()
+call sysConfig%updateParameters()
          ! CALL RE_DISPLAY_LENS(YESEOS
 
          ! IF EOS was called then update UIs

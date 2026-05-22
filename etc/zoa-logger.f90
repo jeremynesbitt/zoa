@@ -45,6 +45,8 @@ subroutine writeLogToDisk(self, logTxt)
   logical :: fileOpen
   integer :: recL
 
+  if (self%fileID <= 0) return
+
   self%recNo = self%recNo + 1
   inquire(unit=self%fileID, opened=fileOpen)
   inquire(iolength=recL) logTxt

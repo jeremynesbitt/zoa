@@ -8,6 +8,7 @@ SUBROUTINE CV2PRG
 !
    use DATLEN
    use DATMAI
+   use mod_lens_data_manager, only: ldm
    IMPLICIT NONE
 !
    character(len=80) :: tokens(40)
@@ -2038,6 +2039,7 @@ SUBROUTINE CV2PRG
    DEALLOCATE (TEMPA,TEMPB,TEMPC,STAT=ALLOERR)
    DEALLOCATE (HOE,HOESUR,HV1,HV2,HX1,HY1,HZ1 &
    &,HWL,HX2,HY2,HZ2,HOR,STAT=ALLOERR)
+   call ldm%load_surfaces_from_alens()
    RETURN
    !100  FORMAT(A132)
    !100  FORMAT(readformat)
