@@ -348,6 +348,7 @@ module procedure execSUR
                 surfNum = ldm%getSurfacePointer()
                 read(tokens(2), *) newVal
                 call set_surf_conic(surfNum, newVal)
+                call executeCodeVLensUpdateCommand('CHG '//trim(int2str(surfNum)), exitLensUpdate=.TRUE.)
                 return
             end if
         case(3)
@@ -356,6 +357,7 @@ module procedure execSUR
                 if (isInputNumber(trim(tokens(3)))) then
                     read(tokens(3), *) newVal
                     call set_surf_conic(surfNum, newVal)
+                    call executeCodeVLensUpdateCommand('CHG '//trim(int2str(surfNum)), exitLensUpdate=.TRUE.)
                     return
                 end if
             end if
