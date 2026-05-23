@@ -1024,7 +1024,6 @@ end subroutine
         if(idx.GT.cmdHistorySize.OR.idx.LT.1) THEN
           call gtk_entry_buffer_set_text(buffer, ' '//c_null_char, -1)
         else
-          call LogTermDebug("About to set buffer!")
 
           call gtk_entry_buffer_set_text(buffer, command_history(idx)//c_null_char, len(command_history(idx))+30)
           call gtk_editable_set_position(entry, len(trim(command_history(idx))))

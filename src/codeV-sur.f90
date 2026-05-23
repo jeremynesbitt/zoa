@@ -327,50 +327,41 @@ module procedure execSUR
     ! K Val - update current lens (eg when loading from file)
     ! K Sk - return val on current lens (not currently implemented) 
     module procedure updateConicConstant
-        !use DATLEN, only: ALENS
-        use command_utils, only: isInputNumber
+        use command_utils, only: isInputNumber, parseCommandIntoTokens
+        use mod_surface, only: set_surf_conic
         use mod_lens_data_manager
         implicit none
 
         integer :: surfNum
         character(len=80) :: tokens(40)
-        character(len=3) ::  kdpCmd = 'CC ' ! For future abstraction
         integer :: numTokens
+        real(real64) :: newVal
 
-        call execTranslatedSurfCmd(iptStr, 'CC')
+        call parseCommandIntoTokens(iptStr, tokens, numTokens, ' ')
 
-        ! call parse(iptStr, ' ', tokens, numTokens)
-        
-        ! select case (numTokens)
+        select case (numTokens)
+        case(2)
+            if (isSurfCommand(trim(tokens(2)))) then
+                call zoa_emit("K: no value specified for surface "//trim(tokens(2)), "red")
+                return
+            else if (isInputNumber(trim(tokens(2)))) then
+                surfNum = ldm%getSurfacePointer()
+                read(tokens(2), *) newVal
+                call set_surf_conic(surfNum, newVal)
+                return
+            end if
+        case(3)
+            if (isSurfCommand(trim(tokens(2)))) then
+                surfNum = getSurfNumFromSurfCommand(trim(tokens(2)))
+                if (isInputNumber(trim(tokens(3)))) then
+                    read(tokens(3), *) newVal
+                    call set_surf_conic(surfNum, newVal)
+                    return
+                end if
+            end if
+        end select
 
-        ! case(2) 
-        !     if (isSurfCommand(trim(tokens(2)))) then
-        !             surfNum = getSurfNumFromSurfCommand(trim(tokens(2)))
-        !     else
-        !         if (isInputNumber(trim(tokens(2)))) then 
-        !             ! Use current surface
-        !             surfNum = ldm%getSurfacePointer()                
-        !             call executeCodeVLensUpdateCommand(kdpCmd//trim(tokens(2)))
-        !             return 
-        !         else
-        !         call updateTerminalLog("Error! For "//kdpCmd//"expect second argument to be Sk &
-        !         & or value to update for current lens pointer surface ", "red")
-        !         return
-        !         end if
-        !     end if
-
-        ! case(3) ! K Sk Val
-        !     if (isSurfCommand(trim(tokens(2)))) then
-        !         surfNum = getSurfNumFromSurfCommand(trim(tokens(2)))  
-        !     end if          
-        !     if (isInputNumber(trim(tokens(3)))) then 
-        !         call executeCodeVLensUpdateCommand('CHG '//trim(int2str(surfNum))// &
-        !         & '; '//kdpCmd//trim(tokens(3)))   
-        !         return 
-        !     end if           
-        ! end select
-
-
+        call zoa_emit("K: usage: K [Sk] value", "red")
 
     end procedure
 

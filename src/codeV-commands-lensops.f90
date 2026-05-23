@@ -356,15 +356,18 @@ contains
 
     module function getSetGlassText(strInput) result(strOut)
         use command_utils, only : isInputNumber
-        use glass_manager, only: parseModelGlassEntry
+        use glass_manager, only: parseModelGlassEntry, gdb
 
         character(len=*) :: strInput
         character(len=1024) :: strOut
         real(kind=real64) :: nd, vd
-        integer :: colonLoc
+        integer :: colonLoc, underscoreLoc, catalogIdx
         character(len=20) :: modelLabel
+        character(len=40) :: glassName, catalogName, altGlassName
 
-        colonLoc = index(strInput, ':')
+        colonLoc     = index(strInput, ':')
+        underscoreLoc = index(strInput, '_')
+
         if (colonLoc > 0) then
             ! n:v format: e.g. "1.415:47.0" -> nd=1.415, vd=47.0
             read(strInput(1:colonLoc-1), *) nd
@@ -377,8 +380,33 @@ contains
             call parseModelGlassEntry(strInput, nd, vd)
             strOut = 'MODEL D'//strInput//','//real2str(nd)//','//real2str(vd)
             call LogTermFOR("STROUT is "//trim(strOut))
+        else if (underscoreLoc > 1) then
+            ! GLASSNAME_CATALOG format (e.g. NSK16_SCHOTT -> SCHOTT N-SK16)
+            glassName   = strInput(1:underscoreLoc-1)
+            catalogName = strInput(underscoreLoc+1:len_trim(strInput))
+            if (gdb%isNameInCatalog(trim(catalogName), catalogIdx)) then
+                if (gdb%isGlassInCatalog(trim(glassName), catalogIdx)) then
+                    strOut = trim(catalogName)//' '//trim(glassName)
+                else if (glassName(1:1) == 'N' .and. &
+                         gdb%isGlassInCatalog('N-'//trim(glassName(2:)), catalogIdx)) then
+                    ! e.g. NSK16 -> N-SK16
+                    strOut = trim(catalogName)//' N-'//trim(glassName(2:))
+                else
+                    strOut = 'GLAK '//trim(strInput)
+                end if
+            else
+                strOut = 'GLAK '//trim(strInput)
+            end if
         else
-            strOut = 'GLAK ' // strInput
+            ! Plain glass name: if starts with N, also try N-xxx variant
+            if (strInput(1:1) == 'N' .and. &
+                .not. gdb%isGlassInAnyCatalog(trim(strInput)) .and. &
+                gdb%isGlassInAnyCatalog('N-'//trim(strInput(2:)))) then
+                altGlassName = 'N-'//trim(strInput(2:))
+                strOut = 'GLAK '//trim(altGlassName)
+            else
+                strOut = 'GLAK '//trim(strInput)
+            end if
         end if
     end function getSetGlassText
 
