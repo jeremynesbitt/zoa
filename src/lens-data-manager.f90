@@ -1188,7 +1188,7 @@ module mod_lens_data_manager
       ! Set surface s to the named type. No-op if already that type.
       ! surStr: 'ASP' = asphere, 'SPH' = sphere (extensible for future types).
       subroutine setSurfaceType(self, s, surStr)
-        use mod_surface, only: set_surf_asphere_flag, surf_is_asphere
+        use mod_surface, only: set_surf_asphere_flag, surf_is_asphere, set_surf_conic
         class(lens_data_manager), intent(inout) :: self
         integer,          intent(in) :: s
         character(len=*), intent(in) :: surStr
@@ -1200,6 +1200,7 @@ module mod_lens_data_manager
         case ('SPH')
           if (.not. surf_is_asphere(s)) return
           call set_surf_asphere_flag(s, .false.)
+          call set_surf_conic(s, 0.0_real64)
         case default
           return
         end select
