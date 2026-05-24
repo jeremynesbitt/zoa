@@ -295,7 +295,7 @@ module procedure execSUR
             return
         end if
         surfNum = getSurfNumFromSurfCommand(trim(tokens(2)))
-        call ldm%setSurfaceToAsphere(surfNum)
+        call ldm%setSurfaceType(surfNum, 'ASP')
         call executeCodeVLensUpdateCommand('CHG '//trim(int2str(surfNum)), exitLensUpdate=.TRUE.)
     end procedure
 
@@ -314,7 +314,7 @@ module procedure execSUR
             return
         end if
         surfNum = getSurfNumFromSurfCommand(trim(tokens(2)))
-        call ldm%setSurfaceToSphere(surfNum)
+        call ldm%setSurfaceType(surfNum, 'SPH')
         call executeCodeVLensUpdateCommand('CHG '//trim(int2str(surfNum)), exitLensUpdate=.TRUE.)
     end procedure
 

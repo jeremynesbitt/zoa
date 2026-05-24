@@ -102,8 +102,7 @@ module mod_lens_data_manager
      procedure, public, pass(self) :: clearApertureTypeAndAllParams
      procedure, public, pass(self) :: load_surfaces_from_alens
      procedure, public, pass(self) :: sync_alens_from_surfaces
-     procedure, public, pass(self) :: setSurfaceToAsphere
-     procedure, public, pass(self) :: setSurfaceToSphere
+     procedure, public, pass(self) :: setSurfaceType
 
     end type
 
@@ -1186,26 +1185,27 @@ module mod_lens_data_manager
       end subroutine sync_alens_from_surfaces
 
       ! Change surface s to asphere type (sets flag in ALENS, rebuilds surfaces(:)).
-      ! No-op if already an asphere.
-      subroutine setSurfaceToAsphere(self, s)
+      ! Set surface s to the named type. No-op if already that type.
+      ! surStr: 'ASP' = asphere, 'SPH' = sphere (extensible for future types).
+      subroutine setSurfaceType(self, s, surStr)
         use mod_surface, only: set_surf_asphere_flag, surf_is_asphere
         class(lens_data_manager), intent(inout) :: self
-        integer, intent(in) :: s
-        if (surf_is_asphere(s)) return
-        call set_surf_asphere_flag(s, .true.)
-        call self%load_surfaces_from_alens()
-      end subroutine setSurfaceToAsphere
+        integer,          intent(in) :: s
+        character(len=*), intent(in) :: surStr
 
-      ! Change surface s to sphere type (clears asphere flag in ALENS, rebuilds surfaces(:)).
-      ! No-op if already a sphere.
-      subroutine setSurfaceToSphere(self, s)
-        use mod_surface, only: set_surf_asphere_flag, surf_is_asphere
-        class(lens_data_manager), intent(inout) :: self
-        integer, intent(in) :: s
-        if (.not. surf_is_asphere(s)) return
-        call set_surf_asphere_flag(s, .false.)
+        select case (trim(surStr))
+        case ('ASP')
+          if (surf_is_asphere(s)) return
+          call set_surf_asphere_flag(s, .true.)
+        case ('SPH')
+          if (.not. surf_is_asphere(s)) return
+          call set_surf_asphere_flag(s, .false.)
+        case default
+          return
+        end select
+
         call self%load_surfaces_from_alens()
-      end subroutine setSurfaceToSphere
+      end subroutine setSurfaceType
 
 
 end module
