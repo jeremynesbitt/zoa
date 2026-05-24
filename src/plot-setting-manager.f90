@@ -14,8 +14,7 @@ module plot_setting_manager
     use type_utils
     implicit none
 
-    !TODO:  move all this to zoa_ui
-    integer, parameter :: ID_LENSDRAW_GO_CMD = 1633
+    !TODO:  move all this to zoa_ui 
     integer, parameter :: SETTING_WAVELENGTH = 1750
     integer, parameter :: SETTING_FIELD = 2
     integer, parameter :: SETTING_DENSITY = 1751
@@ -130,42 +129,37 @@ contains
 
       ! Add indvidual settings 
       self%numSettings = self%numSettings + 1
-      call self%ps(self%numSettings)%initialize(ID_LENSDRAW_NUM_FIELD_RAYS, &
+      call self%ps(self%numSettings)%initialize(ID_LENSDRAW_NUM_FIELD_RAYS, & 
       & "Num Rays Per Field", real(7),1.0,real(19), &
-      & "", "", UITYPE_SPINBUTTON)
+      & "NUMRAYS ", "NUMRAYS "//trim(int2str(7)), UITYPE_SPINBUTTON)
 
       self%numSettings = self%numSettings + 1
-      call self%ps(self%numSettings)%initialize(ID_LENS_FIRSTSURFACE, &
+      call self%ps(self%numSettings)%initialize(ID_LENS_FIRSTSURFACE, & 
       & "First Surface", real(0),0.0,real(ldm%getLastSurf()), &
-      & "", "", UITYPE_SPINBUTTON)
+      & "DRAWSI", "DRAWSI "//trim(int2str(20)), UITYPE_SPINBUTTON)
 
       self%numSettings = self%numSettings + 1
-      call self%ps(self%numSettings)%initialize(ID_LENS_LASTSURFACE, &
+      call self%ps(self%numSettings)%initialize(ID_LENS_LASTSURFACE, & 
       & "Last Surface", real(ldm%getLastSurf()),real(1.0),real(ldm%getLastSurf()), &
-      & "", "", UITYPE_SPINBUTTON)
+      & "DRAWSF ", "DRAWSF "//trim(int2str(ldm%getLastSurf())), UITYPE_SPINBUTTON)
 
       self%numSettings = self%numSettings + 1
-      call self%ps(self%numSettings)%initialize(ID_LENSDRAW_ELEVATION, &
+      call self%ps(self%numSettings)%initialize(ID_LENSDRAW_ELEVATION, & 
       & "Elevation", real(26.2),real(0.0),real(360.0), &
-      & "", "", UITYPE_SPINBUTTON)
+      & "ELEV", "ELEV "//trim(real2str(26.2)), UITYPE_SPINBUTTON)
 
       self%numSettings = self%numSettings + 1
-      call self%ps(self%numSettings)%initialize(ID_LENSDRAW_AZIMUTH, &
+      call self%ps(self%numSettings)%initialize(ID_LENSDRAW_AZIMUTH, & 
       & "Aziumuth", real(232.2),real(0.0),real(360.0), &
-      & "", "", UITYPE_SPINBUTTON)       
+      & "AZI", "AZI "//trim(real2str(232.2)), UITYPE_SPINBUTTON)       
 
       call self%addLensDrawScaleSettings()
 
       self%numSettings = self%numSettings + 1
-      call self%ps(self%numSettings)%initialize(ID_LENSDRAW_AUTOSCALE_VALUE, &
+      call self%ps(self%numSettings)%initialize(ID_LENSDRAW_AUTOSCALE_VALUE, & 
       & "Manual Scale Factor", 0.045,real(0.0),real(10000.0), &
-      & "SSI", "SSI "//trim(real2str(0.045,5)), UITYPE_SPINBUTTON)
+      & "SSI", "SSI "//trim(real2str(0.045,5)), UITYPE_SPINBUTTON)             
 
-      ! GO pseudo-setting: no UI widget (uitype=99), but fullCmd="GO" so
-      ! generatePlotCommand always ends with "; GO" for VIE replay.
-      self%numSettings = self%numSettings + 1
-      call self%ps(self%numSettings)%initialize(ID_LENSDRAW_GO_CMD, &
-      & "GO", 0.0, 0.0, 0.0, "GO", "GO", 99)
 
       ! Toolbar settings
       call self%addPlotManipToolbarSettings()
@@ -769,21 +763,26 @@ contains
 
             select type(newVal)
               type is (integer)
+                !call LogTermFOR("Upating Setting int value")
+                !call LogTermFOR("New value is "//int2str(newVal))
                 self%ps(i)%default = real(newVal)
-                if (len_trim(self%ps(i)%cmd) > 0) &
-                & self%ps(i)%fullCmd = trim(self%ps(i)%cmd)//" "//trim(int2str(newVal))
+                self%ps(i)%fullCmd = trim(self%ps(i)%cmd)// &
+                & " "//trim(int2str(newVal))
+                !call LogTermFOR("Setting Code is "//int2str(setting_code))
+                !call LogTermFOR("Defauls is "//int2str(INT(self%ps(i)%default)))
               type is (character(*))
                 self%ps(i)%defaultStr = newVal
-                if (len_trim(self%ps(i)%cmd) > 0) &
-                & self%ps(i)%fullCmd = trim(self%ps(i)%cmd)//" "//newVal
+                self%ps(i)%fullCmd = trim(self%ps(i)%cmd)// &
+                & " "//newVal       
+                !call LogTermFOR("Updated Char val to "//self%ps(i)%defaultStr) 
                 type is (double precision)
                 self%ps(i)%default = real(newVal)
-                if (len_trim(self%ps(i)%cmd) > 0) &
-                & self%ps(i)%fullCmd = trim(self%ps(i)%cmd)//" "//trim(real2str(newVal))
+                self%ps(i)%fullCmd = trim(self%ps(i)%cmd)// &
+                & " "//trim(real2str(newVal))                  
                 type is (real)
                 self%ps(i)%default = real(newVal)
-                if (len_trim(self%ps(i)%cmd) > 0) &
-                & self%ps(i)%fullCmd = trim(self%ps(i)%cmd)//" "//trim(real2str(newVal))
+                self%ps(i)%fullCmd = trim(self%ps(i)%cmd)// &
+                & " "//trim(real2str(newVal))                    
             end select
           end if
         
