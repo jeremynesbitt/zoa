@@ -281,8 +281,41 @@ module procedure execSUR
     end procedure
 
     module procedure execAsphere
-        ! This does nothing for now
+        use command_utils, only: parseCommandIntoTokens
+        use mod_lens_data_manager
+        implicit none
 
+        character(len=80) :: tokens(40)
+        integer :: numTokens, surfNum
+
+        call parseCommandIntoTokens(iptStr, tokens, numTokens, ' ')
+
+        if (numTokens < 2 .or. .not. isSurfCommand(trim(tokens(2)))) then
+            call zoa_emit("ASP: usage: ASP Sk", "red")
+            return
+        end if
+        surfNum = getSurfNumFromSurfCommand(trim(tokens(2)))
+        call ldm%setSurfaceToAsphere(surfNum)
+        call executeCodeVLensUpdateCommand('CHG '//trim(int2str(surfNum)), exitLensUpdate=.TRUE.)
+    end procedure
+
+    module procedure execSphere
+        use command_utils, only: parseCommandIntoTokens
+        use mod_lens_data_manager
+        implicit none
+
+        character(len=80) :: tokens(40)
+        integer :: numTokens, surfNum
+
+        call parseCommandIntoTokens(iptStr, tokens, numTokens, ' ')
+
+        if (numTokens < 2 .or. .not. isSurfCommand(trim(tokens(2)))) then
+            call zoa_emit("SPH: usage: SPH Sk", "red")
+            return
+        end if
+        surfNum = getSurfNumFromSurfCommand(trim(tokens(2)))
+        call ldm%setSurfaceToSphere(surfNum)
+        call executeCodeVLensUpdateCommand('CHG '//trim(int2str(surfNum)), exitLensUpdate=.TRUE.)
     end procedure
 
     module procedure updateAsphereTerms

@@ -255,7 +255,10 @@
    end subroutine execMTF     
    module subroutine execAsphere(iptStr)
     character(len=*) :: iptStr
-   end subroutine execAsphere    
+   end subroutine execAsphere
+   module subroutine execSphere(iptStr)
+    character(len=*) :: iptStr
+   end subroutine execSphere
    module subroutine updateAsphereTerms(iptStr)
     character(len=*) :: iptStr
    end subroutine updateAsphereTerms   

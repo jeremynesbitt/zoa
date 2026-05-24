@@ -1323,10 +1323,11 @@ function createModMenu(btn, surf, colIdx) result(menuOptions)
 end function
 
 subroutine updateSurfaceType(widget, gdata) bind(c)
-  use DATLEN, only: ALENS
-  use mod_lens_data_manager, only: ldm
+  use mod_surface, only: surf_is_asphere
+  use type_utils, only: int2str
   type(c_ptr), value, intent(in) :: widget, gdata
-  integer :: selection, surfIdx, oldVal
+  integer :: selection, surfIdx
+  logical :: wasAsphere
   character(len=100) :: rcCode
   type(c_ptr) :: cStr
 
@@ -1335,18 +1336,14 @@ subroutine updateSurfaceType(widget, gdata) bind(c)
   surfIdx = getSurfaceIndexFromRowColumnCode(trim(rcCode))
 
   selection = gtk_drop_down_get_selected(widget)
-  oldVal = ALENS(8,surfIdx)
+  wasAsphere = surf_is_asphere(surfIdx)
+
   select case (selection)
   case(0) ! Sphere
-    ALENS(8,surfIdx) = 0
+    if (wasAsphere) call PROCESSILENT("SPH S"//trim(int2str(surfIdx)))
   case(1) ! Asphere
-    ALENS(8,surfIdx) = 1
+    if (.not. wasAsphere) call PROCESSILENT("ASP S"//trim(int2str(surfIdx)))
   end select
-
-  if (oldVal - ALENS(8,surfIdx) .NE. 0) then
-    call ldm%load_surfaces_from_alens()
-    call rebuildLensEditorTable()
-  end if
 
 end subroutine
 
