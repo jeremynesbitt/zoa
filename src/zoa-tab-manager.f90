@@ -448,7 +448,6 @@ function isUISettingDifferent(widget, ps) result(boolResult)
     uiValue = gtk_spin_button_get_value (widget)
     if (uiValue /= ps%default) then
       boolResult = .TRUE.
-        call gtk_spin_button_set_value(widget, real(ps%default,8))
     end if
 
   case(UITYPE_ENTRY)

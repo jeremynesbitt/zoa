@@ -399,11 +399,14 @@ module procedure execSUR
     contains
 
         subroutine applyConicUpdate(s, val)
+            use type_utils, only: int2str
             integer, intent(in)      :: s
             real(real64), intent(in) :: val
             call set_surf_conic(s, val)
             ! Mirror what the KDP CC handler does: mark asphere when K != 0
             if (val /= 0.0_real64) call set_surf_asphere_flag(s, .true.)
+            call ldm%load_surfaces_from_alens()
+            call executeCodeVLensUpdateCommand('CHG '//trim(int2str(s)), exitLensUpdate=.TRUE.)
         end subroutine
 
     end procedure
