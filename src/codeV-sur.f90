@@ -328,7 +328,7 @@ module procedure execSUR
     ! K Sk - return val on current lens (not currently implemented) 
     module procedure updateConicConstant
         use command_utils, only: isInputNumber, parseCommandIntoTokens
-        use mod_surface, only: set_surf_conic
+        use mod_surface, only: set_surf_conic, set_surf_asphere_flag, surf_is_asphere
         use mod_lens_data_manager
         implicit none
 
@@ -347,7 +347,7 @@ module procedure execSUR
             else if (isInputNumber(trim(tokens(2)))) then
                 surfNum = ldm%getSurfacePointer()
                 read(tokens(2), *) newVal
-                call set_surf_conic(surfNum, newVal)
+                call applyConicUpdate(surfNum, newVal)
                 return
             end if
         case(3)
@@ -355,13 +355,23 @@ module procedure execSUR
                 surfNum = getSurfNumFromSurfCommand(trim(tokens(2)))
                 if (isInputNumber(trim(tokens(3)))) then
                     read(tokens(3), *) newVal
-                    call set_surf_conic(surfNum, newVal)
+                    call applyConicUpdate(surfNum, newVal)
                     return
                 end if
             end if
         end select
 
         call zoa_emit("K: usage: K [Sk] value", "red")
+
+    contains
+
+        subroutine applyConicUpdate(s, val)
+            integer, intent(in)      :: s
+            real(real64), intent(in) :: val
+            call set_surf_conic(s, val)
+            ! Mirror what the KDP CC handler does: mark asphere when K != 0
+            if (val /= 0.0_real64) call set_surf_asphere_flag(s, .true.)
+        end subroutine
 
     end procedure
 
