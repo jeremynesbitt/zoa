@@ -1,10 +1,3 @@
-All constraints removed
-
-
-CMD LEVEL
-
-
-
 
 Field Weights Command WTF     100     100     100 Not supported
 ENTRANCE PUPIL
@@ -14,7 +7,7 @@ INFINITE CONJUGATES
 EFL       50.0107
 BFL       38.5152
 FFL       -44.5831
-FNO       8.0881
+FNO       5.0011
 IMG DIS   38.5152
 OAL       16.6000
 PARAXIAL IMAGE
@@ -24,5 +17,5 @@ ENTRANCE PUPIL
 DIA       10.0000
 THI       6.7224
 EXIT PUPIL
-DIA       7.5775
-THI       -27.7857
+DIA       9.7476
+THI       -10.2334

@@ -1399,7 +1399,7 @@ SUBROUTINE INITKDP
 !     A CLEAN LENS LOAD WITHOUT THE COMMAND ERRORS FROM LENSTEXT.DAT.
    SPL=trim(getTempDirectory())//getCurrentLensFileName()
    INQUIRE(FILE=trim(SPL),EXIST=EXIS89)
-   IF(EXIS89) call process_zoa_file(trim(SPL))
+   IF(EXIS89 .AND. .NOT. HEADLESS_MODE) call process_zoa_file(trim(SPL))
    IN=OLDIN
    OPTMES=.TRUE.
    !PRINT *, "Got to line 1470"

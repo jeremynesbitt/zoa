@@ -7,7 +7,7 @@ INFINITE CONJUGATES
 EFL       1.0000000000000000E+020
 BFL       1.0000000000000000E+020
 FFL       1.0000000000000000E+020
-FNO       303.4211
+FNO       0.0000
 IMG DIS   0.0000
 OAL       0.0000
 PARAXIAL IMAGE
@@ -17,13 +17,13 @@ ENTRANCE PUPIL
 DIA       2.0000
 THI       0.0000
 EXIT PUPIL
-DIA       2.0025
-THI       -0.7561
+DIA       NaN
+THI       NaN
    New Lens From Template
 SRF     HMY       UMY       HCY       UCY
 OBJ   0.00000   0.00000   1.00000  -0.00000
 STO   1.00000   0.00000   0.00000  -0.00000
-IMG   1.00000  -0.00165  -0.00000  -0.00000
+IMG   1.00000       NaN  -0.00000       NaN
 RSI fields are 1
 RSI wavelengths are 1
 Relative X Aperture is 0.00000

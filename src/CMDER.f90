@@ -384,8 +384,8 @@ SUBROUTINE CMDER
       END IF
       IF(WC.EQ.'CV2PRG')THEN
          CALL CV2PRG
-         ! Save lens in temp folder
-         CALL execSav('SAV')
+         ! Save lens in temp folder (skip in headless/test mode to avoid polluting test state)
+         IF(.NOT.HEADLESS_MODE) CALL execSav('SAV')
          RETURN
       END IF
       ! ZMX2PRG, ECHO migrated to codeV-commands.f90

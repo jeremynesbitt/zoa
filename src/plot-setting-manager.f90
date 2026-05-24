@@ -205,9 +205,9 @@ contains
 
 
       self%numSettings = self%numSettings + 1
-      call self%ps(self%numSettings)%initialize(ID_LENSDRAW_PLOT_ORIENTATION, & 
+      call self%ps(self%numSettings)%initialize(ID_LENSDRAW_PLOT_ORIENTATION, &
       & "Plot Orientation", real(ID_LENSDRAW_YZ_PLOT_ORIENTATION),0.0,0.0, &
-      & "ORIENT", "ORIENT YZ", UITYPE_COMBO, set=set)
+      & "ORIENT", "", UITYPE_COMBO, set=set)
       
 
     end subroutine
@@ -835,7 +835,9 @@ contains
 
       strOut = trim(self%baseCmd)
       do i=1,self%numSettings
-        strOut = trim(strOut) // " ; "//self%ps(i)%fullCmd
+        if (len_trim(self%ps(i)%fullCmd) > 0) then
+          strOut = trim(strOut) // " ; "//self%ps(i)%fullCmd
+        end if
       end do
 
       strOut = trim(strOut) // " ; GO"
