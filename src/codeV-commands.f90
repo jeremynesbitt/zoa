@@ -456,10 +456,42 @@ module codeV_commands
         character(len=*) :: iptCmd
         integer :: ii
         logical :: boolResult
+        integer :: spacePos
+        character(len=40) :: valStr
 
         boolResult = .FALSE.
 
-    
+        ! VIE-loop subcommands — only valid inside a VIE ; ... ; GO sequence.
+        ! These update curr_psm settings; they are not general CLI commands.
+        if (cmd_loop == VIE_LOOP) then
+            spacePos = index(trim(currentCommand), ' ')
+            if (spacePos > 0) then
+                valStr = adjustl(currentCommand(spacePos+1:))
+                select case (trim(iptCmd))
+                case ('NUMRAYS')
+                    call curr_psm%updateSetting(ID_LENSDRAW_NUM_FIELD_RAYS, &
+                        & str2int(trim(valStr)))
+                    boolResult = .TRUE.; return
+                case ('DRAWSI')
+                    call curr_psm%updateSetting(ID_LENS_FIRSTSURFACE, &
+                        & str2int(trim(valStr)))
+                    boolResult = .TRUE.; return
+                case ('DRAWSF')
+                    call curr_psm%updateSetting(ID_LENS_LASTSURFACE, &
+                        & str2int(trim(valStr)))
+                    boolResult = .TRUE.; return
+                case ('ELEV')
+                    call curr_psm%updateSetting(ID_LENSDRAW_ELEVATION, &
+                        & real(str2real8(trim(valStr)), real64))
+                    boolResult = .TRUE.; return
+                case ('AZI')
+                    call curr_psm%updateSetting(ID_LENSDRAW_AZIMUTH, &
+                        & real(str2real8(trim(valStr)), real64))
+                    boolResult = .TRUE.; return
+                end select
+            end if
+        end if
+
         do ii=1,size(zoaCmds)
         if (iptCmd == zoaCmds(ii)%cmd) then
             if (cmd_loop == TOW_LOOP .AND. iptCmd /= 'GO') then
