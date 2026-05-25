@@ -341,6 +341,13 @@ contains
     module procedure execTHO
         use global_widgets, only: sysConfig
         implicit none
+        interface
+            subroutine MMAB3_NEW(YFLAG, idxWV, printTable)
+                logical, intent(in) :: YFLAG
+                integer, intent(in) :: idxWV
+                logical, optional, intent(in) :: printTable
+            end subroutine
+        end interface
         call MMAB3_NEW(.TRUE., sysConfig%refWavelengthIndex, .TRUE.)
     end procedure execTHO
 

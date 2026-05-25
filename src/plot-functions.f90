@@ -510,6 +510,13 @@ subroutine seidel_go(psm)
     use type_utils, only: int2str, str2int
     use DATMAI
     use iso_c_binding, only: c_ptr, c_null_ptr
+    interface
+        subroutine MMAB3_NEW(YFLAG, idxWV, printTable)
+            logical, intent(in) :: YFLAG
+            integer, intent(in) :: idxWV
+            logical, optional, intent(in) :: printTable
+        end subroutine
+    end interface
 
     type(zoaplot_setting_manager) :: psm
     integer, parameter :: nS = 7 ! number of seidel terms to plot
