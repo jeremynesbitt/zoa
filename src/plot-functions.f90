@@ -533,9 +533,7 @@ subroutine seidel_go(psm)
 
 
     call ioConfig%setTextViewFromPtr(getTabTextView(objIdx))
-    call PROCESKDP("MAB3 ALL")
-  
-    call MMAB3_NEW(.TRUE., psm%getWavelengthSetting())
+    call MMAB3_NEW(.TRUE., psm%getWavelengthSetting(), .TRUE.)
     call ioConfig%setTextView(ID_TERMINAL_DEFAULT)
     
     allocate(seidel(nS,curr_lens_data%num_surfaces+1))

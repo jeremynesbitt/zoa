@@ -341,8 +341,7 @@ contains
     module procedure execTHO
         use global_widgets, only: sysConfig
         implicit none
-        call PROCESKDP("MAB3 ALL")
-        call MMAB3_NEW(.TRUE., sysConfig%refWavelengthIndex)
+        call MMAB3_NEW(.TRUE., sysConfig%refWavelengthIndex, .TRUE.)
     end procedure execTHO
 
 end submodule mod_codev_utils
