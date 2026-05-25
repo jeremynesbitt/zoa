@@ -428,7 +428,9 @@ SUBROUTINE CMDER
          RETURN
       END IF
       ! Check if we have a CodeV command to execute
-      If (startCodeVLensUpdateCmd(WC)) return
+      If (startCodeVLensUpdateCmd(WC)) then
+         return
+      end if
 
       IF(WC.EQ.'MACROUI') THEN
          IF(HEADLESS_MODE) THEN

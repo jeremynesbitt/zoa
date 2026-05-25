@@ -290,13 +290,19 @@ module procedure execSUR
 
         call parseCommandIntoTokens(iptStr, tokens, numTokens, ' ')
 
-        if (numTokens < 2 .or. .not. isSurfCommand(trim(tokens(2)))) then
-            call zoa_emit("ASP: usage: ASP Sk", "red")
-            return
-        end if
-        surfNum = getSurfNumFromSurfCommand(trim(tokens(2)))
+        select case (numTokens)
+        case (1)
+            surfNum = ldm%getSurfacePointer()
+        case default
+            if (.not. isSurfCommand(trim(tokens(2)))) then
+                call zoa_emit("ASP: usage: ASP [Sk]", "red")
+                return
+            end if
+            surfNum = getSurfNumFromSurfCommand(trim(tokens(2)))
+        end select
+
         call ldm%setSurfaceType(surfNum, 'ASP')
-        call executeCodeVLensUpdateCommand('CHG '//trim(int2str(surfNum)), exitLensUpdate=.TRUE.)
+        call executeCodeVLensUpdateCommand('CHG '//trim(int2str(surfNum)))
     end procedure
 
     module procedure execSphere
@@ -351,8 +357,6 @@ module procedure execSUR
 
         end select
         call execTranslatedSurfCmd(iptStr, aspKDP)
-        !call executeCodeVLensUpdateCommand(aspKDP//' '//trim(tokens(2)), debugFlag=.TRUE.)
-        print *, "tried to execute ", aspKDP//' '//trim(tokens(2))
     end procedure   
     
     ! Format
@@ -406,7 +410,7 @@ module procedure execSUR
             ! Mirror what the KDP CC handler does: mark asphere when K != 0
             if (val /= 0.0_real64) call set_surf_asphere_flag(s, .true.)
             call ldm%load_surfaces_from_alens()
-            call executeCodeVLensUpdateCommand('CHG '//trim(int2str(s)), exitLensUpdate=.TRUE.)
+            call executeCodeVLensUpdateCommand('CHG '//trim(int2str(s)))
         end subroutine
 
     end procedure
@@ -438,17 +442,17 @@ module procedure execSUR
             if (isSurfCommand(trim(tokens(2)))) then
                     surfNum = getSurfNumFromSurfCommand(trim(tokens(2)))
             else
-                if (isInputNumber(trim(tokens(2)))) then 
+                if (isInputNumber(trim(tokens(2)))) then
                     ! Use current surface
-                    surfNum = ldm%getSurfacePointer()                
-                    call executeCodeVLensUpdateCommand(kdpCmd//' '//trim(tokens(2)), debugFlag=.TRUE.)
+                    surfNum = ldm%getSurfacePointer()
+                    call executeCodeVLensUpdateCommand(kdpCmd//' '//trim(tokens(2)))
                     return 
                 else
                     ! Some commands are not numbers
                     if (trim(kdpCmd) == 'LBL') then 
                         surfNum = ldm%getSurfacePointer()    
                         tokens(2) = removeQuotes(trim(tokens(2)))
-                        call executeCodeVLensUpdateCommand(kdpCmd//' '//trim(tokens(2)), debugFlag=.TRUE.)   
+                        call executeCodeVLensUpdateCommand(kdpCmd//' '//trim(tokens(2)))
                         return 
                     end if                       
 
@@ -463,10 +467,9 @@ module procedure execSUR
             if (isSurfCommand(trim(tokens(2)))) then
                 surfNum = getSurfNumFromSurfCommand(trim(tokens(2)))  
             end if          
-            if (isInputNumber(trim(tokens(3)))) then 
-                PRINT *, "ABout to execitue change for "//kdpCmd
+            if (isInputNumber(trim(tokens(3)))) then
                 call executeCodeVLensUpdateCommand('CHG '//trim(int2str(surfNum))// &
-                & '; '//kdpCmd//' '//trim(tokens(3)), debugFlag=.TRUE.)   
+                & '; '//kdpCmd//' '//trim(tokens(3)))
                 return 
             else
                 ! Special case

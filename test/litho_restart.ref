@@ -6,31 +6,7 @@ THE CURRENT INI IS BLANK
 Restoring from: /Users/jeremy/Library/Application Support/Zoa/Temp/templens.zoa
 
 Field Weights Command WTF     100     100     100 Not supported
-ASP: usage: ASP Sk
-ASP: usage: ASP Sk
-OBJECT SURFACE MAY NOT BE ASPHERIC
-RE-ENTER COMMAND
-INVALID CMD LEVEL COMMAND
-OBJECT SURFACE MAY NOT BE ASPHERIC
-RE-ENTER COMMAND
-INVALID CMD LEVEL COMMAND
-OBJECT SURFACE MAY NOT BE ASPHERIC
-RE-ENTER COMMAND
-INVALID CMD LEVEL COMMAND
-OBJECT SURFACE MAY NOT BE ASPHERIC
-RE-ENTER COMMAND
-INVALID CMD LEVEL COMMAND
-OBJECT SURFACE MAY NOT BE ASPHERIC
-RE-ENTER COMMAND
-INVALID CMD LEVEL COMMAND
-INVALID CMD LEVEL COMMAND
-  Command: EOS
-OBJECT SURFACE MAY NOT BE ASPHERIC
-RE-ENTER COMMAND
-INVALID CMD LEVEL COMMAND
-OBJECT SURFACE MAY NOT BE ASPHERIC
-RE-ENTER COMMAND
-INVALID CMD LEVEL COMMAND
+
 CURRENT LENS DATA LISTING
 Lithographic system, Kotaro
 THE CURRENT LIC IS BLANK
@@ -38,10 +14,10 @@ THE CURRENT INI IS BLANK
 THE CURRENT LTYPE IS BLANK
 UNITS = MILLIMETERS
 REF OBJ Y-HT                    REF AP Y-HT         OBJ SF#  REF SF#  IMG SF#
-  39.0780    ( -44.03     DG)      40.30                 0        1       36
+  39.0780    ( -44.03     DG)      81.28                 0       41       61
 
 REF OBJ X-HT                    REF AP X-HT         OBJ SF#  REF SF#  IMG SF#
-  39.0780    ( -44.03     DG)      506.6                 0        1       36
+  39.0780    ( -44.03     DG)      81.28                 0       41       61
  THERE ARE CURRENTLY            3  ANALYSIS FIELD POSITIONS DEFINED
  UNITS ARE DEGREES
 POS # =  1 X-VALUE =   0.00000     Y-VALUE =   0.00000
@@ -49,10 +25,10 @@ POS # =  2 X-VALUE =   0.00000     Y-VALUE =  0.700000
 POS # =  3 X-VALUE =   0.00000     Y-VALUE =   1.00000
 YZ-PLANE FIRST ORDER OPERATING CONDITIONS
   EFL          BFD          IMG F-NUM    LENGTH       OAL          T-MAG
-  531.03       8.8782     -0.41887       413.31       453.74      -6.3201
+  657.34       0.0000      0.66395       768.09       808.51     -0.24873
 XZ-PLANE FIRST ORDER OPERATING CONDITIONS
   EFL          BFD          IMG F-NUM    LENGTH       OAL          T-MAG
-  321.02       8.8782     -0.34765E-01   413.31       453.74      -6.3201
+  660.04       0.0000      0.99747E-02   768.09       808.51     -0.25000
 SEMI-APERTURE REFERENCE RAY HEIGHT AT SURFACE #1
 SAY(YZ-PLANE IN LENS UNITS) =    0.506600010000000D+03
 
@@ -66,17 +42,15 @@ WAVL NBR          6            7            8            9            10
 WAVELENGTH     0.0000       0.0000       0.0000       0.0000       0.0000
 SPECTRAL WT    0.000        0.000        0.000        0.000        0.000
 EVALUATION MODE IS FOCAL
-THE CURRENT APERTURE STOP SURFACE IS SURFACE #   1
+THE CURRENT APERTURE STOP SURFACE IS SURFACE #  41
 SPECIAL CONDITIONS
 
- 36           VERTEX
+ 61           VERTEX
 BASIC LENS DATA (RADIUS MODE)
 
 SURF  RADIUS        THICKNESS          MATERIAL          INDEX        V-NUM
-  0*   0.00000       40.4256             AIR
-  0*Conic,Asphere
-  1*   0.00000       0.00000     SPECIAL SILICA          1.50839       0.00
-  1*REFS,STOP
+  0    0.00000       40.4256             AIR
+  1   -371.967       12.1277     SPECIAL SILICA          1.50839       0.00
   2    179.159       2.10219             AIR
   3    204.531       17.1084     SPECIAL SILICA          1.50839       0.00
   4   -236.350      0.336880             AIR
@@ -112,15 +86,46 @@ SURF  RADIUS        THICKNESS          MATERIAL          INDEX        V-NUM
  34*   103.578       31.1633             AIR
  34*Conic,Asphere
  35   -104.174       8.87819     SPECIAL SILICA          1.50839       0.00
- 36    0.00000       0.00000             LAST SURFACE
+ 36   -467.347       18.5183             AIR
+ 37   -101.923       15.6215     SPECIAL SILICA          1.50839       0.00
+ 38   -28224.7       12.2531             AIR
+ 39*  -525.591       17.4335     SPECIAL SILICA          1.50839       0.00
+ 39*Conic,Asphere
+ 40   -145.606       1.47632             AIR
+ 41*   0.00000       8.52305             AIR
+ 41*REFS,STOP
+ 42    7811.10       26.6560     SPECIAL SILICA          1.50839       0.00
+ 43   -192.827      0.336880             AIR
+ 44    302.545       33.2661     SPECIAL SILICA          1.50839       0.00
+ 45   -302.590       13.2004             AIR
+ 46   -192.613       14.7970     SPECIAL SILICA          1.50839       0.00
+ 47   -269.504       3.04940             AIR
+ 48    272.601       19.4848     SPECIAL SILICA          1.50839       0.00
+ 49    1684.40       2.29147             AIR
+ 50    187.826       23.3057     SPECIAL SILICA          1.50839       0.00
+ 51    815.472      0.336880             AIR
+ 52    108.475       25.3427     SPECIAL SILICA          1.50839       0.00
+ 53    232.145       1.16308             AIR
+ 54    100.816       19.2185     SPECIAL SILICA          1.50839       0.00
+ 55    196.833       6.47083             AIR
+ 56    370.568       8.75888     SPECIAL SILICA          1.50839       0.00
+ 57    59.8901       18.5284             AIR
+ 58    57.6516       43.9879     SPECIAL SILICA          1.50839       0.00
+ 59    331.992       8.62815             AIR
+ 60    0.00000       0.00000             AIR
+ 61    0.00000       0.00000             LAST SURFACE
 CONIC AND 4th THROUGH 10th ORDER ASPHERIC DATA
 (+) - DESIGNATES A PLANO SURFACE WITH A 2ND ORDER ASPHERIC
 TERM IN THE SECOND COLUMN INSTEAD OF A CONIC CONSTANT
 
 SURF   CC/AC           AD            AE            AF            AG
-  0   0.00000       0.00000       0.00000       0.00000       0.00000     (+)
  34  0.902930E-01 -0.228205E-07 -0.419024E-11 -0.378202E-15 -0.221653E-19
-NO 12th through 20th ORDER ASPHERIC DATA
+ 39   4.38088     -0.645153E-08  0.325098E-12 -0.241122E-16  0.610779E-20
+ASPHERIC DATA (12th THROUGH 20th ORDERS
+
+SURF     AH            AI            AJ            AK            AL
+ 34   0.00000       0.00000       0.00000       0.00000       0.00000
+ 39 -0.570975E-24  0.242582E-28 -0.145710E-33   0.00000       0.00000
 NO CONIC OR ASPHERIC ANAMORPHIC DATA
 NO DEFORMABLE SURFACE DATA
 NO TILT AND DECENTER DATA
@@ -163,6 +168,31 @@ SURF    TYPE   Y-SEMI.    X-SEMI.    Y-DEC      X-DEC  CORNER-RADIUS TILT(DEG)
  32     CIRC   58.0       58.0
  33     CIRC   57.0       57.0
  34     CIRC   52.4       52.4
+ 35     CIRC   52.4       52.4
+ 36     CIRC   55.9       55.9
+ 37     CIRC   56.9       56.9
+ 38     CIRC   68.7       68.7
+ 39     CIRC   72.8       72.8
+ 40     CIRC   73.9       73.9
+ 41     CIRC   81.3       81.3
+ 42     CIRC   86.2       86.2
+ 43     CIRC   87.9       87.9
+ 44     CIRC   97.0       97.0
+ 45     CIRC   97.1       97.1
+ 46     CIRC   96.7       96.7
+ 47     CIRC   99.3       99.3
+ 48     CIRC   98.4       98.4
+ 49     CIRC   97.8       97.8
+ 50     CIRC   93.3       93.3
+ 51     CIRC   92.1       92.1
+ 52     CIRC   79.6       79.6
+ 53     CIRC   77.3       77.3
+ 54     CIRC   67.0       67.0
+ 55     CIRC   63.6       63.6
+ 56     CIRC   62.2       62.2
+ 57     CIRC   45.2       45.2
+ 58     CIRC   38.6       38.6
+ 59     CIRC   19.6       19.6
 REFRACTIVE INDEX DATA (WAVELENGTHS #1 TO #5)
 
 SURF    N1             N2             N3             N4             N5
@@ -238,8 +268,58 @@ SURF    N1             N2             N3             N4             N5
  34    1.00000        1.00000        1.00000        1.00000        1.00000
  35 SPECIAL       SILICA
  35    1.50839        1.00000        1.00000        1.00000        1.00000
- 36               LAST SURFACE
- 36    1.50839        1.00000        1.00000        1.00000        1.00000
+ 36               AIR
+ 36    1.00000        1.00000        1.00000        1.00000        1.00000
+ 37 SPECIAL       SILICA
+ 37    1.50839        1.00000        1.00000        1.00000        1.00000
+ 38               AIR
+ 38    1.00000        1.00000        1.00000        1.00000        1.00000
+ 39 SPECIAL       SILICA
+ 39    1.50839        1.00000        1.00000        1.00000        1.00000
+ 40               AIR
+ 40    1.00000        1.00000        1.00000        1.00000        1.00000
+ 41               AIR
+ 41    1.00000        1.00000        1.00000        1.00000        1.00000
+ 42 SPECIAL       SILICA
+ 42    1.50839        1.00000        1.00000        1.00000        1.00000
+ 43               AIR
+ 43    1.00000        1.00000        1.00000        1.00000        1.00000
+ 44 SPECIAL       SILICA
+ 44    1.50839        1.00000        1.00000        1.00000        1.00000
+ 45               AIR
+ 45    1.00000        1.00000        1.00000        1.00000        1.00000
+ 46 SPECIAL       SILICA
+ 46    1.50839        1.00000        1.00000        1.00000        1.00000
+ 47               AIR
+ 47    1.00000        1.00000        1.00000        1.00000        1.00000
+ 48 SPECIAL       SILICA
+ 48    1.50839        1.00000        1.00000        1.00000        1.00000
+ 49               AIR
+ 49    1.00000        1.00000        1.00000        1.00000        1.00000
+ 50 SPECIAL       SILICA
+ 50    1.50839        1.00000        1.00000        1.00000        1.00000
+ 51               AIR
+ 51    1.00000        1.00000        1.00000        1.00000        1.00000
+ 52 SPECIAL       SILICA
+ 52    1.50839        1.00000        1.00000        1.00000        1.00000
+ 53               AIR
+ 53    1.00000        1.00000        1.00000        1.00000        1.00000
+ 54 SPECIAL       SILICA
+ 54    1.50839        1.00000        1.00000        1.00000        1.00000
+ 55               AIR
+ 55    1.00000        1.00000        1.00000        1.00000        1.00000
+ 56 SPECIAL       SILICA
+ 56    1.50839        1.00000        1.00000        1.00000        1.00000
+ 57               AIR
+ 57    1.00000        1.00000        1.00000        1.00000        1.00000
+ 58 SPECIAL       SILICA
+ 58    1.50839        1.00000        1.00000        1.00000        1.00000
+ 59               AIR
+ 59    1.00000        1.00000        1.00000        1.00000        1.00000
+ 60               AIR
+ 60    1.00000        1.00000        1.00000        1.00000        1.00000
+ 61               LAST SURFACE
+ 61    1.00000        1.00000        1.00000        1.00000        1.00000
 REFRACTIVE INDEX DATA (WAVELENGTHS #6 TO #10)
 
 SURF    N6             N7             N8             N9             N10
@@ -315,8 +395,58 @@ SURF    N6             N7             N8             N9             N10
  34    1.00000        1.00000        1.00000        1.00000        1.00000
  35 SPECIAL       SILICA
  35    1.00000        1.00000        1.00000        1.00000        1.00000
- 36               LAST SURFACE
+ 36               AIR
  36    1.00000        1.00000        1.00000        1.00000        1.00000
+ 37 SPECIAL       SILICA
+ 37    1.00000        1.00000        1.00000        1.00000        1.00000
+ 38               AIR
+ 38    1.00000        1.00000        1.00000        1.00000        1.00000
+ 39 SPECIAL       SILICA
+ 39    1.00000        1.00000        1.00000        1.00000        1.00000
+ 40               AIR
+ 40    1.00000        1.00000        1.00000        1.00000        1.00000
+ 41               AIR
+ 41    1.00000        1.00000        1.00000        1.00000        1.00000
+ 42 SPECIAL       SILICA
+ 42    1.00000        1.00000        1.00000        1.00000        1.00000
+ 43               AIR
+ 43    1.00000        1.00000        1.00000        1.00000        1.00000
+ 44 SPECIAL       SILICA
+ 44    1.00000        1.00000        1.00000        1.00000        1.00000
+ 45               AIR
+ 45    1.00000        1.00000        1.00000        1.00000        1.00000
+ 46 SPECIAL       SILICA
+ 46    1.00000        1.00000        1.00000        1.00000        1.00000
+ 47               AIR
+ 47    1.00000        1.00000        1.00000        1.00000        1.00000
+ 48 SPECIAL       SILICA
+ 48    1.00000        1.00000        1.00000        1.00000        1.00000
+ 49               AIR
+ 49    1.00000        1.00000        1.00000        1.00000        1.00000
+ 50 SPECIAL       SILICA
+ 50    1.00000        1.00000        1.00000        1.00000        1.00000
+ 51               AIR
+ 51    1.00000        1.00000        1.00000        1.00000        1.00000
+ 52 SPECIAL       SILICA
+ 52    1.00000        1.00000        1.00000        1.00000        1.00000
+ 53               AIR
+ 53    1.00000        1.00000        1.00000        1.00000        1.00000
+ 54 SPECIAL       SILICA
+ 54    1.00000        1.00000        1.00000        1.00000        1.00000
+ 55               AIR
+ 55    1.00000        1.00000        1.00000        1.00000        1.00000
+ 56 SPECIAL       SILICA
+ 56    1.00000        1.00000        1.00000        1.00000        1.00000
+ 57               AIR
+ 57    1.00000        1.00000        1.00000        1.00000        1.00000
+ 58 SPECIAL       SILICA
+ 58    1.00000        1.00000        1.00000        1.00000        1.00000
+ 59               AIR
+ 59    1.00000        1.00000        1.00000        1.00000        1.00000
+ 60               AIR
+ 60    1.00000        1.00000        1.00000        1.00000        1.00000
+ 61               LAST SURFACE
+ 61    1.00000        1.00000        1.00000        1.00000        1.00000
 
 SURFACE "SPECIFIC GRAVITY (gm/cc)" VALUES
 
@@ -358,6 +488,31 @@ SURF     "SPGR" VALUE (IN CURRENT LENS UNITS)
  34             0.0000000
  35             0.0000000
  36             0.0000000
+ 37             0.0000000
+ 38             0.0000000
+ 39             0.0000000
+ 40             0.0000000
+ 41             0.0000000
+ 42             0.0000000
+ 43             0.0000000
+ 44             0.0000000
+ 45             0.0000000
+ 46             0.0000000
+ 47             0.0000000
+ 48             0.0000000
+ 49             0.0000000
+ 50             0.0000000
+ 51             0.0000000
+ 52             0.0000000
+ 53             0.0000000
+ 54             0.0000000
+ 55             0.0000000
+ 56             0.0000000
+ 57             0.0000000
+ 58             0.0000000
+ 59             0.0000000
+ 60             0.0000000
+ 61             0.0000000
 NO LINEAR DIFFRATION GRATING DATA FOUND
 NO SOLVE DATA
 NO PIKUP DATA
@@ -401,6 +556,31 @@ SURF       SURFACE TYPE
  34           REAL
  35           REAL
  36           REAL
+ 37           REAL
+ 38           REAL
+ 39           REAL
+ 40           REAL
+ 41           REAL
+ 42           REAL
+ 43           REAL
+ 44           REAL
+ 45           REAL
+ 46           REAL
+ 47           REAL
+ 48           REAL
+ 49           REAL
+ 50           REAL
+ 51           REAL
+ 52           REAL
+ 53           REAL
+ 54           REAL
+ 55           REAL
+ 56           REAL
+ 57           REAL
+ 58           REAL
+ 59           REAL
+ 60           REAL
+ 61           REAL
 SURFACE FOOTBLOK DATA
 
 SURF     FOOTBLOK DEFINITION
@@ -441,6 +621,31 @@ SURF     FOOTBLOK DEFINITION
  34           OFF
  35           OFF
  36           OFF
+ 37           OFF
+ 38           OFF
+ 39           OFF
+ 40           OFF
+ 41           OFF
+ 42           OFF
+ 43           OFF
+ 44           OFF
+ 45           OFF
+ 46           OFF
+ 47           OFF
+ 48           OFF
+ 49           OFF
+ 50           OFF
+ 51           OFF
+ 52           OFF
+ 53           OFF
+ 54           OFF
+ 55           OFF
+ 56           OFF
+ 57           OFF
+ 58           OFF
+ 59           OFF
+ 60           OFF
+ 61           OFF
 SURFACE PIVAXIS DATA
 
 SURF     PIVAXIS DEFINITION
@@ -481,6 +686,31 @@ SURF     PIVAXIS DEFINITION
  34           VERTEX
  35           VERTEX
  36           VERTEX
+ 37           VERTEX
+ 38           VERTEX
+ 39           VERTEX
+ 40           VERTEX
+ 41           VERTEX
+ 42           VERTEX
+ 43           VERTEX
+ 44           VERTEX
+ 45           VERTEX
+ 46           VERTEX
+ 47           VERTEX
+ 48           VERTEX
+ 49           VERTEX
+ 50           VERTEX
+ 51           VERTEX
+ 52           VERTEX
+ 53           VERTEX
+ 54           VERTEX
+ 55           VERTEX
+ 56           VERTEX
+ 57           VERTEX
+ 58           VERTEX
+ 59           VERTEX
+ 60           VERTEX
+ 61           VERTEX
 SURFACE (FORCED DUMMY) DATA
 
 SURF     FORCED DUMMY SETTING
@@ -521,13 +751,38 @@ SURF     FORCED DUMMY SETTING
  34            NO/OFF
  35            NO/OFF
  36            NO/OFF
+ 37            NO/OFF
+ 38            NO/OFF
+ 39            NO/OFF
+ 40            NO/OFF
+ 41            NO/OFF
+ 42            NO/OFF
+ 43            NO/OFF
+ 44            NO/OFF
+ 45            NO/OFF
+ 46            NO/OFF
+ 47            NO/OFF
+ 48            NO/OFF
+ 49            NO/OFF
+ 50            NO/OFF
+ 51            NO/OFF
+ 52            NO/OFF
+ 53            NO/OFF
+ 54            NO/OFF
+ 55            NO/OFF
+ 56            NO/OFF
+ 57            NO/OFF
+ 58            NO/OFF
+ 59            NO/OFF
+ 60            NO/OFF
+ 61            NO/OFF
 
 SURFACE "INR" VALUES
 "INR" IS THE REFERENCE RADIUS FOR "FRINGE" CALCULATIONS
 
 SURF     "INR" VALUE (IN CURRENT LENS UNITS)
   0             39.078000
-  1             506.60001
+  1             545.08276
   2             49.794738
   3             50.411576
   4             51.344713
@@ -561,8 +816,33 @@ SURF     "INR" VALUE (IN CURRENT LENS UNITS)
  32             57.969070
  33             56.994441
  34             52.392702
- 35             3257.2502
- 36             3395.8689
+ 35             52.359768
+ 36             55.937572
+ 37             56.904229
+ 38             68.654717
+ 39             72.775496
+ 40             73.877075
+ 41             81.282223
+ 42             86.218595
+ 43             87.870373
+ 44             97.047834
+ 45             97.095412
+ 46             96.719891
+ 47             99.279872
+ 48             98.380038
+ 49             97.815108
+ 50             93.286133
+ 51             92.134518
+ 52             79.599279
+ 53             77.287996
+ 54             67.011230
+ 55             63.567799
+ 56             62.168994
+ 57             45.233639
+ 58             38.580871
+ 59             19.595907
+ 60             35.616430
+ 61             35.616430
 NO MIRROR THICKNESS DATA
 NO PRICE DATA
 SURFACE COATING NUMBER DATA
@@ -605,6 +885,31 @@ SURF    COATING NUMBER
  34     SURFACE NOT COATED
  35     SURFACE NOT COATED
  36     SURFACE NOT COATED
+ 37     SURFACE NOT COATED
+ 38     SURFACE NOT COATED
+ 39     SURFACE NOT COATED
+ 40     SURFACE NOT COATED
+ 41     SURFACE NOT COATED
+ 42     SURFACE NOT COATED
+ 43     SURFACE NOT COATED
+ 44     SURFACE NOT COATED
+ 45     SURFACE NOT COATED
+ 46     SURFACE NOT COATED
+ 47     SURFACE NOT COATED
+ 48     SURFACE NOT COATED
+ 49     SURFACE NOT COATED
+ 50     SURFACE NOT COATED
+ 51     SURFACE NOT COATED
+ 52     SURFACE NOT COATED
+ 53     SURFACE NOT COATED
+ 54     SURFACE NOT COATED
+ 55     SURFACE NOT COATED
+ 56     SURFACE NOT COATED
+ 57     SURFACE NOT COATED
+ 58     SURFACE NOT COATED
+ 59     SURFACE NOT COATED
+ 60     SURFACE NOT COATED
+ 61     SURFACE NOT COATED
 NO SPECIAL SURFACE DATA
 NO CONFIG DATA
 

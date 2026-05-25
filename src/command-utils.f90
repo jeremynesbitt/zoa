@@ -701,11 +701,12 @@ contains
     character(len=*) :: tstStr
     logical :: boolResult
     integer :: ierror, rerror, intVal
-    real :: realVal
 
     
+    real(kind=8) :: realVal8
+
     read(tstStr, '(i10)' , iostat=ierror) intval
-    read(tstStr, '(F9.4)', iostat=rerror) realVal
+    read(tstStr, *, iostat=rerror) realVal8
 
     boolResult = .FALSE.
 

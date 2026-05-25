@@ -1064,12 +1064,12 @@ module codeV_commands
         if (redirectFlag) call ioConfig%setTextView(ID_TERMINAL_KDPDUMP)
           
         inUpdate = inLensUpdateLevel()
-        if (inUpdate) then              
+        if (inUpdate) then
             call PROCESKDP(iptCmd)
         else
             !call PROCESKDP('U L;'// iptCmd //';EOS')
             ! Update - do not exit lens update level to better support stops
-            ! clear apertures, etc 
+            ! clear apertures, etc
             call PROCESKDP('U L;'// iptCmd )
         end if
         
@@ -1103,7 +1103,7 @@ module codeV_commands
         surfnum = -1 ! For error checking
 
         if(len(iptCmd).EQ.1) then ! It is S, which means we either move to the next surface or add a surface before
-                                  ! the last surface.  
+                                  ! the last surface.
             ptrIdx = ldm%getSurfacePointer()
             if (ptrIdx >= ldm%getLastSurf()-1) then
                 ! increment surface
