@@ -303,6 +303,9 @@ module codeV_commands
    module subroutine execRESAUTO(iptStr)
     character(len=*) :: iptStr
    end subroutine execRESAUTO
+   module subroutine execTHO(iptStr)
+    character(len=*) :: iptStr
+   end subroutine execTHO
     end interface
 
 
@@ -433,7 +436,7 @@ module codeV_commands
         zoaCmds(532)%execFunc => setPlotScale     
         zoaCmds(533)%cmd = 'RIM'
         zoaCmds(533)%execFunc => execRayAberrationPlot                                    
-        zoaCmds(534)%cmd = 'THO'
+        zoaCmds(534)%cmd = 'PLOTTHO'
         zoaCmds(534)%execFunc => execSeidelBarChart
         zoaCmds(535)%cmd = 'PLTRMS'
         zoaCmds(535)%execFunc => execRMSPlot
@@ -724,6 +727,8 @@ module codeV_commands
         zoaCmds(684)%execFunc => execSphere
         zoaCmds(685)%cmd = "RESAUTO"
         zoaCmds(685)%execFunc => execRESAUTO
+        zoaCmds(686)%cmd = "THO"
+        zoaCmds(686)%execFunc => execTHO
 
 
     end subroutine

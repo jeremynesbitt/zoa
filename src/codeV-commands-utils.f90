@@ -338,4 +338,9 @@ contains
         call zoa_emit("Terminal output redirected to default", "black")
     end procedure execTERM
 
+    module procedure execTHO
+        implicit none
+        call PROCESKDP("MAB3 ALL")
+    end procedure execTHO
+
 end submodule mod_codev_utils
