@@ -262,30 +262,13 @@ END SUBROUTINE
 
 SUBROUTINE PROCESKDP(ftext)
    use DATMAI, only: INPUT
-   use strings
    IMPLICIT NONE
 
    character(len=*), intent(in) :: ftext
-   character(len=80) :: tokens(40)
-   integer :: numTokens, i
 
    !WRITE(OUTLYNE,*) "PROCESKDP START F5 = ", F5
    !CALL SHOWIT(19)
 
-   if(len(ftext) > len(INPUT)) then
-      PRINT *, "Ftext is ", ftext
-      ! Assume this is because of multiple commands.  So split it up
-      call parse(ftext, ';', tokens, numTokens)
-      if (i > 0) then
-         do i = 1,numTokens
-            INPUT = trim(tokens(i))
-            CALL PROCES
-         end do
-         RETURN
-      else
-         !  call LogTermFOR("Warning:  INput string too long!")
-      end if
-   end if
 
    INPUT = trim(ftext)
    CALL PROCES
