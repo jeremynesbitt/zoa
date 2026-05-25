@@ -444,4 +444,14 @@ contains
         end select
     end procedure execEDI
 
+    module procedure execRESAUTO
+        use zoa_file_handler, only: getTempDirectory, getCurrentLensFileName, process_zoa_file
+        implicit none
+        character(len=1024) :: fullPath
+
+        fullPath = trim(getTempDirectory())//getCurrentLensFileName()
+        call zoa_emit("Restoring from: "//trim(fullPath), "black")
+        call process_zoa_file(trim(fullPath))
+    end procedure execRESAUTO
+
 end submodule mod_codev_lensops

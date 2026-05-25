@@ -274,4 +274,7 @@
    module subroutine execTERM(iptStr)
     character(len=*) :: iptStr
    end subroutine execTERM
+   module subroutine execRESAUTO(iptStr)
+    character(len=*) :: iptStr
+   end subroutine execRESAUTO
     end interface

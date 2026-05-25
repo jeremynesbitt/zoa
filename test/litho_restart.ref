@@ -1,0 +1,611 @@
+
+Number of tokens is 1
+File name to save is /Users/jeremy/Library/Application Support/Zoa/Temp/templens.zoa
+FUll Path is /Users/jeremy/Library/Application Support/Zoa/Temp/templens.zoa
+THE CURRENT INI IS BLANK
+Restoring from: /Users/jeremy/Library/Application Support/Zoa/Temp/templens.zoa
+
+Field Weights Command WTF     100     100     100 Not supported
+ASP: usage: ASP Sk
+ASP: usage: ASP Sk
+OBJECT SURFACE MAY NOT BE ASPHERIC
+RE-ENTER COMMAND
+INVALID CMD LEVEL COMMAND
+OBJECT SURFACE MAY NOT BE ASPHERIC
+RE-ENTER COMMAND
+INVALID CMD LEVEL COMMAND
+OBJECT SURFACE MAY NOT BE ASPHERIC
+RE-ENTER COMMAND
+INVALID CMD LEVEL COMMAND
+OBJECT SURFACE MAY NOT BE ASPHERIC
+RE-ENTER COMMAND
+INVALID CMD LEVEL COMMAND
+OBJECT SURFACE MAY NOT BE ASPHERIC
+RE-ENTER COMMAND
+INVALID CMD LEVEL COMMAND
+INVALID CMD LEVEL COMMAND
+  Command: EOS
+OBJECT SURFACE MAY NOT BE ASPHERIC
+RE-ENTER COMMAND
+INVALID CMD LEVEL COMMAND
+OBJECT SURFACE MAY NOT BE ASPHERIC
+RE-ENTER COMMAND
+INVALID CMD LEVEL COMMAND
+CURRENT LENS DATA LISTING
+Lithographic system, Kotaro
+THE CURRENT LIC IS BLANK
+THE CURRENT INI IS BLANK
+THE CURRENT LTYPE IS BLANK
+UNITS = MILLIMETERS
+REF OBJ Y-HT                    REF AP Y-HT         OBJ SF#  REF SF#  IMG SF#
+  39.0780    ( -44.03     DG)      40.30                 0        1       36
+
+REF OBJ X-HT                    REF AP X-HT         OBJ SF#  REF SF#  IMG SF#
+  39.0780    ( -44.03     DG)      506.6                 0        1       36
+ THERE ARE CURRENTLY            3  ANALYSIS FIELD POSITIONS DEFINED
+ UNITS ARE DEGREES
+POS # =  1 X-VALUE =   0.00000     Y-VALUE =   0.00000
+POS # =  2 X-VALUE =   0.00000     Y-VALUE =  0.700000
+POS # =  3 X-VALUE =   0.00000     Y-VALUE =   1.00000
+YZ-PLANE FIRST ORDER OPERATING CONDITIONS
+  EFL          BFD          IMG F-NUM    LENGTH       OAL          T-MAG
+  531.03       8.8782     -0.41887       413.31       453.74      -6.3201
+XZ-PLANE FIRST ORDER OPERATING CONDITIONS
+  EFL          BFD          IMG F-NUM    LENGTH       OAL          T-MAG
+  321.02       8.8782     -0.34765E-01   413.31       453.74      -6.3201
+SEMI-APERTURE REFERENCE RAY HEIGHT AT SURFACE #1
+SAY(YZ-PLANE IN LENS UNITS) =    0.506600010000000D+03
+
+SEMI-APERTURE REFERENCE RAY HEIGHT AT SURFACE #1
+SAX(XZ-PLANE IN LENS UNITS) =    0.506600010000000D+03
+NO AUTOFUNC FUNCTION IS CURRENTLY SPECIFIED
+WAVL NBR          1            2            3            4            5
+WAVELENGTH    0.24829       0.0000       0.0000       0.0000       0.0000
+SPECTRAL WT    1.000        0.000        0.000        0.000        0.000
+WAVL NBR          6            7            8            9            10
+WAVELENGTH     0.0000       0.0000       0.0000       0.0000       0.0000
+SPECTRAL WT    0.000        0.000        0.000        0.000        0.000
+EVALUATION MODE IS FOCAL
+THE CURRENT APERTURE STOP SURFACE IS SURFACE #   1
+SPECIAL CONDITIONS
+
+ 36           VERTEX
+BASIC LENS DATA (RADIUS MODE)
+
+SURF  RADIUS        THICKNESS          MATERIAL          INDEX        V-NUM
+  0*   0.00000       40.4256             AIR
+  0*Conic,Asphere
+  1*   0.00000       0.00000     SPECIAL SILICA          1.50839       0.00
+  1*REFS,STOP
+  2    179.159       2.10219             AIR
+  3    204.531       17.1084     SPECIAL SILICA          1.50839       0.00
+  4   -236.350      0.336880             AIR
+  5    195.606       16.0435     SPECIAL SILICA          1.50839       0.00
+  6   -421.085      0.336880             AIR
+  7    210.591       14.4820     SPECIAL SILICA          1.50839       0.00
+  8   -537.114      0.336880             AIR
+  9    176.219       19.6552     SPECIAL SILICA          1.50839       0.00
+ 10    84.5046       12.6567             AIR
+ 11    421.066       8.75888     SPECIAL SILICA          1.50839       0.00
+ 12    113.692       13.1875             AIR
+ 13   -286.544       8.75888     SPECIAL SILICA          1.50839       0.00
+ 14    206.010       14.0657             AIR
+ 15   -134.306       8.75888     SPECIAL SILICA          1.50839       0.00
+ 16    577.056       19.4161             AIR
+ 17   -90.2067       9.10646     SPECIAL SILICA          1.50839       0.00
+ 18   -824.746       8.25823             AIR
+ 19   -286.265       17.3800     SPECIAL SILICA          1.50839       0.00
+ 20   -128.384      0.785521             AIR
+ 21   -800.950       23.2980     SPECIAL SILICA          1.50839       0.00
+ 22   -165.156      0.336880             AIR
+ 23   -11707.0       26.4810     SPECIAL SILICA          1.50839       0.00
+ 24   -202.128      0.336880             AIR
+ 25    417.387       26.4319     SPECIAL SILICA          1.50839       0.00
+ 26   -404.256      0.336880             AIR
+ 27    224.891       25.9722     SPECIAL SILICA          1.50839       0.00
+ 28   -2293.07      0.562532             AIR
+ 29    134.752       24.0385     SPECIAL SILICA          1.50839       0.00
+ 30    401.009       12.6190             AIR
+ 31    906.480       10.1499     SPECIAL SILICA          1.50839       0.00
+ 32    101.339       22.2916             AIR
+ 33   -1601.46       8.87819     SPECIAL SILICA          1.50839       0.00
+ 34*   103.578       31.1633             AIR
+ 34*Conic,Asphere
+ 35   -104.174       8.87819     SPECIAL SILICA          1.50839       0.00
+ 36    0.00000       0.00000             LAST SURFACE
+CONIC AND 4th THROUGH 10th ORDER ASPHERIC DATA
+(+) - DESIGNATES A PLANO SURFACE WITH A 2ND ORDER ASPHERIC
+TERM IN THE SECOND COLUMN INSTEAD OF A CONIC CONSTANT
+
+SURF   CC/AC           AD            AE            AF            AG
+  0   0.00000       0.00000       0.00000       0.00000       0.00000     (+)
+ 34  0.902930E-01 -0.228205E-07 -0.419024E-11 -0.378202E-15 -0.221653E-19
+NO 12th through 20th ORDER ASPHERIC DATA
+NO CONIC OR ASPHERIC ANAMORPHIC DATA
+NO DEFORMABLE SURFACE DATA
+NO TILT AND DECENTER DATA
+NO TORIC OR ANAMORPHIC DATA
+CLEAR APERTURES AND OBSCURATIONS
+
+SURF    TYPE   Y-SEMI.    X-SEMI.    Y-DEC      X-DEC  CORNER-RADIUS TILT(DEG)
+              (RADIUS)   (N-POLY)
+                         (RAD-FLT)                      (DELTA-Z)
+  2     CIRC   49.8       49.8
+  3     CIRC   50.4       50.4
+  4     CIRC   51.3       51.3
+  5     CIRC   53.5       53.5
+  6     CIRC   53.5       53.5
+  7     CIRC   52.9       52.9
+  8     CIRC   52.3       52.3
+  9     CIRC   49.9       49.9
+ 10     CIRC   43.5       43.5
+ 11     CIRC   43.2       43.2
+ 12     CIRC   41.7       41.7
+ 13     CIRC   41.8       41.8
+ 14     CIRC   43.1       43.1
+ 15     CIRC   43.6       43.6
+ 16     CIRC   48.6       48.6
+ 17     CIRC   49.8       49.8
+ 18     CIRC   61.8       61.8
+ 19     CIRC   64.7       64.7
+ 20     CIRC   68.1       68.1
+ 21     CIRC   78.6       78.6
+ 22     CIRC   81.1       81.1
+ 23     CIRC   88.8       88.8
+ 24     CIRC   90.1       90.1
+ 25     CIRC   93.7       93.7
+ 26     CIRC   93.6       93.6
+ 27     CIRC   89.6       89.6
+ 28     CIRC   88.3       88.3
+ 29     CIRC   77.8       77.8
+ 30     CIRC   74.8       74.8
+ 31     CIRC   69.2       69.2
+ 32     CIRC   58.0       58.0
+ 33     CIRC   57.0       57.0
+ 34     CIRC   52.4       52.4
+REFRACTIVE INDEX DATA (WAVELENGTHS #1 TO #5)
+
+SURF    N1             N2             N3             N4             N5
+  0               AIR
+  0    1.00000        1.00000        1.00000        1.00000        1.00000
+  1 SPECIAL       SILICA
+  1    1.50839        1.00000        1.00000        1.00000        1.00000
+  2               AIR
+  2    1.00000        1.00000        1.00000        1.00000        1.00000
+  3 SPECIAL       SILICA
+  3    1.50839        1.00000        1.00000        1.00000        1.00000
+  4               AIR
+  4    1.00000        1.00000        1.00000        1.00000        1.00000
+  5 SPECIAL       SILICA
+  5    1.50839        1.00000        1.00000        1.00000        1.00000
+  6               AIR
+  6    1.00000        1.00000        1.00000        1.00000        1.00000
+  7 SPECIAL       SILICA
+  7    1.50839        1.00000        1.00000        1.00000        1.00000
+  8               AIR
+  8    1.00000        1.00000        1.00000        1.00000        1.00000
+  9 SPECIAL       SILICA
+  9    1.50839        1.00000        1.00000        1.00000        1.00000
+ 10               AIR
+ 10    1.00000        1.00000        1.00000        1.00000        1.00000
+ 11 SPECIAL       SILICA
+ 11    1.50839        1.00000        1.00000        1.00000        1.00000
+ 12               AIR
+ 12    1.00000        1.00000        1.00000        1.00000        1.00000
+ 13 SPECIAL       SILICA
+ 13    1.50839        1.00000        1.00000        1.00000        1.00000
+ 14               AIR
+ 14    1.00000        1.00000        1.00000        1.00000        1.00000
+ 15 SPECIAL       SILICA
+ 15    1.50839        1.00000        1.00000        1.00000        1.00000
+ 16               AIR
+ 16    1.00000        1.00000        1.00000        1.00000        1.00000
+ 17 SPECIAL       SILICA
+ 17    1.50839        1.00000        1.00000        1.00000        1.00000
+ 18               AIR
+ 18    1.00000        1.00000        1.00000        1.00000        1.00000
+ 19 SPECIAL       SILICA
+ 19    1.50839        1.00000        1.00000        1.00000        1.00000
+ 20               AIR
+ 20    1.00000        1.00000        1.00000        1.00000        1.00000
+ 21 SPECIAL       SILICA
+ 21    1.50839        1.00000        1.00000        1.00000        1.00000
+ 22               AIR
+ 22    1.00000        1.00000        1.00000        1.00000        1.00000
+ 23 SPECIAL       SILICA
+ 23    1.50839        1.00000        1.00000        1.00000        1.00000
+ 24               AIR
+ 24    1.00000        1.00000        1.00000        1.00000        1.00000
+ 25 SPECIAL       SILICA
+ 25    1.50839        1.00000        1.00000        1.00000        1.00000
+ 26               AIR
+ 26    1.00000        1.00000        1.00000        1.00000        1.00000
+ 27 SPECIAL       SILICA
+ 27    1.50839        1.00000        1.00000        1.00000        1.00000
+ 28               AIR
+ 28    1.00000        1.00000        1.00000        1.00000        1.00000
+ 29 SPECIAL       SILICA
+ 29    1.50839        1.00000        1.00000        1.00000        1.00000
+ 30               AIR
+ 30    1.00000        1.00000        1.00000        1.00000        1.00000
+ 31 SPECIAL       SILICA
+ 31    1.50839        1.00000        1.00000        1.00000        1.00000
+ 32               AIR
+ 32    1.00000        1.00000        1.00000        1.00000        1.00000
+ 33 SPECIAL       SILICA
+ 33    1.50839        1.00000        1.00000        1.00000        1.00000
+ 34               AIR
+ 34    1.00000        1.00000        1.00000        1.00000        1.00000
+ 35 SPECIAL       SILICA
+ 35    1.50839        1.00000        1.00000        1.00000        1.00000
+ 36               LAST SURFACE
+ 36    1.50839        1.00000        1.00000        1.00000        1.00000
+REFRACTIVE INDEX DATA (WAVELENGTHS #6 TO #10)
+
+SURF    N6             N7             N8             N9             N10
+  0               AIR
+  0    1.00000        1.00000        1.00000        1.00000        1.00000
+  1 SPECIAL       SILICA
+  1    1.00000        1.00000        1.00000        1.00000        1.00000
+  2               AIR
+  2    1.00000        1.00000        1.00000        1.00000        1.00000
+  3 SPECIAL       SILICA
+  3    1.00000        1.00000        1.00000        1.00000        1.00000
+  4               AIR
+  4    1.00000        1.00000        1.00000        1.00000        1.00000
+  5 SPECIAL       SILICA
+  5    1.00000        1.00000        1.00000        1.00000        1.00000
+  6               AIR
+  6    1.00000        1.00000        1.00000        1.00000        1.00000
+  7 SPECIAL       SILICA
+  7    1.00000        1.00000        1.00000        1.00000        1.00000
+  8               AIR
+  8    1.00000        1.00000        1.00000        1.00000        1.00000
+  9 SPECIAL       SILICA
+  9    1.00000        1.00000        1.00000        1.00000        1.00000
+ 10               AIR
+ 10    1.00000        1.00000        1.00000        1.00000        1.00000
+ 11 SPECIAL       SILICA
+ 11    1.00000        1.00000        1.00000        1.00000        1.00000
+ 12               AIR
+ 12    1.00000        1.00000        1.00000        1.00000        1.00000
+ 13 SPECIAL       SILICA
+ 13    1.00000        1.00000        1.00000        1.00000        1.00000
+ 14               AIR
+ 14    1.00000        1.00000        1.00000        1.00000        1.00000
+ 15 SPECIAL       SILICA
+ 15    1.00000        1.00000        1.00000        1.00000        1.00000
+ 16               AIR
+ 16    1.00000        1.00000        1.00000        1.00000        1.00000
+ 17 SPECIAL       SILICA
+ 17    1.00000        1.00000        1.00000        1.00000        1.00000
+ 18               AIR
+ 18    1.00000        1.00000        1.00000        1.00000        1.00000
+ 19 SPECIAL       SILICA
+ 19    1.00000        1.00000        1.00000        1.00000        1.00000
+ 20               AIR
+ 20    1.00000        1.00000        1.00000        1.00000        1.00000
+ 21 SPECIAL       SILICA
+ 21    1.00000        1.00000        1.00000        1.00000        1.00000
+ 22               AIR
+ 22    1.00000        1.00000        1.00000        1.00000        1.00000
+ 23 SPECIAL       SILICA
+ 23    1.00000        1.00000        1.00000        1.00000        1.00000
+ 24               AIR
+ 24    1.00000        1.00000        1.00000        1.00000        1.00000
+ 25 SPECIAL       SILICA
+ 25    1.00000        1.00000        1.00000        1.00000        1.00000
+ 26               AIR
+ 26    1.00000        1.00000        1.00000        1.00000        1.00000
+ 27 SPECIAL       SILICA
+ 27    1.00000        1.00000        1.00000        1.00000        1.00000
+ 28               AIR
+ 28    1.00000        1.00000        1.00000        1.00000        1.00000
+ 29 SPECIAL       SILICA
+ 29    1.00000        1.00000        1.00000        1.00000        1.00000
+ 30               AIR
+ 30    1.00000        1.00000        1.00000        1.00000        1.00000
+ 31 SPECIAL       SILICA
+ 31    1.00000        1.00000        1.00000        1.00000        1.00000
+ 32               AIR
+ 32    1.00000        1.00000        1.00000        1.00000        1.00000
+ 33 SPECIAL       SILICA
+ 33    1.00000        1.00000        1.00000        1.00000        1.00000
+ 34               AIR
+ 34    1.00000        1.00000        1.00000        1.00000        1.00000
+ 35 SPECIAL       SILICA
+ 35    1.00000        1.00000        1.00000        1.00000        1.00000
+ 36               LAST SURFACE
+ 36    1.00000        1.00000        1.00000        1.00000        1.00000
+
+SURFACE "SPECIFIC GRAVITY (gm/cc)" VALUES
+
+SURF     "SPGR" VALUE (IN CURRENT LENS UNITS)
+  0             0.0000000
+  1             0.0000000
+  2             0.0000000
+  3             0.0000000
+  4             0.0000000
+  5             0.0000000
+  6             0.0000000
+  7             0.0000000
+  8             0.0000000
+  9             0.0000000
+ 10             0.0000000
+ 11             0.0000000
+ 12             0.0000000
+ 13             0.0000000
+ 14             0.0000000
+ 15             0.0000000
+ 16             0.0000000
+ 17             0.0000000
+ 18             0.0000000
+ 19             0.0000000
+ 20             0.0000000
+ 21             0.0000000
+ 22             0.0000000
+ 23             0.0000000
+ 24             0.0000000
+ 25             0.0000000
+ 26             0.0000000
+ 27             0.0000000
+ 28             0.0000000
+ 29             0.0000000
+ 30             0.0000000
+ 31             0.0000000
+ 32             0.0000000
+ 33             0.0000000
+ 34             0.0000000
+ 35             0.0000000
+ 36             0.0000000
+NO LINEAR DIFFRATION GRATING DATA FOUND
+NO SOLVE DATA
+NO PIKUP DATA
+SURFACE TYPE DATA
+
+SURF       SURFACE TYPE
+  0           REAL
+  1           REAL
+  2           REAL
+  3           REAL
+  4           REAL
+  5           REAL
+  6           REAL
+  7           REAL
+  8           REAL
+  9           REAL
+ 10           REAL
+ 11           REAL
+ 12           REAL
+ 13           REAL
+ 14           REAL
+ 15           REAL
+ 16           REAL
+ 17           REAL
+ 18           REAL
+ 19           REAL
+ 20           REAL
+ 21           REAL
+ 22           REAL
+ 23           REAL
+ 24           REAL
+ 25           REAL
+ 26           REAL
+ 27           REAL
+ 28           REAL
+ 29           REAL
+ 30           REAL
+ 31           REAL
+ 32           REAL
+ 33           REAL
+ 34           REAL
+ 35           REAL
+ 36           REAL
+SURFACE FOOTBLOK DATA
+
+SURF     FOOTBLOK DEFINITION
+  0           OFF
+  1           OFF
+  2           OFF
+  3           OFF
+  4           OFF
+  5           OFF
+  6           OFF
+  7           OFF
+  8           OFF
+  9           OFF
+ 10           OFF
+ 11           OFF
+ 12           OFF
+ 13           OFF
+ 14           OFF
+ 15           OFF
+ 16           OFF
+ 17           OFF
+ 18           OFF
+ 19           OFF
+ 20           OFF
+ 21           OFF
+ 22           OFF
+ 23           OFF
+ 24           OFF
+ 25           OFF
+ 26           OFF
+ 27           OFF
+ 28           OFF
+ 29           OFF
+ 30           OFF
+ 31           OFF
+ 32           OFF
+ 33           OFF
+ 34           OFF
+ 35           OFF
+ 36           OFF
+SURFACE PIVAXIS DATA
+
+SURF     PIVAXIS DEFINITION
+  0           VERTEX
+  1           VERTEX
+  2           VERTEX
+  3           VERTEX
+  4           VERTEX
+  5           VERTEX
+  6           VERTEX
+  7           VERTEX
+  8           VERTEX
+  9           VERTEX
+ 10           VERTEX
+ 11           VERTEX
+ 12           VERTEX
+ 13           VERTEX
+ 14           VERTEX
+ 15           VERTEX
+ 16           VERTEX
+ 17           VERTEX
+ 18           VERTEX
+ 19           VERTEX
+ 20           VERTEX
+ 21           VERTEX
+ 22           VERTEX
+ 23           VERTEX
+ 24           VERTEX
+ 25           VERTEX
+ 26           VERTEX
+ 27           VERTEX
+ 28           VERTEX
+ 29           VERTEX
+ 30           VERTEX
+ 31           VERTEX
+ 32           VERTEX
+ 33           VERTEX
+ 34           VERTEX
+ 35           VERTEX
+ 36           VERTEX
+SURFACE (FORCED DUMMY) DATA
+
+SURF     FORCED DUMMY SETTING
+  0            NO/OFF
+  1            NO/OFF
+  2            NO/OFF
+  3            NO/OFF
+  4            NO/OFF
+  5            NO/OFF
+  6            NO/OFF
+  7            NO/OFF
+  8            NO/OFF
+  9            NO/OFF
+ 10            NO/OFF
+ 11            NO/OFF
+ 12            NO/OFF
+ 13            NO/OFF
+ 14            NO/OFF
+ 15            NO/OFF
+ 16            NO/OFF
+ 17            NO/OFF
+ 18            NO/OFF
+ 19            NO/OFF
+ 20            NO/OFF
+ 21            NO/OFF
+ 22            NO/OFF
+ 23            NO/OFF
+ 24            NO/OFF
+ 25            NO/OFF
+ 26            NO/OFF
+ 27            NO/OFF
+ 28            NO/OFF
+ 29            NO/OFF
+ 30            NO/OFF
+ 31            NO/OFF
+ 32            NO/OFF
+ 33            NO/OFF
+ 34            NO/OFF
+ 35            NO/OFF
+ 36            NO/OFF
+
+SURFACE "INR" VALUES
+"INR" IS THE REFERENCE RADIUS FOR "FRINGE" CALCULATIONS
+
+SURF     "INR" VALUE (IN CURRENT LENS UNITS)
+  0             39.078000
+  1             506.60001
+  2             49.794738
+  3             50.411576
+  4             51.344713
+  5             53.497178
+  6             53.531540
+  7             52.948713
+  8             52.311180
+  9             49.857891
+ 10             43.477233
+ 11             43.188578
+ 12             41.709418
+ 13             41.806824
+ 14             43.101065
+ 15             43.631919
+ 16             48.582207
+ 17             49.772603
+ 18             61.751276
+ 19             64.708872
+ 20             68.055195
+ 21             78.586249
+ 22             81.100135
+ 23             88.823861
+ 24             90.141328
+ 25             93.665500
+ 26             93.634927
+ 27             89.621715
+ 28             88.314072
+ 29             77.843937
+ 30             74.767499
+ 31             69.192346
+ 32             57.969070
+ 33             56.994441
+ 34             52.392702
+ 35             3257.2502
+ 36             3395.8689
+NO MIRROR THICKNESS DATA
+NO PRICE DATA
+SURFACE COATING NUMBER DATA
+
+SURF    COATING NUMBER
+  0     SURFACE NOT COATED
+  1     SURFACE NOT COATED
+  2     SURFACE NOT COATED
+  3     SURFACE NOT COATED
+  4     SURFACE NOT COATED
+  5     SURFACE NOT COATED
+  6     SURFACE NOT COATED
+  7     SURFACE NOT COATED
+  8     SURFACE NOT COATED
+  9     SURFACE NOT COATED
+ 10     SURFACE NOT COATED
+ 11     SURFACE NOT COATED
+ 12     SURFACE NOT COATED
+ 13     SURFACE NOT COATED
+ 14     SURFACE NOT COATED
+ 15     SURFACE NOT COATED
+ 16     SURFACE NOT COATED
+ 17     SURFACE NOT COATED
+ 18     SURFACE NOT COATED
+ 19     SURFACE NOT COATED
+ 20     SURFACE NOT COATED
+ 21     SURFACE NOT COATED
+ 22     SURFACE NOT COATED
+ 23     SURFACE NOT COATED
+ 24     SURFACE NOT COATED
+ 25     SURFACE NOT COATED
+ 26     SURFACE NOT COATED
+ 27     SURFACE NOT COATED
+ 28     SURFACE NOT COATED
+ 29     SURFACE NOT COATED
+ 30     SURFACE NOT COATED
+ 31     SURFACE NOT COATED
+ 32     SURFACE NOT COATED
+ 33     SURFACE NOT COATED
+ 34     SURFACE NOT COATED
+ 35     SURFACE NOT COATED
+ 36     SURFACE NOT COATED
+NO SPECIAL SURFACE DATA
+NO CONFIG DATA
+
+CURRENT CONFIGURATION NUMBER IS   1

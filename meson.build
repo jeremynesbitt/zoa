@@ -379,6 +379,11 @@ test('bentley_twice', test_runner,
             meson.project_source_root() / 'test/bentley_twice.ref'],
      timeout: 120, is_parallel: false)
 
+test('litho_restart', test_runner,
+     args: [meson.project_source_root() / 'test/litho_restart.zoa',
+            meson.project_source_root() / 'test/litho_restart.ref'],
+     timeout: 120, is_parallel: false)
+
 
 if system == 'darwin'
   MacOSDir = meson.project_source_root() / 'MacOS'

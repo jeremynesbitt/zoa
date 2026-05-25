@@ -447,6 +447,8 @@ module codeV_commands
         zoaCmds(683)%execFunc => execTERM
         zoaCmds(684)%cmd = "SPH"
         zoaCmds(684)%execFunc => execSphere
+        zoaCmds(685)%cmd = "RESAUTO"
+        zoaCmds(685)%execFunc => execRESAUTO
 
 
     end subroutine
