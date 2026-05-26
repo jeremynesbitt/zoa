@@ -59,9 +59,11 @@ subroutine MMAB3_NEW(YFLAG, idxWV, printTable)
 
             call calcSeidelTerms(INV)
 
-            call OUTKDP(trim(sysConfig%lensTitle))
-            call OUTKDP(blankStr(10)//"Position "//trim(int2str(ldm%getCurrentConfig()))//", Wavelength = "// &
-            & trim(real2str(1000.0*sysConfig%getWavelength(idxWV),1)) //" nm")
+            if (.not. (present(printTable) .and. .not. printTable)) then
+                call OUTKDP(trim(sysConfig%lensTitle))
+                call OUTKDP(blankStr(10)//"Position "//trim(int2str(ldm%getCurrentConfig()))//", Wavelength = "// &
+                & trim(real2str(1000.0*sysConfig%getWavelength(idxWV),1)) //" nm")
+            end if
 
             ! Print full surface-by-surface table when requested programmatically,
             ! or when the MAB3 ALL command was entered at the terminal.

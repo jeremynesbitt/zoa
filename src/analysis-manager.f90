@@ -39,7 +39,7 @@ module mod_analysis_manager
         CALL PROCESSILENT('MAB3 ALL')
         call PROCESKDP("MAB3 ALL")
 
-        call MMAB3_NEW(.TRUE., sysConfig%refWavelengthIndex, .TRUE.)
+        call MMAB3_NEW(.TRUE., sysConfig%refWavelengthIndex, .FALSE.)
         ! This essentially serves as documentation for which index is which term
         res = curr_par_ray_trace%CSeidel(2,ubound(curr_par_ray_trace%CSeidel, dim=2))
 
@@ -55,7 +55,7 @@ module mod_analysis_manager
         CALL PROCESSILENT('MAB3 ALL')
         call PROCESKDP("MAB3 ALL")
 
-        call MMAB3_NEW(.TRUE., sysConfig%refWavelengthIndex, .TRUE.)
+        call MMAB3_NEW(.TRUE., sysConfig%refWavelengthIndex, .FALSE.)
         ! This essentially serves as documentation for which index is which term
         res = curr_par_ray_trace%CSeidel(1,ubound(curr_par_ray_trace%CSeidel, dim=2))
 
@@ -72,7 +72,7 @@ module mod_analysis_manager
         CALL PROCESSILENT('MAB3 ALL')
         call PROCESKDP("MAB3 ALL")
 
-        call MMAB3_NEW(.TRUE., sysConfig%refWavelengthIndex, .TRUE.)
+        call MMAB3_NEW(.TRUE., sysConfig%refWavelengthIndex, .FALSE.)
         ! This is conversion of the Smith definition to the CodeV definition.
         res = 3*curr_par_ray_trace%CSeidel(3,ubound(curr_par_ray_trace%CSeidel, dim=2))- &
         & curr_par_ray_trace%CSeidel(5,ubound(curr_par_ray_trace%CSeidel, dim=2))
@@ -89,7 +89,7 @@ module mod_analysis_manager
         CALL PROCESSILENT('MAB3 ALL')
         call PROCESKDP("MAB3 ALL")
 
-        call MMAB3_NEW(.TRUE., sysConfig%refWavelengthIndex, .TRUE.)
+        call MMAB3_NEW(.TRUE., sysConfig%refWavelengthIndex, .FALSE.)
         ! This is conversion of the Smith definition to the CodeV definition.
         res = curr_par_ray_trace%CSeidel(5,ubound(curr_par_ray_trace%CSeidel, dim=2))
 
