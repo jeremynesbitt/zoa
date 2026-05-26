@@ -384,6 +384,11 @@ test('litho_restart', test_runner,
             meson.project_source_root() / 'test/litho_restart.ref'],
      timeout: 120, is_parallel: false)
 
+test('tho_test', test_runner,
+     args: [meson.project_source_root() / 'test/tho_test.zoa',
+            meson.project_source_root() / 'test/tho_test.ref'],
+     timeout: 120, is_parallel: false)
+
 
 if system == 'darwin'
   MacOSDir = meson.project_source_root() / 'MacOS'
