@@ -246,6 +246,8 @@ module optimizer_ui
     
     
         call gtk_window_set_mnemonics_visible (optimizer_window, TRUE)
+        call g_signal_connect(optimizer_window, "destroy"//c_null_char, &
+             & c_funloc(optimizer_ui_on_destroy), optimizer_window)
         call gtk_widget_show(optimizer_window)
 
     end subroutine optimizer_ui_new
@@ -306,7 +308,12 @@ module optimizer_ui
     
         optimizer_window = c_null_ptr
     
-      end subroutine 
+      end subroutine
+
+    subroutine optimizer_ui_on_destroy(widget, gdata) bind(c)
+        type(c_ptr), value, intent(in) :: widget, gdata
+        optimizer_window = c_null_ptr
+    end subroutine
 
     function operands_create_table() result(boxNew)
         ! Columns:

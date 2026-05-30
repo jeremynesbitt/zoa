@@ -211,6 +211,11 @@ module zoa_macro_ui
     call gtk_window_destroy(gdata)
   end subroutine
 
+  subroutine macroui_on_destroy(widget, gdata) bind(c)
+    type(c_ptr), value, intent(in) :: widget, gdata
+    macro_ui_window = c_null_ptr
+  end subroutine
+
 
 
   subroutine zoa_macromanualUI(act, param, win) bind(c)
@@ -338,6 +343,9 @@ module zoa_macro_ui
 
     call gtk_scrolled_window_set_min_content_width(rightPane, 200_c_int)
 
+
+    call g_signal_connect(macro_ui_window, "destroy"//c_null_char, &
+         & c_funloc(macroui_on_destroy), macro_ui_window)
 
     call gtk_widget_show(macro_ui_window)
 
