@@ -2,10 +2,11 @@ SUBROUTINE READIMAGEARRAY(II,WRD1)
 
    USE GLOBALS
    use DATMAI
+   use iso_fortran_env, only: real64
    IMPLICIT NONE
    INTEGER I,J,K,L,INFO(3),LENGTH,NX,NY,II
    INTEGER IR,IG,IB,ALLOERR,IERROR
-   REAL*8 WRD1
+   real(real64) WRD1
    INTEGER ABMPDATA24
    DIMENSION ABMPDATA24(:)
    LOGICAL advance
@@ -241,12 +242,13 @@ SUBROUTINE PLOTIMAGEARRAY(I,LENBMP,TRIMMER)
    USE GLOBALS
    !USE csv_file
    use DATMAI
+   use iso_fortran_env, only: real64
    IMPLICIT NONE
    INTEGER I,J,K,L
    INTEGER LENBMP, lun
    INTEGER*1 INTERM
    INTEGER*4 BMPDATA24(1:LENBMP)
-   REAL*8 PEAKER,TRIMMER
+   real(real64) PEAKER,TRIMMER
    CHARACTER*80 BMPFILE
    character*1 rgb(3,OBJNX,OBJNY) !      RGB pixel data array
    BMPFILE=TRIM('PLOTBMP.BMP')
@@ -365,12 +367,13 @@ SUBROUTINE WRITEIMAGEARRAY(I,LENBMP,BMPFILE)
 
    USE GLOBALS
    use DATMAI
+   use iso_fortran_env, only: real64
    IMPLICIT NONE
    INTEGER I,J,K,L
    INTEGER LENBMP
    INTEGER*1 INTERM
    INTEGER*4 BMPDATA24(1:LENBMP)
-   REAL*8 PEAKER
+   real(real64) PEAKER
    CHARACTER*80 BMPFILE
    PRINT *, "WRITEIMAGEARRAY ROUTINE.."
    IF(I.EQ.1) THEN
@@ -474,6 +477,7 @@ END SUBROUTINE
 ! --------------------------------------
 
 subroutine num2bit4(inum,byt4)
+   use iso_fortran_env, only: real64
    implicit none
    integer inum
    character*4 byt4
@@ -497,6 +501,7 @@ end subroutine num2bit4
 ! --------------------------------------
 
 subroutine num2bit2(inum,byt2)
+   use iso_fortran_env, only: real64
    implicit none
    integer inum
    character*2 byt2
@@ -511,6 +516,7 @@ end subroutine num2bit2
 
 
 subroutine pixout(rgb,nframe)
+   use iso_fortran_env, only: real64
    implicit none
 ! interface arg.
    integer ihpixf, jvpixf

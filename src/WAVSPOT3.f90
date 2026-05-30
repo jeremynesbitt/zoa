@@ -12,6 +12,7 @@ SUBROUTINE SPOT
    use DATMAI
    use mod_system, only: sys_mode, sys_wl_weight, sys_set_wl_weight
    use command_utils, only: is_command_query
+   use iso_fortran_env, only: real64
    IMPLICIT NONE
 !
 !       THIS IS SUBROUTINE SPOT.FOR. THIS DOES ALL SPOT DIAGRAMS.
@@ -20,9 +21,9 @@ SUBROUTINE SPOT
 !
    INTEGER TYPEOLD,OLDRNUMBR
 !
-   REAL*8 ELMAX
+   real(real64) ELMAX
    COMMON/ELEV/ELMAX
-   REAL*8 ZZEMAX,ZZEMIN
+   real(real64) ZZEMAX,ZZEMIN
    COMMON/KENMOOR/ZZEMIN,ZZEMAX
 !
    COMMON/OPOPMP/OPMAP
@@ -767,11 +768,12 @@ SUBROUTINE ISTAT(J,STARANG,ENDANG,DELANG,NSTEP)
    use DATMAI
    use mod_surface
    use mod_system, only: sys_units, sys_scx, sys_scy, sys_scx_fang, sys_scy_fang
+   use iso_fortran_env, only: real64
    IMPLICIT NONE
 !
    INTEGER K,I,TOTI,J,TOTII,NSTEP,BUCKET(1:100)
 !
-   REAL*8 STAR,ENDD,ANGVAL,STARANG,ENDANG,DELANG &
+   real(real64) STAR,ENDD,ANGVAL,STARANG,ENDANG,DELANG &
    &,YOBP,XOBP
 !
    LOGICAL EXTGMTF1,EXTGMTF2
@@ -904,12 +906,13 @@ SUBROUTINE SPOPD1
    use DATMAI
    use mod_surface
    use mod_lens_data_manager, only: ldm
+   use iso_fortran_env, only: real64
    IMPLICIT NONE
 !
 !       THIS IS SUBROUTINE SPOPD1.FOR.
 !     IT HANDLES THE FIRST OPD CALCULATION FOR SPOT DIAGRAMS
 !
-   REAL*8 WAV
+   real(real64) WAV
 !
    LOGICAL OLDEXP
 !
@@ -941,12 +944,13 @@ SUBROUTINE SPOPD2(REFERR,TPT)
    use DATMAI
    use mod_system, only: sys_units, sys_mode, sys_wavelength
    use mod_lens_data_manager, only: ldm
+   use iso_fortran_env, only: real64
    IMPLICIT NONE
 !
 !       THIS IS SUBROUTINE SPOPD2.FOR.
 !     IT HANDLES THE SECOND OPD CALCULATION FOR SPOT DIAGRAMS
 !
-   REAL*8 LFOBW,WAV
+   real(real64) LFOBW,WAV
 !
    LOGICAL OLDEXP,REFERR
 !
@@ -1032,7 +1036,7 @@ END
 SUBROUTINE SLOPES
    use DATMAI
 !
-   REAL*8 X,Y
+   real(real64) X,Y
 !
    COMMON/SLOPY/X,Y
 !
@@ -1050,6 +1054,7 @@ SUBROUTINE SPOTIT(I)
    USE GLOBALS
    use DATSP1
    use DATMAI
+   use iso_fortran_env, only: real64
    IMPLICIT NONE
    INTEGER ALLOERR,I,J
    IF(I.EQ.1) THEN
@@ -1094,9 +1099,10 @@ SUBROUTINE GSPOT
    use mod_surface
    use mod_system, only: sys_mode, sys_wl_weight
    use mod_lens_data_manager, only: ldm
+   use iso_fortran_env, only: real64
    IMPLICIT NONE
 !
-   REAL*8 SPT,V1,VALUE &
+   real(real64) SPT,V1,VALUE &
    &,JA,JB,XV,YV,XYANG,RRAD,RRANG,RPNT,RANDX &
    &,RESLT,VXLO,VXHI,VYLO,VYHI,WOW1,WOW2,WAY,SPOTTY
 !
@@ -1115,7 +1121,7 @@ SUBROUTINE GSPOT
 !
    COMMON/SLOPY/X,Y
 
-   REAL*8 WW,WAVE,LEN,LENW,OPDWT,GREYOP
+   real(real64) WW,WAVE,LEN,LENW,OPDWT,GREYOP
 !
    COMMON/WTOPD/OPDWT,GREYOP
 !
@@ -1124,11 +1130,11 @@ SUBROUTINE GSPOT
 !
    INTEGER KIK,KIKI
 !
-   REAL*8 NSTART1,NSTOP1,NDEL1,NSTART2,NSTOP2,NDEL2,&
+   real(real64) NSTART1,NSTOP1,NDEL1,NSTART2,NSTOP2,NDEL2,&
    &TOT,W,AMSS,IX,IY &
    &,X,Y,MSSX,MSSY,AMSSX,AMSSY
 !
-   REAL*8 MAX &
+   real(real64) MAX &
    &,FRAC,FRACA,FRACB,MSS,APFAC
 !
    INTEGER I,J,IWL
@@ -1142,7 +1148,7 @@ SUBROUTINE GSPOT
 !     AND THE "OTHER RAY INTERSECTION POINTS WITH THIS REFERENCE
 !     SPHERE
 !
-   REAL*8 SIZES,SLOPES,XSPH,YSPH,ZSPH,RADSPH
+   real(real64) SIZES,SLOPES,XSPH,YSPH,ZSPH,RADSPH
 !
    COMMON/REFSPR/XSPH,YSPH,ZSPH,RADSPH
 !
@@ -1523,16 +1529,17 @@ SUBROUTINE SPMOVE
    use DATLEN
    use DATMAI
    use mod_system, only: sys_units, sys_mode, sys_wl_weight
+   use iso_fortran_env, only: real64
    IMPLICIT NONE
 !
    CHARACTER UN*11
 !
 !       THIS IS SUBROUTINE SPMOVE.FOR.
 !
-   REAL*8 SPT,TOT,W,JK_S &
+   real(real64) SPT,TOT,W,JK_S &
    &,MSSX,MSSY,JA,JB
 !
-   REAL*8 &
+   real(real64) &
    &SPDELL,MSS,DELTA,APFAC
 !
    INTEGER I,J,NUMT1,NUMT2,NUMT3,NUMT4,&
@@ -1894,8 +1901,9 @@ END
 SUBROUTINE FIXWV(W2)
    use DATLEN
    use mod_system, only: sys_wl_weight, sys_set_wl_weight
+   use iso_fortran_env, only: real64
    IMPLICIT NONE
-   REAL*8 OLDWT(1:10),W2
+   real(real64) OLDWT(1:10),W2
    COMMON/OLDSTUFFWV/OLDWT
    OLDWT(1)=sys_wl_weight(1)
    OLDWT(2)=sys_wl_weight(2)
@@ -1934,8 +1942,9 @@ END
 SUBROUTINE UNFIXWV
    use DATLEN
    use mod_system, only: sys_wl_weight, sys_set_wl_weight
+   use iso_fortran_env, only: real64
    IMPLICIT NONE
-   REAL*8 OLDWT(1:10)
+   real(real64) OLDWT(1:10)
    COMMON/OLDSTUFFWV/OLDWT
    call sys_set_wl_weight(1,OLDWT(1))
    call sys_set_wl_weight(2,OLDWT(2))
@@ -1952,6 +1961,7 @@ END
 SUBROUTINE REVERSECA
    use DATLEN
    use DATMAI
+   use iso_fortran_env, only: real64
    IMPLICIT NONE
    INTEGER SPDCD1,SPDCD2,I
    COMMON/SPRA2/SPDCD1,SPDCD2
@@ -1985,16 +1995,17 @@ SUBROUTINE SPOT1(TPT)
    use mod_surface
    use mod_system, only: sys_units, sys_mode, sys_last_surf, sys_wl_weight
    use command_utils, only: is_command_query
+   use iso_fortran_env, only: real64
    IMPLICIT NONE
 !
    CHARACTER UN*11
 !
-   REAL*8 SPT,SPT1,SPT2,SPT3,SPT4,&
+   real(real64) SPT,SPT1,SPT2,SPT3,SPT4,&
    &SPT5,XV,YV,XYANG,RRAD,RRANG,RPNT,RANDX,SPT6,SPT7,SPT8,SPT9 &
    &,RINGTOT1,WAY,SPT10,OSPA,OSPB,OSPC,OSPD,OAFSPB,OAFSPD &
    &,RESLT,WOW1,WOW2
 !
-   REAL*8 ELMAX
+   real(real64) ELMAX
 !
    COMMON/ELEV/ELMAX
 !
@@ -2035,13 +2046,13 @@ SUBROUTINE SPOT1(TPT)
 !
    INTEGER KIK,KIKI
 !
-   REAL*8 NSTART1,NSTOP1,NDEL1,NSTART2,NSTOP2,NDEL2,&
+   real(real64) NSTART1,NSTOP1,NDEL1,NSTART2,NSTOP2,NDEL2,&
    &TOT,W,AMSS,IX,IY,XUP,YUP,XLO,YLO &
    &,X,Y,MSSX,MSSY,AMSSX,AMSSY,MAXX,MAXY,APODX2,APODR2
 !
    COMMON/BIGGY/XUP,YUP,XLO,YLO,MAXX,MAXY
 !
-   REAL*8 MAX,STARANG,ENDANG,DELANG &
+   real(real64) MAX,STARANG,ENDANG,DELANG &
    &,FRAC,FRACA,FRACB,MSS,APFAC
 !
    INTEGER I,J,IWIW2,IWL,NUMT1,NUMT2,NUMT3,NUMT4,&
@@ -2056,7 +2067,7 @@ SUBROUTINE SPOT1(TPT)
 !     AND THE "OTHER RAY INTERSECTION POINTS WITH THIS REFERENCE
 !     SPHERE
 !
-   REAL*8 JA,JB,XSPH,YSPH,ZSPH,RADSPH
+   real(real64) JA,JB,XSPH,YSPH,ZSPH,RADSPH
 !
    COMMON/REFSPR/XSPH,YSPH,ZSPH,RADSPH
 !

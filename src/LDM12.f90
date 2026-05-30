@@ -5,6 +5,7 @@ SUBROUTINE ILF
    use zoa_file_handler
 !
    use DATMAI
+   use iso_fortran_env, only: real64
    IMPLICIT NONE
 !
 !       THIS SUBROUTINE INITIALIZES OR BLANKS OUT THE CURRENT
@@ -64,6 +65,7 @@ SUBROUTINE CVSOLV
    use DATMAI
    use command_utils, only: is_command_query
    use mod_system, only: sys_last_surf, sys_astop, sys_wavelength
+   use iso_fortran_env, only: real64
    IMPLICIT NONE
 !
 !       THIS IS SUBROUTINE CVSOLV WHICH IMPLEMENTS THE
@@ -656,6 +658,7 @@ SUBROUTINE COERRS
    use DATLEN
    use mod_surface
    use DATMAI
+   use iso_fortran_env, only: real64
    IMPLICIT NONE
 !
 !       THIS IS SUBROUTINE COERRS.FOR. THIS SUBROUTINE IMPLEMENTS
@@ -667,7 +670,7 @@ SUBROUTINE COERRS
 !
    INTEGER II,I,N,III
 !
-   REAL*8 X,Y,Z,ANGLE,XR,YR,LS1,LS,RS,XRD,YRD,X1,X2,X3,X4,Y1,Y2,Y3,Y4,X5,X6,X7,X8,Y5,Y6,Y7,Y8,XC1,XC2,XC3,XC4,YC1,YC2,YC3,YC4,RAD2,MAXSID,CS1,CS2,CS3,CS4
+   real(real64) X,Y,Z,ANGLE,XR,YR,LS1,LS,RS,XRD,YRD,X1,X2,X3,X4,Y1,Y2,Y3,Y4,X5,X6,X7,X8,Y5,Y6,Y7,Y8,XC1,XC2,XC3,XC4,YC1,YC2,YC3,YC4,RAD2,MAXSID,CS1,CS2,CS3,CS4
 !
    COMMON/CACO/CAERAS,COERAS,LS
 !
@@ -1040,6 +1043,7 @@ SUBROUTINE CAERRS
    use DATLEN
    use mod_surface
    use DATMAI
+   use iso_fortran_env, only: real64
    IMPLICIT NONE
 !
 !       THIS IS SUBROUTINE CAERRS.FOR. THIS SUBROUTINE IMPLEMENTS
@@ -1051,7 +1055,7 @@ SUBROUTINE CAERRS
 !
    INTEGER CAERAS,COERAS
 !
-   REAL*8 X,Y,Z,ANGLE,XR,YR,LS1,LS,RS,XRD,YRD,X1,X2,X3,X4,Y1,Y2,Y3,Y4,X5,X6,X7,X8,Y5,Y6,Y7,Y8,XC1,XC2,XC3,XC4,YC1,YC2,YC3,YC4,RAD2,MAXSID,CS1,CS2,CS3,CS4
+   real(real64) X,Y,Z,ANGLE,XR,YR,LS1,LS,RS,XRD,YRD,X1,X2,X3,X4,Y1,Y2,Y3,Y4,X5,X6,X7,X8,Y5,Y6,Y7,Y8,XC1,XC2,XC3,XC4,YC1,YC2,YC3,YC4,RAD2,MAXSID,CS1,CS2,CS3,CS4
 !
    COMMON/CACO/CAERAS,COERAS,LS
 !
@@ -1458,6 +1462,7 @@ SUBROUTINE FNBDE(I)
 !
    use DATCFG
    use DATMAI
+   use iso_fortran_env, only: real64
    IMPLICIT NONE
 !
 !       THIS IS SUBROUTINE FNBDE(I) WHICH REMOVES ALL
@@ -1539,6 +1544,7 @@ SUBROUTINE GLSWVL
    use DATMAI
    use command_utils, only: is_command_query
    use mod_system, only: sys_wavelength, sys_wl_weight
+   use iso_fortran_env, only: real64
    IMPLICIT NONE
 !
 !       THIS CONTROLS THE OPERATION OF THE "GLASSWV" COMMAND
@@ -1653,6 +1659,7 @@ SUBROUTINE GLSRIN
    use mod_surface
    use DATMAI
    use command_utils, only: is_command_query
+   use iso_fortran_env, only: real64
    IMPLICIT NONE
 !
 !       IMPLICIT NONE
@@ -1666,7 +1673,7 @@ SUBROUTINE GLSRIN
 !
    INTEGER I,J,TOTAL,COUNT,LASCNT, uG, gdb_loc
 !
-   REAL*8 LMAX,LMIN,LAMBDA,A0,A1,A2,A3,A4,A5,PN,LAM(1:10),LAMLOW,LAMUPP,PNSC
+   real(real64) LMAX,LMIN,LAMBDA,A0,A1,A2,A3,A4,A5,PN,LAM(1:10),LAMLOW,LAMUPP,PNSC
 !
 !
 !       NOW RESOLVE THE CALCULATION OF REFRACTIVE INDICES VIA
@@ -2910,6 +2917,7 @@ SUBROUTINE GLSRES
    use DATMAI
    use mod_system, only: sys_last_surf
    use mod_lens_data_manager, only: ldm
+   use iso_fortran_env, only: real64
    IMPLICIT NONE
 !
 !       THIS IS SUBROUTINE GLSRES. THIS IS THE SUBROUTINE WHICH
@@ -2929,7 +2937,7 @@ SUBROUTINE GLSRES
 !
    EXTERNAL GNUMBER1,GNUMBER2
 !
-   REAL*8 LMAX,LMIN,LAMBDA,A0,A1,A2,A3,A4,A5,PN
+   real(real64) LMAX,LMIN,LAMBDA,A0,A1,A2,A3,A4,A5,PN
 !
    COMMON/GLSBAD/BADGLS
 !
@@ -3123,14 +3131,15 @@ SUBROUTINE FICTRES(I)
    use DATLEN
    use mod_surface
    use mod_system, only: sys_wavelength, sys_wl_weight
+   use iso_fortran_env, only: real64
    IMPLICIT NONE
 !
    INTEGER I,J
 !
-   REAL*8 CCEE,CBAR,XND,XNC,XNF,XNE,XV,XD,NE,DDDISS
+   real(real64) CCEE,CBAR,XND,XNC,XNF,XNE,XV,XD,NE,DDDISS
 !
 !
-   REAL*8 PNSC,LAMBDA,A0,A1,A2,A3,A4,A5,DISP ,A01,A11,A21,A31,A41,A51,A02,A12,A22,A32,A42,A52,XDISP ,XVD,ND1,NF1,NC1,ND2,NF2,NC2,DISP1,DISP2,C1,C2,NX1,NX2 ,P1,P2,V1,V2,SLOPE,NEWP
+   real(real64) PNSC,LAMBDA,A0,A1,A2,A3,A4,A5,DISP ,A01,A11,A21,A31,A41,A51,A02,A12,A22,A32,A42,A52,XDISP ,XVD,ND1,NF1,NC1,ND2,NF2,NC2,DISP1,DISP2,C1,C2,NX1,NX2 ,P1,P2,V1,V2,SLOPE,NEWP
 !
    PNSC(LAMBDA,A0,A1,A2,A3,A4,A5)=DSQRT(((A0*(LAMBDA**2))/((LAMBDA**2)-A3))+((A1*(LAMBDA**2))/((LAMBDA**2)-A4))+((A2*(LAMBDA**2))/((LAMBDA**2)-A5))+1.0D0)
 !
@@ -3508,6 +3517,7 @@ SUBROUTINE FICTRES(I)
    RETURN
 END
 FUNCTION GNUMBER1(NUMBER)
+   use iso_fortran_env, only: real64
    IMPLICIT NONE
    INTEGER GNUMBER1,I
    CHARACTER NUMBER*13,ANUMBER*3,B*80
@@ -3519,6 +3529,7 @@ FUNCTION GNUMBER1(NUMBER)
    RETURN
 END
 FUNCTION GNUMBER2(NUMBER)
+   use iso_fortran_env, only: real64
    IMPLICIT NONE
    INTEGER GNUMBER2,I
    CHARACTER NUMBER*13,ANUMBER*3,B*80
@@ -3537,16 +3548,17 @@ SUBROUTINE FICT(I,INDEX,ND,ABBE,DPART)
    use mod_surface
    use DATMAI
    use mod_system, only: sys_last_surf, sys_wavelength
+   use iso_fortran_env, only: real64
    IMPLICIT NONE
 !
    INTEGER I,J
 !
-   REAL*8 CCEE,CBAR,XND,XNC,XNF,XNE,XV,XD,NE,DDDISS
+   real(real64) CCEE,CBAR,XND,XNC,XNF,XNE,XV,XD,NE,DDDISS
 !
-   REAL*8 ND,ABBE,DPART,INDEX
+   real(real64) ND,ABBE,DPART,INDEX
 !
 !
-   REAL*8 PNSC,LAMBDA,A0,A1,A2,A3,A4,A5,DISP ,A01,A11,A21,A31,A41,A51,A02,A12,A22,A32,A42,A52,XDISP ,XVD,ND1,NF1,NC1,ND2,NF2,NC2,DISP1,DISP2,C1,C2,NX1,NX2 ,P1,P2,V1,V2,SLOPE,NEWP
+   real(real64) PNSC,LAMBDA,A0,A1,A2,A3,A4,A5,DISP ,A01,A11,A21,A31,A41,A51,A02,A12,A22,A32,A42,A52,XDISP ,XVD,ND1,NF1,NC1,ND2,NF2,NC2,DISP1,DISP2,C1,C2,NX1,NX2 ,P1,P2,V1,V2,SLOPE,NEWP
 !
    PNSC(LAMBDA,A0,A1,A2,A3,A4,A5)=DSQRT(((A0*(LAMBDA**2))/((LAMBDA**2)-A3))+((A1*(LAMBDA**2))/((LAMBDA**2)-A4))+((A2*(LAMBDA**2))/((LAMBDA**2)-A5))+1.0D0)
 !
@@ -3637,10 +3649,11 @@ END
 
 
 SUBROUTINE OPENGLASSFILE(filePath, fileID, TOTAL)
+   use iso_fortran_env, only: real64
    character(len=*) :: filePath
    integer :: TOTAL, fileID, rec11, rec15, tstUnit
    CHARACTER(len=13) :: NAME,NUMBER
-   REAL*8 A0,A1,A2,A3,A4,A5
+   real(real64) A0,A1,A2,A3,A4,A5
    logical :: isFile
    integer :: ierr
 
@@ -3673,11 +3686,12 @@ SUBROUTINE CHECKGLSRESWAVELENGTHBOUNDS(boolResult,NAME1, NAME2, FLNAME, LMIN, LM
    use DATLEN
    use mod_surface
    use DATMAI
+   use iso_fortran_env, only: real64
    logical, intent(inout) :: boolResult
    character(len=*) :: NAME1, NAME2, FLNAME
    integer :: sI ! Surface Number
 
-   REAL*8 LMAX,LMIN,LAMLOW,LAMUPP
+   real(real64) LMAX,LMIN,LAMLOW,LAMUPP
 
 
 
@@ -3710,12 +3724,13 @@ SUBROUTINE CHECKGLASSCATWAVELENGTHBOUNDS(boolResult, FLNAME)
    use DATLEN
    use mod_surface
    use DATMAI
+   use iso_fortran_env, only: real64
 
    logical, intent(inout) :: boolResult
    character(len=*) :: FLNAME
    CHARACTER*13 NAME1,NAME2
 
-   REAL*8 LMAX,LMIN,LAMLOW,LAMUPP,PNSC
+   real(real64) LMAX,LMIN,LAMLOW,LAMUPP,PNSC
 
 
    boolResult = .TRUE.

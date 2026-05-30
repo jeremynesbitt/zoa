@@ -6,13 +6,14 @@ SUBROUTINE THERM
    use DATMAI
    use command_utils, only: is_command_query
    use mod_system, only: sys_last_surf
+   use iso_fortran_env, only: real64
    IMPLICIT NONE
 !
    INTEGER I
 !
    LOGICAL GONOGO
 !
-   REAL*8 FACTOR,DSGN
+   real(real64) FACTOR,DSGN
 !
    EXTERNAL DSGN
 !
@@ -335,6 +336,7 @@ SUBROUTINE CHKGLS(GONOGO,I)
    use DATLEN
    use mod_surface
    use DATMAI
+   use iso_fortran_env, only: real64
    IMPLICIT NONE
    LOGICAL GONOGO
    INTEGER I
@@ -350,6 +352,7 @@ SUBROUTINE CHKGLSP(GONOGO,I)
    use DATLEN
    use mod_surface
    use DATMAI
+   use iso_fortran_env, only: real64
    IMPLICIT NONE
    LOGICAL GONOGO
    INTEGER I
@@ -365,6 +368,7 @@ SUBROUTINE CHKTHK(GONOGO,I)
    use DATLEN
    use mod_surface
    use DATMAI
+   use iso_fortran_env, only: real64
    IMPLICIT NONE
    LOGICAL GONOGO,PIKK,SLVV
    INTEGER I
@@ -393,6 +397,7 @@ SUBROUTINE CHKCVR(GONOGO,I)
    use DATLEN
    use mod_surface
    use DATMAI
+   use iso_fortran_env, only: real64
    IMPLICIT NONE
    LOGICAL GONOGO,PIKK,SLVV
    INTEGER I
@@ -439,6 +444,7 @@ SUBROUTINE TELAIM
    use command_utils, only: is_command_query
    use mod_system, only: sys_last_surf, sys_telecentric, sys_ray_aiming, sys_aplanatic_aim, &
       & sys_set_telecentric, sys_set_ray_aiming, sys_set_aplanatic_aim
+   use iso_fortran_env, only: real64
    IMPLICIT NONE
 !
 !       THIS IS SUBROUTINE TELAIM.FOR. THIS SUBROUTINE CONTROLS
@@ -504,13 +510,14 @@ SUBROUTINE NEARFARNEAR
    use DATMAI
    use command_utils, only: is_command_query
    use mod_system, only: sys_units
+   use iso_fortran_env, only: real64
    IMPLICIT NONE
 !
 !       THIS IS SUBROUTINE NEARFAR.FOR. THIS SUBROUTINE CONTROLS
 !     THE CMD LEVEL COMMANDS NEAR AND FAR FOR GOTF AND DOTF UNITS
 !     AND WORKS WITH THE O SETTING OF THE SPACE COMMAND
 !
-   REAL*8 AL
+   real(real64) AL
 !
    IF(sys_units().EQ.1.0D0) AL=DABS(surf_thickness(NEWOBJ))*25.4D0
    IF(sys_units().EQ.2.0D0) AL=DABS(surf_thickness(NEWOBJ))*10.0D0
@@ -558,6 +565,7 @@ SUBROUTINE OVERBOSE
    use DATMAI
    use command_utils, only: is_command_query
    use mod_system, only: sys_verbose_optim, sys_set_verbose_optim
+   use iso_fortran_env, only: real64
    IMPLICIT NONE
 !
 !       THIS IS SUBROUTINE OPTMINIT.FOR. THIS SUBROUTINE CONTROLS
@@ -607,6 +615,7 @@ SUBROUTINE OPTMINIT
    use mod_surface
    use DATMAI
    use command_utils, only: is_command_query
+   use iso_fortran_env, only: real64
    IMPLICIT NONE
 !
 !       THIS IS SUBROUTINE OPTMINIT.FOR. THIS SUBROUTINE CONTROLS
@@ -657,6 +666,7 @@ SUBROUTINE GEOLEICA
    use mod_surface
    use DATMAI
    use command_utils, only: is_command_query
+   use iso_fortran_env, only: real64
    IMPLICIT NONE
 !
 !       THIS IS SUBROUTINE GEOLEICA.FOR. THIS SUBROUTINE CONTROLS
@@ -726,6 +736,7 @@ SUBROUTINE DIFLEICA
    use mod_surface
    use DATMAI
    use command_utils, only: is_command_query
+   use iso_fortran_env, only: real64
    IMPLICIT NONE
 !
 !       THIS IS SUBROUTINE DIFLEICA.FOR. THIS SUBROUTINE CONTROLS
@@ -795,6 +806,7 @@ SUBROUTINE SWV
    use DATMAI
    use command_utils, only: is_command_query
    use mod_system, only: sys_wavelength, sys_set_wavelength, sys_set_wl_weight, sys_set_wv_default
+   use iso_fortran_env, only: real64
    IMPLICIT NONE
 !
 !       THIS SUBROUTINE HANDELS THE ASSIGNMENT OF WAVELENGTHS.
@@ -913,6 +925,7 @@ SUBROUTINE SWV2
    use DATMAI
    use command_utils, only: is_command_query
    use mod_system, only: sys_wavelength, sys_set_wavelength, sys_set_wl_weight, sys_set_wv_default
+   use iso_fortran_env, only: real64
    IMPLICIT NONE
 !
 !       THIS SUBROUTINE HANDELS THE ASSIGNMENT OF WAVELENGTHS.
@@ -1030,6 +1043,7 @@ SUBROUTINE SVSET
    use mod_surface
    use DATMAI
    use mod_system, only: sys_last_surf
+   use iso_fortran_env, only: real64
    IMPLICIT NONE
 !
 !       THIS IS SUBROUTINE SVSET .
@@ -1165,6 +1179,7 @@ SUBROUTINE SUNITS
    use DATMAI
    use command_utils, only: is_command_query
    use mod_system, only: sys_last_surf, sys_units, sys_set_units
+   use iso_fortran_env, only: real64
    IMPLICIT NONE
 !
 !       THIS SUBROUTINE HANDELS THE UNITS COMMAND BOTH AT
@@ -1295,6 +1310,7 @@ SUBROUTINE STORIC
    use DATLEN
    use mod_surface
    use DATMAI
+   use iso_fortran_env, only: real64
    IMPLICIT NONE
 !
 !       THIS IS SUBROUTINE STORIC WHICH IMPLEMENTS THE YTORIC OR XTORIC
@@ -1512,6 +1528,7 @@ SUBROUTINE STORD
    use DATMAI
    use mod_system, only: sys_last_surf
    use mod_lens_data_manager, only: ldm
+   use iso_fortran_env, only: real64
    IMPLICIT NONE
 !
 !       THIS IS SUBROUTINE STORD WHICH IMPLEMENTS THE TORD
@@ -1814,6 +1831,7 @@ SUBROUTINE STILTD
    use DATMAI
    use mod_system, only: sys_last_surf
    use mod_lens_data_manager, only: ldm
+   use iso_fortran_env, only: real64
    IMPLICIT NONE
 !
 !       THIS IS SUBROUTINE STILTD WHICH IMPLEMENTS THE TILTD COMMAND
@@ -2037,6 +2055,7 @@ SUBROUTINE STILTAD
    use mod_surface
    use DATMAI
    use mod_system, only: sys_last_surf
+   use iso_fortran_env, only: real64
    IMPLICIT NONE
 !
 !       THIS IS SUBROUTINE STILT WHICH IMPLEMENTS THE TILT COMMANDS
@@ -2212,6 +2231,7 @@ SUBROUTINE STH
       & sys_sth_temp, sys_set_sth_temp, sys_y1_scy_set, sys_x1_scx_set, &
       & sys_y1_scy, sys_set_y1_scy, sys_x1_scx, sys_set_x1_scx, &
       & sys_y1_scy_fang, sys_set_y1_scy_fang, sys_x1_scx_fang, sys_set_x1_scx_fang
+   use iso_fortran_env, only: real64
    IMPLICIT NONE
 !
 !       THIS IS SUBROUTINE STH WHICH IMPLEMENTS THE TH
@@ -2222,7 +2242,7 @@ SUBROUTINE STH
 !
    INTEGER PIKCNT,I
 !
-   REAL*8 X00,Y00,OLDX1,OLDY1,OLDTH,TH,SLOPE ,NEWY1,NEWX1,Y0ANG,X0ANG
+   real(real64) X00,Y00,OLDX1,OLDY1,OLDTH,TH,SLOPE ,NEWY1,NEWX1,Y0ANG,X0ANG
 !
 !
 !               CHECK FOR PRESENCE OF QUALIFIER OR STRING INPUT
@@ -2420,6 +2440,7 @@ SUBROUTINE SPRICE
    use DATLEN
    use mod_surface
    use DATMAI
+   use iso_fortran_env, only: real64
    IMPLICIT NONE
 !
 !       THIS IS SUBROUTINE SPRICE WHICH IMPLEMENTS THE PRICE
@@ -2427,7 +2448,7 @@ SUBROUTINE SPRICE
 !
    INTEGER PIKCNT,I
 !
-   REAL*8 X00,Y00,OLDX1,OLDY1,OLDTH,TH,SLOPE ,NEWY1,NEWX1,Y0ANG,X0ANG
+   real(real64) X00,Y00,OLDX1,OLDY1,OLDTH,TH,SLOPE ,NEWY1,NEWX1,Y0ANG,X0ANG
 !
 !
 !               CHECK FOR PRESENCE OF QUALIFIER OR STRING INPUT
@@ -2479,6 +2500,7 @@ SUBROUTINE STHM
    use DATLEN
    use mod_surface
    use DATMAI
+   use iso_fortran_env, only: real64
    IMPLICIT NONE
 !
 !       THIS IS SUBROUTINE STHM WHICH IMPLEMENTS THE THM
@@ -2486,7 +2508,7 @@ SUBROUTINE STHM
 !
    INTEGER PIKCNT,I
 !
-   REAL*8 X00,Y00,OLDX1,OLDY1,OLDTH,TH,SLOPE ,NEWY1,NEWX1,Y0ANG,X0ANG
+   real(real64) X00,Y00,OLDX1,OLDY1,OLDTH,TH,SLOPE ,NEWY1,NEWX1,Y0ANG,X0ANG
 !
 !
 !               CHECK FOR PRESENCE OF QUALIFIER OR STRING INPUT
@@ -2546,6 +2568,7 @@ SUBROUTINE SAUTOFUNC
    use mod_surface
    use DATMAI
    use mod_system, only: sys_set_autofunc
+   use iso_fortran_env, only: real64
    IMPLICIT NONE
 !
 !       THIS IS SUBROUTINE SAUTOFUNC WHICH IMPLEMENTS THE AUTOFUNC
@@ -2595,6 +2618,7 @@ SUBROUTINE STASPH
    use DATMAI
    use command_utils, only: is_command_query
    use mod_system, only: sys_last_surf
+   use iso_fortran_env, only: real64
    IMPLICIT NONE
 !
 !       THIS IS SUBROUTINE STASPH WHICH IMPLEMENTS THE TASPH
@@ -2613,7 +2637,7 @@ SUBROUTINE STASPH
 !
    INTEGER I,J
 !
-   REAL*8 CC,AD,AE,AF,AG
+   real(real64) CC,AD,AE,AF,AG
 !
 !
    IF(F5.EQ.1.OR.F6.EQ.1) THEN
@@ -2878,6 +2902,7 @@ SUBROUTINE STILT
    use DATMAI
    use mod_system, only: sys_last_surf, sys_ref_surf
    use mod_lens_data_manager, only: ldm
+   use iso_fortran_env, only: real64
    IMPLICIT NONE
 !
 !       THIS IS SUBROUTINE STILT WHICH IMPLEMENTS THE TILT COMMANDS
@@ -2885,7 +2910,7 @@ SUBROUTINE STILT
 !       AND TILT RETD,BEND AND DARD AND REVD
 !       COMMAND AT THE LENS INPUT LEVEL OR THE LENS UPDATE LEVEL.
 !
-   REAL*8 RAL,RBE,RGAM,CGAM,SGAM
+   real(real64) RAL,RBE,RGAM,CGAM,SGAM
 !
    INTEGER PIKCNT,I,J,K,NEXTSURF
 !

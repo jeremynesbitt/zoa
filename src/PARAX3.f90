@@ -7,6 +7,7 @@ SUBROUTINE ENEXRS
    use DATMAI
    use mod_surface, only: surf_thickness, surf_refractive_index, set_surf_thickness
    use mod_system, only: sys_astop, sys_astop_adj, sys_last_surf, sys_set_astop_adj, sys_telecentric
+   use iso_fortran_env, only: real64
    IMPLICIT NONE
 !
 !       THIS IS SUBROUTINE ENEXRS. IT IS CALLED FROM PRTRA1
@@ -16,7 +17,7 @@ SUBROUTINE ENEXRS
 !
    INTEGER J,IMSUR,IM2,IM1
 !
-   REAL*8 CURV,THNEW,THNEW2
+   real(real64) CURV,THNEW,THNEW2
 !
 !
 !       IS THERE AN ASTOP DEFINED OR IS TEL ON?
@@ -264,6 +265,7 @@ SUBROUTINE ERADJ
       & sys_last_surf, sys_na_set, sys_naox, sys_naoy, sys_sax, sys_say, sys_telecentric, &
       & sys_set_fno_flag_x, sys_set_fno_flag_y, sys_set_fno_hold_x, sys_set_fno_hold_y, &
       & sys_set_sax, sys_set_say
+   use iso_fortran_env, only: real64
    IMPLICIT NONE
 !
 !       THIS IS SUBROUTINE ERADJ. THIS IS THE SUBROUTINE
@@ -447,11 +449,12 @@ SUBROUTINE INVAR
    use DATMAI
    use mod_system, only: sys_last_surf, sys_wl_ref
    use mod_lens_data_manager, only: ldm
+   use iso_fortran_env, only: real64
    IMPLICIT NONE
 !
    INTEGER CW,SF
 !
-   REAL*8 INVY,INVX
+   real(real64) INVY,INVX
 !
 !
    IF(SN.EQ.1.OR.SST.EQ.1.OR.SQ.EQ.1) THEN
@@ -507,6 +510,7 @@ SUBROUTINE PCD3
    use DATMAI
    use mod_system, only: sys_last_surf, sys_mode, sys_wl_ref
    use mod_lens_data_manager, only: ldm
+   use iso_fortran_env, only: real64
    IMPLICIT NONE
 !
 !       THIS IS SUBROUTINE PCD3. THIS SUBROUTINE IMPLEMENTS
@@ -516,9 +520,9 @@ SUBROUTINE PCD3
 !
    INTEGER SF,CW,I
 !
-   REAL*8 C1,C2,C3,C4,C5,C1T,C2T,C3T,C4T,C5T
+   real(real64) C1,C2,C3,C4,C5,C1T,C2T,C3T,C4T,C5T
 !
-   REAL*8 INV
+   real(real64) INV
 !
 !
    CALL PRTRD
@@ -1069,6 +1073,7 @@ SUBROUTINE PCD5
    use DATMAI
    use mod_system, only: sys_last_surf, sys_mode, sys_wl_ref
    use mod_lens_data_manager, only: ldm
+   use iso_fortran_env, only: real64
    IMPLICIT NONE
 !
 !       THIS IS SUBROUTINE PCD5. THIS SUBROUTINE IMPLEMENTS
@@ -1076,9 +1081,9 @@ SUBROUTINE PCD5
 
    INTEGER SF,CW,I
 !
-   REAL*8 C1,C2,C3,C4,C5,C1T,C2T,C3T,C4T,C5T
+   real(real64) C1,C2,C3,C4,C5,C1T,C2T,C3T,C4T,C5T
 !
-   REAL*8 INV
+   real(real64) INV
 !
 !
    CALL PRTRD
@@ -1630,6 +1635,7 @@ SUBROUTINE PCDX5
    use DATMAI
    use mod_system, only: sys_last_surf, sys_mode, sys_wl_ref
    use mod_lens_data_manager, only: ldm
+   use iso_fortran_env, only: real64
    IMPLICIT NONE
 !
 !       THIS IS SUBROUTINE PCDX5. THIS SUBROUTINE IMPLEMENTS
@@ -1637,9 +1643,9 @@ SUBROUTINE PCDX5
 
    INTEGER SF,CW,I
 !
-   REAL*8 C1,C2,C3,C4,C5,C1T,C2T,C3T,C4T,C5T
+   real(real64) C1,C2,C3,C4,C5,C1T,C2T,C3T,C4T,C5T
 !
-   REAL*8 INV
+   real(real64) INV
 !
 !
    CALL PRTRD
@@ -2195,6 +2201,7 @@ SUBROUTINE PCDP3
    use DATMAI
    use mod_system, only: sys_last_surf, sys_mode, sys_wl_ref
    use mod_lens_data_manager, only: ldm
+   use iso_fortran_env, only: real64
    IMPLICIT NONE
 !
 !       THIS IS SUBROUTINE PCDP3. THIS SUBROUTINE IMPLEMENTS
@@ -2202,9 +2209,9 @@ SUBROUTINE PCDP3
 !
    INTEGER SF,CW,I
 !
-   REAL*8 C1,C2,C3,C4,C5,C1T,C2T,C3T,C4T,C5T
+   real(real64) C1,C2,C3,C4,C5,C1T,C2T,C3T,C4T,C5T
 !
-   REAL*8 INV
+   real(real64) INV
 !
 !
    CALL PRTRD
@@ -2757,6 +2764,7 @@ SUBROUTINE PCDSA
    use DATMAI
    use mod_system, only: sys_last_surf, sys_mode, sys_wl_ref
    use mod_lens_data_manager, only: ldm
+   use iso_fortran_env, only: real64
    IMPLICIT NONE
 !
 !       THIS IS SUBROUTINE PCDSA. THIS SUBROUTINE IMPLEMENTS
@@ -2764,9 +2772,9 @@ SUBROUTINE PCDSA
 !
    INTEGER SF,CW,I
 !
-   REAL*8 C1,C2,C3
+   real(real64) C1,C2,C3
 !
-   REAL*8 INV,C1T,C2T,C3T
+   real(real64) INV,C1T,C2T,C3T
 !
 !
    CALL PRTRD
@@ -3243,6 +3251,7 @@ SUBROUTINE CCOL
    use mod_surface, only: surf_refractive_index
    use mod_system, only: sys_last_surf, sys_wl_pri1, sys_wl_pri2, sys_wl_ref, sys_wl_sec1, sys_wl_sec2
    use mod_lens_data_manager, only: ldm
+   use iso_fortran_env, only: real64
    IMPLICIT NONE
 !
 !       THIS SUBROUTINE CALCULATES THE YZ PLANE (ITYPEP=1)
@@ -3267,7 +3276,7 @@ SUBROUTINE CCOL
 !
    COMMON/PTYPER/ITYPEP
 !
-   REAL*8 DN,DNP,PN,J_NP
+   real(real64) DN,DNP,PN,J_NP
 !
 !
    IF(ITYPEP.EQ.1) THEN
@@ -3528,6 +3537,7 @@ SUBROUTINE FIRD
    use DATLEN
    use DATMAI
    use mod_system, only: sys_last_surf, sys_set_wavelength, sys_units, sys_wavelength, sys_wl_ref
+   use iso_fortran_env, only: real64
    IMPLICIT NONE
 !
 !       THIS IS SUBROUTINE FIRD. THIS SUBROUTINE IMPLEMENTS
@@ -3546,7 +3556,7 @@ SUBROUTINE FIRD
 !
    INTEGER I,J
 !
-   REAL*8 NEWWAVE,OLDWAVE,&
+   real(real64) NEWWAVE,OLDWAVE,&
    &EFLY,EFLX,BFLY,BFLX,FFLY,FFLX,LAMBDA
 !
 !
@@ -3825,6 +3835,7 @@ SUBROUTINE FINIYZ
    use mod_surface, only: surf_curvature, surf_thickness, surf_toric_flag, surf_toric_curvature, surf_pickup_count, surf_ideal_efl, surf_asphere_coeff
    use mod_system, only: sys_wl_ref
    use mod_lens_data_manager, only: ldm
+   use iso_fortran_env, only: real64
    IMPLICIT NONE
 !
 !       THIS IS SUBROUTINE FINIYZ. THIS IS THE
@@ -3837,7 +3848,7 @@ SUBROUTINE FINIYZ
 !
    COMMON/PIKCOM/COMI
 !
-   REAL*8 CURV
+   real(real64) CURV
 !
    COMI=FINY
    K=FINY
@@ -3922,6 +3933,7 @@ SUBROUTINE FINIXZ
    use mod_surface, only: surf_curvature, surf_thickness, surf_toric_flag, surf_toric_curvature, surf_pickup_count, surf_ideal_efl, surf_asphere_coeff
    use mod_system, only: sys_wl_ref
    use mod_lens_data_manager, only: ldm
+   use iso_fortran_env, only: real64
    IMPLICIT NONE
 !
 !       THIS IS SUBROUTINE FINIXZ. THIS IS THE
@@ -3934,7 +3946,7 @@ SUBROUTINE FINIXZ
 !
    COMMON/PIKCOM/COMI
 !
-   REAL*8 CURV
+   real(real64) CURV
 !
    K=FINY
    COMI=FINY
@@ -4015,6 +4027,7 @@ SUBROUTINE FCH
    use DATMAI
    use mod_system, only: sys_last_surf, sys_mode, sys_wl_ref
    use mod_lens_data_manager, only: ldm
+   use iso_fortran_env, only: real64
    IMPLICIT NONE
 !
 !       THIS IS SUBROUTINE FCH. THIS SUBROUTINE IMPLEMENTS
@@ -4024,7 +4037,7 @@ SUBROUTINE FCH
 !
    INTEGER SF,CW,I
 !
-   REAL*8 INV &
+   real(real64) INV &
    &,C1,C2,C3,C4,TPAC,TPLC,TSAC,TSLC
 !
 !

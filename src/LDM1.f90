@@ -37,11 +37,12 @@ SUBROUTINE LENNS
       & sys_set_aplanatic_aim, sys_set_scy, sys_set_y1_scy, sys_set_scx, sys_set_x1_scx, &
       & sys_set_xz_data_flag, sys_set_ref_surf, sys_set_astop, sys_set_astop_adj, &
       & sys_set_mode, sys_set_current_cfg, sys_set_high_cfg, sys_set_wl_weight
+   use iso_fortran_env, only: real64
    IMPLICIT NONE
 !
    INTEGER I,K,J
 !
-   REAL*8 XFOBB0,YFOBB0,ZFOBB0
+   real(real64) XFOBB0,YFOBB0,ZFOBB0
 
 !
    COMMON/OHFOB/XFOBB0,YFOBB0,ZFOBB0
@@ -326,6 +327,7 @@ SUBROUTINE XYGAMA
    use DATMAI
    use command_utils, only: reject_string_input, reject_numeric_input_after, require_numeric_input, &
    & is_command_query
+   use iso_fortran_env, only: real64
    IMPLICIT NONE
 !
 !       THIS ROUTINE DOES THE PLOT XSHIFT,YSHIFT AND GAMMA COMMANDS
@@ -392,13 +394,14 @@ SUBROUTINE ULQUER
       & sys_set_naoy, sys_set_naox, sys_set_fno_hold_y, sys_set_fno_hold_x, &
       & sys_set_fno_val_y, sys_set_fno_val_x
    use mod_lens_data_manager, only: ldm
+   use iso_fortran_env, only: real64
    IMPLICIT NONE
 !
 !       THIS SUBROUTINE DISPLAYS THE CURRENT VALUE OF A LENS
 !       SYSTEM PARAMETER FROM WITHIN THE UPDATE LENS
 !       LEVEL IN RESPONSE TO A COMMAND NAME FOLLOWED BY A ?
 !
-   REAL*8 VALUE1,VALUE2,VALUE3,VALUE4,VALUE5,VALUE6
+   real(real64) VALUE1,VALUE2,VALUE3,VALUE4,VALUE5,VALUE6
 !
    INTEGER V1,V2,V3,V4,V5,V6,VA1,VA1WS1,VA1WS2,VA1WS3,VA1WS4 ,MAT,REPEAT,I
 !
@@ -2540,6 +2543,7 @@ SUBROUTINE ULENNS
    use mod_surface
    use DATMAI
    use mod_system, only: sys_astop, sys_last_surf
+   use iso_fortran_env, only: real64
    IMPLICIT NONE
 !
 !       THIS IS SUBROUTINE ULENNS. THIS IS THE SUBROUTINE WHICH
@@ -2599,6 +2603,7 @@ SUBROUTINE THSOLV
    use DATMAI
    use command_utils, only: is_command_query
    use mod_system, only: sys_last_surf, sys_astop
+   use iso_fortran_env, only: real64
    IMPLICIT NONE
 !
 !       THIS IS SUBROUTINE THSOLV WHICH IMPLEMENTS THE
@@ -2904,13 +2909,14 @@ SUBROUTINE THERMGAS
    use DATMAI
    use command_utils, only: is_command_query
    use mod_system, only: sys_wavelength, sys_last_surf
+   use iso_fortran_env, only: real64
    IMPLICIT NONE
 !
    INTEGER I
 !
    LOGICAL GONOGO
 !
-   REAL*8 DSGN,DUMA,DUMB,DUML,LM1,LA1,LA2,LA3 ,LA4,LA5,A,B,LA6,LA7,LA8,LA9,LA10
+   real(real64) DSGN,DUMA,DUMB,DUML,LM1,LA1,LA2,LA3 ,LA4,LA5,A,B,LA6,LA7,LA8,LA9,LA10
 !
    EXTERNAL DSGN
 !
@@ -3274,8 +3280,9 @@ SUBROUTINE THERMGAS
    RETURN
 END
 FUNCTION DSGN(A)
+   use iso_fortran_env, only: real64
    IMPLICIT NONE
-   REAL*8 A,DSGN
+   real(real64) A,DSGN
    IF(A.NE.0.0D0) THEN
       DSGN=A/DABS(A)
    ELSE
@@ -3290,6 +3297,7 @@ SUBROUTINE SXYD
    use mod_surface
    use DATMAI
    use mod_system, only: sys_last_surf
+   use iso_fortran_env, only: real64
    IMPLICIT NONE
 !
 !       THIS IS SUBROUTINE SXYD WHICH IMPLEMENTS THE XD AND YD
@@ -3447,6 +3455,7 @@ SUBROUTINE SPIVXYD
    use mod_surface
    use DATMAI
    use mod_system, only: sys_last_surf
+   use iso_fortran_env, only: real64
    IMPLICIT NONE
 !
 !       THIS IS SUBROUTINE SPIVXYD WHICH IMPLEMENTS THE PIVX,PIVY AND PIVZ
@@ -3592,6 +3601,7 @@ SUBROUTINE SGXYD
    use mod_surface
    use DATMAI
    use mod_system, only: sys_last_surf
+   use iso_fortran_env, only: real64
    IMPLICIT NONE
 !
 !       THIS IS SUBROUTINE SGXYD WHICH IMPLEMENTS GDX, GDY GDZ
@@ -3713,6 +3723,7 @@ SUBROUTINE SGRAT
    use DATMAI
    use mod_system, only: sys_last_surf
    use mod_lens_data_manager, only: ldm
+   use iso_fortran_env, only: real64
    IMPLICIT NONE
 !
 !       THIS IS SUBROUTINE SGRAT WHICH IMPLEMENTS GRT,GRO,GRS,GRX,GRY
@@ -3824,6 +3835,7 @@ SUBROUTINE SGRTD
    use mod_surface
    use DATMAI
    use mod_lens_data_manager, only: ldm
+   use iso_fortran_env, only: real64
    IMPLICIT NONE
 !
 !       THIS IS SUBROUTINE SGRTD WHICH IMPLEMENTS GRTD
@@ -3875,6 +3887,7 @@ SUBROUTINE ABSORB
    use mod_surface
    use DATMAI
    use command_utils, only: is_command_query
+   use iso_fortran_env, only: real64
    IMPLICIT NONE
 !
 !       THIS IS SUBROUTINE ABSORB WHICH IMPLEMENTS CMD LEVEL COMMAND ABSORB

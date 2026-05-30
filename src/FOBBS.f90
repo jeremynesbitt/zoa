@@ -9,6 +9,7 @@ SUBROUTINE FOBA
    use command_utils, only: is_command_query
    use mod_system, only: sys_last_surf, sys_ref_surf, sys_scx, sys_scx_fang, &
       & sys_scx_fang_set, sys_scy, sys_scy_fang, sys_scy_fang_set, sys_wl_ref
+   use iso_fortran_env, only: real64
    IMPLICIT NONE
 !
 !       THIS IS SUBROUTINE FOBA.FOR. THIS SUBROUTINE IMPLEMENTS
@@ -16,10 +17,10 @@ SUBROUTINE FOBA
 !
    CHARACTER LUNI*3
 !
-   REAL*8 XPFOB,YPFOB
+   real(real64) XPFOB,YPFOB
    COMMON/PFOB/XPFOB,YPFOB,LUNI
 !
-   REAL*8 YAYA,NWW1,NWW2,NWW3
+   real(real64) YAYA,NWW1,NWW2,NWW3
 !
 !
 !
@@ -223,6 +224,7 @@ SUBROUTINE FFOBH
    use mod_system, only: sys_aim_offset_x, sys_aim_offset_y, sys_aim_offset_z, &
       & sys_last_surf, sys_scx, sys_scy, sys_scy_fang_set, sys_telecentric, &
       & sys_units, sys_wavelength, sys_wl_ref
+   use iso_fortran_env, only: real64
    IMPLICIT NONE
 !
 !       THIS IS SUBROUTINE FFOBH.FOR. THIS SUBROUTINE IMPLEMENTS
@@ -235,12 +237,12 @@ SUBROUTINE FFOBH
 !
    CHARACTER LUNI*3
 !
-   REAL*8 XPFOB,YPFOB
+   real(real64) XPFOB,YPFOB
    COMMON/PFOB/XPFOB,YPFOB,LUNI
 !
    INTEGER IISURF,FFT,FFS,I,J,ICNT,ICNTEST
 !
-   REAL*8 FT,FS,X00,Y00,Z0 &
+   real(real64) FT,FS,X00,Y00,Z0 &
    &,LAMBDA,ANGLE1,XK,YK,XLN,XMN,XNN,XFOBB0,YFOBB0,ZFOBB0 &
    &,ANGJK1,ANGJK2,XXANG,YYANG,FACTER,XA,YA,ZA,XJIM,YJIM,ZJIM &
    &,ZSAG,ANGFACX,ANGFACY,ANGLE2,SCLFACY,SCLFACX,AWW1,AWW2 &
@@ -1335,6 +1337,7 @@ SUBROUTINE FFOB2
       & sys_last_surf, sys_ref_surf, sys_rxim_fang_set, sys_ryim_fang_set, &
       & sys_scx, sys_scx_fang, sys_scx_fang_set, sys_scy, sys_scy_fang, &
       & sys_scy_fang_set, sys_telecentric, sys_wavelength, sys_wl_ref
+   use iso_fortran_env, only: real64
    IMPLICIT NONE
 !
 !       THIS IS SUBROUTINE FFOB2.FOR. THIS SUBROUTINE IMPLEMENTS
@@ -1344,15 +1347,15 @@ SUBROUTINE FFOB2
 !
    CHARACTER LUNI*3
 !
-   REAL*8 XPFOB,YPFOB
+   real(real64) XPFOB,YPFOB
    COMMON/PFOB/XPFOB,YPFOB,LUNI
 !
-   REAL*8 FT,FS,X00,Y00,Z0 &
+   real(real64) FT,FS,X00,Y00,Z0 &
    &,LAMBDA,ANGLE1,XK,YK,XLN,XMN,XNN,XFOBB0,YFOBB0,ZFOBB0 &
    &,ANGJK1,ANGJK2,XXANG,YYANG,FACTER,XA,YA,ZA,XJIM,YJIM,ZJIM &
    &,ZSAG,ANGLE2,SCLFACY,SCLFACX,AWW1,AWW2
 !
-   REAL*8 XRAYER,YRAYER,ZRAYER
+   real(real64) XRAYER,YRAYER,ZRAYER
    COMMON/RAYERPASS/XRAYER,YRAYER,ZRAYER
 !
    COMMON/OHFOB/XFOBB0,YFOBB0,ZFOBB0
@@ -2462,21 +2465,22 @@ SUBROUTINE FASTFFOB(WPAS)
    use mod_surface, only: surf_curvature, surf_thickness, surf_decenter_y, surf_decenter_x
    use mod_system, only: sys_aim_offset_x, sys_aim_offset_y, sys_aim_offset_z, &
       & sys_rxim_fang_set, sys_ryim_fang_set, sys_scx, sys_scy, sys_wavelength
+   use iso_fortran_env, only: real64
    IMPLICIT NONE
 !
    INTEGER IISURF,FFT,FFS,I,J,ICNT,ICNTEST
 !
    CHARACTER LUNI*3
 !
-   REAL*8 XPFOB,YPFOB,WPAS
+   real(real64) XPFOB,YPFOB,WPAS
    COMMON/PFOB/XPFOB,YPFOB,LUNI
 !
-   REAL*8 FT,FS,X00,Y00,Z0 &
+   real(real64) FT,FS,X00,Y00,Z0 &
    &,LAMBDA,ANGLE1,XK,YK,XLN,XMN,XNN,XFOBB0,YFOBB0,ZFOBB0 &
    &,ANGJK1,ANGJK2,XXANG,YYANG,FACTER,XA,YA,ZA,XJIM,YJIM,ZJIM &
    &,ZSAG,ANGLE2,SCLFACY,SCLFACX,AWW1,AWW2
 !
-   REAL*8 XRAYER,YRAYER,ZRAYER
+   real(real64) XRAYER,YRAYER,ZRAYER
    COMMON/RAYERPASS/XRAYER,YRAYER,ZRAYER
 !
    COMMON/OHFOB/XFOBB0,YFOBB0,ZFOBB0
@@ -2954,6 +2958,7 @@ SUBROUTINE SLOWFFOB(WPAS)
       & sys_last_surf, sys_rxim_fang_set, sys_ryim_fang_set, sys_scx, &
       & sys_scx_fang, sys_scx_fang_set, sys_scy, sys_scy_fang, &
       & sys_scy_fang_set, sys_units, sys_wavelength, sys_wl_ref
+   use iso_fortran_env, only: real64
    IMPLICIT NONE
 !
 !       SLOWFFOB IS USED BY IMTRACE3 FOR IMAGE CREATION
@@ -2964,15 +2969,15 @@ SUBROUTINE SLOWFFOB(WPAS)
 !
    CHARACTER LUNI*3
 !
-   REAL*8 XPFOB,YPFOB
+   real(real64) XPFOB,YPFOB
    COMMON/PFOB/XPFOB,YPFOB,LUNI
 !
-   REAL*8 FT,FS,X00,Y00,Z0,WPAS &
+   real(real64) FT,FS,X00,Y00,Z0,WPAS &
    &,LAMBDA,ANGLE1,XK,YK,XLN,XMN,XNN,XFOBB0,YFOBB0,ZFOBB0 &
    &,ANGJK1,ANGJK2,XXANG,YYANG,FACTER,XA,YA,ZA,XJIM,YJIM,ZJIM &
    &,ZSAG,ANGLE2,SCLFACY,SCLFACX,AWW1,AWW2
 !
-   REAL*8 XRAYER,YRAYER,ZRAYER
+   real(real64) XRAYER,YRAYER,ZRAYER
    COMMON/RAYERPASS/XRAYER,YRAYER,ZRAYER
 !
    COMMON/OHFOB/XFOBB0,YFOBB0,ZFOBB0
@@ -4214,13 +4219,14 @@ SUBROUTINE MFFOBS
    use DATMAI
    use command_utils, only: is_command_query
    use mod_system, only: sys_wl_ref
+   use iso_fortran_env, only: real64
    IMPLICIT NONE
 !
 !       THIS IS SUBROUTINE MFFOBS.FOR. THIS SUBROUTINE IMPLEMENTS
 !       THE CMD LEVEL COMMAND "MFOBS".
 !
    INTEGER I,J,N
-   REAL*8 XSTEP,YSTEP,SW1,SW2
+   real(real64) XSTEP,YSTEP,SW1,SW2
 !
 !       SET DEFAULT NUMERICS
    IF(.not. is_command_query()) THEN
@@ -4305,6 +4311,7 @@ SUBROUTINE FFOB
       & sys_last_surf, sys_rxim_fang_set, sys_ryim_fang_set, sys_scx, &
       & sys_scx_fang, sys_scx_fang_set, sys_scy, sys_scy_fang, &
       & sys_scy_fang_set, sys_telecentric, sys_units, sys_wavelength, sys_wl_ref
+   use iso_fortran_env, only: real64
    IMPLICIT NONE
 !
 !       THIS IS SUBROUTINE FFOB.FOR. THIS SUBROUTINE IMPLEMENTS
@@ -4319,15 +4326,15 @@ SUBROUTINE FFOB
 !
    CHARACTER LUNI*3
 !
-   REAL*8 XPFOB,YPFOB
+   real(real64) XPFOB,YPFOB
    COMMON/PFOB/XPFOB,YPFOB,LUNI
 !
-   REAL*8 FT,FS,X00,Y00,Z0 &
+   real(real64) FT,FS,X00,Y00,Z0 &
    &,LAMBDA,ANGLE1,XK,YK,XLN,XMN,XNN,XFOBB0,YFOBB0,ZFOBB0 &
    &,ANGJK1,ANGJK2,XXANG,YYANG,FACTER,XA,YA,ZA,XJIM,YJIM,ZJIM &
    &,ZSAG,ANGLE2,SCLFACY,SCLFACX,AWW1,AWW2
 !
-   REAL*8 XRAYER,YRAYER,ZRAYER
+   real(real64) XRAYER,YRAYER,ZRAYER
    COMMON/RAYERPASS/XRAYER,YRAYER,ZRAYER
 !
    COMMON/OHFOB/XFOBB0,YFOBB0,ZFOBB0
@@ -5632,7 +5639,7 @@ END
 subroutine ISYFIELDANGLE90DEGREES(ANGJK, boolResult)
    use GLOBALS
 
-   real*8, intent(in) :: ANGJK
+   real(real64), intent(in) :: ANGJK
    logical, intent(inout) :: boolresult
    character(len=140) :: tmpTxt
 
@@ -5656,7 +5663,7 @@ end subroutine
 
 subroutine ADJUSTANGLEIFCLOSETO90(ANG)
    use GLOBALS
-   real*8, intent(inout) :: ANG
+   real(real64), intent(inout) :: ANG
    character(len=140) :: tmpTxt
 
    !write(tmpTxt, *) "Checking if Angle is close to n90  ", ANG
@@ -5712,6 +5719,7 @@ subroutine CHECKWAVELENGTHBOUNDS()
    use DATLEN
    use DATMAI
    use mod_system, only: sys_wavelength
+   use iso_fortran_env, only: real64
    implicit none
 
 
@@ -5777,6 +5785,7 @@ SUBROUTINE CHECK_OBJ_REF_IMG_SURFACES()
    use DATMAI
    use mod_surface, only: surf_tilt_flag
    use mod_system, only: sys_last_surf, sys_ref_surf
+   use iso_fortran_env, only: real64
    implicit none
 
    integer :: I

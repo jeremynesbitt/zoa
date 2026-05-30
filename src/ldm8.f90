@@ -7,6 +7,7 @@ SUBROUTINE SASTOP
    use mod_surface
    use DATMAI
    use mod_system, only: sys_astop, sys_astop_adj, sys_set_astop, sys_set_astop_adj
+   use iso_fortran_env, only: real64
    IMPLICIT NONE
 !
 !       THIS IS SUBROUTINE SASTOP WHICH IMPLEMENTS THE ASTOP
@@ -181,6 +182,7 @@ SUBROUTINE SASPHD
    use DATMAI
    use mod_system, only: sys_last_surf
    use mod_lens_data_manager, only: ldm
+   use iso_fortran_env, only: real64
    IMPLICIT NONE
 !
 !       THIS IS SUBROUTINE SASPHD WHICH IMPLEMENTS THE ASPHD
@@ -650,6 +652,7 @@ SUBROUTINE DELDEFIT
    use DATMAI
    use mod_system, only: sys_last_surf
    use mod_lens_data_manager, only: ldm
+   use iso_fortran_env, only: real64
    IMPLICIT NONE
 !
 !       THIS IS SUBROUTINE DELDEFIT WHICH IMPLEMENTS THE DELDEFOR COMMAND
@@ -730,6 +733,7 @@ SUBROUTINE SARRAYD
    use DATMAI
    use mod_system, only: sys_last_surf
    use mod_lens_data_manager, only: ldm
+   use iso_fortran_env, only: real64
    IMPLICIT NONE
 !
 !       THIS IS SUBROUTINE ARRAYD WHICH IMPLEMENTS THE ARRAYD
@@ -872,6 +876,7 @@ SUBROUTINE DEFIT
    use DATMAI
    use command_utils, only: is_command_query
    use mod_system, only: sys_last_surf
+   use iso_fortran_env, only: real64
    IMPLICIT NONE
 !
 !       THIS IS SUBROUTINE DEFIT WHICH IMPLEMENTS THE DEFOR
@@ -882,7 +887,7 @@ SUBROUTINE DEFIT
 !
    LOGICAL GERROR1,GERROR2
 !
-   REAL*8 D1,D2,D3,D4,D5,D6
+   real(real64) D1,D2,D3,D4,D5,D6
 !
 !
    IF(F5.EQ.1.OR.F6.EQ.1) THEN
@@ -1134,6 +1139,7 @@ SUBROUTINE SASPH
    use command_utils, only: is_command_query
    use mod_system, only: sys_last_surf
    use mod_lens_data_manager, only: ldm
+   use iso_fortran_env, only: real64
    IMPLICIT NONE
 !
 !       THIS IS SUBROUTINE SASPH WHICH IMPLEMENTS THE ASPH
@@ -1149,7 +1155,7 @@ SUBROUTINE SASPH
 !
    INTEGER I,J,JK
 !
-   REAL*8 CC,AC,AD,AE,AF,AG,AH,AI,AJ,AK,AL
+   real(real64) CC,AC,AD,AE,AF,AG,AH,AI,AJ,AK,AL
 !
 !
    IF(F5.EQ.1.OR.F6.EQ.1) THEN
@@ -1698,6 +1704,7 @@ SUBROUTINE SARRAY(PRINT_NOT_PRESENT)
    use DATMAI
    use command_utils, only: is_command_query
    use mod_system, only: sys_last_surf
+   use iso_fortran_env, only: real64
    IMPLICIT NONE
 !
 !       THIS IS SUBROUTINE SARRAY WHICH IMPLEMENTS THE ARRAY
@@ -1708,7 +1715,7 @@ SUBROUTINE SARRAY(PRINT_NOT_PRESENT)
 !
    LOGICAL GERROR1,GERROR2,PRINT_NOT_PRESENT
 !
-   REAL*8 D1,D2,D3,D4,D5
+   real(real64) D1,D2,D3,D4,D5
 !
 !
    IF(F5.EQ.1.OR.F6.EQ.1) THEN
@@ -1959,6 +1966,7 @@ SUBROUTINE SNODUM
    use mod_surface
    use DATMAI
    use command_utils, only: is_command_query
+   use iso_fortran_env, only: real64
    IMPLICIT NONE
 !
 !       THIS IS SUBROUTINE SNODUM WHICH IMPLEMENTS THE NODUM COMMAND
@@ -2009,6 +2017,7 @@ SUBROUTINE SURF_TYPE
    use DATLEN
    use mod_surface
    use DATMAI
+   use iso_fortran_env, only: real64
    IMPLICIT NONE
 !
 !     THIS DOES THE REAL AND PARAX COMMANDS
@@ -2037,6 +2046,7 @@ SUBROUTINE ZERO
    use mod_surface
    use DATMAI
    use mod_lens_data_manager, only: ldm
+   use iso_fortran_env, only: real64
    IMPLICIT NONE
 !
    INTEGER I,J,K,SF
@@ -2066,6 +2076,7 @@ SUBROUTINE SAPED
    use DATMAI
    use mod_system, only: sys_last_surf, sys_ref_surf
    use mod_lens_data_manager, only: ldm
+   use iso_fortran_env, only: real64
    IMPLICIT NONE
 !
 !       THIS IS SUBROUTINE SAPED WHICH IMPLEMENTS THE CLAPD
@@ -2278,6 +2289,7 @@ SUBROUTINE SAPE
    use mod_surface
    use DATMAI
    use command_utils, only: is_command_query
+   use iso_fortran_env, only: real64
    IMPLICIT NONE
 !
 !       THIS IS SUBROUTINE SAPE WHICH IMPLEMENTS THE CLAP
@@ -2287,7 +2299,7 @@ SUBROUTINE SAPE
 !
    INTEGER PIKCNT,I,K
 !
-   REAL*8 MVAL
+   real(real64) MVAL
 !
 !
    DD='        '
@@ -3149,6 +3161,7 @@ SUBROUTINE MULT_CLAP
    use mod_surface
    use DATMAI
    use mod_system, only: sys_astop, sys_last_surf, sys_ref_surf
+   use iso_fortran_env, only: real64
    IMPLICIT NONE
 !
 !       THIS IS SUBROUTINE MULTCLAP WHICH IMPLEMENTS THE MULTCLAP
@@ -3156,7 +3169,7 @@ SUBROUTINE MULT_CLAP
 !
 !
    INTEGER N,I,J
-   REAL*8 X,Y,GAM
+   real(real64) X,Y,GAM
    IF(SST.EQ.1) THEN
       CALL REPORT_ERROR_AND_FAIL('"MULTCLAP" TAKES NOSTRING INPUT'//'\n'//'RE-ENTER COMMAND', 1)
       RETURN
@@ -3242,6 +3255,7 @@ SUBROUTINE MULT_COBS
    use mod_surface
    use DATMAI
    use mod_lens_data_manager, only: ldm
+   use iso_fortran_env, only: real64
    IMPLICIT NONE
 !
 !       THIS IS SUBROUTINE MULTCOBS WHICH IMPLEMENTS THE MULTCOBS
@@ -3249,7 +3263,7 @@ SUBROUTINE MULT_COBS
 !
 !
    INTEGER N,I,J
-   REAL*8 X,Y,GAM
+   real(real64) X,Y,GAM
    IF(SST.EQ.1) THEN
       CALL REPORT_ERROR_AND_FAIL('"MULTCOBS" TAKES NOSTRING INPUT'//'\n'//'RE-ENTER COMMAND', 1)
       RETURN
@@ -3324,6 +3338,7 @@ SUBROUTINE SSPIDER
    use mod_surface
    use DATMAI
    use mod_lens_data_manager, only: ldm
+   use iso_fortran_env, only: real64
    IMPLICIT NONE
 !
 !       THIS IS SUBROUTINE SSPIDER WHICH IMPLEMENTS THE SPIDER
@@ -3331,7 +3346,7 @@ SUBROUTINE SSPIDER
 !
 !
    INTEGER N,I,J
-   REAL*8 W,L,X,Y,GAM,DTHETA,THETA,RAD
+   real(real64) W,L,X,Y,GAM,DTHETA,THETA,RAD
    IF(SST.EQ.1) THEN
       CALL REPORT_ERROR_AND_FAIL('"SPIDER" TAKES NOSTRING INPUT'//'\n'//'RE-ENTER COMMAND', 1)
       RETURN
@@ -3424,6 +3439,7 @@ SUBROUTINE SANGLE
    use mod_surface
    use DATMAI
    use mod_lens_data_manager, only: ldm
+   use iso_fortran_env, only: real64
    IMPLICIT NONE
 !
 !       THIS IS SUBROUTINE SANGLE WHICH IMPLEMENTS THE ALPHA
@@ -3581,6 +3597,7 @@ SUBROUTINE SGANGLE
    use DATLEN
    use mod_surface
    use DATMAI
+   use iso_fortran_env, only: real64
    IMPLICIT NONE
 !
 !       THIS IS SUBROUTINE SGANGLE WHICH IMPLEMENTS THE GALPHA
@@ -3713,6 +3730,7 @@ SUBROUTINE FICTCHG
    use DATLEN
    use mod_surface
    use DATMAI
+   use iso_fortran_env, only: real64
    IMPLICIT NONE
 !
 !     DOES INDEX AND VNUM AND DPART COMMANDS FOR FICT GLASS TYPE
@@ -3882,6 +3900,7 @@ SUBROUTINE RNCHG
    use DATLEN
    use mod_surface
    use DATMAI
+   use iso_fortran_env, only: real64
    IMPLICIT NONE
 !
 !       THIS IS SUBROUTINE RNCHG WHICH IMPLEMENTS THE N1,N2,N3,N4,N5

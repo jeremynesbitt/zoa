@@ -627,11 +627,12 @@ SUBROUTINE PLTRAE
   use mod_surface
   use mod_system, only: sys_last_surf
    use command_utils, only: is_command_query
+   use iso_fortran_env, only: real64
   IMPLICIT NONE
 !
 !       THIS ROUTINE DOES THE PLOT RAY COMMAND AT THE CMD LEVEL
 !
-REAL*8 X,Y,Z,XN,YN,ZN,ROT1X,ROT1Z,ROT2Y, &
+real(real64) X,Y,Z,XN,YN,ZN,ROT1X,ROT1Z,ROT2Y, &
 ROT2Z,AX,AY,AZ,AALF,APHI,YMAXI,YMINI,XMAXI,XMINI &
 ,XNEW,YNEW,LKG,VIEPH,VIEAL
 !
@@ -917,7 +918,7 @@ X=X+JUSOFF
           !Y=Y-3500.0D0
           Y=Y-height_mid
 
-!     THE SCREEN COORDINATE IN REAL*8 IN THE SHIFTED COORDINATE
+!     THE SCREEN COORDINATE IN real(real64) IN THE SHIFTED COORDINATE
 !     FRAME IS NOW X AND Y
 
 IF(DBLE(PGAMMA).NE.0.0D0) THEN
@@ -1020,7 +1021,7 @@ X=X+JUSOFF
           !Y=Y-3500.0D0
           X=X-width_mid
           Y=Y-height_mid          
-!     THE SCREEN COORDINATE IN REAL*8 IN THE SHIFTED COORDINATE
+!     THE SCREEN COORDINATE IN real(real64) IN THE SHIFTED COORDINATE
 !     FRAME IS NOW X AND Y
 
 IF(DBLE(PGAMMA).NE.0.0D0) THEN
@@ -1118,8 +1119,9 @@ NORAYPLOT=.FALSE.
 ! SUB VIERAY.FOR
       SUBROUTINE VIERAY(VIEW2,VIEW3,VDF2,VDF3,VS2,VS3)
       use DATMAI
+   use iso_fortran_env, only: real64
       implicit none
-      REAL*8 VIEW2,VIEW3
+      real(real64) VIEW2,VIEW3
       INTEGER VDF2,VDF3,VS2,VS3
       !INCLUDE 'DATLEN.INC'
 !             PLOT THE RAY
@@ -1152,6 +1154,7 @@ NORAYPLOT=.FALSE.
 
         use DATHGR
         use DATMAI
+   use iso_fortran_env, only: real64
         IMPLICIT NONE
 !
 !       THIS ROUTINE DOES THE "PLOT NEW" COMMAND AT THE CMD
@@ -1203,6 +1206,7 @@ NORAYPLOT=.FALSE.
 !
         use DATHGR
         use DATMAI
+   use iso_fortran_env, only: real64
         IMPLICIT NONE
 !
 !       THIS PROGRAM CONTROLS THE ALL PLOTTING INITIALIZATION
@@ -1268,6 +1272,7 @@ NORAYPLOT=.FALSE.
       USE zoa_ui
       use DATHGR
       use DATMAI
+   use iso_fortran_env, only: real64
       IMPLICIT NONE
       INTEGER ALLOERR
       INTEGER I1,I2,I3,I4,I5,I6,I7,I8
@@ -1327,6 +1332,7 @@ NORAYPLOT=.FALSE.
         USE GLOBALS
         use DATLEN, only: COLFRM
         use DATHGR
+   use iso_fortran_env, only: real64
         implicit none
 !     DOES THE BIG FRAME AROUND PLOTS
       !INCLUDE 'DATLEN.INC'
@@ -1358,6 +1364,7 @@ NORAYPLOT=.FALSE.
       use DATSPD
       use DATMAI
       use mod_system, only: sys_last_surf, sys_wl_ref, sys_ref_surf, sys_wl_weight
+   use iso_fortran_env, only: real64
       IMPLICIT NONE
 !
 !       THIS ROUTINE RESETS PLOT PARAMETERS TO STARTING VALES
@@ -1367,7 +1374,7 @@ NORAYPLOT=.FALSE.
 !
     INTEGER JK_WAV(1:10)
 !
-      REAL*8 VIEROT
+      real(real64) VIEROT
 !
     INTEGER VIEXOF,VIEYOF
 !
@@ -1792,6 +1799,7 @@ NORAYPLOT=.FALSE.
         use mod_surface
         use mod_system, only: sys_last_surf
    use command_utils, only: is_command_query
+   use iso_fortran_env, only: real64
         IMPLICIT NONE
 
        !type(hdf5_file) :: h5f
@@ -1799,7 +1807,7 @@ NORAYPLOT=.FALSE.
 !
 !       THIS ROUTINE DOES THE PLOT PROF COMMAND AT THE CMD LEVEL
 !
-      REAL*8 X,Y,Z,XN,YN,ZN,ROT1X,ROT1Z,ROT2Y,XX1,XX2,YY1, &
+      real(real64) X,Y,Z,XN,YN,ZN,ROT1X,ROT1Z,ROT2Y,XX1,XX2,YY1, &
       ROT2Z,AX,AY,AZ,AALF,APHI,YMAXI,YMINI,XMAXI,XMINI &
       ,XNEW,YNEW,LKG,VIEPH,VIEAL,Z1,YY2,AX1,AX2,AY1,AY2,ZDELZ &
       ,X00,Y00,Z0,LX0,LY0,LZ0,ACALL1,ACALL2,XM,YM,ZCORR,ZDELZ1 &
@@ -1815,7 +1823,7 @@ NORAYPLOT=.FALSE.
       INTEGER M1,M2,M3,M4,CAFLG,COFLG,J,IK,III,NO,CLRR,ALLOERR &
       ,COLPAS,KKK
 !
-      REAL*8 XMIN,YMIN,XMAX,YMAX,ZA,ZB,ZM,FRACRAD, &
+      real(real64) XMIN,YMIN,XMAX,YMAX,ZA,ZB,ZM,FRACRAD, &
       XMINO,YMINO,XMAXO,YMAXO,DRAPRO,THETA &
       ,YMIN2,XMIN2,YMAX2,XMAX2
 !
@@ -1830,7 +1838,7 @@ NORAYPLOT=.FALSE.
 !
         !INCLUDE 'DATLEN.INC'
 !
-      REAL*8 PRO
+      real(real64) PRO
 
       DIMENSION PRO(:,:,:)
       ALLOCATABLE :: PRO
@@ -2458,7 +2466,7 @@ NORAYPLOT=.FALSE.
       PRO(I,2,II)=PRO(I,2,II)-height_mid !3500.0D0
                         END DO
                         END DO
-!     THE SCREEN COORDINATE IN REAL*8 IN THE SHIFTED COORDINATE
+!     THE SCREEN COORDINATE IN real(real64) IN THE SHIFTED COORDINATE
 !     FRAME IS NOW X AND Y
 
       IF(DBLE(PGAMMA).NE.0.0D0) THEN
@@ -2750,11 +2758,12 @@ NORAYPLOT=.FALSE.
         use mod_surface
         use mod_system, only: sys_last_surf
    use command_utils, only: is_command_query
+   use iso_fortran_env, only: real64
         IMPLICIT NONE
 !
 !       THIS ROUTINE DOES THE PLOT EDGEX/EDGEY COMMAND AT THE CMD LEVEL
 !
-      REAL*8 X,Y,Z,XN,YN,ZN,ROT1X,ROT1Z,ROT2Y,XX1,XX2,YY1, &
+      real(real64) X,Y,Z,XN,YN,ZN,ROT1X,ROT1Z,ROT2Y,XX1,XX2,YY1, &
       ROT2Z,AX,AY,AZ,AALF,APHI,YMAXI,YMINI,XMAXI,XMINI &
       ,XNEW,YNEW,LKG,VIEPH,VIEAL,Z1,YY2 &
       ,X00,Y00,Z0,LX0,LY0,LZ0 &
@@ -2762,7 +2771,7 @@ NORAYPLOT=.FALSE.
 !
       INTEGER M1,M2,M3,CAFLG,COFLG,IK,III,NO,ALLOERR
 !
-      REAL*8 XLFT,YLFT,XRHT,YRHT,XTOP,YTOP,XBOT,YBOT &
+      real(real64) XLFT,YLFT,XRHT,YRHT,XTOP,YTOP,XBOT,YBOT &
       ,XLFTO,YLFTO,XRHTO,YRHTO,XTOPO,YTOPO,XBOTO,YBOTO &
       ,YLFT2,XLFT2,YRHT2,XRHT2,XTOP2,YTOP2,XBOT2,YBOT2,ZDELZ
 !
@@ -3263,7 +3272,7 @@ NORAYPLOT=.FALSE.
       EDGE(I,2,II)=EDGE(I,2,II)-REAL(height_mid,4)
                         END DO
                         END DO
-!     THE SCREEN COORDINATE IN REAL*8 IN THE SHIFTED COORDINATE
+!     THE SCREEN COORDINATE IN real(real64) IN THE SHIFTED COORDINATE
 !     FRAME IS NOW X AND Y
 
       IF(DBLE(PGAMMA).NE.0.0D0) THEN

@@ -7,6 +7,7 @@ SUBROUTINE MAKEPNOTE
    use DATLEN
    use DATMAI
    use command_utils, only: is_command_query
+   use iso_fortran_env, only: real64
    IMPLICIT NONE
 !
 !       THIS ROUTINE DOES THE "PNOTE" COMMAND AT THE CMD LEVEL
@@ -56,6 +57,7 @@ SUBROUTINE PLNOTE
    use DATLEN
    use DATMAI
    use command_utils, only: is_command_query
+   use iso_fortran_env, only: real64
    IMPLICIT NONE
 !
 !       THIS ROUTINE DOES THE "PLOT NOTE" COMMAND AT THE CMD LEVEL
@@ -131,6 +133,7 @@ SUBROUTINE PLLIB
 !
    use DATLEN
    use DATMAI
+   use iso_fortran_env, only: real64
    IMPLICIT NONE
 !
 !
@@ -211,6 +214,7 @@ SUBROUTINE PLFANS
    use command_utils, only: is_command_query
    use mod_system, only: sys_last_surf, sys_ref_surf, sys_units, sys_wavelength, &
       & sys_wl_pri1, sys_wl_pri2, sys_wl_ref, sys_wl_sec1, sys_wl_sec2, sys_wl_weight
+   use iso_fortran_env, only: real64
    IMPLICIT NONE
 !
 !       THIS IS SUBROUTINE PLFANS.FOR. THIS SUBROUTINE IMPLEMENTS
@@ -224,7 +228,7 @@ SUBROUTINE PLFANS
 !
    INTEGER K,L,J,JJ,IX,IFA,I,II,III,IIII
 !
-   REAL*8 COSARG,&
+   real(real64) COSARG,&
    &LOWERL,DELTA,OFFSET,FW4,XI,XX,YY,&
    &LPWP1,LPWP2,LCW,LSWP1,LSWP2,XXDIF,YYDIF,OOPD,OPDW,&
    &WAV,RRDIF,DIF1,DIF2,DIF3,DIF4,PW11,PW12,PW21,PW22,&
@@ -1884,6 +1888,7 @@ SUBROUTINE PLFAN2(ABORT,IFA)
    use DATMAI
    use mod_system, only: sys_mode, sys_units, sys_wavelength, &
       & sys_wl_pri1, sys_wl_pri2, sys_wl_sec1, sys_wl_sec2
+   use iso_fortran_env, only: real64
    IMPLICIT NONE
 !
 !     DOES FAN CALCULATIONS FOR FAN PLOTTING (FANTYP 5 6)
@@ -1895,7 +1900,7 @@ SUBROUTINE PLFAN2(ABORT,IFA)
 !
    COMMON/WAVER/JK_WAV
 !
-   REAL*8 COSARG,XTEMP,YTEMP,TEMP1,TEMP2,TEMP3,TEMP4,&
+   real(real64) COSARG,XTEMP,YTEMP,TEMP1,TEMP2,TEMP3,TEMP4,&
    &LOWERL,DELTA,OFFSET,FW4,XI,XX1,YY1,LLR,MMR,NNR,LLP,MMP,NNP,&
    &LPWP1,LPWP2,LCW,LSWP1,LSWP2,XXDIF,YYDIF,OOPD,OPDW,&
    &WAV,RRDIF,DIF1,DIF2,DIF3,DIF4,PW11,PW12,PW21,PW22,&
@@ -2573,6 +2578,7 @@ SUBROUTINE PLFAN1(ABORT,IFA)
    use DATMAI
    use mod_system, only: sys_mode, sys_units, sys_wavelength, &
       & sys_wl_pri1, sys_wl_pri2, sys_wl_sec1, sys_wl_sec2
+   use iso_fortran_env, only: real64
    IMPLICIT NONE
 !
 !     DOES FAN CALCULATIONS FOR FAN PLOTTING (FANTYP 1 2 3 4)
@@ -2584,7 +2590,7 @@ SUBROUTINE PLFAN1(ABORT,IFA)
 !
    COMMON/WAVER/JK_WAV
 !
-   REAL*8 COSARG,XTEMP,YTEMP,TEMP1,TEMP2,TEMP3,TEMP4,&
+   real(real64) COSARG,XTEMP,YTEMP,TEMP1,TEMP2,TEMP3,TEMP4,&
    &LOWERL,DELTA,OFFSET,FW4,XI,XX1,YY1,LLR,MMR,NNR,LLP,MMP,NNP,&
    &LPWP1,LPWP2,LCW,LSWP1,LSWP2,XXDIF,YYDIF,OOPD,OPDW,&
    &WAV,RRDIF,DIF1,DIF2,DIF3,DIF4,PW11,PW12,PW21,PW22,&
@@ -3362,6 +3368,7 @@ SUBROUTINE PLFAN3(ICOMP)
    use DATMAI
    use mod_system, only: sys_mode, sys_units, sys_wavelength, &
       & sys_wl_pri1, sys_wl_pri2, sys_wl_sec1, sys_wl_sec2
+   use iso_fortran_env, only: real64
    IMPLICIT NONE
 !
 !     DOES FAN CALCULATIONS FOR USER-DEFINED FAN PLOTTING
@@ -3377,7 +3384,7 @@ SUBROUTINE PLFAN3(ICOMP)
 !
    COMMON/USEFAN/XTENT,YTENT,CLIP
 !
-   REAL*8 COSARG,XTEMP,YTEMP,TEMP1,TEMP2,TEMP3,TEMP4,&
+   real(real64) COSARG,XTEMP,YTEMP,TEMP1,TEMP2,TEMP3,TEMP4,&
    &LOWERL,DELTA,OFFSET,FW4,XI,XX1,YY1,LLR,MMR,NNR,LLP,MMP,NNP,&
    &LPWP1,LPWP2,LCW,LSWP1,LSWP2,XXDIF,YYDIF,OOPD,OPDW,&
    &WAV,RRDIF,DIF1,DIF2,DIF3,DIF4,PW11,PW12,PW21,PW22,&
@@ -3982,6 +3989,7 @@ SUBROUTINE FANWV
    use DATLEN
    use DATMAI
    use mod_system, only: sys_wavelength
+   use iso_fortran_env, only: real64
    IMPLICIT NONE
 !
 !       THIS ROUTINE DOES THE PLOTTING OF THE WAVELENGTH LEGEND
@@ -3992,7 +4000,7 @@ SUBROUTINE FANWV
    INTEGER FAN1,FAN2,FAN3,FAN4,FAN5,I,FANWAV,FANLAST &
    &,COLPAS,NT1SIZ,FAN6,FAN7,FAN8,FAN9,FAN10
 !
-   REAL*8 WAVE1,WAVE2,WAVE3,WAVE4,WAVE5 &
+   real(real64) WAVE1,WAVE2,WAVE3,WAVE4,WAVE5 &
    &,WAVE6,WAVE7,WAVE8,WAVE9,WAVE10
 !
    COMMON/FANNER/FANWAV

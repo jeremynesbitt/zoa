@@ -146,7 +146,7 @@ end function
   use type_utils, only: str2int
   character(len=*) :: modelGlass
   integer :: dotLoc
-  real*8, intent(inout) :: nd, vd
+  real(real64), intent(inout) :: nd, vd
   character(len=3) :: nStr, vStr
   
   
@@ -194,6 +194,7 @@ end function
   ! This is to replace the original SPCGL function so all materials
   ! can be treated the same, simplifying the code and making it easier
   ! to add new glasses
+   use iso_fortran_env, only: real64
   implicit none
 
   class(specialCatalog) :: self
@@ -511,6 +512,7 @@ end function
 
  function isGlassInAnyCatalog(self, strName, gdb_loc) result(boolResult)
     
+   use iso_fortran_env, only: real64
     implicit none
     class(glassdb) :: self
     character(len=*) :: strName
@@ -534,6 +536,7 @@ end function
  end function
 
  function isGlassInSpecialCatalog(self, strName, gdb_loc) result(boolResult)
+   use iso_fortran_env, only: real64
   implicit none
   class(glassdb) :: self
   character(len=*) :: strName
@@ -558,6 +561,7 @@ end function
 
  function isNameInCatalog(self, strName, gdb_loc) result(boolResult)
 
+   use iso_fortran_env, only: real64
   implicit none
   class(glassdb) :: self
   character(len=*) :: strName
@@ -580,11 +584,12 @@ end function
 
  subroutine findCatalogNameFromGlassName(glassName, catalogName)
       use DATMAI
+   use iso_fortran_env, only: real64
       implicit none
 
       character(len=13), intent(in) :: glassName
       character(len=13), intent(inout) :: catalogName
-      real*8 :: A0,A1,A2,A3,A4,A5
+      real(real64) :: A0,A1,A2,A3,A4,A5
       character(len=13) :: Name, Number
       integer :: i, m, uG, TOTAL, J
       logical :: EXIS36

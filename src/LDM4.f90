@@ -7,6 +7,7 @@ SUBROUTINE COATING
    use DATMAI
    use mod_surface
    use mod_system, only: sys_last_surf
+   use iso_fortran_env, only: real64
    IMPLICIT NONE
 !
 !       THIS IS SUBROUTINE COATING WHICH IMPLEMENTS THE COATING
@@ -122,6 +123,7 @@ SUBROUTINE SNDEX
    use DATMAI
    use mod_surface
    use mod_system, only: sys_last_surf
+   use iso_fortran_env, only: real64
    IMPLICIT NONE
 !
 !       THIS IS SUBROUTINE SNDEX WHICH IMPLEMENTS THE NDEX, NDEX2
@@ -411,6 +413,7 @@ SUBROUTINE SGRATT
    use DATMAI
    use mod_surface
    use mod_system, only: sys_last_surf
+   use iso_fortran_env, only: real64
    IMPLICIT NONE
 !
 !       THIS IS SUBROUTINE SRIN WHICH IMPLEMENTS THE GRT
@@ -549,6 +552,7 @@ SUBROUTINE SRIN
    use DATMAI
    use mod_surface
    use mod_system, only: sys_last_surf
+   use iso_fortran_env, only: real64
    IMPLICIT NONE
 !
 !       THIS IS SUBROUTINE SRIN WHICH IMPLEMENTS THE RIN
@@ -767,6 +771,7 @@ SUBROUTINE IMAGEDIR
    use DATMAI
    use mod_surface
    use mod_system, only: sys_last_surf
+   use iso_fortran_env, only: real64
    IMPLICIT NONE
 !
 !       THIS IS SUBROUTINE IMAGEDIR WHICH IMPLEMENTS THE IMAGEDIR
@@ -889,6 +894,7 @@ SUBROUTINE SREFS
    use mod_surface
    use mod_system, only: sys_astop, sys_ref_surf, &
       & sys_set_astop, sys_set_astop_adj, sys_set_ref_orient, sys_set_ref_surf
+   use iso_fortran_env, only: real64
    IMPLICIT NONE
 !
 !       THIS IS SUBROUTINE SREFS WHICH IMPLEMENTS THE REFS
@@ -956,12 +962,13 @@ SUBROUTINE SREF
    use mod_system, only: sys_last_surf, sys_pxim, sys_pxim_fang_set, sys_pyim, &
       & sys_pyim_fang_set, sys_ref_orient, sys_rxim, sys_rxim_fang_set, sys_ryim, &
       & sys_ryim_fang_set, sys_scx, sys_scx_fang, sys_scy, sys_scy_fang, sys_units
+   use iso_fortran_env, only: real64
    IMPLICIT NONE
 !
 !       THIS IS SUBROUTINE SREF WHICH IMPLEMENTS THE REF
 !       COMMAND AT THE CMD LEVEL.
 !
-   REAL*8 VALUE,SYS12,SYS13
+   real(real64) VALUE,SYS12,SYS13
 !
    CHARACTER UNI1*7
 !
@@ -1160,11 +1167,12 @@ SUBROUTINE SPCGLS(I,MTYPE)
    use DATMAI
    use mod_surface
    use mod_system, only: sys_wavelength
+   use iso_fortran_env, only: real64
    IMPLICIT NONE
 !
    INTEGER I,MTYPE,J,N
 !
-   REAL*8 X(1:100),Y(1:100),Y2(1:100),LA,CSI &
+   real(real64) X(1:100),Y(1:100),Y2(1:100),LA,CSI &
    &,YPN,YP1,GSCX(1:20),GSCY(1:20),GPCX(1:17),GPCY(1:17)&
    &,SIL,GPLX(1:13),GPL1Y(1:13),GPL2Y(1:13),VIR3X(1:18),VIR3Y(1:18)&
    &,GPL3Y(1:13),GPL4Y(1:13),IRGX(1:25),IRGY(1:25),ZNSEX(1:56)&
@@ -1177,7 +1185,7 @@ SUBROUTINE SPCGLS(I,MTYPE)
    &,H2OX(1:21),H2OY(1:21),SUPX(1:60),SUPY(1:60),HOMOX(1:47),&
    &HOMOY(1:47),ZNSMSX(1:59),ZNSMSY(1:59),YAG
 !
-   REAL*8 SIO2OX(1:29),SIO2OY(1:29),SIO2EX(1:20)&
+   real(real64) SIO2OX(1:29),SIO2OY(1:29),SIO2EX(1:20)&
    &,SIO2EY(1:20),LIF,NACLX(1:60),NACLY(1:60)&
    &,B270X(1:10),B270Y(1:10),DIAMOND &
    &,IRG2X(1:18),IRG2Y(1:18),IRG3X(1:17),IRG3Y(1:17),IRGN6X(1:16)&
@@ -5152,11 +5160,12 @@ SUBROUTINE SPCGL(I,MTYPE)
    use DATLEN
    use DATMAI
    use mod_surface
+   use iso_fortran_env, only: real64
    IMPLICIT NONE
 !
    INTEGER I,MTYPE,J,N
 !
-   REAL*8 X(1:100),Y(1:100),Y2(1:100),LA,CSI &
+   real(real64) X(1:100),Y(1:100),Y2(1:100),LA,CSI &
    &,YPN,YP1,GSCX(1:20),GSCY(1:20),GPCX(1:17),GPCY(1:17)&
    &,SIL,GPLX(1:13),GPL1Y(1:13),GPL2Y(1:13),VIR3X(1:18),VIR3Y(1:18)&
    &,GPL3Y(1:13),GPL4Y(1:13),IRGX(1:25),IRGY(1:25),ZNSEX(1:56)&
@@ -5168,7 +5177,7 @@ SUBROUTINE SPCGL(I,MTYPE)
    &,SPINX(1:11),SPINY(1:11),CALALX(1:12),CALALY(1:12)&
    &,DUMA,DUMB,DUML,ZNSMSX(1:59),ZNSMSY(1:59),YAG
 !
-   REAL*8 SIO2OX(1:29),SIO2OY(1:29),SIO2EX(1:20)&
+   real(real64) SIO2OX(1:29),SIO2OY(1:29),SIO2EX(1:20)&
    &,SIO2EY(1:20),LIF,NACLX(1:60),NACLY(1:60),DIAMOND &
    &,B270X(1:8),B270Y(1:8),LM1,LA1,LA2,LA3,LA4,LA5,A,B,H2OX(1:21)&
    &,H2OY(1:21),SUPX(1:60),SUPY(1:60),HOMOX(1:47),HOMOY(1:47)&

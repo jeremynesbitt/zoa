@@ -9,6 +9,7 @@ SUBROUTINE VARBLL
    use mod_surface
    use DATMAI
    use mod_system, only: sys_last_surf, sys_units, sys_wl_ref, sys_wavelength
+   use iso_fortran_env, only: real64
    IMPLICIT NONE
 !
    INTEGER I,IC,NCNT,J,L,VALT,DFDINC,VBSURF,I4,ISURF
@@ -19,7 +20,7 @@ SUBROUTINE VARBLL
 !
    LOGICAL VAROK,CNOT,GOFORIT,ISRDCV,ISRDCVT,ERR1,ERR2
 !
-   REAL*8 WEIT,DINCR,VLOW,VHIGH,WORD2,SYS12,SYS13,REFHTT ,V4,V5,WAVERCW,HM1,HC1
+   real(real64) WEIT,DINCR,VLOW,VHIGH,WORD2,SYS12,SYS13,REFHTT ,V4,V5,WAVERCW,HM1,HC1
 !
 !
 !       THIS IS SUBROUTINE VARBLL. THIS IS THE SUBROUTINE WHICH
@@ -3612,13 +3613,14 @@ SUBROUTINE VCHECK
    use mod_surface
    use DATMAI
    use mod_system, only: sys_high_cfg
+   use iso_fortran_env, only: real64
    IMPLICIT NONE
 !
    CHARACTER VNA*8,TAGNAM*4
 !
    INTEGER I,J,JKVBCNT,ALLOERR,TAG4
 !
-   REAL*8 CFER,JKVAR
+   real(real64) CFER,JKVAR
 !
    DIMENSION JKVAR(:,:)
 !
@@ -3895,6 +3897,7 @@ SUBROUTINE AUTOFF
 !
    use DATSUB
    use DATMAI
+   use iso_fortran_env, only: real64
    IMPLICIT NONE
 !
 !       THIS SHUTS OFF OPTIMIZATION DEFINITIONS

@@ -4,6 +4,7 @@
 SUBROUTINE XXF
 !
    use DATMAI
+   use iso_fortran_env, only: real64
    IMPLICIT NONE
 !
 !     XXF IS A SUBROUTINE WHICH CALCULATES OBJECT OR IMAGE
@@ -17,7 +18,7 @@ SUBROUTINE XXF
 !       WHERE NW2 IS THE DISTANCE X'
 !       WHERE NW3 IS THE FOCAL LENGTH
 !
-   REAL*8 VALUE
+   real(real64) VALUE
 !
 !
    IF(SST.EQ.1.OR.S4.EQ.1.OR.S5.EQ.1) THEN
@@ -112,6 +113,7 @@ END
 SUBROUTINE XXFF
 !
    use DATMAI
+   use iso_fortran_env, only: real64
    IMPLICIT NONE
 !
 !
@@ -127,7 +129,7 @@ SUBROUTINE XXFF
 !       WHERE NW3 IS THE FOCAL LENGTH f
 !       WHERE NW3 IS THE FOCAL LENGTH f'
 !
-   REAL*8 VALUE
+   real(real64) VALUE
 !
 !
    IF(SST.EQ.1.OR.S5.EQ.1) THEN
@@ -233,6 +235,7 @@ SUBROUTINE OUTFLT
    use DATLEN
    use DATMAI
    use mod_system, only: sys_wavelength, sys_units, sys_wl_ref, sys_last_surf, sys_mode, sys_wry
+   use iso_fortran_env, only: real64
    IMPLICIT NONE
 !
 !       THIS IS SUBROUTINE OUTFLT. THIS SUBROUTINE IMPLEMENTS THE
@@ -249,7 +252,7 @@ SUBROUTINE OUTFLT
 !
    CHARACTER UN*12
 !
-   REAL*8 CURVE,WAVE
+   real(real64) CURVE,WAVE
 !
 !
    IF(sys_units().EQ.1.0) UN='/INCHES     '
@@ -358,6 +361,7 @@ SUBROUTINE SCHWARTZ
 !
    use DATMAI
    use command_utils, only: is_command_query
+   use iso_fortran_env, only: real64
    IMPLICIT NONE
 !
 !       THIS SUBROUTINE HANDELS THE "RADUNITS", "WIEN", "PLANK"
@@ -368,7 +372,7 @@ SUBROUTINE SCHWARTZ
 !       "MAY THE SCHWARTZ BE WITH YOU!"
 !
 !
-   REAL*8 T,C1,C1P,C2,VAL &
+   real(real64) T,C1,C1P,C2,VAL &
    &,VAL1,VAL2,SIG,SIGP,RETVAL
 !
    EXTERNAL RETVAL
@@ -649,8 +653,9 @@ SUBROUTINE SCHWARTZ
    RETURN
 END
 FUNCTION RETVAL(T,LAMBDA,RADUNI)
+   use iso_fortran_env, only: real64
    IMPLICIT NONE
-   REAL*8 T,LAMBDA,C1,C2,C1P,SUMOLD,RETVAL,SUM &
+   real(real64) T,LAMBDA,C1,C2,C1P,SUMOLD,RETVAL,SUM &
    &,A
    INTEGER RADUNI,K
    C1=37415.0D0
@@ -696,9 +701,10 @@ SUBROUTINE SCE(VALVAL,TYPE,V1,ERROR)
    use DATLEN
    use DATMAI
    use mod_system, only: sys_wavelength, sys_units, sys_wl_ref, sys_last_surf, sys_mode, sys_wry
+   use iso_fortran_env, only: real64
    IMPLICIT NONE
    INTEGER ERROR,TYPE,I,J,K,JJ
-   REAL*8 VALVAL,VALVAL1(1:3),V1,YMAX,YMIN,YV1,YV2,YV3 &
+   real(real64) VALVAL,VALVAL1(1:3),V1,YMAX,YMIN,YV1,YV2,YV3 &
    &,MINMIN,JKV,VV1,VAL(1:10),MAXMAX
    LOGICAL OLDLDIF,OLDLDIF2
 !
@@ -941,6 +947,7 @@ END
 SUBROUTINE OIF
 !
    use DATMAI
+   use iso_fortran_env, only: real64
    IMPLICIT NONE
 !
 !
@@ -955,7 +962,7 @@ SUBROUTINE OIF
 !       WHERE NW2 IS THE OBJECT DISTANCE
 !       WHERE NW3 IS THE FOCAL LENGTH
 !
-   REAL*8 VALUE
+   real(real64) VALUE
 !
 !
    IF(SST.EQ.1.OR.S4.EQ.1.OR.S5.EQ.1) THEN
@@ -1042,6 +1049,7 @@ SUBROUTINE RAYLEIGH
    use DATLEN
    use DATMAI
    use mod_system, only: sys_wavelength, sys_units, sys_wl_ref, sys_last_surf, sys_mode, sys_wry
+   use iso_fortran_env, only: real64
    IMPLICIT NONE
 !
 !       THIS IS SUBROUTINE RAYLEIGH. THIS SUBROUTINE IMPLEMENTS THE
@@ -1054,7 +1062,7 @@ SUBROUTINE RAYLEIGH
 !
    INTEGER I
 !
-   REAL*8 W0,B,LAMBDA,CFAC,LAM0
+   real(real64) W0,B,LAMBDA,CFAC,LAM0
 !
    CHARACTER*8 UN
 
@@ -1160,6 +1168,7 @@ SUBROUTINE COST
    use DATLEN
    use DATMAI
    use mod_system, only: sys_wavelength, sys_units, sys_wl_ref, sys_last_surf, sys_mode, sys_wry
+   use iso_fortran_env, only: real64
    IMPLICIT NONE
 !
 !       THIS IS SUBROUTINE COST. THIS SUBROUTINE IMPLEMENTS THE
@@ -1172,7 +1181,7 @@ SUBROUTINE COST
 !
    INTEGER I
 !
-   REAL*8 VOL1,VOL2,CFAC,WEIGT,RHO2,COR1,COR2,SAG1 &
+   real(real64) VOL1,VOL2,CFAC,WEIGT,RHO2,COR1,COR2,SAG1 &
    &,C2,RD,C,SIGNIT1,RHOA,RHOB,H,PLUG,TOTALW,MYWEIGHT,SAG2,&
    &SIGNIT2,THMFACTOR
 !
@@ -1418,6 +1427,7 @@ SUBROUTINE WEIGHT
    use DATLEN
    use DATMAI
    use mod_system, only: sys_wavelength, sys_units, sys_wl_ref, sys_last_surf, sys_mode, sys_wry
+   use iso_fortran_env, only: real64
    IMPLICIT NONE
 !
 !       THIS IS SUBROUTINE WEIGHT. THIS SUBROUTINE IMPLEMENTS THE
@@ -1430,7 +1440,7 @@ SUBROUTINE WEIGHT
 !
    INTEGER I
 !
-   REAL*8 VOL1,VOL2,CFAC,WEIGT,RHO2,COR1,COR2,SAG1 &
+   real(real64) VOL1,VOL2,CFAC,WEIGT,RHO2,COR1,COR2,SAG1 &
    &,C2,RD,C,SIGNIT1,RHOA,RHOB,H,PLUG,TOTALW,MYWEIGHT,SAG2,&
    &SIGNIT2,THMFACTOR
 !
@@ -1675,6 +1685,7 @@ SUBROUTINE DLRPFR
    use DATLEN
    use DATMAI
    use mod_system, only: sys_wavelength, sys_units, sys_wl_ref, sys_last_surf, sys_mode, sys_wry
+   use iso_fortran_env, only: real64
    IMPLICIT NONE
 !
 !       THIS IS SUBROUTINE DLRPFR. THIS SUBROUTINE IMPLEMENTS THE
@@ -1688,7 +1699,7 @@ SUBROUTINE DLRPFR
 !
    CHARACTER UN*11
 !
-   REAL*8 DR,WAVE,ARG1
+   real(real64) DR,WAVE,ARG1
 !
 !
    IF(sys_units().EQ.1.0) UN='INCHES     '
@@ -1806,6 +1817,7 @@ SUBROUTINE DTOR
 !
    use DATMAI
    use command_utils, only: is_command_query
+   use iso_fortran_env, only: real64
    IMPLICIT NONE
 !
 !       THIS IS SUBROUTINE DTOR. THIS SUBROUTINE IMPLEMENTS
@@ -1889,6 +1901,7 @@ SUBROUTINE RTOD
 !
    use DATMAI
    use command_utils, only: is_command_query
+   use iso_fortran_env, only: real64
    IMPLICIT NONE
 !
 !       THIS IS SUBROUTINE RTOD. THIS SUBROUTINE IMPLEMENTS
@@ -1972,6 +1985,7 @@ SUBROUTINE ETOCC
 !
    use DATMAI
    use command_utils, only: is_command_query
+   use iso_fortran_env, only: real64
    IMPLICIT NONE
 !
 !       THIS IS SUBROUTINE ETOCC. THIS SUBROUTINE IMPLEMENTS
@@ -2061,6 +2075,7 @@ SUBROUTINE CCTOE
 !
    use DATMAI
    use command_utils, only: is_command_query
+   use iso_fortran_env, only: real64
    IMPLICIT NONE
 !
 !       THIS IS SUBROUTINE CCTOE. THIS SUBROUTINE IMPLEMENTS
@@ -2132,6 +2147,7 @@ SUBROUTINE ZZEEOO
 !
    use DATMAI
    use command_utils, only: is_command_query
+   use iso_fortran_env, only: real64
    IMPLICIT NONE
 !
 !       THIS IS SUBROUTINE ZZEEOO. THIS SUBROUTINE IMPLEMENTS
@@ -2143,7 +2159,7 @@ SUBROUTINE ZZEEOO
 !
 !       Z0 (R or C) ,(radius or curvature) , (conic constant) , RHO
 !
-   REAL*8 RHO,CEE,Z1,Z2,AC,KAPPA
+   real(real64) RHO,CEE,Z1,Z2,AC,KAPPA
 !
 !
    IF(is_command_query()) THEN
@@ -2288,6 +2304,7 @@ SUBROUTINE RRHHOO
 !
    use DATMAI
    use command_utils, only: is_command_query
+   use iso_fortran_env, only: real64
    IMPLICIT NONE
 !
 !       THIS IS SUBROUTINE RRHHOO. THIS SUBROUTINE IMPLEMENTS
@@ -2299,7 +2316,7 @@ SUBROUTINE RRHHOO
 !
 !       RHO (R or C) ,(radius or curvature) , (conic constant) , Z
 !
-   REAL*8 RHO2,RHO,CEE,ZEE,KAPPA
+   real(real64) RHO2,RHO,CEE,ZEE,KAPPA
 !
 !
    IF(is_command_query()) THEN
@@ -2406,6 +2423,7 @@ SUBROUTINE FOCII
 !
    use DATMAI
    use command_utils, only: is_command_query
+   use iso_fortran_env, only: real64
    IMPLICIT NONE
 !
 !       THIS IS SUBROUTINE FOCII. THIS SUBROUTINE IMPLEMENTS
@@ -2416,7 +2434,7 @@ SUBROUTINE FOCII
 !
 !       FOCI (R or C) ,(radius or curvature) , (conic constant)
 !
-   REAL*8 W11,B,FC,FC1,FC2
+   real(real64) W11,B,FC,FC1,FC2
 !
 !
    FC=0.0D0
@@ -2585,6 +2603,7 @@ SUBROUTINE APOVERT
 !
    use DATMAI
    use command_utils, only: is_command_query
+   use iso_fortran_env, only: real64
    IMPLICIT NONE
 !
 !       THIS SUBROUTINE HANDELS THE "K0" AND "CVG"
@@ -2592,7 +2611,7 @@ SUBROUTINE APOVERT
 !
 !                       DEFINE VARIABLES
 !
-   REAL*8 CURVE,ZZERO
+   real(real64) CURVE,ZZERO
 !
 !
    ZZERO=0.0D0

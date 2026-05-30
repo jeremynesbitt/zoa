@@ -6,6 +6,7 @@ SUBROUTINE SCOATING
    use DATLEN
    use mod_surface
    use DATMAI
+   use iso_fortran_env, only: real64
    IMPLICIT NONE
 !
 !       THIS IS SUBROUTINE SAIR WHICH IMPLEMENTS THE COATING
@@ -90,6 +91,7 @@ SUBROUTINE SREFL
    use mod_surface
    use DATMAI
    use mod_system, only: sys_last_surf, sys_set_last_surf
+   use iso_fortran_env, only: real64
    IMPLICIT NONE
 !
 !       THIS IS SUBROUTINE SREFL WHICH IMPLEMENTS THE REFL
@@ -223,6 +225,7 @@ SUBROUTINE SAIR
    use DATMAI
    use mod_system, only: sys_last_surf, sys_set_last_surf
    use mod_lens_data_manager, only: ldm
+   use iso_fortran_env, only: real64
    IMPLICIT NONE
 !
 !       THIS IS SUBROUTINE SAIR WHICH IMPLEMENTS THE AIR
@@ -323,6 +326,7 @@ SUBROUTINE GLSCAT
    use DATMAI
    use mod_system, only: sys_last_surf, sys_set_last_surf
    use mod_lens_data_manager, only: ldm
+   use iso_fortran_env, only: real64
    IMPLICIT NONE
 !
 !       THIS IS SUBROUTINE GLSCAT WHICH IMPLEMENTS THE SCHOTT
@@ -417,15 +421,16 @@ SUBROUTINE SINDEXJN(surfIndex, INDEX, VNUM)
    use mod_surface
    use DATMAI
    use mod_system, only: sys_wl_pri1, sys_wl_pri2, sys_wl_ref
+   use iso_fortran_env, only: real64
    IMPLICIT NONE
 !
 !       THIS IS SUBROUTINE SINDEX. THIS IS THE SUBROUTINE WHICH
 !       HANDLES THE INDEX,DISPERSION AND V-NUMBER CALCULATIONS
 !       FOR THE RTG AND CTG COMMANDS
 !
-   REAL*8, intent(INOUT) :: INDEX
-   REAL*8 DISP,DISA,DISB,PARTL
-   REAL*8, INTENT(INOUT) :: VNUM
+   real(real64), intent(INOUT) :: INDEX
+   real(real64) DISP,DISA,DISB,PARTL
+   real(real64), INTENT(INOUT) :: VNUM
 
 !
    INTEGER, INTENT(IN) :: surfIndex
@@ -493,13 +498,14 @@ SUBROUTINE SINDEX
    use DATMAI
    use mod_system, only: sys_wl_pri1, sys_wl_pri2, sys_wl_ref
    use mod_lens_data_manager, only: ldm
+   use iso_fortran_env, only: real64
    IMPLICIT NONE
 !
 !       THIS IS SUBROUTINE SINDEX. THIS IS THE SUBROUTINE WHICH
 !       HANDLES THE INDEX,DISPERSION AND V-NUMBER CALCULATIONS
 !       FOR THE RTG AND CTG COMMANDS
 !
-   REAL*8 INDEX,DISP,VNUM,DISA,DISB,PARTL
+   real(real64) INDEX,DISP,VNUM,DISA,DISB,PARTL
 !
    INTEGER NF
 !
@@ -563,6 +569,7 @@ SUBROUTINE SPERFECT
    use DATMAI
    use mod_system, only: sys_last_surf, sys_set_last_surf
    use mod_lens_data_manager, only: ldm
+   use iso_fortran_env, only: real64
    IMPLICIT NONE
 !
 !       THIS IS SUBROUTINE SPERFECT WHICH IMPLEMENTS THE PERFECT
@@ -640,6 +647,7 @@ SUBROUTINE SIDEAL
    use DATMAI
    use mod_system, only: sys_last_surf, sys_set_last_surf
    use mod_lens_data_manager, only: ldm
+   use iso_fortran_env, only: real64
    IMPLICIT NONE
 !
 !       THIS IS SUBROUTINE SIDEAL WHICH IMPLEMENTS THE IDEAL
@@ -752,13 +760,14 @@ SUBROUTINE LQUERY
       & sys_y1_scy_fang, sys_set_fno_val_x, sys_set_fno_val_y, &
       & sys_set_naox, sys_set_naoy, sys_set_sax_float, sys_set_say_float
    use mod_lens_data_manager, only: ldm
+   use iso_fortran_env, only: real64
    IMPLICIT NONE
 !
 !       THIS SUBROUTINE DISPLAYS THE CURRENT VALUE OF A LENS
 !       SYSTEM PARAMETER FROM WITHIN THE LENS INPUT
 !       LEVEL IN RESPONSE TO A COMMAND NAME FOLLOWED BY A ?
 !
-   REAL*8 VALUE1,VALUE2,VALUE3,VALUE4,VALUE5,VALUE6
+   real(real64) VALUE1,VALUE2,VALUE3,VALUE4,VALUE5,VALUE6
 !
    INTEGER V1,V2,V3,V4,V5,V6,VA1,VA1WS1,VA1WS2,VA1WS3,VA1WS4 ,MAT,REPEAT,I
 !
@@ -2835,13 +2844,14 @@ END
 SUBROUTINE LQAS(VALUE1,VALUE2,VALUE3,VALUE4,VALUE5,VAL,V1,V2,V3,V4,V5,VA1,V6,VALUE6,VA1WS1,VA1WS2,VA1WS3,VA1WS4 ,VALWS1,VALWS2,VALWS3,VALWS4,REPEAT)
 !
    use DATMAI
+   use iso_fortran_env, only: real64
    IMPLICIT NONE
 !
    CHARACTER*80 VAL,VALWS1,VALWS2,VALWS3,VALWS4
 !
    INTEGER V1,V2,V3,V4,V5,V6,VA1,VA1WS1,VA1WS2,VA1WS3,VA1WS4 ,REPEAT
 !
-   REAL*8 VALUE1,VALUE2,VALUE3,VALUE4,VALUE5,VALUE6
+   real(real64) VALUE1,VALUE2,VALUE3,VALUE4,VALUE5,VALUE6
 !
 !
    IF(VA1.NE.0) WRITE(OUTLYNE,10) VAL
@@ -2885,12 +2895,13 @@ SUBROUTINE MGADJ(MAG,I,J)
    use DATLEN
    use mod_surface
    use DATMAI
+   use iso_fortran_env, only: real64
    IMPLICIT NONE
 !
 !       THIS IS SUBROUTINE MGADJ WHICH IMPLEMENTS THE MAGX
 !       AND MAGY ADJUSTMEMT.
 !
-   REAL*8 MAG,OBJ,IMG,EFLX,EFLY,ARG
+   real(real64) MAG,OBJ,IMG,EFLX,EFLY,ARG
 !
    INTEGER I,J,KK
 !
@@ -3057,6 +3068,7 @@ SUBROUTINE ROO
    use mod_surface
    use DATMAI
    use command_utils, only: is_command_query
+   use iso_fortran_env, only: real64
    IMPLICIT NONE
    IF(is_command_query()) THEN
       OUTLYNE='"ROO" SETS UP A SINGLE SURFACE OPTICAL ROOF'
@@ -3087,6 +3099,7 @@ SUBROUTINE CCR
    use mod_surface
    use DATMAI
    use command_utils, only: is_command_query
+   use iso_fortran_env, only: real64
    IMPLICIT NONE
    IF(is_command_query()) THEN
       OUTLYNE='"CCR" SETS UP A SINGLE SURFACE CORNER CUBE'
@@ -3128,6 +3141,7 @@ SUBROUTINE SHOWNSS
    use DATMAI
    use mod_system, only: sys_last_surf
    use command_utils, only: is_command_query
+   use iso_fortran_env, only: real64
    IMPLICIT NONE
    LOGICAL NONSS
    INTEGER I
@@ -3199,6 +3213,7 @@ SUBROUTINE DUMOUT
    use mod_surface
    use DATMAI
    use mod_system, only: sys_last_surf
+   use iso_fortran_env, only: real64
    IMPLICIT NONE
 !
    INTEGER I
@@ -3305,6 +3320,7 @@ SUBROUTINE BLKOUT
    use mod_surface
    use DATMAI
    use mod_system, only: sys_last_surf
+   use iso_fortran_env, only: real64
    IMPLICIT NONE
 !
    INTEGER I
@@ -3410,6 +3426,7 @@ SUBROUTINE PIVAXOUT
    use mod_surface
    use DATMAI
    use mod_system, only: sys_last_surf
+   use iso_fortran_env, only: real64
    IMPLICIT NONE
 !
    INTEGER I
@@ -3516,6 +3533,7 @@ SUBROUTINE SURFTYPE
    use mod_surface
    use DATMAI
    use mod_system, only: sys_last_surf
+   use iso_fortran_env, only: real64
    IMPLICIT NONE
 !
    INTEGER I
@@ -3624,6 +3642,7 @@ SUBROUTINE SGLASS
    use mod_surface
    use DATMAI
    use mod_system, only: sys_last_surf, sys_set_last_surf
+   use iso_fortran_env, only: real64
    IMPLICIT NONE
 !
 !       THIS IS SUBROUTINE SGLASS WHICH IMPLEMENTS THE GLASS
@@ -3779,6 +3798,7 @@ SUBROUTINE RAYERROR
    use mod_surface
    use DATMAI
    use command_utils, only: is_command_query
+   use iso_fortran_env, only: real64
    IMPLICIT NONE
    IF(is_command_query()) THEN
       OUTLYNE='"RAYERROR" SETS A RAYDOM RAY/SURFACE ANGLE ERROR'

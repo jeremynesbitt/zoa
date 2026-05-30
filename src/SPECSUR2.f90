@@ -7,6 +7,7 @@ SUBROUTINE SPCOEF(ITP)
    use mod_system, only: sys_last_surf
    use DATMAI
    use mod_surface, only: surf_special_type, surf_pickup_count, set_surf_pickup_count
+   use iso_fortran_env, only: real64
    IMPLICIT NONE
 !
 !       THIS IS SUBROUTINE SPCOEF. THIS IS THE SUBROUTINE WHICH
@@ -1305,11 +1306,12 @@ SUBROUTINE ZERNREPT
    use DATMAI
    use mod_surface, only: surf_special_type
    use command_utils, only: is_command_query
+   use iso_fortran_env, only: real64
    IMPLICIT NONE
 !
 !       THIS IS SUBROUTINE ZERNREPT THAT DOES THE ZERNREPT COMMAND
 !
-   REAL*8 HIGHORD,VCF(1:37),EMN,NV &
+   real(real64) HIGHORD,VCF(1:37),EMN,NV &
    &,VC1,VC2,VC3,VC4,VC5,VC6,VC7,VC8,VC9
 !
    INTEGER I
@@ -1562,6 +1564,7 @@ SUBROUTINE PPRSPR
    use mod_system, only: sys_last_surf, sys_units
    use DATMAI
    use mod_surface, only: surf_special_type, surf_toric_flag
+   use iso_fortran_env, only: real64
    IMPLICIT NONE
 !
 !       THIS IS SUBROUTINE PPRSPR WHICH IMPLEMENTS THE PRSPR
@@ -1574,7 +1577,7 @@ SUBROUTINE PPRSPR
 !
    INTEGER SPSCNT,I,JK,ITY
 !
-   REAL*8 COEF(1:96)
+   real(real64) COEF(1:96)
 !
 !
    IF(sys_units().EQ.1) UN='INCHES'

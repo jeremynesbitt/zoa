@@ -14,6 +14,7 @@ SUBROUTINE LNSEOS
    use mod_system, only: sys_autofunc, sys_last_surf, sys_nss_present, sys_set_last_surf, &
       & sys_high_cfg, sys_scy, sys_scy_fang
    use mod_surface, only: surf_thickness
+   use iso_fortran_env, only: real64
    IMPLICIT NONE
 !
    LOGICAL SAV2,RES2,EXIS49
@@ -209,6 +210,7 @@ SUBROUTINE TILT_RETURN(ERCODE,TRYES)
    use DATMAI
    use mod_system, only: sys_last_surf
    use mod_lens_data_manager, only: ldm
+   use iso_fortran_env, only: real64
    IMPLICIT NONE
    INTEGER I,J
    LOGICAL ERCODE,TRYES
@@ -318,6 +320,7 @@ SUBROUTINE LNSEOS1
       & sys_set_xz_bilateral, sys_set_y1_scy, sys_set_y1_scy_fang, &
       & sys_ref_orient, sys_set_y1_scy_fang_set, sys_set_y1_scy_set, sys_set_yz_bilateral
    use mod_lens_data_manager, only: ldm
+   use iso_fortran_env, only: real64
    IMPLICIT NONE
 !
 !       THIS IS SUBROUTINE LNSEOS. THIS IS THE SUBROUTINE WHICH
@@ -325,7 +328,7 @@ SUBROUTINE LNSEOS1
 !       OR LENS UPDATE MODE.
 !
    LOGICAL REDOLNSEOS,JKOFF,BADGLS,ERCODE,TRYES,LPASS1
-   REAL*8 RD,INDEX,VNUM
+   real(real64) RD,INDEX,VNUM
 !
    COMMON/GLSBAD/BADGLS
 
@@ -336,7 +339,7 @@ SUBROUTINE LNSEOS1
 !
    COMMON/PTYPER/ITYPEP
 !
-   REAL*8 YCLAP,XCLAP,XTERM,YTERM,A1,A2,JK_TEMP
+   real(real64) YCLAP,XCLAP,XTERM,YTERM,A1,A2,JK_TEMP
 !
    LOGICAL NOSTOP,NOREF,SKIP
 !
@@ -2295,8 +2298,9 @@ SUBROUTINE REDOXOBJ(REDOLNSEOS)
    use mod_system, only: sys_last_surf, sys_pxim, sys_pxim_fang_set, sys_rxim, &
       & sys_rxim_fang_set, sys_scx, sys_set_scx, sys_set_scx_fang_set, sys_set_scx_set, &
       & sys_set_x1_scx, sys_set_x1_scx_fang_set, sys_set_x1_scx_set
+   use iso_fortran_env, only: real64
    IMPLICIT NONE
-   REAL*8 A,B,JK_FACTOR
+   real(real64) A,B,JK_FACTOR
    LOGICAL REDOLNSEOS
 !
    JK_FACTOR=1.0D0
@@ -2332,8 +2336,9 @@ SUBROUTINE REDOYOBJ(REDOLNSEOS)
    use mod_system, only: sys_last_surf, sys_pyim, sys_pyim_fang_set, sys_ryim, &
       & sys_ryim_fang_set, sys_scy, sys_set_scy, sys_set_scy_fang_set, sys_set_scy_set, &
       & sys_set_y1_scy, sys_set_y1_scy_fang_set, sys_set_y1_scy_set
+   use iso_fortran_env, only: real64
    IMPLICIT NONE
-   REAL*8 A,B,JK_FACTOR
+   real(real64) A,B,JK_FACTOR
    LOGICAL REDOLNSEOS
 !
    JK_FACTOR=1.0D0
@@ -2367,6 +2372,7 @@ SUBROUTINE RERROR
    use mod_surface
    use DATMAI
    use mod_system, only: sys_last_surf
+   use iso_fortran_env, only: real64
    IMPLICIT NONE
    INTEGER I
    DO I=1,INT(sys_last_surf())

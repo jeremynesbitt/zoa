@@ -409,6 +409,7 @@ function isUSystem(self) result(boolResult)
    use mod_surface
    use mod_system, only: sys_mode
    use DATLEN
+   use iso_fortran_env, only: real64
 implicit none
 class(sys_config) :: self
 logical :: boolResult
@@ -606,6 +607,7 @@ subroutine updateParameters(self)
   use mod_system, only: sys_naox, sys_naoy, sys_pxim, sys_pyim, sys_rxim, sys_ryim, &
      & sys_sax, sys_say, sys_scx, sys_scx_fang, sys_scy, sys_scy_fang, sys_units, sys_wl_ref
   use DATLEN
+   use iso_fortran_env, only: real64
   implicit none
   class(sys_config), intent(inout) :: self
   self%lensTitle = trim(LI)
@@ -678,6 +680,7 @@ subroutine updateParameters(self)
 end subroutine
 
 function getDimensions(self) result(dimStr)
+   use iso_fortran_env, only: real64
   implicit none
   class(sys_config) :: self
   character(len=3) :: dimStr
@@ -698,6 +701,7 @@ end function
 ! what is going on.  Only one should survive...
 subroutine setMaxField(self)
   use type_utils, only: real2str
+   use iso_fortran_env, only: real64
   implicit none
   class(sys_config) :: self
 
@@ -743,6 +747,7 @@ subroutine setRefFieldKDP(self)
   use mod_system, only: sys_set_pxim, sys_set_pyim, sys_set_rxim, sys_set_ryim, &
      & sys_set_scx, sys_set_scx_fang, sys_set_scy, sys_set_scy_fang
   use DATLEN
+   use iso_fortran_env, only: real64
   implicit none
   class(sys_config) :: self
   select case (self%currFieldID)
@@ -1150,6 +1155,7 @@ subroutine init_solves()
 end subroutine
 
 subroutine setSolveText(self, solveOptions) 
+   use iso_fortran_env, only: real64
   implicit none
   class(ksolve) :: self
   type(solve_options), dimension(:) :: solveOptions
@@ -1240,6 +1246,7 @@ end subroutine
 subroutine setNumberofWavelengths(self)
   ! record wavelngths with nonzero spectral weight.
   ! mainly used for plotting
+   use iso_fortran_env, only: real64
   implicit none
   class(sys_config), intent(inout) :: self
   integer :: i
@@ -1405,6 +1412,7 @@ end subroutine
 
 subroutine setRelativeFields(self, col, row, newval)
   use DATLEN
+   use iso_fortran_env, only: real64
   implicit none
   class(sys_config), intent(inout) :: self
   integer, intent(in) :: col, row
@@ -1423,6 +1431,7 @@ end subroutine
 
 subroutine updateApertureSelectionByCode(self, ID_SELECTION, xAp, yAp, xySame)
   use DATLEN
+   use iso_fortran_env, only: real64
   implicit none
   class(sys_config), intent(inout) :: self
   integer, intent(in) :: ID_SELECTION
@@ -1595,6 +1604,7 @@ end subroutine
 
 
 function getFieldText(self) result(fldText)
+   use iso_fortran_env, only: real64
   implicit none
   class(sys_config) :: self
   character(len=150) :: fldText
@@ -1616,6 +1626,7 @@ function getFieldText(self) result(fldText)
 end function
 
 function getLensUnitsText(self) result(lenText)
+   use iso_fortran_env, only: real64
   implicit none
   class(sys_config) :: self
   character(len=10) :: lenText
@@ -1838,6 +1849,7 @@ end function
 subroutine calculateFirstOrderParameters(self, lData)
   use mod_surface
   use DATLEN
+   use iso_fortran_env, only: real64
   implicit none
   class(paraxial_ray_trace_data) :: self
   type(lens_data) :: lData
@@ -1911,6 +1923,7 @@ function getObjectThicknessToSetParaxialMag(self, magTgt, lData) result(t0)
   use type_utils, only: real2str
   use mod_surface
   use DATLEN
+   use iso_fortran_env, only: real64
   implicit none
   class(paraxial_ray_trace_data) :: self
   type(lens_data) :: lData
@@ -2093,6 +2106,7 @@ end function
 
 function setSolveData(self, surf, solve_type, solveOptions) result(currSolve)
    use mod_surface
+   use iso_fortran_env, only: real64
   implicit none
   class(lens_data) :: self
   type(solve_options), dimension(:) :: solveOptions
@@ -2149,6 +2163,7 @@ SUBROUTINE check_clear_apertures(lData)
   use mod_surface
   use mod_system, only: sys_wl_ref
   use mod_system, only: sys_last_surf
+   use iso_fortran_env, only: real64
   IMPLICIT NONE
   class(lens_data), intent(inout) :: lData
 
@@ -2159,10 +2174,10 @@ SUBROUTINE check_clear_apertures(lData)
 !
 LOGICAL OLDLDIF,OLDLDIF2
 !
-REAL*8 HY,HX,YF,XF,YR,XR,HXMAX,HXMIN,HYMAX,HYMIN &
+real(real64) HY,HX,YF,XF,YR,XR,HXMAX,HXMIN,HYMAX,HYMIN &
 ,XFFIX,YFFIX,XRFIX,YRFIX,XCENPOS,YCENPOS,RMAX,XLO,XHI,YLO,YHI
 
-REAL*8 VERARRAY,XRAD,YRAD,RRAD
+real(real64) VERARRAY,XRAD,YRAD,RRAD
 DIMENSION VERARRAY(:,:)
 ALLOCATABLE :: VERARRAY
 DEALLOCATE(VERARRAY,STAT=ALLOERR)

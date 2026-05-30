@@ -7,6 +7,7 @@ SUBROUTINE STAD
    use mod_surface
    use DATMAI
    use mod_system, only: sys_last_surf
+   use iso_fortran_env, only: real64
    IMPLICIT NONE
 !
 !       THIS IS SUBROUTINE STAD WHICH IMPLEMENTS THE TAD
@@ -363,6 +364,7 @@ SUBROUTINE SPIV
    use mod_surface
    use DATMAI
    use mod_system, only: sys_last_surf
+   use iso_fortran_env, only: real64
    IMPLICIT NONE
 !
 !       THIS IS SUBROUTINE SPIV WHICH IMPLEMENTS THE PIV
@@ -551,6 +553,7 @@ SUBROUTINE SPIDEROUT
    use mod_surface
    use DATMAI
    use mod_system, only: sys_last_surf
+   use iso_fortran_env, only: real64
    IMPLICIT NONE
 !
 !       THIS IS SUBROUTINE SPIDEROUT WHICH IMPLEMENTS THE SPIDER
@@ -722,6 +725,7 @@ SUBROUTINE SSPTWT
    use DATMAI
    use command_utils, only: is_command_query
    use mod_system, only: sys_wavelength, sys_wl_weight, sys_set_wl_weight
+   use iso_fortran_env, only: real64
    IMPLICIT NONE
 !
 !       THIS IS SUBROUTINE SSPTWT WHICH IMPLEMENTS THE SPTWT
@@ -1007,6 +1011,7 @@ SUBROUTINE SSPC
    use mod_surface
    use DATMAI
    use mod_system, only: sys_fno_flag_x, sys_fno_flag_y, sys_fno_hold_x, sys_fno_hold_y, sys_last_surf
+   use iso_fortran_env, only: real64
    IMPLICIT NONE
 !
 !       THIS IS SUBROUTINE SSPC WHICH IMPLEMENTS THE SPC
@@ -1097,6 +1102,7 @@ SUBROUTINE SSC
       & sys_set_x1_scx, sys_set_x1_scx_fang, sys_set_x1_scx_fang_set, sys_set_x1_scx_set, &
       & sys_set_xz_data_flag, sys_set_y1_scy, sys_set_y1_scy_fang, sys_set_y1_scy_fang_set, &
       & sys_set_y1_scy_set
+   use iso_fortran_env, only: real64
    IMPLICIT NONE
 !
 !       THIS IS SUBROUTINE SSC WHICH IMPLEMENTS THE SCY/SCX
@@ -1374,6 +1380,7 @@ SUBROUTINE PXYIM
       & sys_reverse_trace, &
       & sys_set_pxim, sys_set_pxim_fang_set, sys_set_pyim, sys_set_pyim_fang_set, &
       & sys_set_reverse_trace, sys_set_scx_set, sys_set_scy_set, sys_set_xz_data_flag
+   use iso_fortran_env, only: real64
    IMPLICIT NONE
 !
 !
@@ -1593,6 +1600,7 @@ SUBROUTINE RXYIM
       & sys_ryim_fang_set, &
       & sys_set_rxim, sys_set_rxim_fang_set, sys_set_ryim, sys_set_ryim_fang_set, &
       & sys_set_scx_set, sys_set_scy_set, sys_set_xz_data_flag
+   use iso_fortran_env, only: real64
    IMPLICIT NONE
 !
 !
@@ -1806,13 +1814,14 @@ SUBROUTINE SBD
    use DATMAI
    use mod_system, only: sys_bdx, sys_bdy, sys_units, sys_wavelength, sys_wl_ref, &
       & sys_wrx, sys_wry, sys_set_bdx, sys_set_bdy
+   use iso_fortran_env, only: real64
    IMPLICIT NONE
 !
 !       THIS IS SUBROUTINE SBD WHICH IMPLEMENTS THE BDX,BDY COMMANDS
 !       AT THE LENS OF UPDATE LENS LEVEL OR THE BDX,BDY COMMANDS AT
 !       THE CMD LEVEL
 !
-   REAL*8 WAVER
+   real(real64) WAVER
 !
 !
    IF(F1.EQ.1) THEN
@@ -1979,6 +1988,7 @@ SUBROUTINE SWR
    use mod_surface
    use DATMAI
    use mod_system, only: sys_wrx, sys_wry, sys_set_wrx, sys_set_wry
+   use iso_fortran_env, only: real64
    IMPLICIT NONE
 !
 !       THIS IS SUBROUTINE SWR WHICH IMPLEMENTS THE WRX,WRY COMMANDS
@@ -2106,6 +2116,7 @@ SUBROUTINE SSA
       & sys_na_set, sys_sax, sys_sax_float, sys_say, sys_say_float, &
       & sys_set_fno_val_set, sys_set_na_set, sys_set_sax, sys_set_sax_float, &
       & sys_set_say, sys_set_say_float, sys_set_xz_data_flag
+   use iso_fortran_env, only: real64
    IMPLICIT NONE
 !
 !       THIS IS SUBROUTINE SSAY WHICH IMPLEMENTS THE SAY COMMAND
@@ -2371,6 +2382,7 @@ SUBROUTINE SRTG(LBT,RTGERROR)
    use mod_surface
    use DATMAI
    use mod_system, only: sys_astop, sys_last_surf, sys_ref_surf
+   use iso_fortran_env, only: real64
    IMPLICIT NONE
 !
 !       THIS IS SUBROUTINE SRTG. THIS IS THE SUBROUTINE WHICH
@@ -2380,7 +2392,7 @@ SUBROUTINE SRTG(LBT,RTGERROR)
 !
    INTEGER SF,I,NF
 !
-   REAL*8 RD,CV ,INDEX,DISP,VNUM,PARTL
+   real(real64) RD,CV ,INDEX,DISP,VNUM,PARTL
 !
    LOGICAL AIRY,LBT,SPECF,RTGERROR
 !
@@ -3604,6 +3616,7 @@ SUBROUTINE SRTG(LBT,RTGERROR)
 END
 SUBROUTINE SHRINKSPEC(SPECC)
    use DATMAI
+   use iso_fortran_env, only: real64
    IMPLICIT NONE
    CHARACTER SPECC*75,SP1*5,SP2*7,SP3*5,SP4*4,SP5*8,SP6*7,SP7*5 ,SP8*5,SP9*4,SP10*4,SP11*3,SP12*3,SP13*3
    INTEGER I,L1,L2,L3,L4,L5,L6,L7,L8,L9,L10,L11,L12,L13
@@ -3716,18 +3729,19 @@ SUBROUTINE SPL23(AR,AX,AY,AZ,IFUNC)
    use DATLEN
    use mod_surface
    use DATMAI
+   use iso_fortran_env, only: real64
    IMPLICIT NONE
 !
 !     MAIN CUBIC SPLINE SURFACE ROUTINE
 !
-   REAL*8 XV,XARAY(1:96),YARAY(1:96),AX,AY,AZ,SPARRAY,INCRM,ARHO
+   real(real64) XV,XARAY(1:96),YARAY(1:96),AX,AY,AZ,SPARRAY,INCRM,ARHO
 !
    INTEGER AR,IFUNC,ISURF,ALLOERR,I,NV
 !
    DIMENSION SPARRAY(1:96)
 !
 !
-   REAL*8 SPL23A
+   real(real64) SPL23A
    DIMENSION SPL23A(:,:)
    ALLOCATABLE :: SPL23A
 !

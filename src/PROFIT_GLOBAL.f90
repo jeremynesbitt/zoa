@@ -1,4 +1,5 @@
 MODULE PROFIT_GLOBAL
+   use iso_fortran_env, only: real64
 !
    PUBLIC
 !
@@ -77,17 +78,17 @@ MODULE PROFIT_GLOBAL
 !       EACH ENTRY HAS:
 !
 !       SYMBOL          CHARACTER*8 (SYM)
-!       OPENING PRICE   REAL*8
-!       HI PRICE        REAL*8
-!       LO PRICE        REAL*8
-!       CLOSE PRICE     REAL*8
+!       OPENING PRICE   real(real64)
+!       HI PRICE        real(real64)
+!       LO PRICE        real(real64)
+!       CLOSE PRICE     real(real64)
 !       VOLUME          INTEGER*4
 !       DATA(YYYMMDD)   INTEGER*4
 !       PNAME           CHARACTER*80
 !
 !
    CHARACTER*8 SYM
-   REAL*8 PROFITDATA
+   real(real64) PROFITDATA
    DIMENSION PROFITDATA(:,:)
    ALLOCATABLE :: PROFITDATA
 !

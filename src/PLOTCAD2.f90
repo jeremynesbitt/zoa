@@ -15,6 +15,7 @@ SUBROUTINE PLTRST
    use DATLEN
    use DATMAI
    use mod_system, only: sys_wl_ref, sys_last_surf, sys_ref_surf, sys_wl_weight
+   use iso_fortran_env, only: real64
    IMPLICIT NONE
 !
 !       THIS ROUTINE RESETS PLOT PARAMETERS TO STARTING VALES
@@ -24,7 +25,7 @@ SUBROUTINE PLTRST
 !
    INTEGER JK_WAV(1:10)
 !
-   REAL*8 VIEROT
+   real(real64) VIEROT
 !
    INTEGER VIEXOF,VIEYOF
 !
@@ -442,6 +443,7 @@ SUBROUTINE PLTRED
    use DATMAI
    use command_utils, only: is_command_query
    use mod_system, only: sys_units, sys_scy, sys_scx, sys_scy_fang, sys_scx_fang, sys_mode
+   use iso_fortran_env, only: real64
    IMPLICIT NONE
 !
 !       THIS SUBROUTINE IS CALLED TO PLOT RED AT THE CMD LEVEL
@@ -452,7 +454,7 @@ SUBROUTINE PLTRED
    REAL GDTARP(1:101),GDTAR(1:101),AGDTARP(1:101),AGDTAR(1:101)&
    &,DELX1,RDELA,LLIM,ULIM
 !
-   REAL*8 RANGE,MTHETA,SPDELX,SPDELY,DELZ
+   real(real64) RANGE,MTHETA,SPDELX,SPDELY,DELZ
 !
    INTEGER NX,NY,IV,ORTAG,I,ENNL,ENN,NT1ANG,NT1SIZ,DFLAG,MYJK,COLPAS
 !
@@ -856,6 +858,7 @@ END
 SUBROUTINE THREEDEESET
    use DATMAI
    use command_utils, only: is_command_query
+   use iso_fortran_env, only: real64
    IMPLICIT NONE
    IF(is_command_query().OR.SN.EQ.0.AND.SQ.EQ.0.AND.SST.EQ.0) THEN
       IF(WC(1:2).EQ.'X1') THEN
@@ -912,11 +915,12 @@ SUBROUTINE PLTLINE
    use DATLEN
    use DATMAI
    use command_utils, only: is_command_query
+   use iso_fortran_env, only: real64
    IMPLICIT NONE
 !
 !       THIS ROUTINE DOES THE 3D PLOT LINE COMMAND AT THE CMD LEVEL
 !
-   REAL*8 X,Y,Z,XN,YN,ZN,ROT1X,ROT1Z,ROT2Y,&
+   real(real64) X,Y,Z,XN,YN,ZN,ROT1X,ROT1Z,ROT2Y,&
    &ROT2Z,AX,AY,AZ,AALF,APHI,YMAXI,YMINI,XMAXI,XMINI &
    &,XNEW,YNEW,LKG,VIEPH,VIEAL
 !
@@ -1038,7 +1042,7 @@ SUBROUTINE PLTLINE
 !
       X=X-5000.0D0
       Y=Y-3500.0D0
-!     THE SCREEN COORDINATE IN REAL*8 IN THE SHIFTED COORDINATE
+!     THE SCREEN COORDINATE IN real(real64) IN THE SHIFTED COORDINATE
 !     FRAME IS NOW X AND Y
 
       IF(DBLE(PGAMMA).NE.0.0D0) THEN
@@ -1117,6 +1121,7 @@ SUBROUTINE PLTPEN
    use DATLEN
    use DATMAI
    use command_utils, only: is_command_query
+   use iso_fortran_env, only: real64
    IMPLICIT NONE
 !
 !       THIS ROUTINE DOES THE PLOT PEN COMMAND AT THE CMD LEVEL
@@ -1204,11 +1209,12 @@ SUBROUTINE VERTLINE
    use DATMAI
    use command_utils, only: is_command_query
    use mod_system, only: sys_last_surf
+   use iso_fortran_env, only: real64
    IMPLICIT NONE
 !
 !       THIS ROUTINE DOES THE PLOT LINE CONNECTING SURFACE VERTICES
 !
-   REAL*8 X,Y,Z,XN,YN,ZN,ROT1X,ROT1Z,ROT2Y,&
+   real(real64) X,Y,Z,XN,YN,ZN,ROT1X,ROT1Z,ROT2Y,&
    &ROT2Z,AX,AY,AZ,AALF,APHI,YMAXI,YMINI,XMAXI,XMINI &
    &,XNEW,YNEW,LKG,VIEPH,VIEAL
 !
@@ -1424,7 +1430,7 @@ SUBROUTINE VERTLINE
 !
       X=X-5000.0D0
       Y=Y-3500.0D0
-!     THE SCREEN COORDINATE IN REAL*8 IN THE SHIFTED COORDINATE
+!     THE SCREEN COORDINATE IN real(real64) IN THE SHIFTED COORDINATE
 !     FRAME IS NOW X AND Y
 
       IF(DBLE(PGAMMA).NE.0.0D0) THEN
@@ -1512,11 +1518,12 @@ SUBROUTINE VIE(CACOCHVIE)
    use DATMAI
    use command_utils, only: is_command_query
    use mod_system, only: sys_units, sys_wl_ref, sys_last_surf
+   use iso_fortran_env, only: real64
    IMPLICIT NONE
 !
 !       THIS PROGRAM CONTROLS THE "VIE" AND "VIECO" COMMANDS
 !
-   REAL*8 VIEROT,VHI,VLO,XVHI,XVLO,YVHI,YVLO
+   real(real64) VIEROT,VHI,VLO,XVHI,XVLO,YVHI,YVLO
 !
    INTEGER DFLAG,VIEXOF,VIEYOF
 !
@@ -1527,7 +1534,7 @@ SUBROUTINE VIE(CACOCHVIE)
 !
    CHARACTER VIEWQ*8
 !
-   REAL*8 VIEW1,VIEW2,VIEW3,MDX,MDY,SFI,GAMGAM
+   real(real64) VIEW1,VIEW2,VIEW3,MDX,MDY,SFI,GAMGAM
 !
 !       JN ADD HACK to figure out plotting
 !        INCLUDE 'DATHGR.INC'
@@ -2866,13 +2873,14 @@ FUNCTION INSIDEIT(I,XONE,YONE,XTWO,YTWO)
 !
    use DATLEN
    use DATMAI
+   use iso_fortran_env, only: real64
    IMPLICIT NONE
 !
    EXTERNAL INSID1,INSID2
 !
    INTEGER I,CAFLG,COFLG,N,ITIIT,III
 !
-   REAL*8 X,Y,XONE,YONE,XTWO,YTWO,ANGLE,&
+   real(real64) X,Y,XONE,YONE,XTWO,YTWO,ANGLE,&
    &XR,YR,LS,RS,XRD,YRD,X1,X2,X3,X4,Y1,Y2,Y3,Y4,&
    &X5,X6,X7,X8,Y5,Y6,Y7,Y8,XC1,XC2,XC3,XC4,YC1,YC2,&
    &A22,YC3,YC4,RAD2,MAXSID,CS1,CS2,CS3,CS4
@@ -3287,11 +3295,12 @@ SUBROUTINE PLTPRAE(K)
    use DATMAI
    use command_utils, only: is_command_query
    use mod_system, only: sys_last_surf
+   use iso_fortran_env, only: real64
    IMPLICIT NONE
 !
 !       THIS ROUTINE DOES THE PLOT PRAY COMMAND AT THE CMD LEVEL
 !
-   REAL*8 X,Y,Z,XN,YN,ZN,ROT1X,ROT1Z,ROT2Y,&
+   real(real64) X,Y,Z,XN,YN,ZN,ROT1X,ROT1Z,ROT2Y,&
    &ROT2Z,AX,AY,AZ,AALF,APHI,YMAXI,YMINI,XMAXI,XMINI &
    &,XNEW,YNEW,LKG,VIEPH,VIEAL
 !
@@ -3581,7 +3590,7 @@ SUBROUTINE PLTPRAE(K)
 !
       X=X-5000.0D0
       Y=Y-3500.0D0
-!     THE SCREEN COORDINATE IN REAL*8 IN THE SHIFTED COORDINATE
+!     THE SCREEN COORDINATE IN real(real64) IN THE SHIFTED COORDINATE
 !     FRAME IS NOW X AND Y
 
       IF(DBLE(PGAMMA).NE.0.0D0) THEN
@@ -3663,11 +3672,12 @@ SUBROUTINE PLTRAYS(CACOCHVIE)
    use DATMAI
    use command_utils, only: is_command_query
    use mod_system, only: sys_wl_ref, sys_last_surf
+   use iso_fortran_env, only: real64
    IMPLICIT NONE
 !
 !       THIS PROGRAM CONTROLS THE "PLOT RAYS"
 !
-   REAL*8 VIEROT,VHI,VLO,XVHI,XVLO,YVHI,YVLO
+   real(real64) VIEROT,VHI,VLO,XVHI,XVLO,YVHI,YVLO
 !
    INTEGER DFLAG,VIEXOF,VIEYOF
 !
@@ -3678,9 +3688,9 @@ SUBROUTINE PLTRAYS(CACOCHVIE)
 !
    CHARACTER VIEWQ*8
 !
-   REAL*8 RAYS1,RAYS2,RAYS3,RAYS4,RAYS5,MDX,MDY,SFI,GAMGAM
+   real(real64) RAYS1,RAYS2,RAYS3,RAYS4,RAYS5,MDX,MDY,SFI,GAMGAM
 !
-   REAL*8 VIEW2,VIEW3,DELTAX,DELTAY
+   real(real64) VIEW2,VIEW3,DELTAX,DELTAY
 !
 !
 !

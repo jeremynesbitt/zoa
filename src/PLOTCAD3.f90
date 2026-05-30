@@ -7,6 +7,7 @@ SUBROUTINE PLTORG
    use DATLEN
    use DATMAI
    use command_utils, only: is_command_query
+   use iso_fortran_env, only: real64
    IMPLICIT NONE
 
 !
@@ -69,6 +70,7 @@ SUBROUTINE PLTNAM
    use DATLEN
    use DATMAI
    use command_utils, only: is_command_query
+   use iso_fortran_env, only: real64
    IMPLICIT NONE
 !
 !       THIS ROUTINE DOES THE "PLOT NAME" COMMAND AT THE CMD LEVEL
@@ -121,6 +123,7 @@ SUBROUTINE PLTDOTF
    use command_utils, only: is_command_query
    use mod_system, only: sys_mode, sys_scx, sys_scx_fang, sys_scx_fang_set, &
       & sys_scy, sys_scy_fang, sys_scy_fang_set, sys_units
+   use iso_fortran_env, only: real64
    IMPLICIT NONE
 !
 !       THIS SUBROUTINE IS CALLED TO PLOT DOTF AT THE CMD LEVEL
@@ -135,11 +138,11 @@ SUBROUTINE PLTDOTF
 !
    REAL LDTAF(1:11),LDTAM1(1:11),LDTAM2(1:11)
 !
-   REAL*8 FLDCODE(1:2,0:10),MAXFREQ
+   real(real64) FLDCODE(1:2,0:10),MAXFREQ
    CHARACTER FLDUNIT(0:10)*3
    COMMON/FLDLAB/FLDCODE,FLDUNIT
 !
-   REAL*8 RANGE,CUTFRX,CUTFRY
+   real(real64) RANGE,CUTFRX,CUTFRY
 !
    LOGICAL ERROR1,EXTDMTF1,EXTDMTF2
 !
@@ -578,6 +581,7 @@ SUBROUTINE PLTGOTF
    use command_utils, only: is_command_query
    use mod_system, only: sys_mode, sys_scx, sys_scx_fang, sys_scx_fang_set, &
       & sys_scy, sys_scy_fang, sys_scy_fang_set, sys_units
+   use iso_fortran_env, only: real64
    IMPLICIT NONE
 !
 !       THIS SUBROUTINE IS CALLED TO PLOT GOTF AT THE CMD LEVEL
@@ -592,11 +596,11 @@ SUBROUTINE PLTGOTF
 !
    REAL LGTAF(1:11),LGTAM1(1:11),LGTAM2(1:11)
 !
-   REAL*8 FLDCODE(1:2,0:10)
+   real(real64) FLDCODE(1:2,0:10)
    CHARACTER FLDUNIT(0:10)*3
    COMMON/FLDLAB/FLDCODE,FLDUNIT
 !
-   REAL*8 RANGE,MTHETA1,DELFREQ,DELZ,MAXFREQ,MTHETA2
+   real(real64) RANGE,MTHETA1,DELFREQ,DELZ,MAXFREQ,MTHETA2
 !
    INTEGER COLPAS,IV,WVWT,ORTAG,I,ENN,ENNL,NT1ANG,NT1SIZ,DFLAG
    INTEGER NX,NY,CT,LNTP,JK_NN
@@ -1061,6 +1065,7 @@ SUBROUTINE PLTLSF
    use command_utils, only: is_command_query
    use mod_system, only: sys_mode, sys_scx, sys_scx_fang, sys_scx_fang_set, &
       & sys_scy, sys_scy_fang, sys_scy_fang_set, sys_units
+   use iso_fortran_env, only: real64
    IMPLICIT NONE
 !
 !       THIS SUBROUTINE IS CALLED TO PLOT GEO LSF AT THE CMD LEVEL
@@ -1071,7 +1076,7 @@ SUBROUTINE PLTLSF
    REAL GDTAP(1:102),GDTAV(1:102),AGDTAP(1:102),AGDTAV(1:102)&
    &,DELXX1,LLIMM,RDELA,RDELB,RDELC,LLIM,ULIM,DELX1
 !
-   REAL*8 SPDELX,SPDELY,MTHETA,DELZ,RANGE &
+   real(real64) SPDELX,SPDELY,MTHETA,DELZ,RANGE &
    &,SGNU,SGNL
 !
    INTEGER ENN,COLPAS,ORTAG,IV,WVWT,I,ENNL,NT1ANG,NT1SIZ,DFLAG,MYJK &
@@ -1405,13 +1410,14 @@ SUBROUTINE PLTLOK
    use DATLEN
    use DATMAI
    use command_utils, only: is_command_query
+   use iso_fortran_env, only: real64
    IMPLICIT NONE
 !
-   REAL*8 MAG
+   real(real64) MAG
 !
 !       THIS ROUTINE DOES THE "PLOT LOOK" COMMAND AT THE CMD LEVEL
 !
-   REAL*8 SINA,COSA,SINF,COSF,RLOOKX,RLOOKY &
+   real(real64) SINA,COSA,SINF,COSF,RLOOKX,RLOOKY &
    &,RLOOKZ
 !
 !
@@ -1588,6 +1594,7 @@ SUBROUTINE PLTLI
    use DATLEN
    use DATMAI
    use command_utils, only: is_command_query
+   use iso_fortran_env, only: real64
    IMPLICIT NONE
 !
 !       THIS ROUTINE DOES THE "PLOT LI" AND "PLOT NOLI" COMMANDS
@@ -1631,6 +1638,7 @@ SUBROUTINE PLTLBLL
    use DATMAI
    use command_utils, only: is_command_query
    use mod_system, only: sys_last_surf
+   use iso_fortran_env, only: real64
    IMPLICIT NONE
 !
 !       THIS ROUTINE DOES THE "PLOT LBL"
@@ -1697,6 +1705,7 @@ SUBROUTINE PLTJUS
    use DATLEN
    use DATMAI
    use command_utils, only: is_command_query
+   use iso_fortran_env, only: real64
    IMPLICIT NONE
 !
 !       THIS ROUTINE DOES THE PLOT RIGHT, LEFT AND CENTER COMMANDS
@@ -1777,9 +1786,10 @@ SUBROUTINE PLTFRM
    use DATLEN
    use DATMAI
    use command_utils, only: is_command_query
+   use iso_fortran_env, only: real64
    IMPLICIT NONE
 !
-   REAL*8 MAG
+   real(real64) MAG
 !
 !     THIS ROUTINE DOES THE "PLOT FRAME" COMMAND AT THE CMD LEVEL
 !     DEFAULT RESULTS IN PLOT FRAME 0 0 10000 7000
@@ -1855,6 +1865,7 @@ SUBROUTINE FOOTSANG
    use DATLEN
    use DATMAI
    use command_utils, only: is_command_query
+   use iso_fortran_env, only: real64
    IMPLICIT NONE
 !
 !       THIS ROUTINE DOES THE FOOTSANG COMMAND
@@ -1870,7 +1881,7 @@ SUBROUTINE FOOTSANG
 !
    COMMON/SFOR/ORSF
 !
-   REAL*8 X,Y,Z,XN,YN,ZN,ROT1X,ROT1Z,ROT2Y,&
+   real(real64) X,Y,Z,XN,YN,ZN,ROT1X,ROT1Z,ROT2Y,&
    &ROT2Z,AX,AY,AZ,AALF,APHI,YMAXI,YMINI,XMAXI,XMINI &
    &,XNEW,YNEW,LKG,VIEPH,VIEAL,Z1,ANGLE,AN2,TOTAREA &
    &,X00,Y00,Z0,LX0,LY0,LZ0,XFTVAL,YFTVAL,ZFTVAL &
@@ -2029,6 +2040,7 @@ SUBROUTINE FOOTAREA
    use DATMAI
    use command_utils, only: is_command_query
    use mod_system, only: sys_units
+   use iso_fortran_env, only: real64
    IMPLICIT NONE
 !
 !       THIS ROUTINE DOES THE FOOTAREA COMMAND
@@ -2044,7 +2056,7 @@ SUBROUTINE FOOTAREA
 !
    COMMON/SFOR/ORSF
 !
-   REAL*8 X,Y,Z,XN,YN,ZN,ROT1X,ROT1Z,ROT2Y,&
+   real(real64) X,Y,Z,XN,YN,ZN,ROT1X,ROT1Z,ROT2Y,&
    &ROT2Z,AX,AY,AZ,AALF,APHI,YMAXI,YMINI,XMAXI,XMINI &
    &,XNEW,YNEW,LKG,VIEPH,VIEAL,Z1,ANGLE,AN2,TOTAREA &
    &,X00,Y00,Z0,LX0,LY0,LZ0,XFTVAL,YFTVAL,ZFTVAL &
@@ -2157,6 +2169,7 @@ SUBROUTINE PLTFOOT
    use DATMAI
    use command_utils, only: is_command_query
    use mod_system, only: sys_last_surf
+   use iso_fortran_env, only: real64
    IMPLICIT NONE
 !
 !       THIS ROUTINE DOES THE PLOT FOOT COMMAND
@@ -2173,7 +2186,7 @@ SUBROUTINE PLTFOOT
 !
    COMMON/SFOR/ORSF
 !
-   REAL*8 X,Y,Z,XN,YN,ZN,ROT1X,ROT1Z,ROT2Y,&
+   real(real64) X,Y,Z,XN,YN,ZN,ROT1X,ROT1Z,ROT2Y,&
    &ROT2Z,AX,AY,AZ,AALF,APHI,YMAXI,YMINI,XMAXI,XMINI &
    &,XNEW,YNEW,LKG,VIEPH,VIEAL,Z1,ANGLE,AN2 &
    &,X00,Y00,Z0,LX0,LY0,LZ0,XFTVAL,YFTVAL,ZFTVAL &
@@ -2539,7 +2552,7 @@ SUBROUTINE PLTFOOT
          XFTVAL=XFTVAL-5000.0D0
          YFTVAL=YFTVAL-3500.0D0
 !
-!     THE SCREEN COORDINATE IN REAL*8 IN THE SHIFTED COORDINATE
+!     THE SCREEN COORDINATE IN real(real64) IN THE SHIFTED COORDINATE
 !     FRAME IS NOW X AND Y
 
          IF(DBLE(PGAMMA).NE.0.0D0) THEN
@@ -2658,6 +2671,7 @@ SUBROUTINE PLTFIELD
    use DATMAI
    use command_utils, only: is_command_query
    use mod_system, only: sys_mode, sys_units
+   use iso_fortran_env, only: real64
    IMPLICIT NONE
 !
 !     THIS PLOTS FIELD ABERATIONS
@@ -2665,7 +2679,7 @@ SUBROUTINE PLTFIELD
    CHARACTER UNN*9,DUNN*12,NNTT1*80,BLNOTE*80,BL20*20 &
    &,CRANGE*8,B*80,DTY*10,TMY*8,LABX*40,LABY*40
 !
-   REAL*8 WOR1(0:50),WOR2(0:50),RANGE &
+   real(real64) WOR1(0:50),WOR2(0:50),RANGE &
    &,FACTY,ORI,DTA11(0:50),DTA22(0:50),DDTA(0:50),ADTA(0:50)
 !
    REAL LLIM,ULIM,UFLIM,LFLIM,DELX1,FLDAN(0:50)
@@ -3518,6 +3532,7 @@ SUBROUTINE PLTFIELDNEW
    use mod_surface
    use DATMAI
    use mod_system, only: sys_mode, sys_units
+   use iso_fortran_env, only: real64
    IMPLICIT NONE
 !
 !     THIS PLOTS FIELD ABERATIONS
@@ -3525,7 +3540,7 @@ SUBROUTINE PLTFIELDNEW
    CHARACTER UNN*9,DUNN*12,NNTT1*80,BLNOTE*80,BL20*20 &
    &,CRANGE*8,B*80,DTY*10,TMY*8,LABX*40,LABY*40
 !
-   REAL*8 WOR1(0:50),WOR2(0:50),RANGE &
+   real(real64) WOR1(0:50),WOR2(0:50),RANGE &
    &,FACTY,ORI,DTA11(0:50),DTA22(0:50),DDTA(0:50),ADTA(0:50)
 !
    REAL LLIM,ULIM,UFLIM,LFLIM,DELX1,FLDAN(0:50)
@@ -3807,6 +3822,7 @@ SUBROUTINE PLTFIELDERRORCHECKING
    use DATHGR
    use DATLEN
    use DATMAI
+   use iso_fortran_env, only: real64
    IMPLICIT NONE
 !
 !     THIS PLOTS FIELD ABERATIONS
@@ -3814,7 +3830,7 @@ SUBROUTINE PLTFIELDERRORCHECKING
    CHARACTER UNN*9,DUNN*12,NNTT1*80,BLNOTE*80,BL20*20 &
    &,CRANGE*8,B*80,DTY*10,TMY*8,LABX*40,LABY*40
 !
-   REAL*8 WOR1(0:50),WOR2(0:50),RANGE &
+   real(real64) WOR1(0:50),WOR2(0:50),RANGE &
    &,FACTY,ORI,DTA11(0:50),DTA22(0:50),DDTA(0:50),ADTA(0:50)
 !
    REAL LLIM,ULIM,UFLIM,LFLIM,DELX1
@@ -3890,6 +3906,7 @@ SUBROUTINE PLTDSH
    use DATLEN
    use DATMAI
    use command_utils, only: is_command_query
+   use iso_fortran_env, only: real64
    IMPLICIT NONE
 !
 !       THIS ROUTINE DOES THE PLOT DASH COMMAND AT THE CMD LEVEL
@@ -3964,6 +3981,7 @@ SUBROUTINE PLTDEV
    use DATHGR
    use DATLEN
    use DATMAI
+   use iso_fortran_env, only: real64
    IMPLICIT NONE
 !
 !       THIS ROUTINE DOES THE "PLOT NEW" COMMAND AT THE CMD
@@ -4017,11 +4035,12 @@ SUBROUTINE PLTCOB(SURFACEI,MDX,MDY,GAMGAM)
    use mod_surface
    use DATMAI
    use mod_system, only: sys_last_surf
+   use iso_fortran_env, only: real64
    IMPLICIT NONE
 !
 !       THIS ROUTINE DOES THE PLOT COBS COMMAND
 !
-   REAL*8 X,Y,Z,XN,YN,ZN,ROT1X,ROT1Z,ROT2Y,GAMGAM,&
+   real(real64) X,Y,Z,XN,YN,ZN,ROT1X,ROT1Z,ROT2Y,GAMGAM,&
    &ROT2Z,AX,AY,AZ,AALF,APHI,YMAXI,YMINI,XMAXI,XMINI &
    &,XNEW,YNEW,LKG,VIEPH,VIEAL,Z1,ANGLE,AN2 &
    &,X00,Y00,Z0,LX0,LY0,LZ0,MDX,MDY &
@@ -4293,7 +4312,7 @@ SUBROUTINE PLTCOB(SURFACEI,MDX,MDY,GAMGAM)
       ELSE
       END IF
    END DO
-!     THE SCREEN COORDINATE IN REAL*8 IN THE SHIFTED COORDINATE
+!     THE SCREEN COORDINATE IN real(real64) IN THE SHIFTED COORDINATE
 !     FRAME IS NOW X AND Y
 
    IF(DBLE(PGAMMA).NE.0.0D0) THEN
@@ -4408,9 +4427,10 @@ SUBROUTINE PLTRHFOOT
    use DATLEN
    use DATMAI
    use command_utils, only: is_command_query
+   use iso_fortran_env, only: real64
    IMPLICIT NONE
    LOGICAL EXIS103,OPEN103
-   REAL*8 XFTVAL,YFTVAL,XNEW,YNEW,X,Y,LKG
+   real(real64) XFTVAL,YFTVAL,XNEW,YNEW,X,Y,LKG
    DIMENSION XFTVAL(:),YFTVAL(:)
    ALLOCATABLE :: XFTVAL,YFTVAL
    INTEGER ALLOERR,NUMBER_OF_RAYS,IX,IY,I,COLPAS
@@ -4487,7 +4507,7 @@ SUBROUTINE PLTRHFOOT
       XFTVAL(I)=XFTVAL(I)-5000.0D0
       YFTVAL(I)=YFTVAL(I)-3500.0D0
 !
-!     THE SCREEN COORDINATE IN REAL*8 IN THE SHIFTED COORDINATE
+!     THE SCREEN COORDINATE IN real(real64) IN THE SHIFTED COORDINATE
 !     FRAME IS NOW X AND Y
 
       IF(DBLE(PGAMMA).NE.0.0D0) THEN

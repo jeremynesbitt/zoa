@@ -7,9 +7,10 @@ SUBROUTINE PHASOR
    use DATMAI
    use mod_surface, only: surf_special_type
    use mod_system, only: sys_units, sys_wavelength, sys_wl_ref
+   use iso_fortran_env, only: real64
    IMPLICIT NONE
 !
-   REAL*8 L1,M1,MAG
+   real(real64) L1,M1,MAG
 !
    INTEGER IR,II,KLI
 !
@@ -188,9 +189,10 @@ SUBROUTINE PHAS6
    use DATLEN
    use DATMAI
    use mod_system, only: sys_units, sys_wavelength, sys_wl_ref
+   use iso_fortran_env, only: real64
    IMPLICIT NONE
 !
-   REAL*8 L1,M1,DERX6,DERY6,&
+   real(real64) L1,M1,DERX6,DERY6,&
    &TERM,MAG,FAZE6,DEL,ERR,MMYX,MMYY
 !
    EXTERNAL FAZE6,DERX6,DERY6
@@ -249,8 +251,9 @@ END
 FUNCTION FAZE6(ARG1,ARG2)
    use DATLEN
    use DATMAI
+   use iso_fortran_env, only: real64
    IMPLICIT NONE
-   REAL*8 ARG,ARG1,ARG2,FAZE6
+   real(real64) ARG,ARG1,ARG2,FAZE6
    INTEGER I
    FAZE6=0.0D0
    ARG=DSQRT(DBLE(ARG1**2)+DBLE(ARG2**2))
@@ -267,11 +270,12 @@ FUNCTION DERX6(X,Y,H,ERR)
 !
 !     BETTER DERIVATIVE ROUTINE FROM NUMERICAL RECIPES 2ND ED.
 !
+   use iso_fortran_env, only: real64
    IMPLICIT NONE
-   REAL*8 DERX6,ERR,H,X,Y,FAZE6,CON,CON2,BIG,SAFE
+   real(real64) DERX6,ERR,H,X,Y,FAZE6,CON,CON2,BIG,SAFE
    EXTERNAL FAZE6
    INTEGER I,J,NTAB
-   REAL*8 ERRT,FAC,HH,A(1:10,1:10)
+   real(real64) ERRT,FAC,HH,A(1:10,1:10)
 !
    CON=1.4D0
    CON2=CON*CON
@@ -309,11 +313,12 @@ FUNCTION DERY6(X,Y,H,ERR)
 !
 !     BETTER DERIVATIVE ROUTINE FROM NUMERICAL RECIPES 2ND ED.
 !
+   use iso_fortran_env, only: real64
    IMPLICIT NONE
-   REAL*8 DERY6,ERR,H,X,Y,FAZE6,CON,CON2,BIG,SAFE
+   real(real64) DERY6,ERR,H,X,Y,FAZE6,CON,CON2,BIG,SAFE
    EXTERNAL FAZE6
    INTEGER I,J,NTAB
-   REAL*8 ERRT,FAC,HH,A(1:10,1:10)
+   real(real64) ERRT,FAC,HH,A(1:10,1:10)
 !
    CON=1.4D0
    CON2=CON*CON
@@ -357,9 +362,10 @@ SUBROUTINE PHAS9
    use DATLEN
    use DATMAI
    use mod_system, only: sys_units, sys_wavelength, sys_wl_ref
+   use iso_fortran_env, only: real64
    IMPLICIT NONE
 !
-   REAL*8 L1,M1,DERX9,DERY9,&
+   real(real64) L1,M1,DERX9,DERY9,&
    &TERM,MAG,FAZE9,DEL,ERR,MMYX,MMYY
 !
    EXTERNAL FAZE9,DERX9,DERY9
@@ -417,8 +423,9 @@ END
 FUNCTION FAZE9(ARG1,ARG2)
    use DATLEN
    use DATMAI
+   use iso_fortran_env, only: real64
    IMPLICIT NONE
-   REAL*8 ARGA,ARGB,ARG1,ARG2,FAZE9,FF2
+   real(real64) ARGA,ARGB,ARG1,ARG2,FAZE9,FF2
    EXTERNAL FF2
    INTEGER I
    ARGA=DSQRT(DBLE(ARG1**2)+DBLE(ARG2**2))
@@ -453,11 +460,12 @@ FUNCTION DERX9(X,Y,H,ERR)
 !
 !     BETTER DERIVATIVE ROUTINE FROM NUMERICAL RECIPES 2ND ED.
 !
+   use iso_fortran_env, only: real64
    IMPLICIT NONE
-   REAL*8 DERX9,ERR,H,X,Y,FAZE9,CON,CON2,BIG,SAFE
+   real(real64) DERX9,ERR,H,X,Y,FAZE9,CON,CON2,BIG,SAFE
    EXTERNAL FAZE9
    INTEGER I,J,NTAB
-   REAL*8 ERRT,FAC,HH,A(1:10,1:10)
+   real(real64) ERRT,FAC,HH,A(1:10,1:10)
 !
    CON=1.4D0
    CON2=CON*CON
@@ -495,11 +503,12 @@ FUNCTION DERY9(X,Y,H,ERR)
 !
 !     BETTER DERIVATIVE ROUTINE FROM NUMERICAL RECIPES 2ND ED.
 !
+   use iso_fortran_env, only: real64
    IMPLICIT NONE
-   REAL*8 DERY9,ERR,H,X,Y,FAZE9,CON,CON2,BIG,SAFE
+   real(real64) DERY9,ERR,H,X,Y,FAZE9,CON,CON2,BIG,SAFE
    EXTERNAL FAZE9
    INTEGER I,J,NTAB
-   REAL*8 ERRT,FAC,HH,A(1:10,1:10)
+   real(real64) ERRT,FAC,HH,A(1:10,1:10)
 !
    CON=1.4D0
    CON2=CON*CON
@@ -541,9 +550,10 @@ SUBROUTINE PHAS10
    use DATLEN
    use DATMAI
    use mod_system, only: sys_units, sys_wavelength, sys_wl_ref
+   use iso_fortran_env, only: real64
    IMPLICIT NONE
 !
-   REAL*8 L1,M1,DERX10,DERY10,&
+   real(real64) L1,M1,DERX10,DERY10,&
    &TERM,MAG,FAZE10,DEL,ERR,MMYX,MMYY
 !
    EXTERNAL FAZE10,DERX10,DERY10
@@ -602,8 +612,9 @@ END
 FUNCTION FAZE10(ARG1,ARG2)
    use DATLEN
    use DATMAI
+   use iso_fortran_env, only: real64
    IMPLICIT NONE
-   REAL*8 ARGA,ARGB,ARG1,ARG2,FAZE10,FF3
+   real(real64) ARGA,ARGB,ARG1,ARG2,FAZE10,FF3
    EXTERNAL FF3
    INTEGER I
    FAZE10=0.0D0
@@ -638,11 +649,12 @@ FUNCTION DERX10(X,Y,H,ERR)
 !
 !     BETTER DERIVATIVE ROUTINE FROM NUMERICAL RECIPES 2ND ED.
 !
+   use iso_fortran_env, only: real64
    IMPLICIT NONE
-   REAL*8 DERX10,ERR,H,X,Y,FAZE10,CON,CON2,BIG,SAFE
+   real(real64) DERX10,ERR,H,X,Y,FAZE10,CON,CON2,BIG,SAFE
    EXTERNAL FAZE10
    INTEGER I,J,NTAB
-   REAL*8 ERRT,FAC,HH,A(1:10,1:10)
+   real(real64) ERRT,FAC,HH,A(1:10,1:10)
 !
    CON=1.4D0
    CON2=CON*CON
@@ -680,11 +692,12 @@ FUNCTION DERY10(X,Y,H,ERR)
 !
 !     BETTER DERIVATIVE ROUTINE FROM NUMERICAL RECIPES 2ND ED.
 !
+   use iso_fortran_env, only: real64
    IMPLICIT NONE
-   REAL*8 DERY10,ERR,H,X,Y,FAZE10,CON,CON2,BIG,SAFE
+   real(real64) DERY10,ERR,H,X,Y,FAZE10,CON,CON2,BIG,SAFE
    EXTERNAL FAZE10
    INTEGER I,J,NTAB
-   REAL*8 ERRT,FAC,HH,A(1:10,1:10)
+   real(real64) ERRT,FAC,HH,A(1:10,1:10)
 !
    CON=1.4D0
    CON2=CON*CON
@@ -726,9 +739,10 @@ SUBROUTINE PHAS7
    use DATLEN
    use DATMAI
    use mod_system, only: sys_units, sys_wavelength, sys_wl_ref
+   use iso_fortran_env, only: real64
    IMPLICIT NONE
 !
-   REAL*8 L1,M1,DERX7,DERY7,&
+   real(real64) L1,M1,DERX7,DERY7,&
    &TERM,MAG,FAZE7,DEL,ERR,MMYY,MMYX
 !
    EXTERNAL FAZE7,DERX7,DERY7
@@ -787,8 +801,9 @@ END
 FUNCTION FAZE7(ARG1,ARG2)
    use DATLEN
    use DATMAI
+   use iso_fortran_env, only: real64
    IMPLICIT NONE
-   REAL*8 ARG,ARG1,ARG2,FAZE7,FF4
+   real(real64) ARG,ARG1,ARG2,FAZE7,FF4
    EXTERNAL FF4
    INTEGER I
    FAZE7=0.0D0
@@ -803,11 +818,12 @@ FUNCTION DERX7(X,Y,H,ERR)
 !
 !     BETTER DERIVATIVE ROUTINE FROM NUMERICAL RECIPES 2ND ED.
 !
+   use iso_fortran_env, only: real64
    IMPLICIT NONE
-   REAL*8 DERX7,ERR,H,X,Y,FAZE7,CON,CON2,BIG,SAFE
+   real(real64) DERX7,ERR,H,X,Y,FAZE7,CON,CON2,BIG,SAFE
    EXTERNAL FAZE7
    INTEGER I,J,NTAB
-   REAL*8 ERRT,FAC,HH,A(1:10,1:10)
+   real(real64) ERRT,FAC,HH,A(1:10,1:10)
 !
    CON=1.4D0
    CON2=CON*CON
@@ -845,11 +861,12 @@ FUNCTION DERY7(X,Y,H,ERR)
 !
 !     BETTER DERIVATIVE ROUTINE FROM NUMERICAL RECIPES 2ND ED.
 !
+   use iso_fortran_env, only: real64
    IMPLICIT NONE
-   REAL*8 DERY7,ERR,H,X,Y,FAZE7,CON,CON2,BIG,SAFE
+   real(real64) DERY7,ERR,H,X,Y,FAZE7,CON,CON2,BIG,SAFE
    EXTERNAL FAZE7
    INTEGER I,J,NTAB
-   REAL*8 ERRT,FAC,HH,A(1:10,1:10)
+   real(real64) ERRT,FAC,HH,A(1:10,1:10)
 !
    CON=1.4D0
    CON2=CON*CON
@@ -891,9 +908,10 @@ SUBROUTINE PHAS15
    use DATLEN
    use DATMAI
    use mod_system, only: sys_units, sys_wavelength, sys_wl_ref
+   use iso_fortran_env, only: real64
    IMPLICIT NONE
 !
-   REAL*8 L1,M1,DERX15,DERY15,&
+   real(real64) L1,M1,DERX15,DERY15,&
    &TERM,MAG,FAZE15,DEL,ERR,MMYY,MMYX
 !
    EXTERNAL FAZE15,DERX15,DERY15
@@ -952,8 +970,9 @@ END
 FUNCTION FAZE15(ARG1,ARG2)
    use DATLEN
    use DATMAI
+   use iso_fortran_env, only: real64
    IMPLICIT NONE
-   REAL*8 ARGA,ARGB,ARG1,ARG2,FAZE15,FF5
+   real(real64) ARGA,ARGB,ARG1,ARG2,FAZE15,FF5
    EXTERNAL FF5
    INTEGER I
    FAZE15=0.0D0
@@ -988,11 +1007,12 @@ FUNCTION DERX15(X,Y,H,ERR)
 !
 !     BETTER DERIVATIVE ROUTINE FROM NUMERICAL RECIPES 2ND ED.
 !
+   use iso_fortran_env, only: real64
    IMPLICIT NONE
-   REAL*8 DERX15,ERR,H,X,Y,FAZE15,CON,CON2,BIG,SAFE
+   real(real64) DERX15,ERR,H,X,Y,FAZE15,CON,CON2,BIG,SAFE
    EXTERNAL FAZE15
    INTEGER I,J,NTAB
-   REAL*8 ERRT,FAC,HH,A(1:10,1:10)
+   real(real64) ERRT,FAC,HH,A(1:10,1:10)
 !
    CON=1.4D0
    CON2=CON*CON
@@ -1030,11 +1050,12 @@ FUNCTION DERY15(X,Y,H,ERR)
 !
 !     BETTER DERIVATIVE ROUTINE FROM NUMERICAL RECIPES 2ND ED.
 !
+   use iso_fortran_env, only: real64
    IMPLICIT NONE
-   REAL*8 DERY15,ERR,H,X,Y,FAZE15,CON,CON2,BIG,SAFE
+   real(real64) DERY15,ERR,H,X,Y,FAZE15,CON,CON2,BIG,SAFE
    EXTERNAL FAZE15
    INTEGER I,J,NTAB
-   REAL*8 ERRT,FAC,HH,A(1:10,1:10)
+   real(real64) ERRT,FAC,HH,A(1:10,1:10)
 !
    CON=1.4D0
    CON2=CON*CON
@@ -1070,10 +1091,11 @@ FUNCTION DERY15(X,Y,H,ERR)
 END
 SUBROUTINE ADDPHASE(L,M,N,L1,M1,LN,MN,NN,PHASE)
    use DATMAI
+   use iso_fortran_env, only: real64
    IMPLICIT NONE
-   REAL*8 N1,MAG,L,M,N,L1,M1,NV,LN,MN,NN,PHASE
-   REAL*8 IX,IY,LT,MT,NT,X1,Y1
-   REAL*8 X,Y,IXP,IYP,XN,YN
+   real(real64) N1,MAG,L,M,N,L1,M1,NV,LN,MN,NN,PHASE
+   real(real64) IX,IY,LT,MT,NT,X1,Y1
+   real(real64) X,Y,IXP,IYP,XN,YN
    NV=0.0D0
    IF(N.GE.0.0D0) NV=1.0D0
    IF(N.LT.0.0D0) NV=-1.0D0
@@ -1151,9 +1173,10 @@ SUBROUTINE PH11(L1,M1,XX,YY,PHA)
    use DATLEN
    use DATMAI
    use mod_system, only: sys_wavelength
+   use iso_fortran_env, only: real64
    IMPLICIT NONE
 !
-   REAL*8 WAVEY,L1,M1,PHA,XX,YY
+   real(real64) WAVEY,L1,M1,PHA,XX,YY
 !
    INTEGER IR,II,KLI
 !
@@ -1299,9 +1322,10 @@ SUBROUTINE PHAS13
    use DATLEN
    use DATMAI
    use mod_system, only: sys_wavelength
+   use iso_fortran_env, only: real64
    IMPLICIT NONE
 !
-   REAL*8 L1,M1,DERX13,DERY13,&
+   real(real64) L1,M1,DERX13,DERY13,&
    &TERM,MAG,FAZE13,DEL,ERR,MMYX,MMYY,WAVEY
 !
    EXTERNAL FAZE13,DERX13,DERY13
@@ -1336,8 +1360,9 @@ END
 FUNCTION FAZE13(ARG1,ARG2)
    use DATLEN
    use DATMAI
+   use iso_fortran_env, only: real64
    IMPLICIT NONE
-   REAL*8 ARG1,ARG2,FAZE13,FF4
+   real(real64) ARG1,ARG2,FAZE13,FF4
    EXTERNAL FF4
    INTEGER I
    IF(FTFL01(11,MYI).EQ.2.0D0) THEN
@@ -1379,11 +1404,12 @@ FUNCTION DERX13(X,Y,H,ERR)
 !
 !     BETTER DERIVATIVE ROUTINE FROM NUMERICAL RECIPES 2ND ED.
 !
+   use iso_fortran_env, only: real64
    IMPLICIT NONE
-   REAL*8 DERX13,ERR,H,X,Y,FAZE13,CON,CON2,BIG,SAFE
+   real(real64) DERX13,ERR,H,X,Y,FAZE13,CON,CON2,BIG,SAFE
    EXTERNAL FAZE13
    INTEGER I,J,NTAB
-   REAL*8 ERRT,FAC,HH,A(1:10,1:10)
+   real(real64) ERRT,FAC,HH,A(1:10,1:10)
 !
    CON=1.4D0
    CON2=CON*CON
@@ -1420,11 +1446,12 @@ FUNCTION DERY13(X,Y,H,ERR)
 !
 !     BETTER DERIVATIVE ROUTINE FROM NUMERICAL RECIPES 2ND ED.
 !
+   use iso_fortran_env, only: real64
    IMPLICIT NONE
-   REAL*8 DERY13,ERR,H,X,Y,FAZE13,CON,CON2,BIG,SAFE
+   real(real64) DERY13,ERR,H,X,Y,FAZE13,CON,CON2,BIG,SAFE
    EXTERNAL FAZE13
    INTEGER I,J,NTAB
-   REAL*8 ERRT,FAC,HH,A(1:10,1:10)
+   real(real64) ERRT,FAC,HH,A(1:10,1:10)
 !
    CON=1.4D0
    CON2=CON*CON
@@ -1463,9 +1490,10 @@ SUBROUTINE PH12(PX,PY,XX,YY)
    use DATLEN
    use DATMAI
    use mod_system, only: sys_wavelength
+   use iso_fortran_env, only: real64
    IMPLICIT NONE
 !
-   REAL*8 PX,PY,XX,YY,DERX12,DERY12 &
+   real(real64) PX,PY,XX,YY,DERX12,DERY12 &
    &,DEL,ERR,WAVEY
 !
    EXTERNAL DERX12,DERY12
@@ -1498,9 +1526,10 @@ SUBROUTINE PH13(PX,PY,XX,YY)
    use DATLEN
    use DATMAI
    use mod_system, only: sys_wavelength
+   use iso_fortran_env, only: real64
    IMPLICIT NONE
 !
-   REAL*8 PX,PY,XX,YY,DERX13,DERY13 &
+   real(real64) PX,PY,XX,YY,DERX13,DERY13 &
    &,DEL,ERR,WAVEY
 !
    EXTERNAL DERX12,DERY12
@@ -1533,9 +1562,10 @@ SUBROUTINE PHAS12
    use DATLEN
    use DATMAI
    use mod_system, only: sys_wavelength
+   use iso_fortran_env, only: real64
    IMPLICIT NONE
 !
-   REAL*8 L1,M1,DERX12,DERY12,N1 &
+   real(real64) L1,M1,DERX12,DERY12,N1 &
    &,TERM,MAG,PHAS,FAZE12,DEL,ERR,MMYX,MMYY,WAVEY
 !
    EXTERNAL FAZE12,DERX12,DERY12
@@ -1570,8 +1600,9 @@ END
 FUNCTION FAZE12(ARG1,ARG2)
    use DATLEN
    use DATMAI
+   use iso_fortran_env, only: real64
    IMPLICIT NONE
-   REAL*8 ARG1,ARG2,FAZE12,ARG
+   real(real64) ARG1,ARG2,FAZE12,ARG
    INTEGER I
    IF(FTFL01(11,MYI).EQ.1.0D0) THEN
       ARG=(ARG1**2)+(ARG2**2)
@@ -1599,11 +1630,12 @@ FUNCTION DERX12(X,Y,H,ERR)
 !
 !     BETTER DERIVATIVE ROUTINE FROM NUMERICAL RECIPES 2ND ED.
 !
+   use iso_fortran_env, only: real64
    IMPLICIT NONE
-   REAL*8 DERX12,ERR,H,X,Y,FAZE12,CON,CON2,BIG,SAFE
+   real(real64) DERX12,ERR,H,X,Y,FAZE12,CON,CON2,BIG,SAFE
    EXTERNAL FAZE12
    INTEGER I,J,NTAB
-   REAL*8 ERRT,FAC,HH,A(1:10,1:10)
+   real(real64) ERRT,FAC,HH,A(1:10,1:10)
 !
    CON=1.4D0
    CON2=CON*CON
@@ -1647,11 +1679,12 @@ FUNCTION DERY12(X,Y,H,ERR)
 !
 !     BETTER DERIVATIVE ROUTINE FROM NUMERICAL RECIPES 2ND ED.
 !
+   use iso_fortran_env, only: real64
    IMPLICIT NONE
-   REAL*8 DERY12,ERR,H,X,Y,FAZE12,CON,CON2,BIG,SAFE
+   real(real64) DERY12,ERR,H,X,Y,FAZE12,CON,CON2,BIG,SAFE
    EXTERNAL FAZE12
    INTEGER I,J,NTAB
-   REAL*8 ERRT,FAC,HH,A(1:10,1:10)
+   real(real64) ERRT,FAC,HH,A(1:10,1:10)
 !
    CON=1.4D0
    CON2=CON*CON
@@ -1698,6 +1731,7 @@ SUBROUTINE OLDSUR
 !     RESTORES THE OBJECT,REFERENCE AND IMAGE SURFACES TO THERE
 !
    use DATLEN
+   use iso_fortran_env, only: real64
    IMPLICIT NONE
 !
 !
@@ -1714,6 +1748,7 @@ SUBROUTINE RESSUR
 !
    use DATLEN
    use mod_system, only: sys_last_surf, sys_ref_surf
+   use iso_fortran_env, only: real64
    IMPLICIT NONE
 !
 !
@@ -1734,9 +1769,10 @@ SUBROUTINE REALCOLR(I,ERRR)
    use DATLEN
    use DATMAI
    use mod_system, only: sys_mode, sys_wl_pri1, sys_wl_pri2, sys_wl_ref, sys_wl_sec1, sys_wl_sec2
+   use iso_fortran_env, only: real64
    IMPLICIT NONE
 !
-   REAL*8 VALUE,NUM5,XRAY(1:4),YRAY(1:4)&
+   real(real64) VALUE,NUM5,XRAY(1:4),YRAY(1:4)&
    &,XFOB(1:4),YFOB(1:4),DDF1(1:4),DDF2(1:4),LAM(1:2),LAMCW
 !
    INTEGER II,I,J
@@ -2086,6 +2122,7 @@ SUBROUTINE PRREF
    use DATLEN
    use DATMAI
    use mod_system, only: sys_last_surf
+   use iso_fortran_env, only: real64
    IMPLICIT NONE
 !
 !       THIS IS SUBROUTINE PRREF. THIS SUBROUTINE IMPLEMENTS
@@ -2093,7 +2130,7 @@ SUBROUTINE PRREF
 !
    INTEGER SF,I,IWAVNM
 !
-   REAL*8 TREFA,TREFB
+   real(real64) TREFA,TREFB
 !
 !
    IWAVNM=INT(WVN)
@@ -2269,6 +2306,7 @@ SUBROUTINE PRDIFF
    use DATLEN
    use DATMAI
    use mod_system, only: sys_last_surf
+   use iso_fortran_env, only: real64
    IMPLICIT NONE
 !
 !       THIS IS SUBROUTINE PRDIFF. THIS SUBROUTINE IMPLEMENTS
@@ -2508,6 +2546,7 @@ SUBROUTINE PRLMN
    use DATLEN
    use DATMAI
    use mod_system, only: sys_last_surf
+   use iso_fortran_env, only: real64
    IMPLICIT NONE
 !
 !       THIS IS SUBROUTINE PRLMN. THIS SUBROUTINE IMPLEMENTS
@@ -2673,6 +2712,7 @@ SUBROUTINE PRXY
    use DATLEN
    use DATMAI
    use mod_system, only: sys_last_surf
+   use iso_fortran_env, only: real64
    IMPLICIT NONE
 !
 !       THIS IS SUBROUTINE PRXY. THIS SUBROUTINE IMPLEMENTS
@@ -2688,7 +2728,7 @@ SUBROUTINE PRXY
 !
    LOGICAL DEG,RAD,TANG
 !
-   REAL*8 XA,YA
+   real(real64) XA,YA
 !
    COMMON/ANGMOD/DEG,RAD,TANG
 !
@@ -3125,6 +3165,7 @@ SUBROUTINE PRR
    use DATLEN
    use DATMAI
    use mod_system, only: sys_last_surf
+   use iso_fortran_env, only: real64
    IMPLICIT NONE
 !
 !       THIS IS SUBROUTINE PRR. THIS SUBROUTINE IMPLEMENTS
@@ -3134,9 +3175,9 @@ SUBROUTINE PRR
    CHARACTER AMODE*8
 !
    INTEGER SF,IWAVNM,I
-   REAL*8 COSARG
+   real(real64) COSARG
 !
-   REAL*8 RR,RRA
+   real(real64) RR,RRA
 !
    COMMON/CMODD/AMODE
 !
@@ -3401,6 +3442,7 @@ SUBROUTINE PRXYD
    use DATLEN
    use DATMAI
    use mod_system, only: sys_last_surf, sys_wavelength
+   use iso_fortran_env, only: real64
    IMPLICIT NONE
 !
 !       THIS IS SUBROUTINE PRXYD. THIS SUBROUTINE IMPLEMENTS
@@ -3411,7 +3453,7 @@ SUBROUTINE PRXYD
 !
    INTEGER SF,IWAVNM,I
 !
-   REAL*8 OPLR,OPLC,OPD,DUMMY,XA,YA
+   real(real64) OPLR,OPLC,OPD,DUMMY,XA,YA
 !
    COMMON/CMODD/AMODE
 !
@@ -3731,6 +3773,7 @@ SUBROUTINE PRRAY
    use DATLEN
    use DATMAI
    use mod_system, only: sys_last_surf
+   use iso_fortran_env, only: real64
    IMPLICIT NONE
 !
 !       THIS IS SUBROUTINE PRRAY. THIS SUBROUTINE IMPLEMENTS
@@ -3739,7 +3782,7 @@ SUBROUTINE PRRAY
 !
    CHARACTER AMODE*8
 !
-   REAL*8 COSARG,XA,YA
+   real(real64) COSARG,XA,YA
 !
    INTEGER &
    &SF,IWAVNM,I
@@ -4554,6 +4597,7 @@ SUBROUTINE PRZ
    use DATLEN
    use DATMAI
    use mod_system, only: sys_last_surf, sys_wavelength
+   use iso_fortran_env, only: real64
    IMPLICIT NONE
 !
 !       THIS IS SUBROUTINE PRY. THIS SUBROUTINE IMPLEMENTS
@@ -4565,7 +4609,7 @@ SUBROUTINE PRZ
 !
    COMMON/CMODD/AMODE
 !
-   REAL*8 OPLR,OPLC,OPD,DUMMY,XA,YA
+   real(real64) OPLR,OPLC,OPD,DUMMY,XA,YA
 !
    LOGICAL DEG,RAD,TANG,OPDERROR
 !
@@ -4737,8 +4781,9 @@ SUBROUTINE PRZ
 END
 SUBROUTINE RS(XA,YA)
    use DATMAI
+   use iso_fortran_env, only: real64
    IMPLICIT NONE
-   REAL*8 XA,YA
+   real(real64) XA,YA
    IF(XA.GT.PII) XA=XA-(TWOPII)
    IF(XA.LT.-PII) XA=XA+(TWOPII)
    IF(XA.EQ.TWOPII) XA=0.0D0
@@ -4753,6 +4798,7 @@ SUBROUTINE PRFLUX
    use DATLEN
    use DATMAI
    use mod_system, only: sys_last_surf
+   use iso_fortran_env, only: real64
    IMPLICIT NONE
 !
 !       THIS IS SUBROUTINE PRFLUX. THIS SUBROUTINE IMPLEMENTS
@@ -4761,7 +4807,7 @@ SUBROUTINE PRFLUX
 !       AFTER SURFACE INTERACTION
 !       THIS OPERATES AT THE CMD LEVEL.
 !
-   REAL*8 XA,YA
+   real(real64) XA,YA
 !
    INTEGER &
    &SF,IWAVNM,I
@@ -4929,6 +4975,7 @@ SUBROUTINE PRPOL
    use DATLEN
    use DATMAI
    use mod_system, only: sys_last_surf
+   use iso_fortran_env, only: real64
    IMPLICIT NONE
 !
 !       THIS IS SUBROUTINE PRPOL. THIS SUBROUTINE IMPLEMENTS
@@ -4936,7 +4983,7 @@ SUBROUTINE PRPOL
 !       INFORMATION WHEN POLARIZATION RAY TRACING IS ON.
 !       THIS OPERATES AT THE CMD LEVEL.
 !
-   REAL*8 XA,YA
+   real(real64) XA,YA
 !
    INTEGER &
    &SF,IWAVNM,I
@@ -5119,6 +5166,7 @@ SUBROUTINE PROPD
    use mod_surface, only: surf_thickness
    use mod_system, only: sys_mode, sys_units, sys_wavelength
    use mod_lens_data_manager, only: ldm
+   use iso_fortran_env, only: real64
    IMPLICIT NONE
 !
 !       THIS IS SUBROUTINE PROPD WHICH IMPLEMENTS THE OPD
@@ -5126,7 +5174,7 @@ SUBROUTINE PROPD
 !
    INTEGER J,JJ
 !
-   REAL*8 LEN,LENW,WW,WAVE
+   real(real64) LEN,LENW,WW,WAVE
 !
 !
 !               CHECK FOR PRESENCE OF STRING,QUALIFIER,OR NUMERIC
@@ -5233,6 +5281,7 @@ SUBROUTINE PRGLBL
    use DATMAI
    use mod_surface, only: surf_thickness
    use mod_system, only: sys_last_surf, sys_units
+   use iso_fortran_env, only: real64
    IMPLICIT NONE
 !
 !       THIS IS SUBROUTINE PRGLBL. THIS SUBROUTINE IMPLEMENTS
@@ -5547,6 +5596,7 @@ SUBROUTINE PRNSS
    use DATLEN
    use DATMAI
    use mod_system, only: sys_last_surf
+   use iso_fortran_env, only: real64
    IMPLICIT NONE
 !
 !       THIS IS SUBROUTINE PRNSS. THIS SUBROUTINE IMPLEMENTS

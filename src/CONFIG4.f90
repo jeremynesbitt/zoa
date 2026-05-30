@@ -7,6 +7,7 @@ SUBROUTINE CFDFLT
    use DATLEN
    use DATMAI
    use mod_system, only: sys_last_surf, sys_high_cfg
+   use iso_fortran_env, only: real64
    IMPLICIT NONE
 !
 !       THIS SUBROUTINE IS CALLED BY CFGOUT AND
@@ -3692,6 +3693,7 @@ END
 SUBROUTINE CFCHG1
 !
    use DATMAI
+   use iso_fortran_env, only: real64
    IMPLICIT NONE
 !
 !       THIS SUBROUTINE CALLS PROCESS FROM THE CFG CHANGE
@@ -3723,6 +3725,7 @@ SUBROUTINE LORDER(I)
    use DATLEN
    use DATMAI
    use mod_system, only: sys_last_surf
+   use iso_fortran_env, only: real64
    IMPLICIT NONE
 !
 !       THIS SUBROUTINE IS CALLED FROM CFGCLN. IT CLEANS
@@ -3743,7 +3746,7 @@ SUBROUTINE LORDER(I)
 !
    COMMON/AATST/AATJK,AATI,AATJ
 !
-   REAL*8 PVALUE,XK
+   real(real64) PVALUE,XK
 !
 !
    CHARACTER*140 SCRATH
@@ -3959,7 +3962,7 @@ SUBROUTINE LORDER(I)
          PART=HOLDER(10:32)
 !       PART IS A23 CHARACTER REPRESENTATION OF A POSITIVE DOUBLE
 !       PRECISION NUMBER WRITTEN IN A D23.15 FORMAT
-!       CONVERT TO REAL*8
+!       CONVERT TO real(real64)
          WRITE(A,100) PART
 100      FORMAT(A23)
          READ(A,110) PVALUE
@@ -4266,6 +4269,7 @@ SUBROUTINE LCLEAN
    use DATLEN
    use DATMAI
    use mod_system, only: sys_last_surf, sys_high_cfg
+   use iso_fortran_env, only: real64
    IMPLICIT NONE
 !
 !       THIS IS SUBROUTINE LCLEAN. IT REMOVES INCONSISTENCIES
@@ -4280,7 +4284,7 @@ SUBROUTINE LCLEAN
 !
    COMMON/BLAAA/BLANK
 !
-   REAL*8 VAL1
+   real(real64) VAL1
 !
    COMMON/JK_NTA3/VAL1,AVAL1
 !
@@ -4424,6 +4428,7 @@ SUBROUTINE AATEST
 !       FILE CLEANUP
 !
    use DATCFG
+   use iso_fortran_env, only: real64
    IMPLICIT NONE
 !
    CHARACTER ATEST*17

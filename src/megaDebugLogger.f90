@@ -9,6 +9,7 @@ subroutine megaDebugLogger(subName)
    use DATLEN
    use DATMAI
    use mod_surface, only: surf_asphere_coeff
+   use iso_fortran_env, only: real64
    IMPLICIT NONE
 
    character(len=*), intent(in) :: subName
@@ -24,15 +25,15 @@ subroutine megaDebugLogger(subName)
 !
    CHARACTER LUNI*3
 !
-   REAL*8 XPFOB,YPFOB
+   real(real64) XPFOB,YPFOB
    COMMON/PFOB/XPFOB,YPFOB,LUNI
 !
-   REAL*8 FT,FS,X00,Y00,Z0 &
+   real(real64) FT,FS,X00,Y00,Z0 &
    &,LAMBDA,ANGLE1,XK,YK,XLN,XMN,XNN,XFOBB0,YFOBB0,ZFOBB0 &
    &,ANGJK1,ANGJK2,XXANG,YYANG,FACTER,XA,YA,ZA,XJIM,YJIM,ZJIM &
    &,ZSAG,ANGLE2,SCLFACY,SCLFACX,AWW1,AWW2
 !
-   REAL*8 XRAYER,YRAYER,ZRAYER
+   real(real64) XRAYER,YRAYER,ZRAYER
    COMMON/RAYERPASS/XRAYER,YRAYER,ZRAYER
 !
    COMMON/OHFOB/XFOBB0,YFOBB0,ZFOBB0
@@ -75,7 +76,7 @@ subroutine megaDebugLogger(subName)
 !        INTEGER SB1,SB2,SC1,SC2,SQ,SST,S1,S2,S3,S4,S5,
 !     1  DF1,DF2,DF3,DF4,DF5,SN,STI
 !
-!        REAL*8 W1,W2,W3,W4,W5
+!        real(real64) W1,W2,W3,W4,W5
 !
 
 
@@ -86,6 +87,7 @@ subroutine PRINTNEUTARRAY()
 
    USE GLOBALS
    use DATHGR
+   use iso_fortran_env, only: real64
    IMPLICIT NONE
 
 

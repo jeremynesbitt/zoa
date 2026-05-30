@@ -19,6 +19,7 @@ module paraxial_ray_trace_test
             use mod_system, only: sys_astop, sys_last_surf, sys_sax, sys_say, sys_scx, sys_scy, &
                & sys_telecentric, sys_wl_ref, sys_x1_scx, sys_y1_scy, &
                & sys_set_x1_scx, sys_set_y1_scy
+   use iso_fortran_env, only: real64
             IMPLICIT NONE
     !
     !       THIS IS SUBROUTINE PRTRA. THIS IS THE
@@ -40,7 +41,7 @@ module paraxial_ray_trace_test
             logical :: newWay = .TRUE.
     
     !
-            REAL*8 SYS13,TMP15A,TMP15B, &
+            real(real64) SYS13,TMP15A,TMP15B, &
             CON,CURV,TMP17A,TMP17B,WV
     !
             COMMON/PRCOM/WV,ITYP
@@ -1303,6 +1304,7 @@ module paraxial_ray_trace_test
             use mod_system, only: sys_astop, sys_last_surf, sys_sax, sys_say, sys_scx, sys_scy, &
                & sys_telecentric, sys_wl_ref, sys_x1_scx, sys_y1_scy, &
                & sys_set_x1_scx, sys_set_y1_scy
+   use iso_fortran_env, only: real64
             IMPLICIT NONE
     !
     !       THIS IS SUBROUTINE PRTRA. THIS IS THE
@@ -1324,7 +1326,7 @@ module paraxial_ray_trace_test
             logical :: newWay = .TRUE.
     
     !
-            REAL*8 SYS13,TMP15A,TMP15B, &
+            real(real64) SYS13,TMP15A,TMP15B, &
             CON,CURV,TMP17A,TMP17B,WV
     !
             COMMON/PRCOM/WV,ITYP

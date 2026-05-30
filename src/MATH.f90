@@ -2,8 +2,9 @@
 !     GENERAL MATH ROUTINES STORED HERE
 !
 SUBROUTINE SORT_JK(N,RA,ARA)
+   use iso_fortran_env, only: real64
    IMPLICIT NONE
-   REAL*8 RA,RRA
+   real(real64) RA,RRA
    CHARACTER ARRA*13,ARRA1*13,ARRA2*13,ARA*13
    INTEGER N,L,IR,J,I
    DIMENSION RA(N),ARA(2,N)
@@ -53,13 +54,14 @@ SUBROUTINE SORT_JK(N,RA,ARA)
    GO TO 10
 END
 SUBROUTINE DARRAY_sort(n,arr)
-!     sorts a 2-dimensional real*8 array by the value stored
+   use iso_fortran_env, only: real64
+!     sorts a 2-dimensional real(real64) array by the value stored
 !     in the first column
    INTEGER n,M,NSTACK
-   REAL*8 arr(n,1:2)
+   real(real64) arr(n,1:2)
    PARAMETER (M=7,NSTACK=50)
    INTEGER i,ir,j,jstack,k,l,istack(NSTACK)
-   REAL*8 a,temp,b,temp2
+   real(real64) a,temp,b,temp2
    jstack=0
    l=1
    ir=n
@@ -154,11 +156,12 @@ SUBROUTINE SHUFFLE(N,ARR)
 !     RANGING FROM 1 TO N. iT WAS ADDED ON 3/13/2006 TO SUPPORT
 !     A NEW WAY TO DO ITER POWELL.
    use DATMAI
+   use iso_fortran_env, only: real64
    IMPLICIT NONE
    INTEGER n,i,ALLOERR
-   REAL*8 RANDMM
+   real(real64) RANDMM
    EXTERNAL RANDMM
-   REAL*8 arr(n,1:2)
+   real(real64) arr(n,1:2)
 !     LOAD ARR(I,2) WITH DOUBLE PRECISION REPRESENTATIONS
 !     OF I
 !     AND LOAD RANDOM DOUBLE PRECISION NUMBERS INTO
@@ -178,6 +181,7 @@ END
 !
 SUBROUTINE RANDSET
 !
+   use iso_fortran_env, only: real64
    IMPLICIT NONE
    INTEGER N
 !
@@ -196,10 +200,11 @@ SUBROUTINE MYNEWSEED
 !
    use DATMAI
    use command_utils, only: is_command_query
+   use iso_fortran_env, only: real64
    IMPLICIT NONE
 
 !
-   REAL*8 D,DD
+   real(real64) D,DD
    INTEGER ID
    REAL RESLT
    REAL MSEED
@@ -256,9 +261,10 @@ END
 !
 SUBROUTINE RANDGET(RESULT)
 !
+   use iso_fortran_env, only: real64
    IMPLICIT NONE
 !
-   REAL*8 RESULT
+   real(real64) RESULT
    INTEGER N
 !
    REAL RANRAN
@@ -272,6 +278,7 @@ SUBROUTINE RANDGET(RESULT)
 END
 FUNCTION RANRAN(MY_IDUM)
    use DATMAI
+   use iso_fortran_env, only: real64
    IMPLICIT NONE
    INTEGER MY_IDUM,IDUM
    REAL MBIG,MZ
@@ -322,9 +329,10 @@ FUNCTION RANRAN(MY_IDUM)
 END
 FUNCTION GASDEV()
 !     RETURNS A ZERO MEAN AND A UNIT VALUE FOR THE ONE-SIGMA VARIANCE
+   use iso_fortran_env, only: real64
    IMPLICIT NONE
    REAL GASDEV
-   REAL*8 RESLT
+   real(real64) RESLT
    INTEGER ISET
    REAL FAC,GSET,RSQ,V1,V2
    SAVE ISET,GSET
@@ -349,9 +357,10 @@ END
 ! SUB RANDMM.FOR
 FUNCTION RANDMM()
    use DATMAI
+   use iso_fortran_env, only: real64
    IMPLICIT NONE
-   REAL*8 RANDMM
-   REAL*8 RANDX,REGG
+   real(real64) RANDMM
+   real(real64) RANDX,REGG
    REAL GASDEV
    INTEGER MY_IDUM
    EXTERNAL GASDEV

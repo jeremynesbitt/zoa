@@ -5,6 +5,7 @@ SUBROUTINE CVRBL1
 !
    use DATSUB
    use DATMAI
+   use iso_fortran_env, only: real64
    IMPLICIT NONE
 !
 !
@@ -44,6 +45,7 @@ SUBROUTINE VRBL1
 !
    use DATSUB
    use DATMAI
+   use iso_fortran_env, only: real64
    IMPLICIT NONE
 !
 !
@@ -89,6 +91,7 @@ SUBROUTINE TVRBL1
    use DATLEN
    use mod_surface
    use DATMAI
+   use iso_fortran_env, only: real64
    IMPLICIT NONE
 !
 !
@@ -148,6 +151,7 @@ SUBROUTINE UCVRBL1
 !
    use DATSUB
    use DATMAI
+   use iso_fortran_env, only: real64
    IMPLICIT NONE
 !
 !
@@ -176,6 +180,7 @@ SUBROUTINE UVRBL1
 !
    use DATSUB
    use DATMAI
+   use iso_fortran_env, only: real64
    IMPLICIT NONE
 !
 !
@@ -208,6 +213,7 @@ SUBROUTINE TUVRBL1
 !
    use DATSUB
    use DATMAI
+   use iso_fortran_env, only: real64
    IMPLICIT NONE
 !
 !
@@ -238,6 +244,7 @@ SUBROUTINE UTOPER
    use DATLEN
    use mod_surface
    use DATMAI
+   use iso_fortran_env, only: real64
    IMPLICIT NONE
 !
 !
@@ -265,6 +272,7 @@ SUBROUTINE UFOCRIT
    use DATLEN
    use mod_surface
    use DATMAI
+   use iso_fortran_env, only: real64
    IMPLICIT NONE
 !
 !
@@ -292,6 +300,7 @@ SUBROUTINE UMERIT
    use DATLEN
    use mod_surface
    use DATMAI
+   use iso_fortran_env, only: real64
    IMPLICIT NONE
 !
 !
@@ -317,8 +326,9 @@ END
 SUBROUTINE SPLINT(XA,YA,Y2A,N,X,Y)
 !     THIS IS A MODIFIED VERSION FROM NUMERICAL RECIPIES
    use DATMAI
+   use iso_fortran_env, only: real64
    IMPLICIT NONE
-   REAL*8 XA,YA,Y2A,X,Y,H,A,B
+   real(real64) XA,YA,Y2A,X,Y,H,A,B
    INTEGER KLO,KHI,N,K
    DIMENSION XA(N),YA(N),Y2A(N)
    KLO=1
@@ -346,8 +356,9 @@ SUBROUTINE SPLINT(XA,YA,Y2A,N,X,Y)
 END
 SUBROUTINE SPLINE(X,Y,N,YP1,YPN,Y2)
 !     THIS IS A MODIFIED VERSION FROM NUMERICAL RECIPIES
+   use iso_fortran_env, only: real64
    IMPLICIT NONE
-   REAL*8 X,Y,Y2,U,SIG,P,YPN,QN,UN,YP1
+   real(real64) X,Y,Y2,U,SIG,P,YPN,QN,UN,YP1
    INTEGER NMAX,I,N,K
    PARAMETER (NMAX=250)
    DIMENSION X(N),Y(N),Y2(N),U(NMAX)
@@ -388,6 +399,7 @@ SUBROUTINE ROBB
    use mod_surface
    use DATMAI
    use command_utils, only: is_command_query
+   use iso_fortran_env, only: real64
    IMPLICIT NONE
 !
    INTEGER IROBB,RMAX,I,J,VTYPE,K,ALTYPE,VADD,VCFG,KMIN
@@ -396,11 +408,11 @@ SUBROUTINE ROBB
 !
    INTEGER VCN,ALLOERR
 !
-   REAL*8 ROBBB,ROBDD,OLDX,VSAVE,OROBFMT ,V1,FMT1,DELOLDX
+   real(real64) ROBBB,ROBDD,OLDX,VSAVE,OROBFMT ,V1,FMT1,DELOLDX
 !
    INTEGER ISURF
 !
-   REAL*8 NEWDEFVAL
+   real(real64) NEWDEFVAL
 !
    COMMON/DEFVALCOM/NEWDEFVAL
 !
@@ -996,6 +1008,7 @@ SUBROUTINE RESTMIN
    use mod_surface
    use DATMAI
    use command_utils, only: is_command_query
+   use iso_fortran_env, only: real64
    IMPLICIT NONE
 !
    INTEGER IROBB,RMAX,I,J,VTYPE,K,ALTYPE,VADD,VCFG,KMIN
@@ -1004,11 +1017,11 @@ SUBROUTINE RESTMIN
 !
    INTEGER VCN,ALLOERR
 !
-   REAL*8 ROBBB,ROBDD,OLDX,VSAVE,OROBFMT ,V1,FMT1,DELOLDX
+   real(real64) ROBBB,ROBDD,OLDX,VSAVE,OROBFMT ,V1,FMT1,DELOLDX
 !
    INTEGER ISURF
 !
-   REAL*8 NEWDEFVAL
+   real(real64) NEWDEFVAL
 !
    COMMON/DEFVALCOM/NEWDEFVAL
 !
@@ -1572,6 +1585,7 @@ SUBROUTINE SOLVIT(IID,JJD,MDERIV,SILENT)
    use DATLEN
    use mod_surface
    use DATMAI
+   use iso_fortran_env, only: real64
    IMPLICIT NONE
 !
    CHARACTER OOLDWQ*8
@@ -1582,11 +1596,11 @@ SUBROUTINE SOLVIT(IID,JJD,MDERIV,SILENT)
 !
    INTEGER ISURF
 !
-   REAL*8 NEWDEFVAL,PFACSCL
+   real(real64) NEWDEFVAL,PFACSCL
 !
    COMMON/DEFVALCOM/NEWDEFVAL
 !
-   REAL*8 X(1:100000),WT,V1,MAX,VTEMP,OLDCUR,NEWCUR
+   real(real64) X(1:100000),WT,V1,MAX,VTEMP,OLDCUR,NEWCUR
 !
    DIMENSION WT(:)
 !
@@ -1602,14 +1616,14 @@ SUBROUTINE SOLVIT(IID,JJD,MDERIV,SILENT)
 !
    COMMON/CAUX1/V1,AV1
 !
-   REAL*8 MDERIV
+   real(real64) MDERIV
 !
    DIMENSION MDERIV(1:IID,1:JJD)
 !
    LOGICAL ERR1,ERR2
 !
 !
-   REAL*8 W,V,BTB,BTG,DIAGSUM,WMAX,WMIN
+   real(real64) W,V,BTB,BTG,DIAGSUM,WMAX,WMIN
    DIMENSION W(:),V(:,:),BTB(:,:),BTG(:)
    ALLOCATABLE :: W,V,BTB,BTG
    VN=IID
@@ -2292,6 +2306,7 @@ SUBROUTINE SOLVIT_POWELL(IID,JJD,MDERIV,SILENT)
    use DATLEN
    use mod_surface
    use DATMAI
+   use iso_fortran_env, only: real64
    IMPLICIT NONE
 !
    CHARACTER OOLDWQ*8
@@ -2302,11 +2317,11 @@ SUBROUTINE SOLVIT_POWELL(IID,JJD,MDERIV,SILENT)
 !
    INTEGER ISURF,IVB,IVBB
 !
-   REAL*8 NEWDEFVAL,PFACSCL
+   real(real64) NEWDEFVAL,PFACSCL
 !
    COMMON/DEFVALCOM/NEWDEFVAL
 !
-   REAL*8 X(1:100000),WT,V1,MAX,VTEMP,OLDCUR,NEWCUR
+   real(real64) X(1:100000),WT,V1,MAX,VTEMP,OLDCUR,NEWCUR
 !
    DIMENSION WT(:)
 !
@@ -2322,14 +2337,14 @@ SUBROUTINE SOLVIT_POWELL(IID,JJD,MDERIV,SILENT)
 !
    COMMON/CAUX1/V1,AV1
 !
-   REAL*8 MDERIV
+   real(real64) MDERIV
 !
    DIMENSION MDERIV(1:IID,1:JJD)
 !
    LOGICAL ERR1,ERR2
 !
 !
-   REAL*8 W,V,BTB,BTG,DIAGSUM,WMAX,WMIN
+   real(real64) W,V,BTB,BTG,DIAGSUM,WMAX,WMIN
    DIMENSION W(:),V(:,:),BTB(:,:),BTG(:)
    ALLOCATABLE :: W,V,BTB,BTG
    VN=IID

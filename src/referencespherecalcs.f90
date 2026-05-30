@@ -1,4 +1,5 @@
 module referencespherecalcs
+   use iso_fortran_env, only: real64
 
   integer, parameter :: TC_PERFECT = 1
   integer, parameter :: TC_INFRAD  = 2
@@ -20,6 +21,7 @@ contains
         use DATMAI
         use mod_surface, only: surf_thickness
         use mod_system, only: sys_last_surf, sys_mode
+   use iso_fortran_env, only: real64
         IMPLICIT NONE
 
         integer :: refSphereAlgo
@@ -127,11 +129,12 @@ function updateOCOR(typeCode) result(opdCorrection)
         use DATLEN
         use DATMAI
         use mod_surface, only: surf_thickness
+   use iso_fortran_env, only: real64
         IMPLICIT NONE
 
-          real*8 :: opdCorrection
+          real(real64) :: opdCorrection
 
-          real*8, dimension(3) :: RC, RK, K0, RRC
+          real(real64), dimension(3) :: RC, RK, K0, RRC
           integer :: typeCode
 !
 !       THIS IS SUBROUTINE LOPD.FOR. THIS SUBROUTINE IS
@@ -139,7 +142,7 @@ function updateOCOR(typeCode) result(opdCorrection)
 !       OPD DUE TO THE IMAGE REFERENCE SPHERE. (FOR AFOCAL
 !       SYSTEMS THIS WILL BE A FLAT REFERENCE SURFACE)
 !
-        REAL*8 :: T,XA,YA,ZA
+        real(real64) :: T,XA,YA,ZA
 !
       INTEGER TPT
 
@@ -223,6 +226,7 @@ function getImageReferenceSphereAlgo() result(res)
 
 
   use DATLEN
+   use iso_fortran_env, only: real64
   IMPLICIT NONE
 
   integer :: res
@@ -266,9 +270,10 @@ subroutine updateRefSphereParaxialPupil(REFERR)
         use DATLEN
         use DATMAI
         use mod_surface, only: surf_thickness
+   use iso_fortran_env, only: real64
         IMPLICIT NONE
 
-        REAL*8 XREFI,XO,XOOY,XOOX,YO,YOOX,YOOY,ZO,ZOOX,ZOOY, &
+        real(real64) XREFI,XO,XOOY,XOOX,YO,YOOX,YOOY,ZO,ZOOX,ZOOY, &
         YREFI,RAD,AL,BE,GA,A,B,C,LEN,LEN1,LO,LOOX,LOOY,MO,MOOX,MOOY, &
         LEN2,Q,ARG,ZREFI,SIGNB,RL0,RM0,RN0,NO,NOOX,NOOY,THYNUM,THXNUM, &
         RRX0,RRZ0,T,RX0,RY0,RZ0,RRY0,M0,L0,N0,XA,THXDEN,THYDEN, &
@@ -423,9 +428,10 @@ subroutine updateRefSphereRealPupil(REFERR)
         use DATLEN
         use DATMAI
         use mod_surface, only: surf_thickness
+   use iso_fortran_env, only: real64
         IMPLICIT NONE
 
-        REAL*8 XREFI,XO,XOOY,XOOX,YO,YOOX,YOOY,ZO,ZOOX,ZOOY, &
+        real(real64) XREFI,XO,XOOY,XOOX,YO,YOOX,YOOY,ZO,ZOOX,ZOOY, &
         YREFI,RAD,AL,BE,GA,A,B,C,LEN,LEN1,LO,LOOX,LOOY,MO,MOOX,MOOY, &
         LEN2,Q,ARG,ZREFI,SIGNB,RL0,RM0,RN0,NO,NOOX,NOOY,THYNUM,THXNUM, &
         RRX0,RRZ0,T,RX0,RY0,RZ0,RRY0,M0,L0,N0,XA,THXDEN,THYDEN, &

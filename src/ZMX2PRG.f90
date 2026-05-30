@@ -28,6 +28,7 @@ SUBROUTINE ZMX2PRG
    use mod_system, only: sys_units
    use DATMAI
    use command_utils, only: is_command_query
+   use iso_fortran_env, only: real64
    IMPLICIT NONE
 !
    CHARACTER ZMXFILENAME*80,KDPFILENAME*80,ZMX_INPUT_STRING*1024 &
@@ -60,11 +61,11 @@ SUBROUTINE ZMX2PRG
 
    CHARACTER(len=1) :: IS(5)
 !
-   REAL*8 CV,TH,VALV,WD(1:100),MAX,CL1,CL2,CL3,CL4,CL5
+   real(real64) CV,TH,VALV,WD(1:100),MAX,CL1,CL2,CL3,CL4,CL5
 
-   REAL*8 :: rayError
+   real(real64) :: rayError
 !
-   REAL*8 CO1,CO2,CO3,CO4,CO5,VPAR
+   real(real64) CO1,CO2,CO3,CO4,CO5,VPAR
    character(len=3) :: substr
 !
    DIMENSION TEMPA(:),TEMPB(:),TEMPC(:)

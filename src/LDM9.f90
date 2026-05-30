@@ -6,13 +6,14 @@ SUBROUTINE RGLASS2(I,MTYPE)
    use mod_surface
    use DATMAI
    use mod_system, only: sys_wavelength
+   use iso_fortran_env, only: real64
    IMPLICIT NONE
 !
    INTEGER I,MTYPE,J,N,K
 !
-   REAL*8 X(1:100),Y(1:100),Y2(1:100),LA,CSI ,YPN,YP1,R_RX(1:21,1:113),R_RY(1:21,1:113)
+   real(real64) X(1:100),Y(1:100),Y2(1:100),LA,CSI ,YPN,YP1,R_RX(1:21,1:113),R_RY(1:21,1:113)
 !
-   REAL*8 DUMA,DUMB,DUML,LM1,A,B,LA1,LA2,LA3,LA4,LA5
+   real(real64) DUMA,DUMB,DUML,LM1,A,B,LA1,LA2,LA3,LA4,LA5
 !
 !
 !
@@ -363,13 +364,14 @@ SUBROUTINE RGLASS1(MTYPE)
    use DATLEN
    use mod_surface
    use DATMAI
+   use iso_fortran_env, only: real64
    IMPLICIT NONE
 !
    INTEGER I,MTYPE,J,N
 !
-   REAL*8 X(1:100),Y(1:100),Y2(1:100),LA,CSI ,YPN,YP1,R_RX(1:21,1:113),R_RY(1:21,1:113)
+   real(real64) X(1:100),Y(1:100),Y2(1:100),LA,CSI ,YPN,YP1,R_RX(1:21,1:113),R_RY(1:21,1:113)
 !
-   REAL*8 DUMA,DUMB,DUML,LM1,A,B,LA1,LA2,LA3,LA4,LA5
+   real(real64) DUMA,DUMB,DUML,LM1,A,B,LA1,LA2,LA3,LA4,LA5
 !
 !
 !
@@ -678,11 +680,12 @@ SUBROUTINE RETRES
    use DATMAI
    use mod_system, only: sys_last_surf, sys_set_tilt_ret
    use mod_lens_data_manager, only: ldm
+   use iso_fortran_env, only: real64
    IMPLICIT NONE
    INTEGER I,RETSURF,SINB
-   REAL*8 D11,D12,D13
-   REAL*8 D21,D22,D23
-   REAL*8 D31,D32,D33,BETA,ALPHA,GAMMA,COSB
+   real(real64) D11,D12,D13
+   real(real64) D21,D22,D23
+   real(real64) D31,D32,D33,BETA,ALPHA,GAMMA,COSB
 !
 !
 !
@@ -824,6 +827,7 @@ SUBROUTINE REMPIK
 !
    use DATCFG
    use DATMAI
+   use iso_fortran_env, only: real64
    IMPLICIT NONE
 !
 !       THIS SUBROUTINE IS CALLED FROM SUBROUTINE CFPIKD
@@ -860,6 +864,7 @@ SUBROUTINE QUERRYY
    use DATLEN
    use mod_surface
    use DATMAI
+   use iso_fortran_env, only: real64
    IMPLICIT NONE
 !
 !       HANDLES RESPONSE TO '?' TYPED IN AS THE COMMAND WORD.
@@ -1084,6 +1089,7 @@ SUBROUTINE PTORIC
    use mod_surface
    use DATMAI
    use mod_system, only: sys_last_surf
+   use iso_fortran_env, only: real64
    IMPLICIT NONE
 !
 !       THIS IS SUBROUTINE PTORIC WHICH IMPLEMENTS THE TORIC,TR,TC,
@@ -1098,7 +1104,7 @@ SUBROUTINE PTORIC
 !
    INTEGER RADIUS,TORCNT,I
 !
-   REAL*8 RADVAL,CURVAL
+   real(real64) RADVAL,CURVAL
 !
 !
 !               THIS IS A CMD LEVEL COMMAND ONLY

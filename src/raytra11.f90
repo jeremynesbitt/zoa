@@ -6,6 +6,7 @@ SUBROUTINE SAVE_RAY_DATA
    use DATLEN
    use DATMAI
    use command_utils, only: is_command_query
+   use iso_fortran_env, only: real64
    IMPLICIT NONE
 !
 !     THIS COMMAND, "SAVERAY" CAUSES ALL OF THE DATA ASSOCIATED WITH THE
@@ -56,6 +57,7 @@ SUBROUTINE REST_RAY_DATA
    use DATLEN
    use DATMAI
    use command_utils, only: is_command_query
+   use iso_fortran_env, only: real64
    IMPLICIT NONE
 !
 !     THIS COMMAND, "RESTRAY" CAUSES ALL OF THE DATA ASSOCIATED WITH THE
@@ -106,6 +108,7 @@ SUBROUTINE CLEAR_RAY_DATA
    use DATLEN
    use DATMAI
    use command_utils, only: is_command_query
+   use iso_fortran_env, only: real64
    IMPLICIT NONE
 !
 !     THIS COMMAND, "CLEARRAY" CAUSES ALL OF THE DATA ASSOCIATED WITH THE
@@ -141,6 +144,7 @@ SUBROUTINE LASTRAY(ICODE)
    use DATLEN
    use DATMAI
    use mod_system, only: sys_last_surf
+   use iso_fortran_env, only: real64
    IMPLICIT NONE
    INTEGER ICODE,I,J
 !     ICODE = 1, SAVE RAY DATA
@@ -236,6 +240,7 @@ SUBROUTINE OLDREFDAT
    use DATLEN
    use DATMAI
    use command_utils, only: is_command_query
+   use iso_fortran_env, only: real64
    IMPLICIT NONE
 !
 !       THIS IS SUBROUTINE OLDREFDAT.FOR. THIS SUBROUTINE
@@ -289,6 +294,7 @@ SUBROUTINE SAVEREFDATA
    use DATLEN
    use DATMAI
    use command_utils, only: is_command_query
+   use iso_fortran_env, only: real64
    IMPLICIT NONE
 !
 !       THIS IS SUBROUTINE SAVEREF.FOR. THIS SUBROUTINE
@@ -327,6 +333,7 @@ SUBROUTINE NOAIMM
       sys_aim_offset_x, sys_aim_offset_y, sys_aim_offset_z, &
       sys_set_aim_offset_x, sys_set_aim_offset_y, sys_set_aim_offset_z, &
       sys_set_aplanatic_aim
+   use iso_fortran_env, only: real64
    IMPLICIT NONE
 !
 !       THIS IS SUBROUTINE NOAIMM.FOR. THIS SUBROUTINE STOPS ALL
@@ -415,6 +422,7 @@ SUBROUTINE MTFGRID
    use DATLEN
    use DATMAI
    use command_utils, only: is_command_query
+   use iso_fortran_env, only: real64
    IMPLICIT NONE
 !
 !       THIS IS SUBROUTINE MTFGRID.FOR. THIS SUBROUTINE
@@ -461,6 +469,7 @@ SUBROUTINE NOAIMAPL
    use command_utils, only: is_command_query
    use mod_system, only: sys_ryim_fang_set, sys_aplanatic_aim, &
       sys_set_aplanatic_aim, sys_set_ray_aiming, sys_set_telecentric
+   use iso_fortran_env, only: real64
    IMPLICIT NONE
 !
 !       THIS IS SUBROUTINE NOAIMAPL.FOR.
@@ -521,6 +530,7 @@ SUBROUTINE SET_REVRAY
    use command_utils, only: is_command_query
    use mod_system, only: sys_ryim_fang_set, sys_rxim_fang_set, &
       sys_reverse_trace, sys_set_reverse_trace
+   use iso_fortran_env, only: real64
    IMPLICIT NONE
 !
 !       THIS IS SUBROUTINE SET_REVRAY.FOR. THIS SUBROUTINE
@@ -576,6 +586,7 @@ SUBROUTINE MACFAIL
 !
    use DATMAI
    use command_utils, only: is_command_query
+   use iso_fortran_env, only: real64
    IMPLICIT NONE
 !
 !       THIS IS SUBROUTINE MACFAIL.FOR. THIS SUBROUTINE CONTROLS
@@ -617,6 +628,7 @@ SUBROUTINE OBJLEV
    USE GLOBALS
    use DATMAI
    use command_utils, only: is_command_query
+   use iso_fortran_env, only: real64
    IMPLICIT NONE
 !
 !       SETS AN INTENSITY LEVEL FOR THE CHIEF RAY AT THE OBJECT SURFACE
@@ -658,6 +670,7 @@ SUBROUTINE RHISTORY
    use DATMAI
    use command_utils, only: is_command_query
    use mod_system, only: sys_last_surf
+   use iso_fortran_env, only: real64
    IMPLICIT NONE
 !
 !       THIS IS SUBROUTINE RHIST.FOR. THIS SUBROUTINE STARTS
@@ -790,10 +803,11 @@ SUBROUTINE RHIST_INTENSITY
 !
    use DATLEN
    use DATMAI
+   use iso_fortran_env, only: real64
    IMPLICIT NONE
 !
-   REAL*8 XDEL,YDEL,XCORRI,YCORRI,IMAX,IMIN
-   REAL*8 RRXI,RRYI,IPTOV,IRMS,ITOTINTEN,ITOTRAYS
+   real(real64) XDEL,YDEL,XCORRI,YCORRI,IMAX,IMIN
+   real(real64) RRXI,RRYI,IPTOV,IRMS,ITOTINTEN,ITOTRAYS
 !       INTEN_ARRAY
 !       DIM 1 IS THE X-INDEX (DIMENSIONED 1 TO INT(W2))
 !       DIM 2 IS THE Y-INDEX (DIMENSIONED 1 TO INT(W2))
@@ -1152,6 +1166,7 @@ SUBROUTINE SCREENIT
    use mod_system, only: sys_screen, sys_screen_surf, sys_screen_d, sys_screen_h, &
       sys_screen_s, sys_screen_excl_angle, sys_set_screen, sys_set_screen_surf, &
       sys_set_screen_d, sys_set_screen_h, sys_set_screen_s, sys_set_screen_excl_angle
+   use iso_fortran_env, only: real64
    IMPLICIT NONE
 !
 !       THIS IS SUBROUTINE SCREENIT. THIS SETS ONE SURFACE'S SCREEN PROPERTY TO "ON" OR "OFF"
@@ -1246,6 +1261,7 @@ SUBROUTINE FLIPREF
    use DATMAI
    use command_utils, only: is_command_query
    use mod_system, only: sys_fliprefx, sys_fliprefy, sys_set_fliprefx, sys_set_fliprefy
+   use iso_fortran_env, only: real64
    IMPLICIT NONE
 !
 !       THIS IS SUBROUTINE FLIPREF.FOR.

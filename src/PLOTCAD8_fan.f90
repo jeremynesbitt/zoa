@@ -6,6 +6,7 @@ SUBROUTINE FANTP
    use DATLEN
    use DATMAI
    use mod_system, only: sys_mode, sys_units
+   use iso_fortran_env, only: real64
    IMPLICIT NONE
 !
 !       THIS ROUTINE DOES THE PLOTTING OF FAN TYPE AND UNITS
@@ -199,6 +200,7 @@ SUBROUTINE FANRWV
    use DATLEN
    use DATMAI
    use mod_system, only: sys_wavelength
+   use iso_fortran_env, only: real64
    IMPLICIT NONE
 !
 !       THIS ROUTINE DOES THE PLOTTING OF THE REFERENCE WAVELENGTH LEGEND
@@ -298,6 +300,7 @@ SUBROUTINE FANLI
    use DATHGR
    use DATLEN
    use DATMAI
+   use iso_fortran_env, only: real64
    IMPLICIT NONE
 !
 !       THIS ROUTINE DOES THE PLOTTING OF THE LENS IDENTIFIER "LI"
@@ -351,9 +354,10 @@ SUBROUTINE FANFOV
 !
    use DATMAI
    use command_utils, only: is_command_query
+   use iso_fortran_env, only: real64
    IMPLICIT NONE
 !
-   REAL*8 F1X,F1Y,F2X,F2Y,F3X,F3Y
+   real(real64) F1X,F1Y,F2X,F2Y,F3X,F3Y
 !
    COMMON/FANFOB/F1X,F1Y,F2X,F2Y,F3X,F3Y
 !
@@ -431,6 +435,7 @@ SUBROUTINE FANDO1(JCOMP,KCOMP)
    use DATHGR
    use DATLEN
    use DATMAI
+   use iso_fortran_env, only: real64
    IMPLICIT NONE
 !
 !     DOES FAN DATA PLOTTING FOR USER-DEFINED FAN PLOTTING
@@ -440,11 +445,11 @@ SUBROUTINE FANDO1(JCOMP,KCOMP)
 !
    INTEGER JIMX(1:102),JIMY(1:102),XA,XB,JIMFLG(1:102)
 !
-   REAL*8 YMAX,RANGE,YMIN,STEPJP1 &
+   real(real64) YMAX,RANGE,YMIN,STEPJP1 &
    &,XP1,XP2 &
    &,XVAL,YVAL,DRAXX,FACTOR,XPOS,XXPOS,XXPOS1
 !
-   REAL*8 XY2(1:102)
+   real(real64) XY2(1:102)
 
    LOGICAL SPLFIT,FANEXT
 !

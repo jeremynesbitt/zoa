@@ -8,6 +8,7 @@ SUBROUTINE SORDER(I)
    use mod_system, only: sys_last_surf
    use DATMAI
    use mod_surface, only: surf_special_type
+   use iso_fortran_env, only: real64
    IMPLICIT NONE
 !
 !       THIS IS SUBROUTINE SORDER. IT REMOVES INCONSISTENCIES
@@ -383,6 +384,7 @@ SUBROUTINE REMOVE
 !
    use DATCFG
    use DATMAI
+   use iso_fortran_env, only: real64
    IMPLICIT NONE
 !
 !       THIS SUBROUTINE IS CALLED FROM THE CMD LEVEL.
@@ -547,6 +549,7 @@ SUBROUTINE CFSC1
    use DATLEN
    use mod_system, only: sys_high_cfg
    use DATMAI
+   use iso_fortran_env, only: real64
    IMPLICIT NONE
 !
 !       THIS IS SUBROUTINE CFSC1 DOES SCALING OF CONFIG
@@ -562,7 +565,7 @@ SUBROUTINE CFSC1
    &ULINE,ELINE,IEND,CHG1,ISTART,ISTOP,STARL,STOPL,ISTA,&
    &ISTO,I,J
 !
-   REAL*8 VAL1,VAL2,MM1,&
+   real(real64) VAL1,VAL2,MM1,&
    &VAL3,VAL4,VAL5,N1,V1
 !
    COMMON/JK_NTA3/V1,AV1

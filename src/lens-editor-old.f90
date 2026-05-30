@@ -19,7 +19,9 @@ module lens_editor_old
   use gtk_hl_tree
 
   use kdp_data_types
+   use iso_fortran_env, only: real64
 
+   use iso_fortran_env, only: real64
   implicit none
 
   ! TODO:  Modifiy this so we can store values for combo entries
@@ -138,6 +140,7 @@ contains
   subroutine lens_editor_basic_dialog(box1)
 
     use, intrinsic :: iso_c_binding, only: c_ptr, c_funloc, c_null_char
+   use iso_fortran_env, only: real64
     implicit none
 
     type(c_ptr), intent(inout) :: box1
@@ -431,7 +434,7 @@ end subroutine lens_editor_replot
     real(kind=c_double) :: dval
     type(gvalue), target :: svalue
     type(c_ptr) :: val_ptr
-    real*8 :: nd, vd
+    real(real64) :: nd, vd
     
 
 
@@ -596,6 +599,7 @@ end subroutine lens_editor_replot
 
   subroutine refreshLensEditorUI()
 
+   use iso_fortran_env, only: real64
     implicit none
 
     call refreshLensDataStruct()
@@ -1522,6 +1526,7 @@ end subroutine
   function getSolvesAsCStringArray(solve_type, row) result (c_ptr_array)
     use type_utils, only : int2str
     
+   use iso_fortran_env, only: real64
     implicit none
     integer :: solve_type, row
     integer :: i
@@ -1605,6 +1610,7 @@ end subroutine
   function getSurfacesAsCStringArray() result (c_ptr_array)
     use type_utils, only : int2str
 
+   use iso_fortran_env, only: real64
     implicit none
 
     integer :: i

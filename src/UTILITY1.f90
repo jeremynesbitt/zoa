@@ -4,6 +4,7 @@
 SUBROUTINE PPRINT
 !
    use DATMAI
+   use iso_fortran_env, only: real64
    IMPLICIT NONE
 !
 !       THIS SUBROUTINE HANDELS THE "PRINT" SPECT COMMAND.
@@ -16,7 +17,7 @@ SUBROUTINE PPRINT
 !
    LOGICAL EXISJK
 !
-   REAL*8 WORK(1:1001,1:3),L1,L2,&
+   real(real64) WORK(1:1001,1:3),L1,L2,&
    &DATA1,DATA2,LAMB1,LAMB2,CUMULT(1:1001,1:3),DELLAM,WORKFC,&
    &SLOPE,TEMP(1:1001,1:3)
 !
@@ -242,6 +243,7 @@ END
 SUBROUTINE PRNLP
 !
    use DATMAI
+   use iso_fortran_env, only: real64
    IMPLICIT NONE
 !
 !       THIS SUBROUTINE IS CALLED TO PRINT THE PRINTER FILE.
@@ -315,6 +317,7 @@ SUBROUTINE NEWSEED
 !
    use DATMAI
    use command_utils, only: is_command_query
+   use iso_fortran_env, only: real64
    IMPLICIT NONE
 !
    REAL MSEED
@@ -340,6 +343,7 @@ SUBROUTINE PM
    use DATSUB
    use DATLEN
    use DATMAI
+   use iso_fortran_env, only: real64
    IMPLICIT NONE
 !
 !       THIS DOES THE "PM" AND "PMP" CMD LEVEL COMMANDS
@@ -349,7 +353,7 @@ SUBROUTINE PM
 !
    INTEGER IVAL,ALLOERR
 !
-   REAL*8 VAL
+   real(real64) VAL
 !
 !
    IF(WC.EQ.'PM') THEN
@@ -913,6 +917,7 @@ SUBROUTINE OUTPUT2
    USE GLOBALS
 !
    use DATMAI
+   use iso_fortran_env, only: real64
    IMPLICIT NONE
 !
 !       THIS SUBROUTINE IS CALLED TO SET THE CURRENT OUTPUT DEVICE.
@@ -982,6 +987,7 @@ SUBROUTINE APPREP
    use DATLEN
    use DATMAI
    use command_utils, only: is_command_query
+   use iso_fortran_env, only: real64
    IMPLICIT NONE
 !
 !       THIS SUBROUTINE IS CALLED TO SET FILES TO APPEND OR SEQ.
@@ -1050,6 +1056,7 @@ SUBROUTINE OUTPUT
 !
    use DATMAI
    use command_utils, only: is_command_query
+   use iso_fortran_env, only: real64
    IMPLICIT NONE
 !
 !       THIS SUBROUTINE IS CALLED TO SET THE CURRENT OUTPUT DEVICE.
@@ -1291,9 +1298,10 @@ SUBROUTINE OUTPUT
 END
 SUBROUTINE PARAMOUT(IPAR,VPAR,TEMPCC,ZMXERROR)
    use DATMAI
+   use iso_fortran_env, only: real64
    IMPLICIT NONE
    INTEGER IPAR,J
-   REAL*8 VPAR,VALV
+   real(real64) VPAR,VALV
    LOGICAL ZMXERROR
    CHARACTER TEMPCC*1024,TEMPER*1024,VALA*23,AA23*23
    AA23='                       '
@@ -1343,6 +1351,7 @@ SUBROUTINE WWORD
 !
    use DATMAI
    use command_utils, only: is_command_query
+   use iso_fortran_env, only: real64
    IMPLICIT NONE
 !
 !       THIS DOES THE "W1" THROUGH "W5" CMD LEVEL COMMANDS
@@ -1519,6 +1528,7 @@ SUBROUTINE UPPRLN
    use DATSUB
    use DATLEN
    use DATMAI
+   use iso_fortran_env, only: real64
    IMPLICIT NONE
 !
 !
@@ -1540,6 +1550,7 @@ END
 SUBROUTINE TABLE
 !
    use DATMAI
+   use iso_fortran_env, only: real64
    IMPLICIT NONE
 !
 !       THIS SUBROUTINE IS "TABLE" AND DOES ALL THE TABLE
@@ -1556,7 +1567,7 @@ SUBROUTINE TABLE
    INTEGER NROW,NCOL,&
    &I,J,FROW,FCOL
 !
-   REAL*8 &
+   real(real64) &
    &TABL(0:100,0:9)
 !
    COMMON/HDTAB/HCOL,HCOL2,HROW,HROW2
@@ -2098,6 +2109,7 @@ END
 FUNCTION FCOL(WK)
 !
    use DATMAI
+   use iso_fortran_env, only: real64
    IMPLICIT NONE
 !
    CHARACTER WK*8
@@ -2134,6 +2146,7 @@ END
 FUNCTION FROW(WK)
 !
    use DATMAI
+   use iso_fortran_env, only: real64
    IMPLICIT NONE
 !
    CHARACTER WK*8
@@ -2298,6 +2311,7 @@ END
 SUBROUTINE STACK
 !
    use DATMAI
+   use iso_fortran_env, only: real64
    IMPLICIT NONE
 !
 !       THIS SUBROUTINE IS USED TO MANIPULATE THE REAL AND IMAGINARY
@@ -2858,6 +2872,7 @@ END
 SUBROUTINE MINMAXREG
 !
    use DATMAI
+   use iso_fortran_env, only: real64
    IMPLICIT NONE
 !
 !       THIS SUBROUTINE IS USED TO MANIPULATE THE MIN/MAX REGISTERS
@@ -2959,6 +2974,7 @@ END
 
 !
 SUBROUTINE SAVEFONT(I)
+   use iso_fortran_env, only: real64
    IMPLICIT NONE
    INTEGER I
    OPEN(UNIT=110,ACCESS='SEQUENTIAL',BLANK='NULL'&

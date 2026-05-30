@@ -5,6 +5,7 @@ SUBROUTINE SPSUP
 !
    use DATLEN
    use DATMAI
+   use iso_fortran_env, only: real64
    IMPLICIT NONE
 !
 !       THIS IS SUBROUTINE SPSUP. THIS IS THE SUBROUTINE WHICH
@@ -60,6 +61,7 @@ SUBROUTINE SPSRF2(ITP)
 !
    use DATLEN
    use DATMAI
+   use iso_fortran_env, only: real64
    IMPLICIT NONE
 !
 !       THIS IS SUBROUTINE SPSRF2. THIS IS THE SUBROUTINE WHICH
@@ -240,6 +242,7 @@ SUBROUTINE SPSTAT
    use DATMAI
    use mod_system, only: sys_mode, sys_units
    use command_utils, only: is_command_query
+   use iso_fortran_env, only: real64
    IMPLICIT NONE
 !
    CHARACTER UN*11
@@ -249,7 +252,7 @@ SUBROUTINE SPSTAT
    INTEGER J,I,K,NUMT1,N,NUMT2,NUMT3,NUMT4,NUMT5 &
    &,ALLOERR,NUMT6,NUMT7,NUMT8,NUMT9,NUMT10
 !
-   REAL*8 TOT,W,SCENTX,SCENTY,&
+   real(real64) TOT,W,SCENTX,SCENTY,&
    &APFAC,DELTA,MSS,AMSS,MSSX,MSSY,AMSSX,AMSSY,&
    &JA,JB,DS9,DS12
 !
@@ -634,6 +637,7 @@ SUBROUTINE SPSIN
    use DATLEN
    use DATMAI
    use mod_system, only: sys_last_surf
+   use iso_fortran_env, only: real64
    IMPLICIT NONE
 !
 !       THIS IS SUBROUTINE SPSIN. THIS IS THE SUBROUTINE WHICH
@@ -693,6 +697,7 @@ SUBROUTINE SPSPEC(ITP)
    use mod_surface
    use mod_system, only: sys_last_surf, sys_wl_ref, sys_wavelength
    use command_utils, only: is_command_query
+   use iso_fortran_env, only: real64
    IMPLICIT NONE
 !
 !       THIS IS SUBROUTINE SPSPEC. THIS IS THE SUBROUTINE WHICH
@@ -938,6 +943,7 @@ SUBROUTINE SPSEOS
    use DATLEN
    use DATMAI
    use mod_system, only: sys_last_surf
+   use iso_fortran_env, only: real64
    IMPLICIT NONE
 !
 !       THIS IS SUBROUTINE SPSEOS. THIS IS THE SUBROUTINE WHICH
@@ -988,6 +994,7 @@ SUBROUTINE SPONOF
 !
    use DATLEN
    use DATMAI
+   use iso_fortran_env, only: real64
    IMPLICIT NONE
 !
 !       THIS IS SUBROUTINE SPONOF. THIS IS THE SUBROUTINE WHICH
@@ -1048,6 +1055,7 @@ SUBROUTINE SPFIT2
 !
    use DATLEN
    use DATMAI
+   use iso_fortran_env, only: real64
    IMPLICIT NONE
 !
 !       THIS IS SUBROUTINE SPFIT2. THIS IS THE SUBROUTINE WHICH
@@ -1056,7 +1064,7 @@ SUBROUTINE SPFIT2
 !
    INTEGER IDATA
 !
-   REAL*8 STYPE
+   real(real64) STYPE
 
    CHARACTER FITGLASS*8
 !
@@ -1207,6 +1215,7 @@ SUBROUTINE SPFIT
 !
    use DATLEN
    use DATMAI
+   use iso_fortran_env, only: real64
    IMPLICIT NONE
 !
 !       THIS IS SUBROUTINE SPFIT. THIS IS THE SUBROUTINE WHICH
@@ -1217,7 +1226,7 @@ SUBROUTINE SPFIT
 !
    COMMON/NUMDAT/DATCNT
 !
-   REAL*8 ACCUM(1:96,1:96),&
+   real(real64) ACCUM(1:96,1:96),&
    &CCOL(1:96),STYPE,SSURF
 !
    COMMON/SPIDAT/IDATA
@@ -1267,6 +1276,7 @@ END
 SUBROUTINE SPECIN
 !
    use DATMAI
+   use iso_fortran_env, only: real64
    IMPLICIT NONE
 !
 !       THIS SUBROUTINE IS CALLED TO ENTER THE SPECT LEVEL
@@ -1286,7 +1296,7 @@ SUBROUTINE SPECIN
    &CTAB,&
    &NTOTAL,CNTR
 !
-   REAL*8 LAMB1,LAMB2,&
+   real(real64) LAMB1,LAMB2,&
    &CUMULT(1:1001,1:3),TABLE(1:1001,1:3),DATA1,DATA2
 !
    COMMON/CUM/CUMULT
@@ -2577,6 +2587,7 @@ SUBROUTINE SPECIN
 END
 SUBROUTINE PHOTOPIC
    use DATMAI
+   use iso_fortran_env, only: real64
    IMPLICIT NONE
 !     SAVE I/O
    SAVE_KDP(1)=SAVEINPT(1)
@@ -2752,6 +2763,7 @@ SUBROUTINE PHOTOPIC
 END
 SUBROUTINE SCOTOPIC
    use DATMAI
+   use iso_fortran_env, only: real64
    IMPLICIT NONE
 !     SAVE I/O
    SAVE_KDP(1)=SAVEINPT(1)
@@ -2931,6 +2943,7 @@ SUBROUTINE SPDEL
    use DATLEN
    use DATMAI
    use mod_system, only: sys_last_surf
+   use iso_fortran_env, only: real64
    IMPLICIT NONE
 !
 !       THIS IS SUBROUTINE SPDEL. THIS IS THE SUBROUTINE WHICH

@@ -6,6 +6,7 @@ SUBROUTINE DEROFF
 !
    use DATSUB
    use DATMAI
+   use iso_fortran_env, only: real64
    IMPLICIT NONE
    LOGICAL ITERROR
 !
@@ -27,11 +28,12 @@ SUBROUTINE FMT
    use DATLEN
    use mod_surface
    use DATMAI
+   use iso_fortran_env, only: real64
    IMPLICIT NONE
 !
    INTEGER I,TAGER,CFGCHK
 !
-   REAL*8 CFMTFMT,FMTFMT1,DELFMT
+   real(real64) CFMTFMT,FMTFMT1,DELFMT
 !
    LOGICAL NOP,ALLER,CFGER
 !
@@ -210,11 +212,12 @@ SUBROUTINE FMT2
    use DATLEN
    use mod_surface
    use DATMAI
+   use iso_fortran_env, only: real64
    IMPLICIT NONE
 !
    INTEGER I,TAGER,CFGCHK
 !
-   REAL*8 FMTFMT1,DELFMT
+   real(real64) FMTFMT1,DELFMT
 !
    LOGICAL NOP,ALLER,CFGER
 !
@@ -388,11 +391,12 @@ SUBROUTINE FMT4
    use DATLEN
    use mod_surface
    use DATMAI
+   use iso_fortran_env, only: real64
    IMPLICIT NONE
 !
    INTEGER I,TAGER,CFGCHK
 !
-   REAL*8 FMTFMT1,DELFMT
+   real(real64) FMTFMT1,DELFMT
 !
    LOGICAL NOP,ALLER,CFGER
 !
@@ -549,6 +553,7 @@ SUBROUTINE FIXCVAR
    use DATLEN
    use mod_surface
    use DATMAI
+   use iso_fortran_env, only: real64
    IMPLICIT NONE
 !
    INTEGER II,I,J,VALT,VBSURF
@@ -961,6 +966,7 @@ SUBROUTINE FIXTVAR
    use DATLEN
    use mod_surface
    use DATMAI
+   use iso_fortran_env, only: real64
    IMPLICIT NONE
 !
    INTEGER II,I,J,VALT,VBSURF
@@ -1521,6 +1527,7 @@ SUBROUTINE FIXVAR
    use DATLEN
    use mod_surface
    use DATMAI
+   use iso_fortran_env, only: real64
    IMPLICIT NONE
 !
    INTEGER I,J,VALT,VBSURF,VADD
@@ -2143,6 +2150,7 @@ SUBROUTINE FIELDS
    use DATMAI
    use mod_system, only: sys_wl_ref
    use command_utils, only: is_command_query
+   use iso_fortran_env, only: real64
    IMPLICIT NONE
    CHARACTER AVAL3*3
    INTEGER I
@@ -2215,13 +2223,13 @@ SUBROUTINE MAKE_DEF_AUTO
    use mod_system, only: sys_mode, sys_wl_ref
    use command_utils, only: is_command_query
    INTEGER IVAL,I,J,K,DFNRD,L,LL,LLL,LLLL,DFNRAYS
-   REAL*8 JK_WW1,JK_WW2,VL,XPOS,YPOS,STEP,WT1,WT2,WAY,THETA
-   REAL*8 TESTLENGTH,LAST_TESTLENGTH,YSTART_POS,XSTART_POS
-   REAL*8 THETA_VAL1
+   real(real64) JK_WW1,JK_WW2,VL,XPOS,YPOS,STEP,WT1,WT2,WAY,THETA
+   real(real64) TESTLENGTH,LAST_TESTLENGTH,YSTART_POS,XSTART_POS
+   real(real64) THETA_VAL1
    CHARACTER AV1*23,AV2*23,AVL*23,ACFG*3,AI3*3,AI4*4,AV0*4,AV4*4
    CHARACTER AXPOS*23,AYPOS*23
    COMMON/JK_ATD/AVL,VL
-   REAL*8 RADIUS_VAL(1:20)
+   real(real64) RADIUS_VAL(1:20)
    COMMON/VALRAD/RADIUS_VAL
 !
    IF(WC.NE.'DFGRID') THEN
@@ -3139,6 +3147,7 @@ SUBROUTINE TOPER
    use DATLEN
    use mod_surface
    use DATMAI
+   use iso_fortran_env, only: real64
    IMPLICIT NONE
 !
 !
@@ -3185,6 +3194,7 @@ SUBROUTINE FOCRIT
    use DATLEN
    use mod_surface
    use DATMAI
+   use iso_fortran_env, only: real64
    IMPLICIT NONE
 !
 !
@@ -3233,6 +3243,7 @@ SUBROUTINE MERIT
    use DATLEN
    use mod_surface
    use DATMAI
+   use iso_fortran_env, only: real64
    IMPLICIT NONE
 !
 !
@@ -3279,15 +3290,16 @@ SUBROUTINE MDUMP(IID,JJD,MDERIV)
    use DATLEN
    use mod_surface
    use DATMAI
+   use iso_fortran_env, only: real64
    IMPLICIT NONE
 !
    INTEGER I,K,J,IID,JJD
 !
-   REAL*8 MDERIV
+   real(real64) MDERIV
 !
    DIMENSION MDERIV(1:IID,1:JJD)
 !
-   REAL*8 VAL
+   real(real64) VAL
 !
    CHARACTER AI1*3,AI2*3,AI3*3,AI4*3,AVAL1*13,AVAL2*13,AVAL3*13,AVAL4*13
 !
@@ -3379,11 +3391,12 @@ SUBROUTINE FMT3
    use DATLEN
    use mod_surface
    use DATMAI
+   use iso_fortran_env, only: real64
    IMPLICIT NONE
 !
    INTEGER I,TAGER,CFGCHK
 !
-   REAL*8 FMTFMT1,DELFMT
+   real(real64) FMTFMT1,DELFMT
 !
    LOGICAL NOP,ALLER,CFGER
 !
@@ -3479,19 +3492,20 @@ SUBROUTINE ITERADJUST(IID,JJD,MDERIV,JA)
    use DATLEN
    use mod_surface
    use DATMAI
+   use iso_fortran_env, only: real64
    IMPLICIT NONE
 !
    INTEGER I,K,J,IID,JJD,SUM1,IIID,JJJD,MAXCNT,ALLOERR
 !
    INTEGER JA
 !
-   REAL*8 MDERIV,CHGS1,CHGS2,TESTMAX1,TESTMAX2,VALUE1,VALUE2,VALUE3
+   real(real64) MDERIV,CHGS1,CHGS2,TESTMAX1,TESTMAX2,VALUE1,VALUE2,VALUE3
 !
    DIMENSION MDERIV(1:IID,1:JJD),CHGS1(1:IID)
 !
-   REAL*8 VAL
+   real(real64) VAL
 
-   REAL*8 DERIV
+   real(real64) DERIV
    DIMENSION DERIV(:,:)
    ALLOCATABLE :: DERIV
 !

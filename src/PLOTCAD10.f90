@@ -8,11 +8,12 @@ SUBROUTINE USER_CONTOUR(IIU)
    use DATLEN
    use DATMAI
    use command_utils, only: is_command_query
+   use iso_fortran_env, only: real64
    IMPLICIT NONE
 !
    REAL REFHT
 !
-   REAL*8 WVAL
+   real(real64) WVAL
 !
    LOGICAL PLOTIT(1:10)
 !
@@ -72,6 +73,7 @@ SUBROUTINE CON_USERPLOT(IJ,KVAL,REFHT,WVAL,KKV,KKK,IU)
    use DATSPD
    use DATLEN
    use DATMAI
+   use iso_fortran_env, only: real64
    IMPLICIT NONE
 !
    LOGICAL ITSFLAT
@@ -79,7 +81,7 @@ SUBROUTINE CON_USERPLOT(IJ,KVAL,REFHT,WVAL,KKV,KKK,IU)
    INTEGER IJ,KVAL,K,I,J,NNX,KKI2,NNY,KK,KKK,IQ,KKV,II,IIVAL
    INTEGER ALLOERR,WVNUMB,IU
 !
-   REAL*8 DL1,FV &
+   real(real64) DL1,FV &
    &,WVAL
    REAL REFHT,ZMAX2,ZMIN2,RI,RII,ZSTEP
    REAL F1PLT,F2PLT,DELGRID
@@ -207,6 +209,7 @@ SUBROUTINE USERCONT(PCOUNT,F1PLT,F2PLT,REFHT,IJ &
    use DATLEN
    use mod_system, only: sys_wavelength
    use DATMAI
+   use iso_fortran_env, only: real64
    IMPLICIT NONE
    REAL SPACER
    INTEGER ROT,I,J,ALLOERR,PCOUNT,COLPAS,IJ,WVNUMB,NSTEP,IU

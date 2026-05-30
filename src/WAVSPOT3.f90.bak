@@ -1,0 +1,3604 @@
+!       THIRD FILE OF CAPFN/SPOT ROUTINES
+
+! SUB SPOT.FOR
+
+SUBROUTINE SPOT
+   use mod_psf
+
+!
+   use DATSP1
+   use DATSPD
+   use DATLEN
+   use DATMAI
+   use mod_system, only: sys_mode, sys_wl_weight
+   use command_utils, only: is_command_query
+   IMPLICIT NONE
+!
+!       THIS IS SUBROUTINE SPOT.FOR. THIS DOES ALL SPOT DIAGRAMS.
+!
+   LOGICAL SYES,OPMAP,ERRORR,FIXWL
+!
+   INTEGER TYPEOLD,OLDRNUMBR
+!
+   REAL*8 ELMAX
+   COMMON/ELEV/ELMAX
+   REAL*8 ZZEMAX,ZZEMIN
+   COMMON/KENMOOR/ZZEMIN,ZZEMAX
+!
+   COMMON/OPOPMP/OPMAP
+!
+   COMMON/OLDTYP/TYPEOLD,OLDRNUMBR
+!
+   LOGICAL NOCOBSPSF
+   COMMON/PSFCOBS/NOCOBSPSF
+!
+
+   INTEGER RAYMAX,IWV
+!
+   LOGICAL REFERR
+!
+!
+!     THE ENTRIES IN THE SPOT FILES ARE:
+!
+!     DSPOT#(J)
+!               # IS 1 TO 5 FOR THE 5 WAVELENGTHS
+!               J GOES FROM 1 TO 17
+!               J=1  IS X RAY POS RAYRAY(1,NEWIMG)
+!               J=2  IS Y RAY POS RAYRAY(2,NEWIMG)
+!               J=3  IS Z RAY POS RAYRAY(3,NEWIMG)
+!               J=4  OPDW
+!               J=5  X COORD OF RAY AT NEWREF
+!               J=6  Y COORD OF RAY AT NEWREF
+!               J=7  IS RAY CODE 1
+!               J=8  IS RAY CODE 2
+!               J=9  XZ SLOPE ANGLE(RADIANS) OF RAY
+!               J=10 YZ SLOPE ANGLE(RADIANS) OF RAY
+!               J=11 IS THE RAY APERTURE APODIZATION TERM
+!               J=12 RAY ENERGY TERM (11*SPT)
+!               J=13 OPTICAL PATH LENGTH FROM NEWOBJ OR NEWOBJ+1 TO NEWIMG
+!               J=14 X RAY COORD AT NEWOBJ+1
+!               J=15 Y RAY COORD AT NEWOBJ+1
+!               J=16 WAVELENGTH NUMBER
+!               J=17 SPECTRAL WEIGHT
+!               J=18 Z RAY COORD AT NEWOBJ+1
+!               J=19 RAYRAY(19,NEWOBJ+1)
+!               J=20 RAYRAY(20,NEWOBJ+1)
+!               J=21 RAYRAY(21,NEWOBJ+1)
+!               J=22 RAYRAY(19,NEWIMG)
+!               J=23 RAYRAY(20,NEWIMG)
+!               J=24 RAYRAY(21,NEWIMG)
+!               J=25 RAYRAY(9,NEWIMG) RAY ANGLE OF INCIDENCE AT FINAL SURFACE
+!               J=26 RAYRAY(10,NEWIMG) RAY ANGLE OF REFRACTION
+!               J=27 RAYRAY(1,NEWIMG-1)
+!               J=28 RAYRAY(2,NEWIMG-1)
+!               J=29 RAYRAY(3,NEWIMG-1)
+!               J=30 RAYRAY(19,NEWIMG-1)
+!               J=31 RAYRAY(20,NEWIMG-1)
+!               J=32 RAYRAY(21,NEWIMG-1)
+!               J=33 USED FOR POLYCHROMATIC RMSOPD
+!               J=34 RAY RAY ENERGY IGNORING ADJUSTMENT DUE TO PUPIL DISTORTION
+!               BUT INCLUES APODIZATION AND COATING LOSSES
+!               J=35 SPECTRAL WEIGHT FOR THAT WAVELENGTH
+!               J=36 IS ZERO IF AIMED RAY IS INSIDE REF SURF CLAP
+!               AND 1 IF IT IS OUTSIDE REF SURF CLAP
+!               J=37 IS RAY INTENSITY WHICH IS J=12 TIMES COSI (RAYRAY(9,NEWIMG))
+!               AND 1 IF IT IS OUTSIDE REF SURF CLAP
+!               J=38 IS THE CHIEF RAY ANGLE OF INCIDENCE AT NEWIMG
+!               J=39 IS THE RAY ANGLE OF INCIDENCE AT NEWIMG
+!               DSPOT(40)=IX (REFERENCE SURFACE POINTER IN X
+!               DSPOT(41)=NDEL1 REFERENCE SURFACE DELTA IN X
+!               DSPOT(42)=IX (REFERENCE SURFACE POINTER IN Y
+!               DSPOT(43)=NDEL1 REFERENCE SURFACE DELTA IN Y
+!               J=44 IS THE ANGLE OF INCIDENCE AT THE REFERENCE SURFACE FOR THE CHIEF RAY
+!               J=45 X AT SPDSURF
+!               J=46 Y AT SPDSURF
+!               J=47 Z AT SPDSURF
+!               J=48 L AT SPDSURF
+!               J=49 M AT SPDSURF
+!               J=50 N AT SPDSURF
+!               J=51 COSI AT SPDSURF
+!
+   print *, "Beginning of SPOT NRD is ", NRD
+   REFERR=.FALSE.
+!       WAS A FOB ISSUED
+   IF(WC.EQ.'ISPD'.OR.WC.EQ.'ISPDA') THEN
+      IF(.NOT.FOBYES) THEN
+         OUTLYNE='NO "FOB" EXISTS TO USE IN THE ILLUMINATION SPOT ANALYSIS'
+         CALL SHOWIT(1)
+         IF(WC.EQ.'ISPD')&
+         &OUTLYNE='ISSUE A "FOB" BEFORE ISSUING "ISPD"'
+         IF(WC.EQ.'ISPDA')&
+         &OUTLYNE='ISSUE A "FOB" BEFORE ISSUING "ISPDA"'
+         CALL SHOWIT(1)
+         CALL MACFAL
+         RETURN
+      END IF
+      IF(is_command_query()) THEN
+         IF(WC.EQ.'ISPD')THEN
+            OUTLYNE='"ISPD" PERFORMS AN ILLUMINATION SPOT DIAGRAM RAY TRACE'
+            CALL SHOWIT(1)
+            OUTLYNE='RAYS WILL BE FIRED AT SPATIAL COORDINATES ON SURFACE #1'
+            CALL SHOWIT(1)
+         END IF
+         IF(WC.EQ.'ISPDA')THEN
+            OUTLYNE='"ISPDA" PERFORMS AN ILLUMINATION SPOT DIAGRAM RAY TRACE'
+            CALL SHOWIT(1)
+            OUTLYNE='RAY WILL BE FIRED IN A RANDOM ANGULAR PATTERN'
+            CALL SHOWIT(1)
+         END IF
+      END IF
+      IF(SST.EQ.1.OR.SQ.EQ.1) THEN
+         IF(WC.EQ.'ISPD')&
+         &OUTLYNE='"ISPD" TAKES NO STRING OR QUALIFIER INPUT'
+         IF(WC.EQ.'ISPDA')&
+         &OUTLYNE='"ISPDA" TAKES NO STRING OR QUALIFIER INPUT'
+         CALL SHOWIT(1)
+         CALL REPORT_ERROR_AND_FAIL('RE-ENTER COMMAND', 1)
+         RETURN
+      END IF
+      IF(S3.EQ.1.OR.S4.EQ.1.OR.S5.EQ.1) THEN
+         IF(WC.EQ.'ISPD')&
+         &OUTLYNE='"ISPD" TAKES NO NUMERIC WORD #3, #4 OR #5 INPUT'
+         IF(WC.EQ.'ISPDA')&
+         &OUTLYNE='"ISPDA" TAKES NO NUMERIC WORD #3, #4 OR #5 INPUT'
+         CALL SHOWIT(1)
+         CALL REPORT_ERROR_AND_FAIL('RE-ENTER COMMAND', 1)
+         RETURN
+      END IF
+      IF(WC.EQ.'ISPD'.AND.S2.EQ.1) THEN
+         IF(WC.EQ.'ISPD')&
+         &OUTLYNE='"ISPD" TAKES NO NUMERIC WORD #2 INPUT'
+         CALL SHOWIT(1)
+         CALL REPORT_ERROR_AND_FAIL('RE-ENTER COMMAND', 1)
+         RETURN
+      END IF
+      IF(W1.LE.1.0D0.AND.DF1.EQ.0) THEN
+         IF(WC.EQ.'ISPD')&
+         &OUTLYNE='"ISPD" REQUIRES POSITIVE NUMERIC WORD #1 INPUT'
+         IF(WC.EQ.'ISPDA')&
+         &OUTLYNE='"ISPDA" REQUIRES POSITIVE NUMERIC WORD #1 INPUT'
+         CALL SHOWIT(1)
+         CALL REPORT_ERROR_AND_FAIL(&
+         & 'TO BE GREATER THAN OR EQUAL TO 1'//'\n'//&
+         & 'W1=NUMBER OF RAYS TO TRACE'//'\n'//&
+         & 'RE-ENTER COMMAND', 1)
+         RETURN
+      END IF
+      IF(W2.LE.0.0D0.AND.WC.EQ.'ISPDA') THEN
+         CALL REPORT_ERROR_AND_FAIL(&
+         & '"ISPDA" REQUIRES POSITIVE NUMERIC WORD #2 INPUT'//'\n'//&
+         & 'W2=MAXIMUM CONE HALF-ANGLE'//'\n'//&
+         & 'RE-ENTER COMMAND', 1)
+         RETURN
+      END IF
+      IF(W2.GT.180.0D0.AND.WC.EQ.'ISPDA') THEN
+         CALL REPORT_ERROR_AND_FAIL(&
+         & 'MAX ELEVATION ANGLE INPUT FOR "ISPDA" IS 180 DEGREES'//'\n'//&
+         & 'RE-ENTER COMMAND', 1)
+         RETURN
+      END IF
+      IF(DF1.EQ.1) W1=1000.0D0
+      IF(DF2.EQ.1.AND.WC.EQ.'ISPDA') W2=90.0D0
+
+      RAYMAX=INT(W1)
+      ELMAX=W2
+!     SET SPOT TYPE TO RANDOM
+      OLDRNUMBR=RNUMBR
+      RNUMBR=RAYMAX
+      TYPEOLD=SPDTYPE
+      SPDTYPE=3
+      SPOTSSI=.FALSE.
+      DETER=.FALSE.
+      DETCENT=.FALSE.
+      DETCHIEF=.TRUE.
+      SPDCENT=.FALSE.
+      SPDCHIEF=.TRUE.
+      DETTYP=0
+      DETDIAM=0.0D0
+      DETTX=0.0D0
+      DETTY=0.0D0
+      DETDELX=0.0D0
+      DETDELY=0.0D0
+      DETTHETA=0.0D0
+      SPDSSIVAL=0.0D0
+!
+      ZZEMIN=1.0D+300
+      ZZEMAX=-1.0D+300
+      IF(DF1.EQ.1.OR.WC(1:1).EQ.'I') THEN
+         OLDIF=LDIF
+         LDIF=.FALSE.
+         CALL SPOT1(1)
+         LDIF=OLDIF
+      ELSE
+         OLDSP(1) =sys_wl_weight(1)
+         OLDSP(2) =sys_wl_weight(2)
+         OLDSP(3) =sys_wl_weight(3)
+         OLDSP(4) =sys_wl_weight(4)
+         OLDSP(5) =sys_wl_weight(5)
+         OLDSP(6) =sys_wl_weight(6)
+         OLDSP(7) =sys_wl_weight(7)
+         OLDSP(8) =sys_wl_weight(8)
+         OLDSP(9) =sys_wl_weight(9)
+         OLDSP(10)=sys_wl_weight(10)
+         SYSTEM(31:35)=0.0D0
+         SYSTEM(76:80)=0.0D0
+         IF(INT(W1).EQ.1)  SYSTEM(31)=1.0D0
+         IF(INT(W1).EQ.2)  SYSTEM(32)=1.0D0
+         IF(INT(W1).EQ.3)  SYSTEM(33)=1.0D0
+         IF(INT(W1).EQ.4)  SYSTEM(34)=1.0D0
+         IF(INT(W1).EQ.5)  SYSTEM(35)=1.0D0
+         IF(INT(W1).EQ.6)  SYSTEM(76)=1.0D0
+         IF(INT(W1).EQ.7)  SYSTEM(77)=1.0D0
+         IF(INT(W1).EQ.8)  SYSTEM(78)=1.0D0
+         IF(INT(W1).EQ.9)  SYSTEM(79)=1.0D0
+         IF(INT(W1).EQ.10) SYSTEM(80)=1.0D0
+         OLDIF=LDIF
+         LDIF=.FALSE.
+         CALL SPOT1(1)
+         LDIF=OLDIF
+         SYSTEM(31)=OLDSP(1)
+         SYSTEM(32)=OLDSP(2)
+         SYSTEM(33)=OLDSP(3)
+         SYSTEM(34)=OLDSP(4)
+         SYSTEM(35)=OLDSP(5)
+         SYSTEM(76)=OLDSP(6)
+         SYSTEM(77)=OLDSP(7)
+         SYSTEM(78)=OLDSP(8)
+         SYSTEM(79)=OLDSP(9)
+         SYSTEM(80)=OLDSP(10)
+      END IF
+      SPDTYPE=TYPEOLD
+      RNUMBR=OLDRNUMBR
+      RETURN
+   END IF
+   IF(WC.EQ.'SPD') THEN
+      IF(.NOT.FOBYES.AND.SQ.EQ.0.OR..NOT.FOBYES.AND.WQ.EQ.'ACC'&
+      &.OR..NOT.FOBYES.AND.&
+      &WQ.EQ.'ISTAT'.OR.&
+      &.NOT.FOBYES.AND.WQ.EQ.'IPSTAT') THEN
+         CALL REPORT_ERROR_AND_FAIL(&
+         & 'NO "FOB" EXISTS TO USE IN THE SPOT ANALYSIS'//'\n'//&
+         & 'ISSUE A "FOB" BEFORE ISSUING "SPD" COMMANDS', 1)
+         RETURN
+      END IF
+   END IF
+   IF(WC.EQ.'PSFK') THEN
+      IF(.NOT.FOBYES.AND.SQ.EQ.0 &
+      &.OR..NOT.FOBYES.AND.WQ.EQ.'PERFECT'&
+      &.OR..NOT.FOBYES.AND.WQ.EQ.'PERFNOOB') THEN
+         CALL REPORT_ERROR_AND_FAIL(&
+         & 'NO "FOB" EXISTS TO BE USE'//'\n'//&
+         & 'ISSUE A "FOB" BEFORE ISSUING THE "PSF" COMMAND', 1)
+         RETURN
+      END IF
+   END IF
+   IF(WC.EQ.'PUPIL') THEN
+      IF(.NOT.FOBYES.AND.SQ.EQ.0 &
+      &.OR..NOT.FOBYES.AND.WQ.EQ.'PERFECT'&
+      &.OR..NOT.FOBYES.AND.WQ.EQ.'PERFNOOB') THEN
+         CALL REPORT_ERROR_AND_FAIL(&
+         & 'NO "FOB" EXISTS TO BE USE'//'\n'//&
+         & 'ISSUE A "FOB" BEFORE ISSUING THE "PUPIL" COMMAND', 1)
+         RETURN
+      END IF
+   END IF
+   IF(WC.EQ.'CAPFN') THEN
+      IF(.NOT.FOBYES.AND.SQ.EQ.0 &
+      &.OR..NOT.FOBYES.AND.WQ.EQ.'PERFECT'&
+      &.OR..NOT.FOBYES.AND.WQ.EQ.'SILENT'&
+      &.OR..NOT.FOBYES.AND.WQ.EQ.'NOSCALE') THEN
+         CALL REPORT_ERROR_AND_FAIL(&
+         & 'NO "FOB" EXISTS TO BE USE'//'\n'//&
+         & 'ISSUE A "FOB" BEFORE ISSUING THE "CAPFN" COMMAND', 1)
+         RETURN
+      END IF
+   END IF
+!       WAS FOB NULL USED
+!
+!                       "NO QUALIFIER"
+!                        ACC
+!                        MOVE
+!                        MOVEACC
+!       ***************************************************************
+!       FOR FIELD AVERAGING SPOTS COMMAND WORDS ARE:
+!                       SPDSAVE (SAVES TO SPOTS.DAT IN BINARY
+!       AND ERASES LAST COPY OF DESIGNATED FILE OR SPOTS.DAT)
+!                       SPDADD (ADDS TO SPOTS.DAT IN BINARY
+!     OR OTHER DESIGNATED FILE
+!                       SPDSTATS (CALCULATES ALL STATISTICS FOR
+!       DATA IN SPOTS.DAT OR OTHER DESIGNATED FILE)
+!       ****************************************************************
+!
+!       CHECK FOR CORRECT QUALIFIER WORDS
+   IF(WC.EQ.'SPD') THEN
+      SYES=.FALSE.
+      IF(WQ.EQ.' ')       SYES=.TRUE.
+      IF(WQ.EQ.'ACC')     SYES=.TRUE.
+      IF(WQ.EQ.'MOVE')    SYES=.TRUE.
+      IF(WQ.EQ.'MOVEACC') SYES=.TRUE.
+      IF(WQ.EQ.'ISTAT')   SYES=.TRUE.
+      IF(WQ.EQ.'IPSTAT')  SYES=.TRUE.
+   END IF
+   IF(WC.EQ.'CAPFN') THEN
+      SYES=.FALSE.
+      IF(WQ.EQ.' ') SYES=.TRUE.
+      IF(WQ.EQ.'PERFECT') SYES=.TRUE.
+      IF(WQ.EQ.'NOSCALE') SYES=.TRUE.
+      IF(WQ.EQ.'SILENT') SYES=.TRUE.
+   END IF
+   IF(WC.EQ.'PSFK'.OR.WC.EQ.'PUPIL') THEN
+      SYES=.FALSE.
+      IF(WQ.EQ.' ') SYES=.TRUE.
+      IF(WQ.EQ.'PERFECT') SYES=.TRUE.
+      IF(WQ.EQ.'PERFNOOB') SYES=.TRUE.
+      IF(WQ.EQ.'PERFNOOB') NOOB=.TRUE.
+      IF(WQ.NE.'PERFNOOB') NOOB=.FALSE.
+   END IF
+   IF(WC.EQ.'SPD'.AND..NOT.SYES) THEN
+      OUTLYNE=&
+      &'INVALID QUALIFIER WORD USED WITH "SPD" COMMAND'
+      CALL SHOWIT(1)
+      OUTLYNE=&
+      &'RE-ENTER COMMAND'
+      CALL SHOWIT(1)
+      CALL MACFAL
+      RETURN
+   END IF
+   IF(WC.EQ.'CAPFN'.AND..NOT.SYES) THEN
+      OUTLYNE=&
+      &'INVALID QUALIFIER WORD USED WITH "CAPFN" COMMAND'
+      CALL SHOWIT(1)
+      OUTLYNE=&
+      &'RE-ENTER COMMAND'
+      CALL SHOWIT(1)
+      CALL MACFAL
+      RETURN
+   END IF
+   IF(WC.EQ.'CAPFN'.AND.is_command_query()) THEN
+      OUTLYNE=&
+      &'"CAPFN" CREATES A COMPLEX APERTURE FUNCTION'
+      CALL SHOWIT(1)
+      RETURN
+   END IF
+   IF(WC.EQ.'PSFK'.AND..NOT.SYES) THEN
+      OUTLYNE=&
+      &'INVALID QUALIFIER WORD USED WITH "PSF" COMMAND'
+      CALL SHOWIT(1)
+      OUTLYNE=&
+      &'RE-ENTER COMMAND'
+      CALL SHOWIT(1)
+      CALL MACFAL
+      RETURN
+   END IF
+   IF(WC.EQ.'PUPIL'.AND..NOT.SYES) THEN
+      OUTLYNE=&
+      &'INVALID QUALIFIER WORD USED WITH "PUPIL" COMMAND'
+      CALL SHOWIT(1)
+      OUTLYNE=&
+      &'RE-ENTER COMMAND'
+      CALL SHOWIT(1)
+      CALL MACFAL
+      RETURN
+   END IF
+   IF(WC.EQ.'PSFK'.AND.is_command_query()) THEN
+      OUTLYNE=&
+      &'"PSF" CREATES A DIFFRACTION POINT SPREAD FUNCTION'
+      CALL SHOWIT(1)
+      RETURN
+   END IF
+   IF(WC.EQ.'PSFK'.AND.is_command_query()) THEN
+      OUTLYNE=&
+      &'"PSF" CREATES A PUPIL FUNCTION IN FOE MEMORY'
+      CALL SHOWIT(1)
+      RETURN
+   END IF
+   IF(WC.EQ.'SPD'.AND.is_command_query()) THEN
+      OUTLYNE=&
+      &'"SPD" CREATES A SPOT DIAGRAM'
+      CALL SHOWIT(1)
+      RETURN
+   END IF
+   IF(WC.EQ.'CAPFN'.AND.SST.EQ.1) THEN
+      OUTLYNE=&
+      &'"CAPFN" TAKES NO STRING INPUT'
+      CALL SHOWIT(1)
+      OUTLYNE=&
+      &'RE-ENTER COMMAND'
+      CALL SHOWIT(1)
+      CALL MACFAL
+      RETURN
+   END IF
+   IF(WC.EQ.'PSFK'.AND.SST.EQ.1) THEN
+      OUTLYNE=&
+      &'"PSF" TAKES NO STRING INPUT'
+      CALL SHOWIT(1)
+      OUTLYNE=&
+      &'RE-ENTER COMMAND'
+      CALL SHOWIT(1)
+      CALL MACFAL
+      RETURN
+   END IF
+   IF(WC.EQ.'PUPIL'.AND.SST.EQ.1) THEN
+      OUTLYNE=&
+      &'"PUPIL" TAKES NO STRING INPUT'
+      CALL SHOWIT(1)
+      OUTLYNE=&
+      &'RE-ENTER COMMAND'
+      CALL SHOWIT(1)
+      CALL MACFAL
+      RETURN
+   END IF
+   IF(WC.EQ.'PSFK') THEN
+      IF(S4.EQ.1.OR.S5.EQ.1) THEN
+         OUTLYNE=&
+         &'"PSF" TAKES NO NUMERIC WORD #4 TO #5 INPUT'
+         CALL SHOWIT(1)
+         OUTLYNE=&
+         &'RE-ENTER COMMAND'
+         CALL SHOWIT(1)
+         CALL MACFAL
+         RETURN
+      END IF
+   END IF
+   IF(WC.EQ.'PUPIL') THEN
+      IF(S4.EQ.1.OR.S5.EQ.1) THEN
+         OUTLYNE=&
+         &'"PUPIL" TAKES NO NUMERIC WORD #4 TO #5 INPUT'
+         CALL SHOWIT(1)
+         OUTLYNE=&
+         &'RE-ENTER COMMAND'
+         CALL SHOWIT(1)
+         CALL MACFAL
+         RETURN
+      END IF
+   END IF
+   IF(WC.EQ.'SPD'.AND.SST.EQ.1) THEN
+      OUTLYNE=&
+      &'"SPD" TAKES NO STRING INPUT'
+      CALL SHOWIT(1)
+      OUTLYNE=&
+      &'RE-ENTER COMMAND'
+      CALL SHOWIT(1)
+      CALL MACFAL
+      RETURN
+   END IF
+!
+!       CALL THE CORRECT ROUTINE
+   IF(WC.EQ.'CAPFN'.AND.WQ.NE.'PERFECT') THEN
+!     OPMAP FALSE MEANS NO OPD MAP FITTING COEFFICIENTS EXIST
+      OPMAP=.FALSE.
+      NRDFACTOR=1.0D0
+      OLDIF=LDIF
+      LDIF=.FALSE.
+      CALL COMPAP(REFERR,1)
+      LDIF=OLDIF
+      RETURN
+   ELSE
+!                       NOT CAPFN
+   END IF
+   IF(WC.EQ.'CAPFN'.AND.WQ.EQ.'PERFECT') THEN
+!     OPMAP FALSE MEANS NO OPD MAP FITTING COEFFICIENTS EXIST
+!                      OPMAP=.FALSE.
+      NRDFACTOR=1.0D0
+      PERFECT=.TRUE.
+      CALL COMPAP(REFERR,1)
+      PERFECT=.FALSE.
+      RETURN
+   ELSE
+!                       NOT CAPFN PERFECT
+   END IF
+   IF(WC.EQ.'PSFK'.AND.WQ.NE.'PERFECT'.AND.&
+   &WC.EQ.'PSFK'.AND.WQ.NE.'PERFNOOB') THEN
+!     OPMAP FALSE MEANS NO OPD MAP FITTING COEFFICIENTS EXIST
+      NOOB=.FALSE.
+      FIXWL=.FALSE.
+      IF(DF2.EQ.0) THEN
+         FIXWL=.TRUE.
+         CALL FIXWV(W2)
+      END IF
+      CPFNEXT=.FALSE.
+      IF(.NOT.CPFNEXT) THEN
+         OPMAP=.FALSE.
+         SAVE_KDP(1)=SAVEINPT(1)
+         W1=DABS(DBLE(NRD))
+         DF1=0
+         S1=1
+         SN=1
+         REST_KDP(1)=RESTINPT(1)
+         ERRORR=.FALSE.
+         NRDFACTOR=1.0D0
+         IF(GRIFLG.EQ.1) CALL NRDCALC(ERRORR)
+         IF(ERRORR) THEN
+            WRITE(OUTLYNE,*) 'UNREALISTIC NRD VALUES'
+            CALL SHOWIT(1)
+            WRITE(OUTLYNE,*) 'PSF CANNOT PROCEED'
+            CALL SHOWIT(1)
+            CALL MACFAL
+            RETURN
+         END IF
+         OLDIF=LDIF
+         LDIF=.FALSE.
+         CALL COMPAP(REFERR,1)
+         LDIF=OLDIF
+         IF(REFERR) RETURN
+      ELSE
+      END IF
+      IF(DF2.EQ.0) IWV=INT(W2)
+      IF(IWV.LT.1.OR.IWV.GT.11) IWV=11
+      IF(DF3.EQ.1) W3=1.0D0
+      CALL DOPSF
+      IF(FIXWL) CALL UNFIXWV
+      IF(FIXWL) FIXWL=.FALSE.
+      CALL CLOSE_FILE(51,1)
+      RETURN
+   ELSE
+!                       NOT PSF
+   END IF
+   IF(WC.EQ.'PSFK'.AND.WQ.EQ.'PERFECT'.OR.&
+   &WC.EQ.'PSFK'.AND.WQ.EQ.'PERFNOOB') THEN
+!     OPMAP FALSE MEANS NO OPD MAP FITTING COEFFICIENTS EXIST
+!                      OPMAP=.FALSE.
+      FIXWL=.FALSE.
+      IF(DF2.EQ.0) THEN
+         FIXWL=.TRUE.
+         CALL FIXWV(W2)
+      END IF
+      NOOB=.TRUE.
+      SAVE_KDP(1)=SAVEINPT(1)
+      W1=DABS(DBLE(NRD))
+      DF1=0
+      S1=1
+      SN=1
+      REST_KDP(1)=RESTINPT(1)
+      ERRORR=.FALSE.
+      NRDFACTOR=1.0D0
+      IF(GRIFLG.EQ.1) CALL NRDCALC(ERRORR)
+      IF(ERRORR) THEN
+         WRITE(OUTLYNE,*) 'UNREALISTIC NRD VALUES'
+         CALL SHOWIT(1)
+         WRITE(OUTLYNE,*) 'PSF CANNOT PROCEED'
+         CALL SHOWIT(1)
+         CALL MACFAL
+         RETURN
+      END IF
+      NOCOBSPSF=.FALSE.
+      IF(WQ.EQ.'PERFNOOB') NOCOBSPSF=.TRUE.
+      IF(WQ.EQ.'PERFNOOB') NOOB=.TRUE.
+      IF(WQ.NE.'PERFNOOB') NOOB=.FALSE.
+      PERFECT=.TRUE.
+      CALL COMPAP(REFERR,1)
+      PERFECT=.FALSE.
+      IF(DF2.EQ.0) IWV=INT(W2)
+      IF(IWV.LT.1.OR.IWV.GT.11) IWV=11
+      IF(DF3.EQ.1) W3=1.0D0
+      CALL DOPSF
+      NOCOBSPSF=.FALSE.
+      IF(FIXWL) CALL UNFIXWV
+      IF(FIXWL) FIXWL=.FALSE.
+      CALL CLOSE_FILE(51,1)
+      RETURN
+   ELSE
+!                       NOT PSF PERFECT
+   END IF
+   IF(WC.EQ.'PUPIL'.AND.WQ.NE.'PERFECT'.AND.&
+   &WC.EQ.'PUPIL'.AND.WQ.NE.'PERFNOOB') THEN
+!     OPMAP FALSE MEANS NO OPD MAP FITTING COEFFICIENTS EXIST
+      NOOB=.FALSE.
+      FIXWL=.FALSE.
+      IF(DF2.EQ.0) THEN
+         FIXWL=.TRUE.
+         CALL FIXWV(W2)
+      END IF
+      CPFNEXT=.FALSE.
+      IF(.NOT.CPFNEXT) THEN
+         OPMAP=.FALSE.
+         SAVE_KDP(1)=SAVEINPT(1)
+         W1=DABS(DBLE(NRD))
+         DF1=0
+         S1=1
+         SN=1
+         REST_KDP(1)=RESTINPT(1)
+         ERRORR=.FALSE.
+         NRDFACTOR=1.0D0
+         IF(GRIFLG.EQ.1) CALL NRDCALC(ERRORR)
+         IF(ERRORR) THEN
+            WRITE(OUTLYNE,*) 'UNREALISTIC NRD VALUES'
+            CALL SHOWIT(1)
+            WRITE(OUTLYNE,*) '"PUPIL" CANNOT PROCEED'
+            CALL SHOWIT(1)
+            CALL MACFAL
+            RETURN
+         END IF
+         OLDIF=LDIF
+         LDIF=.FALSE.
+         CALL COMPAP(REFERR,1)
+         LDIF=OLDIF
+         IF(REFERR) RETURN
+      ELSE
+      END IF
+      IF(DF2.EQ.0) IWV=INT(W2)
+      IF(IWV.LT.1.OR.IWV.GT.11) IWV=11
+      IF(DF3.EQ.1) W3=1.0D0
+      CALL DOPUPIL(2)
+      WRITE(OUTLYNE,*) 'PUPIL FUNCTION CREATED'
+      CALL SHOWIT(0)
+      IF(FIXWL) CALL UNFIXWV
+      IF(FIXWL) FIXWL=.FALSE.
+      CALL CLOSE_FILE(51,1)
+      RETURN
+   ELSE
+!                       NOT PUPIL
+   END IF
+   IF(WC.EQ.'PUPIL'.AND.WQ.EQ.'PERFECT'.OR.&
+   &WC.EQ.'PUPIL'.AND.WQ.EQ.'PERFNOOB') THEN
+!     OPMAP FALSE MEANS NO OPD MAP FITTING COEFFICIENTS EXIST
+!                      OPMAP=.FALSE.
+      FIXWL=.FALSE.
+      IF(DF2.EQ.0) THEN
+         FIXWL=.TRUE.
+         CALL FIXWV(W2)
+      END IF
+      NOOB=.TRUE.
+      SAVE_KDP(1)=SAVEINPT(1)
+      W1=DABS(DBLE(NRD))
+      DF1=0
+      S1=1
+      SN=1
+      REST_KDP(1)=RESTINPT(1)
+      ERRORR=.FALSE.
+      NRDFACTOR=1.0D0
+      IF(GRIFLG.EQ.1) CALL NRDCALC(ERRORR)
+      IF(ERRORR) THEN
+         WRITE(OUTLYNE,*) 'UNREALISTIC NRD VALUES'
+         CALL SHOWIT(1)
+         WRITE(OUTLYNE,*) '"PUPIL" CANNOT PROCEED'
+         CALL SHOWIT(1)
+         CALL MACFAL
+         RETURN
+      END IF
+      NOCOBSPSF=.FALSE.
+      IF(WQ.EQ.'PERFNOOB') NOCOBSPSF=.TRUE.
+      IF(WQ.EQ.'PERFNOOB') NOOB=.TRUE.
+      IF(WQ.NE.'PERFNOOB') NOOB=.FALSE.
+      PERFECT=.TRUE.
+      CALL COMPAP(REFERR,1)
+      PERFECT=.FALSE.
+      IF(DF2.EQ.0) IWV=INT(W2)
+      IF(IWV.LT.1.OR.IWV.GT.11) IWV=11
+      IF(DF3.EQ.1) W3=1.0D0
+      CALL DOPUPIL(1)
+      NOCOBSPSF=.FALSE.
+      IF(FIXWL) CALL UNFIXWV
+      IF(FIXWL) FIXWL=.FALSE.
+      CALL CLOSE_FILE(51,1)
+      RETURN
+   ELSE
+!                       NOT PUPIL PERFECT
+   END IF
+!       CALL THE CORRECT ROUTINE
+   IF(WC.EQ.'SPD') THEN
+      IF(WQ.EQ.' '.OR.WQ.EQ.'ACC'&
+      &.OR.WQ.EQ.'ISTAT'.OR.WQ.EQ.'IPSTAT') THEN
+         SPOTSSI=.FALSE.
+         DETER=.FALSE.
+         DETCENT=.FALSE.
+         DETCHIEF=.TRUE.
+         SPDCENT=.FALSE.
+         SPDCHIEF=.TRUE.
+         DETTYP=0
+         DETDIAM=0.0D0
+         DETTX=0.0D0
+         DETTY=0.0D0
+         DETDELX=0.0D0
+         DETDELY=0.0D0
+         DETTHETA=0.0D0
+         SPDSSIVAL=0.0D0
+         ZZEMIN=1.0D+300
+         ZZEMAX=-1.0D+300
+         IF(DF1.EQ.1) THEN
+            OLDIF=LDIF
+            LDIF=.FALSE.
+            CALL SPOT1(1)
+            LDIF=OLDIF
+         ELSE
+            OLDSP(1) =sys_wl_weight(1)
+            OLDSP(2) =sys_wl_weight(2)
+            OLDSP(3) =sys_wl_weight(3)
+            OLDSP(4) =sys_wl_weight(4)
+            OLDSP(5) =sys_wl_weight(5)
+            OLDSP(6) =sys_wl_weight(6)
+            OLDSP(7) =sys_wl_weight(7)
+            OLDSP(8) =sys_wl_weight(8)
+            OLDSP(9) =sys_wl_weight(9)
+            OLDSP(10)=sys_wl_weight(10)
+            SYSTEM(31:35)=0.0D0
+            SYSTEM(76:80)=0.0D0
+            IF(INT(W1).EQ.1)  SYSTEM(31)=1.0D0
+            IF(INT(W1).EQ.2)  SYSTEM(32)=1.0D0
+            IF(INT(W1).EQ.3)  SYSTEM(33)=1.0D0
+            IF(INT(W1).EQ.4)  SYSTEM(34)=1.0D0
+            IF(INT(W1).EQ.5)  SYSTEM(35)=1.0D0
+            IF(INT(W1).EQ.6)  SYSTEM(76)=1.0D0
+            IF(INT(W1).EQ.7)  SYSTEM(77)=1.0D0
+            IF(INT(W1).EQ.8)  SYSTEM(78)=1.0D0
+            IF(INT(W1).EQ.9)  SYSTEM(79)=1.0D0
+            IF(INT(W1).EQ.10) SYSTEM(80)=1.0D0
+            OLDIF=LDIF
+            LDIF=.FALSE.
+            CALL SPOT1(1)
+            LDIF=OLDIF
+            SYSTEM(31)=OLDSP(1)
+            SYSTEM(32)=OLDSP(2)
+            SYSTEM(33)=OLDSP(3)
+            SYSTEM(34)=OLDSP(4)
+            SYSTEM(35)=OLDSP(5)
+            SYSTEM(76)=OLDSP(6)
+            SYSTEM(77)=OLDSP(7)
+            SYSTEM(78)=OLDSP(8)
+            SYSTEM(79)=OLDSP(9)
+            SYSTEM(80)=OLDSP(10)
+         END IF
+      ELSE
+         CALL SPDQAL
+      END IF
+      RETURN
+   ELSE
+!     NOT SPD
+   END IF
+   IF(WC.EQ.'FAIL'.OR.WC.EQ.'FAILACC') THEN
+!     OPMAP FALSE MEANS NO OPD MAP FITTING COEFFICIENTS EXIST
+      CALL SPDQAL
+   END IF
+   IF(WC.EQ.'SPDADD'.OR.WC.EQ.'SPDSAVE') THEN
+      CALL SPDQAL
+   END IF
+   IF(WC.EQ.'SPDSTATS') THEN
+      CALL SPDQAL
+   END IF
+!
+   RETURN
+END
+! SUB ISTAT.FOR
+SUBROUTINE ISTAT(J,STARANG,ENDANG,DELANG,NSTEP)
+!
+   use DATSP1
+   use DATSPD
+   use DATLEN
+   use DATMAI
+   use mod_surface
+   use mod_system, only: sys_units, sys_scx, sys_scy, sys_scx_fang, sys_scy_fang
+   IMPLICIT NONE
+!
+   INTEGER K,I,TOTI,J,TOTII,NSTEP,BUCKET(1:100)
+!
+   REAL*8 STAR,ENDD,ANGVAL,STARANG,ENDANG,DELANG &
+   &,YOBP,XOBP
+!
+   LOGICAL EXTGMTF1,EXTGMTF2
+!
+   COMMON/GMTFEXT/EXTGMTF1,EXTGMTF2
+!
+   CHARACTER STUNI*9
+!
+!
+!
+   EXTGMTF1=.FALSE.
+   EXTGMTF2=.FALSE.
+!     CLEAR THE BUCKET
+   BUCKET(1:100)=0
+!     CALCULATE OBJECT POINT
+!
+!     FIELD OF VIEW DATA
+!
+   IF(DABS(surf_thickness(NEWOBJ)).GE.1.0D10) THEN
+!     ANGULAR
+      XOBP=sys_scx_fang()*LFOB(2)
+      YOBP=sys_scy_fang()*LFOB(1)
+      STUNI='DEGREE(S)'
+   ELSE
+      XOBP=sys_scx()*LFOB(2)
+      YOBP=sys_scy()*LFOB(1)
+      IF(sys_units().EQ.1.0D0) STUNI='IN(S)    '
+      IF(sys_units().EQ.2.0D0) STUNI='CM(S)    '
+      IF(sys_units().EQ.3.0D0) STUNI='MM(S)    '
+      IF(sys_units().EQ.4.0D0) STUNI='M(S)    '
+   END IF
+!
+100 FORMAT('CALCULATING ANGLE OF INCIDENCE STATISTICS')
+200 FORMAT(&
+   &'CALCULATING ANGLE OF REFRACTION, REFLECTION AND DIFFRACTION',&
+   &' STATISTICS')
+   IF(J.EQ.1) WRITE(OUTLYNE,100)
+   CALL SHOWIT(0)
+   IF(J.EQ.2) WRITE(OUTLYNE,200)
+   CALL SHOWIT(0)
+   TOTI=0
+   TOTII=0
+   DO I=2,ITOT
+!     LOAD DSPOT(*) WITH DSPOTT(*,ID)
+      ID=I-1
+      CALL SPOTIT(4)
+      IF(DSPOT(12).NE.0.0D0.AND.DSPOT(7).EQ.0.0D0) THEN
+!     NON-FAILED, NON-ZERO ENERGY RAY
+         TOTI=TOTI+1
+         IF(J.EQ.1) ANGVAL=DABS(DACOS(DABS(DSPOT(25))))
+         IF(J.EQ.2) ANGVAL=DABS(DACOS(DABS(DSPOT(26))))
+!     CONVERT TO DEGREES
+         ANGVAL=ANGVAL*180.0D0/PII
+!     WHICH BUCKET TO STORE TO
+         DO K=1,NSTEP
+            STAR=STARANG+(DBLE(K-1)*DELANG)
+            ENDD=STARANG+(DBLE(K)*DELANG)
+            IF(K.NE.NSTEP) THEN
+               IF(ANGVAL.GE.STAR.AND.ANGVAL.LT.ENDD) THEN
+                  BUCKET(K)=BUCKET(K)+1
+                  TOTII=TOTII+1
+                  GO TO 1
+               END IF
+            ELSE
+!       K=NSTEP, INCLUDE END POINT
+               IF(ANGVAL.GE.STAR.AND.ANGVAL.LE.ENDD) THEN
+                  BUCKET(K)=BUCKET(K)+1
+                  TOTII=TOTII+1
+                  GO TO 1
+               END IF
+            END IF
+         END DO
+
+      END IF
+!       WEIGHT 0, SKIP RAY
+1     CONTINUE
+   END DO
+!     NOW DO OUTPUT
+300 FORMAT('ANGLE OF INCIDENCE STATISTICS')
+400 FORMAT(&
+   &'ANGLE OF REFRACTION, REFLECTION AND DIFFRACTION STATISTICS')
+402 FORMAT(7X,'FROM',11X, 'TO',8X,'SUCCESSFUL RAYS')
+406 FORMAT(5X,'DEGREES(S)',5X, 'DEGREE(S)')
+403 FORMAT(&
+   &'SUCCESSFUL RAYS TRACED = ',I10)
+404 FORMAT(&
+   &'SUCCESSFUL RAYS IN SPECIFIED RANGE = ',I10)
+407 FORMAT(&
+   &'SPECIFIED ANGULAR RANGE = ',G15.8,'DEGREE(S)')
+408 FORMAT(&
+   &'STATISTICS CALCULATED FOR SURFACE # = ',I4)
+409 FORMAT(&
+   &'Y-OBJECT POINT = ',G15.8,1X,A9)
+410 FORMAT(&
+   &'X-OBJECT POINT = ',G15.8,1X,A9)
+405 FORMAT(2X,G15.8,2X,G15.8,2X,I8)
+   IF(J.EQ.1)  WRITE(OUTLYNE,300)
+   IF(J.EQ.1)  CALL SHOWIT(0)
+   IF(J.EQ.2) WRITE(OUTLYNE,400)
+   IF(J.EQ.2)  CALL SHOWIT(0)
+   WRITE(OUTLYNE,403) TOTI
+   CALL SHOWIT(0)
+   WRITE(OUTLYNE,404) TOTII
+   CALL SHOWIT(0)
+   WRITE(OUTLYNE,407) (ENDANG-STARANG)
+   CALL SHOWIT(0)
+   WRITE(OUTLYNE,408) NEWIMG
+   CALL SHOWIT(0)
+   WRITE(OUTLYNE,409) YOBP,STUNI
+   CALL SHOWIT(0)
+   WRITE(OUTLYNE,410) XOBP,STUNI
+   CALL SHOWIT(0)
+   WRITE(OUTLYNE,402)
+   CALL SHOWIT(0)
+   WRITE(OUTLYNE,406)
+   CALL SHOWIT(0)
+   DO I=1,NSTEP
+      STAR=STARANG+(DBLE(I-1)*DELANG)
+      ENDD=STARANG+(DBLE(I)*DELANG)
+      WRITE(OUTLYNE,405) STAR,ENDD,BUCKET(I)
+      CALL SHOWIT(0)
+   END DO
+   RETURN
+END
+! SUB SPOPD1.FOR
+SUBROUTINE SPOPD1
+!
+   use DATSPD
+   use DATLEN
+   use DATMAI
+   use mod_surface
+   IMPLICIT NONE
+!
+!       THIS IS SUBROUTINE SPOPD1.FOR.
+!     IT HANDLES THE FIRST OPD CALCULATION FOR SPOT DIAGRAMS
+!
+   REAL*8 WAV
+!
+   LOGICAL OLDEXP
+!
+   INTEGER JJ,J
+!
+   INTEGER WWVN,WWRF
+   IF(INT(CURLAM).EQ.1) WWVN=46
+   IF(INT(CURLAM).EQ.2) WWVN=47
+   IF(INT(CURLAM).EQ.3) WWVN=48
+   IF(INT(CURLAM).EQ.4) WWVN=49
+   IF(INT(CURLAM).EQ.5) WWVN=50
+   IF(INT(CURLAM).EQ.6) WWVN=71
+   IF(INT(CURLAM).EQ.7) WWVN=72
+   IF(INT(CURLAM).EQ.8) WWVN=73
+   IF(INT(CURLAM).EQ.9) WWVN=74
+   IF(INT(CURLAM).EQ.10) WWRF=75
+   IF(INT(LFOB(4)).EQ.1) WWRF=46
+   IF(INT(LFOB(4)).EQ.2) WWRF=47
+   IF(INT(LFOB(4)).EQ.3) WWRF=48
+   IF(INT(LFOB(4)).EQ.4) WWRF=49
+   IF(INT(LFOB(4)).EQ.5) WWRF=50
+   IF(INT(LFOB(4)).EQ.6) WWRF=71
+   IF(INT(LFOB(4)).EQ.7) WWRF=72
+   IF(INT(LFOB(4)).EQ.8) WWRF=73
+   IF(INT(LFOB(4)).EQ.9) WWRF=74
+   IF(INT(LFOB(4)).EQ.10) WWRF=75
+!
+!       OPD
+   IF(RAYEXT.AND.REFEXT) THEN
+      OOPD=0.0D0
+      IF(DABS(surf_thickness(NEWOBJ)).GE.1.0D10) JJ=NEWOBJ+2
+      IF(DABS(surf_thickness(NEWOBJ)).LT.1.0D10) JJ=NEWOBJ+1
+      DO J=JJ,NEWIMG
+         OOPD=OOPD+RAYRAY(7,J)&
+         &-(REFRY(7,J)*(ALENS(WWVN,J-1)/ALENS(WWRF,J-1)))
+      END DO
+      RETURN
+   ELSE
+!     RAY FAILED
+      OOPD=0.0D0
+   END IF
+   RETURN
+END
+! SUB SPOPD2.FOR
+SUBROUTINE SPOPD2(REFERR,TPT)
+   use referencespherecalcs
+!
+   use DATSPD
+   use DATLEN
+   use DATMAI
+   use mod_system, only: sys_units, sys_mode, sys_wavelength
+   IMPLICIT NONE
+!
+!       THIS IS SUBROUTINE SPOPD2.FOR.
+!     IT HANDLES THE SECOND OPD CALCULATION FOR SPOT DIAGRAMS
+!
+   REAL*8 LFOBW,WAV
+!
+   LOGICAL OLDEXP,REFERR
+!
+   INTEGER JJ,J,TPT
+!
+!
+   INTEGER WWVN,WWRF
+   IF(INT(CURLAM).EQ.1) WWVN=46
+   IF(INT(CURLAM).EQ.2) WWVN=47
+   IF(INT(CURLAM).EQ.3) WWVN=48
+   IF(INT(CURLAM).EQ.4) WWVN=49
+   IF(INT(CURLAM).EQ.5) WWVN=50
+   IF(INT(CURLAM).EQ.6) WWVN=71
+   IF(INT(CURLAM).EQ.7) WWVN=72
+   IF(INT(CURLAM).EQ.8) WWVN=73
+   IF(INT(CURLAM).EQ.9) WWVN=74
+   IF(INT(CURLAM).EQ.10) WWRF=75
+   IF(INT(LFOB(4)).EQ.1) WWRF=46
+   IF(INT(LFOB(4)).EQ.2) WWRF=47
+   IF(INT(LFOB(4)).EQ.3) WWRF=48
+   IF(INT(LFOB(4)).EQ.4) WWRF=49
+   IF(INT(LFOB(4)).EQ.5) WWRF=50
+   IF(INT(LFOB(4)).EQ.6) WWRF=71
+   IF(INT(LFOB(4)).EQ.7) WWRF=72
+   IF(INT(LFOB(4)).EQ.8) WWRF=73
+   IF(INT(LFOB(4)).EQ.9) WWRF=74
+   IF(INT(LFOB(4)).EQ.10) WWRF=75
+!
+!       OPD
+   RCOR=0.0D0
+   OCOR=0.0D0
+   IF(sys_mode().EQ.1.0D0.OR.sys_mode().EQ.2.0D0) THEN
+!       MODE FOCAL
+!               RCOR=0.0D0
+!               OCOR=0.0D0
+      CALL FOPDS
+!       CALCULATE THEN APPLY ADJUSTMENT FOR THE BEGINNING AND ENDING
+!       REFERENCE SPHERES.
+      OOPD=OOPD-(OCOR*ALENS(WWVN,NEWOBJ))&
+      &+(RCOR*ALENS(WWVN,NEWOBJ))
+      RCOR=0.0D0
+      OCOR=0.0D0
+      IF(sys_mode().LE.2.0D0) THEN
+!     REFLOC=1 = CHIEF RAY
+         IF(REFLOC.EQ.1) CENCEN=.FALSE.
+         IF(REFLOC.EQ.3) CENCEN=.FALSE.
+         IF(REFLOC.EQ.4) CENCEN=.FALSE.
+         IF(REFLOC.EQ.2) CENCEN=.FALSE.
+      ELSE
+         CENCEN=.FALSE.
+      END IF
+      OLDEXP=EXPAUT
+      EXPAUT=.TRUE.
+      CALL LOPDS(REFERR,TPT)
+      IF(REFERR) RETURN
+      CENCEN=.FALSE.
+      EXPAUT=OLDEXP
+      OOPD=OOPD-(OCOR*ALENS(WWVN,NEWIMG-1))+&
+      &(RCOR*ALENS(WWVN,NEWIMG-1))
+   ELSE
+!       MODE AFOCAL
+!               RCOR=0.0D0
+!               OCOR=0.0D0
+      CALL FOPDS
+!       CALCULATE THEN APPLY ADJUSTMENT FOR THE BEGINNING AND ENDING
+!       REFERENCE SPHERES.
+      OOPD=OOPD-(OCOR*ALENS(WWVN,NEWOBJ))&
+      &+(RCOR*ALENS(WWVN,NEWOBJ))
+      RCOR=0.0D0
+      OCOR=0.0D0
+!     REFLOC=1= CHIEF RAY
+      IF(sys_mode().LE.2.0D0) THEN
+         IF(REFLOC.EQ.1) CENCEN=.FALSE.
+         IF(REFLOC.EQ.3) CENCEN=.FALSE.
+         IF(REFLOC.EQ.4) CENCEN=.FALSE.
+         IF(REFLOC.EQ.2) CENCEN=.FALSE.
+      ELSE
+         CENCEN=.FALSE.
+      END IF
+      OLDEXP=EXPAUT
+      EXPAUT=.TRUE.
+      CALL LOPDS(REFERR,TPT)
+      IF(REFERR) RETURN
+      EXPAUT=OLDEXP
+      CENCEN=.FALSE.
+      OOPD=OOPD-(OCOR*ALENS(WWVN,NEWIMG-1))&
+      &+(RCOR*ALENS(WWVN,NEWIMG-1))
+   END IF
+   LFOBW=sys_wavelength(INT(CURLAM))
+   IF(sys_units().EQ.1.0D0) WAV=LFOBW*&
+   &((1.0D-3)/(25.4D0))
+   IF(sys_units().EQ.2.0D0) WAV=LFOBW*(1.0D-4)
+   IF(sys_units().EQ.3.0D0) WAV=LFOBW*(1.0D-3)
+   IF(sys_units().EQ.4.0D0) WAV=LFOBW*(1.0D-6)
+   OOPD=-OOPD
+   IF(REVSTR) OOPD=-OOPD
+   OPDW=OOPD/WAV
+   IF(DABS(OPDW).LT.1.0D-4) THEN
+      OPDW=0.0D0
+      OOPD=0.0D0
+   END IF
+   RETURN
+END
+SUBROUTINE SLOPES
+   use DATMAI
+!
+   REAL*8 X,Y
+!
+   COMMON/SLOPY/X,Y
+!
+!
+!     RAY SLOPES
+   IF(X.GT.(PII/2.0D0).AND.X.LE.PII) X=-(PII-X)
+   IF(X.GT.(PII).AND.X.LE.((3.0D0*PII)/2.0D0)) X=-(PII-X)
+   IF(X.GT.((3.0D0*PII)/2.0D0)) X=X-(TWOPII)
+   IF(Y.GT.(PII/2.0D0).AND.Y.LE.PII) Y=-(PII-Y)
+   IF(Y.GT.(PII).AND.Y.LE.((3.0D0*PII)/2.0D0)) Y=-(PII-Y)
+   IF(Y.GT.((3.0D0*PII)/2.0D0)) Y=Y-(TWOPII)
+   RETURN
+END
+SUBROUTINE SPOTIT(I)
+   USE GLOBALS
+   use DATSP1
+   use DATMAI
+   IMPLICIT NONE
+   INTEGER ALLOERR,I,J
+   IF(I.EQ.1) THEN
+!     DEALLOCATE THE DSPOTT ARRAY
+      DEALLOCATE (DSPOTT,STAT=ALLOERR)
+      RETURN
+   END IF
+   IF(I.EQ.2) THEN
+!     ALLOCATE THE DSPOTT ARRAY
+      DEALLOCATE (DSPOTT,STAT=ALLOERR)
+      ALLOCATE (DSPOTT(1:60,1:NDSPOTT),STAT=ALLOERR)
+      DSPOTT(1:60,1:NDSPOTT)=0.0D0
+      RETURN
+   END IF
+   IF(I.EQ.3) THEN
+!     LOAD THE DSPOTT ARRAY WITH DSPOT DATA
+      DSPOTT(1:60,ID)=0.0D0
+      DSPOTT(1:60,ID)=(DSPOT(1:60))
+      RETURN
+   END IF
+   IF(I.EQ.4) THEN
+!     LOAD THE DSPOT(*) ARRAY WITH DSPOTT(ID,*) DATA
+      DSPOT(1:60)=0.0D0
+      DSPOT(1:60)=(DSPOTT(1:60,ID))
+      RETURN
+   END IF
+   IF(I.EQ.5) THEN
+!     LOAD THE DSPOTT ARRAY, ELEMENT ID
+      DSPOTT(1:60,ID)=0.0D0
+      RETURN
+   END IF
+END
+! SUB GSPOT.FOR
+SUBROUTINE GSPOT
+!
+!     GREYS OPERAND
+!
+   use DATSP1
+   use DATSPD
+   use DATLEN
+   use DATMAI
+   use mod_surface
+   use mod_system, only: sys_mode, sys_wl_weight
+   IMPLICIT NONE
+!
+   REAL*8 SPT,V1,VALUE &
+   &,JA,JB,XV,YV,XYANG,RRAD,RRANG,RPNT,RANDX &
+   &,RESLT,VXLO,VXHI,VYLO,VYHI,WOW1,WOW2,WAY,SPOTTY
+!
+   DIMENSION SPOTTY(:)
+!
+   ALLOCATABLE :: SPOTTY
+!
+   INTEGER WWRF,WWVN,ALLOERR
+!
+   LOGICAL TCLPRF,SPDTRA,NOFUNC
+!
+   INTEGER SPDCD1,SPDCD2,JJ,JJJ,K
+!
+   COMMON/SPRA1/SPDTRA
+   COMMON/SPRA2/SPDCD1,SPDCD2
+!
+   COMMON/SLOPY/X,Y
+
+   REAL*8 WW,WAVE,LEN,LENW,OPDWT,GREYOP
+!
+   COMMON/WTOPD/OPDWT,GREYOP
+!
+!       THIS IS SUBROUTINE GSPOT.FOR.
+!     IT HANDLES THE GREYS OPERAND
+!
+   INTEGER KIK,KIKI
+!
+   REAL*8 NSTART1,NSTOP1,NDEL1,NSTART2,NSTOP2,NDEL2,&
+   &TOT,W,AMSS,IX,IY &
+   &,X,Y,MSSX,MSSY,AMSSX,AMSSY
+!
+   REAL*8 MAX &
+   &,FRAC,FRACA,FRACB,MSS,APFAC
+!
+   INTEGER I,J,IWL
+!
+   LOGICAL ODD,FOBB0 &
+   &,FOBB0X,FOBB0Y
+!
+   COMMON/FFOOBB/FOBB0,FOBB0X,FOBB0Y
+!
+!     THE FOLLOWING VARIABLES TRACK THE REFERENCE SPHERE RADIUS
+!     AND THE "OTHER RAY INTERSECTION POINTS WITH THIS REFERENCE
+!     SPHERE
+!
+   REAL*8 SIZES,SLOPES,XSPH,YSPH,ZSPH,RADSPH
+!
+   COMMON/REFSPR/XSPH,YSPH,ZSPH,RADSPH
+!
+   JA=COS_A_ANG
+   JB=COS_B_ANG
+!
+!     SPOTTY(1)=DX OR DXA
+!     SPOTTY(2)=DY OR DYA
+!     SPOTTY(3)=RAY ENERGY TERM
+!     SPOTTY(4)=OPD(lens units)
+!     SPOTTY(5)=WAVELENGTH NUMBER
+!     SPOTTY(6)=DXDX OR DXADX
+!     SPOTTY(7)=DXAY OR DXADY
+!     SPOTTY(8)=DYDX OR DYADX
+!     SPOTTY(9)=DYDY OR DYADY
+!     SPOTTY(10)=
+!     SPOTTY(11)=
+!     SPOTTY(12)=
+!     SPOTTY(13)=
+!     SPOTTY(14)=
+!     SPOTTY(15)=
+!
+   DEALLOCATE (SPOTTY,STAT=ALLOERR)
+   ALLOCATE (SPOTTY(1:15),STAT=ALLOERR)
+!
+   GRASET=.FALSE.
+!
+   GREYOP=0.0D0
+!
+   GSPDEXT=.FALSE.
+!
+!     CHECK IF ALL SPECTRAL WEIGHTS ARE ZERO
+!
+   IF(sys_wl_weight(1).LE.0.0D0.AND.sys_wl_weight(2).LE.0.0D0 &
+   &.AND.sys_wl_weight(3).LE.0.0D0.AND.sys_wl_weight(4).LE.0.0D0 &
+   &.AND.sys_wl_weight(5).LE.0.0D0 &
+   &.AND.sys_wl_weight(6).LE.0.0D0.AND.sys_wl_weight(7).LE.0.0D0 &
+   &.AND.sys_wl_weight(8).LE.0.0D0.AND.sys_wl_weight(9).LE.0.0D0 &
+   &.AND.sys_wl_weight(10).LE.0.0D0) THEN
+!     NO SPOT CAN EXIST, RETURN
+      GSPDEXT=.FALSE.
+      DEALLOCATE(SPOTTY,STAT=ALLOERR)
+      RETURN
+   ELSE
+!
+!       NOT ALL SPECTRAL WEIGHTS ZERO, CALCULATE NUMBER OF RAYS MAXIMUM
+!       PER WAVELENGTH ASSUMING SPECTRAL WEIGHTS NOT ZERO
+!
+      IW=0
+      IWIW=0
+      DO I=0,OPRINGTOT
+         IWIW=IWIW+OPRINGPNT(I)
+      END DO
+   END IF
+   LSF=.FALSE.
+!
+!       THE LAST FOB INPUT VALUES ARE STORED IN CHLFOB AND
+!       THE ARRAY LFOB(1:7).
+!
+!       NOTE: DSPOT#(12) IS A RAW, UN-NORMALIZED
+!       RAY ENERGY TERM BUT IS LATER (WHEN SPA IS CALC.) NORMALIZED
+!       TO A FRACTIONAL ENERGY TERM BY DIVISION BY THE WEIGHTING
+!       TERM TOT.
+!     DOES THE NEWREF SURFACE HAVE A CLAP ON IT ?
+   TCLPRF=.FALSE.
+   IF(surf_clap_type(NEWREF) == 0.OR.surf_array_parity(NEWREF) /= 0) THEN
+!     RING SPOT
+!     ASSIGN A TEMPORARY CIRCULAR CLAP
+      call set_surf_clap_type(NEWREF, 1)
+      IF(PXTRAY(1,NEWREF).GT.PXTRAX(1,NEWREF)) THEN
+         call set_surf_clap_dim(NEWREF, 1, PXTRAY(1,NEWREF))
+         call set_surf_clap_dim(NEWREF, 2, surf_clap_dim(NEWREF, 1))
+      ELSE
+         call set_surf_clap_dim(NEWREF, 1, PXTRAX(1,NEWREF))
+         call set_surf_clap_dim(NEWREF, 2, surf_clap_dim(NEWREF, 1))
+      END IF
+      call set_surf_clap_dim(NEWREF, 3, 0.0D0)
+      call set_surf_clap_dim(NEWREF, 4, 0.0D0)
+      call set_surf_clap_dim(NEWREF, 5, 0.0D0)
+      call set_surf_clap_tilt(NEWREF, 0.0D0)
+      TCLPRF=.TRUE.
+!     THERE WAS A CLEAR APERTURE, USE ITS VALUES
+   END IF
+!
+!       IWL COUNTS THROUGH THE 10 WAVELENGTH NUMBERS
+   I=0
+   DO IWL=OLDLAMM,OLDLAMM
+      SPT=sys_wl_weight(IWL)
+      IF(SPT.GT.0.0D0) THEN
+!     ONLY TRACE RAYS FOR NON-ZERO SPECTRAL WEIGHTS
+!       TRACE RAYS AT THAT WAVELENGTH
+!
+!     SPOT WAS RING
+!     DO RING TRACE HERE
+!     OPRINGRAD WAS INPUT AS A FRACTIONAL REFERENCE SURFACE COORDINATE
+!     AND IS STORED AS SUCH. IF THE REF AP HTS ARE DIFFERENT,
+!     RAY AIMING WILL BE IN AN ELLIPTICAL RATHER THAN A CIRCULAR RING
+!     BECAUSE OF THE FRACTIONAL RAY AIMING IN RRAY.FOR
+         VXLO=-1.0D0
+         VXHI=1.0D0
+         IF(LVIG) CALL VIGCAL(100,VXLO,VXHI,1)
+         VYLO=-1.0D0
+         VYHI=1.0D0
+         IF(LVIG) CALL VIGCAL(100,VYLO,VYHI,2)
+         DO JJ=0,OPRINGTOT
+!     THIS LOOPS FOR THE RINGS
+            IF(JJ.EQ.0) RRAD=0.0D0
+            IF(JJ.EQ.0) RPNT=1
+            IF(JJ.NE.0) RRAD=OPRINGRAD(JJ)
+            IF(JJ.NE.0) RPNT=OPRINGPNT(JJ)
+!     THIS LOOPS THROUGH THE POINTS IN EACH RING
+            DO K=1,RPNT
+               IF(JJ.EQ.0) RRANG=0.0D0
+               IF(JJ.NE.0) THEN
+                  RRANG=((TWOPII)/360.0D0)*OPRINGANG(JJ)&
+                  &+(DBLE(K-1)*((TWOPII)/DBLE(OPRINGPNT(JJ))))
+               END IF
+               WW1=RRAD*DSIN(RRANG)
+               WW2=RRAD*DCOS(RRANG)
+               I=I+1
+!
+!       THE CALL TO RRAY HAS INPUTS:
+!               QUALIFIER
+               WWQ='CAOB'
+!               WW3
+               WW3=IWL
+               WVN=IWL
+!               CACOCH IS SET TO 1 FOR SPOT DIAGRAMS
+               CACOCH = 1
+               SPDTRA=.TRUE.
+               MSG = .FALSE.
+               STOPP=0
+!
+! THE NEWOBJ,NEWREF AND NEWIMG ARE SET BY FOB
+!       TRACE RAY AND RETURN
+               DSPOT(1)=0.0D0
+               DSPOT(2)=0.0D0
+               DSPOT(7)=0.0D0
+               DSPOT(9)=0.0D0
+               DSPOT(10)=0.0D0
+               DSPOT(11)=0.0D0
+               DSPOT(12)=0.0D0
+               DSPOT(17)=0.0D0
+               IF(WW1.GT.0.0D0) WW1=DABS(WW1)*VYHI
+               IF(WW1.LT.0.0D0) WW1=DABS(WW1)*VYLO
+               IF(WW1.EQ.0.0D0) WW1=0.0D0
+               IF(WW2.GT.0.0D0) WW2=DABS(WW2)*VXHI
+               IF(WW2.LT.0.0D0) WW2=DABS(WW2)*VXLO
+               IF(WW2.EQ.0.0D0) WW2=0.0D0
+               SAVE_KDP(1)=SAVEINPT(1)
+               WQ='CAOB    '
+               SQ=1
+               SST=0
+               DF1=0
+               DF2=0
+               DF3=0
+               DF4=1
+               DF5=1
+               S1=1
+               S2=1
+               S3=1
+               S4=0
+               S5=0
+               SN=1
+               W1=WW1
+               W2=WW2
+               W3=WW3
+               W4=0.0D0
+               W5=0.0D0
+               WC='RAY     '
+               NOCOAT=.FALSE.
+               GRASET=.FALSE.
+               DXFSET=.FALSE.
+               CALL RRAY
+               CACOCH=0
+               SPDCD1=RAYCOD(1)
+               SPDCD2=RAYCOD(2)
+               REST_KDP(1)=RESTINPT(1)
+               DSPOT(7)=DBLE(SPDCD1)
+               IF(DSPOT(7).NE.0.0D0) GO TO 1942
+               SPDTRA=.FALSE.
+               DSPOT(1)=RAYRAY(1,NEWIMG)
+               DSPOT(2)=RAYRAY(2,NEWIMG)
+               DSPOT(11)=RAYRAY(25,NEWIMG)
+!
+!
+!       NOW CALCULATE THE RAY ENERGY TERM
+!     THIS IS SPECTRAL WEIGHT TIMES APODIZATION FACTOR FOR THIS RAY
+!
+               DSPOT(12)=(DSPOT(11))
+               IF(DSPOT(7).NE.0.0D0) DSPOT(12)=0.0D0
+               DSPOT(37)=DSPOT(12)*RAYRAY(9,NEWIMG)
+               DSPOT(38)=REFRY(9,NEWIMG)
+               DSPOT(39)=RAYRAY(9,NEWIMG)
+               DSPOT(44)=RAYRAY(9,NEWREF)
+!
+               DSPOT(17)=sys_wl_weight(IWL)
+!     WRITE DATA TO THE ARRAY INSTEAD OF TO A FILE
+               OOPD=0.0D0
+               IF(INT(LFOB(4)).EQ.1) WWRF=46
+               IF(INT(LFOB(4)).EQ.2) WWRF=47
+               IF(INT(LFOB(4)).EQ.3) WWRF=48
+               IF(INT(LFOB(4)).EQ.4) WWRF=49
+               IF(INT(LFOB(4)).EQ.5) WWRF=50
+               IF(INT(LFOB(4)).EQ.6) WWRF=71
+               IF(INT(LFOB(4)).EQ.7) WWRF=72
+               IF(INT(LFOB(4)).EQ.8) WWRF=73
+               IF(INT(LFOB(4)).EQ.9) WWRF=74
+               IF(INT(LFOB(4)).EQ.10) WWRF=75
+               IF(IWL.EQ.1) WWVN=46
+               IF(IWL.EQ.2) WWVN=47
+               IF(IWL.EQ.3) WWVN=48
+               IF(IWL.EQ.4) WWVN=49
+               IF(IWL.EQ.5) WWVN=50
+               IF(IWL.EQ.6) WWVN=71
+               IF(IWL.EQ.7) WWVN=72
+               IF(IWL.EQ.8) WWVN=73
+               IF(IWL.EQ.9) WWVN=74
+               IF(IWL.EQ.10) WWVN=75
+               IF(RAYEXT.AND.REFEXT) THEN
+                  LEN=0.0D0
+                  RCOR=0.0D0
+                  OCOR=0.0D0
+                  IF(DABS(surf_thickness(NEWOBJ)).GE.1.0D10) JJJ=NEWOBJ+2
+                  IF(DABS(surf_thickness(NEWOBJ)).LT.1.0D10) JJJ=NEWOBJ+1
+                  DO J=JJJ,NEWIMG
+                     LEN=LEN+RAYRAY(7,J)&
+                     &-(REFRY(7,J)*(ALENS(WWVN,J-1)/ALENS(WWRF,J-1)))
+                  END DO
+                  IF(sys_mode().EQ.1.0D0.OR.sys_mode().EQ.2.0D0) THEN
+!       MODE FOCAL
+                     RCOR=0.0D0
+                     OCOR=0.0D0
+                     CALL FOPD
+                     LEN=LEN-(OCOR*ALENS(WWVN,NEWOBJ))&
+                     &+(RCOR*ALENS(WWVN,NEWOBJ))
+                     RCOR=0.0D0
+                     OCOR=0.0D0
+                     CENCEN=.FALSE.
+                     CALL LOPD
+                     LEN=LEN-(OCOR*ALENS(WWVN,NEWIMG-1))&
+                     &+(RCOR*ALENS(WWVN,NEWIMG-1))
+                  ELSE
+!       MODE AFOCAL
+                     RCOR=0.0D0
+                     OCOR=0.0D0
+                     CALL FOPD
+                     LEN=LEN-(OCOR*ALENS(WWVN,NEWOBJ))&
+                     &+(RCOR*ALENS(WWVN,NEWOBJ))
+                     RCOR=0.0D0
+                     OCOR=0.0D0
+                     CENCEN=.FALSE.
+                     CALL LOPD
+                     LEN=LEN-(OCOR*ALENS(WWVN,NEWIMG-1))&
+                     &+(RCOR*ALENS(WWVN,NEWIMG-1))
+                  END IF
+                  OOPD=LEN
+               ELSE
+!       NO RAY EXITS OR NO REF RAY
+                  OOPD=0.0D0
+               END IF
+               SPOTTY(4)=OOPD
+               SPOTTY(5)=DBLE(IWL)
+1942           IF(sys_mode().LE.2.0D0) THEN
+!     FOCAL
+                  SPOTTY(1)=(DSPOT(1)-REFRY(1,NEWIMG))/JB
+                  SPOTTY(2)=(DSPOT(2)-REFRY(2,NEWIMG))/JA
+                  SPOTTY(3)=DSPOT(12)
+                  SPOTTY(6) = (DIFF(1,NEWIMG)-RAYRAY(1,NEWIMG))/(DELX*JB)
+                  SPOTTY(7) = (DIFF(7,NEWIMG)-RAYRAY(1,NEWIMG))/(DELY*JB)
+                  SPOTTY(8) = (DIFF(2,NEWIMG)-RAYRAY(2,NEWIMG))/(DELX*JA)
+                  SPOTTY(9) = (DIFF(8,NEWIMG)-RAYRAY(2,NEWIMG))/(DELY*JA)
+               ELSE
+!     AFOCAL
+                  VALUE=RAYRAY(11,NEWIMG)&
+                  &-REFRY(11,NEWIMG)
+                  IF(REAL(VALUE).GT.REAL(PII)) VALUE=VALUE-(TWOPII)
+                  IF(REAL(VALUE).EQ.REAL(TWOPII)) VALUE=0.0D0
+                  SPOTTY(1)=VALUE
+                  VALUE=RAYRAY(12,NEWIMG)&
+                  &-REFRY(12,NEWIMG)
+                  IF(REAL(VALUE).GT.REAL(PII)) VALUE=VALUE-(TWOPII)
+                  IF(REAL(VALUE).EQ.REAL(TWOPII)) VALUE=0.0D0
+                  SPOTTY(2)=VALUE
+                  SPOTTY(3)=DSPOT(12)
+                  IF(DABS(DIFF(4,NEWIMG)).GE.&
+                  &(1.0D35*DABS(DIFF(6,NEWIMG)))) THEN
+                     IF(REAL(DIFF(4,NEWIMG)).GE.0.0) V1=PII/2.0D0
+                     IF(REAL(DIFF(4,NEWIMG)).LT.0.0) V1=(3.0D0*PII)/2.0D0
+                  ELSE
+                     IF(DABS(DIFF(4,NEWIMG)).EQ.0.0D0.AND.&
+                     &DABS(DIFF(6,NEWIMG)).EQ.0.0D0) THEN
+                        V1=0.0D0
+                     ELSE
+                        V1=DATAN2(DIFF(4,NEWIMG),DIFF(6,NEWIMG))
+                     END IF
+                     IF(REAL(V1).LT.0.0) V1=V1+(TWOPII)
+                  END IF
+                  VALUE=(V1-RAYRAY(11,NEWIMG))
+                  IF(REAL(VALUE).GT.REAL(PII)) VALUE=VALUE-(TWOPII)
+                  IF(REAL(VALUE).EQ.REAL(TWOPII)) VALUE=0.0D0
+                  SPOTTY(6)=VALUE/DELX
+
+                  IF(DABS(DIFF(10,NEWIMG)).GE.&
+                  &(1.0D35*DABS(DIFF(12,NEWIMG)))) THEN
+                     IF(REAL(DIFF(10,NEWIMG)).GE.0.0) V1=PII/2.0D0
+                     IF(REAL(DIFF(10,NEWIMG)).LT.0.0) V1=(3.0D0*PII)/2.0D0
+                  ELSE
+                     IF(DABS(DIFF(10,NEWIMG)).EQ.0.0D0.AND.&
+                     &DABS(DIFF(12,NEWIMG)).EQ.0.0D0) THEN
+                        V1=0.0D0
+                     ELSE
+                        V1=DATAN2(DIFF(10,NEWIMG),DIFF(12,NEWIMG))
+                     END IF
+                     IF(REAL(V1).LT.0.0) V1=V1+(TWOPII)
+                  END IF
+                  VALUE=(V1-RAYRAY(11,NEWIMG))
+                  IF(REAL(VALUE).GT.REAL(PII)) VALUE=VALUE-(TWOPII)
+                  IF(REAL(VALUE).EQ.REAL(TWOPII)) VALUE=0.0D0
+                  SPOTTY(7)=VALUE/DELY
+
+                  IF(DABS(DIFF(5,NEWIMG)).GE.&
+                  &(1.0D35*DABS(DIFF(6,NEWIMG)))) THEN
+                     IF(REAL(DIFF(5,NEWIMG)).GE.0.0) V1=PII/2.0D0
+                     IF(REAL(DIFF(5,NEWIMG)).LT.0.0) V1=(3.0D0*PII)/2.0D0
+                  ELSE
+                     IF(DABS(DIFF(5,NEWIMG)).EQ.0.0D0.AND.&
+                     &DABS(DIFF(6,NEWIMG)).EQ.0.0D0) THEN
+                        V1=0.0D0
+                     ELSE
+                        V1=DATAN2(DIFF(5,NEWIMG),DIFF(6,NEWIMG))
+                     END IF
+                     IF(REAL(V1).LT.0.0) V1=V1+(TWOPII)
+                  END IF
+                  VALUE=(V1-RAYRAY(12,NEWIMG))
+                  IF(REAL(VALUE).GT.REAL(PII)) VALUE=VALUE-(TWOPII)
+                  IF(REAL(VALUE).EQ.REAL(TWOPII)) VALUE=0.0D0
+                  SPOTTY(8)=VALUE/DELX
+
+                  IF(DABS(DIFF(11,NEWIMG)).GE.&
+                  &(1.0D35*DABS(DIFF(12,NEWIMG)))) THEN
+                     IF(REAL(DIFF(11,NEWIMG)).GE.0.0) V1=PII/2.0D0
+                     IF(REAL(DIFF(11,NEWIMG)).LT.0.0) V1=(3.0D0*PII)/2.0D0
+                  ELSE
+                     IF(DABS(DIFF(11,NEWIMG)).EQ.0.0D0.AND.&
+                     &DABS(DIFF(12,NEWIMG)).EQ.0.0D0) THEN
+                        V1=0.0D0
+                     ELSE
+                        V1=DATAN2(DIFF(11,NEWIMG),DIFF(12,NEWIMG))
+                     END IF
+                     IF(REAL(V1).LT.0.0) V1=V1+(TWOPII)
+                  END IF
+                  VALUE=(V1-RAYRAY(12,NEWIMG))
+                  IF(REAL(VALUE).GT.REAL(PII)) VALUE=VALUE-(TWOPII)
+                  IF(REAL(VALUE).EQ.(TWOPII)) VALUE=0.0D0
+                  SPOTTY(9)=VALUE/DELY
+               END IF
+               SIZES=DABS(SPOTTY(3))*(DABS(SPOTTY(1))+DABS(SPOTTY(2)))
+               SLOPES=DABS(SPOTTY(3))*(DABS(SPOTTY(6))+DABS(SPOTTY(7))&
+               &+DABS(SPOTTY(8))+DABS(SPOTTY(9)))
+               GREYOP=GREYOP+SIZES+SLOPES+(OPDWT*OOPD)
+            END DO
+         END DO
+!       SPECTRAL WEIGHT WAS ZERO, GO TO NEXT WAVELENGTH
+!     NO FILE OUTPUT WAS DONE
+      END IF
+   END DO
+!     WRITE THE TOTAL # OF RECORDS IN RECORD #1
+   ITOT=I
+!
+!     ALL THE RAYS HAVE BEEN TRACED, NOW DO THE STATISTICS AND
+!     OUTPUT.
+   IF(TCLPRF) THEN
+!     REMOVE TEMP CLAP ON NEWREF
+      TCLPRF=.FALSE.
+      ALENS(9:15,NEWREF)=0.0D0
+   END IF
+!
+!
+   IF(ITOT.EQ.0) THEN
+      SPDEXT=.FALSE.
+      GSPDEXT=.FALSE.
+      REFEXT=.FALSE.
+      GREYOP=0.0D0
+      CALL MACFAL
+      DEALLOCATE(SPOTTY,STAT=ALLOERR)
+      RETURN
+   END IF
+   GSPDEXT=.TRUE.
+   DEALLOCATE(SPOTTY,STAT=ALLOERR)
+   RETURN
+END
+! SUB SPMOVE.FOR
+SUBROUTINE SPMOVE
+!
+   use DATSP1
+   use DATSPD
+   use DATLEN
+   use DATMAI
+   use mod_system, only: sys_units, sys_mode, sys_wl_weight
+   IMPLICIT NONE
+!
+   CHARACTER UN*11
+!
+!       THIS IS SUBROUTINE SPMOVE.FOR.
+!
+   REAL*8 SPT,TOT,W,JK_S &
+   &,MSSX,MSSY,JA,JB
+!
+   REAL*8 &
+   &SPDELL,MSS,DELTA,APFAC
+!
+   INTEGER I,J,NUMT1,NUMT2,NUMT3,NUMT4,&
+   &NUMT5,NUMT6,NUMT7,NUMT8,NUMT9,NUMT10,ALLOERR
+!
+   LOGICAL FOBB0 &
+   &,FOBB0X,FOBB0Y
+!
+   COMMON/FFOOBB/FOBB0,FOBB0X,FOBB0Y
+!
+!
+   JA=COS_A_ANG
+   JB=COS_B_ANG
+!
+   IF(sys_mode().EQ.3.0D0.OR.sys_mode().EQ.4.0D0) THEN
+      CALL REPORT_ERROR_AND_FAIL(&
+      & '"SPD (MOVE OR MOVEACC)"'//'\n'//&
+      & 'ONLY WORKS FOR MODES FOCAL AND UFAOCAL'//'\n'//&
+      & 'NO ACTION TAKEN', 1)
+      RETURN
+   END IF
+   IF(SST.EQ.1) THEN
+      CALL REPORT_ERROR_AND_FAIL(&
+      & '"SPD (MOVE OR MOVEACC)" TAKES NO STRING INPUT'//'\n'//&
+      & 'RE-ENTER COMMAND', 1)
+      RETURN
+   END IF
+!       DEFAULT NUMERIC INPUT, ALL DEFAULTS ARE ZERO
+   IF(DF1.EQ.1) THEN
+      OUTLYNE=&
+      &'"SPD (MOVE OR MOVEACC)" REQUIERS EXPLICIT NUMERIC'
+      CALL SHOWIT(1)
+      CALL REPORT_ERROR_AND_FAIL('WORD #1 INPUT'//'\n'//'RE-ENTER COMMAND', 1)
+      RETURN
+   END IF
+   IF(S2.EQ.1.OR.S3.EQ.1.OR.S4.EQ.1.OR.S5.EQ.1)THEN
+      OUTLYNE=&
+      &'"SPD (MOVE OR MOVEACC)"'
+      CALL SHOWIT(1)
+      CALL REPORT_ERROR_AND_FAIL(&
+      & 'TAKES NO NUMERIC WORD #2 THROUGH #5 INPUT'//'\n'//&
+      & 'RE-ENTER COMMAND', 1)
+      RETURN
+   END IF
+!
+   IF(.NOT.SPDEXT) THEN
+      OUTLYNE=&
+      &'NO CURRENT SPOT DIAGRAM DATA EXISTS'
+      CALL SHOWIT(1)
+      CALL REPORT_ERROR_AND_FAIL('NO ACTION TAKEN', 1)
+      RETURN
+   END IF
+   DELTA=W1
+   GO TO 999
+!     THIS IS THE RE-ENTRY POINT IF SPMOVE NEEDS TO BE CALLED
+!     DURING A GEOMETRICAL RADIAL ENERGY DISTRIBUTION CALCUALTION
+!     OR A GEOMETRICAL LINE SPREAD FUNCTION
+ ENTRY SPMV(SPDELL)
+!
+   DELTA=SPDELL
+999 CONTINUE
+!
+!       THE NUMBER OF RAYS WHICH REPRESENT 100% OF THE ENERGY
+!       EQUAL THE NUMBER OF RAYS TRACED (IWIW) TIMES THE MUNBER
+!       OF NON-ZERO SPECTRAL WEIGHTS.
+!
+!       TOT IS THE WEIGTHED TOTAL
+!       NUMTOT IS THE RAW TOTAL OF NON-FAILED RAYS
+   TOT=0.0D0
+   NUMTOT=0
+   NUMT1=0
+   NUMT2=0
+   NUMT3=0
+   NUMT4=0
+   NUMT5=0
+   NUMT6=0
+   NUMT7=0
+   NUMT8=0
+   NUMT9=0
+   NUMT10=0
+   DO I=2,ITOT
+!     LOAD DSPOT(*) WITH DSPOTT(*,ID)
+      ID=I-1
+      CALL SPOTIT(4)
+!     LOAD DSPOTT FROM DSPOT
+      J=I-1
+      ID=J
+      CALL SPOTIT(3)
+      IF(DSPOT(17).NE.0.0D0) THEN
+         IF(DSPOT(7).EQ.0.0D0) THEN
+            APFAC=DSPOT(11)
+            TOT=TOT+(DSPOT(17)*APFAC)
+            NUMTOT=NUMTOT+1
+            IF(DSPOT(16).EQ.1.0D0) NUMT1=NUMT1+1
+            IF(DSPOT(16).EQ.2.0D0) NUMT2=NUMT2+1
+            IF(DSPOT(16).EQ.3.0D0) NUMT3=NUMT3+1
+            IF(DSPOT(16).EQ.4.0D0) NUMT4=NUMT4+1
+            IF(DSPOT(16).EQ.5.0D0) NUMT5=NUMT5+1
+            IF(DSPOT(16).EQ.6.0D0) NUMT6=NUMT6+1
+            IF(DSPOT(16).EQ.7.0D0) NUMT7=NUMT7+1
+            IF(DSPOT(16).EQ.8.0D0) NUMT8=NUMT8+1
+            IF(DSPOT(16).EQ.9.0D0) NUMT9=NUMT9+1
+            IF(DSPOT(16).EQ.10.0D0) NUMT10=NUMT10+1
+         ELSE
+!       RAY FAILED, DONT DO STATS
+         END IF
+      ELSE
+!       SPECTRAL WEIGHT 0
+      END IF
+   END DO
+!
+   IF(NUMTOT.EQ.0.0D0) THEN
+      IF(WQ.NE.'ACC') THEN
+         OUTLYNE='NO RAYS COULD GET THROUGH THE SYSTEM'
+         CALL SHOWIT(1)
+         OUTLYNE='NO SPOT DIAGRAM WAS CREATED'
+         CALL SHOWIT(1)
+!     DEALLOCATE DSPOTT
+         CALL SPOTIT(1)
+      END IF
+      SPDEXT=.FALSE.
+      CALL MACFAL
+      RETURN
+   END IF
+   SPA=0.0D0
+   SPC=0.0D0
+   SPB=0.0D0
+   SPD=0.0D0
+   DO I=1,ITOT-1
+!     LOAD DSPOTT(I,*) INTO DSPOT(*)
+      ID=I
+      CALL SPOTIT(4)
+      IF(DSPOT(17).NE.0.0D0) THEN
+         IF(DSPOT(7).EQ.0.0D0) THEN
+            APFAC=DSPOT(11)
+            SPA=SPA+(DSPOT(17)*DSPOT(1)*APFAC)
+            SPC=SPC+(DSPOT(17)*DSPOT(2)*APFAC)
+            SPB=SPB+(DSPOT(17)*DTAN(DSPOT(9))*APFAC)
+            SPD=SPD+(DSPOT(17)*DTAN(DSPOT(10))*APFAC)
+         ELSE
+!     RAY FAILED
+         END IF
+      ELSE
+!     WEIGHT 0
+      END IF
+   END DO
+!       W IS THE NORMALIZING FACTOR FOR THE SPOT CALCULATIONS
+   W=TOT
+   SPA=SPA/W
+   SPC=SPC/W
+   SPB=SPB/W
+   SPD=SPD/W
+   CENTX=SPA+(SPB*DELTA)
+   CENTY=SPC+(SPD*DELTA)
+   IF(DABS(CENTX).LT.1.0D-15) CENTX=0.0D0
+   IF(DABS(CENTY).LT.1.0D-15) CENTY=0.0D0
+!
+!       NOW CALCULATE THE ROOT MEAN SQUARE SPOT SIZE
+   LA=0.0D0
+   LC=0.0D0
+   LB=0.0D0
+   LD=0.0D0
+   SSSP=0.0D0
+   SSSQ=0.0D0
+   SSSR=0.0D0
+   SSSPX=0.0D0
+   SSSQX=0.0D0
+   SSSRX=0.0D0
+   SSSPY=0.0D0
+   SSSQY=0.0D0
+   SSSRY=0.0D0
+   MSS=0.0D0
+   MSSX=0.0D0
+   MSSY=0.0D0
+   RMS=0.0D0
+   RMSX=0.0D0
+   RMSY=0.0D0
+   DO I=1,ITOT-1
+!     LOAD DSPOTT(I,*) INTO DSPOT(*)
+      ID=I
+      CALL SPOTIT(4)
+      IF(DSPOT(17).NE.0.0D0) THEN
+         IF(DSPOT(7).EQ.0.0D0) THEN
+            APFAC=DSPOT(11)
+            LA=DSPOT(1)
+            LC=DSPOT(2)
+            LB=DTAN(DSPOT(9))
+            LD=DTAN(DSPOT(10))
+            SPT=DSPOT(17)
+            J=INT(DSPOT(16))
+!       X ONLY
+            JK_S=sys_wl_weight(J)
+            SSSPX=SSSPX+&
+            &(JK_S*(((LA-SPA)**2))*APFAC)
+            SSSQX=SSSQX+&
+            &(JK_S*((LA*LB)-(LA*SPB)-(LB*SPA)&
+            &+(SPA*SPB))*APFAC)
+            SSSRX=SSSRX+&
+            &(JK_S*(((LB-SPB)**2))*APFAC)
+!       Y ONLY
+            SSSPY=SSSPY+&
+            &(JK_S*(((LC-SPC)**2))*APFAC)
+            SSSQY=SSSQY+&
+            &(JK_S*((LC*LD)&
+            &-(LC*SPD)-(LD*SPC)+(SPC*SPD))*APFAC)
+            SSSRY=SSSRY+&
+            &(JK_S*(((LD-SPD)**2))*APFAC)
+         ELSE
+         END IF
+      ELSE
+      END IF
+   END DO
+   MSSX=SSSPX+(2.0D0*DELTA*SSSQX)+((DELTA**2)*SSSRX)
+   MSSY=SSSPY+(2.0D0*DELTA*SSSQY)+((DELTA**2)*SSSRY)
+   MSS=(MSSX+MSSY)/2.0D0
+   IF(DABS(SSSRX).LT.1.0D-15.OR.DABS(SSSQX).GT.1.0D+15) THEN
+      IF(SSSRX.GE.0.0D0.AND.SSSQX.GE.0.0D0) FCSFTX=-1.0D35
+      IF(SSSRX.GE.0.0D0.AND.SSSQX.LE.0.0D0) FCSFTX=1.0D35
+      IF(SSSRX.LE.0.0D0.AND.SSSQX.GE.0.0D0) FCSFTX=1.0D35
+   ELSE
+      FCSFTX=-SSSQX/SSSRX
+   END IF
+   IF(DABS(SSSRY).LT.1.0D-15.OR.DABS(SSSQY).GT.1.0D+15) THEN
+      IF(SSSRY.GE.0.0D0.AND.SSSQY.GE.0.0D0) FCSFTY=-1.0D35
+      IF(SSSRY.GE.0.0D0.AND.SSSQY.LE.0.0D0) FCSFTY=1.0D35
+      IF(SSSRY.LE.0.0D0.AND.SSSQY.GE.0.0D0) FCSFTY=1.0D35
+      FCSFTY=1.0D35
+   ELSE
+      FCSFTY=-SSSQY/SSSRY
+   END IF
+   FCSFT=(FCSFTX+FCSFTY)/2.0D0
+   IF(sys_units().EQ.1.0) UN='INCHES     '
+   IF(sys_units().EQ.2.0) UN='CENTIMETERS'
+   IF(sys_units().EQ.3.0) UN='MILLIMETERS'
+   IF(sys_units().EQ.4.0) UN='METERS'
+   RMSX=2.0D0*(DSQRT(MSSX/W))
+   RMSY=2.0D0*(DSQRT(MSSY/W))
+   RMS=(RMSX+RMSY)/2.0D0
+   IF(WQ.EQ.'MOVEACC') THEN
+!       NOW SET THE GENERAL PURPOSE REGISTERS
+!       THESE CAN BE USED AS WELL AS GET FEATURES WHICH
+!       RE-PROCESS THE CURRENT SPOT DIAGRAM.
+      REG(40)=REG(9)
+      IF(sys_mode().LT.3.0D0) THEN
+         REG(11)=RMSY/JA
+         REG(10)=RMSX/JB
+      ELSE
+         REG(11)=RMSY
+         REG(10)=RMSX
+      END IF
+      REG(9)=DSQRT((RMSX**2)+(RMSY**2))
+   ELSE
+   END IF
+114 FORMAT('FOCUS SHIFTED SPOT DIAGRAM SUMMARY')
+321 FORMAT('FOR A FOCUS SHIFT   = ',G17.10,1X,A11)
+115 FORMAT('RMS SPOT SIZE   (X) = ',G17.10,1X,A11)
+116 FORMAT('RMS SPOT SIZE   (Y) = ',G17.10,1X,A11)
+108 FORMAT('RMS SPOT DIAMETER   = ',G17.10,1X,A11)
+101 FORMAT('X-CENTROID POSITION = ',G17.10,1X,A11)
+102 FORMAT('Y-CENTROID POSITION = ',G17.10,1X,A11)
+103 FORMAT('CHIEF RAY X-COORD.  = ',G17.10,1X,A11)
+104 FORMAT('CHIEF RAY Y-COORD.  = ',G17.10,1X,A11)
+105 FORMAT('# RAYS ATTEMPTED    = ',I5,' AT EACH WAVELENGTH')
+106 FORMAT('# RAYS SUCCEDED     = ',I5,' AT ALL WAVELENGTHS')
+107 FORMAT(&
+   &'"FOB NULL" WAS USED, CHIEF RAY DATA MAY BE SUSPECT')
+221 FORMAT(&
+   &'FOCUS SHIFT FOR BEST RMS SPOT LENGTH (X) = ',G17.10,1X,A11)
+222 FORMAT(&
+   &'FOCUS SHIFT FOR BEST RMS SPOT LENGTH (Y) = ',G17.10,1X,A11)
+220 FORMAT(&
+   &'FOCUS SHIFT FOR BEST RMS SPOT DIAMETER   = ',G17.10,1X,A11)
+   IF(WQ.EQ.'MOVE') THEN
+!       DO THE PRINT OUT
+
+      WRITE(OUTLYNE,114)
+      CALL SHOWIT(0)
+
+      WRITE(OUTLYNE,321) W1,UN
+      CALL SHOWIT(0)
+
+      WRITE(OUTLYNE,108) RMS,UN
+      CALL SHOWIT(0)
+
+      WRITE(OUTLYNE,115) RMSX,UN
+      CALL SHOWIT(0)
+
+      WRITE(OUTLYNE,116) RMSY,UN
+      CALL SHOWIT(0)
+
+      WRITE(OUTLYNE,101) CENTX,UN
+      CALL SHOWIT(0)
+
+      WRITE(OUTLYNE,102) CENTY,UN
+      CALL SHOWIT(0)
+
+      WRITE(OUTLYNE,103) REFRY(1,NEWIMG)+&
+      &(DTAN(REFRY(11,NEWIMG))*DELTA),UN
+      CALL SHOWIT(0)
+
+      WRITE(OUTLYNE,104) REFRY(2,NEWIMG)+&
+      &(DTAN(REFRY(12,NEWIMG))*DELTA),UN
+      CALL SHOWIT(0)
+
+      IF(NULL) WRITE(OUTLYNE,107)
+      CALL SHOWIT(0)
+
+      WRITE(OUTLYNE,105) IWIW
+      CALL SHOWIT(0)
+
+      WRITE(OUTLYNE,106) NUMTOT
+      CALL SHOWIT(0)
+!
+2110  FORMAT('AT WAVELENGTH # 1,  # RAYS SUCEEDED = ',I10)
+2111  FORMAT('AT WAVELENGTH # 2,  # RAYS SUCEEDED = ',I10)
+2112  FORMAT('AT WAVELENGTH # 3,  # RAYS SUCEEDED = ',I10)
+2113  FORMAT('AT WAVELENGTH # 4,  # RAYS SUCEEDED = ',I10)
+2114  FORMAT('AT WAVELENGTH # 5,  # RAYS SUCEEDED = ',I10)
+2115  FORMAT('AT WAVELENGTH # 6,  # RAYS SUCEEDED = ',I10)
+2116  FORMAT('AT WAVELENGTH # 7,  # RAYS SUCEEDED = ',I10)
+2117  FORMAT('AT WAVELENGTH # 8,  # RAYS SUCEEDED = ',I10)
+2118  FORMAT('AT WAVELENGTH # 9,  # RAYS SUCEEDED = ',I10)
+2119  FORMAT('AT WAVELENGTH # 10, # RAYS SUCEEDED = ',I10)
+
+      WRITE(OUTLYNE,2110) NUMT1
+      CALL SHOWIT(0)
+      WRITE(OUTLYNE,2111) NUMT2
+      CALL SHOWIT(0)
+      WRITE(OUTLYNE,2112) NUMT3
+      CALL SHOWIT(0)
+      WRITE(OUTLYNE,2113) NUMT4
+      CALL SHOWIT(0)
+      WRITE(OUTLYNE,2114) NUMT5
+      CALL SHOWIT(0)
+      WRITE(OUTLYNE,2115) NUMT6
+      CALL SHOWIT(0)
+      WRITE(OUTLYNE,2116) NUMT7
+      CALL SHOWIT(0)
+      WRITE(OUTLYNE,2117) NUMT8
+      CALL SHOWIT(0)
+      WRITE(OUTLYNE,2118) NUMT9
+      CALL SHOWIT(0)
+      WRITE(OUTLYNE,2119) NUMT10
+      CALL SHOWIT(0)
+
+      IF(W1.EQ.0.0D0) THEN
+         WRITE(OUTLYNE,220) FCSFT
+         CALL SHOWIT(0)
+
+         WRITE(OUTLYNE,221) FCSFTX
+         CALL SHOWIT(0)
+
+         WRITE(OUTLYNE,222) FCSFTY
+         CALL SHOWIT(0)
+      END IF
+   END IF
+   RETURN
+END
+SUBROUTINE FIXWV(W2)
+   use DATLEN
+   use mod_system, only: sys_wl_weight
+   IMPLICIT NONE
+   REAL*8 OLDWT(1:10),W2
+   COMMON/OLDSTUFFWV/OLDWT
+   OLDWT(1)=sys_wl_weight(1)
+   OLDWT(2)=sys_wl_weight(2)
+   OLDWT(3)=sys_wl_weight(3)
+   OLDWT(4)=sys_wl_weight(4)
+   OLDWT(5)=sys_wl_weight(5)
+   OLDWT(6)=sys_wl_weight(6)
+   OLDWT(7)=sys_wl_weight(7)
+   OLDWT(8)=sys_wl_weight(8)
+   OLDWT(9)=sys_wl_weight(9)
+   OLDWT(10)=sys_wl_weight(10)
+   IF(W2.GE.1.0D0.AND.W2.LE.10.0D0) THEN
+      SYSTEM(31)=0.0D0
+      SYSTEM(32)=0.0D0
+      SYSTEM(33)=0.0D0
+      SYSTEM(34)=0.0D0
+      SYSTEM(35)=0.0D0
+      SYSTEM(76)=0.0D0
+      SYSTEM(77)=0.0D0
+      SYSTEM(78)=0.0D0
+      SYSTEM(79)=0.0D0
+      SYSTEM(80)=0.0D0
+   END IF
+   IF(INT(W2).EQ.1) SYSTEM(31)=1.0D0
+   IF(INT(W2).EQ.2) SYSTEM(32)=1.0D0
+   IF(INT(W2).EQ.3) SYSTEM(33)=1.0D0
+   IF(INT(W2).EQ.4) SYSTEM(34)=1.0D0
+   IF(INT(W2).EQ.5) SYSTEM(35)=1.0D0
+   IF(INT(W2).EQ.6) SYSTEM(76)=1.0D0
+   IF(INT(W2).EQ.7) SYSTEM(77)=1.0D0
+   IF(INT(W2).EQ.8) SYSTEM(78)=1.0D0
+   IF(INT(W2).EQ.9) SYSTEM(79)=1.0D0
+   IF(INT(W2).EQ.10) SYSTEM(80)=1.0D0
+   RETURN
+END
+SUBROUTINE UNFIXWV
+   use DATLEN
+   use mod_system, only: sys_wl_weight
+   IMPLICIT NONE
+   REAL*8 OLDWT(1:10)
+   COMMON/OLDSTUFFWV/OLDWT
+   SYSTEM(31)=OLDWT(1)
+   SYSTEM(32)=OLDWT(2)
+   SYSTEM(33)=OLDWT(3)
+   SYSTEM(34)=OLDWT(4)
+   SYSTEM(35)=OLDWT(5)
+   SYSTEM(76)=OLDWT(6)
+   SYSTEM(77)=OLDWT(7)
+   SYSTEM(78)=OLDWT(8)
+   SYSTEM(79)=OLDWT(9)
+   SYSTEM(80)=OLDWT(10)
+   RETURN
+END
+SUBROUTINE REVERSECA
+   use DATLEN
+   use DATMAI
+   IMPLICIT NONE
+   INTEGER SPDCD1,SPDCD2,I
+   COMMON/SPRA2/SPDCD1,SPDCD2
+!       IF CURRENT RAY FAILS AT SURFACE I, SET SPDCD1 AND SPDCD2
+!       AND RETURN
+!     DON'T CHECK ON OBJECT OR IMAGE SURFACES.
+   DO R_I=NEWIMG-1,NEWOBJ+1,-1
+      MSG=.FALSE.
+!       CALL CLAP CHECKING ROUTINE
+      R_X=RAYRAY(1,R_I)
+      R_Y=RAYRAY(2,R_I)
+      R_Z=RAYRAY(3,R_I)
+      CALL CACHEK(0.0D0,0.0D0,0.0D0,0)
+      IF(RAYCOD(1).NE.0) THEN
+         SPDCD1=RAYCOD(1)
+         SPDCD2=RAYCOD(2)
+         RETURN
+      END IF
+   END DO
+   RETURN
+END
+! SUB SPOT1.FOR
+SUBROUTINE SPOT1(TPT)
+   USE GLOBALS
+!
+   use DATSP1
+   use DATSPD
+   use DATLEN
+   use DATMAI
+   use mod_surface
+   use mod_system, only: sys_units, sys_mode, sys_last_surf, sys_wl_weight
+   use command_utils, only: is_command_query
+   IMPLICIT NONE
+!
+   CHARACTER UN*11
+!
+   REAL*8 SPT,SPT1,SPT2,SPT3,SPT4,&
+   &SPT5,XV,YV,XYANG,RRAD,RRANG,RPNT,RANDX,SPT6,SPT7,SPT8,SPT9 &
+   &,RINGTOT1,WAY,SPT10,OSPA,OSPB,OSPC,OSPD,OAFSPB,OAFSPD &
+   &,RESLT,WOW1,WOW2
+!
+   REAL*8 ELMAX
+!
+   COMMON/ELEV/ELMAX
+!
+   COMMON/SPTWTS/SPT1,SPT2,SPT3,SPT4,SPT5 &
+   &,SPT6,SPT7,SPT8,SPT9,SPT10
+!
+   LOGICAL TCLPRF,SPDTRA,NOFUNC
+!
+   INTEGER NSTEP,LSTIMG,ALLOERR,TPT,SPDCD1,SPDCD2,JJ,K
+!
+   COMMON/SPRA1/SPDTRA
+   COMMON/SPRA2/SPDCD1,SPDCD2
+!
+   COMMON/SLOPY/X,Y
+   LOGICAL CAFORWARD
+   COMMON/FORWARDCA/CAFORWARD
+!
+!
+!     IF TPT=1 REGULAR SPOT
+!     IF TPT=2 OPTIM/TOLR SPOT
+!
+!       THIS IS SUBROUTINE SPOT1.FOR.
+!     IT HANDLES THE OPERATION OF THE COMMANDS:
+!
+!               SPD
+!               SPD ACC
+!
+!     THESE COMMANDS ONLY TAKE NUMERIC WORD #1,2,3,4
+!               SPD ISTAT
+!               SPD IPSTAT
+!
+!     THESE COMMANDS ONLY TAKE NUMERIC WORD #1
+!
+!     NUMERIC WORD #1 IS TH NUMBER OF RAYS ACROSS A RECTANGULAR GRID
+!     NUMERIC WORD #2 IS FFLAG USED TO SET THE DIRECTION OF CLEAR APERTURE
+!       AND OBSCURATION CHECKING
+!
+!
+   INTEGER KIK,KIKI
+!
+   REAL*8 NSTART1,NSTOP1,NDEL1,NSTART2,NSTOP2,NDEL2,&
+   &TOT,W,AMSS,IX,IY,XUP,YUP,XLO,YLO &
+   &,X,Y,MSSX,MSSY,AMSSX,AMSSY,MAXX,MAXY,APODX2,APODR2
+!
+   COMMON/BIGGY/XUP,YUP,XLO,YLO,MAXX,MAXY
+!
+   REAL*8 MAX,STARANG,ENDANG,DELANG &
+   &,FRAC,FRACA,FRACB,MSS,APFAC
+!
+   INTEGER I,J,IWIW2,IWL,NUMT1,NUMT2,NUMT3,NUMT4,&
+   &NUMT5,NUMT6,NUMT7,NUMT8,NUMT9,NUMT10,TEMPHOLDER
+!
+   LOGICAL ODD,FOBB0 &
+   &,FOBB0X,FOBB0Y,IMFLAG
+!
+   COMMON/FFOOBB/FOBB0,FOBB0X,FOBB0Y
+!
+!     THE FOLLOWING VARIABLES TRACK THE REFERENCE SPHERE RADIUS
+!     AND THE "OTHER RAY INTERSECTION POINTS WITH THIS REFERENCE
+!     SPHERE
+!
+   REAL*8 JA,JB,XSPH,YSPH,ZSPH,RADSPH
+!
+   COMMON/REFSPR/XSPH,YSPH,ZSPH,RADSPH
+!
+   IF(DF2.EQ.1) CAFORWARD=.TRUE.
+   IF(DF2.EQ.0) CAFORWARD=.FALSE.
+!
+   JA=COS_A_ANG
+   JB=COS_B_ANG
+!
+   GRASET=.FALSE.
+!
+   IMFLAG=.FALSE.
+!
+   XUP=-1.0D10
+   YUP=-1.0D10
+   XLO=1.0D10
+   YLO=1.0D10
+!
+   IF(is_command_query().AND.TPT.EQ.1) THEN
+      OUTLYNE=&
+      &'"SPD" IS THE SPOT DIAGRAM COMMAND'
+      CALL SHOWIT(1)
+      RETURN
+   END IF
+!
+   IF(WC.NE.'ISPD'.AND.WC.NE.'ISPDA') THEN
+      IF(WQ.NE.'ISTAT'.AND.WQ.NE.'IPSTAT'.AND.TPT.EQ.1) THEN
+         IF(SST.EQ.1) THEN
+            OUTLYNE=&
+            &'"SPD (ACC) TAKES NO STRING INPUT'
+            CALL SHOWIT(1)
+            CALL REPORT_ERROR_AND_FAIL('RE-ENTER COMMAND', 1)
+            RETURN
+!       NO STRINGS PRESENT, PROCEED
+         END IF
+         IF(S4.EQ.1.OR.S5.EQ.1) THEN
+            OUTLYNE=&
+            &'"SPD (ACC)" TAKES NO NUMERIC WORD #4 OR #5 INPUT'
+            CALL SHOWIT(1)
+            OUTLYNE=&
+            &'RE-ENTER COMMAND'
+            CALL SHOWIT(1)
+            CALL MACFAL
+            RETURN
+         END IF
+         IF(WC.EQ.'SPD') THEN
+            IF(DF3.EQ.1) THEN
+               DF3=0
+               S3=1
+               SPDSURF=NEWIMG
+            ELSE
+!       DF3=0
+               IF(INT(W3).LT.NEWOBJ.OR.INT(W3).GT.NEWIMG) THEN
+                  WRITE(OUTLYNE,*) 'SPD SURFACE BEYOND LEGAL BOUNDS, NW3'
+                  CALL SHOWIT(1)
+                  CALL MACFAL
+                  RETURN
+               ELSE
+                  SPDSURF=INT(W3)
+               END IF
+            END IF
+         END IF
+         IF(S1.EQ.1) THEN
+            IF(W1.NE.1.0D0.AND.W1.NE.2.0D0.AND.W1.NE.3.0D0.AND.W1.NE.4.0D0 &
+            &.AND.W1.NE.5.0D0.AND.W1.NE.6.0D0.AND.W1.NE.7.0D0.AND.W1.NE.8.0D0 &
+            &.AND.W1.NE.9.0D0.AND.W1.NE.10.0D0) THEN
+               OUTLYNE=&
+               &'INVALID WAVELENGTH NUMBER ISSUED WITH THE LAST "SPD" COMMAND'
+               CALL SHOWIT(1)
+               OUTLYNE=&
+               &'RE-ENTER COMMAND'
+               CALL SHOWIT(1)
+               CALL MACFAL
+               RETURN
+            END IF
+         END IF
+      END IF
+      IF(WQ.EQ.'ISTAT'.AND.TPT.EQ.1.OR.WQ.EQ.'IPSTAT'.AND.TPT.EQ.1) THEN
+         IF(S5.EQ.1.OR.SST.EQ.1) THEN
+            OUTLYNE=&
+            &'"SPD (ISTAT OR IPSTAT) TAKES NO STRING OR NUMERIC WORD #5 INPUT'
+            CALL SHOWIT(1)
+            CALL REPORT_ERROR_AND_FAIL('RE-ENTER COMMAND', 1)
+            RETURN
+!       NO STRINGS PRESENT, PROCEED
+         END IF
+!
+!     CHECK FOR VALID RANGES AND DO DEFAULTS
+!     NW1
+         IF(DF1.EQ.1) W1=sys_last_surf()
+         IF(INT(W1).LE.0.OR.W1.GT.sys_last_surf()) THEN
+            OUTLYNE=&
+            &'SURFACE NUMBER BEYOND LEGAL BOUNDS'
+            CALL SHOWIT(1)
+            CALL REPORT_ERROR_AND_FAIL('RE-ENTER COMMAND', 1)
+            RETURN
+         ELSE
+            LSTIMG=NEWIMG
+            IMFLAG=.TRUE.
+            NEWIMG=INT(W1)
+         END IF
+!     NW2 AND NW3
+         IF(DF2.EQ.1) W2=0.0D0
+         IF(DF3.EQ.1) W3=90.0D0
+         IF(W2.GE.W3) THEN
+            OUTLYNE=&
+            &'STARTING ANGLE MUST BE LESS THAN ENDING ANGLE'
+            CALL SHOWIT(1)
+            CALL REPORT_ERROR_AND_FAIL('RE-ENTER COMMAND', 1)
+            RETURN
+         ELSE
+            STARANG=W2
+            ENDANG=W3
+         END IF
+!     NW4
+         IF(DF4.EQ.1) W4=(DABS(W3)-DABS(W2))/10.0D0
+         IF(DABS(W4).GE.(DABS(W3)-DABS(W2))) THEN
+            OUTLYNE=&
+            &'ANGLE INCREMENT TOO SMALL FOR SPECIFIED ANGLE RANGE'
+            CALL SHOWIT(1)
+            CALL REPORT_ERROR_AND_FAIL('RE-ENTER COMMAND', 1)
+            RETURN
+         ELSE
+!     NUMBER OF STEPS IS
+            NSTEP=IDNINT((DABS(W3)-DABS(W2))/W4)
+            IF(NSTEP.GT.100) THEN
+               OUTLYNE=&
+               &'THE MAXIMUM NUMBER OF STEPS IS 100'
+               CALL SHOWIT(1)
+               OUTLYNE=&
+               &'ANGLE INCREMENT YIELDS MORE THAN 100 STEPS'
+               CALL SHOWIT(1)
+               CALL REPORT_ERROR_AND_FAIL('RE-ENTER COMMAND', 1)
+               RETURN
+            END IF
+            DELANG=(DABS(W3)-DABS(W2))/DBLE(NSTEP)
+         END IF
+      END IF
+
+   END IF
+!
+   SPDEXT=.FALSE.
+!
+!     CHECK IF ALL SPECTRAL WEIGHTS ARE ZERO
+!
+   IF(sys_wl_weight(1).LE.0.0D0.AND.sys_wl_weight(2).LE.0.0D0 &
+   &.AND.sys_wl_weight(3).LE.0.0D0.AND.sys_wl_weight(4).LE.0.0D0 &
+   &.AND.sys_wl_weight(5).LE.0.0D0 &
+   &.AND.sys_wl_weight(6).LE.0.0D0.AND.sys_wl_weight(7).LE.0.0D0 &
+   &.AND.sys_wl_weight(8).LE.0.0D0.AND.sys_wl_weight(9).LE.0.0D0 &
+   &.AND.sys_wl_weight(10).LE.0.0D0) THEN
+!
+      IF(TPT.EQ.1) THEN
+         OUTLYNE='ALL SPECTRAL WEIGHTS ARE ZERO'
+         CALL SHOWIT(1)
+         OUTLYNE='NO SPOT DIAGRAM WAS CREATED'
+         CALL SHOWIT(1)
+      END IF
+      SPDEXT=.FALSE.
+      CALL MACFAL
+      RETURN
+   ELSE
+!
+!       NOT ALL SPECTRAL WEIGHTS ZERO, CALCULATE NUMBER OF RAYS MAXIMUM
+!       PER WAVELENGTH ASSUMING SPECTRAL WEIGHTS NOT ZERO
+!
+!      OPEN FOR INPUT
+!
+      SPT1=sys_wl_weight(1)
+      SPT2=sys_wl_weight(2)
+      SPT3=sys_wl_weight(3)
+      SPT4=sys_wl_weight(4)
+      SPT5=sys_wl_weight(5)
+      SPT6=sys_wl_weight(6)
+      SPT7=sys_wl_weight(7)
+      SPT8=sys_wl_weight(8)
+      SPT9=sys_wl_weight(9)
+      SPT10=sys_wl_weight(10)
+   END IF
+!
+   IF(TPT.EQ.1) THEN
+      IF(SPDTYPE.EQ.1) THEN
+         IW=NRECT
+         IWIW=NRECT**2
+      END IF
+      IF(SPDTYPE.EQ.2) THEN
+         IW=0
+         IWIW=0
+         DO I=0,RINGTOT
+            IWIW=IWIW+RINGPNT(I)
+         END DO
+      END IF
+      IF(SPDTYPE.EQ.3) THEN
+         IW=0
+         IWIW=RNUMBR
+      END IF
+   END IF
+   IF(TPT.EQ.2) THEN
+      IF(OPSPDTYPE.EQ.1) THEN
+         IW=OPNRECT
+         IWIW=OPNRECT**2
+      END IF
+      IF(OPSPDTYPE.EQ.2) THEN
+         IW=0
+         IWIW=0
+         DO I=0,OPRINGTOT
+            IWIW=IWIW+OPRINGPNT(I)
+         END DO
+      END IF
+      IF(OPSPDTYPE.EQ.3) THEN
+         IW=0
+         IWIW=OPRNUMBR
+      END IF
+   END IF
+   SPT1=sys_wl_weight(1)
+   SPT2=sys_wl_weight(2)
+   SPT3=sys_wl_weight(3)
+   SPT4=sys_wl_weight(4)
+   SPT5=sys_wl_weight(5)
+   SPT6=sys_wl_weight(6)
+   SPT7=sys_wl_weight(7)
+   SPT8=sys_wl_weight(8)
+   SPT9=sys_wl_weight(9)
+   SPT10=sys_wl_weight(10)
+   TEMPHOLDER=0
+   IF(SPT1.NE.0.0D0) TEMPHOLDER=TEMPHOLDER+1
+   IF(SPT2.NE.0.0D0) TEMPHOLDER=TEMPHOLDER+1
+   IF(SPT3.NE.0.0D0) TEMPHOLDER=TEMPHOLDER+1
+   IF(SPT4.NE.0.0D0) TEMPHOLDER=TEMPHOLDER+1
+   IF(SPT5.NE.0.0D0) TEMPHOLDER=TEMPHOLDER+1
+   IF(SPT6.NE.0.0D0) TEMPHOLDER=TEMPHOLDER+1
+   IF(SPT7.NE.0.0D0) TEMPHOLDER=TEMPHOLDER+1
+   IF(SPT8.NE.0.0D0) TEMPHOLDER=TEMPHOLDER+1
+   IF(SPT9.NE.0.0D0) TEMPHOLDER=TEMPHOLDER+1
+   IF(SPT10.NE.0.0D0) TEMPHOLDER=TEMPHOLDER+1
+   IWIW2=IWIW*TEMPHOLDER
+!     DEALLOCATE DSPOTT
+   CALL SPOTIT(1)
+!     ALLOCATE DSPOTT
+   NDSPOTT=IWIW2
+   CALL SPOTIT(2)
+   LSF=.FALSE.
+!
+!       THE LAST FOB INPUT VALUES ARE STORED IN CHLFOB AND
+!       THE ARRAY LFOB(1:7).
+!
+!       NOTE: DSPOT#(12) IS A RAW, UN-NORMALIZED
+!       RAY ENERGY TERM BUT IS LATER (WHEN SPA IS CALC.) NORMALIZED
+!       TO A FRACTIONAL ENERGY TERM BY DIVISION BY THE WEIGHTING
+!       TERM TOT.
+   IF(ITRACE) TCLPRF=.FALSE.
+   IF(.NOT.ITRACE) THEN
+!     DOES THE NEWREF SURFACE HAVE A CLAP ON IT ?
+      TCLPRF=.FALSE.
+      IF(TPT.EQ.1) THEN
+!
+         IF(surf_clap_type(NEWREF) == 0.OR.surf_array_parity(NEWREF) /= 0) THEN
+            IF(SPDTYPE.EQ.1) THEN
+!     RECT SPOT
+!     ASSIGN A TEMPORARY CIRCULAR CLAP
+               call set_surf_clap_type(NEWREF, 1)
+               IF(PXTRAY(1,NEWREF).GT.PXTRAX(1,NEWREF)) THEN
+                  call set_surf_clap_dim(NEWREF, 1, PXTRAY(1,NEWREF))
+                  call set_surf_clap_dim(NEWREF, 2, surf_clap_dim(NEWREF, 1))
+               ELSE
+                  call set_surf_clap_dim(NEWREF, 1, PXTRAX(1,NEWREF))
+                  call set_surf_clap_dim(NEWREF, 2, surf_clap_dim(NEWREF, 1))
+               END IF
+               call set_surf_clap_dim(NEWREF, 3, 0.0D0)
+               call set_surf_clap_dim(NEWREF, 4, 0.0D0)
+               call set_surf_clap_dim(NEWREF, 5, 0.0D0)
+               call set_surf_clap_tilt(NEWREF, 0.0D0)
+               TCLPRF=.TRUE.
+!
+               IF(WQ.NE.'ACC') THEN
+                  IF(F28.EQ.1.OR.F31.EQ.1) MSGSPD=.FALSE.
+                  IF(MSGSPD)WRITE(OUTLYNE,301) PXTRAX(1,NEWREF),PXTRAY(1,NEWREF)
+                  IF(MSGSPD) CALL SHOWIT(0)
+                  IF(MSGSPD)WRITE(OUTLYNE,*)&
+                  &'(X x Y), HAS BEEN ASSIGNED TO THE REFERENCE SURFACE'
+                  IF(MSGSPD) CALL SHOWIT(0)
+                  IF(MSGSPD)WRITE(OUTLYNE,*)&
+                  &'FOR THE CURRENT SPOT DIAGRAM CALCULATIONS'
+                  IF(MSGSPD) CALL SHOWIT(0)
+301               FORMAT('TEMPORARY CIRCULAR CLEAR APERTURE = '&
+                  &,G11.4,' X ',G11.4)
+               END IF
+!     SPDTYPE NOT 1 FOR RECT
+            END IF
+            IF(SPDTYPE.EQ.2) THEN
+!     RING SPOT
+!     ASSIGN A TEMPORARY CIRCULAR CLAP
+               call set_surf_clap_type(NEWREF, 1)
+               IF(PXTRAY(1,NEWREF).GT.PXTRAX(1,NEWREF)) THEN
+                  call set_surf_clap_dim(NEWREF, 1, PXTRAY(1,NEWREF))
+                  call set_surf_clap_dim(NEWREF, 2, surf_clap_dim(NEWREF, 1))
+               ELSE
+                  call set_surf_clap_dim(NEWREF, 1, PXTRAX(1,NEWREF))
+                  call set_surf_clap_dim(NEWREF, 2, surf_clap_dim(NEWREF, 1))
+               END IF
+               call set_surf_clap_dim(NEWREF, 3, 0.0D0)
+               call set_surf_clap_dim(NEWREF, 4, 0.0D0)
+               call set_surf_clap_dim(NEWREF, 5, 0.0D0)
+               call set_surf_clap_tilt(NEWREF, 0.0D0)
+               TCLPRF=.TRUE.
+!
+               IF(WQ.NE.'ACC') THEN
+                  IF(F28.EQ.1.OR.F31.EQ.1) MSGSPD=.FALSE.
+                  IF(MSGSPD)WRITE(OUTLYNE,3010) PXTRAX(1,NEWREF),PXTRAY(1,NEWREF)
+                  IF(MSGSPD) CALL SHOWIT(0)
+                  IF(MSGSPD)WRITE(OUTLYNE,*)&
+                  &'(X x Y), HAS BEEN ASSIGNED TO THE REFERENCE SURFACE'
+                  IF(MSGSPD) CALL SHOWIT(0)
+                  IF(MSGSPD)WRITE(OUTLYNE,*)&
+                  &'FOR THE CURRENT SPOT DIAGRAM CALCULATIONS'
+                  IF(MSGSPD) CALL SHOWIT(0)
+3010              FORMAT('TEMPORARY CIRCULAR CLEAR APERTURE = '&
+                  &,G11.4,' X ',G11.4)
+               END IF
+!     SPDTYPE NOT 2 FOR RING
+            END IF
+            IF(SPDTYPE.EQ.3) THEN
+!     RAND SPOT
+!     ASSIGN A TEMPORARY CIRCULAR CLAP
+               call set_surf_clap_type(NEWREF, 1)
+               IF(PXTRAY(1,NEWREF).GT.PXTRAX(1,NEWREF)) THEN
+                  call set_surf_clap_dim(NEWREF, 1, PXTRAY(1,NEWREF))
+                  call set_surf_clap_dim(NEWREF, 2, surf_clap_dim(NEWREF, 1))
+               ELSE
+                  call set_surf_clap_dim(NEWREF, 1, PXTRAX(1,NEWREF))
+                  call set_surf_clap_dim(NEWREF, 2, surf_clap_dim(NEWREF, 1))
+               END IF
+               call set_surf_clap_dim(NEWREF, 3, 0.0D0)
+               call set_surf_clap_dim(NEWREF, 4, 0.0D0)
+               call set_surf_clap_dim(NEWREF, 5, 0.0D0)
+               call set_surf_clap_tilt(NEWREF, 0.0D0)
+               TCLPRF=.TRUE.
+!
+               IF(WQ.NE.'ACC') THEN
+                  IF(F28.EQ.1.OR.F31.EQ.1) MSGSPD=.FALSE.
+                  IF(MSGSPD)WRITE(OUTLYNE,301) PXTRAX(1,NEWREF),PXTRAY(1,NEWREF)
+                  IF(MSGSPD) CALL SHOWIT(0)
+                  IF(MSGSPD)WRITE(OUTLYNE,*)&
+                  &'(X x Y), HAS BEEN ASSIGNED TO THE REFERENCE SURFACE'
+                  IF(MSGSPD) CALL SHOWIT(0)
+                  IF(MSGSPD)WRITE(OUTLYNE,*)&
+                  &'FOR THE CURRENT SPOT DIAGRAM CALCULATIONS'
+                  IF(MSGSPD) CALL SHOWIT(0)
+               END IF
+!     SPDTYPE NOT 3 FOR RAND
+            END IF
+!     THERE WAS A CLEAR APERTURE, USE ITS VALUES
+         END IF
+      END IF
+!
+      IF(TPT.EQ.2) THEN
+         IF(surf_clap_type(NEWREF) == 0.OR.surf_array_parity(NEWREF) /= 0) THEN
+            IF(OPSPDTYPE.EQ.1) THEN
+!     RECT SPOT
+!     ASSIGN A TEMPORARY CIRCULAR CLAP
+               call set_surf_clap_type(NEWREF, 1)
+               IF(PXTRAY(1,NEWREF).GT.PXTRAX(1,NEWREF)) THEN
+                  call set_surf_clap_dim(NEWREF, 1, PXTRAY(1,NEWREF))
+                  call set_surf_clap_dim(NEWREF, 2, surf_clap_dim(NEWREF, 1))
+               ELSE
+                  call set_surf_clap_dim(NEWREF, 1, PXTRAX(1,NEWREF))
+                  call set_surf_clap_dim(NEWREF, 2, surf_clap_dim(NEWREF, 1))
+               END IF
+               call set_surf_clap_dim(NEWREF, 3, 0.0D0)
+               call set_surf_clap_dim(NEWREF, 4, 0.0D0)
+               call set_surf_clap_dim(NEWREF, 5, 0.0D0)
+               call set_surf_clap_tilt(NEWREF, 0.0D0)
+               TCLPRF=.TRUE.
+!     OPSPDTYPE NOT 1 FOR RECT
+            END IF
+            IF(OPSPDTYPE.EQ.2) THEN
+!     RING SPOT
+!     ASSIGN A TEMPORARY CIRCULAR CLAP
+               call set_surf_clap_type(NEWREF, 1)
+               IF(PXTRAY(1,NEWREF).GT.PXTRAX(1,NEWREF)) THEN
+                  call set_surf_clap_dim(NEWREF, 1, PXTRAY(1,NEWREF))
+                  call set_surf_clap_dim(NEWREF, 2, surf_clap_dim(NEWREF, 1))
+               ELSE
+                  call set_surf_clap_dim(NEWREF, 1, PXTRAX(1,NEWREF))
+                  call set_surf_clap_dim(NEWREF, 2, surf_clap_dim(NEWREF, 1))
+               END IF
+               call set_surf_clap_dim(NEWREF, 3, 0.0D0)
+               call set_surf_clap_dim(NEWREF, 4, 0.0D0)
+               call set_surf_clap_dim(NEWREF, 5, 0.0D0)
+               call set_surf_clap_tilt(NEWREF, 0.0D0)
+               TCLPRF=.TRUE.
+!     OPSPDTYPE NOT 2 FOR RING
+            END IF
+            IF(OPSPDTYPE.EQ.3) THEN
+!     RAND SPOT
+!     ASSIGN A TEMPORARY CIRCULAR CLAP
+               call set_surf_clap_type(NEWREF, 1)
+               IF(PXTRAY(1,NEWREF).GT.PXTRAX(1,NEWREF)) THEN
+                  call set_surf_clap_dim(NEWREF, 1, PXTRAY(1,NEWREF))
+                  call set_surf_clap_dim(NEWREF, 2, surf_clap_dim(NEWREF, 1))
+               ELSE
+                  call set_surf_clap_dim(NEWREF, 1, PXTRAX(1,NEWREF))
+                  call set_surf_clap_dim(NEWREF, 2, surf_clap_dim(NEWREF, 1))
+               END IF
+               call set_surf_clap_dim(NEWREF, 3, 0.0D0)
+               call set_surf_clap_dim(NEWREF, 4, 0.0D0)
+               call set_surf_clap_dim(NEWREF, 5, 0.0D0)
+               call set_surf_clap_tilt(NEWREF, 0.0D0)
+               TCLPRF=.TRUE.
+!     OPSPDTYPE NOT 3 FOR RAND
+            END IF
+!     THERE WAS A CLEAR APERTURE, USE ITS VALUES
+         END IF
+      END IF
+!
+!     DECIDE HOW TO HANDLE ODD VERSUS EVEN GRIDS AS FAR AS RAY
+!     SPACINGS ARE CONCERNED (ONLY FOR RECT TYPE SPOT)
+!
+      IF(TPT.EQ.1) THEN
+         IF(SPDTYPE.EQ.1) THEN
+!     RECT
+!       IS IW ODD OR EVEN
+            FRACA=DABS(DBLE(IW)/2.0D0)
+            FRACB=DABS(DBLE(INT(DBLE(IW)/2.0D0)))
+            FRAC=FRACA-FRACB
+            IF(FRAC.GT.0.0D0) THEN
+               ODD=.TRUE.
+            ELSE
+               ODD=.FALSE.
+            END IF
+!     RING OR RANNUM
+         END IF
+      END IF
+      IF(TPT.EQ.2) THEN
+         IF(OPSPDTYPE.EQ.1) THEN
+!     RECT
+!       IS IW ODD OR EVEN
+            FRACA=DABS(DBLE(IW)/2.0D0)
+            FRACB=DABS(DBLE(INT(DBLE(IW)/2.0D0)))
+            FRAC=FRACA-FRACB
+            IF(FRAC.GT.0.0D0) THEN
+               ODD=.TRUE.
+            ELSE
+               ODD=.FALSE.
+            END IF
+!     RING OR RANNUM
+         END IF
+      END IF
+   ELSE
+!     NOT ITRACE
+   END IF
+!
+!       IWL COUNTS THROUGH THE 10 WAVELENGTH NUMBERS
+   I=1
+   DO IWL=1,10
+      SPT=sys_wl_weight(IWL)
+      IF(SPT.GT.0.0D0) THEN
+!     ONLY TRACE RAYS FOR NON-ZERO SPECTRAL WEIGHTS
+!       TRACE RAYS AT THAT WAVELENGTH
+!
+         IF(TPT.EQ.1) THEN
+            IF(SPDTYPE.EQ.1) THEN
+!     RECT
+               IF(ODD) THEN
+                  NSTART1 = -DBLE(NRECT)/2.0D0
+                  NDEL1   = DBLE(NRECT)/(DBLE(NRECT)-1.0D0)
+                  NSTOP1  =  (DBLE(NRECT)/2.0D0)+(0.0001D0*NDEL1)
+                  NSTART2 = -DBLE(NRECT)/2.0D0
+                  NDEL2   = DBLE(NRECT)/(DBLE(NRECT)-1.0D0)
+                  NSTOP2  =  (DBLE(NRECT)/2.0D0)+(0.0001D0*NDEL2)
+               ELSE
+!       NRECT IS EVEN
+                  NSTART1 = -DBLE(NRECT)/2.0D0
+                  NDEL1   =DBLE(NRECT)/(DBLE(NRECT)-1.0D0)
+                  NSTOP1  =  (DBLE(NRECT)/2.0D0)+(0.0001D0*NDEL1)
+                  NSTART2 = -DBLE(NRECT)/2.0D0
+                  NDEL2   =DBLE(NRECT)/(DBLE(NRECT)-1.0D0)
+                  NSTOP2  =  (DBLE(NRECT)/2.0D0)+(0.0001D0*NDEL2)
+               END IF
+!     NOT RECT
+            END IF
+            IF(SPDTYPE.EQ.3) THEN
+!     RANNUM
+               NSTART1 = 1.0D0
+               NDEL1   = 1.0D0
+               NSTOP1  = DBLE(RNUMBR)+0.0001D0
+               NSTART2 = 1.0D0
+               NDEL2   = 1.0D0
+               NSTOP2  = 1.0001D0
+!     NOT RANNUM
+            END IF
+            IF(SPDTYPE.EQ.2) THEN
+!     RING STRUCTURE
+!     TOTAL NUMBER OF RINGS IS RINGTOT WHICH MAY BE MAX = 50
+!     ARRAY RINGRAD(I) CONTAINS DAT FOR RINGS RADIUS
+!     I COUNTS THE RING
+!     ARRAY RINGPNT(I) HAS DATA FOR POINTS ON RING I
+!     ARRAY RINGANG(I) HAS DATA FOR ANGLE OFFSET ON RING I
+!     RINGRAD(1:50),RINGPNT(1:50),RINGANG(1:50),RINGTOT
+            END IF
+         END IF
+         IF(TPT.EQ.2) THEN
+            IF(OPSPDTYPE.EQ.1) THEN
+!     RECT
+               IF(ODD) THEN
+                  NSTART1 = -DBLE(OPNRECT)/2.0D0
+                  NDEL1   = DBLE(OPNRECT)/(DBLE(OPNRECT)-1.0D0)
+                  NSTOP1  =  (DBLE(OPNRECT)/2.0D0)+(0.0001D0*NDEL1)
+                  NSTART2 = -DBLE(OPNRECT)/2.0D0
+                  NDEL2   = DBLE(OPNRECT)/(DBLE(OPNRECT)-1.0D0)
+                  NSTOP2  =  (DBLE(OPNRECT)/2.0D0)+(0.0001D0*NDEL2)
+               ELSE
+!       NRECT IS EVEN
+                  NSTART1 = -DBLE(OPNRECT)/2.0D0
+                  NDEL1   =DBLE(OPNRECT)/(DBLE(OPNRECT)-1.0D0)
+                  NSTOP1  =  (DBLE(OPNRECT)/2.0D0)+(0.0001D0*NDEL1)
+                  NSTART2 = -DBLE(OPNRECT)/2.0D0
+                  NDEL2   =DBLE(OPNRECT)/(DBLE(OPNRECT)-1.0D0)
+                  NSTOP2  =  (DBLE(OPNRECT)/2.0D0)+(0.0001D0*NDEL2)
+               END IF
+!     NOT RECT
+            END IF
+            IF(OPSPDTYPE.EQ.3) THEN
+!     RANNUM
+               NSTART1 = 1.0D0
+               NDEL1   = 1.0D0
+               NSTOP1  = DBLE(OPRNUMBR)+0.0001D0
+               NSTART2 = 1.0D0
+               NDEL2   = 1.0D0
+               NSTOP2  = 1.0001D0
+!     NOT RANNUM
+            END IF
+            IF(OPSPDTYPE.EQ.2) THEN
+!     RING STRUCTURE
+!     TOTAL NUMBER OF RINGS IS RINGTOT WHICH MAY BE MAX = 50
+!     ARRAY OPRINGRAD(I) CONTAINS DAT FOR RINGS RADIUS
+!     I COUNTS THE RING
+!     ARRAY OPRINGPNT(I) HAS DATA FOR POINTS ON RING I
+!     ARRAY OPRINGANG(I) HAS DATA FOR ANGLE OFFSET ON RING I
+!     OPRINGRAD(1:50),OPRINGPNT(1:50),OPRINGANG(1:50),OPRINGTOT
+            END IF
+         END IF
+         IF(SPT.NE.0.0D0) THEN
+            IF(WQ.NE.'ACC'.AND.TPT.EQ.1) THEN
+               IF(F28.EQ.0.AND.F31.EQ.0) WRITE(OUTLYNE,200)IWIW,IWL
+               IF(F28.EQ.0.AND.F31.EQ.0) CALL SHOWIT(0)
+            END IF
+         END IF
+200      FORMAT('TRACING ',I10,' RAYS AT WAVELENGTH ',I1)
+!
+         IF(SPDTYPE.NE.2.AND.TPT.EQ.1.OR.OPSPDTYPE.NE.2.AND.TPT.EQ.2) THEN
+!     SPOT IS RECT OR RANNUM
+!
+            DO IY=NSTART1,NSTOP1,NDEL1
+               DO IX=NSTART2,NSTOP2,NDEL2
+                  I=I+1
+!       THE CALL TO RAYTRA2 HAS INPUTS:
+!               QUALIFIER
+                  IF(CAFORWARD) WWQ='CAOB'
+                  IF(.NOT.CAFORWARD) WWQ='        '
+                  IF(SPDTYPE.EQ.1.AND.TPT.EQ.1.OR.OPSPDTYPE.EQ.1.AND.TPT.EQ.2) THEN
+!     RECT
+!       WW1 IS Y THE RELATIVE APERTURE HT OF THE RAY
+!               WW1
+                     IF(TPT.EQ.1) WW1=((2.0D0/DBLE(NRECT))*((IY)))
+                     IF(TPT.EQ.2) WW1=((2.0D0/DBLE(OPNRECT))*((IY)))
+!       WW2 IS X THE RELATIVE APERTURE HT OF THE RAY
+!               WW2
+                     IF(TPT.EQ.1) WW2=((2.0D0/DBLE(NRECT))*((IX)))
+                     IF(TPT.EQ.2) WW2=((2.0D0/DBLE(OPNRECT))*((IX)))
+                  END IF
+                  IF(SPDTYPE.EQ.3.AND.TPT.EQ.1.OR.OPSPDTYPE.EQ.3.AND.TPT.EQ.2) THEN
+!     RANDOM SPOT
+!
+!       NOW CALCULATE PSEUDO-RANDOM NUMBER
+!
+!       WW1 IS Y THE RELATIVE APERTURE HT OF THE RAY
+                     IF(.NOT.ITRACE) CALL RANDGET(RESLT)
+                     IF(.NOT.ITRACE) RANDX=(2.0D0*DBLE(RESLT))-1.0D0
+                     IF(ITRACE) CALL RANDGET(RESLT)
+                     IF(ITRACE) RANDX=DBLE(RESLT)
+!               WW1
+                     WW1=RANDX
+!       WW2 IS X THE RELATIVE APERTURE HT OF THE RAY
+                     IF(.NOT.ITRACE) CALL RANDGET(RESLT)
+                     IF(.NOT.ITRACE) RANDX=(2.0D0*DBLE(RESLT))-1.0D0
+                     IF(ITRACE) CALL RANDGET(RESLT)
+                     IF(ITRACE) RANDX=DBLE(RESLT)
+!               WW2
+                     WW2=RANDX
+                  END IF
+!               WW3
+                  WW3=IWL
+                  WVN=IWL
+                  IF(ITRACE) THEN
+!     CONVERT WW1 AND WW2 TO EL AND AZ ANGLES
+!     RANDOM EL FROM 0 TO ELMAX
+!     RANDOM AZ FROM 0 TO 360
+                     WW1=WW1*ELMAX
+                     WW2=WW2*360.0D0
+                  END IF
+!               CACOCH IS SET TO 1 FOR SPOT DIAGRAMS
+                  IF(CAFORWARD) CACOCH = 1
+                  IF(.NOT.CAFORWARD) CACOCH = 0
+                  SPDTRA=.TRUE.
+                  MSG = .FALSE.
+                  STOPP=0
+!
+! THE NEWOBJ,NEWREF AND NEWIMG ARE SET BY FOB
+!       TRACE RAY AND RETURN
+                  DSPOT(1:60)=0.0D0
+                  DSPOT(40)=IX
+                  DSPOT(41)=NDEL1
+                  DSPOT(42)=IY
+                  DSPOT(43)=NDEL2
+                  WW4=1.0D0
+                  NOCOAT=.FALSE.
+                  GRASET=.FALSE.
+                  DXFSET=.FALSE.
+                  CALL RAYTRA2
+                  SPDCD1=RAYCOD(1)
+                  SPDCD2=RAYCOD(2)
+                  IF(.NOT.CAFORWARD) CALL REVERSECA
+                  DSPOT(36)=0.0D0
+                  IF(REFMISS) THEN
+                     DSPOT(36)=1.0D0
+                  END IF
+                  CACOCH=0
+                  DSPOT(7)=DBLE(SPDCD1)
+                  DSPOT(8)=DBLE(SPDCD2)
+                  IF(DSPOT(7).NE.0.0D0) THEN
+                     GO TO 1941
+                  END IF
+                  SPDTRA=.FALSE.
+                  DSPOT(1)=RAYRAY(1,NEWIMG)
+                  DSPOT(2)=RAYRAY(2,NEWIMG)
+                  DSPOT(3)=RAYRAY(3,NEWIMG)
+                  DSPOT(45)=RAYRAY(1,SPDSURF)
+                  DSPOT(46)=RAYRAY(2,SPDSURF)
+                  DSPOT(47)=RAYRAY(3,SPDSURF)
+                  DSPOT(48)=RAYRAY(4,SPDSURF)
+                  DSPOT(49)=RAYRAY(5,SPDSURF)
+                  DSPOT(50)=RAYRAY(6,SPDSURF)
+                  DSPOT(51)=RAYRAY(9,SPDSURF)
+!     RAY SLOPES
+                  X=RAYRAY(11,NEWIMG)
+                  Y=RAYRAY(12,NEWIMG)
+                  CALL SLOPES
+                  DSPOT(9)=X
+                  DSPOT(10)=Y
+!
+                  DSPOT(11)=RAYRAY(25,NEWIMG)
+!
+                  IF(APODGAUSS) THEN
+                     APODX2=-DLOG(10.0D0**(-DABS(APODDBLOSS)/10.0D0))
+                     APODR2=(WW1**2)+(WW2**2)
+                     DSPOT(11)=DSPOT(11)*DEXP(-APODX2*APODR2)
+                  END IF
+!       NOW CALCULATE THE RAY ENERGY TERM
+!     THIS IS SPECTRAL WEIGHT TIMES APODIZATION FACTOR FOR THIS RAY
+!
+                  DSPOT(12)=(SPT*DSPOT(11))
+                  IF(DSPOT(7).NE.0.0D0) DSPOT(12)=0.0D0
+                  DSPOT(37)=DSPOT(12)*RAYRAY(9,NEWIMG)
+                  DSPOT(38)=REFRY(9,NEWIMG)
+                  DSPOT(39)=RAYRAY(9,NEWIMG)
+                  DSPOT(44)=RAYRAY(9,NEWREF)
+                  IF(DSPOT(12).NE.0.0D0) THEN
+                     IF(sys_mode().LE.2.0D0) THEN
+                        IF(DSPOT(1).GT.XUP) XUP=DSPOT(1)
+                        IF(DSPOT(2).GT.YUP) YUP=DSPOT(2)
+                        IF(DSPOT(1).LT.XLO) XLO=DSPOT(1)
+                        IF(DSPOT(2).LT.YLO) YLO=DSPOT(2)
+                     ELSE
+                        IF(DSPOT(9).GT.XUP) XUP=DSPOT(9)
+                        IF(DSPOT(10).GT.YUP) YUP=DSPOT(10)
+                        IF(DSPOT(9).LT.XLO) XLO=DSPOT(9)
+                        IF(DSPOT(10).LT.YLO) YLO=DSPOT(10)
+                     END IF
+                  END IF
+!       KEEP TRACK OF THE TOTAL OPL ALONE THE RAY FROM NEWOBJ TO NEWI
+                  DSPOT(13)=RAYRAY(22,NEWIMG)
+!               J=14 X RAY COORD AT TANGENT PLANE OF NEWOBJ+1
+                  DSPOT(14)=RAYRAY(1,NEWOBJ+1)
+!               J=15 Y RAY COORD AT TANGENT PLANE OF NEWOBJ+1
+                  DSPOT(15)=RAYRAY(2,NEWOBJ+1)
+!               J=5 X COORD OF RAY AT NEWREF
+                  DSPOT(5)=RAYRAY(1,NEWREF)
+!               J=6 Y COORD OF RAY AT NEWREF
+                  DSPOT(6)=RAYRAY(2,NEWREF)
+!
+!
+                  OOPD=0.0D0
+                  DSPOT(4)=OOPD
+                  DSPOT(16)=DBLE(IWL)
+                  DSPOT(17)=sys_wl_weight(IWL)
+                  DSPOT(18)=RAYRAY(3,NEWOBJ+1)
+                  DSPOT(19)=RAYRAY(19,NEWOBJ+1)
+                  DSPOT(20)=RAYRAY(20,NEWOBJ+1)
+                  DSPOT(21)=RAYRAY(21,NEWOBJ+1)
+                  DSPOT(22)=RAYRAY(19,NEWIMG)
+                  DSPOT(23)=RAYRAY(20,NEWIMG)
+                  DSPOT(24)=RAYRAY(21,NEWIMG)
+                  DSPOT(25)=RAYRAY(9,NEWIMG)
+                  DSPOT(26)=RAYRAY(10,NEWIMG)
+                  DSPOT(27)=RAYRAY(1,NEWIMG-1)
+                  DSPOT(28)=RAYRAY(2,NEWIMG-1)
+                  DSPOT(29)=RAYRAY(3,NEWIMG-1)
+                  DSPOT(30)=RAYRAY(19,NEWIMG-1)
+                  DSPOT(31)=RAYRAY(20,NEWIMG-1)
+                  DSPOT(32)=RAYRAY(21,NEWIMG-1)
+!
+1941              CONTINUE
+!     LOAD THE DSOPT ARRAY INTO DSPOTT(ID,*)
+                  ID=I-1
+                  CALL SPOTIT(3)
+               END DO
+            END DO
+         ELSE
+!     SPOT WAS RING
+!     DO RING TRACE HERE
+!     RINGRAD WAS INPUT AS A FRACTIONAL REFERENCE SURFACE COORDINATE
+!     AND IS STORED AS SUCH. IF THE REF AP HTS ARE DIFFERENT,
+!     RAY AIMING WILL BE IN AN ELLIPTICAL RATHER THAN A CIRCULAR RING
+!     BECAUSE OF THE FRACTIONAL RAY AIMING IN RAYTRA2.FOR
+            IF(TPT.EQ.1) RINGTOT1=RINGTOT
+            IF(TPT.EQ.2) RINGTOT1=OPRINGTOT
+            DO JJ=0,RINGTOT1
+!     THIS LOOPS FOR THE RINGS
+               IF(JJ.EQ.0) RRAD=0.0D0
+               IF(JJ.EQ.0) RPNT=1
+               IF(JJ.NE.0.AND.TPT.EQ.1) RRAD=RINGRAD(JJ)
+               IF(JJ.NE.0.AND.TPT.EQ.2) RRAD=OPRINGRAD(JJ)
+               IF(JJ.NE.0.AND.TPT.EQ.1) RPNT=RINGPNT(JJ)
+               IF(JJ.NE.0.AND.TPT.EQ.2) RPNT=OPRINGPNT(JJ)
+!     THIS LOOPS THROUGH THE POINTS IN EACH RING
+               DO K=1,RPNT
+                  IF(JJ.EQ.0) RRANG=0.0D0
+                  IF(JJ.NE.0) THEN
+                     IF(TPT.EQ.1) RRANG=((TWOPII)/360.0D0)*RINGANG(JJ)&
+                     &+(DBLE(K-1)*((TWOPII)/DBLE(RINGPNT(JJ))))
+                     IF(TPT.EQ.2) RRANG=((TWOPII)/360.0D0)*OPRINGANG(JJ)&
+                     &+(DBLE(K-1)*((TWOPII)/DBLE(OPRINGPNT(JJ))))
+                  END IF
+                  WW1=RRAD*DSIN(RRANG)
+                  WW2=RRAD*DCOS(RRANG)
+                  I=I+1
+!
+!       THE CALL TO RAYTRA2 HAS INPUTS:
+!               QUALIFIER
+                  IF(CAFORWARD) WWQ='CAOB'
+                  IF(.NOT.CAFORWARD) WWQ='        '
+!               WW3
+                  WW3=IWL
+                  WVN=IWL
+!               CACOCH IS SET TO 1 FOR SPOT DIAGRAMS
+                  IF(CAFORWARD) CACOCH = 1
+                  IF(.NOT.CAFORWARD) CACOCH = 0
+                  SPDTRA=.TRUE.
+                  MSG = .FALSE.
+                  STOPP=0
+!
+! THE NEWOBJ,NEWREF AND NEWIMG ARE SET BY FOB
+!       TRACE RAY AND RETURN
+                  DSPOT(1:60)=0.0D0
+                  WW4=1.0D0
+                  NOCOAT=.FALSE.
+                  GRASET=.FALSE.
+                  DXFSET=.FALSE.
+                  CALL RAYTRA2
+                  SPDCD1=RAYCOD(1)
+                  SPDCD2=RAYCOD(2)
+                  IF(.NOT.CAFORWARD) CALL REVERSECA
+                  CACOCH=0
+                  DSPOT(7)=DBLE(SPDCD1)
+                  DSPOT(8)=DBLE(SPDCD2)
+                  IF(DSPOT(7).NE.0.0D0) GO TO 1942
+                  SPDTRA=.FALSE.
+                  DSPOT(1)=RAYRAY(1,NEWIMG)
+                  DSPOT(2)=RAYRAY(2,NEWIMG)
+                  DSPOT(3)=RAYRAY(3,NEWIMG)
+                  DSPOT(45)=RAYRAY(1,SPDSURF)
+                  DSPOT(46)=RAYRAY(2,SPDSURF)
+                  DSPOT(47)=RAYRAY(3,SPDSURF)
+                  DSPOT(48)=RAYRAY(4,SPDSURF)
+                  DSPOT(49)=RAYRAY(5,SPDSURF)
+                  DSPOT(50)=RAYRAY(6,SPDSURF)
+                  DSPOT(51)=RAYRAY(9,SPDSURF)
+!     RAY SLOPES
+                  X=RAYRAY(11,NEWIMG)
+                  Y=RAYRAY(12,NEWIMG)
+                  CALL SLOPES
+                  DSPOT(9)=X
+                  DSPOT(10)=Y
+!
+                  DSPOT(11)=RAYRAY(25,NEWIMG)
+!
+                  IF(APODGAUSS) THEN
+                     APODX2=-DLOG(10.0D0**(-DABS(APODDBLOSS)/10.0D0))
+                     APODR2=(WW1**2)+(WW2**2)
+                     DSPOT(11)=DSPOT(11)*DEXP(-APODX2*APODR2)
+                  END IF
+!       NOW CALCULATE THE RAY ENERGY TERM
+!     THIS IS SPECTRAL WEIGHT TIMES APODIZATION FACTOR FOR THIS RAY
+!
+                  DSPOT(12)=(SPT*DSPOT(11))
+                  IF(DSPOT(7).NE.0.0D0) DSPOT(12)=0.0D0
+                  DSPOT(37)=DSPOT(12)*RAYRAY(9,NEWIMG)
+                  DSPOT(38)=REFRY(9,NEWIMG)
+                  DSPOT(39)=RAYRAY(9,NEWIMG)
+                  DSPOT(44)=RAYRAY(9,NEWREF)
+                  IF(DSPOT(12).NE.0.0D0) THEN
+                     IF(sys_mode().LE.2.0D0) THEN
+                        IF(DSPOT(1).GT.XUP) XUP=DSPOT(1)
+                        IF(DSPOT(2).GT.YUP) YUP=DSPOT(2)
+                        IF(DSPOT(1).LT.XLO) XLO=DSPOT(1)
+                        IF(DSPOT(2).LT.YLO) YLO=DSPOT(2)
+                     ELSE
+                        IF(DSPOT(9).GT.XUP) XUP=DSPOT(9)
+                        IF(DSPOT(10).GT.YUP) YUP=DSPOT(10)
+                        IF(DSPOT(9).LT.XLO) XLO=DSPOT(9)
+                        IF(DSPOT(10).LT.YLO) YLO=DSPOT(10)
+                     END IF
+                  END IF
+!       KEEP TRACK OF THE TOTAL OPL ALONE THE RAY FROM NEWOBJ TO NEWI
+                  DSPOT(13)=RAYRAY(22,NEWIMG)
+!               J=14 X RAY COORD AT TANGENT PLANE OF NEWOBJ+1
+                  DSPOT(14)=RAYRAY(1,NEWOBJ+1)
+!               J=15 Y RAY COORD AT TANGENT PLANE OF NEWOBJ+1
+                  DSPOT(15)=RAYRAY(2,NEWOBJ+1)
+!               J=5 X COORD OF RAY AT NEWREF
+                  DSPOT(5)=RAYRAY(1,NEWREF)
+!               J=6 Y COORD OF RAY AT NEWREF
+                  DSPOT(6)=RAYRAY(2,NEWREF)
+!
+                  OOPD=0.0D0
+                  DSPOT(4)=OOPD
+                  DSPOT(16)=DBLE(IWL)
+                  DSPOT(17)=sys_wl_weight(IWL)
+                  DSPOT(18)=RAYRAY(3,NEWOBJ+1)
+                  DSPOT(19)=RAYRAY(19,NEWOBJ+1)
+                  DSPOT(20)=RAYRAY(20,NEWOBJ+1)
+                  DSPOT(21)=RAYRAY(21,NEWOBJ+1)
+                  DSPOT(22)=RAYRAY(19,NEWIMG)
+                  DSPOT(23)=RAYRAY(20,NEWIMG)
+                  DSPOT(24)=RAYRAY(21,NEWIMG)
+                  DSPOT(25)=RAYRAY(9,NEWIMG)
+                  DSPOT(26)=RAYRAY(10,NEWIMG)
+                  DSPOT(27)=RAYRAY(1,NEWIMG-1)
+                  DSPOT(28)=RAYRAY(2,NEWIMG-1)
+                  DSPOT(29)=RAYRAY(3,NEWIMG-1)
+                  DSPOT(30)=RAYRAY(19,NEWIMG-1)
+                  DSPOT(31)=RAYRAY(20,NEWIMG-1)
+                  DSPOT(32)=RAYRAY(21,NEWIMG-1)
+!
+!     GET RID OF REDICULOUSLY SMALL VALUES
+1942              CONTINUE
+!     LOAD THE DSOPT ARRAY INTO DSPOTT(ID,*)
+                  ID=I-1
+                  CALL SPOTIT(3)
+               END DO
+            END DO
+         END IF
+      ELSE
+!       SPECTRAL WEIGHT WAS ZERO, GO TO NEXT WAVELENGTH
+!     NO FILE OUTPUT WAS DONE
+      END IF
+   END DO
+!     WRITE THE TOTAL # OF RECORDS IN RECORD #1
+   ITOT=I
+!
+!     ALL THE RAYS HAVE BEEN TRACED, NOW DO THE STATISTICS AND
+!     OUTPUT.
+   IF(WQ.NE.'ACC'.AND.TPT.EQ.1) THEN
+      IF(F28.EQ.0.AND.F31.EQ.0) THEN
+         IF(MSGSPD)WRITE(OUTLYNE,*)'SPOT DIAGRAM RAY TRACING COMPLETED'
+         IF(MSGSPD) CALL SHOWIT(0)
+      END IF
+   END IF
+   IF(TCLPRF) THEN
+!     REMOVE TEMP CLAP ON NEWREF
+      TCLPRF=.FALSE.
+      ALENS(9:15,NEWREF)=0.0D0
+      IF(WQ.NE.'ACC'.AND.TPT.EQ.1) THEN
+         IF(F28.EQ.1.OR.F31.EQ.1) MSGSPD=.FALSE.
+         IF(MSGSPD)WRITE(OUTLYNE,301) PXTRAX(1,NEWREF),PXTRAY(1,NEWREF)
+         IF(MSGSPD) CALL SHOWIT(0)
+         IF(MSGSPD)WRITE(OUTLYNE,*)&
+         &'HAS BEEN REMOVED FROM THE REFERENCE SURFACE'
+         IF(MSGSPD) CALL SHOWIT(0)
+         IF(MSGSPD)WRITE(OUTLYNE,*)&
+         &'FOR THE CURRENT SPOT DIAGRAM CALCULATIONS'
+         IF(MSGSPD) CALL SHOWIT(0)
+      END IF
+   END IF
+   IF(WQ.NE.'ACC'.AND.TPT.EQ.1) THEN
+      IF(MSGSPD)WRITE(OUTLYNE,*)&
+      &'CALCULATING SPOT DIAGRAM STATISTICS...'
+      IF(MSGSPD) CALL SHOWIT(0)
+   END IF
+!
+!     NOW DO THE CENTX AND CENTY CALCULATIONS
+!
+   SPA=0.0D0
+   SPB=0.0D0
+   SPC=0.0D0
+   SPD=0.0D0
+   AFSPB=0.0D0
+   AFSPD=0.0D0
+!       W IS THE NORMALIZING FACTOR FOR THE SPOT CALCULATIONS
+!       TOT IS THE WEIGTHED TOTAL
+!       NUMTOT IS THE RAW TOTAL OF NON-FAILED RAYS
+   TOT=0.0D0
+   RTOT=0.0D0
+   IRTOT=0.0D0
+   INTTOT=0.0D0
+   INTOT2=0.0D0
+   NUMTOT=0
+   NUMT1=0
+   NUMT2=0
+   NUMT3=0
+   NUMT4=0
+   NUMT5=0
+   NUMT6=0
+   NUMT7=0
+   NUMT8=0
+   NUMT9=0
+   NUMT10=0
+   DO I=1,ITOT-1
+!     LOAD DSPOTT(I,*) INTO DSPOT(*)
+      ID=I
+      CALL SPOTIT(4)
+      SPT=DSPOT(17)
+      APFAC=DSPOT(11)
+!     SPA IS A WEIGHTED SUMMATION OF THE X COORDINATE OF A RAY
+!     IN THE SPOT DIAGRAM, WEIGHTED BY THE SPECTRAL WEIGHT
+!     AND THE APODIZATION FACTOR
+!     SPC IS FOR THE Y COMPONENT
+!     SPB IS THE WEIGHTED X SLOPE (IN XZ PLANE)
+!     SPD IS THE WEIGHTED Y SLOPE (IN YZ PLANE)
+!     AFSPB IS THE WEIGHTED X SLOPE ANGLE (IN XZ PLANE)
+!     AFSPD IS THE WEIGHTED Y SLOPE ANGLE (IN YZ PLANE)
+!
+      IF(SPT.NE.0.0D0) THEN
+         IF(DSPOT(7).EQ.0.0D0) THEN
+            APFAC=DSPOT(11)
+            SPA=SPA+(SPT*DSPOT(1)*APFAC)
+            SPC=SPC+(SPT*DSPOT(2)*APFAC)
+            SPB=SPB+(SPT*DTAN(DSPOT(9))*APFAC)
+            SPD=SPD+(SPT*DTAN(DSPOT(10))*APFAC)
+            AFSPB=AFSPB+(SPT*(DSPOT(9))*APFAC)
+            AFSPD=AFSPD+(SPT*(DSPOT(10))*APFAC)
+!     RAY FAILED
+         END IF
+!     SPT = 0
+      END IF
+      IF(DSPOT(12).NE.0.0D0) THEN
+         IF(DSPOT(7).EQ.0.0D0) THEN
+            TOT=TOT+(DSPOT(12))
+            NUMTOT=NUMTOT+1
+            IRTOT=IRTOT+1.0D0
+            INTTOT=INTTOT+DSPOT(12)
+            INTOT2=INTOT2+DSPOT(12)
+            RTOT=DBLE(NUMTOT)
+            IF(DSPOT(16).EQ.1.0D0) NUMT1=NUMT1+1
+            IF(DSPOT(16).EQ.2.0D0) NUMT2=NUMT2+1
+            IF(DSPOT(16).EQ.3.0D0) NUMT3=NUMT3+1
+            IF(DSPOT(16).EQ.4.0D0) NUMT4=NUMT4+1
+            IF(DSPOT(16).EQ.5.0D0) NUMT5=NUMT5+1
+            IF(DSPOT(16).EQ.6.0D0) NUMT6=NUMT6+1
+            IF(DSPOT(16).EQ.7.0D0) NUMT7=NUMT7+1
+            IF(DSPOT(16).EQ.8.0D0) NUMT8=NUMT8+1
+            IF(DSPOT(16).EQ.9.0D0) NUMT9=NUMT9+1
+            IF(DSPOT(16).EQ.10.0D0) NUMT10=NUMT10+1
+!       RAY FAILED, DONT DO STATS
+         END IF
+!       WEIGHT 0
+      END IF
+   END DO
+   IF(NUMTOT.EQ.0.0D0) THEN
+      IF(WQ.NE.'ACC') THEN
+         OUTLYNE='NO RAYS COULD GET THROUGH THE SYSTEM'
+         CALL SHOWIT(1)
+         OUTLYNE='NO SPOT DIAGRAM WAS CREATED'
+         CALL SHOWIT(1)
+!     DEALLOCATE DSPOTT
+         CALL SPOTIT(1)
+      END IF
+      SPDEXT=.FALSE.
+      CALL MACFAL
+      RETURN
+   END IF
+   W=TOT
+   SPA=SPA/W
+   SPC=SPC/W
+   SPB=SPB/W
+   SPD=SPD/W
+   AFSPB=AFSPB/W
+   AFSPD=AFSPD/W
+   OSPA=SPA
+   OSPC=SPC
+   OSPB=SPB
+   OSPD=SPD
+   OAFSPB=AFSPB
+   OAFSPD=AFSPD
+!     NOW SPA,SPB,SPC,SPD,AFSPB AND AFSPD ARE NORMALIZED
+!
+!     CALCULATE CENTROID LOCATIONS
+   IF(sys_mode().EQ.1.0D0.OR.sys_mode().EQ.2.0D0) THEN
+!     FOCAL SYSTEMS
+      PRINT *, "DEBUG, FOCAL SYSTEM"
+      CENTX=SPA
+      CENTY=SPC
+   ELSE
+!     AFOCAL SYSTEMS
+      PRINT *, "DEBUG, AFOCAL SYSTEM"
+      CENTX=AFSPB
+      CENTY=AFSPD
+   END IF
+   PRINT *, "DEBUG:  CENTX ", CENTX
+   PRINT *, "DEBUG:  CENTY ", CENTY
+
+!     GET RID OF REDICULOIUSLY SMALL VALUES
+   IF(DABS(CENTX).LT.1.0D-10) CENTX=0.0D0
+   IF(DABS(CENTY).LT.1.0D-10) CENTY=0.0D0
+!
+!     REDEFINE SP VARS FOR CHIEF RAY
+   SPA=REFRY(1,NEWIMG)
+   SPC=REFRY(2,NEWIMG)
+!     RAY SLOPES
+   X=REFRY(11,NEWIMG)
+   Y=REFRY(12,NEWIMG)
+   CALL SLOPES
+   AFSPB=X
+   AFSPD=Y
+   SPB=DTAN(X)
+   SPD=DTAN(Y)
+!
+!       TOT IS THE SUM OF ALL THE ENERGY FOR THE NON-FAILED RAYS
+!
+   SPDEXT=.TRUE.
+   IF(STATSP.OR.TPT.EQ.2) THEN
+!     PROCEED WITH FULL STATS
+!
+!       NOW CALCULATE THE RSS SPOT SIZE
+!     INITIALIZE VALIABLES
+      LA=0.0D0
+      LC=0.0D0
+      LB=0.0D0
+      LD=0.0D0
+      AFLB=0.0D0
+      AFLD=0.0D0
+      SSSP=0.0D0
+      SSSQ=0.0D0
+      SSSR=0.0D0
+      ASSSP=0.0D0
+      ASSSQ=0.0D0
+      ASSSR=0.0D0
+      SSSPX=0.0D0
+      SSSQX=0.0D0
+      SSSRX=0.0D0
+      ASSSPX=0.0D0
+      ASSSQX=0.0D0
+      ASSSRX=0.0D0
+      SSSPY=0.0D0
+      SSSQY=0.0D0
+      SSSRY=0.0D0
+      ASSSPY=0.0D0
+      ASSSQY=0.0D0
+      ASSSRY=0.0D0
+      MSS=0.0D0
+      AMSS=0.0D0
+      MSSX=0.0D0
+      AMSSX=0.0D0
+      MSSY=0.0D0
+      AMSSY=0.0D0
+      RSS=0.0D0
+      RSSX=0.0D0
+      RSSY=0.0D0
+      DO I=1,ITOT-1
+!     LOAD DSPOTT(I,*) INTO DSPOT(*)
+         ID=I
+         CALL SPOTIT(4)
+         SPT=DSPOT(17)
+         IF(SPT.NE.0.0D0) THEN
+            IF(DSPOT(7).EQ.0.0D0) THEN
+               APFAC=DSPOT(11)
+               LA=DSPOT(1)
+               LC=DSPOT(2)
+               LB=DTAN(DSPOT(9))
+               LD=DTAN(DSPOT(10))
+               AFLB=DSPOT(9)
+               AFLD=DSPOT(10)
+!     FOR FOCAL SYSTEMS
+!
+!     FOCAL SYSTEM
+!       X ONLY
+               SSSPX=SSSPX+&
+               &(SPT*(((LA-SPA)**2))*APFAC)
+!     AFOCAL SYSTEM
+!       X ONLY
+               ASSSPX=ASSSPX+&
+               &(SPT*(((AFLB-AFSPB)**2))*APFAC)
+!     FOCAL SYSTEM
+!       Y ONLY
+               SSSPY=SSSPY+&
+               &(SPT*(((LC-SPC)**2))*APFAC)
+!     AFOCAL SYSTEM
+!       Y ONLY
+               ASSSPY=ASSSPY+&
+               &(SPT*(+((AFLD-AFSPD)**2))*APFAC)
+            END IF
+         END IF
+      END DO
+      MSS=SSSP
+      AMSS=ASSSP
+      MSSX=SSSPX
+      AMSSX=ASSSPX
+      MSSY=SSSPY
+      AMSSY=ASSSPY
+      IF(sys_mode().EQ.1.0D0.OR.sys_mode().EQ.2.0D0) THEN
+         RSSX=2.0D0*(DSQRT(MSSX/W))
+         RSSY=2.0D0*(DSQRT(MSSY/W))
+         RSS=(RSSX+RSSY)/2.0D0
+      ELSE
+         RSSX=2.0D0*(DSQRT(AMSSX/W))
+         RSSY=2.0D0*(DSQRT(AMSSY/W))
+         RSS=(RSSX+RSSY)/2.0D0
+      END IF
+      PRINT *, "DEBUG:  MSSX ", MSSX
+      PRINT *, "DEBUG:  MSSY ", MSSY
+      PRINT *, "DEBUG:  AMSSX ", AMSSX
+      PRINT *, "DEBUG:  AMSSY ", AMSSY
+
+
+!     RESET SP VARS FOR CENT
+      SPA=OSPA
+      SPC=OSPC
+      SPB=OSPB
+      SPD=OSPD
+      AFSPB=OAFSPB
+      AFSPD=OAFSPD
+!       NOW CALCULATE THE ROOT MEAN SQUARE SPOT SIZE
+!     INITIALIZE VALIABLES
+!     A,B,C AND D TERMS
+      LA=0.0D0
+      LC=0.0D0
+      LB=0.0D0
+      LD=0.0D0
+      AFLB=0.0D0
+      AFLD=0.0D0
+      SSSP=0.0D0
+      SSSQ=0.0D0
+      SSSR=0.0D0
+      ASSSP=0.0D0
+      ASSSQ=0.0D0
+      ASSSR=0.0D0
+      SSSPX=0.0D0
+      SSSQX=0.0D0
+      SSSRX=0.0D0
+      ASSSPX=0.0D0
+      ASSSQX=0.0D0
+      ASSSRX=0.0D0
+      SSSPY=0.0D0
+      SSSQY=0.0D0
+      SSSRY=0.0D0
+      ASSSPY=0.0D0
+      ASSSQY=0.0D0
+      ASSSRY=0.0D0
+      MSS=0.0D0
+      AMSS=0.0D0
+      MSSX=0.0D0
+      AMSSX=0.0D0
+      MSSY=0.0D0
+      AMSSY=0.0D0
+      RMS=0.0D0
+      RMSX=0.0D0
+      RMSY=0.0D0
+      DO I=1,ITOT-1
+!     LOAD DSPOTT(I,*) INTO DSPOT(*)
+         ID=I
+         CALL SPOTIT(4)
+         SPT=DSPOT(17)
+         IF(SPT.NE.0.0D0) THEN
+            IF(DSPOT(7).EQ.0.0D0) THEN
+               APFAC=DSPOT(11)
+               LA=DSPOT(1)
+               LC=DSPOT(2)
+               LB=DTAN(DSPOT(9))
+               LD=DTAN(DSPOT(10))
+               AFLB=DSPOT(9)
+               AFLD=DSPOT(10)
+!     FOR FOCAL SYSTEMS
+!
+!     FOCAL SYSTEM
+!       X ONLY
+               SSSPX=SSSPX+&
+               &(SPT*(((LA-SPA)**2))*APFAC)
+               SSSQX=SSSQX+&
+               &(SPT*((LA*LB)-(LA*SPB)-(LB*SPA)&
+               &+(SPA*SPB))*APFAC)
+               SSSRX=SSSRX+&
+               &(SPT*(((LB-SPB)**2))*APFAC)
+!     AFOCAL SYSTEM
+!       X ONLY
+               ASSSPX=ASSSPX+&
+               &(SPT*(((AFLB-AFSPB)**2))*APFAC)
+               ASSSQX=0.0D0
+               ASSSRX=0.0D0
+!     FOCAL SYSTEM
+!       Y ONLY
+               SSSPY=SSSPY+&
+               &(SPT*(((LC-SPC)**2))*APFAC)
+               SSSQY=SSSQY+&
+               &(SPT*((LC*LD)&
+               &-(LC*SPD)-(LD*SPC)+(SPC*SPD))*APFAC)
+               SSSRY=SSSRY+&
+               &(SPT*(((LD-SPD)**2))*APFAC)
+!     AFOCAL SYSTEM
+!       Y ONLY
+               ASSSPY=ASSSPY+&
+               &(SPT*(+((AFLD-AFSPD)**2))*APFAC)
+               ASSSQY=0.0D0
+               ASSSRY=0.0D0
+            END IF
+         END IF
+      END DO
+      MSS=SSSP
+      AMSS=ASSSP
+      MSSX=SSSPX
+      AMSSX=ASSSPX
+      MSSY=SSSPY
+      AMSSY=ASSSPY
+      IF(sys_mode().EQ.1.0D0.OR.sys_mode().EQ.2.0D0) THEN
+!     FOCAL SYSTEMS ONLY
+         IF(DABS(SSSRX).LT.1.0D-15.OR.DABS(SSSQX).GT.1.0D+15) THEN
+            IF(SSSRX.GE.0.0D0.AND.SSSQX.GE.0.0D0) FCSFTX=-1.0D35
+            IF(SSSRX.GE.0.0D0.AND.SSSQX.LE.0.0D0) FCSFTX=1.0D35
+            IF(SSSRX.LE.0.0D0.AND.SSSQX.GE.0.0D0) FCSFTX=1.0D35
+         ELSE
+            FCSFTX=-SSSQX/SSSRX
+         END IF
+         IF(DABS(SSSRY).LT.1.0D-15.OR.DABS(SSSQY).GT.1.0D+15) THEN
+            IF(SSSRY.GE.0.0D0.AND.SSSQY.GE.0.0D0) FCSFTY=-1.0D35
+            IF(SSSRY.GE.0.0D0.AND.SSSQY.LE.0.0D0) FCSFTY=1.0D35
+            IF(SSSRY.LE.0.0D0.AND.SSSQY.GE.0.0D0) FCSFTY=1.0D35
+            FCSFTY=1.0D35
+         ELSE
+            FCSFTY=-SSSQY/SSSRY
+         END IF
+         FCSFT=(FCSFTX+FCSFTY)/2.0D0
+      ELSE
+!     AFOCAL, NO MOVE TO BEST SPOT SIZE
+         FCSFT=0.0D0
+         FCSFTX=0.0D0
+         FCSFTY=0.0D0
+      END IF
+      IF(sys_units().EQ.1.0) UN='INCHES     '
+      IF(sys_units().EQ.2.0) UN='CENTIMETERS'
+      IF(sys_units().EQ.3.0) UN='MILLIMETERS'
+      IF(sys_units().EQ.4.0) UN='METERS'
+
+      PRINT *, "DEBUG:  sys_mode() is ", sys_mode()
+
+      IF(sys_mode().EQ.1.0D0.OR.sys_mode().EQ.2.0D0) THEN
+         RMSX=2.0D0*(DSQRT(MSSX/W))
+         RMSY=2.0D0*(DSQRT(MSSY/W))
+         RMS=(RMSX+RMSY)/2.0D0
+      ELSE
+         RMSX=2.0D0*(DSQRT(AMSSX/W))
+         RMSY=2.0D0*(DSQRT(AMSSY/W))
+         RMS=(RMSX+RMSY)/2.0D0
+      END IF
+      IF(sys_mode().LT.3.0D0) THEN
+         RMSX=RMSX/JB
+         RMSY=RMSY/JA
+         RMS=(RMSX+RMSY)/2.0D0
+      END IF
+      ! JN:  Changed RMS calc to be RSS of X and Y value instead of
+      ! average.
+      RMS = DSQRT(RMSX*RMSX+RMSY*RMSY)
+      PRINT *, "DEBUG:  RMS Calc is ", RMS
+      REG(40)=REG(9)
+      REG(11)=RMSY
+      REG(10)=RMSX
+      REG(9)=RMS
+      MAXX=DABS(XUP-XLO)
+      MAXY=DABS(YUP-YLO)
+   ELSE
+!     ONLY MINIMUM STATS WERE DONE
+      SAVE_KDP(1)=SAVEINPT(1)
+      INPUT='SPD MOVEACC 0'
+      CALL PROCES
+      REST_KDP(1)=RESTINPT(1)
+   END IF
+114 FORMAT('SPOT DIAGRAM SUMMARY')
+115 FORMAT('RMS SPOT SIZE   (X) = ',G17.10,1X,A11)
+116 FORMAT('RMS SPOT SIZE   (Y) = ',G17.10,1X,A11)
+108 FORMAT('RMS SPOT DIAMETER   = ',G17.10,1X,A11)
+101 FORMAT('X-CENTROID POSITION = ',G17.10,1X,A11)
+102 FORMAT('Y-CENTROID POSITION = ',G17.10,1X,A11)
+103 FORMAT('CHIEF RAY X-COORD.  = ',G17.10,1X,A11)
+104 FORMAT('CHIEF RAY Y-COORD.  = ',G17.10,1X,A11)
+203 FORMAT('CHIEF RAY X-SLOPE   = ',G17.10,1X,'RADIANS')
+204 FORMAT('CHIEF RAY Y-SLOPE   = ',G17.10,1X,'RADIANS')
+105 FORMAT('# RAYS ATTEMPTED    = ',I10,' AT EACH WAVELENGTH')
+106 FORMAT('# RAYS SUCCEDED     = ',I10,' AT ALL WAVELENGTHS')
+1106 FORMAT('% TRANSMISSION      = ',G12.5)
+221 FORMAT(&
+   &'FOCUS SHIFT FOR BEST RMS SPOT LENGTH (X) = ',G17.10,1X,A11)
+222 FORMAT(&
+   &'FOCUS SHIFT FOR BEST RMS SPOT LENGTH (Y) = ',G17.10,1X,A11)
+220 FORMAT(&
+   &'FOCUS SHIFT FOR BEST RMS SPOT DIAMETER   = ',G17.10,1X,A11)
+107 FORMAT(&
+   &'"FOB NULL" WAS USED, CHIEF RAY DATA MAY BE SUSPECT')
+!     NOW DO THE RAY FAILURE STATISTICS
+   IF(TPT.NE.2) CALL FALRAY
+!     NOW DO PRINTOUTS AS REQUIRED
+!
+   IF(TPT.EQ.1) THEN
+!
+      IF(SQ.EQ.0) THEN
+!       DO THE PRINT OUT
+         IF(sys_mode().EQ.3.0D0.OR.sys_mode().EQ.4.0D0) THEN
+!       MODE AFOCAL
+
+            IF(MSGSPD)WRITE(OUTLYNE,114)
+            IF(MSGSPD) CALL SHOWIT(0)
+
+            IF(STATSP.AND.MSGSPD) WRITE(OUTLYNE,208) RMS
+            IF(STATSP.AND.MSGSPD) CALL SHOWIT(0)
+
+            IF(STATSP.AND.MSGSPD) WRITE(OUTLYNE,215) RMSX
+            IF(STATSP.AND.MSGSPD) CALL SHOWIT(0)
+
+            IF(STATSP.AND.MSGSPD) WRITE(OUTLYNE,216) RMSY
+            IF(STATSP.AND.MSGSPD) CALL SHOWIT(0)
+215         FORMAT('RMS SPOT SIZE   (X) = ',G17.10,1X,'RADIANS')
+216         FORMAT('RMS SPOT SIZE   (Y) = ',G17.10,1X,'RADIANS')
+208         FORMAT('RMS SPOT DIAMETER   = ',G17.10,1X,'RADIANS')
+
+            IF(MSGSPD)WRITE(OUTLYNE,201) CENTX
+            IF(MSGSPD) CALL SHOWIT(0)
+
+            IF(MSGSPD)WRITE(OUTLYNE,202) CENTY
+            IF(MSGSPD) CALL SHOWIT(0)
+201         FORMAT('X-CENTROID (ANGLE)  = ',G17.10,1X,'RADIANS')
+202         FORMAT('Y-CENTROID (ANGLE)  = ',G17.10,1X,'RADIANS')
+!       AFOCAL
+
+            IF(MSGSPD)WRITE(OUTLYNE,203) REFRY(11,NEWIMG)
+            IF(MSGSPD) CALL SHOWIT(0)
+
+            IF(MSGSPD)WRITE(OUTLYNE,204) REFRY(12,NEWIMG)
+            IF(MSGSPD) CALL SHOWIT(0)
+
+            IF(NULL.AND.MSGSPD) WRITE(OUTLYNE,107)
+            IF(NULL.AND.MSGSPD) CALL SHOWIT(0)
+
+            IF(MSGSPD)WRITE(OUTLYNE,105) IWIW
+            IF(MSGSPD) CALL SHOWIT(0)
+
+            SPDTRANS=(TOT/DBLE(NUMTOT))*100.0D0
+!
+            IF(MSGSPD)WRITE(OUTLYNE,1106) (TOT/DBLE(NUMTOT))*100.0D0
+            IF(MSGSPD) CALL SHOWIT(0)
+            IF(MSGSPD)WRITE(OUTLYNE,106) NUMTOT
+            IF(MSGSPD) CALL SHOWIT(0)
+2110        FORMAT('AT WAVELENGTH # = 1,  # RAYS SUCCEDED = ',I10)
+2111        FORMAT('AT WAVELENGTH # = 2,  # RAYS SUCCEDED = ',I10)
+2112        FORMAT('AT WAVELENGTH # = 3,  # RAYS SUCCEDED = ',I10)
+2113        FORMAT('AT WAVELENGTH # = 4,  # RAYS SUCCEDED = ',I10)
+2114        FORMAT('AT WAVELENGTH # = 5,  # RAYS SUCCEDED = ',I10)
+2115        FORMAT('AT WAVELENGTH # = 6,  # RAYS SUCCEDED = ',I10)
+2116        FORMAT('AT WAVELENGTH # = 7,  # RAYS SUCCEDED = ',I10)
+2117        FORMAT('AT WAVELENGTH # = 8,  # RAYS SUCCEDED = ',I10)
+2118        FORMAT('AT WAVELENGTH # = 9,  # RAYS SUCCEDED = ',I10)
+2119        FORMAT('AT WAVELENGTH # = 10, # RAYS SUCCEDED = ',I10)
+
+            IF(MSGSPD)WRITE(OUTLYNE,2110) NUMT1
+            IF(MSGSPD) CALL SHOWIT(0)
+            IF(MSGSPD)WRITE(OUTLYNE,2111) NUMT2
+            IF(MSGSPD) CALL SHOWIT(0)
+            IF(MSGSPD)WRITE(OUTLYNE,2112) NUMT3
+            IF(MSGSPD) CALL SHOWIT(0)
+            IF(MSGSPD)WRITE(OUTLYNE,2113) NUMT4
+            IF(MSGSPD) CALL SHOWIT(0)
+            IF(MSGSPD)WRITE(OUTLYNE,2114) NUMT5
+            IF(MSGSPD) CALL SHOWIT(0)
+            IF(MSGSPD)WRITE(OUTLYNE,2115) NUMT6
+            IF(MSGSPD) CALL SHOWIT(0)
+            IF(MSGSPD)WRITE(OUTLYNE,2116) NUMT7
+            IF(MSGSPD) CALL SHOWIT(0)
+            IF(MSGSPD)WRITE(OUTLYNE,2117) NUMT8
+            IF(MSGSPD) CALL SHOWIT(0)
+            IF(MSGSPD)WRITE(OUTLYNE,2118) NUMT9
+            IF(MSGSPD) CALL SHOWIT(0)
+            IF(MSGSPD)WRITE(OUTLYNE,2119) NUMT10
+            IF(MSGSPD) CALL SHOWIT(0)
+
+         ELSE
+!       FOCAL
+
+            IF(MSGSPD)WRITE(OUTLYNE,114)
+            IF(MSGSPD) CALL SHOWIT(0)
+
+            IF(STATSP.AND.MSGSPD) WRITE(OUTLYNE,108) RMS,UN
+            IF(STATSP.AND.MSGSPD) CALL SHOWIT(0)
+
+            IF(STATSP.AND.MSGSPD) WRITE(OUTLYNE,115) RMSX,UN
+            IF(STATSP.AND.MSGSPD) CALL SHOWIT(0)
+
+            IF(STATSP.AND.MSGSPD) WRITE(OUTLYNE,116) RMSY,UN
+            IF(STATSP.AND.MSGSPD) CALL SHOWIT(0)
+
+            IF(MSGSPD)WRITE(OUTLYNE,101) CENTX,UN
+            IF(MSGSPD) CALL SHOWIT(0)
+
+            IF(MSGSPD)WRITE(OUTLYNE,102) CENTY,UN
+            IF(MSGSPD) CALL SHOWIT(0)
+
+            IF(MSGSPD)WRITE(OUTLYNE,103) REFRY(1,NEWIMG),UN
+            IF(MSGSPD) CALL SHOWIT(0)
+
+            IF(MSGSPD)WRITE(OUTLYNE,104) REFRY(2,NEWIMG),UN
+            IF(MSGSPD) CALL SHOWIT(0)
+
+            IF(NULL.AND.MSGSPD) WRITE(OUTLYNE,107)
+            IF(NULL.AND.MSGSPD) CALL SHOWIT(0)
+
+            IF(MSGSPD)WRITE(OUTLYNE,105) IWIW
+            IF(MSGSPD) CALL SHOWIT(0)
+!
+            SPDTRANS=(TOT/DBLE(NUMTOT))*100.0D0
+!
+
+            IF(MSGSPD)WRITE(OUTLYNE,1106) (TOT/DBLE(NUMTOT))*100.0D0
+            IF(MSGSPD) CALL SHOWIT(0)
+            IF(MSGSPD)WRITE(OUTLYNE,106) NUMTOT
+            IF(MSGSPD) CALL SHOWIT(0)
+
+            IF(MSGSPD)WRITE(OUTLYNE,2110) NUMT1
+            IF(MSGSPD) CALL SHOWIT(0)
+            IF(MSGSPD)WRITE(OUTLYNE,2111) NUMT2
+            IF(MSGSPD) CALL SHOWIT(0)
+            IF(MSGSPD)WRITE(OUTLYNE,2112) NUMT3
+            IF(MSGSPD) CALL SHOWIT(0)
+            IF(MSGSPD)WRITE(OUTLYNE,2113) NUMT4
+            IF(MSGSPD) CALL SHOWIT(0)
+            IF(MSGSPD)WRITE(OUTLYNE,2114) NUMT5
+            IF(MSGSPD) CALL SHOWIT(0)
+            IF(MSGSPD)WRITE(OUTLYNE,2115) NUMT6
+            IF(MSGSPD) CALL SHOWIT(0)
+            IF(MSGSPD)WRITE(OUTLYNE,2116) NUMT7
+            IF(MSGSPD) CALL SHOWIT(0)
+            IF(MSGSPD)WRITE(OUTLYNE,2117) NUMT8
+            IF(MSGSPD) CALL SHOWIT(0)
+            IF(MSGSPD)WRITE(OUTLYNE,2118) NUMT9
+            IF(MSGSPD) CALL SHOWIT(0)
+            IF(MSGSPD)WRITE(OUTLYNE,2119) NUMT10
+            IF(MSGSPD) CALL SHOWIT(0)
+
+            IF(STATSP.AND.MSGSPD) WRITE(OUTLYNE,220) FCSFT
+            IF(STATSP.AND.MSGSPD) CALL SHOWIT(0)
+
+            IF(STATSP.AND.MSGSPD) WRITE(OUTLYNE,221) FCSFTX
+            IF(STATSP.AND.MSGSPD) CALL SHOWIT(0)
+
+            IF(STATSP.AND.MSGSPD) WRITE(OUTLYNE,222) FCSFTY
+            IF(STATSP.AND.MSGSPD) CALL SHOWIT(0)
+         END IF
+! WQ IS ACC, NO OUTPUT
+      END IF
+!
+!     IF WQ EQ ISTAT OR IPSTAT, CALL THE ISTAT SUBROUTINE
+      IF(WQ.EQ.'ISTAT'.OR.WQ.EQ.'IPSTAT') THEN
+         IF(WQ.EQ.'ISTAT')  CALL ISTAT(1,STARANG,ENDANG,DELANG,NSTEP)
+         IF(WQ.EQ.'IPSTAT') CALL ISTAT(2,STARANG,ENDANG,DELANG,NSTEP)
+         IF(IMFLAG) THEN
+            IMFLAG=.FALSE.
+            NEWIMG=LSTIMG
+         END IF
+      END IF
+   END IF
+   RETURN
+END

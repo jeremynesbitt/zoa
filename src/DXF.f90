@@ -1,16 +1,19 @@
 SUBROUTINE DXO()
+   use iso_fortran_env, only: real64
    IMPLICIT NONE
    OPEN(39,FILE='DXF3D.DXF',STATUS='UNKNOWN')
    CALL DXH
    RETURN
 END
 SUBROUTINE DXC()
+   use iso_fortran_env, only: real64
    IMPLICIT NONE
    CALL DXT
    CALL CLOSE_FILE(39,1)
    RETURN
 END
 SUBROUTINE DXH()
+   use iso_fortran_env, only: real64
    IMPLICIT NONE
    WRITE(39,5110)
    WRITE(39,5120)
@@ -40,6 +43,7 @@ SUBROUTINE DXH()
 END
 !
 SUBROUTINE DXT()
+   use iso_fortran_env, only: real64
    IMPLICIT NONE
    WRITE(39,5110)
 5110 FORMAT('  0')
@@ -52,6 +56,7 @@ SUBROUTINE DXT()
    RETURN
 END
 SUBROUTINE DXL(CLX)
+   use iso_fortran_env, only: real64
    IMPLICIT NONE
    COMMON/DXFLAYR/CLAYER
    CHARACTER*8 CLAYER
@@ -60,6 +65,7 @@ SUBROUTINE DXL(CLX)
    RETURN
 END
 SUBROUTINE DXWLAYR
+   use iso_fortran_env, only: real64
    IMPLICIT NONE
    COMMON/DXFLAYR/CLAYER
    CHARACTER*8 CLAYER
@@ -70,6 +76,7 @@ SUBROUTINE DXWLAYR
    RETURN
 END
 SUBROUTINE DXPOLY3(XA,YA,ZA,NP,IOP)
+   use iso_fortran_env, only: real64
    IMPLICIT NONE
    INTEGER I,NP,IOP,IOP2,IOP3
    REAL XA,YA,ZA
@@ -133,13 +140,14 @@ SUBROUTINE DDXFF
    use mod_surface
    use mod_system, only: sys_last_surf
    use command_utils, only: is_command_query
+   use iso_fortran_env, only: real64
    IMPLICIT NONE
 !
 !       THIS PROGRAM CONTROLS THE ALL DXF PROCEDURES.
 !
    LOGICAL DLQ,EXIS92
 !
-   REAL*8 SFI,MDX,MDY,GAMGAM
+   real(real64) SFI,MDX,MDY,GAMGAM
 !
    INTEGER I,J
 !
@@ -420,6 +428,7 @@ SUBROUTINE DXFLAYER
    use DATLEN
    use DATMAI
    use command_utils, only: is_command_query
+   use iso_fortran_env, only: real64
    IMPLICIT NONE
    CHARACTER*8 LAYERNAME
    IF(is_command_query()) THEN
@@ -454,6 +463,7 @@ SUBROUTINE GLBSURF
    use DATMAI
    use mod_system, only: sys_last_surf
    use command_utils, only: is_command_query
+   use iso_fortran_env, only: real64
    IMPLICIT NONE
    IF(is_command_query()) THEN
       WRITE(OUTLYNE,*) 'THE DXF GLOBAL SURFACE IS :', GLSURF
@@ -500,6 +510,7 @@ SUBROUTINE DXFSTP
 !
    use DATLEN
    use DATMAI
+   use iso_fortran_env, only: real64
    IMPLICIT NONE
 !
 !       THIS ROUTINE DOES "DXF END"
@@ -533,6 +544,7 @@ SUBROUTINE DXFLINE
    use DATLEN
    use DATMAI
    use command_utils, only: is_command_query
+   use iso_fortran_env, only: real64
    IMPLICIT NONE
 !
 !       THIS ROUTINE DOES THE DXFLINE COMMAND AT THE CMD LEVEL
@@ -601,11 +613,12 @@ SUBROUTINE DXFPRO1
    use mod_surface
    use mod_system, only: sys_last_surf
    use command_utils, only: is_command_query
+   use iso_fortran_env, only: real64
    IMPLICIT NONE
 !
 !       THIS ROUTINE DOES THE DXF PROF COMMAND AT THE CMD LEVEL
 !
-   REAL*8 X,Y,Z,XN,YN,ZN,ROT1X,ROT1Z,ROT2Y,XX1,XX2,YY1,&
+   real(real64) X,Y,Z,XN,YN,ZN,ROT1X,ROT1Z,ROT2Y,XX1,XX2,YY1,&
    &ROT2Z,AX,AY,AZ,AALF,APHI,YMAXI,YMINI,XMAXI,XMINI,RANGE &
    &,XNEW,YNEW,LKG,VIEPH,VIEAL,Z1,YY2,AX1,AX2,AY1,AY2 &
    &,X00,Y00,Z0,LX0,LY0,LZ0,ACALL1,ACALL2,XM,YM,ZCORR &
@@ -620,14 +633,14 @@ SUBROUTINE DXFPRO1
 !
    INTEGER M1,M2,M3,M4,CAFLG,COFLG,J,K,IK,III,NO,ALLOERR
 !
-   REAL*8 XMIN,YMIN,XMAX,YMAX,ZA,ZB,ZM,ZDELZ,&
+   real(real64) XMIN,YMIN,XMAX,YMAX,ZA,ZB,ZM,ZDELZ,&
    &XMINO,YMINO,XMAXO,YMAXO,DRAPRO,THETA,FRACRAD,ZDELZ1 &
    &,TEMP,YMIN2,XMIN2,YMAX2,XMAX2,CALL1,CALL2
 !
    INTEGER IX,IY,I,II,NUMPEE
 !
 !
-   REAL*8 PRO
+   real(real64) PRO
 !
    DIMENSION PRO(:,:,:)
    ALLOCATABLE :: PRO
@@ -1139,6 +1152,7 @@ SUBROUTINE DXFRAE
    use mod_surface
    use mod_system, only: sys_last_surf
    use command_utils, only: is_command_query
+   use iso_fortran_env, only: real64
    IMPLICIT NONE
 !
 !       THIS ROUTINE DOES THE DXFRAY COMMAND AT THE CMD LEVEL
@@ -1310,11 +1324,12 @@ SUBROUTINE DXFVERTLINE
    use mod_surface
    use mod_system, only: sys_last_surf
    use command_utils, only: is_command_query
+   use iso_fortran_env, only: real64
    IMPLICIT NONE
 !
 !       THIS ROUTINE DOES THE PLOT LINE CONNECTING SURFACE VERTICES
 !
-   REAL*8 X,Y,Z
+   real(real64) X,Y,Z
 !
    LOGICAL GGO
 !
@@ -1446,11 +1461,12 @@ SUBROUTINE DXFEDG
    use mod_surface
    use mod_system, only: sys_last_surf
    use command_utils, only: is_command_query
+   use iso_fortran_env, only: real64
    IMPLICIT NONE
 !
 !       THIS ROUTINE DOES THE DXF EDGEX/EDGEY COMMAND AT THE CMD LEVEL
 !
-   REAL*8 X,Y,Z,XN,YN,ZN,ROT1X,ROT1Z,ROT2Y,XX1,XX2,YY1,&
+   real(real64) X,Y,Z,XN,YN,ZN,ROT1X,ROT1Z,ROT2Y,XX1,XX2,YY1,&
    &ROT2Z,AX,AY,AZ,AALF,APHI,YMAXI,YMINI,XMAXI,XMINI &
    &,XNEW,YNEW,LKG,VIEPH,VIEAL,Z1,YY2 &
    &,X00,Y00,Z0,LX0,LY0,LZ0 &
@@ -1458,7 +1474,7 @@ SUBROUTINE DXFEDG
 !
    INTEGER M1,M2,M3,CAFLG,COFLG,IK,III,NO,ALLOERR
 !
-   REAL*8 XLFT,YLFT,XRHT,YRHT,XTOP,YTOP,XBOT,YBOT &
+   real(real64) XLFT,YLFT,XRHT,YRHT,XTOP,YTOP,XBOT,YBOT &
    &,XLFTO,YLFTO,XRHTO,YRHTO,XTOPO,YTOPO,XBOTO,YBOTO &
    &,YLFT2,XLFT2,YRHT2,XRHT2,XTOP2,YTOP2,XBOT2,YBOT2,ZDELZ
 !
@@ -2168,6 +2184,7 @@ SUBROUTINE DXFDEV
    use DATLEN
    use DATMAI
    use mod_surface
+   use iso_fortran_env, only: real64
    IMPLICIT NONE
 !
 !       THIS ROUTINE DOES THE "DXF NEW" COMMAND AT THE CMD
@@ -2222,11 +2239,12 @@ SUBROUTINE DXFCLP(CLPTYPE,SURFACEI,SFI,MDX,MDY,GAMGAM)
    use DATMAI
    use mod_surface
    use mod_system, only: sys_last_surf
+   use iso_fortran_env, only: real64
    IMPLICIT NONE
 !
 !       THIS ROUTINE DOES THE DXF CLAP COMMAND
 !
-   REAL*8 X,Y,Z,XN,YN,ZN,ROT1X,ROT1Z,ROT2Y,MDX,MDY,SFI,&
+   real(real64) X,Y,Z,XN,YN,ZN,ROT1X,ROT1Z,ROT2Y,MDX,MDY,SFI,&
    &ROT2Z,AX,AY,AZ,AALF,APHI,YMAXI,YMINI,XMAXI,XMINI &
    &,XNEW,YNEW,LKG,VIEPH,VIEAL,Z1,ANGLE,AN2 &
    &,X00,Y00,Z0,LX0,LY0,LZ0,ZCORR,ZDELZ &

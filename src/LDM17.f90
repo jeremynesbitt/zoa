@@ -10,6 +10,7 @@ SUBROUTINE LENOUT
    use mod_surface
    use DATMAI
    use mod_system, only: sys_last_surf
+   use iso_fortran_env, only: real64
    IMPLICIT NONE
 !
 !       IT IS WITHIN THIS SUBROUTINE THAT (LENO) COMMANDS
@@ -221,7 +222,7 @@ SUBROUTINE LENOCSV
    use DATMAI
    use mod_system, only: sys_last_surf
    INTEGER I
-   REAL*8 RD,TH
+   real(real64) RD,TH
    CHARACTER*13 GLNAME
    OPEN(UNIT=84,BLANK='NULL',FORM='FORMATTED',FILE='LENO.CSV',STATUS='UNKNOWN')
    CALL CLOSE_FILE(84,0)
@@ -250,6 +251,7 @@ SUBROUTINE MULTFLDS
    use DATLEN
    use mod_surface
    use DATMAI
+   use iso_fortran_env, only: real64
    IMPLICIT NONE
 !
 !       SUBROUTINE MULTFLDS HANDELS LENS MULTIPLE FIELD OF VIEW OUTPUT
@@ -284,6 +286,7 @@ SUBROUTINE LENED
       & sys_last_surf, sys_mode, sys_ray_aiming, sys_screen, sys_screen_d, &
       & sys_screen_excl_angle, sys_screen_h, sys_screen_s, sys_screen_surf, &
       & sys_telecentric, sys_wl_weight
+   use iso_fortran_env, only: real64
    IMPLICIT NONE
 !
 !       SUBROUTINE LENED HANDEL LENS TRAILING INFO OUTPUT
@@ -869,6 +872,7 @@ SUBROUTINE RLENED
    use DATMAI
    use mod_system, only: sys_aim_offset_x, sys_aim_offset_y, sys_aim_offset_z, &
       & sys_fliprefx, sys_fliprefy, sys_last_surf, sys_mode, sys_wl_weight
+   use iso_fortran_env, only: real64
    IMPLICIT NONE
 !
 !       SUBROUTINE LENED HANDEL LENS TRAILING INFO OUTPUT
@@ -1278,6 +1282,7 @@ SUBROUTINE DOGTAG
    use mod_surface
    use DATMAI
    use mod_system, only: sys_last_surf, sys_mode, sys_units, sys_wl_pri1, sys_wl_pri2, sys_wl_ref, sys_wl_sec1
+   use iso_fortran_env, only: real64
    IMPLICIT NONE
 !
 !       THIS IS SUBROUTINE DOGTAG WHICH CREATES THE IDTAG FOR A LENS
@@ -1412,6 +1417,7 @@ SUBROUTINE RLENHD
    use mod_system, only: sys_autofunc, sys_bdx, sys_bdy, sys_last_surf, sys_units, &
       & sys_verbose_optim, sys_wavelength, sys_wl_pri1, sys_wl_pri2, sys_wl_ref, &
       & sys_wl_sec1, sys_wl_sec2, sys_wrx, sys_wry, sys_set_bdx, sys_set_bdy
+   use iso_fortran_env, only: real64
    IMPLICIT NONE
 !
 !       SUBROUTINE LENHD HANDEL LENS HEADER INFO OUTPUT
@@ -1557,6 +1563,7 @@ SUBROUTINE LENHDCV
    use mod_system, only: sys_pxim_fang_set, sys_pyim_fang_set, sys_rxim_fang_set, &
       & sys_ryim_fang_set, sys_say, sys_scy, sys_scy_fang, sys_scy_fang_set, &
       & sys_units, sys_wavelength, sys_wl_ref, sys_wl_weight
+   use iso_fortran_env, only: real64
    IMPLICIT NONE
 !
 !       SUBROUTINE LENHD HANDEL LENS HEADER INFO OUTPUT
@@ -1566,7 +1573,7 @@ SUBROUTINE LENHDCV
 !
    INTEGER I,IV
 !
-   REAL*8 VW(5)
+   real(real64) VW(5)
 !
 !
 !       OUTPUT THE HEADER COMMAND (LENS)
@@ -1733,6 +1740,7 @@ SUBROUTINE LENHD
       & sys_wl_pri1, sys_wl_pri2, sys_wl_ref, sys_wl_sec1, sys_wl_sec2, sys_wrx, sys_wry, &
       & sys_x1_scx, sys_x1_scx_fang, sys_y1_scy, sys_y1_scy_fang, &
       & sys_bdx, sys_bdy, sys_set_bdx, sys_set_bdy
+   use iso_fortran_env, only: real64
    IMPLICIT NONE
 !
 !       SUBROUTINE LENHD HANDEL LENS HEADER INFO OUTPUT
@@ -1993,6 +2001,7 @@ SUBROUTINE PIKSLV(I)
    use DATLEN
    use mod_surface
    use DATMAI
+   use iso_fortran_env, only: real64
    IMPLICIT NONE
 !
 !       SUBROUTINE PIKSLV HANDELS LENS SURFACE PIKUPS
@@ -2577,6 +2586,7 @@ SUBROUTINE LENSFCV(I)
    use mod_surface
    use DATMAI
    use mod_system, only: sys_astop, sys_ref_surf
+   use iso_fortran_env, only: real64
    IMPLICIT NONE
 !
 !       SUBROUTINE LENSF HANDELS LENS SURFACE INFO OUTPUT
@@ -2588,7 +2598,7 @@ SUBROUTINE LENSFCV(I)
 !
    INTEGER I,J,JA
 !
-   REAL*8 A,B
+   real(real64) A,B
 !
    CHARACTER GL*27,SBL*79
 !
@@ -3007,6 +3017,7 @@ SUBROUTINE LENHDAC
    use mod_system, only: sys_sax, sys_say, sys_scx, sys_scx_fang_set, sys_scy, &
       & sys_scy_fang_set, sys_units, sys_wavelength, sys_wl_pri1, sys_wl_pri2, &
       & sys_wl_ref, sys_wl_sec1, sys_wl_sec2, sys_x1_scx, sys_y1_scy
+   use iso_fortran_env, only: real64
    IMPLICIT NONE
 !
 !       SUBROUTINE LENHDAC HANDEL LENS HEADER INFO OUTPUT
@@ -3122,6 +3133,7 @@ SUBROUTINE LENEDAC
    use mod_surface
    use DATMAI
    use mod_system, only: sys_mode, sys_wl_weight
+   use iso_fortran_env, only: real64
    IMPLICIT NONE
 !
 !       SUBROUTINE LENED HANDEL LENS TRAILING INFO OUTPUT
@@ -3163,6 +3175,7 @@ SUBROUTINE LENSFAC(I)
    use mod_surface
    use DATMAI
    use mod_system, only: sys_astop, sys_astop_adj, sys_ref_surf
+   use iso_fortran_env, only: real64
    IMPLICIT NONE
 !
 !       SUBROUTINE LENSF HANDELS LENS SURFACE INFO OUTPUT
@@ -3369,6 +3382,7 @@ SUBROUTINE RLENSF(I)
    use mod_surface
    use DATMAI
    use mod_system, only: sys_astop, sys_astop_adj, sys_ref_surf
+   use iso_fortran_env, only: real64
    IMPLICIT NONE
 !
 !       SUBROUTINE RLENSF HANDELS LENS SURFACE INFO OUTPUT
@@ -3382,7 +3396,7 @@ SUBROUTINE RLENSF(I)
    INTEGER I,J
    CHARACTER*3 AALL
 !
-   REAL*8 AVAV
+   real(real64) AVAV
 !
 !
 !       THE CURRENT SURFACE IS PASSED WITH I
@@ -4009,6 +4023,7 @@ SUBROUTINE LENSF(I,RDOUT)
    use mod_surface
    use DATMAI
    use mod_system, only: sys_astop, sys_astop_adj, sys_ref_surf
+   use iso_fortran_env, only: real64
    IMPLICIT NONE
 !
 !       SUBROUTINE LENSF HANDELS LENS SURFACE INFO OUTPUT

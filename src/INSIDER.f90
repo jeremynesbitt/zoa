@@ -5,6 +5,7 @@ SUBROUTINE MISSREF(X,Y)
    use DATLEN
    use DATMAI
    use mod_surface, only: surf_clap_type, surf_clap_dim, surf_clap_tilt
+   use iso_fortran_env, only: real64
    IMPLICIT NONE
 !
    EXTERNAL INSID1,INSID2
@@ -13,7 +14,7 @@ SUBROUTINE MISSREF(X,Y)
 !
    INTEGER I,CAFLG,N,III,CACOCA
 !
-   REAL*8 X,Y,Z,ANGLE,JK1,JK2,JK3,&
+   real(real64) X,Y,Z,ANGLE,JK1,JK2,JK3,&
    &XR,YR,LS,RS,XRD,YRD,X1,X2,X3,X4,Y1,Y2,Y3,Y4,&
    &X5,X6,X7,X8,Y5,Y6,Y7,Y8,XC1,XC2,XC3,XC4,YC1,YC2,&
    &YC3,YC4,RAD2,MAXSID,CS1,CS2,CS3,CS4,A15,A22

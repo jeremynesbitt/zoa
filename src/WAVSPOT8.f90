@@ -6,9 +6,10 @@ SUBROUTINE MAPFIELDOPD
    use mod_system, only: sys_wl_ref
    use DATMAI
    use command_utils, only: is_command_query
+   use iso_fortran_env, only: real64
    IMPLICIT NONE
    INTEGER I,J,ALLOERR,II,JJ,L,K
-   REAL*8 DW1,DW2,DW3,DW4,DI,DJ
+   real(real64) DW1,DW2,DW3,DW4,DI,DJ
    REAL OPDARRAY
    DIMENSION OPDARRAY(:,:,:)
    ALLOCATABLE :: OPDARRAY
@@ -196,6 +197,7 @@ SUBROUTINE PLTMAP(PCOUNT,MY_ARRAY,K,L)
    use DATLEN
    use mod_system, only: sys_wavelength
    use DATMAI
+   use iso_fortran_env, only: real64
    IMPLICIT NONE
 !
    CHARACTER B*10,WAVVAL*10

@@ -9,6 +9,7 @@ SUBROUTINE TVARCLN
    use DATSUB
    use DATLEN
    use DATMAI
+   use iso_fortran_env, only: real64
    IMPLICIT NONE
 !
    INTEGER I,J,K,L,II,JJ
@@ -58,6 +59,7 @@ SUBROUTINE VARCLN
    use DATSUB
    use DATLEN
    use DATMAI
+   use iso_fortran_env, only: real64
    IMPLICIT NONE
 !
    INTEGER I,J,K,L,II,JJ
@@ -109,13 +111,14 @@ SUBROUTINE PFIND
    use DATSUB
    use DATLEN
    use DATMAI
+   use iso_fortran_env, only: real64
    IMPLICIT NONE
    LOGICAL ITERROR
 !
    INTEGER FLAGGER,JKFAIL,I
 !
-   REAL*8 OFMT,NEWFMT,OLDPFAC,LASTPFAC
-   REAL*8 BESTFMT,BESTPFAC
+   real(real64) OFMT,NEWFMT,OLDPFAC,LASTPFAC
+   real(real64) BESTFMT,BESTPFAC
    COMMON/BESTCHOICE/BESTFMT,BESTPFAC
 !
 !
@@ -329,6 +332,7 @@ SUBROUTINE OPRD
    use DATSUB
    use DATLEN
    use DATMAI
+   use iso_fortran_env, only: real64
    IMPLICIT NONE
 !
    CHARACTER CNAM*3,LWQ*8
@@ -560,6 +564,7 @@ SUBROUTINE OPRCLN
    use DATSUB
    use DATLEN
    use DATMAI
+   use iso_fortran_env, only: real64
    IMPLICIT NONE
 !
    INTEGER I,J,K,L,II,JJ
@@ -620,11 +625,12 @@ SUBROUTINE OPCALC
    use DATSUB
    use DATLEN
    use DATMAI
+   use iso_fortran_env, only: real64
    IMPLICIT NONE
 !
    INTEGER I,MACYES,JJ,STRT,CNTER,KLI,II,PREDEFI,OF28,OF31
 !
-   REAL*8 V1,COSARG,OPVALUE,DUMMY
+   real(real64) V1,COSARG,OPVALUE,DUMMY
 !
    COMMON/PREPRE/PREDEFI
 !
@@ -879,11 +885,12 @@ SUBROUTINE TVBA
    use DATSUB
    use DATLEN
    use DATMAI
+   use iso_fortran_env, only: real64
    IMPLICIT NONE
 !
    CHARACTER VNAME*6
 !
-   REAL*8 CURVALV
+   real(real64) CURVALV
 !
    INTEGER I,II
 !
@@ -1344,6 +1351,7 @@ SUBROUTINE CVBA
    use DATSUB
    use DATLEN
    use DATMAI
+   use iso_fortran_env, only: real64
    IMPLICIT NONE
 !
    LOGICAL YES
@@ -1761,6 +1769,7 @@ SUBROUTINE VBA
    use DATSUB
    use DATLEN
    use DATMAI
+   use iso_fortran_env, only: real64
    IMPLICIT NONE
 !
    CHARACTER VNAME*7,TAGNAM*4

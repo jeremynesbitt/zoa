@@ -6,6 +6,7 @@ SUBROUTINE DOVUE
    use DATHGR
    use DATLEN
    use DATMAI
+   use iso_fortran_env, only: real64
    IMPLICIT NONE
 !
 !       THIS ROUTINE DOES THE PLOTTING OF THE VIEW ANGLES
@@ -46,6 +47,7 @@ SUBROUTINE DOSZ
    use DATHGR
    use DATLEN
    use DATMAI
+   use iso_fortran_env, only: real64
    IMPLICIT NONE
 !
 !       THIS ROUTINE DOES THE PLOTTING OF THE "SCALE FACTOR"
@@ -121,6 +123,7 @@ SUBROUTINE DOSC
    use DATLEN
    use DATMAI
    use mod_system, only: sys_units
+   use iso_fortran_env, only: real64
    IMPLICIT NONE
 !
 !       THIS ROUTINE DOES THE PLOTTING OF THE "SIZE FACTORS"
@@ -217,6 +220,7 @@ SUBROUTINE DOLOK
    use DATHGR
    use DATLEN
    use DATMAI
+   use iso_fortran_env, only: real64
    IMPLICIT NONE
 !
 !       THIS ROUTINE DOES THE PLOTTING OF THE LOOK VECTOR
@@ -272,6 +276,7 @@ SUBROUTINE DOLBL
    use DATHGR
    use DATLEN
    use DATMAI
+   use iso_fortran_env, only: real64
    IMPLICIT NONE
 !
 !       THIS ROUTINE DOES THE PLOTTING OF THE LENS "LBL"
@@ -320,6 +325,7 @@ SUBROUTINE PLTFIG
    use DATLEN
    use DATMAI
    use command_utils, only: is_command_query
+   use iso_fortran_env, only: real64
    IMPLICIT NONE
 !
 !       THIS ROUTINE DOES THE PLOTTING OF THE FIG
@@ -386,6 +392,7 @@ SUBROUTINE DOLI
    use DATHGR
    use DATLEN
    use DATMAI
+   use iso_fortran_env, only: real64
    IMPLICIT NONE
 !
 !       THIS ROUTINE DOES THE PLOTTING OF THE LENS IDENTIFIER "LI"
@@ -430,6 +437,7 @@ SUBROUTINE VIGSHO
    use DATHGR
    use DATLEN
    use DATMAI
+   use iso_fortran_env, only: real64
    IMPLICIT NONE
 !
 !       THIS ROUTINE DOES THE PLOTTING OF VIGNETTING STATUS IN VIE PLOTS
@@ -459,6 +467,7 @@ SUBROUTINE DOPNAME(PPPLI)
    use DATHGR
    use DATLEN
    use DATMAI
+   use iso_fortran_env, only: real64
    IMPLICIT NONE
 !
 !       THIS ROUTINE DOES THE PLOTTING OF THE PLOT NAME
@@ -503,13 +512,14 @@ SUBROUTINE DOAX
    use DATHGR
    use DATLEN
    use DATMAI
+   use iso_fortran_env, only: real64
    IMPLICIT NONE
 !
 !       THIS ROUTINE DOES THE PLOTTING OF THE AXES IN LENS PLOTTING
 !
    CHARACTER XXX*1,YYY*1,ZZZ*1
 !
-   REAL*8 A0,XO,YO,ZO,XX,YX,ZX,XY,YY,ZY,XZ,YZ,ZZ &
+   real(real64) A0,XO,YO,ZO,XX,YX,ZX,XY,YY,ZY,XZ,YZ,ZZ &
    &,ROT1X,ROT1Z,ROT2Z,ROT2Y,AX,AY,AZ,APHI,AALF,XN,YN,ZN &
    &,X,Y,Z,VIEPH,VIEAL,ZETA,DELXX,DELYY,AA1
 !
@@ -723,6 +733,7 @@ SUBROUTINE DNOTES(NOTE_NUMBER,NOTEA,LINES)
    use DATLEN
    use DATMAI
    use DATPTS
+   use iso_fortran_env, only: real64
    IMPLICIT NONE
    INTEGER NOTE_NUMBER,LINES,I
    CHARACTER*80 NOTEA(1:15)
@@ -960,6 +971,7 @@ SUBROUTINE FRMBOX
    use DATMAI
    use mod_surface, only: surf_thickness
    use mod_system, only: sys_units, sys_scy, sys_scy_fang, sys_mode
+   use iso_fortran_env, only: real64
    IMPLICIT NONE
 !
 !       THIS ROUTINE DRAWS THE BOX FRAMING FOR ALL RAY FAN
@@ -967,7 +979,7 @@ SUBROUTINE FRMBOX
 !
    INTEGER IJKX,IJKY
 !
-   REAL*8 VAA
+   real(real64) VAA
 !
    CHARACTER CS1*4,CS2*4,CS3*11,CS4*11,CS5*11,CS6*11,CS7*11,CS8*11 &
    &,XTOPLB*11,XN1*28,XN2*28,XN3*28,YN1*28,YN2*28,YN3*28,YFOBN3*18,&
@@ -2213,6 +2225,7 @@ SUBROUTINE FILCOB
 !
    use DATLEN
    use DATMAI
+   use iso_fortran_env, only: real64
    IMPLICIT NONE
 !
 !       THIS ROUTINE DOES COBS PATTERN FILLING

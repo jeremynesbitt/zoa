@@ -4,6 +4,7 @@
 SUBROUTINE SETHED
 !
    use DATMAI
+   use iso_fortran_env, only: real64
    IMPLICIT NONE
 !
 !       THIS ROUTINE SETS, CLEARS AND INTERROGATES THE HEADINGS
@@ -60,6 +61,7 @@ END
 SUBROUTINE SET
 !
    use DATMAI
+   use iso_fortran_env, only: real64
    IMPLICIT NONE
 !
 !       THIS SUBROUTINE IS USED TO SET A NAMED REGISTER (A THROUGH H)
@@ -76,7 +78,7 @@ SUBROUTINE SET
 !
    CHARACTER ACCWRD*8
 !
-   REAL*8 SVAL
+   real(real64) SVAL
 !
    LOGICAL GSTRING
 !
@@ -297,6 +299,7 @@ SUBROUTINE SAGFLT(I,X,Y,SAG)
    use DATLEN
    use DATMAI
    use mod_surface
+   use iso_fortran_env, only: real64
    IMPLICIT NONE
 !
 !       THIS IS SUBROUTINE SAGFLT.FOR. THIS SUBROUTINE IMPLEMENTS
@@ -305,7 +308,7 @@ SUBROUTINE SAGFLT(I,X,Y,SAG)
 !
    INTEGER I
 !
-   REAL*8 Z,X,Y,SAG
+   real(real64) Z,X,Y,SAG
 
 !
 !
@@ -364,9 +367,10 @@ SUBROUTINE SAGANA(CX,CY,KX,KY,X,Y,DX,DY,EX,EY,FX,FY,GX,GY &
    use DATLEN
    use DATMAI
    use mod_surface
+   use iso_fortran_env, only: real64
    IMPLICIT NONE
 !
-   REAL*8 CX,CY,KX,KY,X,Y,DX,DY,EX,EY,FX,FY,GX,GY &
+   real(real64) CX,CY,KX,KY,X,Y,DX,DY,EX,EY,FX,FY,GX,GY &
    &,SAG,R,R1,R3,R2,R4,Z,XX,YY,SAG1,SAG2
 !
    INTEGER I
@@ -412,11 +416,12 @@ SUBROUTINE SAGASP(I,X,Y,SAG)
    use DATLEN
    use DATMAI
    use mod_surface
+   use iso_fortran_env, only: real64
    IMPLICIT NONE
 !
    INTEGER I
 !
-   REAL*8 X,Y,SAG,C2,RHO2,RHO,Z,R
+   real(real64) X,Y,SAG,C2,RHO2,RHO,Z,R
 !
    IF(surf_array_parity(I) /= 0) CALL SAGARRAY(I,X,Y)
 !
@@ -475,12 +480,13 @@ SUBROUTINE SAGINT(I,X,Y,Z,L1,M1,N1)
    use DATMAI
    use mod_surface
    use mod_system, only: sys_units
+   use iso_fortran_env, only: real64
    IMPLICIT NONE
 !
-   REAL*8 C,K,Z,DELTA,ARG,MAXCLAP,DELCLAP &
+   real(real64) C,K,Z,DELTA,ARG,MAXCLAP,DELCLAP &
    &,ARG1,X,Y,ARG2,CX,CY,DX,DY,EX,EY,FX,FY,GX,GY &
    &,KX,KY,L1,M1,N1
-   REAL*8 X1,X2,Y1,Y2,Z1,Z2,ARGA,ARGB,ARGC,ARGD
+   real(real64) X1,X2,Y1,Y2,Z1,Z2,ARGA,ARGB,ARGC,ARGD
 !
    INTEGER I,J,GOO,L,M,N
 !
@@ -604,6 +610,7 @@ SUBROUTINE SAGITT(I,CA,J,SAG,ETERROR)
    use DATLEN
    use DATMAI
    use mod_surface
+   use iso_fortran_env, only: real64
    IMPLICIT NONE
 !
 !       THIS IS SUBROUTINE SAGITT.
@@ -612,7 +619,7 @@ SUBROUTINE SAGITT(I,CA,J,SAG,ETERROR)
 !
    LOGICAL ETERROR
 !
-   REAL*8 C,K,SAG,ARG,CA,KX,KY &
+   real(real64) C,K,SAG,ARG,CA,KX,KY &
    &,ARG1,X,Y,ARG2,CX,CY,DX,DY,EX,EY,FX,FY,GX,GY
 !
    INTEGER I,J
@@ -717,12 +724,13 @@ SUBROUTINE SAGPLT(I,X,Y,SAG,NO)
    use DATLEN
    use DATMAI
    use mod_surface
+   use iso_fortran_env, only: real64
    IMPLICIT NONE
 !
 !       THIS IS SUBROUTINE SAGPLT. THIS IS THE SUBROUTINE WHICH
 !       HANDLES THE SAG FOR SURFACE PROFILE AND CLAP/COBS PLOTTING.
 !
-   REAL*8 C,K,SAG,ARG &
+   real(real64) C,K,SAG,ARG &
    &,ARG1,X,Y,ARG2,CX,CY,DX,DY,EX,EY,FX,FY,GX,GY &
    &,KX,KY,VAL
 !
@@ -818,13 +826,14 @@ SUBROUTINE SAGSPC(I,X,Y,Z)
    use DATMAI
    use mod_surface
    use mod_system, only: sys_units, sys_last_surf, sys_wavelength, sys_wl_ref
+   use iso_fortran_env, only: real64
    IMPLICIT NONE
 !
 !     THIS IS SUBROUTINE SAGSPC.FOR CALCULATES SAG FOR A SPECIAL SURFACE
 !
    EXTERNAL FF2,FF3,FF4,FF5
 !
-   REAL*8 XPASS,YPASS,ZPASS
+   real(real64) XPASS,YPASS,ZPASS
 !
    COMMON/SAGPAS/XPASS,YPASS,ZPASS
 !
@@ -840,7 +849,7 @@ SUBROUTINE SAGSPC(I,X,Y,Z)
 !
    INTEGER I,III
 !
-   REAL*8 X,Y,Z,THETA,R,FF2,FF3,FF4,XX,YY &
+   real(real64) X,Y,Z,THETA,R,FF2,FF3,FF4,XX,YY &
    &,AAAX,AAAY,FF5,RRRHO,JK_WAVE,AMP1,OMEGA1X,OMEGA1Y &
    &,AMP2,OMEGA2X,OMEGA2Y &
    &,AMP3,OMEGA3X,OMEGA3Y &
@@ -1261,9 +1270,10 @@ END
 !       ROTATIONALLY SYMMETRIC ASPHERIC
 FUNCTION ARG1(C,K,X,Y)
 !
+   use iso_fortran_env, only: real64
    IMPLICIT NONE
 !
-   REAL*8 X,Y,C,K,RHO,ARG1
+   real(real64) X,Y,C,K,RHO,ARG1
 !
    RHO=DSQRT((X**2)+(Y**2))
    ARG1=&
@@ -1274,9 +1284,10 @@ END
 !       ANAMORPHIC ASPHERIC
 FUNCTION ARG2(CX,CY,KX,KY,X,Y)
 !
+   use iso_fortran_env, only: real64
    IMPLICIT NONE
 !
-   REAL*8 CX,CY,KX,KY,X,Y &
+   real(real64) CX,CY,KX,KY,X,Y &
    &,ARG2,R
 !
    R=1.0D0-((KX+1.0D0)*(CX**2)*(X**2))-((KY+1.0D0)*(CY**2)*(Y**2))
@@ -1291,13 +1302,14 @@ SUBROUTINE SAGRET(I,X,Y,Z,SAGERR)
    use DATLEN
    use DATMAI
    use mod_surface
+   use iso_fortran_env, only: real64
    IMPLICIT NONE
 !
 !       THIS IS SUBROUTINE SAGRET. THIS IS THE SUBROUTINE WHICH
 !       HANDLES THE SAG OF SURFACES IN RAYTRACING. PUT IN TO SUPPORT
 !     NON-FLAT OBJECT SURFACES
 !
-   REAL*8 C,K,SAG,DELTA,ARG &
+   real(real64) C,K,SAG,DELTA,ARG &
    &,ARG1,X,Y,ARG2,CX,CY,DX,DY,EX,EY,FX,FY,GX,GY &
    &,KX,KY,Z
 !
@@ -1396,8 +1408,9 @@ END
 SUBROUTINE MAX_CLAP_VAL(I,MAXCLAP)
    use DATLEN
    use mod_surface
+   use iso_fortran_env, only: real64
    IMPLICIT NONE
-   REAL*8 MAXCLAP1,MAXCLAP2,MAXCLAP
+   real(real64) MAXCLAP1,MAXCLAP2,MAXCLAP
    INTEGER I
    IF(surf_clap_type(I) == 0.OR.surf_array_parity(I) /= 0) THEN
       MAXCLAP1=DABS(PXTRAY(5,I))+DABS(PXTRAY(1,I))
@@ -1444,19 +1457,20 @@ SUBROUTINE SSAAGG
    use DATMAI
    use mod_surface
    use mod_system, only: sys_units, sys_last_surf, sys_wavelength
+   use iso_fortran_env, only: real64
    IMPLICIT NONE
 !
 !       THIS IS SUBROUTINE SSAAGG. THIS IS THE SUBROUTINE WHICH
 !       HANDLES THE SAG CMD LEVEL COMMAND.
 !
-   REAL*8 C,K,SAG,DELTA,ARG,MAXCLAP,DELCLAP,SSAG &
+   real(real64) C,K,SAG,DELTA,ARG,MAXCLAP,DELCLAP,SSAG &
    &,ARG1,X,Y,ARG2,CX,CY,DX,DY,EX,EY,FX,FY,GX,GY &
    &,KX,KY,S_L,S_M,S_N,DDD
 !
-   REAL*8 VALUE
+   real(real64) VALUE
 !
    INTEGER ISAG
-   REAL*8 SAGMIN,SAGMAX,SAGRMS,SAGMEAN,SAG2MEAN,SAGPTOV
+   real(real64) SAGMIN,SAGMAX,SAGRMS,SAGMEAN,SAG2MEAN,SAGPTOV
    COMMON/SAGSTUFF/SAGMIN,SAGMAX,SAGRMS,SAGMEAN,ISAG,SAG2MEAN &
    &,SAGPTOV
 
@@ -2464,8 +2478,9 @@ SUBROUTINE SAGARRAY(I,X,Y)
    use DATLEN
    use DATMAI
    use mod_surface
+   use iso_fortran_env, only: real64
    IMPLICIT NONE
-   REAL*8 X,Y,DX,DY,XWORKING,YWORKING,N_X,N_Y,SGNX,SGNY
+   real(real64) X,Y,DX,DY,XWORKING,YWORKING,N_X,N_Y,SGNX,SGNY
    INTEGER I
    DX=surf_array_dx(I)
    DY=surf_array_dy(I)
@@ -2503,6 +2518,7 @@ END
 SUBROUTINE SETBLNI
 !
    use DATMAI
+   use iso_fortran_env, only: real64
    IMPLICIT NONE
 !
 !       SETS CURRENT INSTRUCTION VALUES AND STATUS INDICATORS
@@ -2512,7 +2528,7 @@ SUBROUTINE SETBLNI
    &ANW_JK*140,ANW1_JK*23,ANW2_JK*23,ANW3_JK*23,&
    &ANW4_JK*23,ANW5_JK*23
 !
-   REAL*8 NW1_JK,NW2_JK,NW3_JK,NW4_JK,&
+   real(real64) NW1_JK,NW2_JK,NW3_JK,NW4_JK,&
    &NW5_JK
 !
    INTEGER STATNW_JK,STATN1_JK,STATN2_JK,STATN3_JK,&
@@ -2564,6 +2580,7 @@ END
 SUBROUTINE SETBLN_JK
 !
    use DATMAI
+   use iso_fortran_env, only: real64
    IMPLICIT NONE
 !
 !       SETS CURRENT INSTRUCTION VALUES AND STATUS INDICATORS
@@ -2573,7 +2590,7 @@ SUBROUTINE SETBLN_JK
    &ANW_JK*140,ANW1_JK*23,ANW2_JK*23,ANW3_JK*23,&
    &ANW4_JK*23,ANW5_JK*23
 !
-   REAL*8 NW1_JK,NW2_JK,NW3_JK,NW4_JK,&
+   real(real64) NW1_JK,NW2_JK,NW3_JK,NW4_JK,&
    &NW5_JK
 !
    INTEGER STATNW_JK,STATN1_JK,STATN2_JK,STATN3_JK,&
@@ -2624,7 +2641,7 @@ END
 SUBROUTINE ATODFAST(REMAIN)
 !**********************************************************************
 !     THIS SUBROUTINE IS USED FOR CONVERTING CHARACTER REPRESENTATIONS
-!     OF REAL*8 INPUT TO REAL*8 VALUES.
+!     OF real(real64) INPUT TO real(real64) VALUES.
 !
 !     THE INPUT IS THE CHARACTER*140 VARIABLE "JK_ANW"
 !
@@ -2636,7 +2653,7 @@ SUBROUTINE ATODFAST(REMAIN)
 !               JK_INP(1:5) = CHARACTER REPRESENTATIONS
 !     OF EACH OF THE 5 VALUES
 !
-!               NUM(1:5) = REAL*8 VALUES
+!               NUM(1:5) = real(real64) VALUES
 !
 !               JK_DF(1:5) = 0 FOR EXPLICIT INPUT VALUE
 !                            1 FOR DEFAULT INPUT VALUE
@@ -2650,11 +2667,12 @@ SUBROUTINE ATODFAST(REMAIN)
 !
 !     A VALUE IS INVALID IF IT DOES NOT REPRESENT A NUMERIC VALUE
 !
+   use iso_fortran_env, only: real64
    IMPLICIT NONE
 !
    INTEGER JK_DF(1:5)
 !
-   REAL*8 JK_NUM(1:5)
+   real(real64) JK_NUM(1:5)
 !
    CHARACTER JK_ANW*140,JK_INP(1:5)*80,REMAIN*140
 !
@@ -2676,9 +2694,10 @@ END
 !
 SUBROUTINE ATONFAS
 !
+   use iso_fortran_env, only: real64
    IMPLICIT NONE
 !
-   REAL*8 JK_NUM(1:5)
+   real(real64) JK_NUM(1:5)
 !
    INTEGER I,JK_DF(1:5)
 !
@@ -2704,7 +2723,7 @@ SUBROUTINE ATONFAS
 !     VALUE WAS NOT PREVIOUSLY COUNTED AS BAD
          IF(JK_DF(I).EQ.0) THEN
 !
-!     CONVERT TO REAL*8
+!     CONVERT TO real(real64)
             WRITE(B,10) JK_INP(I)(1:80)
 10          FORMAT(A80)
             READ(B,20,ERR=99999) JK_NUM(I)
@@ -2738,9 +2757,10 @@ SUBROUTINE BREAKO2(REMAIN)
 !     SET TO .TRUE. ELSE IT IS LEFT AS FALSE.
 !
    use DATMAI
+   use iso_fortran_env, only: real64
    IMPLICIT NONE
 !
-   REAL*8 JK_NUM(1:5)
+   real(real64) JK_NUM(1:5)
 !
    INTEGER I,J,JK_DF(1:5),JL,JK_N
 !
@@ -2907,6 +2927,7 @@ SUBROUTINE STPLB2
 !     SRIP LEADING BLANKS ROUTINE
 !**********************************************************************
 !
+   use iso_fortran_env, only: real64
    IMPLICIT NONE
 !
 !     STRIPS OFF LEADING BLANKS FROM INPUT*140
@@ -2951,6 +2972,7 @@ SUBROUTINE INSRTP2
 !     ADD MISSING PLUS SIGN ROUTINE
 !**********************************************************************
 !
+   use iso_fortran_env, only: real64
    IMPLICIT NONE
 !
    CHARACTER JK_ANW*140,JK_INP(1:5)*80
@@ -2978,6 +3000,7 @@ SUBROUTINE INSRTD2
 !     ADD MISSING "D" ROUTINE
 !**********************************************************************
 !
+   use iso_fortran_env, only: real64
    IMPLICIT NONE
 !
    CHARACTER JK_ANW*140,JK_INP(1:5)*80
@@ -3008,6 +3031,7 @@ SUBROUTINE ADDDE2
 !     DECIMAL ADDIN ROUTINE
 !**********************************************************************
 !
+   use iso_fortran_env, only: real64
    IMPLICIT NONE
 !
    CHARACTER JK_INP(1:5)*80,JK_ANW*140,BLNK80*80,AA20*20
@@ -3084,13 +3108,14 @@ SUBROUTINE DESIZ2
 !     EXPONENT TOO BIG ROUTINE
 !**********************************************************************
 !
+   use iso_fortran_env, only: real64
    IMPLICIT NONE
 !
    CHARACTER JK_INP(1:5)*80,JK_ANW*140,CHEXP*80,B*140
 !
    LOGICAL DEE,JK_FLG1(1:5),JK_FLG2
 !
-   REAL*8 NUMEXP
+   real(real64) NUMEXP
 !
    INTEGER I,DEEPOS,JK_N
 
@@ -3150,6 +3175,7 @@ END
 SUBROUTINE PRO0
 !
    use DATMAI
+   use iso_fortran_env, only: real64
    IMPLICIT NONE
 !
 !       IF A COLON FOLLOWS ANYTHING EXCEPT A BANK OR A COMMA, ADD A COMMA
@@ -3182,6 +3208,7 @@ END
 SUBROUTINE PRO4
 !
    use DATMAI
+   use iso_fortran_env, only: real64
    IMPLICIT NONE
 !
 !       IF A COLON FOLLOWS ANYTHING EXCEPT A BANK OR A COMMA, ADD A COMMA
@@ -3220,6 +3247,7 @@ END
 SUBROUTINE SETBLN
 !
    use DATMAI
+   use iso_fortran_env, only: real64
    IMPLICIT NONE
 !
 !       SETS CURRENT INSTRUCTION VALUES AND STATUS INDICATORS
@@ -3229,7 +3257,7 @@ SUBROUTINE SETBLN
    &ANW(1:20)*140,ANW1(1:20)*23,ANW2(1:20)*23,ANW3(1:20)*23,&
    &ANW4(1:20)*23,ANW5(1:20)*23
 !
-   REAL*8 NW1(1:20),NW2(1:20),NW3(1:20),NW4(1:20),&
+   real(real64) NW1(1:20),NW2(1:20),NW3(1:20),NW4(1:20),&
    &NW5(1:20)
 !
    INTEGER STATNW(1:20),STATN1(1:20),STATN2(1:20),STATN3(1:20),&
@@ -3281,7 +3309,7 @@ END
 SUBROUTINE ATOD(INPUT,INP,NUM,DF,FLG1,INUM,FLG2,REMAIN)
 !**********************************************************************
 !     THIS SUBROUTINE IS USED FOR CONVERTING CHARACTER REPRESENTATIONS
-!     OF REAL*8 INPUT TO REAL*8 VALUES.
+!     OF real(real64) INPUT TO real(real64) VALUES.
 !
 !     THE INPUT IS THE CHARACTER*140 VARIABLE "INPUT"
 !
@@ -3293,7 +3321,7 @@ SUBROUTINE ATOD(INPUT,INP,NUM,DF,FLG1,INUM,FLG2,REMAIN)
 !               INP(1:INUM) = CHARACTER REPRESENTATIONS
 !     OF EACH OF THE INUM VALUES
 !
-!               NUM(1:INUM) = REAL*8 VALUES
+!               NUM(1:INUM) = real(real64) VALUES
 !
 !               DF(1:INUM) = 0 FOR EXPLICIT INPUT VALUE
 !                            1 FOR DEFAULT INPUT VALUE
@@ -3307,11 +3335,12 @@ SUBROUTINE ATOD(INPUT,INP,NUM,DF,FLG1,INUM,FLG2,REMAIN)
 !
 !     A VALUE IS INVALID IF IT DOES NOT REPRESENT A NUMERIC VALUE
 !
+   use iso_fortran_env, only: real64
    IMPLICIT NONE
 !
    INTEGER I,DF(*),INUM
 !
-   REAL*8 NUM(*)
+   real(real64) NUM(*)
 !
    CHARACTER INPUT*140,INP(*)*80,REMAIN*140
 !
@@ -3338,6 +3367,7 @@ SUBROUTINE BREAKOUT(INPUT,INP,DF,FLG1,INUM,FLG2,REMAIN)
 !     INP(1:20). IF A VALUE WAS RETURNED, THE FLAG FLG(I) IS
 !     SET TO .TRUE. ELSE IT IS LEFT AS FALSE.
 !
+   use iso_fortran_env, only: real64
    IMPLICIT NONE
 !
    INTEGER I,J,DF(*),INUM,JL
@@ -3489,6 +3519,7 @@ SUBROUTINE STPLBL(INPUT,BLANK)
 !     SRIP LEADING BLANKS ROUTINE
 !**********************************************************************
 !
+   use iso_fortran_env, only: real64
    IMPLICIT NONE
 !
 !     STRIPS OFF LEADING BLANKS FROM INPUT*140
@@ -3532,6 +3563,7 @@ SUBROUTINE STPCOM(INPUT)
 !     STRIP LEADING COMMA ROUTINE
 !**********************************************************************
 !
+   use iso_fortran_env, only: real64
    IMPLICIT NONE
 !
 !     STRIPS OFF ONE LEADING COMMA FROM INPUT*140
@@ -3556,6 +3588,7 @@ SUBROUTINE INSRTP(INPUT)
 !     ADD MISSING PLUS SIGN ROUTINE
 !**********************************************************************
 !
+   use iso_fortran_env, only: real64
    IMPLICIT NONE
 !
    CHARACTER INPUT*140
@@ -3583,6 +3616,7 @@ SUBROUTINE INSRTD(INPUT)
 !     ADD MISSING "D" ROUTINE
 !**********************************************************************
 !
+   use iso_fortran_env, only: real64
    IMPLICIT NONE
 !
    CHARACTER INPUT*140
@@ -3613,13 +3647,14 @@ SUBROUTINE DESIZE(INP1,FLG1)
 !     EXPONENT TOO BIG ROUTINE
 !**********************************************************************
 !
+   use iso_fortran_env, only: real64
    IMPLICIT NONE
 !
    CHARACTER INP1*80,CHEXP*80,B*140
 !
    LOGICAL DEE,FLG1
 !
-   REAL*8 NUMEXP
+   real(real64) NUMEXP
 !
    INTEGER I,DEEPOS
 !
@@ -3676,6 +3711,7 @@ SUBROUTINE ADDDEC(INP1,FLG1)
 !     DECIMAL ADDIN ROUTINE
 !**********************************************************************
 !
+   use iso_fortran_env, only: real64
    IMPLICIT NONE
 !
    CHARACTER INP1*80,BLNK80*80,AA20*20
@@ -3744,9 +3780,10 @@ SUBROUTINE ADDDEC(INP1,FLG1)
 END
 SUBROUTINE ATON(INP,FLG1,NUM,ERROR,DF,INUM)
 !
+   use iso_fortran_env, only: real64
    IMPLICIT NONE
 !
-   REAL*8 NUM(*)
+   real(real64) NUM(*)
 !
    INTEGER I,DF(*),INUM
 !
@@ -3766,7 +3803,7 @@ SUBROUTINE ATON(INP,FLG1,NUM,ERROR,DF,INUM)
 !     VALUE WAS NOT PREVIOUSLY COUNTED AS BAD
          IF(DF(I).EQ.0) THEN
 !
-!     CONVERT TO REAL*8
+!     CONVERT TO real(real64)
             WRITE(B,10) INP(I)(1:80)
 10          FORMAT(A80)
             READ(B,20,ERR=99999) NUM(I)
@@ -3789,6 +3826,7 @@ SUBROUTINE ATON(INP,FLG1,NUM,ERROR,DF,INUM)
    RETURN
 END
 SUBROUTINE UPPER
+   use iso_fortran_env, only: real64
    IMPLICIT NONE
 !
    CHARACTER RA(0:6)*140
@@ -3805,6 +3843,7 @@ SUBROUTINE UPPER
    RETURN
 END
 SUBROUTINE UPPER_CASE(STRUC)
+   use iso_fortran_env, only: real64
    IMPLICIT NONE
    CHARACTER STRUC*140
    INTEGER I,J
@@ -3816,6 +3855,7 @@ SUBROUTINE UPPER_CASE(STRUC)
    RETURN
 END
 SUBROUTINE TOUPPER(STRUC,N)
+   use iso_fortran_env, only: real64
    IMPLICIT NONE
    INTEGER I,J,N
    CHARACTER STRUC*(N)
@@ -3831,6 +3871,7 @@ SUBROUTINE PROCES
    USE GLOBALS
 !
    use DATMAI
+   use iso_fortran_env, only: real64
    IMPLICIT NONE
 !
 !               THIS SUBROUTINE PROCESSES THE 140 CHARACTER
@@ -3903,6 +3944,7 @@ SUBROUTINE PRO2
    USE GLOBALS
 !
    use DATMAI
+   use iso_fortran_env, only: real64
    IMPLICIT NONE
 !
 !       THIS SUBROUTINE PROCESSES THE STRING VARIABLE "INPUT"
@@ -4249,6 +4291,7 @@ SUBROUTINE PRO3
    USE GLOBALS
 !
    use DATMAI
+   use iso_fortran_env, only: real64
    IMPLICIT NONE
 !
 !       THIS ROUTINE PROCESSES UP TO NUMCOM INSTRUCTIONS
@@ -4282,7 +4325,7 @@ SUBROUTINE PRO3
    &,SI(1:20),&
    &QBVL,BI,IP
 !
-   REAL*8 NW1(1:20),NW2(1:20),NW3(1:20),NW4(1:20)&
+   real(real64) NW1(1:20),NW2(1:20),NW3(1:20),NW4(1:20)&
    &,NW5(1:20)&
    &,JK_NUM(1:5),HOLD1,HOLD2,HOLD3,HOLD4,HOLD5
 !
@@ -5538,7 +5581,7 @@ SUBROUTINE PRO3
 !
 !       NOW BREAK OUT THE ONE TO FIVE ALPHANUMERIC
 !       REPRESENTATIONS OF THE NUMERIC WORDS, THEN
-!       TRANSLATE THEM INTO NUMERIC REAL*8
+!       TRANSLATE THEM INTO NUMERIC real(real64)
 !       VALUES. AS OF 1/9/93 AT 5:14PM, NUMERIC WORDS CAN HAVE
 !       NESTED COMMAS.
 !

@@ -153,11 +153,12 @@ subroutine Sandbox()
   use codeV_commands, only: execRestore
   use zoa_file_handler
 
+   use iso_fortran_env, only: real64
   implicit none
 
-  real*8 ALENSCV(1:160,0:499), ALENSZOA(1:160,0:499)
-  real*8 ALENSDIFF(1:160,0:499)
-  REAL*8 SYSCV(1:150), SYSZOA(1:150), SYSDIFF(1:150)
+  real(real64) ALENSCV(1:160,0:499), ALENSZOA(1:160,0:499)
+  real(real64) ALENSDIFF(1:160,0:499)
+  real(real64) SYSCV(1:150), SYSZOA(1:150), SYSDIFF(1:150)
   integer :: ii
 
 
@@ -195,6 +196,7 @@ subroutine Sandbox_old()
   use zoa_file_handler
 
 
+   use iso_fortran_env, only: real64
   implicit none
 
         ! Restore lens from new save file system
@@ -235,6 +237,7 @@ subroutine POWSYM_PLOT(surfaceno, w, w_sum, symcalc, s_sum)
   use handlers, only: zoatabMgr
   use zoa_output, only: zoa_emit
 
+   use iso_fortran_env, only: real64
   implicit none
 
  real, intent(in) :: w(:), symcalc(:)
@@ -429,6 +432,7 @@ subroutine PLTIMTST
 
 
 use DATMAI
+   use iso_fortran_env, only: real64
 IMPLICIT NONE
 
 character(len=23) :: ffieldstr
@@ -581,6 +585,7 @@ subroutine PLT3DTST
 
 
 use DATMAI
+   use iso_fortran_env, only: real64
 IMPLICIT NONE
 
 character(len=23) :: ffieldstr
@@ -901,6 +906,7 @@ SUBROUTINE RUN_WDRAWOPTICALSYSTEM
 !     THIS IS THE DRIVER ROUTINE FOR SENDING GRAPHICS TO
 !     A GRAPHIC WINDOW
       !USE WINTERACTER
+   use iso_fortran_env, only: real64
       IMPLICIT NONE
       LOGICAL EXISD
       !INCLUDE 'DATMAI.INC'
@@ -923,6 +929,7 @@ subroutine powsym_ideal(surfaceno, w, w_sum, symcalc, s_sum)
 
 
 use DATMAI
+   use iso_fortran_env, only: real64
 IMPLICIT NONE
 
 real, intent(in) :: w(:), symcalc(:)
@@ -1050,6 +1057,7 @@ subroutine plot_seidel()
 
 
 use DATMAI
+   use iso_fortran_env, only: real64
 IMPLICIT NONE
 
 integer, parameter :: nS = 7 ! number of seidel terms to plot

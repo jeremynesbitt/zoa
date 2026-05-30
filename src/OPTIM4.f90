@@ -8,13 +8,14 @@ SUBROUTINE TOLREST
    use DATLEN
    use mod_surface
    use DATMAI
+   use iso_fortran_env, only: real64
    IMPLICIT NONE
 !
    INTEGER I,J,VTYPE,K,ALTYPE,VADD,VCFG,KMIN
 !
    CHARACTER AV1*23
 !
-   REAL*8 V1,VTEMP,FK,FM ,FMT1
+   real(real64) V1,VTEMP,FK,FM ,FMT1
 !
    LOGICAL NOP
 !
@@ -155,6 +156,7 @@ SUBROUTINE RAYS
    use mod_system
    use DATMAI
    use command_utils, only: is_command_query
+   use iso_fortran_env, only: real64
    IMPLICIT NONE
    CHARACTER AVAL3*3
    INTEGER I
@@ -210,6 +212,7 @@ SUBROUTINE QRRYFL
    use mod_surface
    use DATMAI
    use command_utils, only: is_command_query
+   use iso_fortran_env, only: real64
    IMPLICIT NONE
 !     QUERRIES FIELDS AND RAYS FOR OPTIMIZATION
    INTEGER I
@@ -300,6 +303,7 @@ SUBROUTINE RFRESET
    use DATLEN
    use mod_surface
    use DATMAI
+   use iso_fortran_env, only: real64
    IMPLICIT NONE
    IF(WC.EQ.'FIELDS') THEN
 
@@ -337,6 +341,7 @@ SUBROUTINE AUTO
    use DATLEN
    use mod_surface
    use DATMAI
+   use iso_fortran_env, only: real64
    IMPLICIT NONE
    LOGICAL ITERROR
 !
@@ -569,6 +574,7 @@ SUBROUTINE RECURSIVEITER(IFUNCTION,ICHK,ITERROR)
    use DATLEN
    use mod_surface
    use DATMAI
+   use iso_fortran_env, only: real64
    IMPLICIT NONE
    LOGICAL ITERROR
    INTEGER IFUNCTION,ICHK
@@ -586,15 +592,16 @@ SUBROUTINE RESTOR(LCODE)
    use mod_surface
    use DATMAI
    use command_utils, only: is_command_query
+   use iso_fortran_env, only: real64
    IMPLICIT NONE
 !
    INTEGER ISURF,ALLOERR,I,J,VTYPE,K,ALTYPE,VADD,VCFG,KMIN
 !
    CHARACTER AV1*23
 !
-   REAL*8 V1,VTEMP,FK,VSAVE,FMTMIN(0:5),FM ,FMT1
+   real(real64) V1,VTEMP,FK,VSAVE,FMTMIN(0:5),FM ,FMT1
 !
-   REAL*8 NEWDEFVAL
+   real(real64) NEWDEFVAL
 !
    COMMON/DEFVALCOM/NEWDEFVAL
 !
@@ -1160,6 +1167,7 @@ SUBROUTINE ITER(IFUNCTION,ICHK,ITERROR)
    use mod_surface
    use DATMAI
    use command_utils, only: is_command_query
+   use iso_fortran_env, only: real64
    IMPLICIT NONE
    LOGICAL ITERROR
 !
@@ -1169,15 +1177,15 @@ SUBROUTINE ITER(IFUNCTION,ICHK,ITERROR)
 !
    CHARACTER AV1*23,OLDAV1*23,AN1*23
 !
-   REAL*8 N1,V1,OLDV1,CV1,DERVAL,OREG
+   real(real64) N1,V1,OLDV1,CV1,DERVAL,OREG
 !
-   REAL*8 DERIV
+   real(real64) DERIV
    DIMENSION DERIV(:,:)
    ALLOCATABLE :: DERIV
 !
    INTEGER ISURF,DNUM
 !
-   REAL*8 NEWDEFVAL ,DMEAN,DSTDEV,DMEAN2
+   real(real64) NEWDEFVAL ,DMEAN,DSTDEV,DMEAN2
 !
    COMMON/DEFVALCOM/NEWDEFVAL
 !
@@ -2077,6 +2085,7 @@ SUBROUTINE DERIVATIVES(MAXCNT,DERIV)
    use DATLEN
    use mod_surface
    use DATMAI
+   use iso_fortran_env, only: real64
    IMPLICIT NONE
 !
    INTEGER ALLOERR,IIID,JJJD,I,J,VCFG,VTYPE,ALTYPE,VADD,II,JJ
@@ -2085,14 +2094,14 @@ SUBROUTINE DERIVATIVES(MAXCNT,DERIV)
 !
    CHARACTER AV1*23,OLDAV1*23,AN1*23
 !
-   REAL*8 N1,V1,OLDV1,CV1,DERVAL,OREG
+   real(real64) N1,V1,OLDV1,CV1,DERVAL,OREG
 !
-   REAL*8 DERIV
+   real(real64) DERIV
    DIMENSION DERIV(1:MAXCNT,1:MAXCNT)
 !
    INTEGER ISURF,DNUM
 !
-   REAL*8 NEWDEFVAL ,DMEAN,DSTDEV,DMEAN2
+   real(real64) NEWDEFVAL ,DMEAN,DSTDEV,DMEAN2
 !
    COMMON/DEFVALCOM/NEWDEFVAL
 !

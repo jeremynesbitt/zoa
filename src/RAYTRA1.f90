@@ -7,6 +7,7 @@ SUBROUTINE IRAY
    use DATMAI
    use mod_system, only: sys_wl_ref, sys_scy, sys_scx, sys_scy_fang_set, &
       sys_scx_fang, sys_last_surf
+   use iso_fortran_env, only: real64
    IMPLICIT NONE
 !
 !       THIS IS SUBROUTINE IRAY.FOR. THIS SUBROUTINE IMPLEMENTS
@@ -162,6 +163,7 @@ SUBROUTINE SIZES
    use command_utils, only: is_command_query
    use mod_system, only: sys_wl_ref, sys_scy, sys_scx, sys_scy_fang, &
       sys_scy_fang_set, sys_scx_fang, sys_last_surf
+   use iso_fortran_env, only: real64
    IMPLICIT NONE
 !
 !       THIS IS SUBROUTINE SIZES
@@ -170,10 +172,10 @@ SUBROUTINE SIZES
 !
    LOGICAL OLDLDIF,OLDLDIF2
 !
-   REAL*8 HY,HX,YF,XF,YR,XR,HXMAX,HXMIN,HYMAX,HYMIN &
+   real(real64) HY,HX,YF,XF,YR,XR,HXMAX,HXMIN,HYMAX,HYMIN &
    &,XFFIX,YFFIX,XRFIX,YRFIX,XCENPOS,YCENPOS,RMAX,XLO,XHI,YLO,YHI
 !
-   REAL*8 VERARRAY
+   real(real64) VERARRAY
    DIMENSION VERARRAY(:,:)
    ALLOCATABLE :: VERARRAY
    DEALLOCATE(VERARRAY,STAT=ALLOERR)
@@ -674,6 +676,7 @@ SUBROUTINE SETCLAP
    use command_utils, only: is_command_query
    use mod_system, only: sys_wl_ref, sys_scy, sys_scx, sys_scy_fang, &
       sys_scy_fang_set, sys_scx_fang, sys_last_surf
+   use iso_fortran_env, only: real64
    IMPLICIT NONE
 !
 !       THIS IS SUBROUTINE SETCLAP
@@ -682,9 +685,9 @@ SUBROUTINE SETCLAP
 !
    LOGICAL OLDLDIF,OLDLDIF2
 !
-   REAL*8 HY,HX,YF,XF,YR,XR,HXMAX,HXMIN,HYMAX,HYMIN &
+   real(real64) HY,HX,YF,XF,YR,XR,HXMAX,HXMIN,HYMAX,HYMIN &
    &,XFFIX,YFFIX,XRFIX,YRFIX,XCENPOS,YCENPOS,RMAX,XLO,XHI,YLO,YHI
-   REAL*8 VERARRAY,XRAD,YRAD,RRAD
+   real(real64) VERARRAY,XRAD,YRAD,RRAD
    DIMENSION VERARRAY(:,:)
    ALLOCATABLE :: VERARRAY
    DEALLOCATE(VERARRAY,STAT=ALLOERR)
@@ -1307,8 +1310,9 @@ SUBROUTINE RAYDOC
    use DATMAI
    use mod_system, only: sys_wl_ref, sys_scy, sys_scx, sys_scy_fang_set, &
       sys_scx_fang, sys_last_surf
+   use iso_fortran_env, only: real64
    IMPLICIT NONE
-   REAL*8 LENG
+   real(real64) LENG
    COMMON/PASSLENG/LENG
    IF(RAYCOD(1).EQ.1) THEN
       WRITE(OUTLYNE,*) 'RAY DID NOT INTERSECT THE SURFACE'
@@ -1461,9 +1465,10 @@ SUBROUTINE IPLANE_TILT
    use DATMAI
    use mod_system, only: sys_wl_ref, sys_scy, sys_scx, sys_scy_fang_set, &
       sys_scx_fang, sys_last_surf
+   use iso_fortran_env, only: real64
    IMPLICIT NONE
-   REAL*8 ANGLE_A,ANGLE_B
-   REAL*8 OLDX,OLDY,OLDZ,JK_TEMP
+   real(real64) ANGLE_A,ANGLE_B
+   real(real64) OLDX,OLDY,OLDZ,JK_TEMP
    COS_A_ANG=1.0D0
    COS_B_ANG=1.0D0
    IF(CARTMAN) THEN
@@ -1496,6 +1501,7 @@ SUBROUTINE SAVE_CHIEF_RAY_DATA
    use DATMAI
    use mod_system, only: sys_wl_ref, sys_scy, sys_scx, sys_scy_fang_set, &
       sys_scx_fang, sys_last_surf
+   use iso_fortran_env, only: real64
    IMPLICIT NONE
    INTEGER I,J
    OLREFRY=REFRY
@@ -1507,6 +1513,7 @@ SUBROUTINE REST_CHIEF_RAY_DATA
    use DATMAI
    use mod_system, only: sys_wl_ref, sys_scy, sys_scx, sys_scy_fang_set, &
       sys_scx_fang, sys_last_surf
+   use iso_fortran_env, only: real64
    IMPLICIT NONE
    INTEGER I,J
    REFRY=OLREFRY
@@ -1523,6 +1530,7 @@ SUBROUTINE TRACE_HOERAY(XO,YO,ZO,HOE_L,HOE_M,HOE_N)
    use mod_surface, only: surf_curvature, surf_thickness, surf_ideal_efl
    use mod_system, only: sys_wl_ref, sys_scy, sys_scx, sys_scy_fang, sys_scy_fang_set, sys_scx_fang, sys_last_surf
    use mod_lens_data_manager, only: ldm
+   use iso_fortran_env, only: real64
    IMPLICIT NONE
 !
 !       THIS IS SUBROUTINE HOERAY.FOR. THIS SUBROUTINE IMPLEMENTS
@@ -1531,13 +1539,13 @@ SUBROUTINE TRACE_HOERAY(XO,YO,ZO,HOE_L,HOE_M,HOE_N)
 !       RESULTANT RAY ARE PASSED BACK VIA THE ARGUMENTS.
 !       THE RAY IS TRACED AT WAVELENGTH NUMBER HOE_WAV_NUM FROM POSITION
 !       XO,YO,ZO ON THE OBJECT SURFACE TO XHOE,YHOE,ZHOE ON THE FINAL SURFACE.
-   REAL*8 XO,YO,ZO
+   real(real64) XO,YO,ZO
 !
    INTEGER IPASS1,JK,I,ISYS20,KKK,J,ISURF,IK,WA3
 
    INTEGER CAERAS,COERAS
 !
-   REAL*8 X,Y,Z,L,M,N,WW1W,WW2W,LER,MER,NER,TANN1,TANN2,IA,IAP &
+   real(real64) X,Y,Z,L,M,N,WW1W,WW2W,LER,MER,NER,TANN1,TANN2,IA,IAP &
    &,D21,D22,GAMMA,XXX,YYY,TWW1,TWW2,XL,XM,XN,YL,YM,YN,RN1,RN2,&
    &D11,D12,LS,SNINDX,SNIND2,WW1WW,WW2WW,JK1,JK2,JK3,&
    &LSTART,MSTART,NSTART,YANG,XANG,X1LAST,LARGE,&
@@ -1545,14 +1553,14 @@ SUBROUTINE TRACE_HOERAY(XO,YO,ZO,HOE_L,HOE_M,HOE_N)
    &XC1,YC1,ZC1,MF1,MF2,DET,TARX,TARY,XVALUE,YVALUE,&
    &TEST,MAG,VALUE,LOLD,MOLD,NOLD,TARRY,TARRX
 !
-   REAL*8 HOE_L,HOE_M,HOE_N
+   real(real64) HOE_L,HOE_M,HOE_N
 !
    COMMON/CACO/CAERAS,COERAS,LS
 !
    LOGICAL AIMOK,CLAPT,OLDPASS,GERROR,DELFAIL
    COMMON/PASSOLD/OLDPASS
 !
-   REAL*8 XPASS,YPASS,ZPASS
+   real(real64) XPASS,YPASS,ZPASS
 !
    COMMON/SAGPAS/XPASS,YPASS,ZPASS
 !
@@ -2091,6 +2099,7 @@ SUBROUTINE RRAY2
    use DATMAI
    use mod_surface, only: surf_special_type
    use mod_system, only: sys_wl_ref, sys_scy, sys_scx, sys_scy_fang, sys_scy_fang_set, sys_scx_fang, sys_last_surf
+   use iso_fortran_env, only: real64
    IMPLICIT NONE
 !
 !       THIS IS SUBROUTINE RRAY.FOR. THIS SUBROUTINE IMPLEMENTS
@@ -2098,7 +2107,7 @@ SUBROUTINE RRAY2
 !
    INTEGER I,J
 !
-   REAL*8 ZZEMAX,ZZEMIN
+   real(real64) ZZEMAX,ZZEMIN
    COMMON/KENMOOR/ZZEMIN,ZZEMAX
 !
 !       WHEN RAY IS CALLED FROM OTHER PROGRAM LEVELS,
@@ -2221,13 +2230,14 @@ SUBROUTINE SIZES2
    use DATMAI
    use command_utils, only: is_command_query
    use mod_system, only: sys_wl_ref, sys_scy, sys_scx, sys_scy_fang, sys_scy_fang_set, sys_scx_fang, sys_last_surf
+   use iso_fortran_env, only: real64
    IMPLICIT NONE
 !
 !       THIS IS SUBROUTINE SIZES2
 !
    INTEGER I,N
 !
-   REAL*8 X,Y,DX,DY
+   real(real64) X,Y,DX,DY
 !
 !
 !       CHECK FOR STRING INPUT
@@ -2364,7 +2374,7 @@ SUBROUTINE HIST_RAY_SAVE
    use mod_system, only: sys_last_surf
    INTEGER J,K
    INTEGER ALLOERR
-   REAL*8 RHIST_TEMP
+   real(real64) RHIST_TEMP
    DIMENSION RHIST_TEMP(:,:,:)
    ALLOCATABLE :: RHIST_TEMP
 !       SAVES RAY DATA FOR RAY HISTORIES
@@ -2438,13 +2448,14 @@ SUBROUTINE MRRAYS
    use DATMAI
    use command_utils, only: is_command_query
    use mod_system, only: sys_wl_ref, sys_scy, sys_scx, sys_scy_fang, sys_scy_fang_set, sys_scx_fang, sys_last_surf
+   use iso_fortran_env, only: real64
    IMPLICIT NONE
 !
 !       THIS IS SUBROUTINE MRRAYS.FOR. THIS SUBROUTINE IMPLEMENTS
 !       THE CMD LEVEL COMMAND "MRAYS".
 !
    INTEGER I,J,N
-   REAL*8 XSTEP,YSTEP,SW1,SW2
+   real(real64) XSTEP,YSTEP,SW1,SW2
 !
    IF(.not. is_command_query()) THEN
 !       SET DEFAULT NUMERICS
@@ -2533,13 +2544,14 @@ SUBROUTINE MTRACER
    use DATMAI
    use mod_system, only: sys_wl_ref, sys_scy, sys_scx, sys_scy_fang_set, &
       sys_scx_fang, sys_last_surf
+   use iso_fortran_env, only: real64
    IMPLICIT NONE
 !
 !       THIS IS SUBROUTINE MTRACER IT DOES THE MTRACE COMMAND
 !
    INTEGER I,J,FN,RN,K,L
-   REAL*8 RXSTEP,RYSTEP,RSW1,RSW2,TRW1,TRW2,TFW1,TFW2
-   REAL*8 FXSTEP,FYSTEP,FSW1,FSW2
+   real(real64) RXSTEP,RYSTEP,RSW1,RSW2,TRW1,TRW2,TFW1,TFW2
+   real(real64) FXSTEP,FYSTEP,FSW1,FSW2
 !
 !
    FOBNUMBER=0
@@ -2819,6 +2831,7 @@ SUBROUTINE RRAY
    use DATMAI
    use mod_surface, only: surf_special_type
    use mod_system, only: sys_wl_ref, sys_scy, sys_scx, sys_scy_fang, sys_scy_fang_set, sys_scx_fang, sys_last_surf
+   use iso_fortran_env, only: real64
    IMPLICIT NONE
 !
 !       THIS IS SUBROUTINE RRAY.FOR. THIS SUBROUTINE IMPLEMENTS
@@ -2826,7 +2839,7 @@ SUBROUTINE RRAY
 !
    INTEGER I,J
 !
-   REAL*8 ZZEMAX,ZZEMIN
+   real(real64) ZZEMAX,ZZEMIN
    COMMON/KENMOOR/ZZEMIN,ZZEMAX
 !
 !       CHECK FOR STRING INPUT
@@ -3004,13 +3017,14 @@ SUBROUTINE MTRACERI_NOGRID
    use DATMAI
    use mod_system, only: sys_wl_ref, sys_scy, sys_scx, sys_scy_fang, sys_scy_fang_set, &
       sys_scx_fang, sys_last_surf
+   use iso_fortran_env, only: real64
    IMPLICIT NONE
 !
 !       THIS IS SUBROUTINE MTRACERI IT DOES THE MTRACEI (NO QUALIFIER WORD) COMMAND
 !
    INTEGER I,J,FN,RN,K,L
-   REAL*8 RXSTEP,RYSTEP,RSW1,RSW2,TRW1,TRW2,TFW1,TFW2
-   REAL*8 FXSTEP,FYSTEP,FSW1,FSW2,TT1,TT2
+   real(real64) RXSTEP,RYSTEP,RSW1,RSW2,TRW1,TRW2,TFW1,TFW2
+   real(real64) FXSTEP,FYSTEP,FSW1,FSW2,TT1,TT2
 !
 !
    FOBNUMBER=0
@@ -3208,11 +3222,12 @@ SUBROUTINE READIRAD
    use DATMAI
    use mod_system, only: sys_wl_ref, sys_scy, sys_scx, sys_scy_fang_set, &
       sys_scx_fang, sys_last_surf
+   use iso_fortran_env, only: real64
    IMPLICIT NONE
    INTEGER I,J,L
-   REAL*8 DKK,DIARRAY_DIM,ARRAYLENGTH,DFN
-   REAL*8 YFOV,XFOV,RTOT,INTEN,AOI,AREA_FILL
-   REAL*8 IGRID1,IGRID2,IGRID3
+   real(real64) DKK,DIARRAY_DIM,ARRAYLENGTH,DFN
+   real(real64) YFOV,XFOV,RTOT,INTEN,AOI,AREA_FILL
+   real(real64) IGRID1,IGRID2,IGRID3
    INTEGER KK,IARRAY_DIM,FN,K
 !       NRECL IS ONE 4 BYTE WORD
    OPEN(UNIT=105,ACCESS='DIRECT',FILE='IRAD.DAT',&
@@ -3262,25 +3277,26 @@ SUBROUTINE MTRACERI_GRID1
    use DATMAI
    use mod_surface, only: surf_clap_type, surf_clap_dim, surf_clap_tilt, surf_array_parity
    use mod_system, only: sys_wl_ref, sys_scy, sys_scx, sys_scy_fang, sys_scy_fang_set, sys_scx_fang, sys_last_surf
+   use iso_fortran_env, only: real64
    IMPLICIT NONE
 !
 !       THIS IS SUBROUTINE MTRACERI IT DOES THE MTRACEI1 (GRID) COMMAND
 !
    INTEGER I,J,FN,RN,K,L,ALLOERR,NX,NY,ID1,ID2,KK
-   REAL*8 RXSTEP,RYSTEP,RSW1,RSW2,TRW1,TRW2,TFW1,TFW2
-   REAL*8 FXSTEP,FYSTEP,FSW1,FSW2,TT1,TT2,ARRAYLENGTH
-   REAL*8 XDEL,YDEL,XCORRI,YCORRI,X,Y,Z,RRXI,RRYI
-   REAL*8 FAREA,TAREA,AREA_FILL,ILASTX,ILASTY,ILASTI,RRII
-   REAL*8 XSPAN,YSPAN,ILASTXS,ILASTYS,RRXIS,RRYIS
+   real(real64) RXSTEP,RYSTEP,RSW1,RSW2,TRW1,TRW2,TFW1,TFW2
+   real(real64) FXSTEP,FYSTEP,FSW1,FSW2,TT1,TT2,ARRAYLENGTH
+   real(real64) XDEL,YDEL,XCORRI,YCORRI,X,Y,Z,RRXI,RRYI
+   real(real64) FAREA,TAREA,AREA_FILL,ILASTX,ILASTY,ILASTI,RRII
+   real(real64) XSPAN,YSPAN,ILASTXS,ILASTYS,RRXIS,RRYIS
    LOGICAL XODD,YODD,ISITIN,SPSURF
-   REAL*8 IX,IDELXI,IY,IDELYI,IX1,IX2,IY1,IY2,FAREA1,FAREA2
-   REAL*8 RAYX1,RAYY1,RAYX2,RAYY2,NSTEPX,NSTEPY,DSP38
+   real(real64) IX,IDELXI,IY,IDELYI,IX1,IX2,IY1,IY2,FAREA1,FAREA2
+   real(real64) RAYX1,RAYY1,RAYX2,RAYY2,NSTEPX,NSTEPY,DSP38
 
 !
 !
 !       COPY OF THE ASSOCIATED VARIABLES IN GLOBALS.FOR
 !       MTRACEI GRID VARIABLES
-!       REAL*8, IGRID,IXARRAY,IYARRAY
+!       real(real64), IGRID,IXARRAY,IYARRAY
 !       INTEGER IARRAY_DIM
 !       DIMENSION IGRID(:,:,:),IXARRAY(:,:),IYARRAY(:,:)
 !       IGRID(IX,IY,ICODE)
@@ -3794,25 +3810,26 @@ SUBROUTINE MTRACERI_GRID2
    use DATMAI
    use mod_surface, only: surf_clap_type, surf_clap_dim
    use mod_system, only: sys_wl_ref, sys_scy, sys_scx, sys_scy_fang, sys_scy_fang_set, sys_scx_fang, sys_last_surf
+   use iso_fortran_env, only: real64
    IMPLICIT NONE
 !
 !       THIS IS SUBROUTINE MTRACERI IT DOES THE MTRACEI2 (GRID) COMMAND
 !
    INTEGER I,J,FN,RN,K,L,ALLOERR,NX,NY,ID1,ID2,KK
-   REAL*8 RXSTEP,RYSTEP,RSW1,RSW2,TRW1,TRW2,TFW1,TFW2
-   REAL*8 FXSTEP,FYSTEP,FSW1,FSW2,TT1,TT2,ARRAYLENGTH
-   REAL*8 XDEL,YDEL,XCORRI,YCORRI,X,Y,Z,RRXI,RRYI
-   REAL*8 FAREA,TAREA,AREA_FILL,ILASTX,ILASTY,ILASTI,RRII
-   REAL*8 XSPAN,YSPAN,ILASTXS,ILASTYS,RRXIS,RRYIS
+   real(real64) RXSTEP,RYSTEP,RSW1,RSW2,TRW1,TRW2,TFW1,TFW2
+   real(real64) FXSTEP,FYSTEP,FSW1,FSW2,TT1,TT2,ARRAYLENGTH
+   real(real64) XDEL,YDEL,XCORRI,YCORRI,X,Y,Z,RRXI,RRYI
+   real(real64) FAREA,TAREA,AREA_FILL,ILASTX,ILASTY,ILASTI,RRII
+   real(real64) XSPAN,YSPAN,ILASTXS,ILASTYS,RRXIS,RRYIS
    LOGICAL XODD,YODD,ISITIN,SPSURF
-   REAL*8 IX,IDELXI,IY,IDELYI,IX1,IX2,IY1,IY2,FAREA1,FAREA2
-   REAL*8 RAYX1,RAYY1,RAYX2,RAYY2,NSTEPX,NSTEPY,DSP38
+   real(real64) IX,IDELXI,IY,IDELYI,IX1,IX2,IY1,IY2,FAREA1,FAREA2
+   real(real64) RAYX1,RAYY1,RAYX2,RAYY2,NSTEPX,NSTEPY,DSP38
 
 !
 !
 !       COPY OF THE ASSOCIATED VARIABLES IN GLOBALS.FOR
 !       MTRACEI GRID VARIABLES
-!       REAL*8, IGRID,IXARRAY,IYARRAY
+!       real(real64), IGRID,IXARRAY,IYARRAY
 !       INTEGER IARRAY_DIM
 !       DIMENSION IGRID(:,:,:),IXARRAY(:,:),IYARRAY(:,:)
 !       IGRID(IX,IY,ICODE)

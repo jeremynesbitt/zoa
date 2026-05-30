@@ -28,6 +28,7 @@ END SUBROUTINE
 SUBROUTINE OPENLIBDAT(fileID)
 
    use DATMAI
+   use iso_fortran_env, only: real64
    IMPLICIT NONE
 
    INTEGER :: rec22, II, fileID
@@ -46,6 +47,7 @@ SUBROUTINE OPENLIBTAGDAT(fileID)
 
    use DATLEN
    use DATMAI
+   use iso_fortran_env, only: real64
    IMPLICIT NONE
 
    INTEGER :: rec27
@@ -74,6 +76,7 @@ SUBROUTINE myLSTAT
 !
    use DATLEN
    use DATMAI
+   use iso_fortran_env, only: real64
    IMPLICIT NONE
 !
 !       THIS SUBROUTINE RETURNS THE NUMBER OF LENSES
@@ -128,6 +131,7 @@ SUBROUTINE LLIB
 !
    use DATLEN
    use DATMAI
+   use iso_fortran_env, only: real64
    IMPLICIT NONE
 !
 
@@ -184,6 +188,7 @@ SUBROUTINE OOPDIF
    use DATLEN
    use DATMAI
    use command_utils, only: is_command_query
+   use iso_fortran_env, only: real64
    IMPLICIT NONE
 !
 !       THIS ROUTINE DOES THE OOPDIF COMMAND
@@ -230,6 +235,7 @@ SUBROUTINE LLDDFF
    use DATLEN
    use DATMAI
    use command_utils, only: is_command_query
+   use iso_fortran_env, only: real64
    IMPLICIT NONE
 !
 !       THIS ROUTINE DOES THE LDIF SETTING VIA THE DIFRAY COMMAND
@@ -276,6 +282,7 @@ SUBROUTINE LLDDF2
    use DATLEN
    use DATMAI
    use command_utils, only: is_command_query
+   use iso_fortran_env, only: real64
    IMPLICIT NONE
 !
 !       THIS ROUTINE DOES THE LDIF2 SETTING VIA THE DIFFOB COMMAND
@@ -322,6 +329,7 @@ SUBROUTINE LLDDF3
    use DATLEN
    use DATMAI
    use command_utils, only: is_command_query
+   use iso_fortran_env, only: real64
    IMPLICIT NONE
 !
 !       THIS ROUTINE DOES THE SETTING OR NOVIRT VIA THE VIRTRAY COMMAND
@@ -370,6 +378,7 @@ SUBROUTINE LEPRT
    use mod_system, only: sys_last_surf
    use DATMAI
    use command_utils, only: is_command_query
+   use iso_fortran_env, only: real64
    IMPLICIT NONE
 !
 !       THIS IS SUBROUTINE LEPRT. THIS SUBROUTINE IMPLEMENTS
@@ -551,12 +560,13 @@ SUBROUTINE LENUP
    use DATMAI
    use mod_surface
    use command_utils, only: is_command_query
+   use iso_fortran_env, only: real64
    IMPLICIT NONE
 !
 !       THIS IS SUBROUTINE LENUP. THIS IS THE SUBROUTINE WHICH
 !       HANDLES THE CHANGES AN EXISTING LENS.
 !
-   REAL*8 RAL,RBE,CGAM,SGAM,RGAM
+   real(real64) RAL,RBE,CGAM,SGAM,RGAM
 !
    !PRINT *, "IN LENUP ROUTINE"
    !call updateTerminalLog(INPUT, "red")
@@ -1247,6 +1257,7 @@ SUBROUTINE RE_DISPLAY_LENS(YESEOS)
    USE GLOBALS
    use DATLEN
    use DATMAI
+   use iso_fortran_env, only: real64
    IMPLICIT NONE
    INTEGER SAVESURF
    LOGICAL YESEOS
@@ -1276,6 +1287,7 @@ END
 
 SUBROUTINE READLENSLIBLINEANDTAG(ioLIB, ioTAG, recNum, idx,&
 &DATA, IDTAG)
+   use iso_fortran_env, only: real64
    implicit none
    integer, intent(in) :: ioLIB, ioTag, recNum
    integer, intent(inout) :: idx
@@ -1296,6 +1308,7 @@ END
 
 SUBROUTINE WRITELENSLIBLINEANDTAG(ioLIB, ioTAG, recNum, idx,&
 &DATA, IDTAG, boolCallDogTag)
+   use iso_fortran_env, only: real64
    implicit none
    integer, intent(in) :: ioLIB, ioTag, recNum
    integer, intent(in) :: idx
@@ -1325,6 +1338,7 @@ SUBROUTINE LLIBRY
    use DATLEN
    use mod_system, only: sys_wl_ref, sys_wl_pri1, sys_wl_pri2
    use DATMAI
+   use iso_fortran_env, only: real64
    IMPLICIT NONE
    LOGICAL ITERROR
 !

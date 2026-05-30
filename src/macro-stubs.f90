@@ -20,6 +20,7 @@ SUBROUTINE MACFAL
    USE GLOBALS
    use DATSUB
    use DATMAI
+   use iso_fortran_env, only: real64
    IMPLICIT NONE
    LOGICAL ITERROR
 !
@@ -86,6 +87,7 @@ END SUBROUTINE MACFAL
 ! LTH80 - last non-blank position in an 80-character string
 ! ---------------------------------------------------------------------------
 SUBROUTINE LTH80(IPT80,LENG)
+   use iso_fortran_env, only: real64
    IMPLICIT NONE
    CHARACTER IPT80*80
    INTEGER LENG,QBVAL,I
@@ -106,6 +108,7 @@ END SUBROUTINE LTH80
 ! LTH140 - last non-blank position in a 140-character string
 ! ---------------------------------------------------------------------------
 SUBROUTINE LTH140(IPT140,LENG)
+   use iso_fortran_env, only: real64
    IMPLICIT NONE
    CHARACTER IPT140*140
    INTEGER LENG,QBVAL,I
@@ -129,8 +132,9 @@ END SUBROUTINE LTH140
 SUBROUTINE SORT_JK1(N,RA,RA1,RA2)
 !     USED IN FIELD SORTING OR MULTIPLE FIELDS OF VIEW
    use DATMAI
+   use iso_fortran_env, only: real64
    IMPLICIT NONE
-   REAL*8 RA,RRA,RRA1,RRA2,RA1,RA2
+   real(real64) RA,RRA,RRA1,RRA2,RA1,RA2
    INTEGER N,L,IR,J,I
    DIMENSION RA(N),RA1(N),RA2(N)
    L=N/2+1
@@ -186,6 +190,7 @@ SUBROUTINE LENSSAVE_NOOPT
    USE GLOBALS
    use DATMAI
    use command_utils, only: is_command_query
+   use iso_fortran_env, only: real64
    IMPLICIT NONE
    CHARACTER LFILENAME*80
    INTEGER WSCNT
@@ -247,6 +252,7 @@ SUBROUTINE LENSSAVE
    USE GLOBALS
    use DATMAI
    use command_utils, only: is_command_query
+   use iso_fortran_env, only: real64
    IMPLICIT NONE
    CHARACTER LFILENAME*80
    INTEGER WSCNT
@@ -306,6 +312,7 @@ END SUBROUTINE LENSSAVE
 SUBROUTINE LENSREST
    use DATMAI
    use command_utils, only: is_command_query
+   use iso_fortran_env, only: real64
    IMPLICIT NONE
    CHARACTER LFILENAME*80
    INTEGER WSCNT
@@ -382,6 +389,7 @@ END SUBROUTINE LENSREST
 ! FUNNAME - define alternate macro function names; no-op (binary macros removed).
 ! ---------------------------------------------------------------------------
 SUBROUTINE FUNNAME
+   use iso_fortran_env, only: real64
    IMPLICIT NONE
    RETURN
 END SUBROUTINE FUNNAME
@@ -391,6 +399,7 @@ END SUBROUTINE FUNNAME
 ! ---------------------------------------------------------------------------
 SUBROUTINE MMOD
    use DATMAI
+   use iso_fortran_env, only: real64
    IMPLICIT NONE
    IF(SQ.EQ.1.OR.SST.EQ.1.OR.S3.EQ.1.OR.S4.EQ.1 &
    &.OR.S5.EQ.1) THEN

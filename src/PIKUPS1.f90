@@ -7,6 +7,7 @@ SUBROUTINE PIKXYD
    use mod_surface
    use DATMAI
    use mod_system, only: sys_last_surf
+   use iso_fortran_env, only: real64
    IMPLICIT NONE
 !
 !       THIS IS SUBROUTINE PIKXYD. THIS IS THE SUBROUTINE WHICH
@@ -115,6 +116,7 @@ SUBROUTINE PIKPXYD
    use mod_surface
    use DATMAI
    use mod_system, only: sys_last_surf
+   use iso_fortran_env, only: real64
    IMPLICIT NONE
 !
 !       THIS IS SUBROUTINE PIKPXYD. THIS IS THE SUBROUTINE WHICH
@@ -219,6 +221,7 @@ SUBROUTINE PIKTH
    use mod_surface
    use DATMAI
    use mod_system, only: sys_last_surf, sys_astop, sys_astop_adj
+   use iso_fortran_env, only: real64
    IMPLICIT NONE
 !
 !       THIS IS SUBROUTINE PIKTH. THIS IS THE SUBROUTINE WHICH
@@ -346,6 +349,7 @@ SUBROUTINE PIKTHOAL
    use mod_surface
    use DATMAI
    use mod_system, only: sys_last_surf, sys_astop, sys_astop_adj
+   use iso_fortran_env, only: real64
    IMPLICIT NONE
 !
 !       THIS IS SUBROUTINE PIKTHOAL. THIS IS THE SUBROUTINE WHICH
@@ -468,6 +472,7 @@ SUBROUTINE PIKRES
    use mod_surface
    use DATMAI
    use mod_system, only: sys_last_surf
+   use iso_fortran_env, only: real64
    IMPLICIT NONE
 !
 !       THIS IS SUBROUTINE PIKRES. THIS IS THE SUBROUTINE WHICH
@@ -480,7 +485,7 @@ SUBROUTINE PIKRES
 !
    COMMON/PIKCOM/COMI
 !
-   REAL*8 DUMMY,DUMMY2,AALL1,AALL2,AALL3,AALL4,TOTTH
+   real(real64) DUMMY,DUMMY2,AALL1,AALL2,AALL3,AALL4,TOTTH
 !
 !
    I=COMI
@@ -2607,6 +2612,7 @@ SUBROUTINE PIKPRO
    use mod_surface
    use DATMAI
    use mod_system, only: sys_last_surf
+   use iso_fortran_env, only: real64
    IMPLICIT NONE
 !
 !       THIS IS SUBROUTINE PIKPRO. THIS IS THE SUBROUTINE WHICH
@@ -2907,6 +2913,7 @@ SUBROUTINE PIKCOAT
    use mod_surface
    use DATMAI
    use mod_system, only: sys_last_surf
+   use iso_fortran_env, only: real64
    IMPLICIT NONE
 !
    INTEGER I
@@ -2986,6 +2993,7 @@ SUBROUTINE PIKGLS
    use mod_surface
    use DATMAI
    use mod_system, only: sys_last_surf, sys_set_last_surf
+   use iso_fortran_env, only: real64
    IMPLICIT NONE
 !
    INTEGER I
@@ -3084,6 +3092,7 @@ SUBROUTINE PIKGRT
    use mod_surface
    use DATMAI
    use mod_system, only: sys_last_surf
+   use iso_fortran_env, only: real64
    IMPLICIT NONE
 !
    INTEGER I
@@ -3161,6 +3170,7 @@ SUBROUTINE PIKCVT
    use mod_surface
    use DATMAI
    use mod_system, only: sys_last_surf
+   use iso_fortran_env, only: real64
    IMPLICIT NONE
 !
 !       THIS IS SUBROUTINE PIKCVT. THIS IS THE SUBROUTINE WHICH

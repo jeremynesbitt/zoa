@@ -9,13 +9,14 @@ SUBROUTINE MERIT2
    use DATLEN
    use DATMAI
    use command_utils, only: is_command_query
+   use iso_fortran_env, only: real64
    IMPLICIT NONE
 !
    INTEGER I,J,K,L,OPT,SHTNM
 !
    LOGICAL ERRR,ERRFOB,PSFEXT2
 !
-   REAL*8 OPWEIT,IREG,OUTEXTENT,INEXTENT,OUTSPACE &
+   real(real64) OPWEIT,IREG,OUTEXTENT,INEXTENT,OUTSPACE &
    &,DIAM,GRNX,GRNY,SHTVALUE,VALUE,INSPACE,EFFER,VALVAL,SEFFER
 !
 !
@@ -466,19 +467,20 @@ SUBROUTINE TOPER1
    use DATLEN
    use DATMAI
    use mod_system, only: sys_last_surf, sys_wl_ref
+   use iso_fortran_env, only: real64
    IMPLICIT NONE
 !
    INTEGER OS5,ODF5,I,II,J,K,L,OPT
 !
-   REAL*8 OW5
+   real(real64) OW5
 !
    CHARACTER*8 OPNM
 !
    LOGICAL YES
 !
-   REAL*8 OPWEIT,IREG
+   real(real64) OPWEIT,IREG
 !
-   REAL*8 OP1,OP2,OP3,OP4,OP5,OP6,OP7,OP8,OP9,OP10 &
+   real(real64) OP1,OP2,OP3,OP4,OP5,OP6,OP7,OP8,OP9,OP10 &
    &,OP11,OP12,OP13,OP14,OP15,OP16,OP17,OP18,OP19,OP20
 !
 !
@@ -3197,6 +3199,7 @@ SUBROUTINE FOCRIT1
    use DATLEN
    use DATMAI
    use mod_system, only: sys_last_surf, sys_wl_ref
+   use iso_fortran_env, only: real64
    IMPLICIT NONE
 !
    INTEGER II,I,J,K,L,OPT
@@ -3205,9 +3208,9 @@ SUBROUTINE FOCRIT1
 !
    LOGICAL YES
 !
-   REAL*8 OPWEIT,IREG
+   real(real64) OPWEIT,IREG
 !
-   REAL*8 OP1,OP2,OP3,OP4,OP5,OP6,OP7,OP8,OP9,OP10 &
+   real(real64) OP1,OP2,OP3,OP4,OP5,OP6,OP7,OP8,OP9,OP10 &
    &,OP11,OP12,OP13,OP14,OP15,OP16,OP17,OP18,OP19
 !
 !
@@ -5917,6 +5920,7 @@ SUBROUTINE MERIT1
    use mod_surface
    use mod_system, only: sys_last_surf, sys_wl_ref
    use command_utils, only: is_command_query
+   use iso_fortran_env, only: real64
    IMPLICIT NONE
 !
    INTEGER I,J,K,L,OPT
@@ -5927,9 +5931,9 @@ SUBROUTINE MERIT1
 !
    CHARACTER BF*140
 !
-   REAL*8 OPWEIT,IREG
+   real(real64) OPWEIT,IREG
 !
-   REAL*8 OP1,OP2,OP3,OP4,OP5,OP6,OP7,OP8,OP9,OP10 &
+   real(real64) OP1,OP2,OP3,OP4,OP5,OP6,OP7,OP8,OP9,OP10 &
    &,OP11,OP12,OP13,OP14,OP15,OP16,OP17,OP18,OP19
 !
 !

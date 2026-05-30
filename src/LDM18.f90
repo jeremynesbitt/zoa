@@ -6,6 +6,7 @@ SUBROUTINE FLUSHNEXT
    use mod_surface
    use DATMAI
    use mod_lens_data_manager, only: ldm
+   use iso_fortran_env, only: real64
    IMPLICIT NONE
 !     ALL THE ARRAY VALUES FOR THE NEXT SURFACE ARE SET TO THEIR
 !     PROPER STARTING DEFAULT VALUES
@@ -38,6 +39,7 @@ SUBROUTINE LENIN
    use mod_surface
    use command_utils, only: is_command_query
    use mod_system, only: sys_telecentric, sys_set_telecentric
+   use iso_fortran_env, only: real64
    IMPLICIT NONE
 !
 !       THIS IS SUBROUTINE LENIN. THIS IS THE SUBROUTINE WHICH
@@ -46,7 +48,7 @@ SUBROUTINE LENIN
 !
    CHARACTER WCOLD*8
 !
-   REAL*8 RAL,RBE,CGAM,SGAM,RGAM
+   real(real64) RAL,RBE,CGAM,SGAM,RGAM
 !
    IF(WC.EQ.'M'.OR.WC.EQ.'CK') THEN
       CALL MESCOM
@@ -546,6 +548,7 @@ SUBROUTINE LENADD
    use mod_surface
    use DATMAI
    use mod_system, only: sys_last_surf, sys_units, sys_wl_ref, sys_wl_pri1, sys_wl_pri2, sys_ref_surf, sys_astop, sys_set_high_cfg
+   use iso_fortran_env, only: real64
    IMPLICIT NONE
 !
 !       IT IS WITHIN THIS SUBROUTINE THAT MAKE LENADD WORK
@@ -555,7 +558,7 @@ SUBROUTINE LENADD
 !
    INTEGER N3,FLASTP,FLREFS,LIBNUM,II,N,J,I,SUR,KPIK,K,L,M ,ALLOERR,JK,TOTSUR,IS,OLDOUT,OLDIN,IREND
 !
-   REAL*8 ASTOP2,REFS2,IMAGE1,IMAGE2,UNI1,UNI2
+   real(real64) ASTOP2,REFS2,IMAGE1,IMAGE2,UNI1,UNI2
 !
    LOGICAL EXISJK
 !
@@ -563,9 +566,9 @@ SUBROUTINE LENADD
 !
    CHARACTER LICA*80,LIA*80,GLANMA*13,ALBL*80,LLTYPEA*80,INNIA*80
 !
-   REAL*8 SYSA,ALENA,SLVA,PIKA,FT01A,MULTCLAPA,MULTCOBSA
+   real(real64) SYSA,ALENA,SLVA,PIKA,FT01A,MULTCLAPA,MULTCOBSA
 !
-   REAL*8 AIPOLYX,AIPOLYY
+   real(real64) AIPOLYX,AIPOLYY
 !
    DIMENSION SYSA(:),ALENA(:,:),SLVA(:,:),PIKA(:,:,:),FT01A(:,:),LICA(:),GLANMA(:,:),ALBL(:),MULTCLAPA(:,:,:),MULTCOBSA(:,:,:),AIPOLYX(:,:,:),AIPOLYY(:,:,:)
 !
@@ -949,6 +952,7 @@ SUBROUTINE LENADD
 END
 SUBROUTINE LAMHILO(NAME1,NAME2,FLNAME,LAMUPP,LAMLOW)
 !
+   use iso_fortran_env, only: real64
    IMPLICIT NONE
 !
    CHARACTER NAME1*13,NAME2*13
@@ -956,7 +960,7 @@ SUBROUTINE LAMHILO(NAME1,NAME2,FLNAME,LAMUPP,LAMLOW)
 !
    LOGICAL LOWER
 !
-   REAL*8 LAMLOW,LAMUPP
+   real(real64) LAMLOW,LAMUPP
 !
    !call LogTermFOR("Testing123 LAMHILO")
    LAMLOW=0.0D0
@@ -1319,9 +1323,10 @@ SUBROUTINE LOADIPOLY(J,SUR)
    use mod_surface
    use DATMAI
    use mod_surface
+   use iso_fortran_env, only: real64
    IMPLICIT NONE
    INTEGER J,SUR,N,I,M
-   REAL*8 X,Y
+   real(real64) X,Y
    CHARACTER AN*2,FILE_NAME*11
    LOGICAL FEXIST,FOPEN
 !       J=1 = CLAP

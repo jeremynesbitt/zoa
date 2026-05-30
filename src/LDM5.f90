@@ -13,6 +13,7 @@ SUBROUTINE SNAO
       sys_set_na_set, sys_set_naoy, sys_set_naox, sys_set_fno_val_set, &
       sys_set_say_float, sys_set_sax_float, sys_set_xz_data_flag
    use mod_lens_data_manager, only: ldm
+   use iso_fortran_env, only: real64
    IMPLICIT NONE
 !
 !       THIS IS SUBROUTINE SNAO WHICH IMPLEMENTS THE NAO(X OR Y) COMMAND
@@ -248,6 +249,7 @@ SUBROUTINE SMODE
    use DATMAI
    use command_utils, only: is_command_query
    use mod_system, only: sys_mode, sys_set_mode
+   use iso_fortran_env, only: real64
    IMPLICIT NONE
 !
 !       THIS IS SUBROUTINE SMODE WHICH IMPLEMENTS THE MODE
@@ -426,12 +428,13 @@ SUBROUTINE SMAG
    use mod_surface
    use DATMAI
    use mod_system, only: sys_say, sys_sax, sys_last_surf
+   use iso_fortran_env, only: real64
    IMPLICIT NONE
 !
 !       THIS IS SUBROUTINE SMAG WHICH IMPLEMENTS THE MAGY AND MAGX
 !       COMMANDS AT THE CMD LEVEL.
 !
-   REAL*8 MAG
+   real(real64) MAG
 !
    INTEGER I,J
 !
@@ -525,6 +528,7 @@ SUBROUTINE SLVRS
    use DATMAI
    use mod_system, only: sys_wl_ref, sys_last_surf
    use mod_lens_data_manager, only: ldm
+   use iso_fortran_env, only: real64
    IMPLICIT NONE
 !
 !       THIS IS SUBROUTINE SLVRS . IT IS USED TO HANDLE
@@ -538,7 +542,7 @@ SUBROUTINE SLVRS
 !
    COMMON/FINER/FINY
 !
-   REAL*8 ARG,DIS,EDGVAL,SAGL,SAGLP1,N,J_NP, newThick
+   real(real64) ARG,DIS,EDGVAL,SAGL,SAGLP1,N,J_NP, newThick
 !
 !
    L=SLV1
@@ -2040,6 +2044,7 @@ SUBROUTINE SLI
    use mod_surface
    use DATMAI
    use mod_system, only: sys_last_surf
+   use iso_fortran_env, only: real64
    IMPLICIT NONE
 !
 !       THIS IS SUBROUTINE SLI WHICH IMPLEMENTS THE LI AND LIC
@@ -2181,6 +2186,7 @@ SUBROUTINE SINI
    use mod_surface
    use DATMAI
    use mod_system, only: sys_last_surf
+   use iso_fortran_env, only: real64
    IMPLICIT NONE
 !
 !       THIS IS SUBROUTINE SINI WHICH IMPLEMENTS THE INI
@@ -2238,6 +2244,7 @@ SUBROUTINE SLTYPE
    use mod_surface
    use DATMAI
    use mod_system, only: sys_last_surf
+   use iso_fortran_env, only: real64
    IMPLICIT NONE
 !
 !       THIS IS SUBROUTINE SLTYPE WHICH IMPLEMENTS THE LTYPE

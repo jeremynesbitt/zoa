@@ -8,6 +8,7 @@ SUBROUTINE CFGUP
    use DATMAI
    use mod_surface, only: surf_special_type
    use mod_system, only: sys_last_surf, sys_high_cfg, sys_set_high_cfg
+   use iso_fortran_env, only: real64
    IMPLICIT NONE
 !
    INTEGER I,J
@@ -61,6 +62,7 @@ SUBROUTINE CFGPRT
    use DATLEN
    use DATMAI
    use mod_system, only: sys_last_surf, sys_high_cfg, sys_set_high_cfg
+   use iso_fortran_env, only: real64
    IMPLICIT NONE
 !
 !       THIS SUBROUTINE IS CALLED FROM THE CMD LEVEL
@@ -202,6 +204,7 @@ SUBROUTINE CFGOUT(LINE1,LINE2,LINE3,LINE4,&
    use DATLEN
    use DATMAI
    use mod_system, only: sys_last_surf, sys_high_cfg, sys_set_high_cfg
+   use iso_fortran_env, only: real64
    IMPLICIT NONE
 !
 !       THIS SUBROUTINE IS CALLED BY CFGIN2 AND
@@ -720,6 +723,7 @@ SUBROUTINE CFGIN3
    use DATLEN
    use DATMAI
    use mod_system, only: sys_last_surf, sys_high_cfg, sys_set_high_cfg
+   use iso_fortran_env, only: real64
    IMPLICIT NONE
 !
 !       SPECIAL VERSION OF CFGIN2 FOR USE BY "REMOVE"
@@ -762,6 +766,7 @@ SUBROUTINE CFGIN2
    use DATLEN
    use DATMAI
    use mod_system, only: sys_last_surf, sys_high_cfg, sys_set_high_cfg
+   use iso_fortran_env, only: real64
    IMPLICIT NONE
 !
 !       THIS SUBROUTINE IS CALLED FROM THE CONFIGS INPUT OR
@@ -1439,13 +1444,14 @@ SUBROUTINE CFGFX1(I)
    use DATLEN
    use DATMAI
    use mod_system, only: sys_last_surf, sys_high_cfg, sys_set_high_cfg
+   use iso_fortran_env, only: real64
    IMPLICIT NONE
 !
    INTEGER K,I,J
 !
    LOGICAL CIS
 !
-   REAL*8 VL
+   real(real64) VL
 !
    CHARACTER AVL*23
 !
@@ -1462,7 +1468,7 @@ SUBROUTINE CFGFX1(I)
 !     FIX CONFIG K
       DO J=1,CFGCNT(K)
          IF(CONFG(K,J)(1:3).EQ.'CHG') THEN
-!     CONVERT CONFG(K,J)(10:32) TO REAL*8, ADD 1.0D0 TO IT,
+!     CONVERT CONFG(K,J)(10:32) TO real(real64), ADD 1.0D0 TO IT,
 !     IF IT IS IN THE CORRECT RANGE,
 !     CONVERT IT BACK TO CHARACTER *23 AND STUFF IT BACK INTO
 !     CONFG(K,J)(10:32)
@@ -1480,7 +1486,7 @@ SUBROUTINE CFGFX1(I)
          END IF
          IF(CONFG(K,J)(1:7).EQ.'SPECIAL'.OR.&
          &CONFG(K,J)(1:4).EQ.'GENL') THEN
-!     CONVERT CONFG(K,J)(10:32) TO REAL*8, ADD 1.0D0 TO IT,
+!     CONVERT CONFG(K,J)(10:32) TO real(real64), ADD 1.0D0 TO IT,
 !     IF IT IS IN THE CORRECT RANGE,
 !     CONVERT IT BACK TO CHARACTER *23 AND STUFF IT BACK INTO
 !     CONFG(K,J)(10:32)
@@ -1497,7 +1503,7 @@ SUBROUTINE CFGFX1(I)
 !     NOT SPECIAL OR GENL
          END IF
          IF(CONFG(K,J)(1:5).EQ.'SPDEL') THEN
-!     CONVERT CONFG(K,J)(10:32) TO REAL*8, ADD 1.0D0 TO IT,
+!     CONVERT CONFG(K,J)(10:32) TO real(real64), ADD 1.0D0 TO IT,
 !     IF IT IS IN THE CORRECT RANGE,
 !     CONVERT IT BACK TO CHARACTER *23 AND STUFF IT BACK INTO
 !     CONFG(K,J)(10:32)
@@ -1514,7 +1520,7 @@ SUBROUTINE CFGFX1(I)
 !     NOT SPDEL
          END IF
          IF(CONFG(K,J)(1:5).EQ.'PIKUP') THEN
-!     CONVERT CONFG(K,J)(19:41) TO REAL*8, ADD 1.0D0 TO IT,
+!     CONVERT CONFG(K,J)(19:41) TO real(real64), ADD 1.0D0 TO IT,
 !     IF IT IS IN THE CORRECT RANGE,
 !     CONVERT IT BACK TO CHARACTER *23 AND STUFF IT BACK INTO
 !     CONFG(K,J)(19:41)
@@ -1535,7 +1541,7 @@ SUBROUTINE CFGFX1(I)
          &CONFG(K,J)(1:3).EQ.'MAGY') THEN
 !     SPECIAL STUFF, TWO WORDS TO FIX
 !     WORD #2
-!     CONVERT CONFG(K,J)(34:56) TO REAL*8, ADD 1.0D0 TO IT,
+!     CONVERT CONFG(K,J)(34:56) TO real(real64), ADD 1.0D0 TO IT,
 !     IF IT IS IN THE CORRECT RANGE,
 !     CONVERT IT BACK TO CHARACTER *23 AND STUFF IT BACK INTO
 !     CONFG(K,J)(10:32)
@@ -1549,7 +1555,7 @@ SUBROUTINE CFGFX1(I)
 !     NOT IN CORRECT RANGE
             END IF
 !     WORD #3
-!     CONVERT CONFG(K,J)(52:71) TO REAL*8, ADD 1.0D0 TO IT,
+!     CONVERT CONFG(K,J)(52:71) TO real(real64), ADD 1.0D0 TO IT,
 !     IF IT IS IN THE CORRECT RANGE,
 !     CONVERT IT BACK TO CHARACTER *23 AND STUFF IT BACK INTO
 !     CONFG(K,J)(52:74)
@@ -1663,7 +1669,7 @@ SUBROUTINE CFGFX1(I)
          IF(CONFG(K,J)(1:3).EQ.'C95') CIS=.TRUE.
          IF(CONFG(K,J)(1:3).EQ.'C96') CIS=.TRUE.
          IF(CIS) THEN
-!     CONVERT CONFG(K,J)(10:32) TO REAL*8, ADD 1.0D0 TO IT,
+!     CONVERT CONFG(K,J)(10:32) TO real(real64), ADD 1.0D0 TO IT,
 !     IF IT IS IN THE CORRECT RANGE,
 !     CONVERT IT BACK TO CHARACTER *23 AND STUFF IT BACK INTO
 !     CONFG(K,J)(10:32)
@@ -1690,6 +1696,7 @@ SUBROUTINE CFGFX2(I)
    use DATLEN
    use DATMAI
    use mod_system, only: sys_last_surf, sys_high_cfg, sys_set_high_cfg
+   use iso_fortran_env, only: real64
    IMPLICIT NONE
 !
    INTEGER K,I,J,L,CNTER,LL
@@ -1698,7 +1705,7 @@ SUBROUTINE CFGFX2(I)
 !
    CHARACTER BLANK*140,AADF*20
 !
-   REAL*8 VL
+   real(real64) VL
 !
    CHARACTER AVL*23
 !
@@ -1717,7 +1724,7 @@ SUBROUTINE CFGFX2(I)
 !     FIX CONFIG K
       DO J=1,CFGCNT(K)
          IF(CONFG(K,J)(1:3).EQ.'CHG') THEN
-!     CONVERT CONFG(K,J)(10:32) TO REAL*8
+!     CONVERT CONFG(K,J)(10:32) TO real(real64)
 !     IF IT IS = I THEN BLANK ALL CONFIGS ENTRIES FROM HERE
 !     TO BUT NOT INCLUDING AN EOS
 !     CONFG(K,J)(10:32)
@@ -1749,7 +1756,7 @@ SUBROUTINE CFGFX2(I)
          END IF
          IF(CONFG(K,J)(1:7).EQ.'SPECIAL'.OR.&
          &CONFG(K,J)(1:4).EQ.'GENL') THEN
-!     CONVERT CONFG(K,J)(10:32) TO REAL*8
+!     CONVERT CONFG(K,J)(10:32) TO real(real64)
 !     IF IT IS = I, BLANK THE LINE
             AVL=CONFG(K,J)(10:32)
             CALL ATODCV
@@ -1763,7 +1770,7 @@ SUBROUTINE CFGFX2(I)
 !     NOT SPECIAL
          END IF
          IF(CONFG(K,J)(1:5).EQ.'SPDEL') THEN
-!     CONVERT CONFG(K,J)(10:32) TO REAL*8
+!     CONVERT CONFG(K,J)(10:32) TO real(real64)
 !     IF IT IS = I, BLANK THE LINE
             AVL=CONFG(K,J)(10:32)
             CALL ATODCV
@@ -1777,7 +1784,7 @@ SUBROUTINE CFGFX2(I)
 !     NOT SPDEL
          END IF
          IF(CONFG(K,J)(1:5).EQ.'PIKUP') THEN
-!     CONVERT CONFG(K,J)(19:41) TO REAL*8
+!     CONVERT CONFG(K,J)(19:41) TO real(real64)
 !     IF IT IS = I, BLANK THE LINE
             AVL=CONFG(K,J)(19:41)
             CALL ATODCV
@@ -1795,7 +1802,7 @@ SUBROUTINE CFGFX2(I)
          &CONFG(K,J)(1:3).EQ.'MAGY') THEN
 !     SPECIAL STUFF, TWO WORDS TO FIX
 !     WORD #2
-!     CONVERT CONFG(K,J)(34:56) TO REAL*8
+!     CONVERT CONFG(K,J)(34:56) TO real(real64)
 !     IF IT IS = I, BLANK THE LINE
             AVL=CONFG(K,J)(34:56)
             CALL ATODCV
@@ -1806,7 +1813,7 @@ SUBROUTINE CFGFX2(I)
 !     INT(VL) NOT = I
             END IF
 !     WORD #3
-!     CONVERT CONFG(K,J)(52:74) TO REAL*8
+!     CONVERT CONFG(K,J)(52:74) TO real(real64)
 !     IF IT IS = I, BLANK THE LINE
             AVL=CONFG(K,J)(52:74)
             CALL ATODCV
@@ -1917,7 +1924,7 @@ SUBROUTINE CFGFX2(I)
          IF(CONFG(K,J)(1:3).EQ.'C95') CIS=.TRUE.
          IF(CONFG(K,J)(1:3).EQ.'C96') CIS=.TRUE.
          IF(CIS) THEN
-!     CONVERT CONFG(K,J)(10:32) TO REAL*8
+!     CONVERT CONFG(K,J)(10:32) TO real(real64)
 !     IF IT IS = I, BLANK THE LINE
             AVL=CONFG(K,J)(10:32)
             CALL ATODCV
@@ -1965,13 +1972,14 @@ SUBROUTINE CFGFX3(I)
    use DATLEN
    use DATMAI
    use mod_system, only: sys_last_surf, sys_high_cfg, sys_set_high_cfg
+   use iso_fortran_env, only: real64
    IMPLICIT NONE
 !
    INTEGER K,I,J
 !
    LOGICAL CIS
 !
-   REAL*8 VL
+   real(real64) VL
 !
    CHARACTER AVL*23
 !
@@ -1987,7 +1995,7 @@ SUBROUTINE CFGFX3(I)
 !     FIX CONFIG K
       DO J=1,CFGCNT(K)
          IF(CONFG(K,J)(1:3).EQ.'CHG') THEN
-!     CONVERT CONFG(K,J)(10:32) TO REAL*8, MINUS 1.0D0 FROM IT,
+!     CONVERT CONFG(K,J)(10:32) TO real(real64), MINUS 1.0D0 FROM IT,
 !     IF IT IS GREATER THAN OF EQUAL TO I+1,
 !     CONVERT IT BACK TO CHARACTER *23 AND STUFF IT BACK INTO
 !     CONFG(K,J)(10:32)
@@ -2048,7 +2056,7 @@ SUBROUTINE CFGFX3(I)
          &CONFG(K,J)(1:3).EQ.'MAGY') THEN
 !     SPECIAL STUFF, TWO WORDS TO FIX
 !     WORD #2
-!     CONVERT CONFG(K,J)(34:56) TO REAL*8, MINUS 1.0D0 FROM IT,
+!     CONVERT CONFG(K,J)(34:56) TO real(real64), MINUS 1.0D0 FROM IT,
 !     IF IT IS EQUAL TO OR GREATER THAN OR EQUAL TO,
 !     CONVERT IT BACK TO CHARACTER *23 AND STUFF IT BACK INTO
 !     CONFG(K,J)(10:32)
@@ -2062,7 +2070,7 @@ SUBROUTINE CFGFX3(I)
 !     NOT IN CORRECT RANGE
             END IF
 !     WORD #3
-!     CONVERT CONFG(K,J)(52:71) TO REAL*8, MINUS 1.0D0 FROM IT,
+!     CONVERT CONFG(K,J)(52:71) TO real(real64), MINUS 1.0D0 FROM IT,
 !     IF IT IS GREATER THAN OR EQUAL TO I+1,
 !     CONVERT IT BACK TO CHARACTER *23 AND STUFF IT BACK INTO
 !     CONFG(K,J)(52:71)
@@ -2200,6 +2208,7 @@ SUBROUTINE CFGCLN
    use DATLEN
    use DATMAI
    use mod_system, only: sys_last_surf, sys_high_cfg, sys_set_high_cfg
+   use iso_fortran_env, only: real64
    IMPLICIT NONE
 !
 !       THIS SUBROUTINE CLEANS UP AND STREAMLINES
@@ -3284,6 +3293,7 @@ SUBROUTINE CFGIN
    use DATLEN
    use DATMAI
    use mod_system, only: sys_last_surf, sys_high_cfg, sys_set_high_cfg
+   use iso_fortran_env, only: real64
    IMPLICIT NONE
 !
 !       THIS SUBROUTINE IS CALLED TO CREATE THE
@@ -3344,6 +3354,7 @@ SUBROUTINE CFGCHG2
    use DATLEN
    use DATMAI
    use mod_system, only: sys_last_surf, sys_high_cfg, sys_set_high_cfg
+   use iso_fortran_env, only: real64
    IMPLICIT NONE
 !
 !       THIS SUBROUTINE HANDELS THE BEHAVIOR OF THE CFG
@@ -3448,6 +3459,7 @@ SUBROUTINE CFGCHG
    use DATLEN
    use DATMAI
    use mod_system, only: sys_last_surf, sys_high_cfg, sys_set_high_cfg
+   use iso_fortran_env, only: real64
    IMPLICIT NONE
 !
 !       THIS SUBROUTINE HANDELS THE BEHAVIOR OF THE CFG
@@ -3628,6 +3640,7 @@ SUBROUTINE DEZOOM
    use DATLEN
    use DATMAI
    use mod_system, only: sys_last_surf, sys_high_cfg, sys_set_high_cfg
+   use iso_fortran_env, only: real64
    IMPLICIT NONE
 !
 !       THIS SUBROUTINE HANDELS THE BEHAVIOR OF THE DEZOOM
@@ -3765,6 +3778,7 @@ SUBROUTINE DELCFG
    use DATLEN
    use DATMAI
    use mod_system, only: sys_last_surf, sys_high_cfg, sys_set_high_cfg
+   use iso_fortran_env, only: real64
    IMPLICIT NONE
 !
 !       THIS SUBROUTINE IS CALLED FROM THE CMD LEVEL
@@ -3840,6 +3854,7 @@ SUBROUTINE FRCCF1(I)
    use DATLEN
    use DATMAI
    use mod_system, only: sys_last_surf, sys_high_cfg, sys_set_high_cfg
+   use iso_fortran_env, only: real64
    IMPLICIT NONE
    INTEGER I
 !

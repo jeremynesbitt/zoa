@@ -4,6 +4,7 @@ SUBROUTINE SHOWREG
    use DATSUB
    use DATMAI
    use command_utils, only: is_command_query
+   use iso_fortran_env, only: real64
    IMPLICIT NONE
    INTEGER I
    IF(is_command_query()) THEN
@@ -66,6 +67,7 @@ SUBROUTINE SHOWREG
 END
 SUBROUTINE PUSH_STACK
    use DATMAI
+   use iso_fortran_env, only: real64
    IMPLICIT NONE
    INTEGER I
 !     COPY X TO LAST X
@@ -76,6 +78,7 @@ SUBROUTINE PUSH_STACK
 END
 SUBROUTINE PULL_STACK
    use DATMAI
+   use iso_fortran_env, only: real64
    IMPLICIT NONE
    INTEGER I
 !     COPY X TO LAST X
@@ -87,6 +90,7 @@ SUBROUTINE CHADIR
 !
    use DATMAI
    use command_utils, only: is_command_query
+   use iso_fortran_env, only: real64
    IMPLICIT NONE
 !
    CHARACTER DIRNAMM*80
@@ -203,6 +207,7 @@ SUBROUTINE LENSLOC
 !
    use DATMAI
    use command_utils, only: is_command_query
+   use iso_fortran_env, only: real64
    IMPLICIT NONE
 !
    CHARACTER DIRNAMM*80
@@ -259,6 +264,7 @@ SUBROUTINE LENSDIR
 !
    use DATMAI
    use command_utils, only: is_command_query
+   use iso_fortran_env, only: real64
    IMPLICIT NONE
 !
    CHARACTER DIRNAMM*80
@@ -301,6 +307,7 @@ SUBROUTINE DODODO
    use mod_surface
    use DATMAI
    use command_utils, only: is_command_query
+   use iso_fortran_env, only: real64
    IMPLICIT NONE
 !
 !       THIS SUBROUTINE IS CALLED TO DO THE "DO" STATEMENT
@@ -374,9 +381,10 @@ END
 ! SUB DONTOA.FOR
 SUBROUTINE DONTOA(I,AI)
 !
+   use iso_fortran_env, only: real64
    IMPLICIT NONE
 !
-   REAL*8 I
+   real(real64) I
 !
    CHARACTER B*80,AI*23
 !
@@ -390,6 +398,7 @@ END
 SUBROUTINE FLAG
 !
    use DATMAI
+   use iso_fortran_env, only: real64
    IMPLICIT NONE
 !
 !       THIS SUBROUTINE IS USED TO SET ONE OF 20 PROGRAM FLAGS
@@ -400,7 +409,7 @@ SUBROUTINE FLAG
 !
    INTEGER W(1:5),IW(1:5),FLG(0:20),I
 !
-   REAL*8 AW1,AW2,AW3,AW4,AW5
+   real(real64) AW1,AW2,AW3,AW4,AW5
 !
    COMMON/FFL/FLG
 !
@@ -589,6 +598,7 @@ END
 SUBROUTINE SETPMT
    use DATMAI
    use command_utils, only: is_command_query
+   use iso_fortran_env, only: real64
    IMPLICIT NONE
 
 !       THIS SUBROUTINE IS USED TO SET THE USER PROMPT
@@ -630,6 +640,7 @@ SUBROUTINE GPRGA
    use DATSUB
    use DATMAI
    use command_utils, only: is_command_query
+   use iso_fortran_env, only: real64
    IMPLICIT NONE
 
 !       THIS SUBROUTINE IS USED FOR GENERAL CHARACTER REGISTERS
@@ -786,6 +797,7 @@ SUBROUTINE AGET
    use mod_surface
    use DATMAI
    use mod_system, only: sys_last_surf
+   use iso_fortran_env, only: real64
    IMPLICIT NONE
 !
 !
@@ -930,11 +942,12 @@ END
 SUBROUTINE GETA
 !
    use DATMAI
+   use iso_fortran_env, only: real64
    IMPLICIT NONE
 !
    INTEGER NUM5
 !
-   REAL*8 VALUE
+   real(real64) VALUE
 !
    COMMON/GV/VALUE,NUM5
 !
@@ -950,9 +963,10 @@ FUNCTION EDGTHK(I,K)
 !
    use DATLEN
    use mod_surface
+   use iso_fortran_env, only: real64
    IMPLICIT NONE
 !
-   REAL*8 EDGTHK
+   real(real64) EDGTHK
 !
    LOGICAL ETERROR
 !
@@ -960,7 +974,7 @@ FUNCTION EDGTHK(I,K)
 !
    EXTERNAL SAGIT
 !
-   REAL*8 CA1,CA2,CA,TH12,SAGIT,SAG1,SAG2
+   real(real64) CA1,CA2,CA,TH12,SAGIT,SAG1,SAG2
 !
 !
    ETERROR=.FALSE.
@@ -1054,13 +1068,14 @@ FUNCTION SAGIT(I,CA,K,ETERROR)
 !
    use DATLEN
    use mod_surface
+   use iso_fortran_env, only: real64
    IMPLICIT NONE
 !
    INTEGER I,K
 !
    LOGICAL ETERROR
 !
-   REAL*8 CA,SAGIT,SAG1,SAG2,SAG
+   real(real64) CA,SAGIT,SAG1,SAG2,SAG
 !
 !
    IF(K.EQ.1) THEN
@@ -1096,6 +1111,7 @@ SUBROUTINE GET
       & sys_last_surf, sys_mode, sys_pxim, sys_pyim, sys_rxim, sys_ryim, &
       & sys_sax, sys_say, sys_scx, sys_scy, sys_units, sys_wavelength, &
       & sys_wl_ref, sys_wl_weight, sys_wrx, sys_wry
+   use iso_fortran_env, only: real64
    IMPLICIT NONE
    LOGICAL ITERROR
 !
@@ -1113,13 +1129,13 @@ SUBROUTINE GET
 !
    LOGICAL ONESY,GPR,TF357,NEG,OPMAP,ZN,COEFJK,ERRR,ERRER,ERRER2 ,GETTER,GERROR1,GERROR2,OPDERROR
 !
-   REAL*8 DERVAL,VALL
+   real(real64) DERVAL,VALL
 !
    INTEGER I,N,XY,ERROR,ORIEN,IGET,JGET,ISURF
 !
    CHARACTER WQLOCAL*8
 !
-   REAL*8 W2LOCAL
+   real(real64) W2LOCAL
 !
    COMMON/LOCALWQ/WQLOCAL,W2LOCAL
 !
@@ -1131,7 +1147,7 @@ SUBROUTINE GET
 !
    INTEGER NUM5,NF,ITYP
 !
-   REAL*8 VALUE,WV,COSARG,DUMMY,TEMPR1,TEMPR2,TEMPDIF,INDEX,DISP,VNUM,V1,EDGTHK,PARTL,TEMPSUM,VALVAL,DWORD1,DWORD2 ,VHI,VLO,NWN1,NWN2,NWN3,NWN4,JPX,JPY,JPCY,JPCX,JPUY,JPUX,JPUCY,JPUCX,V2,V9,JA,JB
+   real(real64) VALUE,WV,COSARG,DUMMY,TEMPR1,TEMPR2,TEMPDIF,INDEX,DISP,VNUM,V1,EDGTHK,PARTL,TEMPSUM,VALVAL,DWORD1,DWORD2 ,VHI,VLO,NWN1,NWN2,NWN3,NWN4,JPX,JPY,JPCY,JPCX,JPUY,JPUX,JPUCY,JPUCX,V2,V9,JA,JB
 !
    COMMON/GV/VALUE,NUM5
 !
@@ -1141,7 +1157,7 @@ SUBROUTINE GET
 !
    COMMON/PRCOM/WV,ITYP
 !
-   REAL*8 TERM,X(1:96)
+   real(real64) TERM,X(1:96)
 !
    COMMON/SOLU/X
 !

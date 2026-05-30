@@ -9,8 +9,9 @@ SUBROUTINE USERSURF(I,X,Y,Z,UERROR)
    use DATSUB
    use DATLEN
    use DATMAI
+   use iso_fortran_env, only: real64
    IMPLICIT NONE
-   REAL*8 RHO,RHO2,C,C2,X,Y,Z,KAPPA,DEN
+   real(real64) RHO,RHO2,C,C2,X,Y,Z,KAPPA,DEN
    INTEGER I
    LOGICAL UERROR
 !     THIS IS THE USER-DEFINED SUBROUTINE SURFACE
@@ -72,8 +73,9 @@ SUBROUTINE CALL_USERFUNC
    use DATSUB
    use DATMAI
    use DATPTS
+   use iso_fortran_env, only: real64
    IMPLICIT NONE
-   REAL*8 X,Y,Z,T
+   real(real64) X,Y,Z,T
    INTEGER I
    X=W1
    Y=W2
@@ -93,8 +95,9 @@ SUBROUTINE USERFUNC(X,Y,Z,T,I)
    use DATSUB
    use DATMAI
    use DATPTS
+   use iso_fortran_env, only: real64
    IMPLICIT NONE
-   REAL*8 X,Y,Z,T,RESULT,C,K,R
+   real(real64) X,Y,Z,T,RESULT,C,K,R
    INTEGER I
 !     CASE T=1
    IF(INT(T).EQ.1) THEN
@@ -168,6 +171,7 @@ SUBROUTINE CALL_USERSUBR
    use DATSUB
    use DATMAI
    use DATPTS
+   use iso_fortran_env, only: real64
    IMPLICIT NONE
    WRITE(OUTLYNE,*) 'RUNNING THE USERSUBR.FOR SUBROUTINE'
    CALL SHOWIT(1)

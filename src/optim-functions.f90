@@ -4,6 +4,7 @@ module optim_functions
     use type_utils
     use zoa_ui
     use global_widgets, only: ioConfig    
+   use iso_fortran_env, only: real64
     implicit none
 
 contains
@@ -105,6 +106,7 @@ end subroutine
 subroutine optimizerFunc(me, x,f,c)
     use optim_types
     use slsqp_module
+   use iso_fortran_env, only: real64
     implicit none
 
     class(slsqp_solver),intent(inout) :: me
@@ -173,6 +175,7 @@ subroutine report_iteration(me,iter,x,f,c)
 
     use, intrinsic :: iso_fortran_env, only: output_unit
 
+   use iso_fortran_env, only: real64
     implicit none
 
     class(slsqp_solver),intent(inout) :: me
@@ -221,6 +224,7 @@ subroutine report_iteration_old(me,iter,x,f,c)
 
     use, intrinsic :: iso_fortran_env, only: output_unit
 
+   use iso_fortran_env, only: real64
     implicit none
 
     class(slsqp_solver),intent(inout) :: me
@@ -259,6 +263,7 @@ subroutine dummy_grad(me,x,g,a)
 
     !! compute the gradients.
 
+   use iso_fortran_env, only: real64
     implicit none
 
     class(slsqp_solver),intent(inout)   :: me
@@ -287,6 +292,7 @@ subroutine test_func_spo_efl(me,x,f,c)
     use zoa_ui
     use global_widgets, only: ioConfig
 
+   use iso_fortran_env, only: real64
     implicit none
 
     class(slsqp_solver),intent(inout) :: me
@@ -334,6 +340,7 @@ subroutine restoreLensFromVars(oldVars)
          use DATCFG
 
 !
+   use iso_fortran_env, only: real64
       IMPLICIT NONE
       real(kind=long), dimension(:) :: oldVars
       CHARACTER OOLDWQ*8
@@ -341,9 +348,9 @@ subroutine restoreLensFromVars(oldVars)
       INTEGER SSN,SM,NP2,MP,N,J,I,L,M,VTYPE,ALTYPE,VADD,VCFG &
       ,VN1,MAXCNT,IV1,VN,ALLOERR,IID,JJD, II!
       INTEGER ISURF!
-      REAL*8 NEWDEFVAL,PFACSCL!
+      real(real64) NEWDEFVAL,PFACSCL!
       COMMON/DEFVALCOM/NEWDEFVAL!
-        REAL*8 &
+        real(real64) &
         X(1:100000),WT,V1,MAX,VTEMP,OLDCUR,NEWCUR
       DIMENSION WT(:)
       ALLOCATABLE :: WT
@@ -353,7 +360,7 @@ subroutine restoreLensFromVars(oldVars)
 
         LOGICAL ERR1,ERR2
 
-      REAL*8 W,V,BTB,BTG,DIAGSUM,WMAX,WMIN
+      real(real64) W,V,BTB,BTG,DIAGSUM,WMAX,WMIN
       DIMENSION W(:),V(:,:),BTB(:,:),BTG(:)
       ALLOCATABLE :: W,V,BTB,BTG
       VARABL(1:size(oldVars),4) = oldVars
@@ -544,6 +551,7 @@ subroutine runIter(IFUNCTION, ICHK, ITERROR)
     use DATMAI
     use DATSUB, only: DEREXT
 
+   use iso_fortran_env, only: real64
     implicit none 
     integer :: IFUNCTION, ICHK
     logical :: ITERROR  
@@ -652,11 +660,11 @@ end function
 !           INTEGER ALLOERR,IIID,JJJD,I,J,VCFG,VTYPE,ALTYPE,VADD,II,JJ
 !           INTEGER VIP,MAXCNT,IFUNCTION,ICHK
 !           CHARACTER AV1*23,OLDAV1*23,AN1*23
-!           REAL*8 N1,V1,OLDV1,CV1,DERVAL,OREG
-!           REAL*8 DERIV
+!           real(real64) N1,V1,OLDV1,CV1,DERVAL,OREG
+!           real(real64) DERIV
 !           DIMENSION DERIV(1:MAXCNT,1:MAXCNT)
 !           INTEGER ISURF,DNUM
-!           REAL*8 NEWDEFVAL &
+!           real(real64) NEWDEFVAL &
 !           ,DMEAN,DSTDEV,DMEAN2
 !           COMMON/DEFVALCOM/NEWDEFVAL
 !           LOGICAL GETTER,PLL,SILENT,ERR1,ERR2

@@ -6,6 +6,7 @@ SUBROUTINE PENMV1A(IX,IY,IPST)
    use DATHGR
    use DATLEN
    use DATMAI
+   use iso_fortran_env, only: real64
    IMPLICIT NONE
 !
 !       THIS ROUTINE DOES MOVES THE PLOTTER PEN FOR PLOT RAY
@@ -21,6 +22,7 @@ SUBROUTINE PENMV2(IX,IY,IPST)
    use DATHGR
    use DATLEN
    use DATMAI
+   use iso_fortran_env, only: real64
    IMPLICIT NONE
 !
 !       THIS ROUTINE DOES MOVES THE PLOTTER PEN FOR PLOT RAY WITH NO BOUNDS
@@ -40,6 +42,7 @@ SUBROUTINE PENMV1(IX,IY,IPST)
    use DATHGR
    use DATLEN
    use DATMAI
+   use iso_fortran_env, only: real64
    IMPLICIT NONE
 !
 !       THIS ROUTINE DOES MOVES THE PLOTTER PEN FOR PLOT RAY
@@ -87,10 +90,11 @@ SUBROUTINE FIXUP1(IX,IY)
 !       IX IS LESS THAN 0
    use DATHGR
    use DATMAI
+   use iso_fortran_env, only: real64
    IMPLICIT NONE
    LOGICAL VERTICAL,HORIZONTAL
    INTEGER IX,IY
-   REAL*8 DELX,DELY,SLOPE
+   real(real64) DELX,DELY,SLOPE
    VERTICAL=.FALSE.
    HORIZONTAL=.FALSE.
    DELX=PCURX-POLDX
@@ -125,10 +129,11 @@ END
 SUBROUTINE FIXUP2(IX,IY)
 !       IX IS GREATER THAN 10000
    use DATHGR
+   use iso_fortran_env, only: real64
    IMPLICIT NONE
    LOGICAL VERTICAL,HORIZONTAL
    INTEGER IX,IY
-   REAL*8 DELX,DELY,SLOPE
+   real(real64) DELX,DELY,SLOPE
    VERTICAL=.FALSE.
    HORIZONTAL=.FALSE.
    DELX=PCURX-POLDX
@@ -164,10 +169,11 @@ END
 SUBROUTINE FIXUP3(IX,IY)
 !       IY IS LESS THAN 0
    use DATHGR
+   use iso_fortran_env, only: real64
    IMPLICIT NONE
    LOGICAL VERTICAL,HORIZONTAL
    INTEGER IX,IY
-   REAL*8 DELX,DELY,SLOPE
+   real(real64) DELX,DELY,SLOPE
    VERTICAL=.FALSE.
    HORIZONTAL=.FALSE.
    DELX=PCURX-POLDX
@@ -201,10 +207,11 @@ END
 SUBROUTINE FIXUP4(IX,IY)
 !       IY IS GREATER THAN 7000
    use DATHGR
+   use iso_fortran_env, only: real64
    IMPLICIT NONE
    LOGICAL VERTICAL,HORIZONTAL
    INTEGER IX,IY
-   REAL*8 DELX,DELY,SLOPE
+   real(real64) DELX,DELY,SLOPE
    VERTICAL=.FALSE.
    HORIZONTAL=.FALSE.
    DELX=PCURX-POLDX
@@ -241,6 +248,7 @@ SUBROUTINE PENMV
    use DATHGR
    use DATLEN
    use DATMAI
+   use iso_fortran_env, only: real64
    IMPLICIT NONE
 !
 !       THIS ROUTINE DOES MOVES THE PLOTTER PEN
@@ -279,6 +287,7 @@ SUBROUTINE FILLSURF(IX,IY,IPST)
    use DATHGR
    use DATLEN
    use DATMAI
+   use iso_fortran_env, only: real64
    IMPLICIT NONE
 !
 !       THIS ROUTINE HANDLES A FILL SURFACE REQUEST
@@ -304,9 +313,10 @@ SUBROUTINE DODRAWING
    use DATMAI
    use mod_system, only: sys_units, sys_wl_ref, sys_wavelength
    use DATPTS
+   use iso_fortran_env, only: real64
    IMPLICIT NONE
 !
-   REAL*8 CV1,CV2,TMPVAL,DSCFAC,EFL,BFL,FFL,PP1,PP2,DLPF1,DLPF2
+   real(real64) CV1,CV2,TMPVAL,DSCFAC,EFL,BFL,FFL,PP1,PP2,DLPF1,DLPF2
 !
    CHARACTER ADSCFAC*3,LINEOF*72,FLNM*18,UN*6,G1*3,G2*3
 !
@@ -1261,6 +1271,7 @@ SUBROUTINE DRAW_INITIALIZE
    use DATMAI
    use mod_system, only: sys_units
    use DATPTS
+   use iso_fortran_env, only: real64
    IMPLICIT NONE
 !
    INTEGER I,J
@@ -1420,9 +1431,10 @@ END
 ! SUB DRAWVL1.FOR
 FUNCTION DRAWVL1(VAL)
 !
+   use iso_fortran_env, only: real64
    IMPLICIT NONE
 !
-   REAL*8 VAL
+   real(real64) VAL
 !
    INTEGER I
 !
@@ -1440,9 +1452,10 @@ END
 ! SUB DRAWVL2.FOR
 FUNCTION DRAWVL2(VAL)
 !
+   use iso_fortran_env, only: real64
    IMPLICIT NONE
 !
-   REAL*8 VAL
+   real(real64) VAL
 !
    INTEGER I
 !
@@ -1460,6 +1473,7 @@ END
 ! SUB GLSCON.FOR
 SUBROUTINE GLSCON(AVAL,IVAL)
 !
+   use iso_fortran_env, only: real64
    IMPLICIT NONE
 !
    INTEGER IVAL
@@ -1478,16 +1492,17 @@ SUBROUTINE DRAWLENS(DRAWSF,SCALE_FACTOR,&
    use DATMAI
    use mod_system, only: sys_units
    use DATPTS
+   use iso_fortran_env, only: real64
    IMPLICIT NONE
 !
 !     INCOMMING OD VALUES ARE RADII
 !
    INTEGER COLPAS,DRAWSF,ALLOERR,I,J,K
-   REAL*8 DZ1,DZ2,SCALE_FACTOR,OD1,ODFLAT1,OD2,ODFLAT2,OD
-   REAL*8 T1,T2,SAGODFLT1,SAGODFLT2,SAGVAL,ODSTEP,Y,X,SAG,TH,Z
-   REAL*8 CNX,CNY,XV,YV,PX1,PX2,NX1,NX2,PY1,PY2,NY1,NY2
-   REAL*8 PXX1,PXX2,PYY1,PYY2,SAGOD1,SAGOD2,CV1,CV2
-   REAL*8 NXX1,NXX2,NYY1,NYY2
+   real(real64) DZ1,DZ2,SCALE_FACTOR,OD1,ODFLAT1,OD2,ODFLAT2,OD
+   real(real64) T1,T2,SAGODFLT1,SAGODFLT2,SAGVAL,ODSTEP,Y,X,SAG,TH,Z
+   real(real64) CNX,CNY,XV,YV,PX1,PX2,NX1,NX2,PY1,PY2,NY1,NY2
+   real(real64) PXX1,PXX2,PYY1,PYY2,SAGOD1,SAGOD2,CV1,CV2
+   real(real64) NXX1,NXX2,NYY1,NYY2
    LOGICAL ERROR
    DIMENSION SAGVAL(:,:)
    ALLOCATABLE :: SAGVAL
@@ -1828,6 +1843,7 @@ SUBROUTINE PART_DRAW
    use command_utils, only: is_command_query
    use mod_system, only: sys_last_surf
    use DATPTS
+   use iso_fortran_env, only: real64
    IMPLICIT NONE
 !
    INTEGER N,I
@@ -2351,6 +2367,7 @@ SUBROUTINE GREYSPOT
    use DATLEN
    use DATMAI
    use command_utils, only: is_command_query
+   use iso_fortran_env, only: real64
    IMPLICIT NONE
 !
 !       THIS ROUTINE DOES THE GREYSPOT COMMAND
@@ -2466,9 +2483,10 @@ SUBROUTINE VIEOFF
    use DATLEN
    use DATMAI
    use command_utils, only: is_command_query
+   use iso_fortran_env, only: real64
    IMPLICIT NONE
 !
-   REAL*8 VIEROT
+   real(real64) VIEROT
 !
    INTEGER VIEXOF,VIEYOF
 !
@@ -2516,6 +2534,7 @@ SUBROUTINE VIEVIG
    use DATLEN
    use DATMAI
    use command_utils, only: is_command_query
+   use iso_fortran_env, only: real64
    IMPLICIT NONE
 !
 !
@@ -2554,6 +2573,7 @@ SUBROUTINE VIEOVER
    use DATLEN
    use DATMAI
    use command_utils, only: is_command_query
+   use iso_fortran_env, only: real64
    IMPLICIT NONE
 !
 !
@@ -2579,6 +2599,7 @@ SUBROUTINE VIESYM
    use DATLEN
    use DATMAI
    use command_utils, only: is_command_query
+   use iso_fortran_env, only: real64
    IMPLICIT NONE
 !
 !
@@ -2614,6 +2635,7 @@ SUBROUTINE VIGGER
    use DATLEN
    use DATMAI
    use command_utils, only: is_command_query
+   use iso_fortran_env, only: real64
    IMPLICIT NONE
 !
 !       THIS ROUTINE DOES THE VIG ON OR OFF SETTING VIA THE VIG COMMAND
@@ -2658,6 +2680,7 @@ SUBROUTINE TSTPLATE
    use DATLEN
    use DATMAI
    use command_utils, only: is_command_query
+   use iso_fortran_env, only: real64
    IMPLICIT NONE
    IF(is_command_query().OR.SST.EQ.0.AND.SN.EQ.0.AND.WQ.EQ.'LIST') THEN
       OUTLYNE='THE CURRENTLY INSTALLED TESTPLATE LISTS ARE:'
@@ -2816,9 +2839,10 @@ SUBROUTINE TEST_PLATE_IT
    use DATMAI
    use command_utils, only: is_command_query
    use mod_system, only: sys_units, sys_last_surf
+   use iso_fortran_env, only: real64
    IMPLICIT NONE
    INTEGER SFNUMBER
-   REAL*8 TPVALUE
+   real(real64) TPVALUE
    CHARACTER INLINE*40
    IF(is_command_query().AND.WC.EQ.'TESTRD') THEN
       OUTLYNE='"TESTRD" ASSIGNS A TEST PLATE RADIUS AND REMOVES ALL'
@@ -2991,6 +3015,7 @@ SUBROUTINE SPDSSI
    use DATSPD
    use DATMAI
    use command_utils, only: is_command_query
+   use iso_fortran_env, only: real64
    IMPLICIT NONE
 !
 !     THIS DOES THE SPDSSI COMMAND AT THE CMD LEVEL
@@ -3046,6 +3071,7 @@ SUBROUTINE DETECTOR
    use DATSPD
    use DATMAI
    use command_utils, only: is_command_query
+   use iso_fortran_env, only: real64
    IMPLICIT NONE
 !
 !     THIS DOES THE DET COMMAND AT THE CMD LEVEL
@@ -3239,6 +3265,7 @@ SUBROUTINE ORIENT
    use DATMAI
    use command_utils, only: is_command_query
    use mod_system, only: sys_last_surf
+   use iso_fortran_env, only: real64
    IMPLICIT NONE
 !
 !       THIS ROUTINE DOES THE ORIENT COMMAND
@@ -3247,7 +3274,7 @@ SUBROUTINE ORIENT
 !
    COMMON/SFOR/ORSF
 !
-   REAL*8 LVAL,MVAL,NVAL,MAG,SINA,COSA,SINF,COSF
+   real(real64) LVAL,MVAL,NVAL,MAG,SINA,COSA,SINF,COSF
 !
 !
    IF(WC.EQ.'ORIENT') THEN
@@ -3490,17 +3517,18 @@ SUBROUTINE ORSHIFT
 !
    use DATLEN
    use DATMAI
+   use iso_fortran_env, only: real64
    IMPLICIT NONE
 !
 !     THIS DOES THE AUTOMATIC SHIFT CALCS FOR ORIENT
 !
-   REAL*8 X,Y,Z,XN,YN,ZN,ROT1X,ROT1Z,ROT2Y &
+   real(real64) X,Y,Z,XN,YN,ZN,ROT1X,ROT1Z,ROT2Y &
    &,ROT2Z,AX,AY,AZ,AALF,APHI,&
    &VIEPH,VIEAL
 !
    INTEGER I
 !
-   REAL*8 XVAL,YVAL,ZVAL
+   real(real64) XVAL,YVAL,ZVAL
 !
 !
 !
@@ -3599,9 +3627,10 @@ SUBROUTINE VIGCAL(N,VLO,VHI,XY)
    use DATLEN
    use DATMAI
    use mod_system, only: sys_wl_ref
+   use iso_fortran_env, only: real64
    IMPLICIT NONE
 !
-   REAL*8 VHI,VLO
+   real(real64) VHI,VLO
 !
    INTEGER N,XY,ACOD,OACOD,I
 !

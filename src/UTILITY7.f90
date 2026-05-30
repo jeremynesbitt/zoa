@@ -5,6 +5,7 @@ SUBROUTINE LWRITE
 !
    use DATMAI
    use command_utils, only: is_command_query
+   use iso_fortran_env, only: real64
    IMPLICIT NONE
 !
 !       THIS SUBROUTINE IS CALLED TO WRITE OUT A LINE OF 5
@@ -15,7 +16,7 @@ SUBROUTINE LWRITE
 !
    INTEGER LL,I,J,K,NVNVAL,NVNVALL,II
 !
-   REAL*8 V(1:5)
+   real(real64) V(1:5)
 !
 !
    IF(is_command_query()) THEN
@@ -964,6 +965,7 @@ SUBROUTINE LFORMER
 !
    use DATMAI
    use command_utils, only: is_command_query
+   use iso_fortran_env, only: real64
    IMPLICIT NONE
 !
 !     THIS DOES THE "LFORMAT" COMMAND
@@ -1021,6 +1023,7 @@ END
 ! SUB MYSYS.FOR
 SUBROUTINE MYSYS
    use DATMAI
+   use iso_fortran_env, only: real64
    IMPLICIT NONE
 
    OUTLYNE = "SYS(TEM) NOT SUPPORTED IN ZOA"
@@ -1030,13 +1033,14 @@ END
 ! SUB NTOA2.FOR
 SUBROUTINE NTOA2(N1,N2,N3,N4,N5,BN1,BN2,BN3,BN4,BN5)
 !
+   use iso_fortran_env, only: real64
    IMPLICIT NONE
 !
 !       THIS SUBROUTINE USES WRITE AND READS TO AN INTERNAL
-!       FILE TO CONVERT REAL*8 NUMERIC WORDS
+!       FILE TO CONVERT real(real64) NUMERIC WORDS
 !       TO CHARACTER VARIABLES
 !
-   REAL*8 N1,N2,N3,N4,N5,N
+   real(real64) N1,N2,N3,N4,N5,N
 !
    CHARACTER B*140,BN*10,BN1*10,BN2*10,BN3*10,BN4*10,BN5*10
 !
@@ -1116,13 +1120,14 @@ SUBROUTINE NWTOAW(N1,N2,N3,N4,N5,AN1,AN2,AN3,AN4,AN5 &
 &,BN1,BN2,BN3,BN4,BN5)
 !
    use DATMAI
+   use iso_fortran_env, only: real64
    IMPLICIT NONE
 !
 !       THIS SUBROUTINE USES WRITE AND READS TO AN INTERNAL
-!       FILE TO CONVERT REAL*8 NUMERIC WORDS
+!       FILE TO CONVERT real(real64) NUMERIC WORDS
 !       TO CHARACTER VARIABLES
 !
-   REAL*8 N1,N2,N3,N4,N5,N
+   real(real64) N1,N2,N3,N4,N5,N
 !
    CHARACTER B*140,AN1*23,AN2*23,AN3*23,AN4*23,AN5*23,AN*23 &
    &,C*140,BN*11,BN1*11,BN2*11,BN3*11,BN4*11,BN5*11
@@ -1163,13 +1168,14 @@ SUBROUTINE NWTOAWB(N1,N2,N3,N4,N5,AN1,AN2,AN3,AN4,AN5 &
 &,BN1,BN2,BN3,BN4,BN5)
 !
    use DATMAI
+   use iso_fortran_env, only: real64
    IMPLICIT NONE
 !
 !       THIS SUBROUTINE USES WRITE AND READS TO AN INTERNAL
-!       FILE TO CONVERT REAL*8 NUMERIC WORDS
+!       FILE TO CONVERT real(real64) NUMERIC WORDS
 !       TO CHARACTER VARIABLES
 !
-   REAL*8 N1,N2,N3,N4,N5,N
+   real(real64) N1,N2,N3,N4,N5,N
 !
    CHARACTER B*140,AN1*23,AN2*23,AN3*23,AN4*23,AN5*23,AN*23 &
    &,C*140,BN*11,BN1*11,BN2*11,BN3*11,BN4*11,BN5*11
@@ -1206,10 +1212,11 @@ END
 ! SUB ALINE1.FOR
 SUBROUTINE ALINE1(I,LINE1,ALN1)
 !
+   use iso_fortran_env, only: real64
    IMPLICIT NONE
 !
 !       THIS SUBROUTINE USES WRITE AND READS TO AN INTERNAL
-!       FILE TO CONVERT REAL*8 NUMERIC WORDS
+!       FILE TO CONVERT real(real64) NUMERIC WORDS
 !       TO CHARACTER VARIABLES
 !
    CHARACTER A*3,AI*3,LINE1*80,ALN1*80
@@ -1227,6 +1234,7 @@ END
 SUBROUTINE MESCOM
 !
    use DATMAI
+   use iso_fortran_env, only: real64
    IMPLICIT NONE
 !
 !
@@ -1279,6 +1287,7 @@ SUBROUTINE FIGURE
 !
    use DATMAI
    use command_utils, only: is_command_query
+   use iso_fortran_env, only: real64
    IMPLICIT NONE
 !
 !
@@ -1301,6 +1310,7 @@ SUBROUTINE VECTOROP
 !
    use DATMAI
    use command_utils, only: is_command_query
+   use iso_fortran_env, only: real64
    IMPLICIT NONE
 !
    DOUBLE PRECISION AX,AY,AZ,BX,BY,BZ,DP,PX,PY,PZ
@@ -1426,11 +1436,12 @@ SUBROUTINE LINE_TO_PLANE &
 !       LP,MP,NP DIRECTION, THE NORMAL PASSING THROUGH POINT XP,YP,ZP
 !       ERROR SET TO TRUE IS NO INTERSECTION IS POSSIBLE
 !
+   use iso_fortran_env, only: real64
    IMPLICIT NONE
 !
-   REAL*8 X,Y,Z,L,M,N,X0,Y0,Z0
+   real(real64) X,Y,Z,L,M,N,X0,Y0,Z0
 !
-   REAL*8 XP,YP,ZP,LP,MP,NP,NU,NOM,DENOM
+   real(real64) XP,YP,ZP,LP,MP,NP,NU,NOM,DENOM
 !
    LOGICAL ERROR
 !

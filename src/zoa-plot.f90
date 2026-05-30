@@ -8,6 +8,7 @@ module zoa_plot
   use zoa_ui
   use collections
   use GLOBALS
+   use iso_fortran_env, only: real64
   use, intrinsic :: iso_c_binding, only: c_ptr, c_char, c_int, c_float, c_null_char
 
   !use handlers
@@ -19,6 +20,7 @@ module zoa_plot
   use cairo, only: cairo_get_target, cairo_image_surface_get_height, &
      & cairo_image_surface_get_width
 
+   use iso_fortran_env, only: real64
  implicit none
 
  ! Private type to keep track of plot data
@@ -260,6 +262,7 @@ contains
 
   function mp_get(self,i,j) result(plotter)
       ! Arguments
+   use iso_fortran_env, only: real64
       implicit none
 
       class(multiplot), intent(in) :: self
@@ -1416,6 +1419,7 @@ end subroutine
 
   subroutine a2mnmx(f, nx, ny, fmin, fmax, xdim)
     use plplot
+   use iso_fortran_env, only: real64
     implicit none
 
     integer   i, j, nx, ny, xdim
@@ -1617,6 +1621,7 @@ end subroutine cmap1_init
   end subroutine
 
   subroutine drawBottomRightLegend(self, strLegend)
+   use iso_fortran_env, only: real64
     implicit none
     class(zoaplot) :: self
     character(len=*) :: strLegend
@@ -1680,6 +1685,7 @@ end subroutine cmap1_init
  end subroutine
 
   subroutine drawBottomRightLegend_new(self)
+   use iso_fortran_env, only: real64
     implicit none
     class(zoaplot) :: self
 
@@ -1746,6 +1752,7 @@ end subroutine cmap1_init
 
   subroutine drawLegend(self)
 
+   use iso_fortran_env, only: real64
     implicit none
     
     ! This is from example 4 - use as template to get legend working
@@ -1860,6 +1867,7 @@ end subroutine cmap1_init
 
   subroutine drawLegend_bottomPanel(self)
 
+   use iso_fortran_env, only: real64
     implicit none
     
     ! This is from example 4 - use as template to get legend working
@@ -1922,6 +1930,7 @@ end subroutine cmap1_init
 
   subroutine addXYPlot(self, X, Y)
 
+   use iso_fortran_env, only: real64
       implicit none
       class(zoaplot), intent(inout) :: self
       real, dimension(:), intent(in) :: X,Y
@@ -1932,6 +1941,7 @@ end subroutine cmap1_init
 end subroutine
 
 subroutine checkBackingSurface(self)
+   use iso_fortran_env, only: real64
   implicit none
   class(zoaplot) :: self
   type(c_ptr) :: isurface
@@ -1956,6 +1966,7 @@ subroutine checkBackingSurface(self)
 end subroutine
 
 subroutine updatePlotData(self, x, y, seriesNum)
+   use iso_fortran_env, only: real64
   implicit none
   class(zoaplot) :: self
   real :: x(:), y(:)
@@ -2011,7 +2022,7 @@ end subroutine
 !
 !       CHARACTER UNN*9,DUNN*12,NNTT1*80,BLNOTE*80,BL20*20,CRANGE*8,B*80,DTY*10,TMY*8,LABX*40,LABY*40
 !
-!       REAL*8 WOR1(0:50),WOR2(0:50),RANGE,FACTY,ORI,DTA11(0:50),DTA22(0:50),DDTA(0:50),ADTA(0:50)
+!       real(real64) WOR1(0:50),WOR2(0:50),RANGE,FACTY,ORI,DTA11(0:50),DTA22(0:50),DDTA(0:50),ADTA(0:50)
 !
 !       REAL LLIM,ULIM,UFLIM,LFLIM,DELX1,FLDAN(0:50)
 !

@@ -1,8 +1,9 @@
 SUBROUTINE BICUBIC(X1,X2,X3,X4,Y1,Y2,F1,F2,F3,F4 &
 &,X,Y,F)
+   use iso_fortran_env, only: real64
    IMPLICIT NONE
-   REAL*8 X1,X2,X3,X4,Y1,Y2,F1,F2,F3,F4,X,Y,F
-   REAL*8 M1X,M2X,FX1,FX2,MY
+   real(real64) X1,X2,X3,X4,Y1,Y2,F1,F2,F3,F4,X,Y,F
+   real(real64) M1X,M2X,FX1,FX2,MY
 !       X DIRECTION
    M1X=(F2-F1)/(X2-X1)
    M2X=(F4-F3)/(X4-X3)

@@ -1,4 +1,5 @@
 module DATMAI
+   use iso_fortran_env, only: real64
 
 
     !       MAIN PROGRAM INCLUDE FILE
@@ -51,7 +52,7 @@ module DATMAI
 !
       COMMON/HDINGS/HEADIN
 !
-      REAL*8 PII,TWOPII,HALFPII
+      real(real64) PII,TWOPII,HALFPII
       REAL RPII,RTWOPII,RHALFPII
 !
       COMMON/PPIIEE/PII,TWOPII,HALFPII,RPII,RTWOPII,RHALFPII
@@ -65,7 +66,7 @@ module DATMAI
       INTEGER SB1,SB2,SC1,SC2,SQ,SST,S1,S2,S3,S4,S5,                  &
    &  DF1,DF2,DF3,DF4,DF5,SN,STI
 !
-      REAL*8 W1,W2,W3,W4,W5
+      real(real64) W1,W2,W3,W4,W5
 !
       COMMON/CNTLNM/W1,W2,W3,W4,W5,SB1,SB2,SC1,SC2,SQ,SST,            &
    &  S1,S2,S3,S4,S5,DF1,DF2,DF3,DF4,DF5,SN
@@ -113,7 +114,7 @@ module DATMAI
    &  P_S3,P_S4,P_S5,                                                 &
    &  P_DF1,P_DF2,P_DF3,P_DF4,P_DF5,P_SN,P_STI
 !
-      REAL*8 P_W1,P_W2,P_W3,P_W4,P_W5
+      real(real64) P_W1,P_W2,P_W3,P_W4,P_W5
 !
       COMMON/PNTLNM/P_W1,P_W2,P_W3,P_W4,P_W5,P_SB1,P_SB2,P_SC1,       &
    &  P_SC2,P_SQ,P_SST,                                               &
@@ -127,11 +128,11 @@ module DATMAI
 !
 !     REGISTERS BOTH NAMED AND NUMBERED GENERAL PURPOSE
 !
-      REAL*8 REG(1:50)
+      real(real64) REG(1:50)
 !
       COMMON/MEMORY/REG
 !
-      REAL*8 GPREG(0:100000)
+      real(real64) GPREG(0:100000)
 !
       CHARACTER AGPREG(0:100000)*80
 !
@@ -199,7 +200,7 @@ module DATMAI
     EXTERNAL SAVEINPT
 !
 !     MIN/MAX REGISTERS
-    REAL*8 MIN_REG(1:100),MAX_REG(1:100)
+    real(real64) MIN_REG(1:100),MAX_REG(1:100)
     COMMON/MINMAX_REG/MIN_REG,MAX_REG
 !
     LOGICAL PLOTCAPCON,PLOTPSFCON,PLOTINTENCON
@@ -209,7 +210,7 @@ module DATMAI
     LOGICAL FIXUP
     COMMON/UPFIX/FIXUP
 !     3-D LINE PLOTTING VARIABLES (9/4/2001)
-    REAL*8 LX1,LX2,LY1,LY2,LZ1,LZ2
+    real(real64) LX1,LX2,LY1,LY2,LZ1,LZ2
     COMMON/THREEDEELINE/LX1,LX2,LY1,LY2,LZ1,LZ2
     LOGICAL NORAYPLOT
     COMMON/TDRAY/NORAYPLOT

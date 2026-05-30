@@ -2,6 +2,7 @@ module kdp_draw
    use cairo
    use gtk
    use global_widgets
+   use iso_fortran_env, only: real64
    implicit none
 contains
 
@@ -14,6 +15,7 @@ SUBROUTINE TESTCAIRO(widget, my_cairo_context, win_width, win_height, gdata) bin
        !use handlers
 
        !USE WINTERACTER
+   use iso_fortran_env, only: real64
     IMPLICIT NONE
 
     type(c_ptr), value, intent(in)    :: widget, my_cairo_context, gdata
@@ -66,6 +68,7 @@ SUBROUTINE TESTCAIRO2(widget, my_cairo_context, win_width, win_height, gdata) bi
        !use handlers
 
        !USE WINTERACTER
+   use iso_fortran_env, only: real64
     IMPLICIT NONE
 
     type(c_ptr), value, intent(in)    :: widget, my_cairo_context, gdata
@@ -130,6 +133,7 @@ SUBROUTINE TESTCAIRO3(widget, my_cairo_context, win_width, win_height, gdata) bi
        !use handlers
 
        !USE WINTERACTER
+   use iso_fortran_env, only: real64
     IMPLICIT NONE
 
     type(c_ptr), value, intent(in)    :: widget, my_cairo_context, gdata
@@ -237,6 +241,7 @@ SUBROUTINE DRAWOPTICALSYSTEM(cairo_drawing_area, my_cairo_context, win_width, wi
        !use handlers
 
        !USE WINTERACTER
+   use iso_fortran_env, only: real64
     IMPLICIT NONE
 
     type(c_ptr),  value, intent(in)    :: cairo_drawing_area, my_cairo_context, gdata
@@ -321,7 +326,7 @@ SUBROUTINE DRAWOPTICALSYSTEM(cairo_drawing_area, my_cairo_context, win_width, wi
       REAL JJ_X,JJ_Y
       COMMON/ASPECTER/JJ_X,JJ_Y
 
-      REAL*8 sf
+      real(real64) sf
 
     integer(kind=c_int), pointer :: ID_SETTING
 
@@ -776,6 +781,7 @@ END SUBROUTINE DRAWOPTICALSYSTEM
 SUBROUTINE JK_MOVETOCAIRO(STRINGER, MY_IX,MY_IY,MY_IPEN,MY_LINESTYLE,II5,II6,II7,II8, my_cairo_context, cairo_drawing_area)
       !USE WINTERACTER
       use iso_c_binding, only : c_f_pointer
+   use iso_fortran_env, only: real64
       IMPLICIT NONE
       type(c_ptr), value, intent(in)    ::  my_cairo_context
       type(c_ptr), value, intent(in)    ::  cairo_drawing_area
@@ -794,7 +800,7 @@ SUBROUTINE JK_MOVETOCAIRO(STRINGER, MY_IX,MY_IY,MY_IPEN,MY_LINESTYLE,II5,II6,II7
       integer :: units_long, unit_center
       COMMON/HOWFAR/MY_DISTANCE,OLDDIST,REMAIN,OREMAIN
       REAL SLOPE
-      real*8, target :: dashes = 1.0
+      real(real64), target :: dashes = 1.0
       type(c_ptr) :: dashes_ptr
       INKER=2.0
       R5=II5

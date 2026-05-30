@@ -9,6 +9,7 @@ SUBROUTINE OPDIN
    use DATMAI
    use mod_system, only: sys_units
    use command_utils, only: is_command_query
+   use iso_fortran_env, only: real64
    IMPLICIT NONE
 !
 !     THIS ROUTINE INPUTS THE COMPEX APERTURE FUNCTION FROM CAPFNOUT.DAT
@@ -17,9 +18,9 @@ SUBROUTINE OPDIN
 !
    INTEGER I,J,WWVN,K,ALLOERR,MEANCNT,CAPLEN,INUMPTS,IVAL3,IVAL4
 !
-   REAL*8 DS,REFHT,SPACEYY,SYSWV,PIT,PEAK,MEAN
+   real(real64) DS,REFHT,SPACEYY,SYSWV,PIT,PEAK,MEAN
 !
-   REAL*8 NUMPTS,CAPFNIN,&
+   real(real64) NUMPTS,CAPFNIN,&
    &WV,VAL1,VAL2,PTVOPD,MEAN2,ARG,VAL5
 !
    DIMENSION CAPFNIN(:,:,:)
@@ -285,6 +286,7 @@ SUBROUTINE CAPGRID
    use DATMAI
    use mod_system, only: sys_units, sys_wavelength
    use command_utils, only: is_command_query
+   use iso_fortran_env, only: real64
    IMPLICIT NONE
 !
 !     THIS ROUTINE OUTPUTS THE COMPEX APERTURE FUNCTION AS A PHASE
@@ -296,7 +298,7 @@ SUBROUTINE CAPGRID
 !
    LOGICAL READOK
 !
-   REAL*8 SPACING,WAV,MAXX,MAXY,MINX,MINY
+   real(real64) SPACING,WAV,MAXX,MAXY,MINX,MINY
 !
 !
    IF(is_command_query()) THEN
@@ -437,6 +439,7 @@ SUBROUTINE OPDOUT
    use DATMAI
    use mod_surface, only: surf_clap_type, surf_clap_dim, surf_array_parity
    use command_utils, only: is_command_query
+   use iso_fortran_env, only: real64
    IMPLICIT NONE
 !
 !     THIS ROUTINE OUTPUTS THE COMPEX APERTURE FUNCTION TO AN ASCII FILE
@@ -444,7 +447,7 @@ SUBROUTINE OPDOUT
 !
    INTEGER I,KK,G,WWVN,CAPLEN
 !
-   REAL*8 NUMPTS,REFHT,SPACEYY
+   real(real64) NUMPTS,REFHT,SPACEYY
 !
    CHARACTER CAPOUT*80,BCAPOUT*80
 !
@@ -598,15 +601,16 @@ SUBROUTINE WAMAP
    use mod_surface, only: surf_clap_type, surf_clap_dim, surf_array_parity
    use mod_system, only: sys_wl_ref
    use command_utils, only: is_command_query
+   use iso_fortran_env, only: real64
    IMPLICIT NONE
 !
    INTEGER KKK,KVAL,I,KKV,ALLOERR
 !
-   REAL*8 F,X,Y
+   real(real64) F,X,Y
    DIMENSION F(:,:),X(:),Y(:)
    ALLOCATABLE :: F,X,Y
 !
-   REAL*8 REFHT,WVAL
+   real(real64) REFHT,WVAL
 !
 !
    IF(is_command_query()) THEN
@@ -742,15 +746,16 @@ SUBROUTINE AMAP
    use mod_surface, only: surf_clap_type, surf_clap_dim, surf_array_parity
    use mod_system, only: sys_wl_ref
    use command_utils, only: is_command_query
+   use iso_fortran_env, only: real64
    IMPLICIT NONE
 !
    INTEGER KKK,KVAL,I,KKV,ALLOERR
 !
-   REAL*8 F,X,Y
+   real(real64) F,X,Y
    DIMENSION F(:,:),X(:),Y(:)
    ALLOCATABLE :: F,X,Y
 !
-   REAL*8 REFHT,WVAL
+   real(real64) REFHT,WVAL
 !
 !
    IF(is_command_query()) THEN
@@ -886,13 +891,14 @@ SUBROUTINE WAPPLOT(KVAL,REFHT,WVAL,KKV,F,X,Y,KKK)
    use DATSP1
    use DATLEN
    use DATMAI
+   use iso_fortran_env, only: real64
    IMPLICIT NONE
 !
    INTEGER KVAL,K,I,J,NNX,NNY,KK,KKK,IQ,KKV,II,IIVAL
 !
    CHARACTER AV(1:129)*129,SSYM*1
 !
-   REAL*8 F,X,Y,DL1,FV &
+   real(real64) F,X,Y,DL1,FV &
    &,REFHT,XMIN,YMIN,ZMIN,XMAX,YMAX,ZMAX,WVAL
 !
    DIMENSION F(KKK,KKK),X(KKK),Y(KKK)
@@ -1188,13 +1194,14 @@ SUBROUTINE APPLOT(KVAL,REFHT,WVAL,KKV,F,X,Y,KKK)
    use DATSP1
    use DATLEN
    use DATMAI
+   use iso_fortran_env, only: real64
    IMPLICIT NONE
 !
    INTEGER KVAL,K,I,J,NNX,NNY,KK,KKK,IQ,KKV,II,IIVAL
 !
    CHARACTER AV(1:129)*129,SSYM*1
 !
-   REAL*8 F,X,Y,DL1,FV &
+   real(real64) F,X,Y,DL1,FV &
    &,REFHT,XMIN,YMIN,ZMIN,XMAX,YMAX,ZMAX,WVAL
 !
    DIMENSION F(KKK,KKK),X(KKK),Y(KKK)
@@ -1492,6 +1499,7 @@ SUBROUTINE OPDLOD
    use DATMAI
    use mod_surface, only: surf_clap_type, surf_clap_dim, surf_array_parity
    use mod_system, only: sys_wl_ref
+   use iso_fortran_env, only: real64
    IMPLICIT NONE
 !
    EXTERNAL FF3
@@ -1509,7 +1517,7 @@ SUBROUTINE OPDLOD
 !       THIS PASSES THE SOLUTION OF THE LEAST SQUARES PROBLEM
    COMMON/SOLU/X
 !
-   REAL*8 ACCUM(1:96,1:96),REFHT,&
+   real(real64) ACCUM(1:96,1:96),REFHT,&
    &CCOL(1:96),&
    &X(1:96)
 !
@@ -1518,11 +1526,11 @@ SUBROUTINE OPDLOD
    INTEGER III,JJ,KK,ALLOERR
    integer :: rec64
 !
-   REAL*8 DWW1,DWW2,DWW3,DWW4,&
+   real(real64) DWW1,DWW2,DWW3,DWW4,&
    &TERM,FF3,RHO,THETA
 !
 !
-   REAL*8 W,V,U,&
+   real(real64) W,V,U,&
    &B,XXX
 !
    DIMENSION W(:),V(:,:),U(:,:),&
@@ -1814,6 +1822,7 @@ SUBROUTINE WAVESLP1(DSPOTT,IITOT,JTYPE)
    use DATMAI
    use mod_surface, only: surf_clap_type, surf_clap_dim, surf_array_parity
    use mod_system, only: sys_units, sys_wavelength, sys_wl_weight
+   use iso_fortran_env, only: real64
    IMPLICIT NONE
 !
    EXTERNAL FF3
@@ -2152,6 +2161,7 @@ SUBROUTINE OPDLIS
    use DATLEN
    use DATMAI
    use mod_surface, only: surf_clap_type, surf_clap_dim, surf_array_parity
+   use iso_fortran_env, only: real64
    IMPLICIT NONE
 !
 !       THIS IS SUBROUTINE OPDLIS. THIS IS THE SUBROUTINE WHICH
@@ -2171,13 +2181,13 @@ SUBROUTINE OPDLIS
 !
    COMMON/NUMDAT/DATCNT
 !
-   REAL*8 TERM,X(1:96),RHO,FF3,DDDATA(1:4),REFHT
+   real(real64) TERM,X(1:96),RHO,FF3,DDDATA(1:4),REFHT
 !
    COMMON/SPIDAT/IDATA
 !
    COMMON/SOLU/X
 !
-   REAL*8 THETA
+   real(real64) THETA
 !
 !
    IF(SST.EQ.1.OR.SQ.EQ.1.OR.SN.EQ.1) THEN
@@ -2309,6 +2319,7 @@ SUBROUTINE WRTCOEFS
    use DATSP1
    use DATLEN
    use DATMAI
+   use iso_fortran_env, only: real64
    IMPLICIT NONE
 !
 !       THIS IS THE SUBROUTINE WHICH
@@ -2327,13 +2338,13 @@ SUBROUTINE WRTCOEFS
 !
    COMMON/NUMDAT/DATCNT
 !
-   REAL*8 TERM,X(1:96),RHO,FF3,DDDATA(1:4),REFHT
+   real(real64) TERM,X(1:96),RHO,FF3,DDDATA(1:4),REFHT
 !
    COMMON/SPIDAT/IDATA
 !
    COMMON/SOLU/X
 !
-   REAL*8 THETA
+   real(real64) THETA
 !
 !
    IF(SST.EQ.1.OR.SQ.EQ.1.OR.SN.EQ.1) THEN
@@ -2382,11 +2393,12 @@ SUBROUTINE WRTREPORT
    use DATLEN
    use DATMAI
    use command_utils, only: is_command_query
+   use iso_fortran_env, only: real64
    IMPLICIT NONE
 !
 !       THIS DOES THE LISTREPT COMMAND
 !
-   REAL*8 HIGHORD,VCF(1:37),EMN,NV &
+   real(real64) HIGHORD,VCF(1:37),EMN,NV &
    &,VC1,VC2,VC3,VC4,VC5,VC6,VC7,VC8,VC9,X(1:96)
 !
    LOGICAL OPMAP
@@ -2633,6 +2645,7 @@ SUBROUTINE AWRTSUM
    use DATLEN
    use DATMAI
    use command_utils, only: is_command_query
+   use iso_fortran_env, only: real64
    IMPLICIT NONE
 !
 !     THIS IS SUBROUTINE AWRTSUM.FOR.
@@ -2767,6 +2780,7 @@ SUBROUTINE BWRTSUM
    use DATLEN
    use DATMAI
    use command_utils, only: is_command_query
+   use iso_fortran_env, only: real64
    IMPLICIT NONE
 !
 !     THIS IS SUBROUTINE BWRTSUM.FOR.
@@ -2890,6 +2904,7 @@ SUBROUTINE AWRTSPOT
    use DATLEN
    use DATMAI
    use command_utils, only: is_command_query
+   use iso_fortran_env, only: real64
    IMPLICIT NONE
 !
 !     THIS IS SUBROUTINE AWRTSPOT.FOR.
@@ -3009,6 +3024,7 @@ SUBROUTINE BWRTSPOT
    use DATLEN
    use DATMAI
    use command_utils, only: is_command_query
+   use iso_fortran_env, only: real64
    IMPLICIT NONE
 !
 !     THIS IS SUBROUTINE BWRTSPOT.FOR.
@@ -3104,6 +3120,7 @@ SUBROUTINE STATT
    use DATSP1
    use DATMAI
    use command_utils, only: is_command_query
+   use iso_fortran_env, only: real64
    IMPLICIT NONE
 !
 !       THIS IS SUBROUTINE STATT.FOR.
@@ -3152,13 +3169,14 @@ SUBROUTINE SPSAVE
    use DATSPD
    use DATLEN
    use DATMAI
+   use iso_fortran_env, only: real64
    IMPLICIT NONE
 !
    LOGICAL EXIS32,OPEN32
 !
    INTEGER I,J,K,N
 !
-   REAL*8 SPT1,SPT2,SPT3,SPT4,SPT5,SPT6,SPT7,SPT8 &
+   real(real64) SPT1,SPT2,SPT3,SPT4,SPT5,SPT6,SPT7,SPT8 &
    &,SPT9,SPT10
 !
    COMMON/SPTWTS/SPT1,SPT2,SPT3,SPT4,SPT5 &
@@ -3322,6 +3340,7 @@ SUBROUTINE OPDLOD2
    use DATLEN
    use DATMAI
    use mod_surface
+   use iso_fortran_env, only: real64
    IMPLICIT NONE
 !
    EXTERNAL FF3
@@ -3337,7 +3356,7 @@ SUBROUTINE OPDLOD2
 !       THIS PASSES THE SOLUTION OF THE LEAST SQUARES PROBLEM
    COMMON/SOLU/X
 !
-   REAL*8 ACCUM(1:96,1:96),REFHT,&
+   real(real64) ACCUM(1:96,1:96),REFHT,&
    &CCOL(1:96),&
    &X(1:96)
 !
@@ -3347,14 +3366,14 @@ SUBROUTINE OPDLOD2
 
 
 !
-   REAL*8 DWW1,DWW2,DWW3,DWW4,&
+   real(real64) DWW1,DWW2,DWW3,DWW4,&
    &TERM,FF3,RHO,THETA
 !
    COMMON/OPDFIT1/ERROP
    COMMON/OPDFIT2/WVNUMOP
 !
 !
-   REAL*8 W,V,U,&
+   real(real64) W,V,U,&
    &B,XXX
 !
    DIMENSION W(:),V(:,:),U(:,:),&

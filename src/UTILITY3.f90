@@ -4,6 +4,7 @@
 SUBROUTINE RGMATH
 !
    use DATMAI
+   use iso_fortran_env, only: real64
    IMPLICIT NONE
 !
 !       THIS SUBROUTINE IS CALLED TO DO SYMBOLIC REGISTER
@@ -14,7 +15,7 @@ SUBROUTINE RGMATH
 !
    INTEGER ACCSUB,ACCCNT,I
 !
-   REAL*8 &
+   real(real64) &
    &PLUS,MINUS,MPY,DIV,MOVE,SINE,COSINE,TANN,SINHH,COSHH,&
    &TANHH,SROOT,POW,LLOG10,LLN,EEXP,RECIP,ABSOL,SSGN,&
    &MINTGR,MFRAC,FACT,CHSIGN,DEGRA,ASINE,ACOSIN,ATANN,&
@@ -130,8 +131,9 @@ END
 ! SUB PLUS.FOR
 FUNCTION PLUS()
    use DATMAI
+   use iso_fortran_env, only: real64
    IMPLICIT NONE
-   REAL*8 PLUS
+   real(real64) PLUS
    REG(40)=REG(9)
    IF(WQ.EQ.'A') PLUS=REG(9)+REG(1)
    IF(WQ.EQ.'B') PLUS=REG(9)+REG(2)
@@ -167,8 +169,9 @@ END
 ! SUB MINUS.FOR
 FUNCTION MINUS()
    use DATMAI
+   use iso_fortran_env, only: real64
    IMPLICIT NONE
-   REAL*8 MINUS
+   real(real64) MINUS
    REG(40)=REG(9)
    IF(WQ.EQ.'A') MINUS=REG(9)-REG(1)
    IF(WQ.EQ.'B') MINUS=REG(9)-REG(2)
@@ -204,8 +207,9 @@ END
 ! SUB MPY.FOR
 FUNCTION MPY()
    use DATMAI
+   use iso_fortran_env, only: real64
    IMPLICIT NONE
-   REAL*8 MPY
+   real(real64) MPY
    REG(40)=REG(9)
    IF(WQ.EQ.'A') MPY=REG(9)*REG(1)
    IF(WQ.EQ.'B') MPY=REG(9)*REG(2)
@@ -241,8 +245,9 @@ END
 ! SUB MOVE.FOR
 FUNCTION MOVE()
    use DATMAI
+   use iso_fortran_env, only: real64
    IMPLICIT NONE
-   REAL*8 MOVE
+   real(real64) MOVE
    IF(WQ.NE.'X'.AND.WQ.NE.'Y'.AND.WQ.NE.'Z'.AND.WQ.NE.'T') THEN
       REG(40)=REG(9)
    END IF
@@ -280,8 +285,9 @@ END
 ! SUB DIV.FOR
 FUNCTION DIV()
    use DATMAI
+   use iso_fortran_env, only: real64
    IMPLICIT NONE
-   REAL*8 DIV
+   real(real64) DIV
    REG(40)=REG(9)
    IF(WQ.EQ.'A') THEN
       IF(REG(1).NE.0.0D0) DIV=REG(9)/REG(1)
@@ -484,8 +490,9 @@ END
 ! SUB SINE.FOR
 FUNCTION SINE()
    use DATMAI
+   use iso_fortran_env, only: real64
    IMPLICIT NONE
-   REAL*8 SINE
+   real(real64) SINE
    REG(40)=REG(9)
    IF(WQ.EQ.'A') SINE=DSIN(REG(1))
    IF(WQ.EQ.'B') SINE=DSIN(REG(2))
@@ -521,8 +528,9 @@ END
 ! SUB COSINE.FOR
 FUNCTION COSINE()
    use DATMAI
+   use iso_fortran_env, only: real64
    IMPLICIT NONE
-   REAL*8 COSINE
+   real(real64) COSINE
    REG(40)=REG(9)
    IF(WQ.EQ.'A') COSINE=DCOS(REG(1))
    IF(WQ.EQ.'B') COSINE=DCOS(REG(2))
@@ -558,8 +566,9 @@ END
 ! SUB TANN.FOR
 FUNCTION TANN()
    use DATMAI
+   use iso_fortran_env, only: real64
    IMPLICIT NONE
-   REAL*8 TANN
+   real(real64) TANN
    REG(40)=REG(9)
    IF(WQ.EQ.'A') TANN=DTAN(REG(1))
    IF(WQ.EQ.'B') TANN=DTAN(REG(2))
@@ -595,8 +604,9 @@ END
 ! SUB SINHH.FOR
 FUNCTION SINHH()
    use DATMAI
+   use iso_fortran_env, only: real64
    IMPLICIT NONE
-   REAL*8 SINHH
+   real(real64) SINHH
    REG(40)=REG(9)
    IF(WQ.EQ.'A') SINHH=DSINH(REG(1))
    IF(WQ.EQ.'B') SINHH=DSINH(REG(2))
@@ -632,8 +642,9 @@ END
 ! SUB COSHH.FOR
 FUNCTION COSHH()
    use DATMAI
+   use iso_fortran_env, only: real64
    IMPLICIT NONE
-   REAL*8 COSHH
+   real(real64) COSHH
    REG(40)=REG(9)
    IF(WQ.EQ.'A') COSHH=DCOSH(REG(1))
    IF(WQ.EQ.'B') COSHH=DCOSH(REG(2))
@@ -669,8 +680,9 @@ END
 ! SUB TANHH.FOR
 FUNCTION TANHH()
    use DATMAI
+   use iso_fortran_env, only: real64
    IMPLICIT NONE
-   REAL*8 TANHH
+   real(real64) TANHH
    REG(40)=REG(9)
    IF(WQ.EQ.'A') TANHH=DTANH(REG(1))
    IF(WQ.EQ.'B') TANHH=DTANH(REG(2))
@@ -706,8 +718,9 @@ END
 ! SUB SROOT.FOR
 FUNCTION SROOT()
    use DATMAI
+   use iso_fortran_env, only: real64
    IMPLICIT NONE
-   REAL*8 SROOT
+   real(real64) SROOT
    GO TO 11
 10 CONTINUE
    CALL REPORT_ERROR_AND_FAIL(&
@@ -834,8 +847,9 @@ END
 ! SUB POW.FOR
 FUNCTION POW()
    use DATMAI
+   use iso_fortran_env, only: real64
    IMPLICIT NONE
-   REAL*8 POW
+   real(real64) POW
    REG(40)=REG(9)
    IF(WQ.EQ.'A') THEN
       IF(REG(9).EQ.0.0D0.AND.REG(1).EQ.0.0D0) THEN
@@ -1052,8 +1066,9 @@ END
 ! SUB EEXP.FOR
 FUNCTION EEXP()
    use DATMAI
+   use iso_fortran_env, only: real64
    IMPLICIT NONE
-   REAL*8 EEXP,REGGY
+   real(real64) EEXP,REGGY
    REG(40)=REG(9)
    IF(WQ.EQ.'A') REGGY=REG(1)
    IF(WQ.EQ.'B') REGGY=REG(2)
@@ -1099,8 +1114,9 @@ END
 ! SUB LLOG10.FOR
 FUNCTION LLOG10()
    use DATMAI
+   use iso_fortran_env, only: real64
    IMPLICIT NONE
-   REAL*8 LLOG10
+   real(real64) LLOG10
    GO TO 201
 200 CONTINUE
    OUTLYNE='ARG FOR "LOG10" IN REG '//WQ//' IS ZERO'
@@ -1228,8 +1244,9 @@ END
 ! SUB LLN.FOR
 FUNCTION LLN()
    use DATMAI
+   use iso_fortran_env, only: real64
    IMPLICIT NONE
-   REAL*8 LLN
+   real(real64) LLN
    GO TO 201
 200 CONTINUE
    OUTLYNE='ARG FOR "LN" IN REG '//WQ//' IS ZERO'
@@ -1357,8 +1374,9 @@ END
 ! SUB RECIP.FOR
 FUNCTION RECIP()
    use DATMAI
+   use iso_fortran_env, only: real64
    IMPLICIT NONE
-   REAL*8 RECIP
+   real(real64) RECIP
    GO TO 201
 200 CONTINUE
    OUTLYNE='ARG FOR "RECIP" IN REG '//WQ//' IS ZERO'
@@ -1486,8 +1504,9 @@ END
 ! SUB ABSOL.FOR
 FUNCTION ABSOL()
    use DATMAI
+   use iso_fortran_env, only: real64
    IMPLICIT NONE
-   REAL*8 ABSOL
+   real(real64) ABSOL
    REG(40)=REG(9)
    IF(WQ.EQ.'A') ABSOL=DABS(REG(1))
    IF(WQ.EQ.'B') ABSOL=DABS(REG(2))
@@ -1523,6 +1542,7 @@ END
 ! SUB STORE.FOR
 SUBROUTINE STORE
    use DATMAI
+   use iso_fortran_env, only: real64
    IMPLICIT NONE
 !       THIS SUBROUTINE IS USED TO STORE THE CONTENTS OF THE
 !       ACCUMULATOR INTO REGISTERS A THROUGH H, X,Y,Z,T,IX,IY
@@ -1572,13 +1592,14 @@ END
 SUBROUTINE JK_MINVAL(V1,V2)
    use DATSUB
    use DATMAI
+   use iso_fortran_env, only: real64
    IMPLICIT NONE
 !       THIS SUBROUTINE IS USED TO FIND THE MINUMUM VALUE
 !       ALL THE VALUES STORED IN THE MAXREG GENERAL PURPOSE REGISTERS
 !       THE MINVAL IS RETURNED IN V1
 !     V2 STORES THE ADRESS OF THE MINIMUM VALUE
 !
-   REAL*8 V1,V2
+   real(real64) V1,V2
 !
    INTEGER I
 !
@@ -1597,13 +1618,14 @@ END
 SUBROUTINE JK_MAXVAL(V1,V2)
    use DATSUB
    use DATMAI
+   use iso_fortran_env, only: real64
    IMPLICIT NONE
 !       THIS SUBROUTINE IS USED TO FIND THE MAXIMUM VALUE
 !       ALL THE VALUES STORED IN THE MAXREG GENERAL PURPOSE REGISTERS
 !       THE MAXVAL IS RETURNED IN V1
 !     V2 STORES THE ADRESS OF THE MAXIMUM VALUE
 !
-   REAL*8 V1,V2
+   real(real64) V1,V2
 !
    INTEGER I
 !
@@ -1621,8 +1643,9 @@ END
 ! SUB SSGN.FOR
 FUNCTION SSGN()
    use DATMAI
+   use iso_fortran_env, only: real64
    IMPLICIT NONE
-   REAL*8 SSGN
+   real(real64) SSGN
    REG(40)=REG(9)
    IF(WQ.EQ.'A') THEN
       REG(9)=REG(1)
@@ -1744,8 +1767,9 @@ END
 ! SUB MINTGR.FOR
 FUNCTION MINTGR()
    use DATMAI
+   use iso_fortran_env, only: real64
    IMPLICIT NONE
-   REAL*8 MINTGR
+   real(real64) MINTGR
    REG(40)=REG(9)
    IF(WQ.EQ.'B') MINTGR=INT(REG(2))
    IF(WQ.EQ.'C') MINTGR=INT(REG(3))
@@ -1780,8 +1804,9 @@ END
 ! SUB MFRAC.FOR
 FUNCTION MFRAC()
    use DATMAI
+   use iso_fortran_env, only: real64
    IMPLICIT NONE
-   REAL*8 MFRAC
+   real(real64) MFRAC
    REG(40)=REG(9)
    IF(WQ.EQ.'A') MFRAC=REG(1)-INT(REG(1))
    IF(WQ.EQ.'B') MFRAC=REG(2)-INT(REG(2))
@@ -1817,9 +1842,10 @@ END
 ! SUB FACT.FOR
 FUNCTION FACT()
    use DATMAI
+   use iso_fortran_env, only: real64
    IMPLICIT NONE
-   REAL*8 FACT
-   REAL*8 DARG,NFACT,REGG
+   real(real64) FACT
+   real(real64) DARG,NFACT,REGG
    INTEGER ARG,I
    IF(WQ.EQ.'A') REGG=REG(1)
    IF(WQ.EQ.'B') REGG=REG(2)
@@ -1892,8 +1918,9 @@ END
 ! SUB CHSIGN.FOR
 FUNCTION CHSIGN()
    use DATMAI
+   use iso_fortran_env, only: real64
    IMPLICIT NONE
-   REAL*8 CHSIGN
+   real(real64) CHSIGN
    REG(40)=REG(9)
    IF(WQ.EQ.'A') CHSIGN=-REG(1)
    IF(WQ.EQ.'B') CHSIGN=-REG(2)
@@ -1929,8 +1956,9 @@ END
 ! SUB DEGRAD.FOR
 FUNCTION DEGRA()
    use DATMAI
+   use iso_fortran_env, only: real64
    IMPLICIT NONE
-   REAL*8 PI,DEGRA,AAA
+   real(real64) PI,DEGRA,AAA
    PI=PII
    IF(WC.EQ.'RTD') THEN
       AAA=(180.0D0/PI)
@@ -2005,8 +2033,9 @@ END
 ! SUB PI.FOR
 SUBROUTINE PI
    use DATMAI
+   use iso_fortran_env, only: real64
    IMPLICIT NONE
-   REAL*8 RWW1
+   real(real64) RWW1
    RWW1=PII
    IF(WQ.EQ.'A') REG(1)=RWW1
    IF(WQ.EQ.'B') REG(2)=RWW1
@@ -2047,8 +2076,9 @@ END
 ! SUB ATANN.FOR
 FUNCTION ATANN()
    use DATMAI
+   use iso_fortran_env, only: real64
    IMPLICIT NONE
-   REAL*8 ATANN
+   real(real64) ATANN
    REG(40)=REG(9)
    IF(WQ.EQ.'A') ATANN=DATAN(REG(1))
    IF(WQ.EQ.'B') ATANN=DATAN(REG(2))
@@ -2084,8 +2114,9 @@ END
 ! SUB ASINE.FOR
 FUNCTION ASINE()
    use DATMAI
+   use iso_fortran_env, only: real64
    IMPLICIT NONE
-   REAL*8 ASINE
+   real(real64) ASINE
    REG(40)=REG(9)
    IF(WQ.EQ.'A') ASINE=(REG(1))
    IF(WQ.EQ.'B') ASINE=(REG(2))
@@ -2140,8 +2171,9 @@ END
 ! SUB ACOSIN.FOR
 FUNCTION ACOSIN()
    use DATMAI
+   use iso_fortran_env, only: real64
    IMPLICIT NONE
-   REAL*8 ACOSIN
+   real(real64) ACOSIN
    REG(40)=REG(9)
    IF(WQ.EQ.'A') ACOSIN=REG(1)
    IF(WQ.EQ.'B') ACOSIN=REG(2)
@@ -2198,6 +2230,7 @@ SUBROUTINE FORMER
 !
    use DATMAI
    use command_utils, only: is_command_query
+   use iso_fortran_env, only: real64
    IMPLICIT NONE
 !
 !
@@ -2242,6 +2275,7 @@ END
 SUBROUTINE REWIND
 !
    use DATMAI
+   use iso_fortran_env, only: real64
    IMPLICIT NONE
 !
 !       THIS SUBROUTINE IS CALLED TO REWIND THE CARDTEXT.DAT FILE
@@ -2304,6 +2338,7 @@ SUBROUTINE ALLDEF
    use DATLEN
    use DATMAI
    use command_utils, only: is_command_query
+   use iso_fortran_env, only: real64
    IMPLICIT NONE
 !
 !     THIS DOES THE "ALL" COMMAND
@@ -2338,6 +2373,7 @@ SUBROUTINE SETCOAT
    use DATLEN
    use DATMAI
    use command_utils, only: is_command_query
+   use iso_fortran_env, only: real64
    IMPLICIT NONE
 !
 !     THIS DOES THE "COATINGS" COMMAND
@@ -2370,6 +2406,7 @@ END
 SUBROUTINE ATANN2
 !
    use DATMAI
+   use iso_fortran_env, only: real64
    IMPLICIT NONE
 !
 !       THIS SUBROUTINE IS CALLED TO CALCULATE THE DATAN2 FUNCTION
@@ -2419,6 +2456,7 @@ SUBROUTINE WRITE
 !
    use DATMAI
    use command_utils, only: is_command_query
+   use iso_fortran_env, only: real64
    IMPLICIT NONE
 !
 !       THIS SUBROUTINE IS CALLED TO WRITE OUT THE CONTENTS
@@ -2428,7 +2466,7 @@ SUBROUTINE WRITE
 !
    CHARACTER ACCWRD*8,CSTRING*23
 !
-   REAL*8 RGVAL
+   real(real64) RGVAL
 !
    INTEGER ACCSUB,ACCCNT,N,i
 !

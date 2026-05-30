@@ -4,10 +4,11 @@
 SUBROUTINE HOE_TRACE
    use DATLEN
    use DATMAI
+   use iso_fortran_env, only: real64
    IMPLICIT NONE
    INTEGER CURFIG,SOUFIG,REFFIG,WAVE_NUMB
    CHARACTER A*3,AFIG*3
-   REAL*8 HOE_L,HOE_M,HOE_N,XO,YO,ZO
+   real(real64) HOE_L,HOE_M,HOE_N,XO,YO,ZO
    INTEGER CURSURF
    SAVE CURSURF
    LOGICAL CFGQUIET
@@ -126,12 +127,13 @@ SUBROUTINE HIT17
    use DATMAI
    use mod_surface
    use mod_lens_data_manager, only: ldm
+   use iso_fortran_env, only: real64
    IMPLICIT NONE
 !
 !       THIS IS SUBROUTINE HIT17.FOR. THIS SUBROUTINE IMPLEMENTS
 !       TYPE 17 SPECIAL SURFACE RAYTRACING.
 !
-   REAL*8 SIGNNU,RR_N,RR_Z,&
+   real(real64) SIGNNU,RR_N,RR_Z,&
    &T0,NUSUBV,C5,TESTLEN,NORM,SNINDX,SNIND2 &
    &,MAG,J,ARG,C1,C2,C3,C4 &
    &,FPX,FPY,FPZ,NUSUBS
@@ -331,6 +333,9 @@ SUBROUTINE HITSUR
    use DATLEN
    use DATMAI
    use mod_surface
+   use mod_lens_data_manager, only: ldm
+   use mod_surface_type, only: surf_ray_data
+   use iso_fortran_env, only: real64
    IMPLICIT NONE
 !
 !       THIS IS SUBROUTINE HITSUR.FOR. THIS SUBROUTINE IMPLEMENTS
@@ -341,7 +346,9 @@ SUBROUTINE HITSUR
 !
    INTEGER N_X,N_Y
 !
-   REAL*8 OR_N,OR_Z,AX,AY,AZ
+   real(real64) OR_N,OR_Z,AX,AY,AZ
+!
+   type(surf_ray_data) :: typed_ray
 !
    LOGICAL ERROR_NSS
 !
@@ -456,6 +463,40 @@ SUBROUTINE HITSUR
       RETURN
 !       SURFACE NOT PARAXIAL
    END IF
+!
+!**********************************************************************
+!  TYPED SURFACE DISPATCH — open to any surface_type subclass.
+!  For ordinary surfaces (not special types, not paraxial, not array) that have a
+!  polymorphic typed representation consistent with the current lens, delegate
+!  intersection to surf%intersect() and physics to INTERACK.  New surface types only
+!  need to implement intersect/real_trace/paraxial_trace — no changes here required.
+!  Guard: ubound check prevents stale typed-surface arrays (built for a different lens)
+!  from being used when the lens has been modified but not yet resynced.
+!
+   if (surf_special_type(R_I) == 0 .and. surf_array_parity(R_I) == 0) then
+     if (allocated(ldm%surfaces)) then
+       if (ubound(ldm%surfaces,1) == ldm%getLastSurf() .and. &
+           R_I >= lbound(ldm%surfaces,1) .and. R_I <= ubound(ldm%surfaces,1)) then
+         if (allocated(ldm%surfaces(R_I)%s)) then
+           OR_N = R_N
+           OR_Z = R_Z
+           if (R_I == NEWOBJ+1) then
+             R_X = R_XAIM; R_Y = R_YAIM; R_Z = R_ZAIM
+           end if
+           typed_ray%x = R_X; typed_ray%y = R_Y; typed_ray%z = R_Z
+           typed_ray%l = R_L; typed_ray%m = R_M; typed_ray%n = R_N
+           call ldm%surfaces(R_I)%s%intersect(typed_ray, SURTOL)
+           R_X = typed_ray%x; R_Y = typed_ray%y; R_Z = typed_ray%z
+           LN = typed_ray%ln; MN = typed_ray%mn; NN = typed_ray%nn
+           if (STOPP == 0) then
+             call INTERACK(OR_N, OR_Z)
+             HOE_DO_IT = 0
+           end if
+           RETURN
+         end if
+       end if
+     end if
+   end if
 !
 !**********************************************************************
 !       SURFACE R_I IS PLANO AND MAY CONTAIN 2ND, 4TH, 6TH, 8TH AND 10TH ORDER
@@ -616,8 +657,9 @@ SUBROUTINE APLANA(I,WWWW1,WWWW2,WWWWW1,WWWWW2)
    use DATLEN
    use DATMAI
    use mod_surface
+   use iso_fortran_env, only: real64
    IMPLICIT NONE
-   REAL*8 WX,WY,PARTX,PARTY,WWWW1,WWWW2,RD,HGT,FULL &
+   real(real64) WX,WY,PARTX,PARTY,WWWW1,WWWW2,RD,HGT,FULL &
    &,WWWWW1,WWWWW2
    INTEGER I
    IF(WWWW1.GE.0.0D0) WY= 1.0D0
@@ -647,7 +689,7 @@ SUBROUTINE HITASP(OR_N,OR_Z)
    use DATMAI
    use mod_surface
    use mod_lens_data_manager, only: ldm
-   use mod_surface_type, only: surf_ray_data
+   use iso_fortran_env, only: real64
    IMPLICIT NONE
 !
 !       THIS IS SUBROUTINE HITASP.FOR. THIS SUBROUTINE IMPLEMENTS
@@ -656,9 +698,7 @@ SUBROUTINE HITASP(OR_N,OR_Z)
 !       SUBROUTINE XYZSP.FOR FOR IF SPECIAL SURFACES ARE
 !       PRESENT AND SET TO "ON" AND IF THEY ARE OF A RECOGNIZED TYPE.
 !
-   type(surf_ray_data) :: typed_ray
-!
-   REAL*8 A,B,C,QQ,SIGNNU,CV,CC,OR_Z,OR_N,&
+   real(real64) A,B,C,QQ,SIGNNU,CV,CC,OR_Z,OR_N,&
    &TEST1,TEST2,NUSUBS,RR_N,TESTLEN,RR_Z &
    &,Q,SIGNB,MAG,J,ARG,C1,C2,C3,C4,ZTEST,SNIND2 &
    &,FPX,FPY,FPZ,C5,C6,HV0,HV1,HV2,ZMIN,ZMAX,&
@@ -667,12 +707,12 @@ SUBROUTINE HITASP(OR_N,OR_Z)
 !
    INTEGER ZPMIN,ZPMAX,ISURF
 !
-   REAL*8 CHIX,CHIY,CHIZ,CHINOR,BLAM,ATERM,BTERM,FACTOR,&
+   real(real64) CHIX,CHIY,CHIZ,CHINOR,BLAM,ATERM,BTERM,FACTOR,&
    &SMU,WLU,BGAM,DD,DSPACE,&
    &QX,QY,QZ,PX,PY,PZ,PNOR,QNOR
 !
 !     HOE STUFF
-   REAL*8 LO,MO,NO,LR,MR,NR,LAMC,LAMP,EMM,BTA
+   real(real64) LO,MO,NO,LR,MR,NR,LAMC,LAMP,EMM,BTA
 !
    LOGICAL REFLEC,GERROR,ERR
 !
@@ -709,26 +749,6 @@ SUBROUTINE HITASP(OR_N,OR_Z)
 !       JUST PROCEED WITH THE DIRECT INTERSECTION TO THE CONIC
    END IF
 !
-!     TYPED SURFACE DISPATCH (Stage 4):
-!     For simple sphere/asphere (no special type, array, or paraxial),
-!     delegate to the polymorphic surface object instead of the quadratic + NR2 path.
-   if (surf_special_type(R_I) == 0 .and. surf_default_flag(R_I) == 0 .and. &
-       surf_array_parity(R_I) == 0 .and. surf_paraxial_val(R_I) == 0) then
-     if (allocated(ldm%surfaces)) then
-       if (R_I >= lbound(ldm%surfaces,1)) then
-         if (R_I <= ubound(ldm%surfaces,1)) then
-           if (allocated(ldm%surfaces(R_I)%s)) then
-             typed_ray%x = R_X; typed_ray%y = R_Y; typed_ray%z = R_Z
-             typed_ray%l = R_L; typed_ray%m = R_M; typed_ray%n = R_N
-             call ldm%surfaces(R_I)%s%intersect(typed_ray, SURTOL)
-             R_X = typed_ray%x; R_Y = typed_ray%y; R_Z = typed_ray%z
-             LN = typed_ray%ln; MN = typed_ray%mn; NN = typed_ray%nn
-             return
-           end if
-         end if
-       end if
-     end if
-   end if
 !
    NUSUBS=((ldm%getSurfIndex(R_I-1, INT(WVN)))/&
    &(ldm%getSurfIndex(R_I, INT(WVN))))
@@ -1088,6 +1108,7 @@ SUBROUTINE GETZEE1
    use DATLEN
    use DATMAI
    use mod_surface
+   use iso_fortran_env, only: real64
    IMPLICIT NONE
 !
 !     CALCULATES BEST INTERSECTION POINT TO FIRST SURFACE
@@ -1095,7 +1116,7 @@ SUBROUTINE GETZEE1
 !     CONIC PROFILE ON SURFACE 1
 !     USED FOR BETTER RAY AIMING
 !
-   REAL*8 A,B,C,CV,CC,ZTEST,MAG,&
+   real(real64) A,B,C,CV,CC,ZTEST,MAG,&
    &Q,SIGNB,ARG,HV0,HV1,HV2,XA,YA,ZA
 !
    INTEGER JIM
@@ -1288,6 +1309,7 @@ SUBROUTINE HITFLA(OR_N,OR_Z)
    use DATMAI
    use mod_surface
    use mod_lens_data_manager, only: ldm
+   use iso_fortran_env, only: real64
    IMPLICIT NONE
 !
 !       THIS IS SUBROUTINE HITFLA.FOR. THIS SUBROUTINE IMPLEMENTS
@@ -1296,17 +1318,17 @@ SUBROUTINE HITFLA(OR_N,OR_Z)
 !       SUBROUTINE XYZSP.FOR FOR IF SPECIAL SURFACES ARE
 !       PRESENT AND SET TO "ON" AND IF THEY ARE OF A RECOGNIZED TYPE.
 !
-   REAL*8 SIGNNU,RR_N,RR_Z,OR_N,OR_Z &
+   real(real64) SIGNNU,RR_N,RR_Z,OR_N,OR_Z &
    &,T0,NUSUBV,C5,TESTLEN,SNINDX,SNIND2 &
    &,MAG,J,ARG,C1,C2,C3,C4 &
    &,FPX,FPY,FPZ,NUSUBS
 !
-   REAL*8 CHIX,CHIY,CHIZ,CHINOR,BLAM,ATERM,BTERM,FACTOR,&
+   real(real64) CHIX,CHIY,CHIZ,CHINOR,BLAM,ATERM,BTERM,FACTOR,&
    &SMU,WLU,BGAM,DD,DSPACE,&
    &QX,QY,QZ,PX,PY,PZ,PNOR,QNOR
 !
 !     HOE STUFF
-   REAL*8 LO,MO,NO,LR,MR,NR,LAMC,LAMP,EMM,BTA
+   real(real64) LO,MO,NO,LR,MR,NR,LAMC,LAMP,EMM,BTA
 !
    LOGICAL REFLEC,GERROR,ERR
 !
@@ -1437,11 +1459,12 @@ SUBROUTINE DPHASE
 !
    use DATLEN
    use DATMAI
+   use iso_fortran_env, only: real64
    IMPLICIT NONE
 !
 !     THIS ADDS PHASE FOR GRATINGS AND HOES
 !
-   REAL*8 T1,CO1,CO2
+   real(real64) T1,CO1,CO2
 !
 !
 !     INTERSECTION OF NON-DIFFRACTED RAY PLANE WITH SURFACE NORMAL
@@ -1462,22 +1485,23 @@ SUBROUTINE HITPARAX(OR_N,OR_Z)
    use DATMAI
    use mod_surface
    use mod_lens_data_manager, only: ldm
+   use iso_fortran_env, only: real64
    IMPLICIT NONE
 !
 !       THIS IS SUBROUTINE HITPARAX.FOR. THIS SUBROUTINE IMPLEMENTS
 !       INTERSECTIONS TO PARAXIAL SURFACES
 !
-   REAL*8 SIGNNU,RR_N,RR_Z,OR_N,OR_Z &
+   real(real64) SIGNNU,RR_N,RR_Z,OR_N,OR_Z &
    &,T0,NUSUBV,C5,TESTLEN,SNINDX,SNIND2 &
    &,MAG,J,ARG,C1,C2,C3,C4 &
    &,FPX,FPY,FPZ,NUSUBS
 !
-   REAL*8 CHIX,CHIY,CHIZ,CHINOR,BLAM,ATERM,BTERM,FACTOR,&
+   real(real64) CHIX,CHIY,CHIZ,CHINOR,BLAM,ATERM,BTERM,FACTOR,&
    &SMU,WLU,BGAM,DD,DSPACE,&
    &QX,QY,QZ,PX,PY,PZ,PNOR,QNOR
 !
 !     HOE STUFF
-   REAL*8 LO,MO,NO,LR,MR,NR,LAMC,LAMP,EMM,BTA
+   real(real64) LO,MO,NO,LR,MR,NR,LAMC,LAMP,EMM,BTA
 !
    LOGICAL REFLEC,GERROR
 !
@@ -1588,11 +1612,12 @@ SUBROUTINE HITFRZFL
    use DATMAI
    use mod_surface
    use mod_lens_data_manager, only: ldm
+   use iso_fortran_env, only: real64
    IMPLICIT NONE
 !
 !     FLAT FREZNEL-1 SURFACE
 !
-   REAL*8 T0,NUSUBV,NUSUBS,TESTLEN &
+   real(real64) T0,NUSUBV,NUSUBS,TESTLEN &
    &,MAG,J,ARG,RR_N,RR_Z &
    &,FPX,FPY,FPZ,SIGNNU,C3,C4,C5,C6,C7,C8,C9,C10,C11 &
    &,Q,C1,C2,SNINDX,SNIND2,RRXX,RRYY
@@ -1901,11 +1926,12 @@ SUBROUTINE HITFRZCV
    use DATMAI
    use mod_surface
    use mod_lens_data_manager, only: ldm
+   use iso_fortran_env, only: real64
    IMPLICIT NONE
 !
 !     CURVED FRESNEL-1
 !
-   REAL*8 A,B,C,QQ,SIGNNU,CV,CC,&
+   real(real64) A,B,C,QQ,SIGNNU,CV,CC,&
    &RR_Z,TEST1,TEST2,NUSUBS,RR_N,TESTLEN &
    &,Q,SIGNB,MAG,J,ARG,C1,C2,C3,C4,ZTEST,SNIND2 &
    &,FPX,FPY,FPZ,C5,C6,HV0,HV1,HV2,ZMIN,ZMAX,&
@@ -1914,12 +1940,12 @@ SUBROUTINE HITFRZCV
 !
    INTEGER ZPMIN,ZPMAX
 !
-   REAL*8 CHIX,CHIY,CHIZ,CHINOR,BLAM,ATERM,BTERM,FACTOR,&
+   real(real64) CHIX,CHIY,CHIZ,CHINOR,BLAM,ATERM,BTERM,FACTOR,&
    &SMU,WLU,BGAM,DD,DSPACE,&
    &QX,QY,QZ,PX,PY,PZ,PNOR,QNOR
 !
 !     HOE STUFF
-   REAL*8 LO,MO,NO,LR,MR,NR,LAMC,LAMP,EMM,BTA
+   real(real64) LO,MO,NO,LR,MR,NR,LAMC,LAMP,EMM,BTA
 !
    LOGICAL REFLEC
 !
@@ -2546,13 +2572,14 @@ SUBROUTINE HITGRAZ
    use DATMAI
    use mod_surface
    use mod_lens_data_manager, only: ldm
+   use iso_fortran_env, only: real64
    IMPLICIT NONE
 !
 !       THIS IS SUBROUTINE HITGRAZ.FOR. THIS SUBROUTINE IMPLEMENTS
 !       A GRAZING INCIDENCE RAY TRACE FOR GRAZING INCIDENCE,
 !       REFLECTIVE SURFACES
 !
-   REAL*8 A,B,C,QQ,SIGNNU,CV,CC,&
+   real(real64) A,B,C,QQ,SIGNNU,CV,CC,&
    &TEST1,TEST2,NUSUBS,RR_N,TESTLEN &
    &,Q,SIGNB,MAG,J,ARG,C1,C2,C3,C4,ZTEST,SNIND2 &
    &,FPX,FPY,FPZ,C5,C6,HV0,HV1,HV2,ZMIN,ZMAX,&
@@ -2561,12 +2588,12 @@ SUBROUTINE HITGRAZ
 !
    INTEGER ZPMIN,ZPMAX
 !
-   REAL*8 CHIX,CHIY,CHIZ,CHINOR,BLAM,ATERM,BTERM,FACTOR,&
+   real(real64) CHIX,CHIY,CHIZ,CHINOR,BLAM,ATERM,BTERM,FACTOR,&
    &SMU,WLU,BGAM,DD,DSPACE,&
    &QX,QY,QZ,PX,PY,PZ,PNOR,QNOR
 !
 !     HOE STUFF
-   REAL*8 LO,MO,NO,LR,MR,NR,LAMC,LAMP,EMM,BTA
+   real(real64) LO,MO,NO,LR,MR,NR,LAMC,LAMP,EMM,BTA
 !
    LOGICAL REFLEC
 !
@@ -3030,8 +3057,9 @@ END
 SUBROUTINE ARRAYIN_FIX(N_X,N_Y)
    use DATLEN
    use DATMAI
+   use iso_fortran_env, only: real64
    IMPLICIT NONE
-   REAL*8 X,Y
+   real(real64) X,Y
    INTEGER I,N_X,N_Y
    I=R_I
    X=R_X
@@ -3046,9 +3074,10 @@ END
 SUBROUTINE ARRAYOUT_FIX(N_X,N_Y)
    use DATLEN
    use DATMAI
+   use iso_fortran_env, only: real64
    IMPLICIT NONE
    INTEGER I,N_X,N_Y
-   REAL*8 X,Y
+   real(real64) X,Y
    I=R_I
    X=R_X
    Y=R_Y
@@ -3062,8 +3091,9 @@ SUBROUTINE POSARRAY1(I,X,Y,N_X,N_Y)
    use DATLEN
    use DATMAI
    use mod_surface
+   use iso_fortran_env, only: real64
    IMPLICIT NONE
-   REAL*8 X,Y,DX,DY,XWORKING,YWORKING,SGNX,SGNY
+   real(real64) X,Y,DX,DY,XWORKING,YWORKING,SGNX,SGNY
    INTEGER I,N_X,N_Y
 !       X AND Y  PASS IN AS THE X AND Y COORDINATES AND PASS BACK AS THE X AND Y
 !       COORDINATES AT A SINGLE LENSLET
@@ -3104,8 +3134,9 @@ SUBROUTINE POSARRAY2(I,X,Y,N_X,N_Y)
    use DATLEN
    use DATMAI
    use mod_surface
+   use iso_fortran_env, only: real64
    IMPLICIT NONE
-   REAL*8 X,Y,DX,DY,XWORKING,YWORKING
+   real(real64) X,Y,DX,DY,XWORKING,YWORKING
    INTEGER I,N_X,N_Y
 !       INVERSE OF POSARRAY1
    DX=surf_array_dx(I)
@@ -3134,12 +3165,13 @@ SUBROUTINE HITANA_old(OR_N,OR_Z)
    use DATMAI
    use mod_surface
    use mod_lens_data_manager, only: ldm
+   use iso_fortran_env, only: real64
    IMPLICIT NONE
 !
 !       THIS IS SUBROUTINE HITANA.FOR. THIS SUBROUTINE IMPLEMENTS
 !       SURFACE INTERSECTIONS TO ANAMORPHICS IN RAYTRACING.
 !
-   REAL*8 A,B,C,QQ,SIGNNU,CV,CC,C1,C2,C3,C4,C5,C6,&
+   real(real64) A,B,C,QQ,SIGNNU,CV,CC,C1,C2,C3,C4,C5,C6,&
    &C7,C8,C9,C10,C11,C12,C13,C14,NUSUBS,OR_N,OR_Z,&
    &TEST1,TEST2,RR_N,TESTLEN,ZTEST,RR_Z &
    &,Q,SIGNB,MAG,J,ARG,SNINDX,SNIND2 &
@@ -3147,12 +3179,12 @@ SUBROUTINE HITANA_old(OR_N,OR_Z)
    &X1,X2,Y1,Y2,Z1,Z2,LN1,LN2,MN1,MN2,NN1,NN2
 !
 !     DIFFRACTION GRATING STUFF
-   REAL*8 CHIX,CHIY,CHIZ,CHINOR,BLAM,ATERM,BTERM,FACTOR,&
+   real(real64) CHIX,CHIY,CHIZ,CHINOR,BLAM,ATERM,BTERM,FACTOR,&
    &SMU,WLU,BGAM,DD,DSPACE,&
    &QX,QY,QZ,PX,PY,PZ,PNOR,QNOR
 !
 !     HOE STUFF
-   REAL*8 RD,R1,R2,LO,MO,NO,LR,MR,NR,LAMC,LAMP,EMM,BTA
+   real(real64) RD,R1,R2,LO,MO,NO,LR,MR,NR,LAMC,LAMP,EMM,BTA
 !
    LOGICAL REFLEC,GERROR,ERR
 !
@@ -3483,12 +3515,13 @@ SUBROUTINE HITANA(OR_N,OR_Z)
    use DATMAI
    use mod_surface
    use mod_lens_data_manager, only: ldm
+   use iso_fortran_env, only: real64
    IMPLICIT NONE
 !
 !       THIS IS SUBROUTINE HITANA.FOR. THIS SUBROUTINE IMPLEMENTS
 !       SURFACE INTERSECTIONS TO ANAMORPHICS IN RAYTRACING.
 !
-   REAL*8 A,B,C,QQ,SIGNNU,CV,CC,C1,C2,C3,C4,C5,C6,&
+   real(real64) A,B,C,QQ,SIGNNU,CV,CC,C1,C2,C3,C4,C5,C6,&
    &C7,C8,C9,C10,C11,C12,C13,C14,NUSUBS,OR_N,OR_Z,&
    &TEST1,TEST2,RR_N,TESTLEN,ZTEST,RR_Z &
    &,Q,SIGNB,MAG,J,ARG,SNINDX,SNIND2 &
@@ -3496,12 +3529,12 @@ SUBROUTINE HITANA(OR_N,OR_Z)
    &X1,X2,Y1,Y2,Z1,Z2,LN1,LN2,MN1,MN2,NN1,NN2
 !
 !     DIFFRACTION GRATING STUFF
-   REAL*8 CHIX,CHIY,CHIZ,CHINOR,BLAM,ATERM,BTERM,FACTOR,&
+   real(real64) CHIX,CHIY,CHIZ,CHINOR,BLAM,ATERM,BTERM,FACTOR,&
    &SMU,WLU,BGAM,DD,DSPACE,&
    &QX,QY,QZ,PX,PY,PZ,PNOR,QNOR
 !
 !     HOE STUFF
-   REAL*8 RD,R1,R2,LO,MO,NO,LR,MR,NR,LAMC,LAMP,EMM,BTA
+   real(real64) RD,R1,R2,LO,MO,NO,LR,MR,NR,LAMC,LAMP,EMM,BTA
 !
    LOGICAL REFLEC,GERROR,ERR
 !

@@ -6,14 +6,15 @@
 SUBROUTINE SVDCMPB(A,W,V,NN)
 !
    use DATMAI
+   use iso_fortran_env, only: real64
    IMPLICIT NONE
 !
    INTEGER NP,MP,M,N,I,J,K,L,ITS,NM,NN
 !
-   REAL*8 G,SCALE,ANORM,S &
+   real(real64) G,SCALE,ANORM,S &
    &,F,H,C,Z,X,Y
 !
-   REAL*8 A,W,V,RV1(1:15)
+   real(real64) A,W,V,RV1(1:15)
    DIMENSION A(NN,NN),W(NN),V(NN,NN)
 !
 !
@@ -265,11 +266,12 @@ END
 SUBROUTINE SVDCMP(A,M,N,MP,NP,W,V)
 !
    use DATMAI
+   use iso_fortran_env, only: real64
    IMPLICIT NONE
 !
    INTEGER NMAX,NP,MP,M,N,I,J,K,L,ITS,NM
 !
-   REAL*8 A,W,V,G,SCALE,ANORM,RV1,S &
+   real(real64) A,W,V,G,SCALE,ANORM,RV1,S &
    &,F,H,C,Z,X,Y
 !
 !
@@ -515,16 +517,17 @@ END
 !
 SUBROUTINE SVBKSBB(U,V,B,W,NN)
 !
+   use iso_fortran_env, only: real64
    IMPLICIT NONE
 !
    INTEGER NP,MP,NMAX,M,J,I,JJ,N,NN
 !
-   REAL*8 S
+   real(real64) S
 !
-   REAL*8 &
+   real(real64) &
    &X(1:15),TMP(1:15)
 !
-   REAL*8 U,W,&
+   real(real64) U,W,&
    &V,B
    DIMENSION U(NN,NN),W(NN),&
    &V(NN,NN),B(NN)
@@ -567,11 +570,12 @@ END
 !
 SUBROUTINE SVBKSB(U,W,V,M,N,MP,NP,B,X)
 !
+   use iso_fortran_env, only: real64
    IMPLICIT NONE
 !
    INTEGER NP,MP,NMAX,M,J,I,JJ,N
 !
-   REAL*8 U,W,V,B,X,S,TMP
+   real(real64) U,W,V,B,X,S,TMP
 !
    PARAMETER (NMAX=2000)
    DIMENSION U(MP,NP),W(NP),V(NP,NP),B(MP),X(NP),TMP(NMAX)
@@ -607,11 +611,12 @@ END
 !
 SUBROUTINE SVBKSBA(W,V,VN,VN1,BTB,BTG)
 !
+   use iso_fortran_env, only: real64
    IMPLICIT NONE
 !
    INTEGER NP2,MP,NMAX,SM,J,I,JJ,ALLOERR,SSN,VN,VN1
 !
-   REAL*8 W,BTB,BTG &
+   real(real64) W,BTB,BTG &
    &,V,X(1:100000),S,TMP
    DIMENSION W(VN),V(VN,VN),BTB(VN1,VN1),BTG(VN1),TMP(:)
 !
@@ -664,11 +669,12 @@ SUBROUTINE SVDCMPA(W,V,VN,VN1,BTB,BTG)
 
 !
    use DATMAI
+   use iso_fortran_env, only: real64
    IMPLICIT NONE
 !
    INTEGER NP2,MP,SM,SSN,VN,I,J,VN1,ALLOERR,K,L,ITS,NM
 !
-   REAL*8 W,BTB,BTG,PYTHAG &
+   real(real64) W,BTB,BTG,PYTHAG &
    &,V,G,SCALE,ANORM,S,RV1 &
    &,F,H,C,Z,X,Y
    EXTERNAL PYTHAG
@@ -915,7 +921,8 @@ SUBROUTINE SVDCMPA(W,V,VN,VN1,BTB,BTG)
    RETURN
 END
 FUNCTION PYTHAG(A,B)
-   REAL*8 A,B,PYTHAG,ABSA,ABSB
+   use iso_fortran_env, only: real64
+   real(real64) A,B,PYTHAG,ABSA,ABSB
    ABSA=DABS(A)
    ABSB=DABS(B)
    IF(ABSA.GT.ABSB) THEN

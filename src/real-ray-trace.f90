@@ -45,6 +45,7 @@
 
 
 module real_ray_trace
+   use iso_fortran_env, only: real64
 
 contains
     ! I started this to refactor the real ray tracing.  There are three subs that 
@@ -65,6 +66,7 @@ contains
                               sys_screen, sys_screen_surf, sys_screen_d, sys_screen_h, sys_screen_s, &
                               sys_fliprefx, sys_fliprefy, sys_screen_excl_angle
         use mod_lens_data_manager, only: ldm
+   use iso_fortran_env, only: real64
         IMPLICIT NONE
 !
 !       THIS IS SUBROUTINE RAYTRA.FOR. THIS SUBROUTINE IMPLEMENTS
@@ -75,11 +77,11 @@ contains
 
         INTEGER CAERAS,COERAS,N_HITS
 !
-        REAL*8 OPLXCOR(1:2),OPLYCOR(1:2),OPLZCOR(1:2)
+        real(real64) OPLXCOR(1:2),OPLYCOR(1:2),OPLZCOR(1:2)
 !
         COMMON/COROPL/OPLXCOR,OPLYCOR,OPLZCOR
 !
-        REAL*8 X,Y,Z,L,M,N,WW1W,WW2W,LER,MER,NER,TANN1,TANN2,IA,IAP ,D21,D22,GAMMA,XXX,YYY,TWW1,TWW2,XL,XM,XN,YL,YM,YN,RN1,RN2, WWW1,WWW2,D11,D12,LS,SNINDX,SNIND2,WW1WW,WW2WW,JK1,JK2,JK3, LSTART,MSTART,NSTART,YANG,XANG,X1LAST,LARGE,ENERGY_FACTOR, Y1LAST,X1ONE,Y1ONE,RXLAST,RYLAST,RXONE,RYONE,DDELX,DDELY, XC1,YC1,ZC1,MF1,MF2,DET,TARX,TARY,XVALUE,YVALUE, TEST,MAG,VALUE,LOLD,MOLD,NOLD,TARRY,TARRX,JKX,JKY, JK_L1,JK_M1,JK_N1,JK_L2,JK_M2,JK_N2,JK_CPL,JK_CPM,JK_CPN ,SA_CPL,SA_CPM,SA_CPN,DP,POLANG,FACT_PAR,FACT_PER,PHASE_PAR ,PHASE_PER,PATHL,STEPL,STEPL1
+        real(real64) X,Y,Z,L,M,N,WW1W,WW2W,LER,MER,NER,TANN1,TANN2,IA,IAP ,D21,D22,GAMMA,XXX,YYY,TWW1,TWW2,XL,XM,XN,YL,YM,YN,RN1,RN2, WWW1,WWW2,D11,D12,LS,SNINDX,SNIND2,WW1WW,WW2WW,JK1,JK2,JK3, LSTART,MSTART,NSTART,YANG,XANG,X1LAST,LARGE,ENERGY_FACTOR, Y1LAST,X1ONE,Y1ONE,RXLAST,RYLAST,RXONE,RYONE,DDELX,DDELY, XC1,YC1,ZC1,MF1,MF2,DET,TARX,TARY,XVALUE,YVALUE, TEST,MAG,VALUE,LOLD,MOLD,NOLD,TARRY,TARRX,JKX,JKY, JK_L1,JK_M1,JK_N1,JK_L2,JK_M2,JK_N2,JK_CPL,JK_CPM,JK_CPN ,SA_CPL,SA_CPM,SA_CPN,DP,POLANG,FACT_PAR,FACT_PER,PHASE_PAR ,PHASE_PER,PATHL,STEPL,STEPL1
 !
         COMMON/CACO/CAERAS,COERAS,LS
 !
@@ -93,11 +95,11 @@ contains
       COMMON/SPRA1/SPDTRA
       COMMON/SPRA2/SPDCD1,SPDCD2
 !
-      REAL*8 XPASS,YPASS,ZPASS
+      real(real64) XPASS,YPASS,ZPASS
 !
       COMMON/SAGPAS/XPASS,YPASS,ZPASS
 
-      REAL*8 AOI,D,H,S,FACTOR
+      real(real64) AOI,D,H,S,FACTOR
 !
 
 !
@@ -1805,6 +1807,7 @@ subroutine adjustLastSurface_2(L, rayData)
     use DATLEN, only: PHASE, WW4, ALENS
     use type_utils, only: real2str, int2str
     use mod_lens_data_manager
+   use iso_fortran_env, only: real64
     implicit none
     integer :: L
     double precision, intent(inout) :: rayData(1:50,0:499)

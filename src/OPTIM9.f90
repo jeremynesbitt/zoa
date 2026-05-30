@@ -9,6 +9,7 @@ SUBROUTINE TLDMP
    use DATLEN
    use mod_surface
    use DATMAI
+   use iso_fortran_env, only: real64
    IMPLICIT NONE
 !
 !     THIS OUTPUTS EXISTING TOLERANCE DEFINITIONS WITH LENO
@@ -419,6 +420,7 @@ SUBROUTINE OPDMP
    use DATLEN
    use mod_surface
    use DATMAI
+   use iso_fortran_env, only: real64
    IMPLICIT NONE
 !
 !     THIS DOES THE MACDMP COMMAND AT THE CMD LEVEL
@@ -672,14 +674,15 @@ SUBROUTINE TVARBLL
    use mod_surface
    use mod_system, only: sys_last_surf
    use DATMAI
+   use iso_fortran_env, only: real64
    IMPLICIT NONE
 !
    INTEGER VBJK,II,I,J,L,VALT,DFDELTT,VBSURF,VBSURF2
 !
    LOGICAL CNOT
 !
-   REAL*8 DELTTA,ALTRSURF,WORD2,SYS12,SYS13,REFHTT
-   REAL*8 DELTTA1,DELTTA2,DELTTA3
+   real(real64) DELTTA,ALTRSURF,WORD2,SYS12,SYS13,REFHTT
+   real(real64) DELTTA1,DELTTA2,DELTTA3
 !
 !
 !       THIS IS SUBROUTINE TVARBLL. THIS IS THE SUBROUTINE WHICH
@@ -4747,13 +4750,14 @@ SUBROUTINE TVCHECK
    use mod_surface
    use mod_system, only: sys_high_cfg
    use DATMAI
+   use iso_fortran_env, only: real64
    IMPLICIT NONE
 !
    CHARACTER VNA*8
 !
    INTEGER ALLOERR
 !
-   REAL*8 CFER,JKVAR
+   real(real64) CFER,JKVAR
 !
    DIMENSION JKVAR(:,:)
 !

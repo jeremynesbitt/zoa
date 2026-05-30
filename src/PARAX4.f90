@@ -11,6 +11,7 @@ SUBROUTINE FADJ
       & sys_na_set, sys_naox, sys_naoy, sys_sax, sys_say, sys_telecentric, &
       & sys_set_fno_flag_x, sys_set_fno_flag_y, sys_set_fno_hold_x, sys_set_fno_hold_y, &
       & sys_set_sax, sys_set_say
+   use iso_fortran_env, only: real64
    IMPLICIT NONE
 !
 !       THIS IS SUBROUTINE FADJ. THIS IS THE SUBROUTINE
@@ -160,14 +161,15 @@ SUBROUTINE G357
    use DATMAI
    use mod_system, only: sys_last_surf, sys_mode, sys_wl_ref
    use mod_lens_data_manager, only: ldm
+   use iso_fortran_env, only: real64
    IMPLICIT NONE
 !
 !       SUBROUTINE GET SERVES TO GET THE 3RD, 5TH AND 7TH
 !       ORDER ABERRATIONS, THEIR TOTALS AND THEIR CHROMATIC
 !       DIFFERENCES. IT IS CALLED BY GET.FOR AND RETURNS THE
-!       REAL*8
+!       real(real64)
 !
-   REAL*8 VALUE,INV,V,INTV,W1A,W1B,V1
+   real(real64) VALUE,INV,V,INTV,W1A,W1B,V1
 !
    LOGICAL NEG
 !

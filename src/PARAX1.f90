@@ -8,6 +8,7 @@ SUBROUTINE PRCOL
    use mod_surface, only: surf_curvature, surf_thickness, surf_toric_flag, surf_toric_curvature, surf_asphere_coeff
    use mod_system, only: sys_last_surf
    use mod_lens_data_manager, only: ldm
+   use iso_fortran_env, only: real64
    IMPLICIT NONE
 !
 !       THIS IS SUBROUTINE PRCOL. THIS DOES A PARAXIAL
@@ -16,7 +17,7 @@ SUBROUTINE PRCOL
 !
    INTEGER ITYP,I,J,L
 !
-   REAL*8 CURV,WV
+   real(real64) CURV,WV
 !
    COMMON/PRCOM/WV,ITYP
 !
@@ -413,12 +414,12 @@ SUBROUTINE PRTRA_OLD
 !
    COMMON/CSLVRS/SLV1,SLV2
 
-   REAL*8 RD, INDEX, VNUM
+   real(real64) RD, INDEX, VNUM
    real(kind=real64) :: Lo, thetao, nao
    real(kind=real64) :: marPos1, marAng0
 
 !
-   REAL*8 SYS13,TMP15A,TMP15B,&
+   real(real64) SYS13,TMP15A,TMP15B,&
    &CON,CURV,TMP17A,TMP17B,WV
 !
    COMMON/PRCOM/WV,ITYP
@@ -2589,6 +2590,7 @@ SUBROUTINE PRTRB
 !
    use DATLEN
    use DATMAI
+   use iso_fortran_env, only: real64
    IMPLICIT NONE
 !
 !       THIS IS SUBROUTINE PRTRB. THIS IS THE
@@ -2621,6 +2623,7 @@ SUBROUTINE PRTRC
    use DATLEN
    use DATMAI
    use mod_system, only: sys_wl_ref
+   use iso_fortran_env, only: real64
    IMPLICIT NONE
 !
 !       THIS IS SUBROUTINE PRTRC. THIS IS THE
@@ -2649,6 +2652,7 @@ SUBROUTINE PRTRD
    use DATMAI
    use mod_system, only: sys_last_surf, sys_wl_pri1, sys_wl_pri2, sys_wl_ref, &
       & sys_wl_sec1, sys_wl_sec2
+   use iso_fortran_env, only: real64
    IMPLICIT NONE
 !
 !       THIS IS SUBROUTINE PRTRD. THIS IS THE
@@ -2657,7 +2661,7 @@ SUBROUTINE PRTRD
 !
    INTEGER CW,I,J,K,ITYP,AITYPE
 !
-   REAL*8 WV
+   real(real64) WV
 !
    COMMON/PRCOM/WV,ITYP
 !
@@ -2837,6 +2841,7 @@ SUBROUTINE PAROUT
    use DATLEN
    use DATMAI
    use mod_system, only: sys_last_surf
+   use iso_fortran_env, only: real64
    IMPLICIT NONE
 !
 !       THIS IS SUBROUTINE PAROUT. THIS SUBROUTINE IMPLEMENTS
@@ -3145,6 +3150,7 @@ SUBROUTINE TR
       & sys_telecentric, sys_wl_ref, sys_x1_scx, sys_y1_scy, &
       & sys_set_x1_scx, sys_set_y1_scy
    use mod_lens_data_manager, only: ldm
+   use iso_fortran_env, only: real64
    IMPLICIT NONE
 !
 !       THIS IS CALLED BY SUBROUTINE FADJ AND ERADJ.
@@ -3158,7 +3164,7 @@ SUBROUTINE TR
    COMMON/PTYPER/ITYPEP
 !
 !
-   REAL*8 TMP15A,TMP15B,CON,CURV,SYS13,TMP17A,TMP17B
+   real(real64) TMP15A,TMP15B,CON,CURV,SYS13,TMP17A,TMP17B
 !
    CON=sys_y1_scy()
 !

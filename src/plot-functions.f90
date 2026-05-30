@@ -17,6 +17,7 @@ module plot_functions
   use zoa_plot
   use data_registers
 
+   use iso_fortran_env, only: real64
   implicit none
 
     interface
@@ -69,7 +70,7 @@ subroutine zern_go(psm)
     
 
 
-    REAL*8 X(1:96)
+    real(real64) X(1:96)
     COMMON/SOLU/X
 
 
@@ -189,6 +190,7 @@ subroutine vie_go(psm)
     use handlers, only: zoatabMgr
     use global_widgets, only: currVieData
 
+   use iso_fortran_env, only: real64
     implicit none
     type(zoaplot_setting_manager) :: psm
     integer :: plot_code = ID_PLOTTYPE_LENSDRAW
@@ -266,6 +268,7 @@ end subroutine
 function getTabTextView(objIdx) result (dataTextView)
   use handlers, only: zoatabMgr
   use zoa_tab
+   use iso_fortran_env, only: real64
   implicit none
   integer :: objIdx
   type (c_ptr) :: dataTextView
@@ -298,6 +301,7 @@ subroutine spo_fieldPoint_go(psm)
   use g
 
 
+   use iso_fortran_env, only: real64
   IMPLICIT NONE
 
   type(multiplot) :: mplt
@@ -605,6 +609,7 @@ subroutine ast_go(psm)
     use DATMAI
 
 
+   use iso_fortran_env, only: real64
     IMPLICIT NONE
 
     type(multiplot) :: mplt
@@ -810,6 +815,7 @@ subroutine rayaberration_go(psm)
     use plplot, PI => PL_PI
     use plplot_extra
 
+   use iso_fortran_env, only: real64
     implicit none
 
     character(len=80) :: ffieldstr
@@ -1004,6 +1010,7 @@ subroutine rmsfield_go(psm)
   use iso_c_binding, only: c_ptr, c_null_ptr
 
 use DATMAI
+   use iso_fortran_env, only: real64
 IMPLICIT NONE
 
 character(len=23) :: ffieldstr
@@ -1094,6 +1101,7 @@ subroutine initializeGoPlot(psm, plot_code, plotName, replot, objIdx)
     use handlers, only: zoatabMgr
     use type_utils, only: int2str
 
+   use iso_fortran_env, only: real64
     implicit none
     type(zoaplot_setting_manager) :: psm
     integer :: plot_code
@@ -1143,6 +1151,7 @@ subroutine initializeGoPlot(psm, plot_code, plotName, replot, objIdx)
     use plot_setting_manager
     use handlers, only: zoatabMgr
 
+   use iso_fortran_env, only: real64
     implicit none
     type(multiplot) :: mplt
     type(zoaplot_setting_manager) :: psm
@@ -1169,6 +1178,7 @@ subroutine finalizeGoPlot(mplt, psm, plot_code, plotName)
     use handlers, only: zoatabMgr
     use type_utils, only: int2str
 
+   use iso_fortran_env, only: real64
     implicit none
     type(multiplot) :: mplt
     type(zoaplot_setting_manager) :: psm

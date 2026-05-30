@@ -37,16 +37,17 @@ SUBROUTINE AB357
    use mod_surface
    use mod_system, only: sys_last_surf, sys_wl_ref
    use mod_lens_data_manager, only: ldm
+   use iso_fortran_env, only: real64
    IMPLICIT NONE
 !
    INTEGER IAB,CW,SF,I,J
 !
    COMMON/PAS357/CW,IAB
 !
-   REAL*8 INV,SI,SIBAR,C1,C1BAR,K,N &
+   real(real64) INV,SI,SIBAR,C1,C1BAR,K,N &
    &,J_NP,TRAN1,TRAN2,TRAN4,TRAN5,TRAN6
 !
-   REAL*8 C2,C3,C21,C22,CF16,&
+   real(real64) C2,C3,C21,C22,CF16,&
    &C31,C32,C33,C34,B,AB,F,AF,C,AC,E,AE,PIE,APIE,PIECV,&
    &C2BAR,BBAR,FBAR,CBAR,EBAR,WI,ABBAR,AFBAR,CV,CC,&
    &ACBAR,AEBAR,X73,X74,X75,X76,X77,X78,X42,X82,XBAR42,XBAR82,&
@@ -54,7 +55,7 @@ SUBROUTINE AB357
    &A2S4P,AS5P,A2S6P,AS1Q,JO,JOBAR,ALPHA,BETA,GAMMA,LAMBDA,MU,NU,&
    &A2S1PU,AS2PU,A2S3PU,A2S4PU,AS5PU,A2S6PU,A2S1QU,SLH,ASLH
 !
-   REAL*8 B71,B72,GAMMA1,GAMMA2,GAMMA3,G32,G33,G34,&
+   real(real64) B71,B72,GAMMA1,GAMMA2,GAMMA3,G32,G33,G34,&
    &G36,G37,L3,D3,D32,D33,D34,D35,D36,D37,D38,D39,D40,D41,D31,&
    &BPRIME,FPRIME,CPRIME,EPRIME,PPRIME,BBPRIM,FBPRIM,CBPRIM,&
    &EBPRIM,PBPRIM,TRAN,B5PRIM,EB5PRM,G31
@@ -1490,6 +1491,7 @@ SUBROUTINE A357I
    use DATMAI
    use mod_system, only: sys_last_surf, sys_mode, sys_wl_ref
    use mod_lens_data_manager, only: ldm
+   use iso_fortran_env, only: real64
    IMPLICIT NONE
 !
 !       THIS IS SUBROUTINE A357I. THIS SUBROUTINE IMPLEMENTS
@@ -1501,9 +1503,9 @@ SUBROUTINE A357I
 !
    INTEGER SF,I
 !
-   REAL*8 C1,C2,C3
+   real(real64) C1,C2,C3
 !
-   REAL*8 INV,&
+   real(real64) INV,&
    &C1T,C2T,C3T
 !
 !
@@ -1908,6 +1910,7 @@ SUBROUTINE AB5I
    use DATMAI
    use mod_system, only: sys_last_surf, sys_mode, sys_wl_ref
    use mod_lens_data_manager, only: ldm
+   use iso_fortran_env, only: real64
    IMPLICIT NONE
 !
 !       THIS IS SUBROUTINE AB5I. THIS SUBROUTINE IMPLEMENTS
@@ -1915,9 +1918,9 @@ SUBROUTINE AB5I
 !
    INTEGER I,SF
 !
-   REAL*8 C1,C2,C3,C4,C5,C1T,C2T,C3T,C4T,C5T
+   real(real64) C1,C2,C3,C4,C5,C1T,C2T,C3T,C4T,C5T
 !
-   REAL*8 INV
+   real(real64) INV
 !
 !
    CALL PRTRC
@@ -2349,6 +2352,7 @@ SUBROUTINE ABX5I
    use DATMAI
    use mod_system, only: sys_last_surf, sys_mode, sys_wl_ref
    use mod_lens_data_manager, only: ldm
+   use iso_fortran_env, only: real64
    IMPLICIT NONE
 !
 !       THIS IS SUBROUTINE ABX5I. THIS SUBROUTINE IMPLEMENTS
@@ -2356,9 +2360,9 @@ SUBROUTINE ABX5I
 !
    INTEGER I,SF
 !
-   REAL*8 C1,C2,C3,C4,C5,C1T,C2T,C3T,C4T,C5T
+   real(real64) C1,C2,C3,C4,C5,C1T,C2T,C3T,C4T,C5T
 !
-   REAL*8 INV
+   real(real64) INV
 !
 !
    CALL PRTRC
@@ -2809,6 +2813,7 @@ SUBROUTINE MMAB3
    use DATMAI
    use mod_system, only: sys_last_surf, sys_mode, sys_wl_ref
    use mod_lens_data_manager, only: ldm
+   use iso_fortran_env, only: real64
    IMPLICIT NONE
 !
 !       THIS IS SUBROUTINE MMAB3. THIS SUBROUTINE IMPLEMENTS
@@ -2817,9 +2822,9 @@ SUBROUTINE MMAB3
 !
    INTEGER I,SF
 !
-   REAL*8 C1,C2,C3,C4,C5,C1T,C2T,C3T,C4T,C5T
+   real(real64) C1,C2,C3,C4,C5,C1T,C2T,C3T,C4T,C5T
 !
-   REAL*8 INV
+   real(real64) INV
 !
 !
    PRINT *, "Calling PRTRC "
@@ -3286,15 +3291,16 @@ SUBROUTINE MMAB5
    use DATMAI
    use mod_system, only: sys_last_surf, sys_mode, sys_wl_ref
    use mod_lens_data_manager, only: ldm
+   use iso_fortran_env, only: real64
    IMPLICIT NONE
 !
 !       THIS IS SUBROUTINE MMAB5. THIS SUBROUTINE IMPLEMENTS
 !       THE MAB5 AND XMAB5 CMD LEVEL COMMAND
    INTEGER I,SF
 !
-   REAL*8 C1,C2,C3,C4,C5,C1T,C2T,C3T,C4T,C5T
+   real(real64) C1,C2,C3,C4,C5,C1T,C2T,C3T,C4T,C5T
 !
-   REAL*8 INV
+   real(real64) INV
 !
 !
    CALL PRTRC
@@ -3741,15 +3747,16 @@ SUBROUTINE MMABX5
    use DATMAI
    use mod_system, only: sys_last_surf, sys_mode, sys_wl_ref
    use mod_lens_data_manager, only: ldm
+   use iso_fortran_env, only: real64
    IMPLICIT NONE
 !
 !       THIS IS SUBROUTINE MMABX5. THIS SUBROUTINE IMPLEMENTS
 !       THE MABX5 AND XMABX5 CMD LEVEL COMMAND
    INTEGER I,SF
 !
-   REAL*8 C1,C2,C3,C4,C5,C1T,C2T,C3T,C4T,C5T
+   real(real64) C1,C2,C3,C4,C5,C1T,C2T,C3T,C4T,C5T
 !
-   REAL*8 INV
+   real(real64) INV
 !
 !
    CALL PRTRC
@@ -4198,6 +4205,7 @@ SUBROUTINE MMABP3
    use DATMAI
    use mod_system, only: sys_last_surf, sys_mode, sys_wl_ref
    use mod_lens_data_manager, only: ldm
+   use iso_fortran_env, only: real64
    IMPLICIT NONE
 !
 !       THIS IS SUBROUTINE MMABP3. THIS SUBROUTINE IMPLEMENTS
@@ -4206,9 +4214,9 @@ SUBROUTINE MMABP3
 !
    INTEGER I,SF
 !
-   REAL*8 C1,C2,C3,C4,C5,C1T,C2T,C3T,C4T,C5T
+   real(real64) C1,C2,C3,C4,C5,C1T,C2T,C3T,C4T,C5T
 !
-   REAL*8 INV
+   real(real64) INV
 !
 !
    CALL PRTRC
@@ -4657,15 +4665,16 @@ SUBROUTINE SA357
    use DATMAI
    use mod_system, only: sys_last_surf, sys_mode, sys_wl_ref
    use mod_lens_data_manager, only: ldm
+   use iso_fortran_env, only: real64
    IMPLICIT NONE
 !
 !       THIS IS SUBROUTINE SA357. THIS SUBROUTINE IMPLEMENTS
 !       THE SA357 AND XSA357 CMD LEVEL COMMAND
    INTEGER I,SF
 !
-   REAL*8 C1,C2,C3
+   real(real64) C1,C2,C3
 !
-   REAL*8 &
+   real(real64) &
    &INV,C1T,C2T,C3T
 !
 !

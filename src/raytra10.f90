@@ -8,6 +8,7 @@ SUBROUTINE GBEAM
    use command_utils, only: is_command_query
    use mod_system, only: sys_wl_ref, sys_last_surf, sys_wrx, sys_wry, sys_bdx, sys_bdy, &
       & sys_astop, sys_ref_surf, sys_set_astop, sys_set_ref_surf
+   use iso_fortran_env, only: real64
    IMPLICIT NONE
 !
 !       THIS IS SUBROUTINE GBEAM. THIS SUBROUTINE IMPLEMENTS
@@ -17,7 +18,7 @@ SUBROUTINE GBEAM
 !
    SAVE OLDREF2,OLDSTOP
 !
-   REAL*8 PX,PY,PCX,PCY,PUX,PUY,PUCX,PUCY,DWORD2,DWORD3 &
+   real(real64) PX,PY,PCX,PCY,PUX,PUY,PUCX,PUCY,DWORD2,DWORD3 &
    &,DWORD4,DWORD5,V1,V2,V3,V4,V5,V6,V7,V8,WRX,WRY,BDX,BDY &
    &,VALVA,VAL1,VAL2
 !
@@ -532,6 +533,7 @@ SUBROUTINE GLPRY
    use DATLEN
    use DATMAI
    use mod_surface, only: surf_thickness, surf_special_type
+   use iso_fortran_env, only: real64
    IMPLICIT NONE
 !
 !       THIS IS SUBROUTINE GLPRY.FOR. THIS SUBROUTINE IMPLEMENTS
@@ -540,7 +542,7 @@ SUBROUTINE GLPRY
 !
    INTEGER JK,I,N_HITS
 !
-   REAL*8 GRX,GRY,GRZ,GRL,GRM,GRN,GRLP,GRMP,GRNP,&
+   real(real64) GRX,GRY,GRZ,GRL,GRM,GRN,GRLP,GRMP,GRNP,&
    &X1,Y1,Z1,L1,M1,N1,X00,Y00,Z0,LX0,LY0,LZ0,&
    &MX0,MY0,MZ0,NX0,NY0,NZ0,LO1,MO1,NO1
 !
@@ -691,6 +693,7 @@ SUBROUTINE GLOBAL
    use DATMAI
    use mod_surface, only: surf_thickness
    use mod_system, only: sys_units, sys_last_surf
+   use iso_fortran_env, only: real64
    IMPLICIT NONE
 !
 !       THIS IS SUBROUTINE GLOBAL. THIS SUBROUTINE IMPLEMENTS
@@ -1344,6 +1347,7 @@ SUBROUTINE GLBRAY
    use DATLEN
    use DATMAI
    use mod_surface, only: surf_thickness
+   use iso_fortran_env, only: real64
    IMPLICIT NONE
 !
 !       THIS IS SUBROUTINE GLBRAY.FOR. THIS SUBROUTINE IMPLEMENTS
@@ -1352,7 +1356,7 @@ SUBROUTINE GLBRAY
 !
    INTEGER JK,I
 !
-   REAL*8 &
+   real(real64) &
    &X1,Y1,Z1,L1,M1,N1,X00,Y00,Z0,LX0,LY0,LZ0,&
    &MX0,MY0,MZ0,NX0,NY0,NZ0,LO1,MO1,NO1,LN1,MN1,NN1
 !
@@ -1438,6 +1442,7 @@ SUBROUTINE GETOPD(LEN,LENW,OPDERROR)
    use mod_surface, only: surf_thickness
    use mod_system, only: sys_units, sys_mode, sys_last_surf, sys_wavelength
    use mod_lens_data_manager, only: ldm
+   use iso_fortran_env, only: real64
    IMPLICIT NONE
 !
 !       THIS IS SUBROUTINE GETOPD WHICH IMPLEMENTS THE GET OPD
@@ -1446,7 +1451,7 @@ SUBROUTINE GETOPD(LEN,LENW,OPDERROR)
 !
    INTEGER J,JJ
 !
-   REAL*8 LEN,LENW,WW,WAVE
+   real(real64) LEN,LENW,WW,WAVE
 !
    LOGICAL OPDERROR
 !
@@ -1563,7 +1568,7 @@ END
 ! C       OPD DUE TO THE IMAGE REFERENCE SPHERE. (FOR AFOCAL
 ! C       SYSTEMS THIS WILL BE A FLAT REFERENCE SURFACE)
 ! C
-!         REAL*8 XREFI,XO,XOOY,XOOX,YO,YOOX,YOOY,ZO,ZOOX,ZOOY,
+!         real(real64) XREFI,XO,XOOY,XOOX,YO,YOOX,YOOY,ZO,ZOOX,ZOOY,
 !      1  YREFI,RAD,AL,BE,GA,A,B,C,LEN,LEN1,LO,LOOX,LOOY,MO,MOOX,MOOY,
 !      2  LEN2,Q,ARG,ZREFI,SIGNB,RL0,RM0,RN0,NO,NOOX,NOOY,THYNUM,THXNUM,
 !      3  RRX0,RRZ0,T,RX0,RY0,RZ0,RRY0,M0,L0,N0,XA,THXDEN,THYDEN,
@@ -2097,6 +2102,7 @@ SUBROUTINE LOPD
    use DATMAI
    use mod_surface, only: surf_thickness
    use mod_system, only: sys_last_surf, sys_mode
+   use iso_fortran_env, only: real64
    IMPLICIT NONE
 !
 !       THIS IS SUBROUTINE LOPD.FOR. THIS SUBROUTINE IS
@@ -2104,7 +2110,7 @@ SUBROUTINE LOPD
 !       OPD DUE TO THE IMAGE REFERENCE SPHERE. (FOR AFOCAL
 !       SYSTEMS THIS WILL BE A FLAT REFERENCE SURFACE)
 !
-   REAL*8 XREFI,XO,XOOY,XOOX,YO,YOOX,YOOY,ZO,ZOOX,ZOOY,&
+   real(real64) XREFI,XO,XOOY,XOOX,YO,YOOX,YOOY,ZO,ZOOX,ZOOY,&
    &YREFI,RAD,AL,BE,GA,A,B,C,LEN,LEN1,LO,LOOX,LOOY,MO,MOOX,MOOY,&
    &LEN2,Q,ARG,ZREFI,SIGNB,RL0,RM0,RN0,NO,NOOX,NOOY,THYNUM,THXNUM,&
    &RRX0,RRZ0,T,RX0,RY0,RZ0,RRY0,M0,L0,N0,XA,THXDEN,THYDEN,&
@@ -2589,6 +2595,7 @@ SUBROUTINE GPXT
    use DATMAI
    use command_utils, only: is_command_query
    use mod_system, only: sys_wl_ref, sys_last_surf
+   use iso_fortran_env, only: real64
    IMPLICIT NONE
 !
 !       THIS IS SUBROUTINE GPXT. THIS SUBROUTINE IMPLEMENTS
@@ -2597,7 +2604,7 @@ SUBROUTINE GPXT
 !
    INTEGER SF,I,ERROR
 !
-   REAL*8 PX,PY,PCX,PCY,PUX,PUY,PUCX,PUCY,DWORD2,DWORD3 &
+   real(real64) PX,PY,PCX,PCY,PUX,PUY,PUCX,PUCY,DWORD2,DWORD3 &
    &,DWORD4,DWORD5
 !
 !
@@ -2855,6 +2862,7 @@ SUBROUTINE PGLPRY
    use DATLEN
    use DATMAI
    use mod_surface, only: surf_thickness
+   use iso_fortran_env, only: real64
    IMPLICIT NONE
 !
 !       THIS IS SUBROUTINE GLPRAY.FOR. THIS SUBROUTINE IMPLEMENTS
@@ -2863,7 +2871,7 @@ SUBROUTINE PGLPRY
 !
    INTEGER JK,I
 !
-   REAL*8 X,Y,Z,&
+   real(real64) X,Y,Z,&
    &X1,Y1,Z1,L1,M1,N1,X00,Y00,Z0,LX0,LY0,LZ0,&
    &MX0,MY0,MZ0,NX0,NY0,NZ0,LO1,MO1,NO1
 !

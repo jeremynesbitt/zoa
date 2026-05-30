@@ -9,6 +9,7 @@ SUBROUTINE TSTKDP
    use DATSUB
    use DATLEN
    use DATMAI
+   use iso_fortran_env, only: real64
    IMPLICIT NONE
 
 
@@ -92,6 +93,7 @@ SUBROUTINE getOpticalSystemLastSurface(res)
    use DATLEN
    use DATMAI
    use mod_system, only: sys_last_surf
+   use iso_fortran_env, only: real64
    IMPLICIT NONE
 
    INTEGER, intent(inout) :: res
@@ -110,6 +112,7 @@ SUBROUTINE getFieldCalcResult(X1, X2, Y, numPts, calcCode)
    use DATHGR
    use DATLEN
    use DATMAI
+   use iso_fortran_env, only: real64
    IMPLICIT NONE
 
    integer, intent(in) :: calcCode
@@ -117,7 +120,7 @@ SUBROUTINE getFieldCalcResult(X1, X2, Y, numPts, calcCode)
    CHARACTER UNN*9,DUNN*12,NNTT1*80,BLNOTE*80,BL20*20 &
    &,CRANGE*8,B*80,DTY*10,TMY*8,LABX*40,LABY*40
 !
-   REAL*8 WOR1(0:50),WOR2(0:50),RANGE &
+   real(real64) WOR1(0:50),WOR2(0:50),RANGE &
    &,FACTY,ORI,DTA11(0:50),DTA22(0:50),DDTA(0:50),ADTA(0:50)
 !
    REAL LLIM,ULIM,UFLIM,LFLIM,DELX1,FLDAN(0:50)
@@ -165,6 +168,7 @@ subroutine refreshLensDataStruct()
    use global_widgets,only: curr_lens_data
 
 
+   use iso_fortran_env, only: real64
    implicit none
 
 
@@ -177,6 +181,7 @@ end subroutine
 subroutine LogTermDebug(newTxt)
 
    use zoa_output, only : zoa_emit
+   use iso_fortran_env, only: real64
    implicit none
    character(len=*) :: newTxt
    call zoa_emit(newTxt, "red")
@@ -188,6 +193,7 @@ end subroutine
 
 subroutine LogTermFOR(newTxt)
    use zoa_output, only : zoa_emit
+   use iso_fortran_env, only: real64
    implicit none
    character(len=*) :: newTxt
    call zoa_emit(newTxt, "blue")
@@ -198,9 +204,10 @@ SUBROUTINE getRayTraceOutput(res)
    USE GLOBALS
    use DATLEN
    use DATMAI
+   use iso_fortran_env, only: real64
    IMPLICIT NONE
 
-   REAL*8 res(1:50,0:499)
+   real(real64) res(1:50,0:499)
 
 
    res = RAYRAY
@@ -223,9 +230,10 @@ END SUBROUTINE
 
 SUBROUTINE getVIECOScaleFactor(scaleFactor)
    use DATLEN
+   use iso_fortran_env, only: real64
    IMPLICIT NONE
 
-   REAL*8, INTENT(INOUT) :: scaleFactor
+   real(real64), INTENT(INOUT) :: scaleFactor
 
    scaleFactor = SCFAY
 
@@ -245,6 +253,7 @@ SUBROUTINE PROCESSILENT(ftext)
    use global_widgets, only: ioConfig
    use zoa_ui
 
+   use iso_fortran_env, only: real64
    implicit none
 
    character(len=*) :: ftext
@@ -262,6 +271,7 @@ END SUBROUTINE
 
 SUBROUTINE PROCESKDP(ftext)
    use DATMAI, only: INPUT
+   use iso_fortran_env, only: real64
    IMPLICIT NONE
 
    character(len=*), intent(in) :: ftext

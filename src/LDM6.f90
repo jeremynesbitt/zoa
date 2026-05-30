@@ -7,6 +7,7 @@ SUBROUTINE SLABEL
    use mod_surface
    use DATMAI
    use mod_surface
+   use iso_fortran_env, only: real64
    IMPLICIT NONE
 !
 !       THIS IS SUBROUTINE SLABEL WHICH IMPLEMENTS THE LBL/LABEL
@@ -40,6 +41,7 @@ SUBROUTINE SFNO
       & sys_xz_data_flag, sys_sax, sys_say, &
       & sys_set_fno_val_set, sys_set_fno_val_x, sys_set_fno_val_y, sys_set_na_set, &
       & sys_set_sax_float, sys_set_say_float, sys_set_xz_data_flag
+   use iso_fortran_env, only: real64
    IMPLICIT NONE
 !
 !       THIS IS SUBROUTINE SFNO WHICH IMPLEMENTS THE FNO(X OR Y) COMMAND
@@ -263,12 +265,13 @@ SUBROUTINE SFNB
       & sys_sax_float, sys_say_float, &
       & sys_set_fno_flag_x, sys_set_fno_flag_y, sys_set_fno_hold_x, sys_set_fno_hold_y, &
       & sys_set_sax, sys_set_say
+   use iso_fortran_env, only: real64
    IMPLICIT NONE
 !
 !       THIS IS SUBROUTINE SFNB WHICH IMPLEMENTS THE FNBY AND FNBX
 !       COMMANDS AT THE CMD LEVEL. (ALSO FNBY HLD AND FNBX HLD)
 !
-   REAL*8 FN,ABSSYS
+   real(real64) FN,ABSSYS
 !
    INTEGER ITYPEP
 !
@@ -682,6 +685,7 @@ SUBROUTINE PIVAXIS
    use DATMAI
    use mod_surface
    use command_utils, only: is_command_query
+   use iso_fortran_env, only: real64
    IMPLICIT NONE
 !
 !       THIS IS SUBROUTINE PIVAXIS WHICH IMPLEMENTS THE
@@ -734,6 +738,7 @@ SUBROUTINE SER
       & sys_sax_float, sys_say_float, &
       & sys_set_fno_flag_x, sys_set_fno_flag_y, sys_set_fno_hold_x, sys_set_fno_hold_y, &
       & sys_set_sax, sys_set_say
+   use iso_fortran_env, only: real64
    IMPLICIT NONE
 !
 !       THIS IS SUBROUTINE SER WHICH IMPLEMENTS THE ERY AND ERX
@@ -741,7 +746,7 @@ SUBROUTINE SER
 !
    CHARACTER UNIT*5
 !
-   REAL*8 ABSSYS,EP
+   real(real64) ABSSYS,EP
 !
    INTEGER ITYPEP
 !
@@ -1142,6 +1147,7 @@ SUBROUTINE SDEFG
    use mod_surface
    use DATMAI
    use mod_surface
+   use iso_fortran_env, only: real64
    IMPLICIT NONE
 !
 !       THIS IS SUBROUTINE SDEFG WHICH IMPLEMENTS THE AC,AD,
@@ -1593,6 +1599,7 @@ SUBROUTINE SPIVOT
    use DATMAI
    use mod_system, only: sys_last_surf
    use mod_surface
+   use iso_fortran_env, only: real64
    IMPLICIT NONE
 !
 !       THIS IS SUBROUTINE SPIVOT WHICH IMPLEMENTS THE PIVOT
@@ -1732,6 +1739,7 @@ SUBROUTINE SPIVOTD
    use mod_system, only: sys_last_surf
    use mod_lens_data_manager, only: ldm
    use mod_surface
+   use iso_fortran_env, only: real64
    IMPLICIT NONE
 !
 !       THIS IS SUBROUTINE SPIVOTD WHICH IMPLEMENTS THE PIVOTD
@@ -1830,6 +1838,7 @@ SUBROUTINE SPIVAX
    use mod_surface
    use DATMAI
    use mod_surface
+   use iso_fortran_env, only: real64
    IMPLICIT NONE
 !
 !       THIS IS SUBROUTINE SPIVAX WHICH IMPLEMENTS THE PIVAXIS
@@ -1875,6 +1884,7 @@ SUBROUTINE SCW
    use DATMAI
    use mod_system, only: sys_wl_pri1, sys_wl_pri2, sys_wl_ref, sys_wl_sec1, sys_wl_sec2, &
       & sys_set_wl_pri1, sys_set_wl_pri2, sys_set_wl_ref, sys_set_wl_sec1, sys_set_wl_sec2
+   use iso_fortran_env, only: real64
    IMPLICIT NONE
 !
 !       THIS IS SUBROUTINE SCW WHICH IMPLEMENTS THE CW COMMAND
@@ -2097,6 +2107,7 @@ SUBROUTINE SCVR
    use DATMAI
    use mod_surface
    use mod_system, only: sys_units
+   use iso_fortran_env, only: real64
    IMPLICIT NONE
 !
 !       THIS IS SUBROUTINE SCVR WHICH IMPLEMENTS THE CVTOR AND RDTOR
@@ -2106,7 +2117,7 @@ SUBROUTINE SCVR
 !
    INTEGER I
 !
-   REAL*8 DR,NEWRAD,ARG1,RADIUS,APER,WAVE,WAVER,VAL1,RAD
+   real(real64) DR,NEWRAD,ARG1,RADIUS,APER,WAVE,WAVER,VAL1,RAD
 !
 !
    IF(SURF.EQ.0) THEN
@@ -2419,6 +2430,7 @@ SUBROUTINE SCV
    use DATMAI
    use mod_surface
    use mod_system, only: sys_units
+   use iso_fortran_env, only: real64
    IMPLICIT NONE
 !
 !       THIS IS SUBROUTINE SCV WHICH IMPLEMENTS THE CV AND RD
@@ -2428,7 +2440,7 @@ SUBROUTINE SCV
 !
    INTEGER PIKCNT,I
 !
-   REAL*8 VAL1,WAVE,WAVER,APER,RADIUS,DR,NR,RAD ,NEWRAD,ARG1
+   real(real64) VAL1,WAVE,WAVER,APER,RADIUS,DR,NR,RAD ,NEWRAD,ARG1
 !
 !
 !               CHECK FOR PRESENCE OF QUALIFIER OR STRING INPUT
@@ -2956,6 +2968,7 @@ SUBROUTINE SINS
    use mod_surface
    use mod_system, only: sys_astop, sys_last_surf, sys_ref_surf, &
       & sys_set_astop, sys_set_last_surf, sys_set_ref_surf
+   use iso_fortran_env, only: real64
    IMPLICIT NONE
 !
 !       THIS IS SUBROUTINE SINS WHICH IMPLEMENTS THE INS
@@ -3161,6 +3174,7 @@ SUBROUTINE SDEL
    use mod_surface
    use mod_system, only: sys_astop, sys_last_surf, sys_ref_surf, &
       & sys_set_astop, sys_set_astop_adj, sys_set_last_surf, sys_set_ref_surf
+   use iso_fortran_env, only: real64
    IMPLICIT NONE
 !
 !       THIS IS SUBROUTINE SDEL WHICH IMPLEMENTS THE DEL
@@ -3502,6 +3516,7 @@ SUBROUTINE SDEC
    use DATMAI
    use mod_system, only: sys_last_surf
    use mod_surface
+   use iso_fortran_env, only: real64
    IMPLICIT NONE
 !
 !       THIS IS SUBROUTINE SDEC WHICH IMPLEMENTS THE DEC

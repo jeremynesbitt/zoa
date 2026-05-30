@@ -8,6 +8,7 @@ SUBROUTINE SCHG
    use mod_surface
    use mod_system, only: sys_last_surf, sys_autofunc, sys_say, sys_sax, &
       sys_scy, sys_scx, sys_scy_fang, sys_scx_fang
+   use iso_fortran_env, only: real64
    IMPLICIT NONE
 !
 !       THIS IS SUBROUTINE SCHG WHICH IMPLEMENTS THE CHG
@@ -64,6 +65,7 @@ SUBROUTINE SCC
    use mod_surface
    use mod_system, only: sys_last_surf, sys_autofunc, sys_say, sys_sax, &
       sys_scy, sys_scx, sys_scy_fang, sys_scx_fang
+   use iso_fortran_env, only: real64
    IMPLICIT NONE
 !
 !       THIS IS SUBROUTINE SCC WHICH IMPLEMENTS THE CC
@@ -235,13 +237,14 @@ SUBROUTINE SCASPC(SCW1)
    use mod_surface
    use mod_system, only: sys_last_surf, sys_autofunc, sys_say, sys_sax, &
       sys_scy, sys_scx, sys_scy_fang, sys_scx_fang
+   use iso_fortran_env, only: real64
    IMPLICIT NONE
 !
 !       THIS IS SUBROUTINE SCALE WHICH IMPLEMENTS ALL SC
 !       AND WSC COMMAND FOR CFG1 SPECIAL SURFACE DATA.
 !       SCASPC.FOR WHICH IS CALLED BY SCALEA.FOR
 !
-   REAL*8 SCW1
+   real(real64) SCW1
 !
    INTEGER I,J
 !
@@ -410,6 +413,7 @@ SUBROUTINE AUTOFUNC
    use mod_surface
    use command_utils, only: is_command_query
    use mod_system, only: sys_autofunc
+   use iso_fortran_env, only: real64
    IMPLICIT NONE
 !
 !       THIS IS SUBROUTINE AUTOFUNC WHICH IMPLEMENTS THE AUTOFUNC
@@ -447,6 +451,7 @@ SUBROUTINE TTHM
    use mod_surface
    use mod_system, only: sys_last_surf, sys_autofunc, sys_say, sys_sax, &
       sys_scy, sys_scx, sys_scy_fang, sys_scx_fang
+   use iso_fortran_env, only: real64
    IMPLICIT NONE
 !
 !       THIS IS SUBROUTINE TTHM WHICH IMPLEMENTS THE THM
@@ -583,6 +588,7 @@ SUBROUTINE PPRICE
    use mod_surface
    use mod_system, only: sys_last_surf, sys_autofunc, sys_say, sys_sax, &
       sys_scy, sys_scx, sys_scy_fang, sys_scx_fang
+   use iso_fortran_env, only: real64
    IMPLICIT NONE
 !
 !       THIS IS SUBROUTINE PPRIC WHICH IMPLEMENTS THE PRICE
@@ -705,6 +711,7 @@ SUBROUTINE INRINR
    use mod_surface
    use mod_system, only: sys_last_surf, sys_autofunc, sys_say, sys_sax, &
       sys_scy, sys_scx, sys_scy_fang, sys_scx_fang
+   use iso_fortran_env, only: real64
    IMPLICIT NONE
 !
 !       THIS IS SUBROUTINE INRINR WHICH IMPLEMENTS THE INR
@@ -863,6 +870,7 @@ SUBROUTINE INRINRD
    use mod_surface
    use mod_system, only: sys_last_surf, sys_autofunc, sys_say, sys_sax, &
       sys_scy, sys_scx, sys_scy_fang, sys_scx_fang
+   use iso_fortran_env, only: real64
    IMPLICIT NONE
 !
 !       THIS IS SUBROUTINE INRINRD WHICH IMPLEMENTS THE INRD
@@ -937,6 +945,7 @@ SUBROUTINE SPGR
    use mod_surface
    use mod_system, only: sys_last_surf, sys_autofunc, sys_say, sys_sax, &
       sys_scy, sys_scx, sys_scy_fang, sys_scx_fang
+   use iso_fortran_env, only: real64
    IMPLICIT NONE
 !
 !       THIS IS SUBROUTINE SPGR WHICH IMPLEMENTS THE SPGR
@@ -1089,6 +1098,7 @@ SUBROUTINE SCAOB
    use mod_surface
    use mod_system, only: sys_last_surf, sys_autofunc, sys_say, sys_sax, &
       sys_scy, sys_scx, sys_scy_fang, sys_scx_fang
+   use iso_fortran_env, only: real64
    IMPLICIT NONE
 !
 !       THIS IS SUBROUTINE SCAOB WHICH IMPLEMENTS THE CAOB
@@ -1730,6 +1740,7 @@ SUBROUTINE SCALLE
    use mod_surface
    use mod_system, only: sys_last_surf, sys_autofunc, sys_say, sys_sax, &
       sys_scy, sys_scx, sys_scy_fang, sys_scx_fang
+   use iso_fortran_env, only: real64
    IMPLICIT NONE
 !
 !       THIS IS SUBROUTINE SCALE WHICH IMPLEMENTS THE SC AND WSC
@@ -2014,13 +2025,14 @@ SUBROUTINE SCALEA1
       sys_set_say, sys_set_sax, sys_set_scy, sys_set_scx, &
       sys_set_scy_fang, sys_set_scx_fang, &
       sys_set_y1_scy, sys_set_x1_scx, sys_set_y1_scy_fang, sys_set_x1_scx_fang
+   use iso_fortran_env, only: real64
    IMPLICIT NONE
 !
 !     THIS DOES SC WITHOUT FY
 !
    INTEGER I,J,J1,J2
 !
-   REAL*8 EFLY,SCW1,M1
+   real(real64) EFLY,SCW1,M1
 !
 !
 !       STRAIGHT SCALING (SC,FACT,I,J)
@@ -2433,13 +2445,14 @@ SUBROUTINE SCALEA2
    use mod_system, only: sys_last_surf, sys_autofunc, sys_say, sys_sax, &
       sys_scy, sys_scx, sys_scy_fang, sys_scx_fang, &
       sys_fno_flag_y, sys_fno_hold_x
+   use iso_fortran_env, only: real64
    IMPLICIT NONE
 !
 !     THIS DOES WSC WITHOUT FY
 !
    INTEGER I,J,J1,J2
 !
-   REAL*8 EFLY,SCW1,M1
+   real(real64) EFLY,SCW1,M1
 !
 !
 !
@@ -2838,13 +2851,14 @@ SUBROUTINE SCALEA3
       sys_set_say, sys_set_sax, sys_set_scy, sys_set_scx, &
       sys_set_scy_fang, sys_set_scx_fang, &
       sys_set_y1_scy, sys_set_x1_scx, sys_set_y1_scy_fang, sys_set_x1_scx_fang
+   use iso_fortran_env, only: real64
    IMPLICIT NONE
 !
 !     THIS DOES SC WITH FY
 !
    INTEGER I,J,J1,J2
 !
-   REAL*8 EFLY,SCW1,M1
+   real(real64) EFLY,SCW1,M1
 !
 !
 !
@@ -3285,13 +3299,14 @@ SUBROUTINE SCALEA4
    use mod_system, only: sys_last_surf, sys_autofunc, sys_say, sys_sax, &
       sys_scy, sys_scx, sys_scy_fang, sys_scx_fang, &
       sys_fno_flag_y, sys_fno_hold_x
+   use iso_fortran_env, only: real64
    IMPLICIT NONE
 !
 !     THIS DOES WSC WITH FY
 !
    INTEGER I,J,J1,J2
 !
-   REAL*8 EFLY,SCW1,M1
+   real(real64) EFLY,SCW1,M1
 !
 !
 !
