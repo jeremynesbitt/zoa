@@ -589,8 +589,8 @@ SUBROUTINE CONTRO
          IF(LASTCOMWRD.EQ.'FOB     ') LASTWASFOB=.TRUE.
          RETURN
       END IF
-      IF(WC.EQ.'SET') THEN
-         CALL SET
+      IF(WC.EQ.'SETK') THEN
+         CALL SETK
          LASTCOMWRD=WC
          LASTWASFOB=.FALSE.
          IF(LASTCOMWRD.EQ.'FOB     ') LASTWASFOB=.TRUE.
@@ -5167,7 +5167,7 @@ SUBROUTINE CONTF(WC,WS,SST,IS)
    IF(WC.EQ.'MM-IN   ') IS=.TRUE.
    IF(WC.EQ.'CM-IN   ') IS=.TRUE.
    IF(WC.EQ.'M-IN    ') IS=.TRUE.
-   IF(WC.EQ.'SET')         IS=.TRUE.
+   IF(WC.EQ.'SETK')         IS=.TRUE.
    IF(WC.EQ.'W1')          IS=.TRUE.
    IF(WC.EQ.'W2')          IS=.TRUE.
    IF(WC.EQ.'W3')          IS=.TRUE.
@@ -5464,7 +5464,7 @@ SUBROUTINE CONTG(WC,WS,SST,IS)
    IF(WC.EQ.'M-IN    ') IS=.TRUE.
    IF(WC.EQ.'ARCL')        IS=.TRUE.
    IF(WC.EQ.'STOAX')       IS=.TRUE.
-   IF(WC.EQ.'SET')         IS=.TRUE.
+   IF(WC.EQ.'SETK')         IS=.TRUE.
    IF(WC.EQ.'W1')          IS=.TRUE.
    IF(WC.EQ.'W2')          IS=.TRUE.
    IF(WC.EQ.'W3')          IS=.TRUE.
@@ -5769,7 +5769,7 @@ SUBROUTINE CONTH(WC,WQ,IS)
    IF(WC.EQ.'M-IN    ') IS=.TRUE.
    IF(WC.EQ.'ARCL')        IS=.TRUE.
    IF(WC.EQ.'STOAX')       IS=.TRUE.
-   IF(WC.EQ.'SET')         IS=.TRUE.
+   IF(WC.EQ.'SETK')         IS=.TRUE.
    IF(WC.EQ.'W1')          IS=.TRUE.
    IF(WC.EQ.'W2')          IS=.TRUE.
    IF(WC.EQ.'W3')          IS=.TRUE.
@@ -5998,7 +5998,7 @@ SUBROUTINE CONTI(WC,WQ,IS)
    IF(WC.EQ.'M-IN    ') IS=.TRUE.
    IF(WC.EQ.'ARCL')        IS=.TRUE.
    IF(WC.EQ.'STOAX')       IS=.TRUE.
-   IF(WC.EQ.'SET')         IS=.TRUE.
+   IF(WC.EQ.'SETK')         IS=.TRUE.
    IF(WC.EQ.'W1')          IS=.TRUE.
    IF(WC.EQ.'W2')          IS=.TRUE.
    IF(WC.EQ.'W3')          IS=.TRUE.
@@ -6227,7 +6227,7 @@ SUBROUTINE CONTJ(WC,IS)
    IF(WC.EQ.'M-IN    ') IS=.TRUE.
    IF(WC.EQ.'ARCL')        IS=.TRUE.
    IF(WC.EQ.'STOAX')       IS=.TRUE.
-   IF(WC.EQ.'SET')         IS=.TRUE.
+   IF(WC.EQ.'SETK')         IS=.TRUE.
    IF(WC.EQ.'W1')          IS=.TRUE.
    IF(WC.EQ.'W2')          IS=.TRUE.
    IF(WC.EQ.'W3')          IS=.TRUE.
@@ -6801,7 +6801,7 @@ SUBROUTINE CONTN(WC,F29,IS)
    IF(WC.EQ.'M-IN    ') IS=.TRUE.
    IF(WC.EQ.'ARCL')        IS=.TRUE.
    IF(WC.EQ.'STOAX')       IS=.TRUE.
-   IF(WC.EQ.'SET')         IS=.TRUE.
+   IF(WC.EQ.'SETK')         IS=.TRUE.
    IF(WC.EQ.'W1')          IS=.TRUE.
    IF(WC.EQ.'W2')          IS=.TRUE.
    IF(WC.EQ.'W3')          IS=.TRUE.
@@ -7108,7 +7108,7 @@ SUBROUTINE CONTP(WC,F51,IS)
    IF(WC.EQ.'M-IN    ') IS=.TRUE.
    IF(WC.EQ.'ARCL')        IS=.TRUE.
    IF(WC.EQ.'STOAX')       IS=.TRUE.
-   IF(WC.EQ.'SET')         IS=.TRUE.
+   IF(WC.EQ.'SETK')         IS=.TRUE.
    IF(WC.EQ.'W1')          IS=.TRUE.
    IF(WC.EQ.'W2')          IS=.TRUE.
    IF(WC.EQ.'W3')          IS=.TRUE.
@@ -7402,7 +7402,7 @@ SUBROUTINE CONTQ(WC,F52,IS)
    IF(WC.EQ.'M-IN    ') IS=.TRUE.
    IF(WC.EQ.'ARCL')        IS=.TRUE.
    IF(WC.EQ.'STOAX')       IS=.TRUE.
-   IF(WC.EQ.'SET')         IS=.TRUE.
+   IF(WC.EQ.'SETK')         IS=.TRUE.
    IF(WC.EQ.'W1')          IS=.TRUE.
    IF(WC.EQ.'W2')          IS=.TRUE.
    IF(WC.EQ.'W3')          IS=.TRUE.
@@ -7684,7 +7684,7 @@ SUBROUTINE CONTR(WC,WQ,SQ,IS)
    IF(WC.EQ.'M-IN    ') IS=.TRUE.
    IF(WC.EQ.'ARCL')        IS=.TRUE.
    IF(WC.EQ.'STOAX')       IS=.TRUE.
-   IF(WC.EQ.'SET')         IS=.TRUE.
+   IF(WC.EQ.'SETK')         IS=.TRUE.
    IF(WC.EQ.'W1')          IS=.TRUE.
    IF(WC.EQ.'W2')          IS=.TRUE.
    IF(WC.EQ.'W3')          IS=.TRUE.
@@ -7981,7 +7981,7 @@ SUBROUTINE CONTR(WC,WQ,SQ,IS)
    IF(WC.EQ.'M-IN    ') IS=.TRUE.
    IF(WC.EQ.'ARCL')        IS=.TRUE.
    IF(WC.EQ.'STOAX')       IS=.TRUE.
-   IF(WC.EQ.'SET')         IS=.TRUE.
+   IF(WC.EQ.'SETK')         IS=.TRUE.
    IF(WC.EQ.'W1')          IS=.TRUE.
    IF(WC.EQ.'W2')          IS=.TRUE.
    IF(WC.EQ.'W3')          IS=.TRUE.
@@ -8220,7 +8220,7 @@ SUBROUTINE CONTR(WC,WQ,SQ,IS)
    IF(WC.EQ.'M-IN    ') IS=.TRUE.
    IF(WC.EQ.'ARCL')        IS=.TRUE.
    IF(WC.EQ.'STOAX')       IS=.TRUE.
-   IF(WC.EQ.'SET')         IS=.TRUE.
+   IF(WC.EQ.'SETK')         IS=.TRUE.
    IF(WC.EQ.'W1')          IS=.TRUE.
    IF(WC.EQ.'W2')          IS=.TRUE.
    IF(WC.EQ.'W3')          IS=.TRUE.

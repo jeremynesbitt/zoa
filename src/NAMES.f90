@@ -29,7 +29,7 @@ SUBROUTINE NAMES
    WCC(4)='OPWTA'
    WCC(5)='EXIT'
    WCC(6)='EXI'
-   WCC(7)='SET'
+   WCC(7)='SETK'
    WCC(8)='WRITE'
    WCC(9)='MOVE'
    WCC(10)='INCR'

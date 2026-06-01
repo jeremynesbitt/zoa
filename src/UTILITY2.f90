@@ -58,7 +58,7 @@ SUBROUTINE SETHED
    RETURN
 END
 ! SUB SET.FOR
-SUBROUTINE SET
+SUBROUTINE SETK
 !
    use DATMAI
    use iso_fortran_env, only: real64

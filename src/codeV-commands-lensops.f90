@@ -357,6 +357,7 @@ contains
     module function getSetGlassText(strInput) result(strOut)
         use command_utils, only : isInputNumber
         use glass_manager, only: parseModelGlassEntry, gdb
+        use zoa_output, only: zoa_emit
 
         character(len=*) :: strInput
         character(len=1024) :: strOut
@@ -389,12 +390,22 @@ contains
                     strOut = trim(catalogName)//' '//trim(glassName)
                 else if (glassName(1:1) == 'N' .and. &
                          gdb%isGlassInCatalog('N-'//trim(glassName(2:)), catalogIdx)) then
-                    ! e.g. NSK16 -> N-SK16
+                    ! e.g. NSK16 -> N-SK16 within the named catalog
                     strOut = trim(catalogName)//' N-'//trim(glassName(2:))
+                else if (gdb%isGlassInAnyCatalog(trim(glassName))) then
+                    ! glass not in named catalog but exists elsewhere
+                    strOut = 'GLAK '//trim(glassName)
+                else if (glassName(1:1) == 'N' .and. &
+                         gdb%isGlassInAnyCatalog('N-'//trim(glassName(2:)))) then
+                    ! e.g. NSK16_SCHOTT -> N-SK16 found in another catalog (e.g. SCH2000)
+                    altGlassName = 'N-'//trim(glassName(2:))
+                    strOut = 'GLAK '//trim(altGlassName)
                 else
+                    call zoa_emit(trim(strInput)//' not found in any catalog', 'red')
                     strOut = 'GLAK '//trim(strInput)
                 end if
             else
+                call zoa_emit(trim(strInput)//' not found in any catalog', 'red')
                 strOut = 'GLAK '//trim(strInput)
             end if
         else
@@ -404,6 +415,9 @@ contains
                 gdb%isGlassInAnyCatalog('N-'//trim(strInput(2:)))) then
                 altGlassName = 'N-'//trim(strInput(2:))
                 strOut = 'GLAK '//trim(altGlassName)
+            else if (.not. gdb%isGlassInAnyCatalog(trim(strInput))) then
+                call zoa_emit(trim(strInput)//' not found in any catalog', 'red')
+                strOut = 'GLAK '//trim(strInput)
             else
                 strOut = 'GLAK '//trim(strInput)
             end if
