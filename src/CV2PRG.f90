@@ -422,6 +422,8 @@ SUBROUTINE CV2PRG
       END IF
 !     TITLE
       IF(TEMPC(I)(1:5).EQ.'TITLE'.OR.TEMPC(I)(1:3).EQ.'TIT') THEN
+         J1=0
+         J2=0
          DO J=1024,1,-1
             IF(TEMPC(I)(J:J).EQ.'''') THEN
                J2=J
@@ -436,17 +438,23 @@ SUBROUTINE CV2PRG
             END IF
          END DO
 102      CONTINUE
-         SAVE_KDP(1)=SAVEINPT(1)
-         INPUT='LI '//TEMPC(I)(J1+1:J2-1)
-         IF(TEMPC(I)(J1+1:J2-1).NE.BL1024(J1+1:J2-1)) THEN
-            IF(INPUT(1:20).NE.AA) CALL PROCES
+!     Only process a quoted title; if quotes are missing or empty,
+!     J1/J2 stay 0 and we skip (avoids slicing with bad bounds).
+         IF(J1.GE.1.AND.J2.LE.1024.AND.J2.GT.J1+1) THEN
+            SAVE_KDP(1)=SAVEINPT(1)
+            INPUT='LI '//TEMPC(I)(J1+1:J2-1)
+            IF(TEMPC(I)(J1+1:J2-1).NE.BL1024(J1+1:J2-1)) THEN
+               IF(INPUT(1:20).NE.AA) CALL PROCES
+            END IF
+            REST_KDP(1)=RESTINPT(1)
          END IF
-         REST_KDP(1)=RESTINPT(1)
          TEMPC(I)(1:1024)=BL1024(1:1024)
          GO TO 8888
       END IF
 !     INI
       IF(TEMPC(I)(1:3).EQ.'INI') THEN
+         J1=0
+         J2=0
          DO J=1024,1,-1
             IF(TEMPC(I)(J:J).EQ.'''') THEN
                J2=J
@@ -461,18 +469,16 @@ SUBROUTINE CV2PRG
             END IF
          END DO
 121      CONTINUE
-         SAVE_KDP(1)=SAVEINPT(1)
-         !call logger%logText('About to set INI '//TEMPC(I))
-         PRINT *, "J1 = ", J1
-         IF (J2.GT.1024) J2 = 1024
-         PRINT *, "J2 = ", J2
-
-         INPUT='INI '//TEMPC(I)(J1+1:J2-1)
-         PRINT *, "INI Input is " // INPUT
-         IF(TEMPC(I)(J1+1:J2-1).NE.BL1024(J1+1:J2-1)) THEN
-            IF(INPUT(1:20).NE.AA) CALL PROCES
+!     Only process a quoted INI string; if quotes are missing or empty,
+!     J1/J2 stay 0 and we skip (avoids slicing with bad bounds).
+         IF(J1.GE.1.AND.J2.LE.1024.AND.J2.GT.J1+1) THEN
+            SAVE_KDP(1)=SAVEINPT(1)
+            INPUT='INI '//TEMPC(I)(J1+1:J2-1)
+            IF(TEMPC(I)(J1+1:J2-1).NE.BL1024(J1+1:J2-1)) THEN
+               IF(INPUT(1:20).NE.AA) CALL PROCES
+            END IF
+            REST_KDP(1)=RESTINPT(1)
          END IF
-         REST_KDP(1)=RESTINPT(1)
          TEMPC(I)(1:1024)=BL1024(1:1024)
          GO TO 8888
       END IF

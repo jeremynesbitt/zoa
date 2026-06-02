@@ -32,6 +32,7 @@ srcs += files(
   'zoa-output.f90',
   'zoa-ui-callbacks.f90',
   'globals.f90',
+  'result-builder.f90',
   'data-registers.f90',
   'mod-fft.f90',
   'nssmod.f90',

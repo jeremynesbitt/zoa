@@ -19,6 +19,7 @@ program zoa_server
                                get_num_captured
   use zoa_plot_output, only: plot_was_generated, last_plot_file, &
                               clear_plot_output
+  use result_builder, only: result_has_data, result_to_json, result_clear
   use iso_c_binding
   implicit none
 
@@ -96,6 +97,12 @@ program zoa_server
       cycle
     end if
 
+    ! __JSON__ <command> — run command and return structured JSON result
+    if (cmd_buf(1:9) == '__JSON__ ') then
+      call handle_json_command(cmd_buf(10:), sock)
+      cycle
+    end if
+
     ! Execute the command(s) and capture output
     call clear_capture()
     call clear_plot_output()
@@ -167,6 +174,86 @@ contains
       call PROCESKDP(trim(single_cmd))
     end do
   end subroutine
+
+  ! Handle __JSON__ <command>: run the command, return JSON if structured data
+  ! was produced, else fall back to text or a small JSON error object.
+  !
+  ! For "SEI" specifically we call MMAB3_NEW directly (same as execTHO) so that
+  ! CSeidel is populated in headless mode.  For all other commands we run them
+  ! through execute_commands() which may or may not call result_begin.
+  subroutine handle_json_command(real_cmd, sock)
+    use global_widgets, only: sysConfig
+    character(len=*),  intent(in) :: real_cmd
+    type(c_ptr),       intent(in) :: sock
+    character(len=:), allocatable :: json_reply
+    character(len=256) :: ucmd
+    integer :: k, rc2
+    interface
+      subroutine MMAB3_NEW(YFLAG, idxWV, printTable)
+        logical, intent(in) :: YFLAG
+        integer, intent(in) :: idxWV
+        logical, optional, intent(in) :: printTable
+      end subroutine
+    end interface
+
+    ! Clear any stale structured result from a previous command
+    call result_clear()
+
+    ! Upper-case first token for dispatch check
+    ucmd = adjustl(real_cmd)
+    do k = 1, len_trim(ucmd)
+      if (ucmd(k:k) >= 'a' .and. ucmd(k:k) <= 'z') &
+        ucmd(k:k) = char(ichar(ucmd(k:k)) - 32)
+    end do
+
+    call clear_capture()
+    call clear_plot_output()
+    open(unit=6, file='/dev/null', status='old')
+
+    ! SEI / THO both use MMAB3_NEW; call it directly to work headlessly
+    if (trim(ucmd) == 'SEI' .or. trim(ucmd) == 'THO') then
+      call MMAB3_NEW(.TRUE., sysConfig%refWavelengthIndex, .TRUE.)
+    else if (trim(ucmd) == 'FITZERN') then
+      ! Run the full prerequisite sequence before the fit so the caller
+      ! does not have to issue FOB/CAPFN manually first.  This mirrors
+      ! what zern_go() does in plot-functions.f90.
+      !   FOB 0.0   — select on-axis field point
+      !   CAPFN     — trace ray grid, populate OPD data
+      !   FITZERN,N — SVD fit using reference wavelength N
+      block
+        character(len=32) :: wv_str
+        write(wv_str, '(I0)') sysConfig%refWavelengthIndex
+        call execute_commands('FOB 0.0')
+        call execute_commands('CAPFN')
+        call execute_commands('FITZERN, '//trim(wv_str))
+      end block
+      call ZERNIKE_BUILD_RESULT()
+    else if (trim(ucmd) == 'WAVEFRONT' .or. trim(ucmd) == 'OPD') then
+      ! Run FOB 0.0 and CAPFN headlessly to populate DSPOTT with OPD data,
+      ! then assemble the 2-D OPD map (KKK x KKK, values in waves) and
+      ! serialize it as a base64-f64-le grid.
+      !   __JSON__ WAVEFRONT   — on-axis OPD map at reference wavelength
+      !   __JSON__ OPD         — alias
+      call execute_commands('FOB 0.0')
+      call execute_commands('CAPFN')
+      call WAVEFRONT_BUILD_RESULT()
+    else
+      call execute_commands(trim(real_cmd))
+    end if
+
+    open(unit=6, file='/dev/stdout', status='old')
+
+    if (result_has_data) then
+      json_reply = result_to_json()
+    else
+      ! Fall back: return a small JSON error with the captured text appended
+      json_reply = '{"schema":"zoa.result/1","type":"error","messages":' // &
+                   '["no structured data for: ' // trim(real_cmd) // '"]}'
+    end if
+
+    rc2 = zmq_send_string(sock, json_reply, 0_c_int)
+    deallocate(json_reply)
+  end subroutine handle_json_command
 
   ! Build a single reply string from all captured output lines
   function build_reply() result(reply_str)

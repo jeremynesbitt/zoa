@@ -8,6 +8,7 @@ subroutine MMAB3_NEW(YFLAG, idxWV, printTable)
             use command_utils
             use type_utils
             use mod_lens_data_manager
+            use result_builder
 
             use DATLEN
             use DATMAI
@@ -59,6 +60,9 @@ subroutine MMAB3_NEW(YFLAG, idxWV, printTable)
 
             call calcSeidelTerms(INV)
 
+            ! --- Populate result_builder with structured Seidel data ---
+            call populate_seidel_result(idxWV)
+
             if (.not. (present(printTable) .and. .not. printTable)) then
                 call OUTKDP(trim(sysConfig%lensTitle))
                 call OUTKDP(blankStr(10)//"Position "//trim(int2str(ldm%getCurrentConfig()))//", Wavelength = "// &
@@ -96,5 +100,74 @@ subroutine MMAB3_NEW(YFLAG, idxWV, printTable)
                     end if
                 end if
             end if
+
+contains
+
+    ! Populate result_builder with structured Seidel data.
+    ! CSeidel has dimensions (7, 0:num_surfaces).
+    ! Column 0..num_surfaces-1 are per-surface; column num_surfaces is the sum.
+    ! We expose:
+    !   table "seidel": rows = surfaces (including SUM), cols = 7 aberration terms
+    !   scalars: sum_spherical, sum_coma, sum_astigmatism, sum_distortion,
+    !            sum_curvature, sum_axial_chromatic, sum_lateral_chromatic
+    subroutine populate_seidel_result(idxWV)
+        use global_widgets, only: curr_lens_data, curr_par_ray_trace, sysConfig
+        use type_utils, only: int2str, real2str
+        use result_builder
+        use iso_fortran_env, only: real64
+        implicit none
+        integer, intent(in) :: idxWV
+
+        integer :: nsurfs, nrows, i
+        character(len=16), allocatable :: row_labels(:)
+        character(len=16), parameter   :: col_labels(7) = [ &
+            character(len=16) :: &
+            'SA3', 'CMA3', 'AST3', 'DIS3', 'PTZ3', 'AC3', 'LC3']
+        real(real64), allocatable :: tdata(:,:)   ! (nrows, 7)
+        character(len=32) :: wv_str
+
+        ! Guard: CSeidel must be allocated
+        if (.not. allocated(curr_par_ray_trace%CSeidel)) return
+        nsurfs = curr_lens_data%num_surfaces
+        ! nrows = nsurfs per-surface rows + 1 SUM row
+        nrows = nsurfs + 1
+
+        allocate(row_labels(nrows))
+        allocate(tdata(nrows, 7))
+
+        ! Build row labels: S0..S{nsurfs-1}, then SUM
+        do i = 1, nsurfs
+            row_labels(i) = 'S' // trim(int2str(i-1))
+        end do
+        row_labels(nrows) = 'SUM'
+
+        ! Fill table data: CSeidel(term, surf_idx)
+        ! surf_idx runs 0..nsurfs; 0..nsurfs-1 are per-surface, nsurfs is sum.
+        do i = 1, nsurfs
+            tdata(i, :) = curr_par_ray_trace%CSeidel(1:7, i-1)
+        end do
+        tdata(nrows, :) = curr_par_ray_trace%CSeidel(1:7, nsurfs)
+
+        write(wv_str, '(F10.4)') 1000.0_real64 * sysConfig%getWavelength(idxWV)
+
+        call result_begin("seidel")
+        call result_set_meta("title", trim(sysConfig%lensTitle))
+        call result_set_meta("wavelength_nm", trim(adjustl(wv_str)))
+        call result_set_meta("units", "lens units")
+
+        call result_add_table("seidel", row_labels, col_labels, tdata)
+
+        ! Convenience scalars from the SUM column
+        call result_set_scalar("sum_spherical",       curr_par_ray_trace%CSeidel(1, nsurfs))
+        call result_set_scalar("sum_coma",            curr_par_ray_trace%CSeidel(2, nsurfs))
+        call result_set_scalar("sum_astigmatism",     curr_par_ray_trace%CSeidel(3, nsurfs))
+        call result_set_scalar("sum_distortion",      curr_par_ray_trace%CSeidel(4, nsurfs))
+        call result_set_scalar("sum_curvature",       curr_par_ray_trace%CSeidel(5, nsurfs))
+        call result_set_scalar("sum_axial_chromatic", curr_par_ray_trace%CSeidel(6, nsurfs))
+        call result_set_scalar("sum_lateral_chromatic", curr_par_ray_trace%CSeidel(7, nsurfs))
+
+        deallocate(row_labels)
+        deallocate(tdata)
+    end subroutine populate_seidel_result
 
 end subroutine

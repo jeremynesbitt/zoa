@@ -2386,6 +2386,9 @@ SUBROUTINE WRTCOEFS
 1106 FORMAT(1X)
 1101 FORMAT(' ZERNIKE COEFFICIENT LIST FROM LAST WAVEFRONT FIT')
 1105 FORMAT(' COEF. NUMBER  ',1X,'  COEF. VALUE  ')
+!
+!     Populate result_builder with structured Zernike data (for JSON output)
+   CALL ZERNIKE_BUILD_RESULT()
 END
 ! SUB WRTREPORT.FOR
 SUBROUTINE WRTREPORT
@@ -3580,3 +3583,242 @@ SUBROUTINE OPDLOD2
    ERROP=.FALSE.
    RETURN
 END
+! -----------------------------------------------------------------------
+! SUBROUTINE ZERNIKE_BUILD_RESULT
+!
+! Reads the 37-term Fringe Zernike coefficients from COMMON/SOLU/X and
+! populates the result_builder singleton.  Called at the end of WRTCOEFS
+! (LISTZERN command) so that __JSON__ FITZERN produces structured output.
+!
+! Convention: 37-term Fringe Zernike (same numbering as WRTCOEFS/WRTREPORT).
+! All 37 terms are exposed because all 37 are fit by OPDLOD.
+!
+! RMS scalars follow the same VCF(i) = (EMN/(2*(NV+1))) * X(i)^2 formula
+! used in WRTREPORT.
+! -----------------------------------------------------------------------
+SUBROUTINE ZERNIKE_BUILD_RESULT()
+   use result_builder
+   use DATLEN
+   use DATMAI
+   use iso_fortran_env, only: real64
+   IMPLICIT NONE
+
+   integer, parameter :: NTERMS = 37
+
+   real(real64) :: X(1:96)
+   COMMON/SOLU/X
+
+   ! Local variables
+   integer :: i, iwv
+   real(real64) :: VCF(NTERMS), SUMALL, SUMNO1, SUMNO13, SUMNO134
+   character(len=4) :: row_lbl(NTERMS)
+   character(len=12), parameter :: col_lbl(1) = ['coefficient ']
+   real(real64) :: tdata(NTERMS, 1)
+
+   ! NV and EMN values for each term (from WRTREPORT)
+   real(real64), parameter :: NV_arr(NTERMS) = [ &
+      0.0_real64, 1.0_real64, 1.0_real64, 2.0_real64, 2.0_real64, &
+      2.0_real64, 3.0_real64, 3.0_real64, 4.0_real64, 3.0_real64, &
+      3.0_real64, 4.0_real64, 4.0_real64, 5.0_real64, 5.0_real64, &
+      6.0_real64, 4.0_real64, 4.0_real64, 5.0_real64, 5.0_real64, &
+      6.0_real64, 6.0_real64, 7.0_real64, 7.0_real64, 8.0_real64, &
+      5.0_real64, 5.0_real64, 6.0_real64, 6.0_real64, 7.0_real64, &
+      7.0_real64, 8.0_real64, 8.0_real64, 9.0_real64, 9.0_real64, &
+     10.0_real64,12.0_real64 ]
+   real(real64), parameter :: EMN_arr(NTERMS) = [ &
+      2.0_real64, 1.0_real64, 1.0_real64, 2.0_real64, 1.0_real64, &
+      1.0_real64, 1.0_real64, 1.0_real64, 2.0_real64, 1.0_real64, &
+      1.0_real64, 1.0_real64, 1.0_real64, 1.0_real64, 1.0_real64, &
+      2.0_real64, 1.0_real64, 1.0_real64, 1.0_real64, 1.0_real64, &
+      1.0_real64, 1.0_real64, 1.0_real64, 1.0_real64, 1.0_real64, &
+      1.0_real64, 1.0_real64, 1.0_real64, 1.0_real64, 1.0_real64, &
+      1.0_real64, 1.0_real64, 1.0_real64, 1.0_real64, 1.0_real64, &
+      2.0_real64, 2.0_real64 ]
+
+   character(len=4) :: iwstr
+   character(len=4) :: nterms_str
+
+   ! Build row labels Z1..Z37
+   do i = 1, NTERMS
+      write(row_lbl(i), '("Z",I0)') i
+      tdata(i, 1) = X(i)
+   end do
+
+   ! Compute VCF(i) = (EMN(i) / (2*(NV(i)+1))) * X(i)^2  (same as WRTREPORT)
+   do i = 1, NTERMS
+      VCF(i) = (EMN_arr(i) / (2.0_real64 * (NV_arr(i) + 1.0_real64))) * X(i)**2
+   end do
+
+   SUMALL   = 0.0_real64
+   SUMNO1   = 0.0_real64
+   SUMNO13  = 0.0_real64
+   SUMNO134 = 0.0_real64
+   do i = 1, NTERMS
+      SUMALL = SUMALL + VCF(i)
+   end do
+   do i = 2, NTERMS
+      SUMNO1 = SUMNO1 + VCF(i)
+   end do
+   do i = 4, NTERMS
+      SUMNO13 = SUMNO13 + VCF(i)
+   end do
+   do i = 5, NTERMS
+      SUMNO134 = SUMNO134 + VCF(i)
+   end do
+
+   ! W1 (from DATMAI COMMON/CNTLNM) holds the wavelength index used by FITZERN
+   iwv = int(W1)
+   write(iwstr,  '(I0)') iwv
+   write(nterms_str, '(I0)') NTERMS
+
+   call result_begin("zernike")
+   call result_set_meta("convention",  "fringe_zernike_37")
+   call result_set_meta("num_terms",   trim(nterms_str))
+   call result_set_meta("wavelength_index", trim(iwstr))
+   call result_set_meta("units",       "waves")
+
+   call result_add_table("zernike", row_lbl, col_lbl, tdata)
+
+   call result_set_scalar("rms_all_terms",         sqrt(SUMALL))
+   call result_set_scalar("rms_no_const",          sqrt(SUMNO1))
+   call result_set_scalar("rms_no_const_tilt",     sqrt(SUMNO13))
+   call result_set_scalar("rms_no_const_tilt_focus", sqrt(SUMNO134))
+
+END SUBROUTINE ZERNIKE_BUILD_RESULT
+
+! -----------------------------------------------------------------------
+! SUBROUTINE WAVEFRONT_BUILD_RESULT
+!
+! Assembles a 2-D OPD map (wavefront) from the CAPFN trace data stored in
+! DSPOTT and populates the result_builder singleton.
+!
+! The grid is KKK x KKK where KKK = INT(SQRT(REAL((ITOT-1)/NUMCOL))).
+! Grid values are OPD in waves: DSPOT(4) / TWOPII.
+! Only samples matching the reference wavelength (DSPOT(16) == WVAL) are
+! included; samples that did not pass (DSPOT(12)==0) are left as zero.
+!
+! dx is set to 1.0/KKK in normalized pupil coordinates (full pupil = 1).
+! -----------------------------------------------------------------------
+SUBROUTINE WAVEFRONT_BUILD_RESULT()
+   use result_builder
+   use DATSP1
+   use DATSPD
+   use DATLEN
+   use DATMAI
+   use global_widgets, only: sysConfig
+   use iso_fortran_env, only: real64
+   IMPLICIT NONE
+
+   integer :: KKK, KKV, IQ, I, J, iwv, ALLOERR
+   real(real64) :: WVAL, opd_val, opd_rms, opd_pv, opd_min, opd_max, SUMRMS
+   real(real64), allocatable :: F(:,:)
+   integer :: npts
+   character(len=8) :: kkk_str, iwstr
+   character(len=32) :: dx_str
+
+   ! Check that CAPFN data exists
+   if (.not. CPFNEXT) then
+      call result_begin("wavefront")
+      call result_add_message("No CAPFN data exists; run FOB then CAPFN first")
+      return
+   end if
+
+   ! Reference wavelength index
+   iwv  = sysConfig%refWavelengthIndex
+   WVAL = real(iwv, real64)
+
+   ! Derive grid size — same formula as WAMAP
+   ! ITOT is the total number of stored spot records (1-based; record 1 is chief)
+   ! KKV = points per wavelength; KKK = linear grid dimension
+   if (NUMCOL <= 0) then
+      call result_begin("wavefront")
+      call result_add_message("NUMCOL is zero; cannot assemble OPD grid")
+      return
+   end if
+   KKV = (ITOT - 1) / NUMCOL
+   KKK = INT(SQRT(REAL(KKV)))
+   if (KKK <= 1) then
+      call result_begin("wavefront")
+      call result_add_message("CAPFN grid too small to assemble 2-D map")
+      return
+   end if
+
+   ALLOERR = 0
+   ALLOCATE(F(KKK, KKK), STAT=ALLOERR)
+   if (ALLOERR /= 0) then
+      call result_begin("wavefront")
+      call result_add_message("Allocation failure for OPD grid")
+      return
+   end if
+   F = 0.0_real64
+
+   ! Fill F(J, I): J = column (1..KKK), I = row (1..KKK)
+   ! Mirrors the first loop in WAPPLOT.
+   I    = 1
+   J    = 0
+   npts = 0
+   DO IQ = 2, ITOT
+      ! Load DSPOT(*) with DSPOTT(*,ID)
+      ID = IQ - 1
+      CALL SPOTIT(4)
+
+      ! Skip samples from other wavelengths
+      IF (DSPOT(16) /= WVAL) CYCLE
+
+      J = J + 1
+      IF (J > KKK) THEN
+         J = 1
+         I = I + 1
+      END IF
+      IF (I > KKK) EXIT   ! guard
+
+      ! OPD in waves
+      opd_val  = DSPOT(4) / TWOPII
+      F(J, I)  = opd_val
+      npts     = npts + 1
+   END DO
+
+   ! Compute min/max/RMS directly from the filled F grid
+   opd_min = 0.0_real64
+   opd_max = 0.0_real64
+   opd_pv  = 0.0_real64
+   opd_rms = 0.0_real64
+   SUMRMS  = 0.0_real64
+   if (npts > 0) then
+      opd_min = F(1,1)
+      opd_max = F(1,1)
+      npts    = 0
+      do I = 1, KKK
+         do J = 1, KKK
+            opd_val = F(J, I)
+            if (opd_val < opd_min) opd_min = opd_val
+            if (opd_val > opd_max) opd_max = opd_val
+            SUMRMS = SUMRMS + opd_val**2
+            npts = npts + 1
+         end do
+      end do
+      opd_pv  = opd_max - opd_min
+      if (npts > 0) opd_rms = SQRT(SUMRMS / real(npts, real64))
+   end if
+
+   ! Populate the result builder
+   write(kkk_str, '(I0)') KKK
+   write(iwstr,   '(I0)') iwv
+
+   call result_begin("wavefront")
+   call result_set_meta("convention",      "opd_waves_2d_grid")
+   call result_set_meta("grid_size",       trim(kkk_str))
+   call result_set_meta("wavelength_index", trim(iwstr))
+   call result_set_meta("units",           "waves")
+   call result_set_meta("dx_description",  "normalized_pupil_coord_1_over_KKK")
+
+   call result_add_grid("wavefront", F, 1.0_real64 / real(KKK, real64))
+
+   call result_set_scalar("opd_rms",     opd_rms)
+   call result_set_scalar("opd_pv",      opd_pv)
+   call result_set_scalar("opd_min",     opd_min)
+   call result_set_scalar("opd_max",     opd_max)
+
+   DEALLOCATE(F, STAT=ALLOERR)
+
+END SUBROUTINE WAVEFRONT_BUILD_RESULT

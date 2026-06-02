@@ -1058,10 +1058,13 @@ module codeV_commands
     ! If in VIE level it will save the rays intersection coordinates for use with plooting
     ! Format RSI fi..k wi..k relApeX relApeY
     subroutine execRSI(iptStr)
-        use global_widgets, only: sysConfig
+        use global_widgets, only: sysConfig, curr_lens_data
         use command_utils, only : parseCommandIntoTokens, isInputNumber
+        use DATLEN, only: RAYRAY, NEWOBJ, NEWIMG
+        use DATMAI, only: PII, TWOPII
+        use result_builder
 
-        implicit none        
+        implicit none
 
         character(len=*) :: iptStr
         character(len=80) :: tokens(40)
@@ -1069,13 +1072,24 @@ module codeV_commands
         integer, allocatable :: fields(:), wavelengths(:)
         real(kind=real64) :: relApeX, relApeY
         integer :: i, j
-        
+        integer :: nrayWavs, nrayFields
+        logical :: multipleRays
+
+        ! Structured-result locals
+        integer :: nsurfs, surf_idx, nrows
+        character(len=16), allocatable :: row_labels(:)
+        character(len=8), parameter :: col_labels(5) = &
+            ['X    ', 'Y    ', 'Z    ', 'XANG ', 'YANG ']
+        real(real64), allocatable :: tdata(:,:)
+        real(real64) :: xa, ya, deg_per_rad
+        character(len=8) :: surf_label
+
         ! Defaults
         relApeX = 0.0
         relApeY = 0.0
 
         call parseCommandIntoTokens(trim(iptStr), tokens, numTokens, ' ')
-        
+
         fields = cmd_parser_get_int_input_for_prefix('f', tokens(1:numTokens))
         wavelengths = cmd_parser_get_int_input_for_prefix('w', tokens(1:numTokens))
         call cmd_parser_get_real_pair(tokens(1:numTokens), relApeX, relApeY, &
@@ -1092,30 +1106,83 @@ module codeV_commands
         call LogTermFOR("Relative X Aperture is " // real2str(relApeX))
         call LogTermFOR("Relative Y Aperture is " // real2str(relApeY))
 
+        nrayWavs   = size(wavelengths)
+        nrayFields = size(fields)
+        multipleRays = (nrayWavs * nrayFields > 1)
 
         ! Now that we have inputs, trace all rays needed.
-        do i = 1,size(wavelengths)
-        do j = 1,size(fields)
+        do i = 1,nrayWavs
+        do j = 1,nrayFields
             !SAVE_KDP(1)=SAVEINPT(1)
-            
+
             ! TODO:  Put COLRAY value into sysConfig (current field Color)
             !COLRAY = sysConfig%fieldColorCodes(fields(j))
             !WRITE(INPUT, *) "FOB ", )
             CALL PROCESKDP("FOB "//trim(real2str(sysConfig%relativeFields(2,fields(j)))))
             !REST_KDP(1)=RESTINPT(1)
-            
-  
-      ! Add loop for wavelengths      
+
+
+      ! Add loop for wavelengths
       ! By definition RSI only traces a ray of a single angle
             !SAVE_KDP(1)=SAVEINPT(1)
             CALL PROCESKDP("RAY "//real2str(relApeY)// &
-            & " "//real2str(relApeX)//" "//int2str(wavelengths(i)))      
+            & " "//real2str(relApeX)//" "//int2str(wavelengths(i)))
             CALL PROCESKDP("PRXYZ ALL")
             !REST_KDP(1)=RESTINPT(1)
     end do ! fields
-   end do  !  wavelengths        
+   end do  !  wavelengths
 
-        
+        ! --- Populate result_builder from the last traced ray ---
+        ! RAYRAY indices run from NEWOBJ to NEWIMG (object surface to image surface).
+        ! NEWOBJ is typically 0 (object surface), NEWIMG is the last surface index.
+        nsurfs = NEWIMG - NEWOBJ + 1   ! total number of surfaces including object
+        nrows  = nsurfs
+
+        allocate(row_labels(nrows))
+        allocate(tdata(nrows, 5))
+
+        deg_per_rad = 180.0_real64 / PII
+
+        do surf_idx = 1, nrows
+            ! Surface index into RAYRAY: NEWOBJ + surf_idx - 1
+            i = NEWOBJ + surf_idx - 1
+            write(surf_label, '("S",I0)') i
+            row_labels(surf_idx) = trim(surf_label)
+
+            tdata(surf_idx, 1) = RAYRAY(1, i)   ! X
+            tdata(surf_idx, 2) = RAYRAY(2, i)   ! Y
+            tdata(surf_idx, 3) = RAYRAY(3, i)   ! Z
+
+            ! XANG: RAYRAY(11,i) is UX in radians; apply RS-equivalent wrap then convert to degrees
+            xa = RAYRAY(11, i)
+            if (xa > PII)     xa = xa - TWOPII
+            if (xa < -PII)    xa = xa + TWOPII
+            tdata(surf_idx, 4) = xa * deg_per_rad  ! XANG in degrees
+
+            ! YANG: RAYRAY(12,i) is UY in radians; apply RS-equivalent wrap then convert to degrees
+            ya = RAYRAY(12, i)
+            if (ya > PII)     ya = ya - TWOPII
+            if (ya < -PII)    ya = ya + TWOPII
+            tdata(surf_idx, 5) = ya * deg_per_rad  ! YANG in degrees
+        end do
+
+        call result_begin("raytrace")
+        call result_set_meta("field",   int2str(fields(nrayFields)))
+        call result_set_meta("wavelength", int2str(wavelengths(nrayWavs)))
+        call result_set_meta("relApeX", real2str(relApeX))
+        call result_set_meta("relApeY", real2str(relApeY))
+        if (multipleRays) then
+            call result_add_message( &
+                "Multiple fields/wavelengths traced; table contains last ray only " // &
+                "(f"//int2str(fields(nrayFields))// &
+                " w"//int2str(wavelengths(nrayWavs))//")")
+        end if
+
+        call result_add_table("ray", row_labels, col_labels, tdata)
+
+        deallocate(row_labels)
+        deallocate(tdata)
+
     end subroutine
 
     subroutine execFIO(iptStr)
