@@ -898,7 +898,6 @@ module codeV_commands
         integer :: i, s0, sf, dotLoc
 
         goodResult = .FALSE.
-        PRINT *, "CHecking input string ", iptStr
         ! Check for ellipsis
         dotLoc = index(iptStr,'..') 
         if(dotLoc > 0) then
@@ -916,8 +915,12 @@ module codeV_commands
         else ! No dots found
             if(isInputNumber(iptStr)) then
             goodResult = .TRUE.
-            allocate(intArr(1))
-            intArr(1) = str2int(iptStr)
+            ! Assignment auto-(re)allocates, so this is safe even when the
+            ! caller invokes us again for another token of the same prefix
+            ! (e.g. "f1 f2"); explicit allocate() would abort as already
+            ! allocated. Repeated bare tokens are last-wins; use "f1..k"
+            ! to request a range.
+            intArr = [ str2int(iptStr) ]
             end if
         end if
 
