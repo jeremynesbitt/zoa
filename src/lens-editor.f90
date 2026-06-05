@@ -7,7 +7,7 @@ module lens_editor
   use iso_c_binding
   use globals, only: INFINITY_DISTANCE, INFINITY_DISPLAY_THRESHOLD
   use global_widgets
-  use zoa_ui_callbacks, only: notify_replot
+  use zoa_ui_callbacks, only: notify_replot, notify_replot_flush
   use zoa_output, only: zoa_emit
 !  use gth_hl
   use hl_gtk_zoa
@@ -228,6 +228,7 @@ end subroutine lens_editor_replot
     call PROCESKDP('U L ; CHG '//trim(int2str(currRow))//' ; INSK ; EOS')
     call rebuildLensEditorTable()
     call notify_replot()
+    call notify_replot_flush()
     return
     
   end subroutine
@@ -252,6 +253,7 @@ end subroutine lens_editor_replot
   call PROCESKDP('U L ; CHG '//trim(int2str(currRow))//' ; DELK ; EOS')
   call rebuildLensEditorTable()
   call notify_replot()
+  call notify_replot_flush()
 
   end subroutine del_row
 
@@ -790,6 +792,7 @@ function buildLensEditTable() result(store)
     mod_update = .TRUE.
     call refreshLensDataStruct()
     call notify_replot()
+    call notify_replot_flush()
 
     call gtk_window_destroy(gdata)
 
@@ -805,7 +808,8 @@ function buildLensEditTable() result(store)
     ! This is a bad design but not sure what else to do to get rid of the "P" entry without
     ! yet another global
     call refreshLensDataStruct()
-    call notify_replot()    
+    call notify_replot()
+    call notify_replot_flush()
     call gtk_window_destroy(parentWin)
 
   end subroutine  
@@ -1080,9 +1084,13 @@ call convert_c_string(data, cmd)
 print *, "cmd is ", trim(cmd)
 print *, "cmd to process is ", trim(cmd)//" S"//trim(int2str(surfIdx))//" "//trim(ftext)
 call PROCESSILENT(trim(cmd)//" S"//trim(int2str(surfIdx))//" "//trim(ftext))
+! The edit went through PROCESSILENT, not name_enter, so its deferred replot is
+! never drained there. We are now back at top level (the command has returned),
+! so flush any pending replot to refresh active plots.
+call notify_replot_flush()
 end subroutine
 
-! For extra param I can't store the command in the widget, so 
+! For extra param I can't store the command in the widget, so
 ! look it up from row column index
 subroutine extraParam_changed(widget, data) bind(c)
   use type_utils
@@ -1105,8 +1113,9 @@ surfIdx = getSurfaceIndexFromRowColumnCode(trim(rcCode), colIdx)
 cmd = ldm%getExtraParamCmd(surfIdx, colIdx-extra_param_start+1)
 
 print *, "cmd is ", cmd
-if (len(trim(cmd)) > 0) then 
+if (len(trim(cmd)) > 0) then
   call PROCESSILENT(trim(cmd)//" S"//trim(int2str(surfIdx))//" "//trim(ftext))
+  call notify_replot_flush()
 end if
 
 end subroutine

@@ -18,8 +18,9 @@ module zoa_ui_callbacks
   implicit none
   private
   public :: notify_replot, notify_refresh_status, notify_close_all_tabs
+  public :: notify_replot_flush
   public :: zoa_set_replot_callback, zoa_set_refresh_status_callback, &
-            zoa_set_close_all_tabs_callback
+            zoa_set_close_all_tabs_callback, zoa_set_replot_flush_callback
   ! notify_show_optimizer_ui, notify_show_editor_ui, notify_show_sysconfig_ui:
   ! not needed — those subroutines call the UI modules directly (no cycle after
   ! moving my_window to global_widgets and removing use handlers from those modules)
@@ -83,12 +84,28 @@ module zoa_ui_callbacks
   procedure(write_tab_state_iface),     pointer :: write_tab_state_cb    => null()
   procedure(query_existing_plot_iface), pointer :: query_existing_plot_cb => null()
   procedure(query_save_file_iface),     pointer :: query_save_file_cb    => null()
+  ! Flush any deferred replot NOW. Used by GUI callbacks (e.g. the lens editor)
+  ! that modify the lens but do not go through name_enter, which is the only other
+  ! place a deferred replot is drained. Safe to call only at a top-level GUI
+  ! callback (after the modifying command has fully returned to CMD level).
+  procedure(replot_iface),              pointer :: replot_flush_cb       => null()
 
 contains
 
   subroutine zoa_set_replot_callback(cb)
     procedure(replot_iface) :: cb
     replot_cb => cb
+  end subroutine
+
+  subroutine zoa_set_replot_flush_callback(cb)
+    procedure(replot_iface) :: cb
+    replot_flush_cb => cb
+  end subroutine
+
+  ! Trigger an immediate drain of any deferred replot (no-op if none pending or
+  ! if no handler is registered, e.g. headless).
+  subroutine notify_replot_flush()
+    if (associated(replot_flush_cb)) call replot_flush_cb()
   end subroutine
 
   subroutine zoa_set_refresh_status_callback(cb)

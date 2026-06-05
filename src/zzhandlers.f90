@@ -323,7 +323,8 @@ contains
         zoa_set_query_confirm_callback, zoa_set_query_yes_no_callback, &
         zoa_set_write_tab_state_callback, &
         zoa_set_query_existing_plot_callback, &
-        zoa_set_query_save_file_callback
+        zoa_set_query_save_file_callback, &
+        zoa_set_replot_flush_callback
 
     implicit none
     type(c_ptr), value, intent(in)  :: gdata, app2
@@ -522,6 +523,7 @@ contains
 
     ! Register GUI callbacks so core code can trigger GUI actions without GTK deps
     call zoa_set_replot_callback(gui_notify_replot)
+    call zoa_set_replot_flush_callback(gui_replot_flush)
     call zoa_set_refresh_status_callback(gui_notify_refresh_status)
     call zoa_set_close_all_tabs_callback(gui_notify_close_all_tabs)
     call zoa_set_show_macro_ui_callback(gui_show_macro_ui)
@@ -1055,6 +1057,17 @@ end subroutine
     ! PROCESKDP while nested inside a macro or lens update, causing
     ! "INVALID CMD LEVEL COMMAND" errors for VIE, ORIENT, etc.
     replot_deferred = .true.
+  end subroutine
+
+  ! Drain a deferred replot now. Called by GUI callbacks (e.g. the lens editor)
+  ! that change the lens but do not pass through name_enter (the only other
+  ! drain). Must run at top level — after the modifying command has returned to
+  ! CMD level — so the plot commands it dispatches are not rejected as nested.
+  subroutine gui_replot_flush()
+    if (replot_deferred) then
+      replot_deferred = .false.
+      call zoatabMgr%rePlotIfNeeded()
+    end if
   end subroutine
 
   subroutine gui_notify_refresh_status()
