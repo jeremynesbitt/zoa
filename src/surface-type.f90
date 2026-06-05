@@ -1,5 +1,6 @@
 module mod_surface_type
   use iso_fortran_env, only: real64
+  use clear_apertures, only: clear_aperture
   implicit none
 
   integer, parameter :: SURF_DATA_SIZE      = 21
@@ -12,13 +13,6 @@ module mod_surface_type
   integer, parameter :: NUM_SURFACE_TYPES = 2
   character(len=SURF_PARAM_NAME_LEN), parameter :: SURFACE_TYPE_NAMES(NUM_SURFACE_TYPES) = &
     [character(len=SURF_PARAM_NAME_LEN) :: "Sphere", "Asphere"]
-
-  ! Clear aperture descriptor — shape + half-widths
-  type :: aperture_data
-    integer      :: shape  = 0
-    real(real64) :: semi_x = 0.0_real64
-    real(real64) :: semi_y = 0.0_real64
-  end type
 
   ! Ray state at one surface — passed into/out of intersect and refract methods.
   ! Replaces the RAYRAY(1:50, surf) rows used by the legacy ray tracers.
@@ -44,7 +38,7 @@ module mod_surface_type
     real(real64)        :: radius    = huge(0.0_real64)  ! inf => flat surface
     real(real64)        :: thickness = 0.0_real64
     real(real64)        :: conic     = 0.0_real64        ! conic constant K
-    type(aperture_data) :: clap
+    type(clear_aperture) :: clap
     real(real64)        :: n_pre(10)  = 1.0_real64       ! index before, per wavelength
     real(real64)        :: n_post(10) = 1.0_real64       ! index after, per wavelength
     character(len=SURF_PARAM_NAME_LEN) :: glass_name    = ' '

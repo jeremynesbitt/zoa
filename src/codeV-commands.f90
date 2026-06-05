@@ -306,6 +306,9 @@ module codeV_commands
    module subroutine execTHO(iptStr)
     character(len=*) :: iptStr
    end subroutine execTHO
+   module subroutine execSET(iptStr)
+    character(len=*) :: iptStr
+   end subroutine execSET
     end interface
 
 
@@ -729,6 +732,8 @@ module codeV_commands
         zoaCmds(685)%execFunc => execRESAUTO
         zoaCmds(686)%cmd = "THO"
         zoaCmds(686)%execFunc => execTHO
+        zoaCmds(687)%cmd = "SET"
+        zoaCmds(687)%execFunc => execSET
 
 
     end subroutine

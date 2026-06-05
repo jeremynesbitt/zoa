@@ -417,6 +417,7 @@ end function
 ! I can live with
 function buildLensEditTable() result(store)
   use mod_lens_data_manager
+  use kdp_data_types, only: check_clear_apertures
 
 
   integer, allocatable, dimension(:) :: surfIdx
@@ -439,7 +440,20 @@ function buildLensEditTable() result(store)
     isRefSurface = 0*isRefSurface
     isRefSurface(curr_lens_data%ref_stop) = 1
 
-    clearApertures = curr_lens_data%clearAps(1:curr_lens_data%num_surfaces)%yRad   
+    ! Refresh the ray-traced automatic extents on the current typed surfaces.
+    ! (load_surfaces_from_alens, run at lens load, resets clap%auto_* to 0, and the
+    !  EOS that filled them happened before that reload, so recompute here.)
+    if (allocated(ldm%surfaces)) call check_clear_apertures(curr_lens_data, ldm%surfaces)
+
+    ! Show each surface's clap: the user/assigned value if set, else the
+    ! ray-traced automatic semi-diameter (clap%auto_semi_y), via display_semi_y().
+    do i = 1, curr_lens_data%num_surfaces
+      if (allocated(ldm%surfaces) .and. i-1 <= ubound(ldm%surfaces,1)) then
+        clearApertures(i) = ldm%surfaces(i-1)%s%clap%display_semi_y()
+      else
+        clearApertures(i) = 0.0_real64
+      end if
+    end do
     radPickups = genPickupArr(ID_PICKUP_RAD)
     thiPickups = genPickupArr(ID_PICKUP_THIC)
 

@@ -656,9 +656,13 @@ module mod_lens_data_manager
         character(len=4) :: surfStr
         !character(len=80) :: glassStr
         logical :: rdmFlag
-      
+
         rdmFlag = .TRUE.
-      
+
+        ! Refresh the typed surfaces from current ALENS so the clap data read below
+        ! reflects any CIR/CLAP commands issued since the last lens load.
+        call self%load_surfaces_from_alens()
+
         ! Do Object SUrface
         strSurfLine = 'SO'
         write(strTHI, '(D23.15)') surf_thickness(0)
@@ -719,12 +723,19 @@ module mod_lens_data_manager
             write(fID, *) trim(strSurfLine)
           end if
           
-          ! Check for user specified clear aperture.  TODO:  Need to implement a more sophisticated
-          ! way to store CA info, as the geometry is not always circular.  But for now
-          ! just support circular until I get some to mkae it more abstract
-          if (curr_lens_data%clearAps(ii)%userDefined .OR. curr_lens_data%ref_stop == ii) then
-            strSurfLine = blankStr(2)//'CIR '//trim(real2str(curr_lens_data%clearAps(ii)%yRad, 10))
-            write(fID, *) trim(strSurfLine)
+          ! Save an assigned clear aperture from the typed clap (circular for now;
+          ! shape>=2 geometries are a TODO). Only ALENS-backed apertures (is_set)
+          ! are persisted; ray-traced auto extents are not real apertures.
+          if (allocated(ldm%surfaces)) then
+            if (ii-1 <= ubound(ldm%surfaces,1)) then
+              if (allocated(ldm%surfaces(ii-1)%s)) then
+                if (ldm%surfaces(ii-1)%s%clap%is_set()) then
+                  strSurfLine = blankStr(2)//'CIR '// &
+                  & trim(real2str(ldm%surfaces(ii-1)%s%clap%dim1, 10))
+                  write(fID, *) trim(strSurfLine)
+                end if
+              end if
+            end if
           end if
       
           if (curr_lens_data%isAsphereOnSurface(ii-1)) then
@@ -755,10 +766,19 @@ module mod_lens_data_manager
           & trim(strTHI)//blankStr(3)//curr_lens_data%glassnames(curr_lens_data%num_surfaces)  
         end if
         write(fID, *) trim(strSurfLine)
-        if (curr_lens_data%clearAps(curr_lens_data%num_surfaces)%userDefined) then
-          strSurfLine = blankStr(2)//'CIR '//trim(real2str(curr_lens_data%num_surfaces))
-          write(fID, *) trim(strSurfLine)
-        end if  
+        if (allocated(ldm%surfaces)) then
+          if (curr_lens_data%num_surfaces-1 <= ubound(ldm%surfaces,1)) then
+            if (allocated(ldm%surfaces(curr_lens_data%num_surfaces-1)%s)) then
+              if (ldm%surfaces(curr_lens_data%num_surfaces-1)%s%clap%is_set()) then
+                ! NOTE: previously wrote the surface COUNT here (a bug); now writes
+                ! the image-surface aperture radius from the typed clap.
+                strSurfLine = blankStr(2)//'CIR '// &
+                & trim(real2str(ldm%surfaces(curr_lens_data%num_surfaces-1)%s%clap%dim1, 10))
+                write(fID, *) trim(strSurfLine)
+              end if
+            end if
+          end if
+        end if
       
       
         ! Gen pickup data
@@ -1136,6 +1156,7 @@ module mod_lens_data_manager
             self%surfaces(s)%s%n_post(w) = surf_refractive_index(s, w)
             if (s > 0) self%surfaces(s)%s%n_pre(w) = surf_refractive_index(s-1, w)
           end do
+          call self%surfaces(s)%s%clap%from_alens(s)
         end do
       end subroutine load_surfaces_from_alens
 
@@ -1180,6 +1201,7 @@ module mod_lens_data_manager
             type is (sphere_surface)
               call set_surf_asphere_flag(s, .false.)
             end select
+            call surf%clap%to_alens(s)
           end associate
         end do
       end subroutine sync_alens_from_surfaces

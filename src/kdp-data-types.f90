@@ -221,13 +221,6 @@ logical :: pickup_radius, pickup_thic
 end type
 
 
-type surface_aperture
-   integer :: apertureType
-   logical :: userDefined
-   real(kind=real64) :: xRad, yRad
-   
-end type
-
 type lens_data
 
 integer num_surfaces, ref_stop
@@ -235,7 +228,6 @@ real, allocatable :: radii(:), thicknesses(:), surf_index(:), surf_vnum(:), &
 & curvatures(:), pickups(:,:,:), solves(:,:)
 character(:), allocatable :: glassnames(:)
 character(:), allocatable :: catalognames(:)
-type(surface_aperture), allocatable, dimension(:) :: clearAps
 type(ksolve), allocatable, dimension(:) :: thickSolves
 
 
@@ -333,7 +325,6 @@ if (input.ne.self%num_surfaces.and.allocated(self%radii)) THEN
  DEALLOCATE(self%pickups)
  deallocate(self%solves)
  deallocate(self%thickSolves)
- deallocate(self%clearAps)
 
 
 
@@ -351,7 +342,6 @@ if (.not.allocated(self%radii)) THEN
  allocate(self%pickups(6,self%num_surfaces,45))
  allocate(self%solves(9,self%num_surfaces))
  allocate(self%thickSolves(self%num_surfaces))
- allocate(self%clearAps(self%num_surfaces))
  !call check_clear_apertures(self)
 
 
@@ -2153,7 +2143,7 @@ end function
 ! So the purpose here is to calculate the clear aperture and if surf_clap_dim(i, 1) is
 ! 0 then I will report the values calculated here to the user.                            
 
-SUBROUTINE check_clear_apertures(lData)
+SUBROUTINE check_clear_apertures(lData, surfaces)
   !use global_widgets, only: curr_lens_data
 
   use type_utils ! DEBUG
@@ -2161,11 +2151,17 @@ SUBROUTINE check_clear_apertures(lData)
   use DATLEN
   use DATMAI
   use mod_surface
+  use mod_surface_type, only: surf_slot
   use mod_system, only: sys_wl_ref
   use mod_system, only: sys_last_surf
    use iso_fortran_env, only: real64
   IMPLICIT NONE
   class(lens_data), intent(inout) :: lData
+  ! Typed surface array, passed in by the caller (which can reach ldm without the
+  ! kdp_data_types<->mod_lens_data_manager module cycle). Declared ALLOCATABLE so an
+  ! unallocated ldm%surfaces is a legal actual argument (the writes below are guarded).
+  ! We write ray-traced automatic extents into each surface's clap%auto_* (display only).
+  type(surf_slot), allocatable, intent(inout) :: surfaces(:)
 
 !
 !       THIS IS SUBROUTINE SETCLAP
@@ -2567,24 +2563,14 @@ XRAD=DABS((HXMAX-HXMIN)/2.0D0)
 !call LogTermFOR("XRAD is "//trim(real2str(XRAD)))
 !call LogTermFOR("surf_clap_dim(I, 1) is "//trim(real2str(surf_clap_dim(I, 1))))
 
-IF(surf_clap_dim(I, 1).EQ.0.0) THEN
-  lData%clearAps(I+1)%userDefined = .FALSE.
-  lData%clearAps(I+1)%yRad = YRAD
-  lData%clearAps(I+1)%xRad = XRAD
-ELSE
-  ! equivalence wasn't working so used this value;  TODO: Clean this up
-  ! either find rood cause or use sqrt(eps)
-  IF(DABS(surf_clap_dim(I, 1)-YRAD) > 1e-7) THEN
-
-  lData%clearAps(I+1)%userDefined = .TRUE.               
-  lData%clearAps(I+1)%yRad = surf_clap_dim(I, 1)
-  lData%clearAps(I+1)%xRad = surf_clap_dim(I, 2)        
-  END IF
-  IF(DABS(surf_clap_dim(I, 1)-YRAD) < 1e-7) THEN
-
-      lData%clearAps(I+1)%userDefined = .FALSE.               
-      lData%clearAps(I+1)%yRad = YRAD
-      lData%clearAps(I+1)%xRad = XRAD                  
+! Store the ray-traced automatic extent (display only) on the typed clap.
+! User-set apertures live in ALENS and surface via display_semi_y's is_set path.
+IF(allocated(surfaces)) THEN
+  IF(I.GE.lbound(surfaces,1).AND.I.LE.ubound(surfaces,1)) THEN
+    IF(allocated(surfaces(I)%s)) THEN
+      surfaces(I)%s%clap%auto_semi_y = YRAD
+      surfaces(I)%s%clap%auto_semi_x = XRAD
+    END IF
   END IF
 END IF
 
@@ -2592,21 +2578,10 @@ RRAD=YRAD
 
 
  ELSE
-  !if (lData%ref_stop == (I+1)) then
-  !  lData%clearAps(I+1)%userDefined = .TRUE.
-  !else    
-  lData%clearAps(I+1)%userDefined = .FALSE. 
-  !end if              
-  lData%clearAps(I+1)%yRad = surf_clap_dim(I, 1)
-  lData%clearAps(I+1)%xRad = surf_clap_dim(I, 2)              
-  !call LogTermFOR("YRAD is "//trim(real2str(surf_clap_dim(I, 1))))
-  !call LogTermFOR("XRAD is "//trim(real2str(surf_clap_dim(I, 2))))
+  ! Dummy surface: no ray-traced extent. clap%auto_* stay at their loaded
+  ! defaults (0); any user aperture shows via display_semi_y's is_set path.
                   END IF
               END IF
-  !call LogTermFOR("CA YRAD is "//trim(real2str( lData%clearAps(I+1)%yRad)))
-  !call LogTermFOR("CA XRAD is "//trim(real2str( lData%clearAps(I+1)%xRad)))                  
-  !call LogTermFOR("userDefined is "// &
-  !& trim(real2str(merge(1.d0, 0.d0, lData%clearAps(I+1)%userDefined))))  
          END DO
 IF(FWARN.NE.0) WRITE(OUTLYNE,2004)
 IF(RWARN.NE.0) WRITE(OUTLYNE,2005)

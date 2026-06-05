@@ -925,7 +925,9 @@ subroutine buildBasicTable(firstTime)
     isRefSurface = 0*isRefSurface
     isRefSurface(curr_lens_data%ref_stop) = 1
 
-    clearApertures = curr_lens_data%clearAps(1:curr_lens_data%num_surfaces)%yRad   
+    ! clearAps removed (migrated to typed clap on surfaces(:)). This file is dead
+    ! (not in the meson build); left disabled to avoid referencing the deleted type.
+    clearApertures = 0.0
     PRINT *, "clear Apertures is ", clearApertures
 
     call basicTypes(1)%initialize("Surface"   , G_TYPE_INT,   FALSE, FALSE, surfIdx)

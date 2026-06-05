@@ -56,6 +56,7 @@ srcs += files(
   'mod_DATHGR.f90',
   'mod_DATPTS.f90',
   'mod_surface.f90',
+  'clear-apertures.f90',
   'surface-type.f90',
   'mod_system.f90',
   'lens-data-manager.f90',

@@ -296,6 +296,7 @@ END
 SUBROUTINE LNSEOS1
    use global_widgets
    use kdp_data_types, only: check_clear_apertures
+   use mod_lens_data_manager, only: ldm
    use paraxial_ray_trace_test, only: PRTRA_NEW
    USE GLOBALS
 
@@ -2285,8 +2286,10 @@ SUBROUTINE LNSEOS1
       F22=0
       GO TO 999
    END IF
-   ! Update the NEW data structures
-   call check_clear_apertures(curr_lens_data)
+   ! Update the NEW data structures.
+   ! Fill each surface's clap%auto_* with ray-traced extents. surfaces(:) was
+   ! sized at lens-load time; guard inside check_clear_apertures covers staleness.
+   call check_clear_apertures(curr_lens_data, ldm%surfaces)
 call sysConfig%updateParameters()
 
    RETURN

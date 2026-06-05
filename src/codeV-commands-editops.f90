@@ -136,6 +136,7 @@ contains
         use global_widgets, only: curr_lens_data
         use command_utils, only: isInputNumber
         use kdp_data_types, only: check_clear_apertures
+        use mod_lens_data_manager, only: ldm
         use DATLEN
         implicit none
 
@@ -146,7 +147,10 @@ contains
 
         call parse(trim(iptStr), ' ', tokens, numTokens)
         call LogTermFOR("Calling check_clear_apetures")
-        call check_clear_apertures(curr_lens_data)
+        ! Size the typed surface array for the current lens, then fill each
+        ! surface's clap%auto_* with ray-traced extents.
+        call ldm%load_surfaces_from_alens()
+        call check_clear_apertures(curr_lens_data, ldm%surfaces)
         call zoa_emit(blankStr(7)//"Y-FAN"//blankStr(5)//"X-FAN", "black")
         do i=2,curr_lens_data%num_surfaces
             surfTxt = blankStr(2)//trim(int2str(i-1))
@@ -154,8 +158,8 @@ contains
             if (i==curr_lens_data%ref_stop) surfTxt = "STO"
             if (i==curr_lens_data%num_surfaces) surfTxt = "IMG"
             call zoa_emit(trim(surfTxt)//blankStr(2)// &
-            & trim(real2str(curr_lens_data%clearAps(i)%yRad))//blankStr(5)// &
-            & trim(real2str(curr_lens_data%clearAps(i)%xRad)), "black")
+            & trim(real2str(ldm%surfaces(i-1)%s%clap%auto_semi_y))//blankStr(5)// &
+            & trim(real2str(ldm%surfaces(i-1)%s%clap%auto_semi_x)), "black")
         end do
     end procedure execCLI
 
@@ -548,5 +552,25 @@ contains
             call OUTKDP('Usage: DCON ALL')
         end if
     end procedure deleteConstraints
+
+    module procedure execSET
+        use mod_lens_data_manager, only: ldm
+        implicit none
+
+        character(len=80) :: tokens(40)
+        integer :: numTokens
+
+        call parse(trim(iptStr), ' ', tokens, numTokens)
+        if (numTokens >= 2 .and. trim(tokens(2)) == 'CAP') then
+            ! SET CAP: auto-assign clear apertures to all surfaces from real ray tracing.
+            ! SETCLAP is a CMD-level command handled in CMDER, so call it directly via
+            ! PROCESKDP (do NOT wrap in 'U L'). Then refresh the typed surface objects so
+            ! the lens editor reflects the new ALENS clap data.
+            call PROCESKDP('SETCLAP REAL')
+            call ldm%load_surfaces_from_alens()
+        else
+            call zoa_emit("Unknown SET subcommand. Try: SET CAP", "red")
+        end if
+    end procedure execSET
 
 end submodule mod_codev_editops
