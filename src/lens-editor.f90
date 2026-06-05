@@ -440,9 +440,12 @@ function buildLensEditTable() result(store)
     isRefSurface = 0*isRefSurface
     isRefSurface(curr_lens_data%ref_stop) = 1
 
-    ! Refresh the ray-traced automatic extents on the current typed surfaces.
-    ! (load_surfaces_from_alens, run at lens load, resets clap%auto_* to 0, and the
-    !  EOS that filled them happened before that reload, so recompute here.)
+    ! Refresh the typed clap before display:
+    !  1) load_surfaces_from_alens picks up shape/dim from current ALENS so a
+    !     user CIR/CLAP edit (which only wrote ALENS) is reflected via is_set/dim1;
+    !  2) check_clear_apertures refills the ray-traced auto_* extents (load wipes them).
+    ! Order matters: load first (resets auto_* to 0), then recompute auto.
+    call ldm%load_surfaces_from_alens()
     if (allocated(ldm%surfaces)) call check_clear_apertures(curr_lens_data, ldm%surfaces)
 
     ! Show each surface's clap: the user/assigned value if set, else the
