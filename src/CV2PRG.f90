@@ -9,6 +9,7 @@ SUBROUTINE CV2PRG
    use DATLEN
    use DATMAI
    use mod_lens_data_manager, only: ldm
+   use undo_manager, only: undo_reset_baseline
    use iso_fortran_env, only: real64
    IMPLICIT NONE
 !
@@ -2047,6 +2048,8 @@ SUBROUTINE CV2PRG
    DEALLOCATE (HOE,HOESUR,HV1,HV2,HX1,HY1,HZ1 &
    &,HWL,HX2,HY2,HZ2,HOR,STAT=ALLOERR)
    call ldm%load_surfaces_from_alens()
+   ! Converting a CODE V file replaces the lens: reset undo history with it as baseline.
+   call undo_reset_baseline()
    RETURN
    !100  FORMAT(A132)
    !100  FORMAT(readformat)

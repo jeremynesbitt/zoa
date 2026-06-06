@@ -120,6 +120,8 @@ contains
     character(len=100), target :: pltSPR = "PLTRMS; RMSDATA SPOT; GO"
 
     character(len=100), target :: syscon = "SYSCON"
+    character(len=100), target :: undoCmd = "UNDO"
+    character(len=100), target :: redoCmd = "REDO"
     character(len=100), target :: drawCmd = "VIE; GO"
     character(len=100), target :: seidelCmd = "PLOTTHO; GO"
     character(len=100), target :: macroCmd = "MACROUI"
@@ -223,6 +225,9 @@ contains
     !Edit Lens
     call addCommandMenuItem(menu_edit, "System Configuration", &
     & "SYSCON", syscon, win)
+    ! Undo/Redo (also bound to Cmd+Z / Cmd+Shift+Z via win.Undo/win.Redo accels)
+    call addCommandMenuItem(menu_edit, "Undo", "Undo", undoCmd, win)
+    call addCommandMenuItem(menu_edit, "Redo", "Redo", redoCmd, win)
     !act_sysconfig   = g_simple_action_new("EditSysConfig"//c_null_char, c_null_ptr)
     !call g_action_map_add_action (win, act_sysconfig)
     !call g_signal_connect (act_sysconfig, "activate"//c_null_char, c_funloc(editSysConfigUI), win)
@@ -555,6 +560,7 @@ contains
   !addNewMenuItemThatExecutesCommand(topLevelMenu, menuitemText, menuItemEvenName, arrayOfCommands)
   subroutine genericMenuCommandCallback(act, param, gdata) bind(c)
     use gtk_sup
+    use zoa_ui_callbacks, only: notify_replot_flush
     implicit none
     type(c_ptr), value, intent(in) :: act, param, gdata
     character(len=80) :: fstring
@@ -562,6 +568,9 @@ contains
     call C_F_string_ptr(gdata, fstring)
 
     CALL PROCESKDP(fstring)
+    ! Menu/accelerator commands bypass name_enter; flush at this top level so a
+    ! lens-changing command (incl. UNDO/REDO) refreshes plots and records its snapshot.
+    call notify_replot_flush()
 
   end subroutine
 

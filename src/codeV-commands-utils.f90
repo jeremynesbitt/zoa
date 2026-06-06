@@ -234,6 +234,7 @@ contains
     module procedure processZoaFileInput
         use zoa_file_handler
         use mod_lens_data_manager, only: ldm
+        use undo_manager, only: undo_reset_baseline
         implicit none
         integer :: locStr, locDot, i
         character(len=1024) :: fileName
@@ -258,6 +259,9 @@ contains
                 else
                     call process_zoa_file(trim(fileName))
                     call ldm%load_surfaces_from_alens()
+                    ! A user load replaces the lens: reset the undo history with
+                    ! this loaded lens as the new baseline.
+                    call undo_reset_baseline()
                 end if
             end if
         else
@@ -271,6 +275,9 @@ contains
                 else
                     call process_zoa_file(trim(fileName))
                     call ldm%load_surfaces_from_alens()
+                    ! A user load replaces the lens: reset the undo history with
+                    ! this loaded lens as the new baseline.
+                    call undo_reset_baseline()
                 end if
             end if
         end if

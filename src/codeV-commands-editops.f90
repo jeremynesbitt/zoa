@@ -234,6 +234,7 @@ contains
 
     module procedure newLens
         use mod_lens_data_manager
+        use undo_manager, only: undo_reset_baseline
         implicit none
 
         integer :: resp
@@ -256,6 +257,8 @@ contains
         end do
         close(unit=9)
         ldm%vars(:,:) = 100
+        ! A new lens replaces the system: reset undo history with it as baseline.
+        call undo_reset_baseline()
     end procedure newLens
 
     module procedure setLensTitle

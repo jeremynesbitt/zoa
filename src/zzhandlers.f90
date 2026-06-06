@@ -283,13 +283,11 @@ contains
             cmd_queue_count = cmd_queue_count - 1
             call PROCESKDP(trim(ftext))
         end do
-        ! Execute any replot that was requested during command processing.
-        ! Done here so plot commands run at the top level, not reentrantly
-        ! inside a macro or lens update where they would be rejected.
-        if (replot_deferred) then
-            replot_deferred = .false.
-            call zoatabMgr%rePlotIfNeeded()
-        end if
+        ! Execute any replot that was requested during command processing, and
+        ! record an undo snapshot if the lens changed. Done here (top level), not
+        ! reentrantly inside a macro/lens update where plot commands are rejected.
+        ! Shared with the editor path via gui_replot_flush so snapshotting is unified.
+        call gui_replot_flush()
         cmd_in_progress = .false.
     end if
 
@@ -356,9 +354,17 @@ contains
     if (ID_SYSTEM.EQ.ID_OS_MAC) then
     call gtk_application_set_accels_for_action(app, "app.quit"//c_null_char, &
     & createNullTerminatedCString("<meta>q"//c_null_char))
+    call gtk_application_set_accels_for_action(app, "win.Undo"//c_null_char, &
+    & createNullTerminatedCString("<meta>z"//c_null_char))
+    call gtk_application_set_accels_for_action(app, "win.Redo"//c_null_char, &
+    & createNullTerminatedCString("<meta><shift>z"//c_null_char))
   elseif (ID_SYSTEM == ID_OS_WINDOWS ) then
     call gtk_application_set_accels_for_action(app, "app.quit"//c_null_char, &
     & createNullTerminatedCString("<ctrl>q"//c_null_char))
+    call gtk_application_set_accels_for_action(app, "win.Undo"//c_null_char, &
+    & createNullTerminatedCString("<ctrl>z"//c_null_char))
+    call gtk_application_set_accels_for_action(app, "win.Redo"//c_null_char, &
+    & createNullTerminatedCString("<ctrl><shift>z"//c_null_char))
   end if
 
 
@@ -1064,9 +1070,13 @@ end subroutine
   ! drain). Must run at top level — after the modifying command has returned to
   ! CMD level — so the plot commands it dispatches are not rejected as nested.
   subroutine gui_replot_flush()
+    use undo_manager, only: undo_snapshot
     if (replot_deferred) then
       replot_deferred = .false.
       call zoatabMgr%rePlotIfNeeded()
+      ! replot_deferred set => the lens changed at top level; record an undo
+      ! snapshot (no-op while restoring or for a suppressed snapshot).
+      call undo_snapshot()
     end if
   end subroutine
 
