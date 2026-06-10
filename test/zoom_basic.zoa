@@ -1,0 +1,15 @@
+RES osdtriplet
+! Multi-configuration (zoom) test: 3 configs varying S3 thickness.
+! Verifies ZOO operand definition, the zoom table listing, POS config
+! switching, and that FIR reflects the active config's materialized lens.
+ZOO 3
+ZOO THI S3 1 7 9
+ZOO
+POS 1
+FIR
+POS 2
+FIR
+POS 3
+FIR
+POS 1
+FIR

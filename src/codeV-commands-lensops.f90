@@ -140,6 +140,7 @@ contains
         use command_utils, only : parseCommandIntoTokens
         use zoa_file_handler, only: open_file_to_sav_lens, getTempDirectory, getCurrentLensFileName
         use optim_types, only: optim
+        use zoom_manager, only: zoom_genSaveOutputText
         use mod_lens_data_manager
         implicit none
 
@@ -169,6 +170,7 @@ contains
             call sysConfig%genSaveOutputText(fID)
             call ldm%genSaveOutputText(fID)
             call optim%genSaveOutputText(fID)
+            call zoom_genSaveOutputText(fID)
             close(fID)
         else
             call LogTermFOR("Error!  fiD is "//int2str(fID))

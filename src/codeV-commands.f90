@@ -315,6 +315,12 @@ module codeV_commands
    module subroutine execRedo(iptStr)
     character(len=*) :: iptStr
    end subroutine execRedo
+   module subroutine execZOO(iptStr)
+    character(len=*) :: iptStr
+   end subroutine execZOO
+   module subroutine execPOS(iptStr)
+    character(len=*) :: iptStr
+   end subroutine execPOS
     end interface
 
 
@@ -744,6 +750,10 @@ module codeV_commands
         zoaCmds(688)%execFunc => execUndo
         zoaCmds(689)%cmd = "REDO"
         zoaCmds(689)%execFunc => execRedo
+        zoaCmds(690)%cmd = "ZOO"
+        zoaCmds(690)%execFunc => execZOO
+        zoaCmds(691)%cmd = "POS"
+        zoaCmds(691)%execFunc => execPOS
 
 
     end subroutine

@@ -15,6 +15,7 @@ module undo_manager
   use global_widgets,   only: sysConfig
   use mod_lens_data_manager, only: ldm
   use optim_types,      only: optim
+  use zoom_manager,     only: zoom_genSaveOutputText, zoom_reset
   use zoa_output,       only: zoa_emit
   implicit none
   private
@@ -52,6 +53,7 @@ contains
       call sysConfig%genSaveOutputText(fID)
       call ldm%genSaveOutputText(fID)
       call optim%genSaveOutputText(fID)
+      call zoom_genSaveOutputText(fID)
       close(fID)
     end if
   end subroutine write_snapshot
@@ -62,6 +64,9 @@ contains
     integer, intent(in) :: seq
     character(len=1040) :: path
     in_restore = .true.
+    ! Clear zoom first; the snapshot's ZOO/POS lines rebuild the exact config
+    ! state, so stale operands from the current state don't linger.
+    call zoom_reset()
     path = trim(getTempDirectory())//trim(slot_name(seq))
     call process_zoa_file(trim(path))
     call ldm%load_surfaces_from_alens()

@@ -235,6 +235,7 @@ contains
         use zoa_file_handler
         use mod_lens_data_manager, only: ldm
         use undo_manager, only: undo_reset_baseline
+        use zoom_manager, only: zoom_reset
         implicit none
         integer :: locStr, locDot, i
         character(len=1024) :: fileName
@@ -257,6 +258,9 @@ contains
                 if (present(printOnly)) then
                     call process_zoa_file(trim(fileName), printOnly=.TRUE.)
                 else
+                    ! Clear prior zoom before loading; the file's own ZOO/POS
+                    ! lines (if any) rebuild the configs during processing.
+                    call zoom_reset()
                     call process_zoa_file(trim(fileName))
                     call ldm%load_surfaces_from_alens()
                     ! A user load replaces the lens: reset the undo history with
@@ -273,6 +277,9 @@ contains
                 if (present(printOnly)) then
                     call process_zoa_file(trim(fileName), printOnly=.TRUE.)
                 else
+                    ! Clear prior zoom before loading; the file's own ZOO/POS
+                    ! lines (if any) rebuild the configs during processing.
+                    call zoom_reset()
                     call process_zoa_file(trim(fileName))
                     call ldm%load_surfaces_from_alens()
                     ! A user load replaces the lens: reset the undo history with

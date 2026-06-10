@@ -389,6 +389,11 @@ test('tho_test', test_runner,
             meson.project_source_root() / 'test/tho_test.ref'],
      timeout: 120, is_parallel: false)
 
+test('zoom_basic', test_runner,
+     args: [meson.project_source_root() / 'test/zoom_basic.zoa',
+            meson.project_source_root() / 'test/zoom_basic.ref'],
+     timeout: 120, is_parallel: false)
+
 
 if system == 'darwin'
   MacOSDir = meson.project_source_root() / 'MacOS'

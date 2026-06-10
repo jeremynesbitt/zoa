@@ -1,0 +1,85 @@
+
+Field Weights Command WTF     100     100     100 Not supported
+Number of zoom configurations set to 3
+Zoom configurations: 3   active: 1
+  THI S3  1.000000  7.000000  9.000000
+Active configuration: 1 of 3
+ENTRANCE PUPIL
+DIA       10.0000
+THI       6.7224
+INFINITE CONJUGATES
+EFL       50.0902
+BFL       39.1403
+FFL       -44.5932
+FNO       5.0090
+IMG DIS   39.1403
+OAL       16.1000
+PARAXIAL IMAGE
+ HT      8.8323
+ANG       10.3500 DEG
+ENTRANCE PUPIL
+DIA       10.0000
+THI       6.7224
+EXIT PUPIL
+DIA       9.7612
+THI       -9.7537
+Active configuration: 2 of 3
+ENTRANCE PUPIL
+DIA       10.0000
+THI       6.7224
+INFINITE CONJUGATES
+EFL       49.1531
+BFL       31.7683
+FFL       -44.4741
+FNO       4.9153
+IMG DIS   31.7683
+OAL       22.1000
+PARAXIAL IMAGE
+ HT      8.6670
+ANG       10.5228 DEG
+ENTRANCE PUPIL
+DIA       10.0000
+THI       6.7224
+EXIT PUPIL
+DIA       9.6009
+THI       -15.4230
+Active configuration: 3 of 3
+ENTRANCE PUPIL
+DIA       10.0000
+THI       6.7224
+INFINITE CONJUGATES
+EFL       48.8485
+BFL       29.3718
+FFL       -44.4354
+FNO       4.8849
+IMG DIS   29.3718
+OAL       24.1000
+PARAXIAL IMAGE
+ HT      8.6133
+ANG       10.5804 DEG
+ENTRANCE PUPIL
+DIA       10.0000
+THI       6.7224
+EXIT PUPIL
+DIA       9.5486
+THI       -17.2716
+Active configuration: 1 of 3
+ENTRANCE PUPIL
+DIA       10.0000
+THI       6.7224
+INFINITE CONJUGATES
+EFL       50.0902
+BFL       39.1403
+FFL       -44.5932
+FNO       5.0090
+IMG DIS   39.1403
+OAL       16.1000
+PARAXIAL IMAGE
+ HT      8.8323
+ANG       10.3500 DEG
+ENTRANCE PUPIL
+DIA       10.0000
+THI       6.7224
+EXIT PUPIL
+DIA       9.7612
+THI       -9.7537

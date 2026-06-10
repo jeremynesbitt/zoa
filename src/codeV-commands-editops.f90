@@ -235,6 +235,7 @@ contains
     module procedure newLens
         use mod_lens_data_manager
         use undo_manager, only: undo_reset_baseline
+        use zoom_manager, only: zoom_reset
         implicit none
 
         integer :: resp
@@ -242,6 +243,8 @@ contains
         integer :: ios, n
         character(len=200) :: line
 
+        ! A new lens starts single-config; clear any prior zoom before loading.
+        call zoom_reset()
         open(unit=9, file=trim(basePath)//'Macros/newlens.zoa', iostat=ios)
         if (ios /= 0) stop "Error opening file "
 

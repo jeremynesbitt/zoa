@@ -10,6 +10,7 @@ SUBROUTINE CV2PRG
    use DATMAI
    use mod_lens_data_manager, only: ldm
    use undo_manager, only: undo_reset_baseline
+   use zoom_manager, only: zoom_reset
    use iso_fortran_env, only: real64
    IMPLICIT NONE
 !
@@ -2050,6 +2051,8 @@ SUBROUTINE CV2PRG
    call ldm%load_surfaces_from_alens()
    ! Converting a CODE V file replaces the lens: reset undo history with it as baseline.
    call undo_reset_baseline()
+   ! A converted lens starts single-config.
+   call zoom_reset()
    RETURN
    !100  FORMAT(A132)
    !100  FORMAT(readformat)
