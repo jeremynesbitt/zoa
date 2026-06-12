@@ -1,0 +1,6 @@
+RES osdtriplet
+! Wavefront/diffraction commands (headless)
+PMA;GO
+ZERN_TST;GO
+PSF;GO
+MTF;GO

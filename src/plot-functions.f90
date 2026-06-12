@@ -422,22 +422,23 @@ subroutine spo_go(psm)
 
     call initializeGoPlot(psm,ID_PLOTTYPE_SPOT_NEW, "Spot Diagram", replot, objIdx)
 
-    print *, "before setTextViewFromPtr"
-    call ioConfig%setTextViewFromPtr(getTabTextView(objIdx))
-    
+    if (.not. HEADLESS_MODE) then
+      call ioConfig%setTextViewFromPtr(getTabTextView(objIdx))
+    end if
+
     ! Prep PLot
-    canvas = hl_gtk_drawing_area_new(size=[400,400*sysConfig%numFields], &
-    & has_alpha=FALSE)
-    
-    ! Todo:  change initialization to sepcify size, and then don't need to 
+    if (HEADLESS_MODE) then
+      canvas = c_null_ptr
+    else
+      canvas = hl_gtk_drawing_area_new(size=[400,400*sysConfig%numFields], &
+      & has_alpha=FALSE)
+    end if
+
+    ! Todo:  change initialization to sepcify size, and then don't need to
     ! call gtk_drawing_area
     call mplt%initialize(canvas, sysConfig%numFields,1)
     mplt%height = 400*sysConfig%numFields
     mplt%width = 400
-
-    print *, "mplt%height is ", mplt%height
-    print *, "sysCon%numFields is ", sysConfig%numFields
-    print *, "CFLDCNT is ", CFLDCNT
 
     do i=1,sysConfig%numFields
       call PROCESKDP(trim(getKDPSpotPlotCommand(i, iLambda, iMethod, nRect, nRand, nRing)))
@@ -541,17 +542,19 @@ subroutine seidel_go(psm)
 
     call initializeGoPlot(psm,ID_PLOTTYPE_SEIDEL, "Seidel Aberrations", replot, objIdx)
 
-
-
-    call ioConfig%setTextViewFromPtr(getTabTextView(objIdx))
+    if (.not. HEADLESS_MODE) then
+      call ioConfig%setTextViewFromPtr(getTabTextView(objIdx))
+    end if
     call MMAB3_NEW(.TRUE., psm%getWavelengthSetting(), .TRUE.)
-    call ioConfig%setTextView(ID_TERMINAL_DEFAULT)
-    
+    if (.not. HEADLESS_MODE) then
+      call ioConfig%setTextView(ID_TERMINAL_DEFAULT)
+    end if
+
     allocate(seidel(nS,curr_lens_data%num_surfaces+1))
     allocate(surfIdx(curr_lens_data%num_surfaces+1))
-    
-    
-    
+
+
+
     yLabels(1) = "Spherical"
     yLabels(2) = "Coma"
     yLabels(3) = "Astigmatism"
@@ -559,22 +562,20 @@ subroutine seidel_go(psm)
     yLabels(5) = "Curvature"
     yLabels(6) = "Axial Chromatic"
     yLabels(7) = "Lateral Chromatic"
-    
-    
-    print *, "Num Surfaces is ", curr_lens_data%num_surfaces
-    
+
     graphColors = [PL_PLOT_RED, PL_PLOT_BLUE, PL_PLOT_GREEN, &
     & PL_PLOT_MAGENTA, PL_PLOT_CYAN, PL_PLOT_GREY, PL_PLOT_BROWN]
-    
-    
-    
+
     surfIdx =  (/ (ii,ii=0,curr_lens_data%num_surfaces)/)
     seidel(:,:) = curr_par_ray_trace%CSeidel(:,0:curr_lens_data%num_surfaces)
-    
-     canvas = hl_gtk_drawing_area_new(size=[1200,800], &
-     & has_alpha=FALSE)
-    
-    
+
+    if (HEADLESS_MODE) then
+      canvas = c_null_ptr
+    else
+      canvas = hl_gtk_drawing_area_new(size=[1200,800], &
+      & has_alpha=FALSE)
+    end if
+
      call mplt%initialize(canvas, nS,1)
     
      do jj=1,nS
@@ -875,11 +876,17 @@ subroutine rayaberration_go(psm)
     
     allocate(x(numPoints))
     allocate(y(numPoints))
-    
-    call ioConfig%setTextViewFromPtr(getTabTextView(objIdx))
 
-    canvas = hl_gtk_drawing_area_new(size=[1200,1200], &
-    & has_alpha=FALSE)
+    if (.not. HEADLESS_MODE) then
+      call ioConfig%setTextViewFromPtr(getTabTextView(objIdx))
+    end if
+
+    if (HEADLESS_MODE) then
+      canvas = c_null_ptr
+    else
+      canvas = hl_gtk_drawing_area_new(size=[1200,1200], &
+      & has_alpha=FALSE)
+    end if
 
     call mplt%initialize(canvas, sysConfig%numFields,2)
 
@@ -986,8 +993,8 @@ subroutine rayaberration_go(psm)
      call mplt%addBottomPanel(trim(sysConfig%lensTitle),  &
      & "Ray Aberrations ("//sysConfig%getDimensions()//")",trim(real2str(1000.0*sysConfig%getWavelength(lambda),2))// " nm")
      !call ioConfig%setTextView(ID_TERMINAL_DEFAULT)
-     call ioConfig%restoreTextView()
-    
+     if (.not. HEADLESS_MODE) call ioConfig%restoreTextView()
+
      !call finalizeGoPlot(mplt, psm, ID_PLOTTYPE_RIM, "Ray Aberration Fan")
      call finalizeGoPlot_new(mplt, psm, replot, objIdx)
   
@@ -1002,7 +1009,7 @@ subroutine rmsfield_go(psm)
   USE GLOBALS
   use command_utils
   use zoa_output, only: zoa_emit
-  use global_widgets, only:  sysConfig, curr_ray_fan_data
+  use global_widgets, only:  sysConfig, curr_ray_fan_data, ioConfig
   use kdp_utils, only: log2DData
   use type_utils, only: int2str
   use plplot, PI => PL_PI
@@ -1061,13 +1068,17 @@ end do
 
 
 
-canvas = hl_gtk_drawing_area_new(size=[1200,500], &
-& has_alpha=FALSE)
+if (HEADLESS_MODE) then
+  canvas = c_null_ptr
+else
+  canvas = hl_gtk_drawing_area_new(size=[1200,500], &
+  & has_alpha=FALSE)
+  call ioConfig%setTextViewFromPtr(getTabTextView(objIdx))
+end if
 
-
-call ioConfig%setTextViewFromPtr(getTabTextView(objIdx))
 call log2DData(real(x,8),real(y,8), xHeader='Field', yHeader='RMS[mWaves]')
-call ioConfig%setTextView(ID_TERMINAL_DEFAULT)
+
+if (.not. HEADLESS_MODE) call ioConfig%setTextView(ID_TERMINAL_DEFAULT)
 
 call mplt%initialize(canvas, 1,1)
 
@@ -1094,12 +1105,13 @@ end subroutine
 
 ! FFT/image plot implementations live in plot-functions-fft.f90
 
-subroutine initializeGoPlot(psm, plot_code, plotName, replot, objIdx) 
+subroutine initializeGoPlot(psm, plot_code, plotName, replot, objIdx)
 
-    use zoa_plot    
+    use zoa_plot
     use plot_setting_manager
     use handlers, only: zoatabMgr
     use type_utils, only: int2str
+    USE GLOBALS, only: HEADLESS_MODE
 
    use iso_fortran_env, only: real64
     implicit none
@@ -1111,6 +1123,13 @@ subroutine initializeGoPlot(psm, plot_code, plotName, replot, objIdx)
     integer :: pIdx
     integer, intent(out) :: objIdx
     logical, intent(out) :: replot
+
+    ! In headless mode skip all GTK tab machinery
+    if (HEADLESS_MODE) then
+      objIdx = -1
+      replot = .FALSE.
+      return
+    end if
 
     pIdx = psm%plotNum
     inputCmd = trim(psm%generatePlotCommand())
@@ -1126,7 +1145,7 @@ subroutine initializeGoPlot(psm, plot_code, plotName, replot, objIdx)
       call zoatabMgr%clearDataTab(objIdx)
      else
       pIdx = zoatabMgr%getNumberOfPlotsByCode(plot_code)
-     
+
       psm%plotNum = pIdx+1 ! Noreplot so this is the next num
 
       !TODO:  Fix this.  need to check if basecmd is multiple pieces or not
@@ -1135,8 +1154,8 @@ subroutine initializeGoPlot(psm, plot_code, plotName, replot, objIdx)
       tabName = plotName
       if  (psm%plotNum > 1) then
         tabName = trim(tabName)//" "//int2str(psm%plotNum)
-      end if  
-      
+      end if
+
       objIdx = zoatabMgr%addMultiPlotTab(plot_code, &
       & trim(tabName)//c_null_char)
       call zoatabMgr%updateInputCommand(objIdx, inputCmd)
@@ -1147,9 +1166,10 @@ subroutine initializeGoPlot(psm, plot_code, plotName, replot, objIdx)
 
   subroutine finalizeGoPlot_new(mplt,psm, replot, objIdx)
     use type_utils
-    use zoa_plot    
+    use zoa_plot
     use plot_setting_manager
     use handlers, only: zoatabMgr
+    USE GLOBALS, only: HEADLESS_MODE
 
    use iso_fortran_env, only: real64
     implicit none
@@ -1159,8 +1179,14 @@ subroutine initializeGoPlot(psm, plot_code, plotName, replot, objIdx)
     integer :: objIdx
     logical :: replot
 
-    call zoatabMgr%updateGenericMultiPlotTab(objIdx, mplt) 
-    if(replot .EQV. .FALSE. ) then 
+    ! In headless mode render directly to PNG via plplot; skip GTK tab machinery
+    if (HEADLESS_MODE) then
+      call mplt%draw()
+      return
+    end if
+
+    call zoatabMgr%updateGenericMultiPlotTab(objIdx, mplt)
+    if(replot .EQV. .FALSE. ) then
       call zoaTabMgr%finalize_with_psm(objIdx, psm)
       call zoaTabMgr%finalizeNewPlotTab(objIdx)
     end if
@@ -1173,10 +1199,11 @@ subroutine initializeGoPlot(psm, plot_code, plotName, replot, objIdx)
 ! If new plot, andcalls the finalize subs in 
 ! Zoa tab manager
 subroutine finalizeGoPlot(mplt, psm, plot_code, plotName)
-    use zoa_plot    
+    use zoa_plot
     use plot_setting_manager
     use handlers, only: zoatabMgr
     use type_utils, only: int2str
+    USE GLOBALS, only: HEADLESS_MODE
 
    use iso_fortran_env, only: real64
     implicit none
@@ -1188,6 +1215,12 @@ subroutine finalizeGoPlot(mplt, psm, plot_code, plotName)
     character(len=1024) :: inputCmd, tabName
     integer :: objIdx, pIdx
     logical :: replot
+
+    ! In headless mode render directly to PNG via plplot; skip GTK tab machinery
+    if (HEADLESS_MODE) then
+      call mplt%draw()
+      return
+    end if
 
     pIdx = psm%plotNum
     inputCmd = trim(psm%generatePlotCommand())
@@ -1203,7 +1236,7 @@ subroutine finalizeGoPlot(mplt, psm, plot_code, plotName)
       call zoatabMgr%updateGenericMultiPlotTab(objIdx, mplt)
      else
       pIdx = zoatabMgr%getNumberOfPlotsByCode(plot_code)
-     
+
       psm%plotNum = pIdx+1 ! Noreplot so this is the next num
 
       !TODO:  Fix this.  need to check if basecmd is multiple pieces or not
@@ -1212,7 +1245,7 @@ subroutine finalizeGoPlot(mplt, psm, plot_code, plotName)
       tabName = plotName
       if  (psm%plotNum > 1) then
         tabName = trim(tabName)//" "//int2str(psm%plotNum)
-      end if  
+      end if
       objIdx = zoatabMgr%addGenericMultiPlotTab(plot_code, &
       & trim(tabName)//c_null_char, mplt)
 

@@ -94,6 +94,7 @@ contains
         use global_widgets, only: sysConfig, curr_lens_data
         use optim_types, only: optim
         use mod_lens_data_manager
+        use zoa_output, only: zoa_emit
 
         character(len=1024) :: dirName
         character(len=80) :: tokens(40)
@@ -101,38 +102,163 @@ contains
         character(len=500) :: fileName
         character(len=500) :: cdir
         logical :: fileSelected
+        integer :: locDot
 
         call parse(trim(iptStr), ' ', tokens, numTokens)
 
-        if (numTokens == 2) then
+        if (numTokens >= 2) then
+            ! Headless/direct path: filename given on command line
             fileName = trim(tokens(2))
-        else
-            fileName = ''
-        end if
-
-        call query_save_file(fileName, cdir, trim(getCodeVDir()), "*.seq", "CodeV File", fileSelected)
-
-        if (fileSelected) then
-            print *, "fileName is ", trim(getFileNameFromPath(fileName))
-            print *, "fileDirectory is ", trim(cdir)
-
-            fID = open_file_to_sav_lens(trim(getFileNameFromPath(fileName)), dirName=trim(cdir), overwriteFlag=.TRUE.)
+            locDot = index(fileName, '.')
+            if (locDot == 0) fileName = trim(fileName)//'.seq'
+            fID = open_file_to_sav_lens(trim(fileName), dirName=trim(getCodeVDir()), overwriteFlag=.TRUE.)
             if (fID /= 0) then
                 call sysConfig%genSaveOutputText(fID)
                 call ldm%genSaveOutputText(fID)
                 call optim%genSaveOutputText(fID)
                 close(fID)
+                call zoa_emit("Saved CODE V file "//trim(fileName), "black")
             else
                 call LogTermFOR("Error!  fID is "//int2str(fID))
+            end if
+        else
+            ! GUI dialog path: no filename given
+            fileName = ''
+            call query_save_file(fileName, cdir, trim(getCodeVDir()), "*.seq", "CodeV File", fileSelected)
+
+            if (fileSelected) then
+                print *, "fileName is ", trim(getFileNameFromPath(fileName))
+                print *, "fileDirectory is ", trim(cdir)
+
+                fID = open_file_to_sav_lens(trim(getFileNameFromPath(fileName)), dirName=trim(cdir), overwriteFlag=.TRUE.)
+                if (fID /= 0) then
+                    call sysConfig%genSaveOutputText(fID)
+                    call ldm%genSaveOutputText(fID)
+                    call optim%genSaveOutputText(fID)
+                    close(fID)
+                    call zoa_emit("Saved CODE V file "//trim(getFileNameFromPath(fileName)), "black")
+                else
+                    call LogTermFOR("Error!  fID is "//int2str(fID))
+                end if
             end if
         end if
     end procedure exportLensToCodeV
 
     module procedure exportLensToZemax
+        use zoa_file_handler, only: open_file_to_sav_lens, getCodeVDir
+        use global_widgets, only: sysConfig
+        use mod_lens_data_manager, only: ldm
+        use DATLEN, only: GLANAM
+        use kdp_data_types, only: FIELD_OBJECT_ANGLE_DEG, FIELD_OBJECT_HEIGHT
+        use zoa_output, only: zoa_emit
+        use iso_fortran_env, only: real64
+
         character(len=256) :: fName
         character(len=1024) :: dirName
         character(len=80) :: tokens(40)
         integer :: numTokens, locDot, fID
+        integer :: k, lastSurf, stopSurf, ii
+        real(real64) :: curv, thi, conic
+        character(len=13) :: glassName
+        logical :: isMirror
+        real(real64) :: enpd, fieldY, fieldX
+
+        call parse(trim(iptStr), ' ', tokens, numTokens)
+
+        if (numTokens < 2) then
+            call zoa_emit("Usage: ZOA2ZMX <filename>", "red")
+            return
+        end if
+
+        fName = trim(tokens(2))
+        locDot = index(fName, '.')
+        if (locDot == 0) fName = trim(fName)//'.zmx'
+
+        fID = open_file_to_sav_lens(trim(fName), dirName=trim(getCodeVDir()), overwriteFlag=.TRUE.)
+        if (fID == 0) then
+            call zoa_emit("ZOA2ZMX: could not open file "//trim(fName), "red")
+            return
+        end if
+
+        lastSurf = ldm%getLastSurf()
+        stopSurf = ldm%getStopSurf()
+
+        ! Header — NAME triggers PROCESKDP('LENS') in ZMX2PRG; no VERS needed
+        write(fID, '(A)') 'NAME '//trim(sysConfig%lensTitle)
+        write(fID, '(A)') 'UNIT MM'
+        ! refApertureValue(2) holds the full diameter (saved as EPD);
+        ! ZMX2PRG converts ENPD back via SAY = ENPD/2
+        enpd = sysConfig%refApertureValue(2)
+        write(fID, '(A,1X,G20.10)') 'ENPD', enpd
+
+        ! Field type
+        if (sysConfig%currFieldID == FIELD_OBJECT_ANGLE_DEG) then
+            write(fID, '(A)') 'FTYP 0 0'
+        else
+            write(fID, '(A)') 'FTYP 1 0'
+        end if
+
+        ! Field values
+        fieldX = sysConfig%refFieldValue(1)
+        fieldY = sysConfig%refFieldValue(2)
+        ! XFLN line
+        write(fID, '(A)', advance='no') 'XFLN'
+        do ii = 1, sysConfig%numFields
+            write(fID, '(1X,G16.8)', advance='no') fieldX * sysConfig%relativeFields(1,ii)
+        end do
+        write(fID, '()')
+        ! YFLN line
+        write(fID, '(A)', advance='no') 'YFLN'
+        do ii = 1, sysConfig%numFields
+            write(fID, '(1X,G16.8)', advance='no') fieldY * sysConfig%relativeFields(2,ii)
+        end do
+        write(fID, '()')
+
+        ! Wavelengths (in µm — that's already what wavelengths() stores)
+        write(fID, '(A)', advance='no') 'WAVL'
+        do ii = 1, sysConfig%numWavelengths
+            write(fID, '(1X,G14.7)', advance='no') sysConfig%wavelengths(ii)
+        end do
+        write(fID, '()')
+
+        write(fID, '(A,1X,I0)') 'PWAV', sysConfig%refWavelengthIndex
+
+        ! Surfaces
+        do k = 0, lastSurf
+            write(fID, '(A,1X,I0)') 'SURF', k
+            if (k == stopSurf) write(fID, '(A)') '  STOP'
+            write(fID, '(A)') '  TYPE STANDARD'
+
+            curv = ldm%getSurfCurv(k)
+            write(fID, '(A,1X,G20.12,A)') '  CURV', curv, '   0  0  0'
+
+            conic = ldm%getConicConstant(k)
+            if (conic /= 0.0_real64) then
+                write(fID, '(A,1X,G20.12)') '  CONI', conic
+            end if
+
+            ! Glass (only for non-last surface: glass goes on the surface before the next medium)
+            if (ldm%isGlassSurf(k)) then
+                glassName = GLANAM(k,2)
+                ! Detect mirror: GLANAM(k,2) is REFL, REFLTIRO, or REFLTIR
+                isMirror = (glassName(1:4) == 'REFL')
+                if (isMirror) then
+                    write(fID, '(A)') '  GLAS MIRROR'
+                else
+                    write(fID, '(A)') '  GLAS '//trim(glassName)
+                end if
+            end if
+
+            thi = ldm%getSurfThi(k)
+            if (thi > 1.0e10_real64) then
+                write(fID, '(A)') '  DISZ INFINITY'
+            else
+                write(fID, '(A,1X,G20.12)') '  DISZ', thi
+            end if
+        end do
+
+        close(fID)
+        call zoa_emit("Saved Zemax file "//trim(fName), "black")
     end procedure exportLensToZemax
 
     module procedure execSAV
@@ -156,7 +282,10 @@ contains
         select case(numTokens)
         case (1)
             fName = getCurrentLensFileName()
-            call zoa_emit("File name to save is "//trim(getTempDirectory())//trim(fName), "black")
+            ! Emit only the filename; absolute paths must stay out of captured
+            ! test output (full path still goes to the terminal via print).
+            print *, "File name to save is "//trim(getTempDirectory())//trim(fName)
+            call zoa_emit("File name to save is "//trim(fName), "black")
             fID = open_file_to_sav_lens(fName, dirName=getTempDirectory(), overwriteFlag=.TRUE.)
         case (2)
             fName = trim(tokens(2))
@@ -466,7 +595,10 @@ contains
         character(len=1024) :: fullPath
 
         fullPath = trim(getTempDirectory())//getCurrentLensFileName()
-        call zoa_emit("Restoring from: "//trim(fullPath), "black")
+        ! Emit only the filename; absolute paths must stay out of captured
+        ! test output (full path still goes to the terminal via print).
+        print *, "Restoring from: "//trim(fullPath)
+        call zoa_emit("Restoring from: "//trim(getCurrentLensFileName()), "black")
         call process_zoa_file(trim(fullPath))
     end procedure execRESAUTO
 

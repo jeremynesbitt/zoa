@@ -215,7 +215,9 @@ module zoa_file_handler
             fullPath = trim(getSaveDirectory())//fName
           end if
 
-          call LogTermFOR('FUll Path is '//trim(fullPath))
+          ! PRINT (not LogTermFOR): absolute paths must stay out of captured
+          ! test output; unit 6 is suppressed in the test runner.
+          print *, 'Full Path is '//trim(fullPath)
           ! First check if file exists
           if (doesFileExist(trim(fullPath))) then
             if(present(overwriteFlag)) then

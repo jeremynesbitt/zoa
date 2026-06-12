@@ -1,0 +1,6 @@
+RES osdtriplet
+RED -0.5
+FIR
+SUR SA
+DEL PIM
+FIR

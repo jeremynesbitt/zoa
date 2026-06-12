@@ -1056,7 +1056,10 @@ SUBROUTINE CV2PRG
             GO TO 7777
          END IF
 !       FALL THROUGH
-         GLASSA='GLASS '//TEMPC(I)(1:20)
+!       A bare glass name without a _CATALOG suffix (e.g. "N-SK16") still
+!       needs a catalog lookup; GLASS would register the name with no
+!       indices and silently leave the surface as air.
+         GLASSA='GLAK '//TEMPC(I)(1:20)
 7777     CONTINUE
          IF(.NOT.RADON) THEN
             WRITE(OUTLYNE2,2017) CV

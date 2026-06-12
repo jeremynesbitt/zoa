@@ -1,0 +1,54 @@
+
+          RDY          THI     RMD          GLA          CCY     THC     GLC
+OBJ:    INFINITY    INFINITY                              100     100
+STO:    50.00000    4.00000               BK7_SCHOTT     100     100
+002:    -200.000    95.00000                              100     100
+IMG:    INFINITY    0.00000                              100     100
+ENTRANCE PUPIL
+DIA       10.0000
+THI       0.0000
+INFINITE CONJUGATES
+EFL       77.8236
+BFL       75.7024
+FFL       -77.2933
+FNO       7.7824
+IMG DIS   95.0000
+OAL       4.0000
+PARAXIAL IMAGE
+ HT      8.4855
+ANG       4.9786 DEG
+ENTRANCE PUPIL
+DIA       10.0000
+THI       0.0000
+EXIT PUPIL
+DIA       10.0686
+THI       -2.6552
+
+          RDY          THI     RMD          GLA          CCY     THC     GLC
+OBJ:    INFINITY    INFINITY                              100     100
+STO:    62.50000    5.00000               BK7_SCHOTT     100     100
+002:    -45.455    2.50000               F2_SCHOTT      100     100
+003:    -166.667    95.00000                              100     100
+IMG:    INFINITY    0.00000                              100     100
+___
+ASPHERES
+# 2 K -0.50000
+ENTRANCE PUPIL
+DIA       10.0000
+THI       0.0000
+INFINITE CONJUGATES
+EFL       103.6970
+BFL       99.9009
+FFL       -102.6020
+FNO       10.3697
+IMG DIS   95.0000
+OAL       7.5000
+PARAXIAL IMAGE
+ HT      8.6481
+ANG       4.9598 DEG
+ENTRANCE PUPIL
+DIA       10.0000
+THI       0.0000
+EXIT PUPIL
+DIA       10.1067
+THI       -4.9029

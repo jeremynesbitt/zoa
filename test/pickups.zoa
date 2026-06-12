@@ -1,0 +1,10 @@
+RES osdtriplet
+SUR SA
+PIK RDY S3 S1
+RDY S1 45
+SUR SA
+PIK THI S4 S2 2.0
+THI S2 4
+SUR SA
+! Next line is a deliberate error (CUY is not a valid surface parameter):
+PIK CUY S3 S1

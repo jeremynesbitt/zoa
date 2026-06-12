@@ -1,0 +1,8 @@
+RES osdtriplet
+BES
+CIR S2 8
+CIR 9
+SET CAP
+BES
+FIR
+VIE ; GO

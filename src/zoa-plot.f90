@@ -501,7 +501,7 @@ contains
       call plend
 
       if (HEADLESS_MODE) then
-        call set_plot_output(trim(plot_png_path))
+        call set_plot_output(trim(plot_png_path), self%width, self%height)
       else
         call gtk_widget_queue_draw(self%area)
         call hl_gtk_drawing_area_cairo_destroy(self%cc)

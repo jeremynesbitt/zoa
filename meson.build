@@ -394,6 +394,56 @@ test('zoom_basic', test_runner,
             meson.project_source_root() / 'test/zoom_basic.ref'],
      timeout: 120, is_parallel: false)
 
+test('plots_geom', test_runner,
+     args: [meson.project_source_root() / 'test/plots_geom.zoa',
+            meson.project_source_root() / 'test/plots_geom.ref'],
+     timeout: 120, is_parallel: false)
+
+test('plots_wave', test_runner,
+     args: [meson.project_source_root() / 'test/plots_wave.zoa',
+            meson.project_source_root() / 'test/plots_wave.ref'],
+     timeout: 240, is_parallel: false)
+
+test('plots_seidel', test_runner,
+     args: [meson.project_source_root() / 'test/plots_seidel.zoa',
+            meson.project_source_root() / 'test/plots_seidel.ref'],
+     timeout: 120, is_parallel: false)
+
+test('pickups', test_runner,
+     args: [meson.project_source_root() / 'test/pickups.zoa',
+            meson.project_source_root() / 'test/pickups.ref'],
+     timeout: 120, is_parallel: false)
+
+test('solves', test_runner,
+     args: [meson.project_source_root() / 'test/solves.zoa',
+            meson.project_source_root() / 'test/solves.ref'],
+     timeout: 120, is_parallel: false)
+
+test('apertures_bes', test_runner,
+     args: [meson.project_source_root() / 'test/apertures_bes.zoa',
+            meson.project_source_root() / 'test/apertures_bes.ref'],
+     timeout: 120, is_parallel: false)
+
+test('zmx_import', test_runner,
+     args: [meson.project_source_root() / 'test/zmx_import.zoa',
+            meson.project_source_root() / 'test/zmx_import.ref'],
+     timeout: 120, is_parallel: false)
+
+test('export_roundtrip', test_runner,
+     args: [meson.project_source_root() / 'test/export_roundtrip.zoa',
+            meson.project_source_root() / 'test/export_roundtrip.ref'],
+     timeout: 120, is_parallel: false)
+
+test('mirror_example', test_runner,
+     args: [meson.project_source_root() / 'test/mirror_example.zoa',
+            meson.project_source_root() / 'test/mirror_example.ref'],
+     timeout: 120, is_parallel: false)
+
+test('debug_rmd', test_runner,
+     args: [meson.project_source_root() / 'test/debug_rmd.zoa',
+            meson.project_source_root() / 'test/debug_rmd.ref'],
+     timeout: 120, is_parallel: false)
+
 
 if system == 'darwin'
   MacOSDir = meson.project_source_root() / 'MacOS'

@@ -1,0 +1,73 @@
+
+Field Weights Command WTF     100     100     100 Not supported
+ENTRANCE PUPIL
+DIA       10.0000
+THI       6.7224
+INFINITE CONJUGATES
+EFL       50.0107
+BFL       38.5152
+FFL       -44.5831
+FNO       5.0011
+IMG DIS   38.5152
+OAL       16.6000
+PARAXIAL IMAGE
+ HT      8.8182
+ANG       10.3644 DEG
+ENTRANCE PUPIL
+DIA       10.0000
+THI       6.7224
+EXIT PUPIL
+DIA       9.7476
+THI       -10.2334
+Saved CODE V file ZIPTRIP.SEQ
+
+ENTRANCE PUPIL
+DIA       10.0000
+THI       6.7224
+INFINITE CONJUGATES
+EFL       50.0107
+BFL       -0.0000
+FFL       -44.5831
+FNO       5.0011
+IMG DIS   0.0000
+OAL       55.1152
+PARAXIAL IMAGE
+ HT      8.8182
+ANG       10.3644 DEG
+ENTRANCE PUPIL
+DIA       10.0000
+THI       6.7224
+EXIT PUPIL
+DIA       9.7476
+THI       -48.7486
+Saved Zemax file ZIPTRIP.ZMX
+
+          RDY          THI     RMD          GLA          CCY     THC     GLC
+OBJ:    INFINITY    INFINITY                              100     100
+001:    15.00000    3.50000               N-SK16_SCH2000 100     100
+002:    INFINITY    3.10000                              100     100
+STO:    -37.530    1.50000               N-F2_SCH2000   100     100
+004:    14.08000    5.00000                              100     100
+005:    50.26000    3.50000               N-SK16_SCH2000 100     100
+006:    -31.380    38.51522                              100     100
+007:    INFINITY    0.00000                              100     100
+IMG:    INFINITY    0.00000                              100     100
+ENTRANCE PUPIL
+DIA       10.0000
+THI       6.7224
+INFINITE CONJUGATES
+EFL       50.0107
+BFL       -0.0000
+FFL       -44.5831
+FNO       5.0011
+IMG DIS   0.0000
+OAL       55.1152
+PARAXIAL IMAGE
+ HT      8.8182
+ANG       10.3644 DEG
+ENTRANCE PUPIL
+DIA       10.0000
+THI       6.7224
+EXIT PUPIL
+DIA       9.7476
+THI       -48.7486

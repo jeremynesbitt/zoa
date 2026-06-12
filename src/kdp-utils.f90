@@ -124,7 +124,7 @@ module kdp_utils
 
     print *, "Size of img,2 is ", size(img,2)
     do ii=1,size(img,1)
-        write(strData, *) (img(ii,jj), jj=1,256)!size(img,2))
+        write(strData, *) (img(ii,jj), jj=1,size(img,2))
         call updateTerminal(trim(adjustl(strData)), "black")
         !call OUTKDP(trim(strData))
     end do

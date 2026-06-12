@@ -1,0 +1,10 @@
+RES osdtriplet
+FIR
+! Export to CODE V and Zemax, then re-import each: FIR must round-trip.
+ZOA2CV ziptrip.seq
+CV2PRG ziptrip.seq
+FIR
+ZOA2ZMX ziptrip.zmx
+ZMX2PRG ziptrip.zmx
+SUR SA
+FIR

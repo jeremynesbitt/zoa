@@ -86,7 +86,7 @@ contains
     call c_cairo_surface_destroy(surface)
 
     if (status == 0) then
-      call set_plot_output(filename)
+      call set_plot_output(filename, int(width), int(height))
     end if
   end subroutine
 

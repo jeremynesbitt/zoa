@@ -7,7 +7,7 @@ module procedure psf_go
   USE GLOBALS
   use command_utils
   use zoa_output, only: zoa_emit
-  use global_widgets, only:  sysConfig, curr_opd
+  use global_widgets, only:  sysConfig, curr_opd, ioConfig
   use type_utils, only: int2str
   use plplot, PI => PL_PI
   use plplot_extra
@@ -44,8 +44,12 @@ WRITE(ffieldstr, *) "FOB ", sysConfig%relativeFields(2,fldIdx) &
 & , ' ' , sysConfig%relativeFields(1, fldIdx)
 CALL PROCESKDP(trim(ffieldstr))
 
-canvas = hl_gtk_drawing_area_new(size=[600,600], &
-& has_alpha=FALSE)
+if (HEADLESS_MODE) then
+  canvas = c_null_ptr
+else
+  canvas = hl_gtk_drawing_area_new(size=[600,600], &
+  & has_alpha=FALSE)
+end if
 
 call getData("PSFK", imgPSF)
 
@@ -61,14 +65,16 @@ allocate(psfZ(xpts*ypts))
 allocate(fftData(size(psfData,1),size(psfData,2)))
 fftData = fft2(cmplx(psfData,kind=long),1)
 call fftshift(fftData)
-call ioConfig%setTextViewFromPtr(getTabTextView(objIdx))
+if (.not. HEADLESS_MODE) then
+  call ioConfig%setTextViewFromPtr(getTabTextView(objIdx))
+end if
 call logImageData(psfData)
 call LogTermFOR("Real")
 call logImageData(real(real(fftData),kind=long))
 call LogTermFOR("Imag")
 call logImageData(real(aimag(fftData),kind=long))
 
-call ioConfig%restoreTextView()
+if (.not. HEADLESS_MODE) call ioConfig%restoreTextView()
 
 call mplt%initialize(canvas, 1,1)
 zz=1
@@ -131,8 +137,12 @@ module procedure pma_go
   call PROCESKDP('CAPFN, '//trim(int2str(xpts)))
   call PROCESKDP('FITZERN, '//trim(int2str(lambda)))
 
-  canvas = hl_gtk_drawing_area_new(size=[600,600], &
-  & has_alpha=FALSE)
+  if (HEADLESS_MODE) then
+    canvas = c_null_ptr
+  else
+    canvas = hl_gtk_drawing_area_new(size=[600,600], &
+    & has_alpha=FALSE)
+  end if
 
   call mplt%initialize(canvas, 1,1)
   PRINT *, "size of X is ", size(curr_opd%X)
@@ -230,12 +240,18 @@ module procedure mtf_go
   xPlt(1:iDiff) = xAxis(1:iDiff)
   yPlt(1:iDiff) = yAxis(1:iDiff)
 
-  call ioConfig%setTextViewFromPtr(getTabTextView(objIdx))
+  if (.not. HEADLESS_MODE) then
+    call ioConfig%setTextViewFromPtr(getTabTextView(objIdx))
+  end if
   call log2DData(real(xAxis,8),yAxis)
-  call ioConfig%setTextView(ID_TERMINAL_DEFAULT)
+  if (.not. HEADLESS_MODE) call ioConfig%setTextView(ID_TERMINAL_DEFAULT)
 
-   canvas = hl_gtk_drawing_area_new(size=[1200,800], &
-   & has_alpha=FALSE)
+  if (HEADLESS_MODE) then
+    canvas = c_null_ptr
+  else
+    canvas = hl_gtk_drawing_area_new(size=[1200,800], &
+    & has_alpha=FALSE)
+  end if
 
    call mplt%initialize(canvas, 1,1)
 

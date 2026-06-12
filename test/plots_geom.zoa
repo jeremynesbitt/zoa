@@ -1,0 +1,7 @@
+RES osdtriplet
+! Geometric plot commands (headless)
+VIE ; GO
+RIM;GO
+SPO;GO
+PLTRMS;GO
+FIE; GO
