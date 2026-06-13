@@ -1282,6 +1282,7 @@ SUBROUTINE DOGTAG
    use mod_surface
    use DATMAI
    use mod_system, only: sys_last_surf, sys_mode, sys_units, sys_wl_pri1, sys_wl_pri2, sys_wl_ref, sys_wl_sec1
+   use global_widgets, only: sysConfig
    use iso_fortran_env, only: real64
    IMPLICIT NONE
 !
@@ -1327,10 +1328,10 @@ SUBROUTINE DOGTAG
 !       LINE FIVE IS THE MODE CODE 1=FOCAL,2=UFOCAL,3=AFOCAL, 4=UAFOCAL IN I1 FOLLOWED BY
 !       THE UNITS CODE 1=IN, 2= CM, 3= MM, 4=METERS IN I1 FORMAT FOLLOWED BY THE CONTROL
 !       WAVELENGTH IN G23.15,FOLLOWED BY THE PRIMARY WAVELENGTH PAIR EACH IN G23.15 FORMAT
-   WRITE(IDTAG(5),101) INT(sys_mode()),INT(sys_units()),SYSTEM(INT(sys_wl_ref())+110),SYSTEM(INT(sys_wl_pri1())+110),SYSTEM(INT(sys_wl_pri2())+110)
+   WRITE(IDTAG(5),101) INT(sys_mode()),INT(sys_units()),sysConfig%getDefaultWavelength(INT(sys_wl_ref())),sysConfig%getDefaultWavelength(INT(sys_wl_pri1())),sysConfig%getDefaultWavelength(INT(sys_wl_pri2()))
 101 FORMAT(I1,I1,G23.15,G23.15,G23.15)
 !       LINE SIX IS SECONDARY WAVELENGTH PAIR WAVELENGTHS IN G23.15 FORMAT (EACH)
-   WRITE(IDTAG(6),102) SYSTEM(INT(sys_wl_sec1())+110),SYSTEM(INT(sys_wl_pri2())+110)
+   WRITE(IDTAG(6),102) sysConfig%getDefaultWavelength(INT(sys_wl_sec1())),sysConfig%getDefaultWavelength(INT(sys_wl_pri2()))
 102 FORMAT(G23.15,G23.15)
 !       LINE SEVEN FULL NAME OF THE FIRST NON-AIR, NON-REFLECTIVE GLASS
 !       FOLLOWED BY THE SECOND FULL GLASS NAME EACH IN 2(A13) FORMAT

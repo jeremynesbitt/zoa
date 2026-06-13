@@ -286,7 +286,7 @@ contains
 
         call parse(trim(iptStr), ' ', tokens, numTokens)
         do i=2,numTokens
-            call sysConfig%setSpectralWeights(i-1, real(str2real8(trim(tokens(i))),4))
+            call sysConfig%setSpectralWeights(i-1, real(str2real8(trim(tokens(i))),8))
         end do
     end procedure setWavelengthWeights
 
@@ -339,7 +339,7 @@ contains
                 call ATODCODEV(tokens(i)(1:23), wvReal, CVERROR)
                 write(strWL, '(D23.15)') wvReal/1000.0_long
                 outStr = trim(outStr)//' '//trim(strWL)
-                call sysConfig%setSpectralWeights(i-1, 1.0)
+                call sysConfig%setSpectralWeights(i-1, 1.0D0)
             end do
             if (numTokens < 6) then
                 do i=numTokens+1,6

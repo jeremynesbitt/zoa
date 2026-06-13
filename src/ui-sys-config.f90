@@ -1032,10 +1032,10 @@ end function
 
    select case (col)
    case (1)
-     call sysConfig%setWavelengths(row+1,real(cellData,4))
+     call sysConfig%setWavelengths(row+1,real(cellData,8))
      !sysConfig%wavelengths(irow+1) = cellData
    case (2)
-     call sysConfig%setSpectralWeights(row+1,real(cellData,4))
+     call sysConfig%setSpectralWeights(row+1,real(cellData,8))
      !sysConfig%spectralWeights(irow+1) = cellData
    case(3)
     call hl_gtk_listn_combo_set_by_list_id(uiWavelengthSettings%ihlist, row, 3_c_int, &

@@ -2221,6 +2221,7 @@ SUBROUTINE MAKE_DEF_AUTO
    use mod_surface
    use DATMAI
    use mod_system, only: sys_mode, sys_wl_ref
+   use global_widgets, only: sysConfig
    use command_utils, only: is_command_query
    INTEGER IVAL,I,J,K,DFNRD,L,LL,LLL,LLLL,DFNRAYS
    real(real64) JK_WW1,JK_WW2,VL,XPOS,YPOS,STEP,WT1,WT2,WAY,THETA
@@ -2667,17 +2668,7 @@ SUBROUTINE MAKE_DEF_AUTO
             LLLL=0
             K=0
             DO L=1,10
-               IF(L.EQ.1)  LL=31
-               IF(L.EQ.2)  LL=32
-               IF(L.EQ.3)  LL=33
-               IF(L.EQ.4)  LL=34
-               IF(L.EQ.5)  LL=35
-               IF(L.EQ.6)  LL=76
-               IF(L.EQ.7)  LL=77
-               IF(L.EQ.8)  LL=78
-               IF(L.EQ.9)  LL=79
-               IF(L.EQ.10) LL=80
-               IF(SYSTEM(LL).NE.0.0D0) THEN
+               IF(sysConfig%getSpectralWeight(L).NE.0.0D0) THEN
                   LLL=L
                   LLLL=LLLL+1
 !     DO A WAVELENGTH
@@ -2934,17 +2925,7 @@ SUBROUTINE MAKE_DEF_AUTO
          LLLL=0
          K=0
          DO L=1,10
-            IF(L.EQ.1)  LL=31
-            IF(L.EQ.2)  LL=32
-            IF(L.EQ.3)  LL=33
-            IF(L.EQ.4)  LL=34
-            IF(L.EQ.5)  LL=35
-            IF(L.EQ.6)  LL=76
-            IF(L.EQ.7)  LL=77
-            IF(L.EQ.8)  LL=78
-            IF(L.EQ.9)  LL=79
-            IF(L.EQ.10) LL=80
-            IF(SYSTEM(LL).NE.0.0D0) THEN
+            IF(sysConfig%getSpectralWeight(L).NE.0.0D0) THEN
                LLL=L
                LLLL=LLLL+1
 !     DO A WAVELENGTH

@@ -24,9 +24,10 @@ module mod_system
   use DATLEN, only: SYSTEM
   implicit none
   private
-  public :: sys_wavelength, sys_wl_weight
+  public :: sys_wavelength, sys_wl_weight, sys_wv_default
   public :: sys_units, sys_wl_pri1, sys_wl_pri2, sys_wl_sec1, sys_wl_sec2
   public :: sys_wl_ref
+  public :: clearSysArray
   public :: sys_say, sys_sax, sys_scy, sys_y1_scy, sys_scx, sys_x1_scx
   public :: sys_scy_fang_set, sys_scx_fang_set
   public :: sys_last_surf
@@ -682,6 +683,19 @@ contains
     integer, intent(in) :: n
     real(8), intent(in) :: val
     SYSTEM(110 + n) = val
+  end subroutine
+
+  ! Get default wavelength WVn: n=1..10 -> SYSTEM(110+n)
+  function sys_wv_default(n) result(r)
+    integer, intent(in) :: n
+    real(8) :: r
+    r = SYSTEM(110 + n)
+  end function
+
+  ! Zero the entire SYSTEM array (matches SYSTEM(1:SSIZ)=0.0D0 in LDM1/LDM10,
+  ! where SSIZ is always 150; SYSTEM is declared SYSTEM(1:150) in DATLEN).
+  subroutine clearSysArray()
+    SYSTEM = 0.0D0
   end subroutine
 
   subroutine sys_set_units(val)

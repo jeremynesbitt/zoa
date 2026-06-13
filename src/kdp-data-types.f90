@@ -129,6 +129,10 @@ contains
  procedure, public, pass(self) :: setFieldTypeFromString
  procedure, public, pass(self) :: setMaxField
  procedure, public, pass(self) :: getWavelength
+ procedure, public, pass(self) :: getSpectralWeight
+ procedure, public, pass(self) :: getRefWavelengthIndex
+ procedure, public, pass(self) :: getNumWavelengths
+ procedure, public, pass(self) :: getDefaultWavelength
  procedure, public, pass(self) :: getDimensions
  procedure :: getAbsYFieldText
 
@@ -595,11 +599,13 @@ end subroutine
 
 subroutine updateParameters(self)
   use mod_system, only: sys_naox, sys_naoy, sys_pxim, sys_pyim, sys_rxim, sys_ryim, &
-     & sys_sax, sys_say, sys_scx, sys_scx_fang, sys_scy, sys_scy_fang, sys_units, sys_wl_ref
+     & sys_sax, sys_say, sys_scx, sys_scx_fang, sys_scy, sys_scy_fang, sys_units, sys_wl_ref, &
+     & sys_wavelength, sys_wl_weight
   use DATLEN
    use iso_fortran_env, only: real64
   implicit none
   class(sys_config), intent(inout) :: self
+  integer :: n
   self%lensTitle = trim(LI)
 
   call self%getApertureFromSystemArr()
@@ -654,11 +660,11 @@ subroutine updateParameters(self)
   self%numFields = CFLDCNT
   self%relativeFields = CFLDS
 
-  ! Wavelengths
-  self%wavelengths(1:5) = SYSTEM(1:5)
-  self%wavelengths(6:10) = SYSTEM(71:75)
-  self%spectralWeights(1:5) = SYSTEM(31:35)
-  self%spectralWeights(6:10) = SYSTEM(76:80)
+  ! Wavelengths — read live from SYSTEM via mod_system
+  do n = 1, 10
+    self%wavelengths(n) = sys_wavelength(n)
+    self%spectralWeights(n) = sys_wl_weight(n)
+  end do
   self%refWavelengthIndex = INT(sys_wl_ref())
 
 
@@ -1211,25 +1217,62 @@ subroutine setRefWavelengthIndex(self, refWavelengthIdx)
 end subroutine
 
 function getWavelength(self, index)result (wavelength)
+  use mod_system, only: sys_wavelength
   class(sys_config), intent(in) :: self
   integer, intent(in) :: index
   double precision :: wavelength
-  wavelength = self%wavelengths(index)
+  wavelength = sys_wavelength(index)
 
+end function
+
+function getSpectralWeight(self, index) result(weight)
+  use mod_system, only: sys_wl_weight
+  use iso_fortran_env, only: real64
+  class(sys_config), intent(in) :: self
+  integer, intent(in) :: index
+  real(real64) :: weight
+  weight = sys_wl_weight(index)
+
+end function
+
+function getRefWavelengthIndex(self) result(idx)
+  use mod_system, only: sys_wl_ref
+  class(sys_config), intent(in) :: self
+  integer :: idx
+  idx = INT(sys_wl_ref())
+
+end function
+
+function getNumWavelengths(self) result(n)
+  use mod_system, only: sys_wl_weight
+  class(sys_config), intent(in) :: self
+  integer :: n
+  integer :: i
+  n = 0
+  do i = 1, 10
+    if (sys_wl_weight(i) /= 0.0D0) n = n + 1
+  end do
+
+end function
+
+function getDefaultWavelength(self, index) result(wl)
+  use mod_system, only: sys_wv_default
+  use iso_fortran_env, only: real64
+  class(sys_config), intent(in) :: self
+  integer, intent(in) :: index
+  real(real64) :: wl
+  wl = sys_wv_default(index)
 
 end function
 
 subroutine setWavelengths(self, index, wavelength)
-  use DATLEN
+  use mod_system, only: sys_set_wavelength
+  use iso_fortran_env, only: real64
   class(sys_config), intent(inout) :: self
   integer, intent(in) :: index
-  real, intent(in) :: wavelength
+  real(real64), intent(in) :: wavelength
+  call sys_set_wavelength(index, wavelength)
   self%wavelengths(index) = wavelength
-
-  SYSTEM(1:5) = self%wavelengths(1:5)
-  SYSTEM(71:75) = self%wavelengths(6:10)
-
-
 
 end subroutine
 
@@ -1250,14 +1293,13 @@ subroutine setNumberofWavelengths(self)
 end subroutine
 
 subroutine setSpectralWeights(self, index, weight)
-  use DATLEN
+  use mod_system, only: sys_set_wl_weight
+  use iso_fortran_env, only: real64
   class(sys_config), intent(inout) :: self
   integer, intent(in) :: index
-  real, intent(in) :: weight
+  real(real64), intent(in) :: weight
+  call sys_set_wl_weight(index, weight)
   self%spectralWeights(index) = weight
-
-  SYSTEM(31:35) = self%spectralWeights(1:5)
-  SYSTEM(76:80) = self%spectralWeights(6:10)
 
   call self%setNumberOfWavelengths()
 

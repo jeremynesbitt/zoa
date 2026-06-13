@@ -36,11 +36,13 @@ SUBROUTINE LENNS
       & sys_set_fno_hold_y, sys_set_fno_hold_x, sys_set_ray_aiming, sys_set_telecentric, &
       & sys_set_aplanatic_aim, sys_set_scy, sys_set_y1_scy, sys_set_scx, sys_set_x1_scx, &
       & sys_set_xz_data_flag, sys_set_ref_surf, sys_set_astop, sys_set_astop_adj, &
-      & sys_set_mode, sys_set_current_cfg, sys_set_high_cfg, sys_set_wl_weight
+      & sys_set_mode, sys_set_current_cfg, sys_set_high_cfg, sys_set_wl_weight, &
+      & clearSysArray
+   use global_widgets, only: sysConfig
    use iso_fortran_env, only: real64
    IMPLICIT NONE
 !
-   INTEGER I,K,J
+   INTEGER I,K,J,n
 !
    real(real64) XFOBB0,YFOBB0,ZFOBB0
 
@@ -90,7 +92,7 @@ SUBROUTINE LENNS
    MULTCLAP(1:1000,1:3,0)=0.0D0
    MULTCOBS(1:1000,1:3,0)=0.0D0
 !
-   SYSTEM(1:SSIZ)=0.0D0
+   call clearSysArray()
 !
 !       Zero paraxial and real ray trace arrays for ALL surfaces so stale
 !       data from a previous lens does not corrupt chief-ray aiming.
@@ -109,7 +111,7 @@ SUBROUTINE LENNS
 !       sys_wl_weight(1) TO sys_wl_weight(5) REPRESENT THE SPTWT VALUES
 !       WHICH DEFAULT TO 1.0 AT LENS START UP.
 !
-   SYSTEM(31:35)=1.0D0
+   do n=1,5; call sysConfig%setSpectralWeights(n, 1.0D0); end do
 !
 !       THE VALUES OF THE REFRACTIVE INDICES FOR THE 5 POSSIBLE
 !       WAVELENGTHS ARE STORED FOR THE JTH SURFACE OF THE LENS
@@ -170,14 +172,14 @@ SUBROUTINE LENNS
    call sys_set_wavelength(4, 0.43584D0)
    call sys_set_wavelength(5, 0.70652D0)
 !     SET WAVELENGTHS 6 TO 10 TO ZERO AND WEIGHTS TO ZERO
-   SYSTEM(71:80)=0.0D0
+   do n=6,10; call sysConfig%setWavelengths(n, 0.0D0); call sysConfig%setSpectralWeights(n, 0.0D0); end do
    call sys_set_wv_default(1, 0.58756D0)
    call sys_set_wv_default(2, 0.48613D0)
    call sys_set_wv_default(3, 0.65627D0)
    call sys_set_wv_default(4, 0.43584D0)
    call sys_set_wv_default(5, 0.70652D0)
-!     SET WAVELENGTHS 6 TO 10 TO ZERO AND WEIGHTS TO ZERO
-   SYSTEM(116:120)=0.0D0
+!     SET DEFAULT WAVELENGTHS 6 TO 10 TO ZERO
+   do n=6,10; call sys_set_wv_default(n, 0.0D0); end do
 !
 !       THE PROGRAM DEFAULT UNITS ARE INCHES. THE UNIT CODE IS:
 !

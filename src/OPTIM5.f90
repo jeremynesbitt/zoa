@@ -13,6 +13,7 @@ SUBROUTINE CALCPRE
    use DATMAI
    use mod_system, only: sys_last_surf, sys_mode, sys_wl_ref, sys_wl_pri1, sys_wl_pri2, &
       sys_wl_weight, sys_set_wl_weight
+   use global_widgets, only: sysConfig
    use mod_lens_data_manager, only: ldm
    use iso_fortran_env, only: real64
    IMPLICIT NONE
@@ -29,7 +30,7 @@ SUBROUTINE CALCPRE
 !
    COMMON/WTOPD/OPDWT,GREYOP
 !
-   INTEGER IAUTO,ISFI,ITYP,SF,IV,PREDEFI,I,NF,IIA,JIA,SF1 ,K,II,WVNUMOP,ERROR,ISURF,CLRTYP
+   INTEGER IAUTO,ISFI,ITYP,SF,IV,PREDEFI,I,NF,IIA,JIA,SF1 ,K,II,WVNUMOP,ERROR,ISURF,CLRTYP,n
 !
    COMMON/AUTOI/IAUTO
 !
@@ -2349,42 +2350,41 @@ SUBROUTINE CALCPRE
                CALL SPOT1(2)
                LDIF=OLDIF
             ELSE
-               OLDSP(1) =sys_wl_weight(1)
-               OLDSP(2) =sys_wl_weight(2)
-               OLDSP(3) =sys_wl_weight(3)
-               OLDSP(4) =sys_wl_weight(4)
-               OLDSP(5) =sys_wl_weight(5)
-               OLDSP(6) =sys_wl_weight(6)
-               OLDSP(7) =sys_wl_weight(7)
-               OLDSP(8) =sys_wl_weight(8)
-               OLDSP(9) =sys_wl_weight(9)
-               OLDSP(10)=sys_wl_weight(10)
-               SYSTEM(31:35)=0.0D0
-               SYSTEM(76:80)=0.0D0
-               IF(INT(OPERND(I,9)).EQ.1)  call sys_set_wl_weight(1,1.0D0)
-               IF(INT(OPERND(I,9)).EQ.2)  call sys_set_wl_weight(2,1.0D0)
-               IF(INT(OPERND(I,9)).EQ.3)  call sys_set_wl_weight(3,1.0D0)
-               IF(INT(OPERND(I,9)).EQ.4)  call sys_set_wl_weight(4,1.0D0)
-               IF(INT(OPERND(I,9)).EQ.5)  call sys_set_wl_weight(5,1.0D0)
-               IF(INT(OPERND(I,9)).EQ.6)  call sys_set_wl_weight(6,1.0D0)
-               IF(INT(OPERND(I,9)).EQ.7)  call sys_set_wl_weight(7,1.0D0)
-               IF(INT(OPERND(I,9)).EQ.8)  call sys_set_wl_weight(8,1.0D0)
-               IF(INT(OPERND(I,9)).EQ.9)  call sys_set_wl_weight(9,1.0D0)
-               IF(INT(OPERND(I,9)).EQ.10) call sys_set_wl_weight(10,1.0D0)
+               OLDSP(1) =sysConfig%getSpectralWeight(1)
+               OLDSP(2) =sysConfig%getSpectralWeight(2)
+               OLDSP(3) =sysConfig%getSpectralWeight(3)
+               OLDSP(4) =sysConfig%getSpectralWeight(4)
+               OLDSP(5) =sysConfig%getSpectralWeight(5)
+               OLDSP(6) =sysConfig%getSpectralWeight(6)
+               OLDSP(7) =sysConfig%getSpectralWeight(7)
+               OLDSP(8) =sysConfig%getSpectralWeight(8)
+               OLDSP(9) =sysConfig%getSpectralWeight(9)
+               OLDSP(10)=sysConfig%getSpectralWeight(10)
+               do n=1,10; call sysConfig%setSpectralWeights(n, 0.0D0); end do
+               IF(INT(OPERND(I,9)).EQ.1)  call sysConfig%setSpectralWeights(1,1.0D0)
+               IF(INT(OPERND(I,9)).EQ.2)  call sysConfig%setSpectralWeights(2,1.0D0)
+               IF(INT(OPERND(I,9)).EQ.3)  call sysConfig%setSpectralWeights(3,1.0D0)
+               IF(INT(OPERND(I,9)).EQ.4)  call sysConfig%setSpectralWeights(4,1.0D0)
+               IF(INT(OPERND(I,9)).EQ.5)  call sysConfig%setSpectralWeights(5,1.0D0)
+               IF(INT(OPERND(I,9)).EQ.6)  call sysConfig%setSpectralWeights(6,1.0D0)
+               IF(INT(OPERND(I,9)).EQ.7)  call sysConfig%setSpectralWeights(7,1.0D0)
+               IF(INT(OPERND(I,9)).EQ.8)  call sysConfig%setSpectralWeights(8,1.0D0)
+               IF(INT(OPERND(I,9)).EQ.9)  call sysConfig%setSpectralWeights(9,1.0D0)
+               IF(INT(OPERND(I,9)).EQ.10) call sysConfig%setSpectralWeights(10,1.0D0)
                OLDIF=LDIF
                LDIF=.FALSE.
                CALL SPOT1(2)
                LDIF=OLDIF
-               call sys_set_wl_weight(1,OLDSP(1))
-               call sys_set_wl_weight(2,OLDSP(2))
-               call sys_set_wl_weight(3,OLDSP(3))
-               call sys_set_wl_weight(4,OLDSP(4))
-               call sys_set_wl_weight(5,OLDSP(5))
-               call sys_set_wl_weight(6,OLDSP(6))
-               call sys_set_wl_weight(7,OLDSP(7))
-               call sys_set_wl_weight(8,OLDSP(8))
-               call sys_set_wl_weight(9,OLDSP(9))
-               call sys_set_wl_weight(10,OLDSP(10))
+               call sysConfig%setSpectralWeights(1,OLDSP(1))
+               call sysConfig%setSpectralWeights(2,OLDSP(2))
+               call sysConfig%setSpectralWeights(3,OLDSP(3))
+               call sysConfig%setSpectralWeights(4,OLDSP(4))
+               call sysConfig%setSpectralWeights(5,OLDSP(5))
+               call sysConfig%setSpectralWeights(6,OLDSP(6))
+               call sysConfig%setSpectralWeights(7,OLDSP(7))
+               call sysConfig%setSpectralWeights(8,OLDSP(8))
+               call sysConfig%setSpectralWeights(9,OLDSP(9))
+               call sysConfig%setSpectralWeights(10,OLDSP(10))
             END IF
             REST_KDP(1)=RESTINPT(1)
          ELSE
@@ -2736,42 +2736,41 @@ SUBROUTINE CALCPRE
                CALL COMPAP(REFERR,2)
                LDIF=OLDIF
             ELSE
-               OLDSP(1) =sys_wl_weight(1)
-               OLDSP(2) =sys_wl_weight(2)
-               OLDSP(3) =sys_wl_weight(3)
-               OLDSP(4) =sys_wl_weight(4)
-               OLDSP(5) =sys_wl_weight(5)
-               OLDSP(6) =sys_wl_weight(6)
-               OLDSP(7) =sys_wl_weight(7)
-               OLDSP(8) =sys_wl_weight(8)
-               OLDSP(9) =sys_wl_weight(9)
-               OLDSP(10)=sys_wl_weight(10)
-               SYSTEM(31:35)=0.0D0
-               SYSTEM(76:80)=0.0D0
-               IF(INT(OPERND(I,9)).EQ.1)  call sys_set_wl_weight(1,1.0D0)
-               IF(INT(OPERND(I,9)).EQ.2)  call sys_set_wl_weight(2,1.0D0)
-               IF(INT(OPERND(I,9)).EQ.3)  call sys_set_wl_weight(3,1.0D0)
-               IF(INT(OPERND(I,9)).EQ.4)  call sys_set_wl_weight(4,1.0D0)
-               IF(INT(OPERND(I,9)).EQ.5)  call sys_set_wl_weight(5,1.0D0)
-               IF(INT(OPERND(I,9)).EQ.6)  call sys_set_wl_weight(6,1.0D0)
-               IF(INT(OPERND(I,9)).EQ.7)  call sys_set_wl_weight(7,1.0D0)
-               IF(INT(OPERND(I,9)).EQ.8)  call sys_set_wl_weight(8,1.0D0)
-               IF(INT(OPERND(I,9)).EQ.9)  call sys_set_wl_weight(9,1.0D0)
-               IF(INT(OPERND(I,9)).EQ.10) call sys_set_wl_weight(10,1.0D0)
+               OLDSP(1) =sysConfig%getSpectralWeight(1)
+               OLDSP(2) =sysConfig%getSpectralWeight(2)
+               OLDSP(3) =sysConfig%getSpectralWeight(3)
+               OLDSP(4) =sysConfig%getSpectralWeight(4)
+               OLDSP(5) =sysConfig%getSpectralWeight(5)
+               OLDSP(6) =sysConfig%getSpectralWeight(6)
+               OLDSP(7) =sysConfig%getSpectralWeight(7)
+               OLDSP(8) =sysConfig%getSpectralWeight(8)
+               OLDSP(9) =sysConfig%getSpectralWeight(9)
+               OLDSP(10)=sysConfig%getSpectralWeight(10)
+               do n=1,10; call sysConfig%setSpectralWeights(n, 0.0D0); end do
+               IF(INT(OPERND(I,9)).EQ.1)  call sysConfig%setSpectralWeights(1,1.0D0)
+               IF(INT(OPERND(I,9)).EQ.2)  call sysConfig%setSpectralWeights(2,1.0D0)
+               IF(INT(OPERND(I,9)).EQ.3)  call sysConfig%setSpectralWeights(3,1.0D0)
+               IF(INT(OPERND(I,9)).EQ.4)  call sysConfig%setSpectralWeights(4,1.0D0)
+               IF(INT(OPERND(I,9)).EQ.5)  call sysConfig%setSpectralWeights(5,1.0D0)
+               IF(INT(OPERND(I,9)).EQ.6)  call sysConfig%setSpectralWeights(6,1.0D0)
+               IF(INT(OPERND(I,9)).EQ.7)  call sysConfig%setSpectralWeights(7,1.0D0)
+               IF(INT(OPERND(I,9)).EQ.8)  call sysConfig%setSpectralWeights(8,1.0D0)
+               IF(INT(OPERND(I,9)).EQ.9)  call sysConfig%setSpectralWeights(9,1.0D0)
+               IF(INT(OPERND(I,9)).EQ.10) call sysConfig%setSpectralWeights(10,1.0D0)
                OLDIF=LDIF
                LDIF=.FALSE.
                CALL COMPAP(REFERR,2)
                LDIF=OLDIF
-               call sys_set_wl_weight(1,OLDSP(1))
-               call sys_set_wl_weight(2,OLDSP(2))
-               call sys_set_wl_weight(3,OLDSP(3))
-               call sys_set_wl_weight(4,OLDSP(4))
-               call sys_set_wl_weight(5,OLDSP(5))
-               call sys_set_wl_weight(6,OLDSP(6))
-               call sys_set_wl_weight(7,OLDSP(7))
-               call sys_set_wl_weight(8,OLDSP(8))
-               call sys_set_wl_weight(9,OLDSP(9))
-               call sys_set_wl_weight(10,OLDSP(10))
+               call sysConfig%setSpectralWeights(1,OLDSP(1))
+               call sysConfig%setSpectralWeights(2,OLDSP(2))
+               call sysConfig%setSpectralWeights(3,OLDSP(3))
+               call sysConfig%setSpectralWeights(4,OLDSP(4))
+               call sysConfig%setSpectralWeights(5,OLDSP(5))
+               call sysConfig%setSpectralWeights(6,OLDSP(6))
+               call sysConfig%setSpectralWeights(7,OLDSP(7))
+               call sysConfig%setSpectralWeights(8,OLDSP(8))
+               call sysConfig%setSpectralWeights(9,OLDSP(9))
+               call sysConfig%setSpectralWeights(10,OLDSP(10))
             END IF
          ELSE
             OLDIF=LDIF
