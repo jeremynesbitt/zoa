@@ -24,3 +24,11 @@
 src/plplot_extra_ndef.fold
 CLAUDE.md
 *.bak
+
+# Byproducts written to CWD when running the test suite (CAPFNOUT/CAPGRID/DXF/WAMAP)
+/CAPFNOUT.DAT
+/CAPFNOUT.BIN
+/GRIDAPD.DAT
+/GRIDOPD.DAT
+/APMAP.DAT
+/DXF3D.DXF
