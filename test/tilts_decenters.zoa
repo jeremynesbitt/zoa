@@ -1,0 +1,17 @@
+RES osdtriplet
+! Batch 3: tilt and decenter commands with RSI/FIR verification
+STILT 2 0.5 0 0
+RSI f1 w1 0.0 0.7
+RES osdtriplet
+BTILT 2 4 0.5 0 0
+FIR
+RES osdtriplet
+! ROLL: start surf must have finite thickness predecessor; use surf 2
+ROLL 2 4 0.1 0
+RSI f1 w1 0.0 0.7
+RES osdtriplet
+! DISP: start surf must have finite thickness predecessor; use surf 2
+DISP 2 4 0.1 0 0
+FIR
+RES osdtriplet
+PIVAXIS ALL

@@ -139,6 +139,7 @@ contains
 
   ! Execute one or more semicolon- or newline-separated commands
   subroutine execute_commands(cmd_string)
+    use zoa_ui_callbacks, only: notify_replot_flush
     character(len=*), intent(in) :: cmd_string
     character(len=256) :: single_cmd
     integer :: pos, pos_semi, pos_nl, start, slen
@@ -172,6 +173,9 @@ contains
 
       ! Execute via PROCESKDP
       call PROCESKDP(trim(single_cmd))
+
+      ! Drain any pending replot so lens-modifying commands record an undo snapshot
+      call notify_replot_flush()
     end do
   end subroutine
 

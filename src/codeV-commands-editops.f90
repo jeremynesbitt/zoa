@@ -434,7 +434,7 @@ contains
         if (numTokens == 2 .AND. isInputNumber(trim(tokens(2)))) then
             optim%imp = str2real8(trim(tokens(2)))
         else
-            call zoa_emit('Error:  Expect PIM r, where r is a number', "red")
+            call zoa_emit('Error:  Expect IMP r, where r is a number', "red")
         end if
     end procedure updateOptimImprovementGoal
 
@@ -464,6 +464,11 @@ contains
         use iso_c_binding, only: c_associated
         use optimizer_ui
         use global_widgets, only: optimizer_window, my_window
+        use globals, only: HEADLESS_MODE
+        if (HEADLESS_MODE) then
+            call zoa_emit("AUTUI requires GUI", "red")
+            return
+        end if
         if (.not. c_associated(optimizer_window)) then
             call optimizer_ui_new(my_window)
         end if

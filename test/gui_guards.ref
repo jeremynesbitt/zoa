@@ -1,0 +1,11 @@
+
+Field Weights Command WTF     100     100     100 Not supported
+AUTUI requires GUI
+FANS requires GUI
+GRAOUT requires GUI
+EDI PREF requires GUI
+Field Weights Command WTF 1 1 1 Not supported
+Error:  This cmd must be entered after MTF and before GO to update value
+CHA Error: Not in update loop
+Error:  Can only set constraint in AUT loop!
+"VIEOVER" SETS VIE OVERLAY "ON" FOR THE NEXT "VIE"

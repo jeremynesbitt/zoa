@@ -196,7 +196,13 @@ contains
     end subroutine
 
     subroutine wrap_FANS(iptStr)
+        use GLOBALS, only: HEADLESS_MODE
+        use zoa_output, only: zoa_emit
         character(len=*) :: iptStr
+        if (HEADLESS_MODE) then
+            call zoa_emit("FANS requires GUI", "red")
+            return
+        end if
         call RIMS
     end subroutine
 
@@ -223,7 +229,13 @@ contains
 ! wrap_FANFIELD removed (FANFOV was in PLOTCAD8_fan, now deleted)
 
     subroutine wrap_GRAOUT(iptStr)
+        use GLOBALS, only: HEADLESS_MODE
+        use zoa_output, only: zoa_emit
         character(len=*) :: iptStr
+        if (HEADLESS_MODE) then
+            call zoa_emit("GRAOUT requires GUI", "red")
+            return
+        end if
         call PPLOTT
     end subroutine
 

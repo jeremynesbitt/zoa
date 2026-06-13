@@ -1,0 +1,26 @@
+RES osdtriplet
+! ---- GUI-only commands: each emits a "requires GUI" error in headless mode ----
+AUTUI
+FANS
+GRAOUT
+! ---- EDI PREF: requires GUI subcommand ----
+EDI PREF
+! ---- TERM: silent no-op in headless mode ----
+TERM
+! ---- WTF 1 1 1: field-weight stub (logs "not supported") ----
+WTF 1 1 1
+! ---- MFR 200 outside a plot loop: error golden ----
+MFR 200
+! ---- CHA 1 outside UPD CON loop: error golden ----
+CHA 1
+! ---- SAS = 5 outside AUT loop: constraint-context error ----
+SAS = 5
+! ---- NBR ELE S1..3 outside VIE loop: silently ignored (no VIE context) ----
+NBR ELE S1..3
+! ---- VIEOVER: query prints help, bare form sets the overlay flag (no VIE render) ----
+VIEOVER ?
+VIEOVER
+! ---- FUNNAME: no-op stub, silent ----
+FUNNAME
+! ---- inline comment: file handler strips it; no command executed ----
+! this line is a comment and produces no output

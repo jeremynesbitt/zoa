@@ -444,6 +444,56 @@ test('debug_rmd', test_runner,
             meson.project_source_root() / 'test/debug_rmd.ref'],
      timeout: 120, is_parallel: false)
 
+test('undo_redo', test_runner,
+     args: [meson.project_source_root() / 'test/undo_redo.zoa',
+            meson.project_source_root() / 'test/undo_redo.ref'],
+     timeout: 120, is_parallel: false)
+
+test('queries_basic', test_runner,
+     args: [meson.project_source_root() / 'test/queries_basic.zoa',
+            meson.project_source_root() / 'test/queries_basic.ref'],
+     timeout: 120, is_parallel: false)
+
+test('lens_edit', test_runner,
+     args: [meson.project_source_root() / 'test/lens_edit.zoa',
+            meson.project_source_root() / 'test/lens_edit.ref'],
+     timeout: 120, is_parallel: false)
+
+test('tilts_decenters', test_runner,
+     args: [meson.project_source_root() / 'test/tilts_decenters.zoa',
+            meson.project_source_root() / 'test/tilts_decenters.ref'],
+     timeout: 120, is_parallel: false)
+
+test('wavefront_zern', test_runner,
+     args: [meson.project_source_root() / 'test/wavefront_zern.zoa',
+            meson.project_source_root() / 'test/wavefront_zern.ref'],
+     timeout: 120, is_parallel: false)
+
+test('optim_extra', test_runner,
+     args: [meson.project_source_root() / 'test/optim_extra.zoa',
+            meson.project_source_root() / 'test/optim_extra.ref'],
+     timeout: 120, is_parallel: false)
+
+test('plot_modifiers', test_runner,
+     args: [meson.project_source_root() / 'test/plot_modifiers.zoa',
+            meson.project_source_root() / 'test/plot_modifiers.ref'],
+     timeout: 120, is_parallel: false)
+
+test('gui_guards', test_runner,
+     args: [meson.project_source_root() / 'test/gui_guards.zoa',
+            meson.project_source_root() / 'test/gui_guards.ref'],
+     timeout: 120, is_parallel: false)
+
+test('files_misc', test_runner,
+     args: [meson.project_source_root() / 'test/files_misc.zoa',
+            meson.project_source_root() / 'test/files_misc.ref'],
+     timeout: 120, is_parallel: false)
+
+test('misc_commands', test_runner,
+     args: [meson.project_source_root() / 'test/misc_commands.zoa',
+            meson.project_source_root() / 'test/misc_commands.ref'],
+     timeout: 120, is_parallel: false)
+
 
 if system == 'darwin'
   MacOSDir = meson.project_source_root() / 'MacOS'

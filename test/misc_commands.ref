@@ -1,0 +1,68 @@
+
+Field Weights Command WTF     100     100     100 Not supported
+Calling check_clear_apetures
+
+       Y-FAN     X-FAN
+  1  5.87276     4.90032
+  2  5.25410     4.55139
+STO  3.91223     3.91223
+  4  4.00735     3.71811
+  5  5.27857     3.85331
+  6  5.60515     3.81540
+IMG  8.82693     0.02265
+
+SURFACE "SPECIFIC GRAVITY (gm/cc)" VALUES
+
+SURF     "SPGR" VALUE (IN CURRENT LENS UNITS)
+  0             0.0000000
+  1             0.0000000
+  2             0.0000000
+  3             0.0000000
+  4             0.0000000
+  5             0.0000000
+  6             0.0000000
+  7             0.0000000
+  2             0.0000000
+NO MIRROR THICKNESS DATA
+"RAYS" IS CURRENTLY SET TO COLOR NUMBER  12
+ CURRENT SPOT DIAGRAM DETECTOR SETTINGS:
+ DETECTOR WILL NOT BE DRAWN
+RSI fields are 1
+RSI wavelengths are 1
+Relative X Aperture is 0.00000
+Relative Y Aperture is 0.70000
+RSI fields are 1
+RSI wavelengths are 1
+Relative X Aperture is 0.00000
+Relative Y Aperture is 0.70000
+"FINDGLAS" SEARCHES FOR GLASSES CLOSE TO A "MODEL" GLASS
+RE-ENTER COMMAND
+GLASS IS NOT A "MODEL" GLASS
+"FINDGLAS" TOOK NO ACTION
+  #   NAME   TYPE        TARGET
+  -   ----   ----   -----------
+  1   EFL    =   50.00000
+All constraints removed
+  #   NAME   TYPE        TARGET
+  -   ----   ----   -----------
+  1   EFL    =   60.00000
+All constraints removed
+ENTRANCE PUPIL
+DIA       10.0000
+THI       6.7224
+INFINITE CONJUGATES
+EFL       50.0107
+BFL       38.5152
+FFL       -44.5831
+FNO       5.0011
+IMG DIS   38.5152
+OAL       16.6000
+PARAXIAL IMAGE
+ HT      8.8182
+ANG       10.3644 DEG
+ENTRANCE PUPIL
+DIA       10.0000
+THI       6.7224
+EXIT PUPIL
+DIA       9.7476
+THI       -10.2334

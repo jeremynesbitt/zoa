@@ -10,13 +10,35 @@ module zoa_headless
   private
   public :: zoa_headless_init
 
+  ! Tracks whether a lens-changing command has been issued since the last flush.
+  ! Mirrors the GUI's replot_deferred flag, but for headless mode.
+  logical :: lens_dirty = .false.
+
 contains
+
+  ! Called by notify_replot() when a lens-modifying command completes.
+  ! Sets the dirty flag so that the next flush call will take a snapshot.
+  subroutine headless_notify_replot()
+    lens_dirty = .true.
+  end subroutine
+
+  ! Called after each processed line (depth==1) to drain pending snapshots.
+  ! Mirrors gui_replot_flush in zzhandlers.f90: if dirty, take an undo snapshot.
+  subroutine headless_replot_flush()
+    use undo_manager, only: undo_snapshot
+    if (lens_dirty) then
+      lens_dirty = .false.
+      call undo_snapshot()
+    end if
+  end subroutine
 
   subroutine zoa_headless_init()
     use GLOBALS
     use global_widgets
     use kdp_data_types
     use zoa_file_handler, only: getZoaPath, loadPreferences, applyGlassCatalogDirFromPrefs
+    use zoa_ui_callbacks, only: zoa_set_replot_callback, zoa_set_replot_flush_callback
+    use zoa_output, only: zoa_set_replot_flush_hook
     implicit none
 
     HEADLESS_MODE = .TRUE.
@@ -44,6 +66,14 @@ contains
 
     ! Sync modern data structures with legacy COMMON block state
     call refreshLensDataStruct()
+
+    ! Register headless replot/flush callbacks so that lens-modifying commands
+    ! trigger undo snapshots (mirrors GUI's gui_replot / gui_replot_flush in zzhandlers.f90).
+    call zoa_set_replot_callback(headless_notify_replot)
+    call zoa_set_replot_flush_callback(headless_replot_flush)
+    ! Also register the low-level hook used by zoa_file_handler's process_zoa_file
+    ! (which cannot use zoa_ui_callbacks directly due to a module cycle).
+    call zoa_set_replot_flush_hook(headless_replot_flush)
 
   end subroutine
 

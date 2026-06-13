@@ -1,0 +1,39 @@
+RES osdtriplet
+! ---- RIM + SETWV / SETDENS / SSI + GO ----
+RIM
+SETWV 1
+SETDENS 32
+SSI 50
+GO
+! ---- MTF + MFR / IFR + GO ----
+MTF
+MFR 200
+IFR 5
+GO
+! ---- PLTRMS + RMSDATA + GO ----
+PLTRMS
+RMSDATA WAVE
+GO
+! ---- ZERN_TST + SETZERNC + GO ----
+ZERN_TST
+SETZERNC 4..8
+GO
+! ---- SPDSSI + SPO + GO ----
+SPDSSI 5.0
+SPO
+GO
+! ---- GREYSPOT + SPO + GO ----
+GREYSPOT 2
+SPO
+GO
+! ---- XOFF / YOFF / VIEOFF + VIE + GO ----
+! Note: VIEOVER (overlay flag) is tested standalone in gui_guards.zoa; a VIE
+! that actually consumes the overlay crashes headlessly (no NEUTRAL.DAT buffer).
+XOFF 10
+YOFF 10
+VIEOFF 0 0 0
+VIE ; GO
+! ---- FAN at base level → deterministic error golden ----
+FAN
+! ---- TFMOTION reports current focus-motion settings ----
+TFMOTION

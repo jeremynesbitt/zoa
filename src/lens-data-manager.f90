@@ -645,23 +645,37 @@ module mod_lens_data_manager
     end function
 
 
-    subroutine genLDMSaveOutputText(self, fID)
+    subroutine genLDMSaveOutputText(self, fID, skip_alens_refresh)
         use type_utils, only: real2str, blankStr, int2str
         use zoa_file_handler, only: genOutputLineWithSpacing
         use mod_surface, only: surf_curvature, surf_radius, surf_thickness, surf_conic
         class(lens_data_manager) :: self
         integer :: fID
+        ! skip_alens_refresh: when .TRUE., skip the load_surfaces_from_alens() call.
+        ! Used by undo_manager's write_snapshot to avoid reallocating ldm%surfaces
+        ! mid-execution, which can cause check_clear_apertures (called by the next EOS)
+        ! to run with freshly-zeroed surfaces and produce a corrupted PIM solve.
+        logical, optional, intent(in) :: skip_alens_refresh
         integer :: ii, jj
         character(len=1024) :: strSurfLine, strTHI, strRdy
         character(len=4) :: surfStr
         !character(len=80) :: glassStr
         logical :: rdmFlag
+        logical :: skipRefresh
 
         rdmFlag = .TRUE.
 
         ! Refresh the typed surfaces from current ALENS so the clap data read below
         ! reflects any CIR/CLAP commands issued since the last lens load.
-        call self%load_surfaces_from_alens()
+        ! Skipped when called from write_snapshot (skip_alens_refresh=.TRUE.) to
+        ! prevent mid-execution ALENS corruption via check_clear_apertures.
+        ! NOTE: Fortran .and. does not short-circuit, so an absent optional must
+        ! not appear in the same expression as its present() check.
+        skipRefresh = .FALSE.
+        if (present(skip_alens_refresh)) skipRefresh = skip_alens_refresh
+        if (.not. skipRefresh) then
+            call self%load_surfaces_from_alens()
+        end if
 
         ! Do Object SUrface
         strSurfLine = 'SO'

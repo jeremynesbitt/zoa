@@ -43,15 +43,28 @@ contains
   ! Write the full current lens to the ring file for `seq`. Mirrors execSAV;
   ! intentionally omits plot-tab commands.
   subroutine write_snapshot(seq)
+    use global_widgets, only: curr_lens_data
     integer, intent(in) :: seq
     integer :: fID, ios
+    ! refreshLensDataStruct is a standalone subroutine (TSTKDP.f90); declare
+    ! its interface here to avoid a module dependency.
+    interface
+      subroutine refreshLensDataStruct()
+      end subroutine
+    end interface
     ! Open directly (status='replace') rather than via open_file_to_sav_lens so
     ! snapshots are silent -- that helper emits "FUll Path is ..." to the terminal.
+    ! Refresh curr_lens_data before writing so the genSaveOutputText loop bounds
+    ! are correct even if the lens changed since the last GUI refresh call.
+    call refreshLensDataStruct()
     open(newunit=fID, file=trim(getTempDirectory())//trim(slot_name(seq)), &
          status='replace', action='write', iostat=ios)
     if (ios == 0) then
       call sysConfig%genSaveOutputText(fID)
-      call ldm%genSaveOutputText(fID)
+      ! Pass skip_alens_refresh=.TRUE. to avoid calling load_surfaces_from_alens()
+      ! mid-execution: that reallocation causes the next EOS's check_clear_apertures
+      ! to run with zeroed ldm%surfaces and produce a corrupted PIM solve result.
+      call ldm%genSaveOutputText(fID, .TRUE.)
       call optim%genSaveOutputText(fID)
       call zoom_genSaveOutputText(fID)
       close(fID)

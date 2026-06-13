@@ -1,0 +1,44 @@
+RES osdtriplet
+! Batch 2: set-then-query with SUR SA / FIR checkpoints
+INS S3
+SUR SA
+CUY S2 0.05
+SUR SA
+GLA S2 N-BK7
+SUR SA
+ASP S2
+K S2 -1.0
+SUR SA
+SPH S2
+SLB S2 FRONT
+STO S3
+FIR
+STOP S4
+FIR
+REF 1
+DIM M
+WTW 1 1 1
+FIR
+SCA EFL 50
+FIR
+XAN 0 0 0
+FIR
+YOB 0 3 5
+FIR
+XOB 0 0 0
+FIR
+YIM 0 5 10
+FIR
+SI 0 5.0
+SUR SA
+KC S2 0
+SUR SA
+KC S2 100
+SUR SA
+FLY S1..5
+SUR SA
+FLIP 1 5
+SUR SA
+! GCONVERT is destructive (converts glass to model glass) - keep last
+GCONVERT 2
+SUR SA

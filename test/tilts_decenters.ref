@@ -1,0 +1,111 @@
+
+Field Weights Command WTF     100     100     100 Not supported
+
+
+
+RSI fields are 1
+RSI wavelengths are 1
+Relative X Aperture is 0.00000
+Relative Y Aperture is 0.70000
+RAYTRACE DATA (XZ AND YZ-PLANE) - (CFG # 1)
+ANGULAR OUTPUT MODE IS DEGREES
+SLOPES/ANGLES  MEASURED WITH RESPECT TO THE Z-AXIS
+
+SURF      X              Y              Z             XANG           YANG
+  0    0.00000       -0.00000        0.00000        0.00000       0.199502E-10
+  1    0.00000        3.48196       0.409732        0.00000       -5.18635
+  2    0.00000        3.20413        0.00000        0.00000       -9.23909
+  3    0.00000        2.73856      -0.100049        0.00000       -3.75060
+  4    0.00000        2.61758       0.245453        0.00000       0.612994
+  5    0.00000        2.66921       0.709281E-01    0.00000      -0.788230
+  6    0.00000        2.62354      -0.109864        0.00000       -4.27618
+  7    0.00000      -0.264548        0.00000        0.00000       -4.27618
+
+Field Weights Command WTF     100     100     100 Not supported
+GLOBAL RAY TRACING HAS BEEN SHUT OFF IN PREPARATION
+FOR RAY PLOTTING
+
+
+
+ENTRANCE PUPIL
+DIA       10.0000
+THI       6.7224
+INFINITE CONJUGATES
+EFL       50.0107
+BFL       38.5152
+FFL       -44.5831
+FNO       5.0011
+IMG DIS   38.5152
+OAL       16.6000
+PARAXIAL IMAGE
+ HT      8.8197
+ANG       10.3655 DEG
+ENTRANCE PUPIL
+DIA       10.0000
+THI       6.7224
+EXIT PUPIL
+DIA       9.7476
+THI       -10.2334
+
+Field Weights Command WTF     100     100     100 Not supported
+
+
+
+
+RSI fields are 1
+RSI wavelengths are 1
+Relative X Aperture is 0.00000
+Relative Y Aperture is 0.70000
+RAYTRACE DATA (XZ AND YZ-PLANE) - (CFG # 1)
+ANGULAR OUTPUT MODE IS DEGREES
+SLOPES/ANGLES  MEASURED WITH RESPECT TO THE Z-AXIS
+
+SURF      X              Y              Z             XANG           YANG
+  0    0.00000       -0.00000        0.00000        0.00000       0.198167E-10
+  1    0.00000        3.45867       0.404193        0.00000       -5.15037
+  2    0.00000        3.17963        0.00000        0.00000       -8.36416
+  3    0.00000        2.73856      -0.100049        0.00000       -3.52274
+  4    0.00000        2.62486       0.246833        0.00000        1.00620
+  5   0.100000        2.70963       0.731938E-01  -0.437180E-01  -0.563628
+  6   0.974727E-01    2.67704      -0.114550      -0.182512       -3.97155
+  7  -0.255807E-01  -0.493447E-02    0.00000      -0.182512       -3.97155
+
+Field Weights Command WTF     100     100     100 Not supported
+GLOBAL RAY TRACING HAS BEEN SHUT OFF IN PREPARATION
+FOR RAY PLOTTING
+
+
+
+
+ENTRANCE PUPIL
+DIA       10.0000
+THI       6.7224
+INFINITE CONJUGATES
+EFL       50.0107
+BFL       38.5152
+FFL       -44.5831
+FNO       5.0011
+IMG DIS   38.5152
+OAL       16.6000
+PARAXIAL IMAGE
+ HT      8.8182
+ANG       10.3641 DEG
+ENTRANCE PUPIL
+DIA       10.0000
+THI       6.7224
+EXIT PUPIL
+DIA       9.7476
+THI       -10.2334
+
+Field Weights Command WTF     100     100     100 Not supported
+SURFACE PIVAXIS DATA
+
+SURF     PIVAXIS DEFINITION
+  0           VERTEX
+  1           VERTEX
+  2           VERTEX
+  3           VERTEX
+  4           VERTEX
+  5           VERTEX
+  6           VERTEX
+  7           VERTEX

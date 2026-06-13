@@ -18,6 +18,11 @@ module zoa_file_handler
       integer, parameter :: ID_OS_MAC = 1
       integer, parameter :: ID_OS_LINUX = 2
 
+      ! Recursion depth counter for process_zoa_file: incremented on open,
+      ! decremented on close.  Gating headless per-line flushes on depth==1
+      ! prevents mid-file snapshots during nested RES loads.
+      integer :: zoa_file_depth = 0
+
       interface
 
       function get_macos_bundle_dir() bind(c)
@@ -273,6 +278,8 @@ module zoa_file_handler
       end subroutine
 
       subroutine process_zoa_file(fileName, printOnly)
+        use GLOBALS, only: HEADLESS_MODE
+        use zoa_output, only: zoa_invoke_replot_flush
         implicit none
         character(len=*) :: fileName
         logical, optional :: printOnly
@@ -282,12 +289,14 @@ module zoa_file_handler
         open(newunit=iu, file=trim(fileName), iostat=ios)
         if ( ios /= 0 ) stop "Error opening file "
 
+        zoa_file_depth = zoa_file_depth + 1
         n = 0
 
         do
             read(iu, '(A)', iostat=ios) line
             if (ios /= 0) then
               close(iu)
+              zoa_file_depth = zoa_file_depth - 1
               return
             end if
 
@@ -314,8 +323,12 @@ module zoa_file_handler
               call PROCESKDP(trim(line))
             end if
             n = n + 1
-        end do      
-        
+
+            ! After each processed line at top level, drain any pending replot so
+            ! that lens-modifying commands record an undo snapshot before the next
+            ! command runs.  Gated on HEADLESS_MODE so the GUI load path is unchanged.
+            if (zoa_file_depth == 1 .and. HEADLESS_MODE) call zoa_invoke_replot_flush()
+        end do
 
       end subroutine
 

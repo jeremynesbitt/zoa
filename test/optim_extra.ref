@@ -1,0 +1,175 @@
+
+Field Weights Command WTF     100     100     100 Not supported
+                                                          l
+CYCLE NUMBER 0
+   ERROR FUNCTION = 0.00000
+          RDY          THI     RMD          GLA          CCY     THC     GLC
+OBJ:    INFINITY    INFINITY                              100     100
+001:    15.00000    3.50000               N-SK16_SCH2000 100     100
+002:    INFINITY    3.10000                              0       100
+STO:    -37.530    1.49990               N-F2_SCH2000   100     0
+004:    14.08000    5.00000                              100     100
+005:    50.26000    3.50000               N-SK16_SCH2000 100     100
+006:    -31.380    38.51534                              100     100
+IMG:    INFINITY    0.00000                              100     100
+                                                          l
+Const.   Target              Value              diff
+TAS    0.0100000000000000   0.0503008893339417   0.0403008893339417
+TCO    0.0050000000000000   0.0011411611822186  -0.0038588388177814
+                                                          l
+CYCLE NUMBER 1
+   ERROR FUNCTION = 0.00000
+          RDY          THI     RMD          GLA          CCY     THC     GLC
+OBJ:    INFINITY    INFINITY                              100     100
+001:    15.00000    3.50000               N-SK16_SCH2000 100     100
+002:    2127.6596679687500    3.10000                              0       100
+STO:    -37.530    0.69823               N-F2_SCH2000   100     0
+004:    14.08000    5.00000                              100     100
+005:    50.26000    3.50000               N-SK16_SCH2000 100     100
+006:    -31.380    39.51848                              100     100
+IMG:    INFINITY    0.00000                              100     100
+                                                          l
+Const.   Target              Value              diff
+TAS    0.0100000000000000   0.0295553671948088   0.0195553671948088
+TCO    0.0050000000000000   0.0028971772387223  -0.0021028227612777
+                                                          l
+CYCLE NUMBER 2
+   ERROR FUNCTION = 0.00000
+          RDY          THI     RMD          GLA          CCY     THC     GLC
+OBJ:    INFINITY    INFINITY                              100     100
+001:    15.00000    3.50000               N-SK16_SCH2000 100     100
+002:    1612.9031982421875    3.10000                              0       100
+STO:    -37.530    0.34743               N-F2_SCH2000   100     0
+004:    14.08000    5.00000                              100     100
+005:    50.26000    3.50000               N-SK16_SCH2000 100     100
+006:    -31.380    39.95904                              100     100
+IMG:    INFINITY    0.00000                              100     100
+                                                          l
+Const.   Target              Value              diff
+TAS    0.0100000000000000   0.0196010514909103   0.0096010514909103
+TCO    0.0050000000000000   0.0039690699870568  -0.0010309300129432
+                                                          l
+CYCLE NUMBER 3
+   ERROR FUNCTION = 0.00000
+          RDY          THI     RMD          GLA          CCY     THC     GLC
+OBJ:    INFINITY    INFINITY                              100     100
+001:    15.00000    3.50000               N-SK16_SCH2000 100     100
+002:    1449.2753906250000    3.10000                              0       100
+STO:    -37.530    0.18111               N-F2_SCH2000   100     0
+004:    14.08000    5.00000                              100     100
+005:    50.26000    3.50000               N-SK16_SCH2000 100     100
+006:    -31.380    40.16827                              100     100
+IMG:    INFINITY    0.00000                              100     100
+                                                          l
+Const.   Target              Value              diff
+TAS    0.0100000000000000   0.0147962107242198   0.0047962107242198
+TCO    0.0050000000000000   0.0044607099245819  -0.0005392900754181
+                                                          l
+CYCLE NUMBER 4
+   ERROR FUNCTION = 0.00000
+          RDY          THI     RMD          GLA          CCY     THC     GLC
+OBJ:    INFINITY    INFINITY                              100     100
+001:    15.00000    3.50000               N-SK16_SCH2000 100     100
+002:    1449.2753906250000    3.10000                              0       100
+STO:    -37.530    0.18111               N-F2_SCH2000   100     0
+004:    14.08000    5.00000                              100     100
+005:    50.26000    3.50000               N-SK16_SCH2000 100     100
+006:    -31.380    40.16827                              100     100
+IMG:    INFINITY    0.00000                              100     100
+                                                          l
+Const.   Target              Value              diff
+TAS    0.0100000000000000   0.0147962107242198   0.0047962107242198
+TCO    0.0050000000000000   0.0044607099245819  -0.0005392900754181
+  #   NAME   TYPE        TARGET
+  -   ----   ----   -----------
+  1   TAS    =   0.01000
+  2   TCO    =   0.00500
+All constraints removed
+No constraints defined
+NO AUTOFUNC FUNCTION IS CURRENTLY SPECIFIED
+TRACING        256 RAYS AT WAVELENGTH 1
+ CAPFN RAY TRACING COMPLETED
+ PERFORMING "CAPFN" CALCULATIONS...
+
+    WEIGHT CALCULATION
+    FROM SURFACE # =   1
+      TO SURFACE # =   6
+              COST =     0.00000     Cost Units
+
+    WEIGHT CALCULATION
+    FROM SURFACE # =   1
+      TO SURFACE # =   6
+     MASS (WEIGHT) =     0.00000     Kgs
+NO PRICE DATA
+SURF   7 :NO DEFORMABLE SURFACE DATA
+ NO "AUTO" DATA EXISTS TO STORE
+ NO DATA WAS WRITTEN TO THE "AUTO.DAT" FILE
+ NO "AUTO.DAT" FILE EXISTS TO BE READ
+ NO "AUTO" DATA WAS RELOADED
+ THE NEW FOCAL LENGTH IS =   35.3553
+  INPUT (X) DISTANCE WAS =  -50.0000
+ INPUT (X`) DISTANCE WAS =   25.0000
+         THE NEW (F`) IS =   41.6667
+  INPUT (X) DISTANCE WAS =  -50.0000
+ INPUT (X`) DISTANCE WAS =   25.0000
+           INPUT (F) WAS =   30.0000
+   THE NEW FOCAL LENGTH IS =   66.6667
+ INPUT OBJECT DISTANCE WAS =  -200.000
+  INPUT IMAGE DISTANCE WAS =   50.0000
+ENTRANCE PUPIL
+DIA       10.0000
+THI       6.7191
+INFINITE CONJUGATES
+EFL       50.2209
+BFL       40.1683
+FFL       -44.6098
+FNO       5.0221
+IMG DIS   40.1683
+OAL       15.2811
+PARAXIAL IMAGE
+ HT      8.8553
+ANG       10.3264 DEG
+ENTRANCE PUPIL
+DIA       10.0000
+THI       6.7191
+EXIT PUPIL
+DIA       9.7835
+THI       -8.9652
+ENTRANCE PUPIL
+DIA       10.0000
+THI       6.7191
+INFINITE CONJUGATES
+EFL       50.2209
+BFL       40.1683
+FFL       -44.6098
+FNO       5.0221
+IMG DIS   40.1683
+OAL       15.2811
+PARAXIAL IMAGE
+ HT      8.8553
+ANG       10.3264 DEG
+ENTRANCE PUPIL
+DIA       10.0000
+THI       6.7191
+EXIT PUPIL
+DIA       9.7835
+THI       -8.9652
+ENTRANCE PUPIL
+DIA       10.0000
+THI       6.7191
+INFINITE CONJUGATES
+EFL       50.2209
+BFL       40.1683
+FFL       -44.6098
+FNO       5.0221
+IMG DIS   40.1683
+OAL       15.2811
+PARAXIAL IMAGE
+ HT      8.8553
+ANG       10.3264 DEG
+ENTRANCE PUPIL
+DIA       10.0000
+THI       6.7191
+EXIT PUPIL
+DIA       9.7835
+THI       -8.9652

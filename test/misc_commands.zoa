@@ -1,0 +1,38 @@
+RES osdtriplet
+! ---- CLI: check-clear-apertures computes Y-FAN / X-FAN semi-aperture table ----
+CLI
+! ---- SPGR: specific gravity query (ALL surfaces, then surface 2) ----
+SPGR ALL
+SPGR 2
+! ---- THM: mirror blank thickness (all-refractive osdtriplet → no data) ----
+THM ALL
+! ---- COLORSET: set plot color (silent) then query it back ----
+COLORSET RAYS 12
+COLORSET RAYS ?
+! ---- DET: detector settings query ----
+DET ?
+! ---- CY / CX: ray direction cosines stored to register (print * suppressed) ----
+CY f1 w1 s6 0.0 0.7
+CX f1 w1 s6 0.0 0.7
+! ---- FINDGLAS: help text (query form) then error for non-model glass ----
+FINDGLAS ?
+FINDGLAS 2 3
+! ---- TAR: target loop — add constraint and exit with GO ----
+TAR
+EFL = 50
+GO
+LCON
+DCON ALL
+! ---- UPD CON: update an existing constraint (created with TAR above) ----
+TAR
+EFL = 50
+GO
+UPD CON
+CHA 1
+EFL = 60
+GO
+LCON
+DCON ALL
+! ---- TOW: enter loop (FIR is not a zoaCmd so executes; GO not called → no GUI crash) ----
+TOW
+FIR

@@ -1,0 +1,22 @@
+RES osdtriplet
+! ---- DXF file commands ----
+! DXF NEW: initialises a new DXF session (silent; writes nothing until END)
+DXF NEW
+! DXF PROF: crashes in DXF.f90 (array out-of-bounds on empty lens geometry)
+! BROKEN: DXF PROF — runtime error at DXF.f90:112, array 'xa' index above bound
+! DXF PROF
+! DXF END: writes DXF3D.DXF to CWD (file content not goldenised; only console text)
+DXF END
+! ---- SAVESESS: BROKEN: segfaults headlessly ----
+! BROKEN: SAVESESS testsess — SIGSEGV in headless mode
+! SAVESESS testsess
+! ---- PRT: macro replay of a saved lens file (print-only mode) ----
+PRT osdtriplet
+! ---- CAPFNOUT: crashes (write-exceeds record in WAVSPOT1.f90) ----
+! BROKEN: CAPFNOUT — Fortran runtime error: Write exceeds length of DIRECT access record (WAVSPOT1.f90:577)
+! FOB 0
+! CAPFN
+! CAPFNOUT
+! ---- PRES AIR: crashes (array out-of-bounds in LDM10.f90 with surface 0) ----
+! BROKEN: PRES AIR 0 6 101325 — Fortran runtime error: Index '0' of array 'glanam' below lower bound (LDM10.f90:782)
+! PRES AIR 0 6 101325

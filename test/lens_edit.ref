@@ -1,0 +1,262 @@
+
+Field Weights Command WTF     100     100     100 Not supported
+          RDY          THI     RMD          GLA          CCY     THC     GLC
+OBJ:    INFINITY    INFINITY                              100     100
+001:    15.00000    3.50000               N-SK16_SCH2000 100     100
+002:    INFINITY    3.10000                              100     100
+003:    INFINITY    0.00000                              100     100
+STO:    -37.530    1.50000               N-F2_SCH2000   100     100
+005:    14.08000    5.00000                              100     100
+006:    50.26000    3.50000               N-SK16_SCH2000 100     100
+007:    -31.380    4.16968                              100     100
+IMG:    INFINITY    0.00000                              100     100
+          RDY          THI     RMD          GLA          CCY     THC     GLC
+OBJ:    INFINITY    INFINITY                              100     100
+001:    15.00000    3.50000               N-SK16_SCH2000 100     100
+002:    20.00000    3.10000                              100     100
+003:    INFINITY    0.00000                              100     100
+STO:    -37.530    1.50000               N-F2_SCH2000   100     100
+005:    14.08000    5.00000                              100     100
+006:    50.26000    3.50000               N-SK16_SCH2000 100     100
+007:    -31.380    4.16968                              100     100
+IMG:    INFINITY    0.00000                              100     100
+          RDY          THI     RMD          GLA          CCY     THC     GLC
+OBJ:    INFINITY    INFINITY                              100     100
+001:    15.00000    3.50000               N-SK16_SCH2000 100     100
+002:    20.00000    3.10000               N-BK7_SCH2000  100     100
+003:    INFINITY    0.00000                              100     100
+STO:    -37.530    1.50000               N-F2_SCH2000   100     100
+005:    14.08000    5.00000                              100     100
+006:    50.26000    3.50000               N-SK16_SCH2000 100     100
+007:    -31.380    2.54167                              100     100
+IMG:    INFINITY    0.00000                              100     100
+          RDY          THI     RMD          GLA          CCY     THC     GLC
+OBJ:    INFINITY    INFINITY                              100     100
+001:    15.00000    3.50000               N-SK16_SCH2000 100     100
+002:    20.00000    3.10000               N-BK7_SCH2000  100     100
+003:    INFINITY    0.00000                              100     100
+STO:    -37.530    1.50000               N-F2_SCH2000   100     100
+005:    14.08000    5.00000                              100     100
+006:    50.26000    3.50000               N-SK16_SCH2000 100     100
+007:    -31.380    57.77952                              100     100
+IMG:    INFINITY    0.00000                              100     100
+___
+ASPHERES
+# 2 K -1.00000
+ENTRANCE PUPIL
+DIA       10.0000
+THI       5.0571
+INFINITE CONJUGATES
+EFL       65.3218
+BFL       57.7795
+FFL       -57.6801
+FNO       6.5322
+IMG DIS   57.7795
+OAL       16.6000
+PARAXIAL IMAGE
+ HT      11.5180
+ANG       9.7030 DEG
+ENTRANCE PUPIL
+DIA       10.0000
+THI       5.0571
+EXIT PUPIL
+DIA       10.4120
+THI       -10.2334
+ENTRANCE PUPIL
+DIA       10.0000
+THI       5.0571
+INFINITE CONJUGATES
+EFL       65.3218
+BFL       57.7795
+FFL       -57.6801
+FNO       6.5322
+IMG DIS   57.7795
+OAL       16.6000
+PARAXIAL IMAGE
+ HT      11.5180
+ANG       9.7030 DEG
+ENTRANCE PUPIL
+DIA       10.0000
+THI       5.0571
+EXIT PUPIL
+DIA       10.4120
+THI       -10.2334
+ENTRANCE PUPIL
+DIA       10.0000
+THI       5.0571
+INFINITE CONJUGATES
+EFL       65.3218
+BFL       57.7795
+FFL       -57.6801
+FNO       6.5322
+IMG DIS   57.7795
+OAL       16.6000
+PARAXIAL IMAGE
+ HT      11.5180
+ANG       9.7030 DEG
+ENTRANCE PUPIL
+DIA       10.0000
+THI       5.0571
+EXIT PUPIL
+DIA       10.4120
+THI       -10.2334
+ENTRANCE PUPIL
+DIA       7.6544
+THI       3.7829
+INFINITE CONJUGATES
+EFL       51.1863
+BFL       47.4129
+FFL       -43.8302
+FNO       6.6872
+IMG DIS   66.5212
+OAL       12.7063
+PARAXIAL IMAGE
+ HT      12.6630
+ANG       9.8187 DEG
+ENTRANCE PUPIL
+DIA       7.6544
+THI       3.7829
+EXIT PUPIL
+DIA       8.2528
+THI       -7.7748
+
+
+ENTRANCE PUPIL
+DIA       7.6544
+THI       3.7829
+INFINITE CONJUGATES
+EFL       51.1863
+BFL       47.4129
+FFL       -43.8302
+FNO       6.6872
+IMG DIS   66.5212
+OAL       12.7063
+PARAXIAL IMAGE
+ HT      12.6630
+ANG       9.8187 DEG
+ENTRANCE PUPIL
+DIA       7.6544
+THI       3.7829
+EXIT PUPIL
+DIA       8.2528
+THI       -7.7748
+
+ENTRANCE PUPIL
+DIA       7.6544
+THI       3.7829
+INFINITE CONJUGATES
+EFL       51.1863
+BFL       47.4129
+FFL       -43.8302
+FNO       6.6872
+IMG DIS   66.5212
+OAL       12.7063
+PARAXIAL IMAGE
+ HT      -0.0000
+ANG       -0.0000 DEG
+ENTRANCE PUPIL
+DIA       7.6544
+THI       3.7829
+EXIT PUPIL
+DIA       8.2528
+THI       -7.7748
+
+ENTRANCE PUPIL
+DIA       7.6544
+THI       3.7829
+INFINITE CONJUGATES
+EFL       51.1863
+BFL       47.4129
+FFL       -43.8302
+FNO       6.6872
+IMG DIS   66.5212
+OAL       12.7063
+PARAXIAL IMAGE
+ HT      -0.0000
+ANG       -0.0000 DEG
+ENTRANCE PUPIL
+DIA       7.6544
+THI       3.7829
+EXIT PUPIL
+DIA       8.2528
+THI       -7.7748
+ENTRANCE PUPIL
+DIA       7.6544
+THI       3.7829
+INFINITE CONJUGATES
+EFL       51.1863
+BFL       47.4129
+FFL       -43.8302
+FNO       6.6872
+IMG DIS   66.5212
+OAL       12.7063
+PARAXIAL IMAGE
+ HT      -0.0000
+ANG       -0.0000 DEG
+ENTRANCE PUPIL
+DIA       7.6544
+THI       3.7829
+EXIT PUPIL
+DIA       8.2528
+THI       -7.7748
+          RDY          THI     RMD          GLA          CCY     THC     GLC
+OBJ:    INFINITY    INFINITY                              100     100
+001:    11.48162    2.67905               N-SK16_SCH2000 100     100
+002:    15.30883    2.37287               N-BK7_SCH2000  100     100
+003:    INFINITY    0.00000                              100     100
+STO:    -28.727    1.14816               N-F2_SCH2000   100     100
+005:    10.77742    3.82721                              100     100
+006:    38.47109    2.67905               N-SK16_SCH2000 100     100
+007:    -24.020    66.52120                              100     100
+IMG:    INFINITY    5.00000                              100     100
+          RDY          THI     RMD          GLA          CCY     THC     GLC
+OBJ:    INFINITY    INFINITY                              100     100
+001:    11.48162    2.67905               N-SK16_SCH2000 100     100
+002:    15.30883    2.37287               N-BK7_SCH2000  100     100
+003:    INFINITY    0.00000                              100     100
+STO:    -28.727    1.14816               N-F2_SCH2000   100     100
+005:    10.77742    3.82721                              100     100
+006:    38.47109    2.67905               N-SK16_SCH2000 100     100
+007:    -24.020    66.52120                              100     100
+IMG:    INFINITY    5.00000                              100     100
+          RDY          THI     RMD          GLA          CCY     THC     GLC
+OBJ:    INFINITY    INFINITY                              100     100
+001:    11.48162    2.67905               N-SK16_SCH2000 100     100
+002:    15.30883    2.37287               N-BK7_SCH2000  100     100
+003:    INFINITY    0.00000                              100     100
+STO:    -28.727    1.14816               N-F2_SCH2000   100     100
+005:    10.77742    3.82721                              100     100
+006:    38.47109    2.67905               N-SK16_SCH2000 100     100
+007:    -24.020    66.52120                              100     100
+IMG:    INFINITY    5.00000                              100     100
+          RDY          THI     RMD          GLA          CCY     THC     GLC
+OBJ:    INFINITY    INFINITY                              100     100
+001:    -10.777    1.14816               N-F2_SCH2000   100     100
+STO:    28.72702    0.00000                              100     100
+003:    INFINITY    2.37287               N-BK7_SCH2000  100     100
+004:    -15.309    2.67905               N-SK16_SCH2000 100     100
+005:    -11.482    3.82721                              100     100
+006:    38.47109    2.67905               N-SK16_SCH2000 100     100
+007:    -24.020    532.13378                              100     100
+IMG:    INFINITY    5.00000                              100     100
+ THE REQUESTED "FLIP" HAS BEEN PERFORMED
+          RDY          THI     RMD          GLA          CCY     THC     GLC
+OBJ:    INFINITY    INFINITY                              100     100
+001:    11.48162    2.67905               N-SK16_SCH2000 100     100
+STO:    15.30883    2.37287               N-BK7_SCH2000  100     100
+003:    INFINITY    0.00000                              100     100
+004:    -28.727    1.14816               N-F2_SCH2000   100     100
+005:    10.77742    3.82721                              100     100
+006:    38.47109    2.67905               N-SK16_SCH2000 100     100
+007:    -24.020    66.52120                              100     100
+IMG:    INFINITY    5.00000                              100     100
+          RDY          THI     RMD          GLA          CCY     THC     GLC
+OBJ:    INFINITY    INFINITY                              100     100
+001:    11.48162    2.67905               N-SK16_SCH2000 100     100
+STO:    15.30883    2.37287               N-BK7_SCH2000  100     100
+003:    INFINITY    0.00000                              100     100
+004:    -28.727    0.00000               N-F2_SCH2000   100     100
+005:    10.77742    0.00000                              100     100
+006:    38.47109    0.00000               N-SK16_SCH2000 100     100
+007:    -24.020    74.99224                              100     100
+IMG:    INFINITY    0.00000                              100     100

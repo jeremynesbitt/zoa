@@ -1,0 +1,39 @@
+RES osdtriplet
+! ---- Constraint commands work inside AUT loop ----
+! Run a short optimisation: CCY S2 + THC S3 as variables, TAS as constraint.
+! LCON lists constraints after the loop; DCON ALL clears them.
+AUT
+CCY S2 0
+THC S3 0
+TAS = 0.01
+TCO = 0.005
+GO
+LCON
+DCON ALL
+LCON
+! ---- IMP sets improvement goal (silent state setter) ----
+IMP 0.001
+! ---- AUTOFUNC reports current autofunc (none defined) ----
+AUTOFUNC
+! ---- COST and WEIGHT: need CAPFN context ----
+FOB 0
+CAPFN
+COST 1 6
+WEIGHT 1 6
+! ---- PRICE ALL: no data in this lens ----
+PRICE ALL
+! ---- DEFORM: no deformable surfaces in osdtriplet ----
+DEFORM
+! ---- AUTO (file save/reload) ≠ AUT (optimizer) ----
+AUTO SAVE
+AUTO RELOAD
+! ---- INCR A 5: silently increments register A ----
+INCR A 5
+! ---- XXF P: Newtonian equation, find missing value (two given) ----
+XXF P -50 25
+! ---- XXFF P: Newtonian equation with 4 terms (find one) ----
+XXFF P -50 25 30
+! ---- OIF P: object-image-focal calculation ----
+OIF P -200 50
+! ---- DO: repeat FIR 3 times (deterministic) ----
+DO FIR 1 3
