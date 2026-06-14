@@ -9,8 +9,10 @@ SUBROUTINE QRRAY
    use mod_surface
    use DATMAI
    use command_utils, only: is_command_query
+   use zoa_output, only: zoa_emit
    use iso_fortran_env, only: real64
    IMPLICIT NONE
+   character(len=140) :: emit_tmp
 !
 !       THIS IS SUBROUTINE QRRAY.FOR. THIS SUBROUTINE IMPLEMENTS
 !       QUICK RAY TRACING AND CALLS QTRA1.FOR
@@ -37,10 +39,8 @@ SUBROUTINE QRRAY
 !     CHECK INPUT
 !
    IF(is_command_query()) THEN
-      OUTLYNE='"FOOT" CAUSES A FOOTPRINT RAY GRID TO BE TRACED'
-      CALL SHOWIT(1)
-      OUTLYNE='RE-ENTER COMMAND'
-      CALL SHOWIT(1)
+      call zoa_emit('"FOOT" CAUSES A FOOTPRINT RAY GRID TO BE TRACED', 'black')
+      call zoa_emit('RE-ENTER COMMAND', 'black')
       RETURN
    END IF
 !
@@ -101,12 +101,10 @@ SUBROUTINE QRRAY
    CALL CLOSE_FILE(94,0)
    OPEN(UNIT=94,ACCESS='DIRECT',FORM='UNFORMATTED',FILE='FOOT1.DAT',RECL=(80*NRECL),STATUS='UNKNOWN')
 !
-   OUTLYNE='BEAM FOOTPRINT DATA BEING GENERATED'
-   CALL SHOWIT(1)
-   WRITE(OUTLYNE,*)'CURRENT RAY GRID SIZE IS : ',(2*FOTLIM)+1,' x ',(2*FOTLIM)+1
-   CALL SHOWIT(1)
-   OUTLYNE='PLEASE WAIT...'
-   CALL SHOWIT(1)
+   call zoa_emit('BEAM FOOTPRINT DATA BEING GENERATED', 'black')
+   write(emit_tmp,*)'CURRENT RAY GRID SIZE IS : ',(2*FOTLIM)+1,' x ',(2*FOTLIM)+1
+   call zoa_emit(trim(emit_tmp), 'black')
+   call zoa_emit('PLEASE WAIT...', 'black')
 !
 !
 !     AREA OF ONE SQUARE ON THE REFERENCE SURFACE IS EQUAL TO 4 TIMES THE AREA
@@ -298,20 +296,21 @@ SUBROUTINE FTGRID
    use mod_surface
    use DATMAI
    use command_utils, only: is_command_query
+   use zoa_output, only: zoa_emit
    use iso_fortran_env, only: real64
    IMPLICIT NONE
 !
    INTEGER FOTLIM
+   character(len=140) :: emit_tmp
 !
    COMMON/LIMMER/FOTLIM
 !
 !     CHECK INPUT
 !
    IF(is_command_query()) THEN
-      OUTLYNE='"FOOT GRID" CAUSES A FOOTPRINT GRID SIZE TO BE SET'
-      CALL SHOWIT(1)
-      WRITE(OUTLYNE,*)'CURRENT FOOT RAY GRID  IS : ',(2*FOTLIM+1),' x ',(2*FOTLIM)+1
-      CALL SHOWIT(1)
+      call zoa_emit('"FOOT GRID" CAUSES A FOOTPRINT GRID SIZE TO BE SET', 'black')
+      write(emit_tmp,*)'CURRENT FOOT RAY GRID  IS : ',(2*FOTLIM+1),' x ',(2*FOTLIM)+1
+      call zoa_emit(trim(emit_tmp), 'black')
       RETURN
    END IF
 !
@@ -1255,13 +1254,15 @@ SUBROUTINE RAYTRA_OLD
    use mod_lens_data_manager, only: ldm
    use real_ray_trace, only: adjustLastSurface
    use type_utils, only: real2str, int2str
-   use surface_params, only: A_APTYPE, A_CLAP_P1, A_CLAP_P2, A_CLAP_P3, A_CURV, &
-      & A_IDEAL_FL, A_MULTICLAP, A_MULTICOBS, A_N2_OFFSET, A_N_OFFSET, &
+   use surface_params, only: A_CURV, &
+      & A_IDEAL_FL, A_N2_OFFSET, A_N_OFFSET, &
       & A_SURFTYPE, A_THI, A_XDEC, A_YDEC
    use mod_system, only: sys_aplanatic_aim, sys_ray_aiming, sys_ref_orient, &
       & sys_scx, sys_scy, sys_screen, sys_screen_d, &
       & sys_screen_h, sys_screen_s, sys_screen_surf, sys_telecentric, sys_wavelength
    use mod_system, only: sys_screen_excl_angle
+   use clear_apertures, only: clear_aperture
+   use zoa_output, only: zoa_emit
 !
    use DATLEN
    use mod_surface
@@ -1269,6 +1270,7 @@ SUBROUTINE RAYTRA_OLD
    use iso_fortran_env, only: real64
    IMPLICIT NONE
    integer :: jj
+   type(clear_aperture) :: cap
 !
 !       THIS IS SUBROUTINE RAYTRA.FOR. THIS SUBROUTINE IMPLEMENTS
 !       THE TRACING OF A RAY. THIS IS INITIATED
@@ -1329,8 +1331,7 @@ SUBROUTINE RAYTRA_OLD
       IF(sys_wavelength(INT(WW3)).EQ.0.0D0) THEN
          IF(MSG) THEN
             CALL RAY_FAILURE(NEWOBJ)
-            OUTLYNE='RAY CAN NOT BE TRACED AT ZERO WAVELENGTH'
-            CALL SHOWIT(1)
+            call zoa_emit('RAY CAN NOT BE TRACED AT ZERO WAVELENGTH', 'black')
          END IF
          STOPP=1
          RAYCOD(1)=12
@@ -1346,8 +1347,7 @@ SUBROUTINE RAYTRA_OLD
       IF(sys_wavelength(INT(WW3)).EQ.0.0D0) THEN
          IF(MSG) THEN
             CALL RAY_FAILURE(NEWOBJ)
-            OUTLYNE='RAY CAN NOT BE TRACED AT ZERO WAVELENGTH'
-            CALL SHOWIT(1)
+            call zoa_emit('RAY CAN NOT BE TRACED AT ZERO WAVELENGTH', 'black')
          END IF
          STOPP=1
          RAYCOD(1)=12
@@ -1442,30 +1442,31 @@ SUBROUTINE RAYTRA_OLD
 !       TELECENTRIC AIMING IS OFF
       JKX=(PXTRAX(1,NEWOBJ+1))
       JKY=(PXTRAY(1,NEWOBJ+1))
-      IF(ALENS(A_APTYPE,NEWOBJ+1).EQ.1.0D0) THEN
+      call cap%from_alens(NEWOBJ+1)
+      IF(cap%shape == 1) THEN
 !     CIRCULAR AP
-         IF(ALENS(A_CLAP_P1,NEWOBJ+1).LE.ALENS(A_CLAP_P2,NEWOBJ+1)) THEN
-            IF(DABS(ALENS(A_CLAP_P1,NEWOBJ+1)).LT.DABS(PXTRAX(1,NEWOBJ+1)))JKX=DABS(ALENS(A_CLAP_P1,NEWOBJ+1))
-            IF(DABS(ALENS(A_CLAP_P1,NEWOBJ+1)).LT.DABS(PXTRAY(1,NEWOBJ+1)))JKY=DABS(ALENS(A_CLAP_P1,NEWOBJ+1))
+         IF(cap%dim1 .LE. cap%dim2) THEN
+            IF(DABS(cap%dim1).LT.DABS(PXTRAX(1,NEWOBJ+1)))JKX=DABS(cap%dim1)
+            IF(DABS(cap%dim1).LT.DABS(PXTRAY(1,NEWOBJ+1)))JKY=DABS(cap%dim1)
          ELSE
-            IF(DABS(ALENS(A_CLAP_P2,NEWOBJ+1)).LT.DABS(PXTRAX(1,NEWOBJ+1)))JKX=DABS(ALENS(A_CLAP_P2,NEWOBJ+1))
-            IF(DABS(ALENS(A_CLAP_P2,NEWOBJ+1)).LT.DABS(PXTRAY(1,NEWOBJ+1)))JKY=DABS(ALENS(A_CLAP_P2,NEWOBJ+1))
+            IF(DABS(cap%dim2).LT.DABS(PXTRAX(1,NEWOBJ+1)))JKX=DABS(cap%dim2)
+            IF(DABS(cap%dim2).LT.DABS(PXTRAY(1,NEWOBJ+1)))JKY=DABS(cap%dim2)
          END IF
       END IF
-      IF(ALENS(A_APTYPE,NEWOBJ+1).EQ.5.0D0) THEN
+      IF(cap%shape == 5) THEN
 !     CIRCULAR AP
-         IF(DABS(ALENS(A_CLAP_P1,NEWOBJ+1)).LT.DABS(PXTRAX(1,NEWOBJ+1)))JKX=DABS(ALENS(A_CLAP_P1,NEWOBJ+1))
-         IF(DABS(ALENS(A_CLAP_P1,NEWOBJ+1)).LT.DABS(PXTRAY(1,NEWOBJ+1)))JKY=DABS(ALENS(A_CLAP_P1,NEWOBJ+1))
+         IF(DABS(cap%dim1).LT.DABS(PXTRAX(1,NEWOBJ+1)))JKX=DABS(cap%dim1)
+         IF(DABS(cap%dim1).LT.DABS(PXTRAY(1,NEWOBJ+1)))JKY=DABS(cap%dim1)
       END IF
-      IF(ALENS(A_APTYPE,NEWOBJ+1).EQ.6.0D0) THEN
+      IF(cap%shape == 6) THEN
 !     CIRCULAR AP
-         IF(DABS(ALENS(A_CLAP_P3,NEWOBJ+1)).LT.DABS(PXTRAX(1,NEWOBJ+1)))JKX=DABS(ALENS(A_CLAP_P3,NEWOBJ+1))
-         IF(DABS(ALENS(A_CLAP_P3,NEWOBJ+1)).LT.DABS(PXTRAY(1,NEWOBJ+1)))JKY=DABS(ALENS(A_CLAP_P3,NEWOBJ+1))
+         IF(DABS(cap%dim5).LT.DABS(PXTRAX(1,NEWOBJ+1)))JKX=DABS(cap%dim5)
+         IF(DABS(cap%dim5).LT.DABS(PXTRAY(1,NEWOBJ+1)))JKY=DABS(cap%dim5)
       END IF
-      IF(ALENS(A_APTYPE,NEWOBJ+1).GT.1.0D0.AND.ALENS(A_APTYPE,NEWOBJ+1).LE.4.0D0) THEN
+      IF(cap%shape .GT. 1 .AND. cap%shape .LE. 4) THEN
 !     OTHER AP
-         IF(DABS(ALENS(A_CLAP_P2,NEWOBJ+1)).LT.DABS(PXTRAX(1,NEWOBJ+1)))JKX=DABS(ALENS(A_CLAP_P2,NEWOBJ+1))
-         IF(DABS(ALENS(A_CLAP_P1,NEWOBJ+1)).LT.DABS(PXTRAY(1,NEWOBJ+1)))JKY=DABS(ALENS(A_CLAP_P1,NEWOBJ+1))
+         IF(DABS(cap%dim2).LT.DABS(PXTRAX(1,NEWOBJ+1)))JKX=DABS(cap%dim2)
+         IF(DABS(cap%dim1).LT.DABS(PXTRAY(1,NEWOBJ+1)))JKY=DABS(cap%dim1)
       END IF
    ELSE
 !       TELECENTRIC AIMING IS ON
@@ -1647,8 +1648,7 @@ SUBROUTINE RAYTRA_OLD
    IF(KKK.GT.NRAITR) THEN
       IF(MSG) THEN
          CALL RAY_FAILURE(NEWREF)
-         OUTLYNE='RAY FAILED TO CONVERGE TO REFERENCE SURFACE RAY-AIM POINT'
-         CALL SHOWIT(1)
+         call zoa_emit('RAY FAILED TO CONVERGE TO REFERENCE SURFACE RAY-AIM POINT', 'black')
       END IF
       RAYCOD(1)=3
       RAYCOD(2)=NEWREF
@@ -2108,25 +2108,20 @@ SUBROUTINE RAYTRA_OLD
 !     WE ARE PLANNING TO PLOT THE RAY
 !     SHUT OFF GLOBAL IF IT IS ON AND RE-ASSIGN THE GLSURF
             IF(GLOBE) THEN
-               OUTLYNE='GLOBAL RAY TRACING HAS BEEN SHUT OFF IN PREPARATION'
-               CALL SHOWIT(1)
-               OUTLYNE='FOR RAY PLOTTING'
-               CALL SHOWIT(1)
+               call zoa_emit('GLOBAL RAY TRACING HAS BEEN SHUT OFF IN PREPARATION', 'black')
+               call zoa_emit('FOR RAY PLOTTING', 'black')
             END IF
             GLSURF=-99
             DO IK=0,NEWIMG
                IF(DABS(ALENS(A_THI,IK)).LE.1.0D10) THEN
                   GLSURF=IK
-                  GO TO 8761
+                  EXIT
                END IF
             END DO
-8761        CONTINUE
             IF(GLSURF.EQ.-99) THEN
                GLOBE=.FALSE.
-               OUTLYNE='ALL SURFACES WERE OF INFINITE THICKNESS'
-               CALL SHOWIT(1)
-               OUTLYNE='NO OPTICAL SYSTEM PLOT COULD BE MADE'
-               CALL SHOWIT(1)
+               call zoa_emit('ALL SURFACES WERE OF INFINITE THICKNESS', 'black')
+               call zoa_emit('NO OPTICAL SYSTEM PLOT COULD BE MADE', 'black')
                RETURN
             END IF
             GLOBE=.TRUE.
@@ -2290,14 +2285,14 @@ SUBROUTINE RAYTRA_OLD
          MMSG=MSG
          IF(DABS(ALENS(A_SURFTYPE,R_I)).NE.24.0D0) THEN
 !     NO CLAP/COBS CHECK FOR TYPE 24 SPECIAL SURFACE
-            IF(INT(ALENS(A_MULTICLAP,R_I)).EQ.0.AND.INT(ALENS(A_MULTICOBS,R_I)).EQ.0) THEN
+            IF(surf_multi_clap_flag(R_I).EQ.0.AND.surf_multi_cobs_flag(R_I).EQ.0) THEN
                CALL CACHEK(0.0D0,0.0D0,0.0D0,0)
             ELSE
-               IF(INT(ALENS(A_MULTICLAP,R_I)).NE.0) THEN
-                  DO JK=1,INT(ALENS(A_MULTICLAP,R_I))
+               IF(surf_multi_clap_flag(R_I).NE.0) THEN
+                  DO JK=1,surf_multi_clap_flag(R_I)
                      IF(MMSG) THEN
                         MSG=.TRUE.
-                        IF(JK.LT.INT(ALENS(A_MULTICLAP,R_I))) MSG=.FALSE.
+                        IF(JK.LT.surf_multi_clap_flag(R_I)) MSG=.FALSE.
                      END IF
                      JK1=MULTCLAP(JK,1,R_I)
                      JK2=MULTCLAP(JK,2,R_I)
@@ -2313,8 +2308,8 @@ SUBROUTINE RAYTRA_OLD
                   END DO
 
                END IF
-               IF(INT(ALENS(A_MULTICOBS,R_I)).NE.0) THEN
-                  DO JK=1,INT(ALENS(A_MULTICOBS,R_I))
+               IF(surf_multi_cobs_flag(R_I).NE.0) THEN
+                  DO JK=1,surf_multi_cobs_flag(R_I)
                      IF(MMSG) THEN
                         MSG=.TRUE.
                      END IF
@@ -2370,10 +2365,8 @@ SUBROUTINE RAYTRA_OLD
 !     WE ARE PLANNING TO PLOT THE RAY
 !     SHUT OFF GLOBAL IF IT IS ON AND RE-ASSIGN THE GLSURF
       IF(GLOBE) THEN
-         OUTLYNE='GLOBAL RAY TRACING HAS BEEN SHUT OFF IN PREPARATION'
-         CALL SHOWIT(1)
-         OUTLYNE='FOR RAY PLOTTING'
-         CALL SHOWIT(1)
+         call zoa_emit('GLOBAL RAY TRACING HAS BEEN SHUT OFF IN PREPARATION', 'black')
+         call zoa_emit('FOR RAY PLOTTING', 'black')
       END IF
       GLSURF=-99
       glsurf_search: do I=0,NEWIMG
@@ -2385,10 +2378,8 @@ SUBROUTINE RAYTRA_OLD
 
       IF(GLSURF.EQ.-99) THEN
          GLOBE=.FALSE.
-         OUTLYNE='ALL SURFACES WERE OF INFINITE THICKNESS'
-         CALL SHOWIT(1)
-         OUTLYNE='NO OPTICAL SYSTEM PLOT COULD BE MADE'
-         CALL SHOWIT(1)
+         call zoa_emit('ALL SURFACES WERE OF INFINITE THICKNESS', 'black')
+         call zoa_emit('NO OPTICAL SYSTEM PLOT COULD BE MADE', 'black')
          RETURN
       END IF
       GLOBE=.TRUE.
@@ -2422,11 +2413,12 @@ subroutine compute_ray_energy
    use GLOBALS
    use DATLEN
    use mod_surface
-   use DATMAI, only: PII, OUTLYNE
+   use DATMAI, only: PII
    use surface_params, only: A_COATING, A_GRATING, A_GRAT_SPACE, &
       & A_N2_OFFSET, A_N_OFFSET, A_SURFTYPE
    use mod_system, only: sys_screen, sys_screen_d, sys_screen_excl_angle, &
       sys_screen_h, sys_screen_s, sys_screen_surf
+   use zoa_output, only: zoa_emit
    use iso_fortran_env, only: real64
    implicit none
    integer  :: I, J, ISURF, IPASS1, WA3
@@ -2491,10 +2483,8 @@ subroutine compute_ray_energy
          IF(GERROR) THEN
             IF(MSG) THEN
                CALL RAY_FAILURE(I)
-               OUTLYNE='GRID FILE DOES NOT EXIST FOR THIS SURFACE'
-               CALL SHOWIT(1)
-               OUTLYNE='OR IT HAS INSUFFICIENT DATA FOR THIS SURFACE'
-               CALL SHOWIT(1)
+               call zoa_emit('GRID FILE DOES NOT EXIST FOR THIS SURFACE', 'black')
+               call zoa_emit('OR IT HAS INSUFFICIENT DATA FOR THIS SURFACE', 'black')
             END IF
             STOPP=1
             RAYCOD(1)=15
@@ -2656,9 +2646,9 @@ subroutine compute_aim_target(ref_surf, ww1_in, ww2_in, tarx, tary)
    use mod_surface
    use DATMAI, only: PII
    use surface_params, only: AP_CIRC, AP_RECT, AP_ELLIP, AP_RCTK, AP_IPOLY, AP_POLY, &
-      & A_CLAP_YD, A_CLAP_XD, A_CLAP_TILT, A_CURV, A_APTYPE, A_MULTICLAP, &
-      & A_CLAP_P1, A_CLAP_P2, A_CLAP_P3, SYS_FLIPREFX, SYS_FLIPREFY
+      & A_CURV, SYS_FLIPREFX, SYS_FLIPREFY
    use mod_system, only: sys_aplanatic_aim, sys_ref_orient
+   use clear_apertures, only: clear_aperture
    use iso_fortran_env, only: real64
    implicit none
 
@@ -2673,43 +2663,46 @@ subroutine compute_aim_target(ref_surf, ww1_in, ww2_in, tarx, tary)
    real(8) :: gamma        ! aperture or surface rotation angle (radians)
    real(8) :: tarrx, tarry ! rotated temporaries
    logical :: clapt        ! .true. if aperture is decentered or tilted
+   type(clear_aperture) :: cap
 
    www1 = ww1_in
    www2 = ww2_in
 
-   if (dabs(ALENS(A_APTYPE,ref_surf)) >= 1.0d0 .and. dabs(ALENS(A_APTYPE,ref_surf)) <= 6.0d0 .and. ALENS(A_MULTICLAP,ref_surf) == 0.0d0) then
+   call cap%from_alens(ref_surf)
+
+   if (cap%shape >= 1 .and. cap%shape <= 6 .and. surf_multi_clap_flag(ref_surf) == 0) then
 
       ! Surface has a single clear aperture — determine if it is decentered/tilted
-      clapt = (ALENS(A_CLAP_YD,ref_surf)   /= 0.0d0 .or. ALENS(A_CLAP_XD,ref_surf)   /= 0.0d0 .or. ALENS(A_CLAP_TILT,ref_surf) /= 0.0d0)
+      clapt = (cap%decenter_y /= 0.0d0 .or. cap%decenter_x /= 0.0d0 .or. cap%tilt /= 0.0d0)
 
       ! Aplanatic aiming adjustment for centred circular apertures
-      if (sys_aplanatic_aim() == 1.0d0             .and. ALENS(A_CURV,ref_surf)      /= 0.0d0        .and. ALENS(A_APTYPE,ref_surf)    == 1.0d0        .and. ALENS(A_CLAP_YD,ref_surf)   == 0.0d0        .and. ALENS(A_CLAP_XD,ref_surf)   == 0.0d0        .and. ALENS(A_CLAP_TILT,ref_surf) == 0.0d0) then
-         if (dabs(1.0d0/ALENS(A_CURV,ref_surf)) >= dabs(ALENS(A_CLAP_P1,ref_surf)) .and. dabs(1.0d0/ALENS(A_CURV,ref_surf)) >= dabs(ALENS(A_CLAP_P2,ref_surf))) call APLANA(ref_surf, ww1_in, ww2_in, www1, www2)
+      if (sys_aplanatic_aim() == 1.0d0             .and. ALENS(A_CURV,ref_surf)      /= 0.0d0        .and. cap%shape == 1        .and. cap%decenter_y == 0.0d0        .and. cap%decenter_x == 0.0d0        .and. cap%tilt == 0.0d0) then
+         if (dabs(1.0d0/ALENS(A_CURV,ref_surf)) >= dabs(cap%dim1) .and. dabs(1.0d0/ALENS(A_CURV,ref_surf)) >= dabs(cap%dim2)) call APLANA(ref_surf, ww1_in, ww2_in, www1, www2)
       end if
 
-      select case (int(dabs(ALENS(A_APTYPE,ref_surf))))
+      select case (cap%shape)
 
       case (AP_CIRC)  ! circular
          if (clapt) then
-            if (ALENS(A_CLAP_P1,ref_surf) <= ALENS(A_CLAP_P2,ref_surf)) then
-               tary = ALENS(A_CLAP_P1,ref_surf) * www1
-               tarx = ALENS(A_CLAP_P1,ref_surf) * www2
+            if (cap%dim1 <= cap%dim2) then
+               tary = cap%dim1 * www1
+               tarx = cap%dim1 * www2
             else
-               tary = ALENS(A_CLAP_YD,ref_surf) + ALENS(A_CLAP_P2,ref_surf) * www1
-               tarx = ALENS(A_CLAP_XD,ref_surf) + ALENS(A_CLAP_P2,ref_surf) * www2
+               tary = cap%decenter_y + cap%dim2 * www1
+               tarx = cap%decenter_x + cap%dim2 * www2
             end if
             if (SYSTEM(SYS_FLIPREFX) /= 0.0d0) tarx = -tarx
             if (SYSTEM(SYS_FLIPREFY) /= 0.0d0) tary = -tary
-            tarx = tarx + ALENS(A_CLAP_XD,ref_surf)
-            tary = tary + ALENS(A_CLAP_YD,ref_surf)
-            gamma = (ALENS(A_CLAP_TILT,ref_surf) * PII) / 180.0d0
+            tarx = tarx + cap%decenter_x
+            tary = tary + cap%decenter_y
+            gamma = (cap%tilt * PII) / 180.0d0
          else
-            if (ALENS(A_CLAP_P1,ref_surf) <= ALENS(A_CLAP_P2,ref_surf)) then
-               tary = ALENS(A_CLAP_P1,ref_surf) * www1
-               tarx = ALENS(A_CLAP_P1,ref_surf) * www2
+            if (cap%dim1 <= cap%dim2) then
+               tary = cap%dim1 * www1
+               tarx = cap%dim1 * www2
             else
-               tary = ALENS(A_CLAP_P2,ref_surf) * www1
-               tarx = ALENS(A_CLAP_P2,ref_surf) * www2
+               tary = cap%dim2 * www1
+               tarx = cap%dim2 * www2
             end if
             if (SYSTEM(SYS_FLIPREFX) /= 0.0d0) tarx = -tarx
             if (SYSTEM(SYS_FLIPREFY) /= 0.0d0) tary = -tary
@@ -2719,89 +2712,89 @@ subroutine compute_aim_target(ref_surf, ww1_in, ww2_in, tarx, tary)
       case (AP_RECT)  ! rectangular
          if (clapt) then
             if (ANAAIM) then
-               tary = ALENS(A_CLAP_P1,ref_surf) * ww1_in
-               tarx = ALENS(A_CLAP_P2,ref_surf) * ww2_in
-            else if (dabs(ALENS(A_CLAP_P1,ref_surf)) > dabs(ALENS(A_CLAP_P2,ref_surf))) then
-               tary = ALENS(A_CLAP_P1,ref_surf) * ww1_in
-               tarx = ALENS(A_CLAP_P1,ref_surf) * ww2_in
+               tary = cap%dim1 * ww1_in
+               tarx = cap%dim2 * ww2_in
+            else if (dabs(cap%dim1) > dabs(cap%dim2)) then
+               tary = cap%dim1 * ww1_in
+               tarx = cap%dim1 * ww2_in
             else
-               tary = ALENS(A_CLAP_YD,ref_surf) + ALENS(A_CLAP_P2,ref_surf) * ww1_in
-               tarx = ALENS(A_CLAP_XD,ref_surf) + ALENS(A_CLAP_P2,ref_surf) * ww2_in
+               tary = cap%decenter_y + cap%dim2 * ww1_in
+               tarx = cap%decenter_x + cap%dim2 * ww2_in
             end if
             if (SYSTEM(SYS_FLIPREFX) /= 0.0d0) tarx = -tarx
             if (SYSTEM(SYS_FLIPREFY) /= 0.0d0) tary = -tary
-            tarx = tarx + ALENS(A_CLAP_XD,ref_surf)
-            tary = tary + ALENS(A_CLAP_YD,ref_surf)
-            gamma = (ALENS(A_CLAP_TILT,ref_surf) * PII) / 180.0d0
+            tarx = tarx + cap%decenter_x
+            tary = tary + cap%decenter_y
+            gamma = (cap%tilt * PII) / 180.0d0
          else
-            tary = ALENS(A_CLAP_P1,ref_surf) * ww1_in
-            tarx = ALENS(A_CLAP_P2,ref_surf) * ww2_in
+            tary = cap%dim1 * ww1_in
+            tarx = cap%dim2 * ww2_in
             if (SYSTEM(SYS_FLIPREFX) /= 0.0d0) tarx = -tarx
             if (SYSTEM(SYS_FLIPREFY) /= 0.0d0) tary = -tary
             gamma = (sys_ref_orient() * PII) / 180.0d0
          end if
 
       case (AP_ELLIP)  ! elliptical
-         yval = ALENS(A_CLAP_P1,ref_surf)
-         xval = ALENS(A_CLAP_P2,ref_surf)
+         yval = cap%dim1
+         xval = cap%dim2
          tary = yval * ww1_in
          tarx = xval * ww2_in
          if (SYSTEM(SYS_FLIPREFX) /= 0.0d0) tarx = -tarx
          if (SYSTEM(SYS_FLIPREFY) /= 0.0d0) tary = -tary
          if (clapt) then
-            tarx = tarx + ALENS(A_CLAP_XD,ref_surf)
-            tary = tary + ALENS(A_CLAP_YD,ref_surf)
-            gamma = (ALENS(A_CLAP_TILT,ref_surf) * PII) / 180.0d0
+            tarx = tarx + cap%decenter_x
+            tary = tary + cap%decenter_y
+            gamma = (cap%tilt * PII) / 180.0d0
          else
             gamma = (sys_ref_orient() * PII) / 180.0d0
          end if
 
       case (AP_RCTK)  ! racetrack
-         yval = ALENS(A_CLAP_P1,ref_surf)
-         xval = ALENS(A_CLAP_P2,ref_surf)
+         yval = cap%dim1
+         xval = cap%dim2
          tary = yval * ww1_in
          tarx = xval * ww2_in
          if (SYSTEM(SYS_FLIPREFX) /= 0.0d0) tarx = -tarx
          if (SYSTEM(SYS_FLIPREFY) /= 0.0d0) tary = -tary
          if (clapt) then
-            tarx = tarx + ALENS(A_CLAP_XD,ref_surf)
-            tary = tary + ALENS(A_CLAP_YD,ref_surf)
-            gamma = (ALENS(A_CLAP_TILT,ref_surf) * PII) / 180.0d0
+            tarx = tarx + cap%decenter_x
+            tary = tary + cap%decenter_y
+            gamma = (cap%tilt * PII) / 180.0d0
          else
             gamma = (sys_ref_orient() * PII) / 180.0d0
          end if
 
-      case (AP_POLY)  ! regular polygon — radius to corner is A_CLAP_P1
-         yval = ALENS(A_CLAP_P1,ref_surf)
-         xval = ALENS(A_CLAP_P1,ref_surf)
+      case (AP_POLY)  ! regular polygon — radius to corner is dim1
+         yval = cap%dim1
+         xval = cap%dim1
          tary = yval * ww1_in
          tarx = xval * ww2_in
          if (SYSTEM(SYS_FLIPREFX) /= 0.0d0) tarx = -tarx
          if (SYSTEM(SYS_FLIPREFY) /= 0.0d0) tary = -tary
          if (clapt) then
-            tarx = tarx + ALENS(A_CLAP_XD,ref_surf)
-            tary = tary + ALENS(A_CLAP_YD,ref_surf)
-            gamma = (ALENS(A_CLAP_TILT,ref_surf) * PII) / 180.0d0
+            tarx = tarx + cap%decenter_x
+            tary = tary + cap%decenter_y
+            gamma = (cap%tilt * PII) / 180.0d0
          else
             gamma = (sys_ref_orient() * PII) / 180.0d0
          end if
 
-      case (AP_IPOLY)  ! irregular polygon — max dim: A_CLAP_P3 (decentered) or A_CLAP_P2 (centred)
+      case (AP_IPOLY)  ! irregular polygon — max dim: dim5 (decentered) or dim2 (centred)
          if (clapt) then
-            yval = ALENS(A_CLAP_P3,ref_surf)
-            xval = ALENS(A_CLAP_P3,ref_surf)
+            yval = cap%dim5
+            xval = cap%dim5
          else
-            yval = ALENS(A_CLAP_P2,ref_surf)
-            xval = ALENS(A_CLAP_P2,ref_surf)
+            yval = cap%dim2
+            xval = cap%dim2
          end if
          tary = yval * ww1_in
          tarx = xval * ww2_in
          if (SYSTEM(SYS_FLIPREFX) /= 0.0d0) tarx = -tarx
          if (SYSTEM(SYS_FLIPREFY) /= 0.0d0) tary = -tary
          if (clapt) then
-            tarx = tarx + ALENS(A_CLAP_XD,ref_surf)
-            tary = tary + ALENS(A_CLAP_YD,ref_surf)
-            gamma = (ALENS(A_CLAP_TILT,ref_surf) * PII) / 180.0d0
+            tarx = tarx + cap%decenter_x
+            tary = tary + cap%decenter_y
+            gamma = (cap%tilt * PII) / 180.0d0
          else
             gamma = (sys_ref_orient() * PII) / 180.0d0
          end if
@@ -2838,8 +2831,9 @@ end subroutine compute_aim_target
 
 SUBROUTINE RAYTRA2
    USE GLOBALS
-   use mod_lens_data_manager
-   use real_ray_trace
+   use mod_lens_data_manager, only: ldm
+   use real_ray_trace, only: adjustLastSurface
+   use zoa_output, only: zoa_emit
    use mod_system, only: sys_aplanatic_aim, sys_fliprefx, sys_fliprefy, &
       & sys_ray_aiming, sys_ref_orient, &
       & sys_scx, sys_scy, sys_screen, sys_screen_d, sys_screen_excl_angle, &
@@ -2864,7 +2858,7 @@ SUBROUTINE RAYTRA2
 !
 !     VARIABLES FOR SPOT TRACING
    LOGICAL TCLPRF,SPDTRA,MMSG
-   LOGICAL AIMOK,CLAPT,OLDPASS,GERROR,DELFAIL
+   LOGICAL AIMOK,CLAPT,OLDPASS,GERROR,DELFAIL,ray_blocked
    COMMON/PASSOLD/OLDPASS
 !
    INTEGER SPDCD1,SPDCD2
@@ -2988,7 +2982,7 @@ SUBROUTINE RAYTRA2
       JKY=(PXTRAY(1,NEWOBJ+1))
    END IF
 !
-989 CONTINUE
+   outer_retry: do
    IF(RAYCOD(1).EQ.1.AND.KKK.GT.1) THEN
       STOPP=1
       RAYEXT=.FALSE.
@@ -3150,7 +3144,7 @@ SUBROUTINE RAYTRA2
 !
 !       KKK COUNTS THE NUMBER OF TRIES TO GET A GOOD REFERENCE
 !       SURFACE POINT INTERSECTION
-9  CONTINUE
+   newton_raphson: do
    IF(surf_thickness(NEWOBJ).LT.0.0D0) REVSTR=.TRUE.
    IF(surf_thickness(NEWOBJ).GE.0.0D0) REVSTR=.FALSE.
    RV=.FALSE.
@@ -3263,15 +3257,10 @@ SUBROUTINE RAYTRA2
    RAYRAY(6,NEWOBJ)=NSTART
    RAYRAY(7,NEWOBJ)=0.0D0
    RAYRAY(8,NEWOBJ)=0.0D0
-   IF(INT(WW3).GE.1.AND.INT(WW3).LE.5) THEN
-      SNIND2=DABS(ALENS(45+INT(WW3),NEWOBJ))/ALENS(45+INT(WW3),NEWOBJ)
-      RN1=(ALENS(45+INT(WW3),NEWOBJ))
-      RN2=(ALENS(45+INT(WW3),NEWOBJ))
-   END IF
-   IF(INT(WW3).GE.6.AND.INT(WW3).LE.10) THEN
-      SNIND2=DABS(ALENS(65+INT(WW3),NEWOBJ))/ALENS(65+INT(WW3),NEWOBJ)
-      RN1=(ALENS(65+INT(WW3),NEWOBJ))
-      RN2=(ALENS(65+INT(WW3),NEWOBJ))
+   IF(INT(WW3).GE.1.AND.INT(WW3).LE.10) THEN
+      RN1 = ldm%getSurfIndex(NEWOBJ, INT(WW3))
+      RN2 = RN1
+      SNIND2 = DABS(RN1) / RN1
    END IF
    IF(SNIND2.GT.0.0D0) RAYRAY(24,NEWOBJ)=1.0D0
    IF(SNIND2.LT.0.0D0) RAYRAY(24,NEWOBJ)=-1.0D0
@@ -3317,8 +3306,7 @@ SUBROUTINE RAYTRA2
    YN=-(1.0D0*DSIN(YANG))
 !
    ISYS20=NEWIMG
-   I=0
-   DO 10 I=(NEWOBJ+1),ISYS20
+   surface_loop: DO I=(NEWOBJ+1),ISYS20
 
 !
 !
@@ -3415,17 +3403,11 @@ SUBROUTINE RAYTRA2
       RAYRAY(10,I)=COSIP
 !
 !     WHAT IS THE SIGN OF THE INDEX IN THE I-1 SPACE
-      IF(INT(WW3).GE.1.AND.INT(WW3).LE.5) THEN
-         SNINDX=DABS(ALENS(45+INT(WW3),I-1))/ALENS(45+INT(WW3),I-1)
-         SNIND2=DABS(ALENS(45+INT(WW3),I))/ALENS(45+INT(WW3),I)
-         RN1=(ALENS(45+INT(WW3),I-1))
-         RN2=(ALENS(45+INT(WW3),I))
-      END IF
-      IF(INT(WW3).GE.6.AND.INT(WW3).LE.10) THEN
-         SNINDX=DABS(ALENS(65+INT(WW3),I-1))/ALENS(65+INT(WW3),I-1)
-         SNIND2=DABS(ALENS(65+INT(WW3),I))/ALENS(65+INT(WW3),I)
-         RN1=(ALENS(65+INT(WW3),I-1))
-         RN2=(ALENS(65+INT(WW3),I))
+      IF(INT(WW3).GE.1.AND.INT(WW3).LE.10) THEN
+         RN1 = ldm%getSurfIndex(I-1, INT(WW3))
+         RN2 = ldm%getSurfIndex(I,   INT(WW3))
+         SNINDX = DABS(RN1) / RN1
+         SNIND2 = DABS(RN2) / RN2
       END IF
       RAYRAY(29,I)=YL
       RAYRAY(30,I)=YM
@@ -3485,8 +3467,7 @@ SUBROUTINE RAYTRA2
       IF(GLANAM(I-1,2).EQ.'IDEAL        ') THEN
          RAYRAY(8,I)=-(surf_ideal_efl(I-1)-surf_thickness(I-1))*RAYRAY(6,I-1)
       END IF
-      IF(INT(WW3).GE.1.AND.INT(WW3).LE.5)RAYRAY(7,I)=RAYRAY(8,I)*DABS(ALENS(45+INT(WW3),(I-1)))
-      IF(INT(WW3).GE.6.AND.INT(WW3).LE.10)RAYRAY(7,I)=RAYRAY(8,I)*DABS(ALENS(65+INT(WW3),(I-1)))
+      IF(INT(WW3).GE.1.AND.INT(WW3).LE.10) RAYRAY(7,I)=RAYRAY(8,I)*DABS(ldm%getSurfIndex(I-1, INT(WW3)))
       IF(.NOT.RV) RAYRAY(7,I)=RAYRAY(7,I)+PHASE
       IF(RV) RAYRAY(7,I)=RAYRAY(7,I)-PHASE
 !
@@ -3533,7 +3514,7 @@ SUBROUTINE RAYTRA2
             JKY=0.0D0
             STOPP=0
             KKK=KKK+1
-            GO TO 989
+            CYCLE outer_retry
          END IF
          FAIL=.TRUE.
          RAYEXT=.FALSE.
@@ -3812,7 +3793,7 @@ SUBROUTINE RAYTRA2
             AIMOK=.TRUE.
             REFMISS=.FALSE.
             CALL MISSREF(X,Y)
-            GO TO 100
+            CYCLE surface_loop
          ELSE
             AIMOK=.FALSE.
 !       AIM NOT GOOD ENOUGH, IMPROVE GUESS
@@ -3877,7 +3858,7 @@ SUBROUTINE RAYTRA2
             X1AIM=R_TX
             Y1AIM=R_TY
             Z1AIM=R_TZ
-            GO TO 9
+            CYCLE newton_raphson
 !       THIS IS NOT THE FIRST REFINEMENT, KKK NOT = 1
          END IF
 !
@@ -3899,20 +3880,23 @@ SUBROUTINE RAYTRA2
          IF(DELFAIL) THEN
             RETURN
          ELSE
-            GO TO 9
+            CYCLE newton_raphson
          END IF
 !       NOT AT THE REFERENCE SURFACE, NO RAY AIMING NEEDED
       END IF
+   end do surface_loop
+   EXIT newton_raphson
+   end do newton_raphson
+   EXIT outer_retry
+   end do outer_retry
 !
-100   CONTINUE
-!
-10 CONTINUE
 !       CACOCH IS THE FLAG WHICH TELLS WHETHER OR NOT
 !       TO CHECK FOR CLAP/COBS INTERFERENCE.
 !       IF CACOCH=0 DO NOT CHECK
 !       IF CACOCH=1 DO THE CHECK
 !       HERE WE CHECK FOR BLOCKAGE BY CLAP OR COBS.
 !       AND DO THE APPROPRIATE THINGS.
+   ray_blocked = .false.
    IF(CACOCH.EQ.1) THEN
       DO R_I=NEWOBJ+1,NEWIMG-1
 !       CALL CLAP CHECKING ROUTINE
@@ -3942,10 +3926,9 @@ SUBROUTINE RAYTRA2
                         SPDCD2=RAYCOD(2)
                         STOPP=0
                         RAYEXT=.TRUE.
-                        GO TO 25
+                        EXIT
                      END IF
                   END DO
-25                CONTINUE
                END IF
                IF(INT(surf_multi_cobs_flag(R_I)).NE.0) THEN
                   DO JK=1,INT(surf_multi_cobs_flag(R_I))
@@ -3961,10 +3944,9 @@ SUBROUTINE RAYTRA2
                         SPDCD2=RAYCOD(2)
                         STOPP=1
                         RAYEXT=.TRUE.
-                        GO TO 26
+                        EXIT
                      END IF
                   END DO
-26                CONTINUE
                END IF
             END IF
          END IF
@@ -3973,25 +3955,27 @@ SUBROUTINE RAYTRA2
 !       CAERAS AND COERAS
 !       SET IF THE CURRENT SURFACE HAD A COBS OR
 !       CLAP ERASE.
-         IF(STOPP.EQ.1) GO TO 90
+         IF(STOPP.EQ.1) THEN
+            ray_blocked = .true.
+            EXIT
+         END IF
          STOPP=0
          FAIL=.FALSE.
          RAYEXT=.TRUE.
 !       CONTINUE THE RAYTRACE
       END DO
-      GO TO 91
    ELSE
 !       NO CHECK TO BE MADE FOR CLAPS/COBS BLOCKAGE
    END IF
-   GO TO 91
-90 CONTINUE
-   FAIL=.TRUE.
-   RAYEXT=.FALSE.
-   POLEXT=.FALSE.
-   IF(.NOT.SPDTRA.AND.F34.EQ.0.AND.F58.EQ.0) THEN
-      CALL MACFAL
+!     (labels 90/91 merged - ray_blocked handles fail path)
+   IF(ray_blocked) THEN
+      FAIL=.TRUE.
+      RAYEXT=.FALSE.
+      POLEXT=.FALSE.
+      IF(.NOT.SPDTRA.AND.F34.EQ.0.AND.F58.EQ.0) THEN
+         CALL MACFAL
+      END IF
    END IF
-91 CONTINUE
 !
 !     FINISHED CLAP/COBS CHEKING
 !       IF GLOBAL IS TRUE, CALCULATE THE CURRENT RAY'S GLOBAL
@@ -4014,22 +3998,14 @@ SUBROUTINE RAYTRA2
          RAYRAY(25,I)=RAYRAY(25,I-1)
       END IF
       IF(I.EQ.NEWOBJ) THEN
-         IF(WA3.GE.1.AND.WA3.LE.5) THEN
-            RN1=(ALENS(45+WA3,I))
-            RN2=(ALENS(45+WA3,I))
-         END IF
-         IF(WA3.GE.6.AND.WA3.LE.10) THEN
-            RN1=(ALENS(65+WA3,I))
-            RN2=(ALENS(65+WA3,I))
+         IF(WA3.GE.1.AND.WA3.LE.10) THEN
+            RN1 = ldm%getSurfIndex(I, WA3)
+            RN2 = RN1
          END IF
       ELSE
-         IF(WA3.GE.1.AND.WA3.LE.5) THEN
-            RN1=(ALENS(45+WA3,I-1))
-            RN2=(ALENS(45+WA3,I))
-         END IF
-         IF(WA3.GE.6.AND.WA3.LE.10) THEN
-            RN1=(ALENS(65+WA3,I-1))
-            RN2=(ALENS(65+WA3,I))
+         IF(WA3.GE.1.AND.WA3.LE.10) THEN
+            RN1 = ldm%getSurfIndex(I-1, WA3)
+            RN2 = ldm%getSurfIndex(I,   WA3)
          END IF
       END IF
       IF(surf_special_type(I) == 19) THEN
@@ -4046,10 +4022,8 @@ SUBROUTINE RAYTRA2
          IF(GERROR) THEN
             IF(MSG) THEN
                CALL RAY_FAILURE(I)
-               OUTLYNE='GRID FILE DOES NOT EXIST FOR THIS SURFACE'
-               CALL SHOWIT(1)
-               OUTLYNE='OR IT HAS INSUFFICIENT DATA FOR THIS SURFACE'
-               CALL SHOWIT(1)
+               call zoa_emit('GRID FILE DOES NOT EXIST FOR THIS SURFACE', 'black')
+               call zoa_emit('OR IT HAS INSUFFICIENT DATA FOR THIS SURFACE', 'black')
             END IF
             STOPP=1
             RAYCOD(1)=15
