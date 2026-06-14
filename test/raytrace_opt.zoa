@@ -1,0 +1,24 @@
+! Numeric golden test for the RAYTRA2 real-ray path (optimization/tolerancing).
+! Call chain: CAPFN -> COMPAP (WAVSPOT5.f90:1932) -> CALL RAYTRA2 (RAYTRA5.f90:2832)
+! RMSOPD and PTOVOPD scalars are computed directly from RAYTRA2 ray coordinates,
+! so any regression in RAYTRA2 will produce a golden diff here.
+
+RES osdtriplet
+
+! --- On-axis field ---
+FOB 0
+CAPFN
+SHO RMSOPD
+SHO PTOVOPD
+
+! --- Mid-field ---
+FOB 0.7
+CAPFN
+SHO RMSOPD
+SHO PTOVOPD
+
+! --- Full field ---
+FOB 1.0
+CAPFN
+SHO RMSOPD
+SHO PTOVOPD

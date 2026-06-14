@@ -494,6 +494,11 @@ test('misc_commands', test_runner,
             meson.project_source_root() / 'test/misc_commands.ref'],
      timeout: 120, is_parallel: false)
 
+test('raytrace_opt', test_runner,
+     args: [meson.project_source_root() / 'test/raytrace_opt.zoa',
+            meson.project_source_root() / 'test/raytrace_opt.ref'],
+     timeout: 120, is_parallel: false)
+
 
 if system == 'darwin'
   MacOSDir = meson.project_source_root() / 'MacOS'
