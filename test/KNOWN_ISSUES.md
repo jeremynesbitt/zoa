@@ -52,7 +52,6 @@ file-handling command.
 | `FLY S1..S5` | Range end must be bare integer: `FLY S1..5` (not `S1..S5`) | `cmd_parser_get_integer_range` requires pure integer after `..` |
 | `DISP 1 4 ...` | Starting surface predecessor must have finite thickness; `DISP 1 ...` fails because surface 0 is INFINITY | Use `DISP 2 ...` for osdtriplet |
 | `ROLL 1 4 ...` | Same predecessor-thickness constraint as DISP; use `ROLL 2 ...` | |
-| `RAYDUMP` after `OPD` | Binary-nondeterministic: OPD leaves uninitialized padding in a shared ray buffer; subsequent RAYDUMP WRITE statements emit garbage bytes | In wavefront_zern.zoa, RAYDUMP is placed before OPD to avoid this |
 
 ---
 
@@ -84,8 +83,7 @@ setter / query) is tested in gui_guards.zoa.
 | `DXF PROF` | Fortran runtime error: Index '2' of dimension 1 of array 'xa' above upper bound of 1 (DXF.f90:112); crashes when the lens geometry arrays are empty | files_misc.zoa (commented out) |
 | `CAPFNOUT` | Fortran runtime error: Write exceeds length of DIRECT access record (WAVSPOT1.f90:577); crashes after CAPFN | files_misc.zoa (commented out) |
 | `PRES AIR` | Fortran runtime error: Index '0' of dimension 2 of array 'glanam' below lower bound of 1 (LDM10.f90:782); crashes on surface-0 air gap | files_misc.zoa (commented out) |
-| `RAYDUMP` | Legacy RAYDMP (RAYTRA5.f90) writes integer ray-code fields with a D23.15 float format, emitting raw NUL/control bytes — output is not golden-testable as text | wavefront_zern.zoa (commented out) |
-| `FOBDUMP` | Same binary-byte issue as RAYDUMP | wavefront_zern.zoa (commented out) |
+| `FOBDUMP` | Legacy FOBDMP (raytra8.f90) writes integer ray-code fields with a float D-format, emitting raw NUL/control bytes — output is not golden-testable as text | wavefront_zern.zoa (commented out) |
 
 ---
 

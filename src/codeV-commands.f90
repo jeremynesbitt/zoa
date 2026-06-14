@@ -622,8 +622,6 @@ module codeV_commands
         zoaCmds(623)%execFunc => wrap_INCR
         zoaCmds(624)%cmd = 'FOBDUMP'
         zoaCmds(624)%execFunc => wrap_FOBDUMP
-        zoaCmds(625)%cmd = 'RAYDUMP'
-        zoaCmds(625)%execFunc => wrap_RAYDUMP
         zoaCmds(626)%cmd = 'OPD'
         zoaCmds(626)%execFunc => wrap_OPD
         zoaCmds(627)%cmd = 'AUTO'

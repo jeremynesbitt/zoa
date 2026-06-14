@@ -170,11 +170,6 @@ contains
         call FOBDMP
     end subroutine
 
-    subroutine wrap_RAYDUMP(iptStr)
-        character(len=*) :: iptStr
-        call RAYDMP
-    end subroutine
-
     subroutine wrap_OPD(iptStr)
         character(len=*) :: iptStr
         call PROPD

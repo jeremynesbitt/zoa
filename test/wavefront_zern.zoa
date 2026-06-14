@@ -1,9 +1,8 @@
 RES osdtriplet
 FOB 0
 RSI f1 w1 0.0 0.7
-! BROKEN: RAYDUMP — legacy code writes integer ray-code fields with a D-format,
+! BROKEN: FOBDUMP — legacy code writes integer ray-code fields with a D-format,
 ! emitting raw NUL/control bytes into the output (not golden-testable as text).
-! BROKEN: FOBDUMP — same binary-byte issue as RAYDUMP.
 RAYERROR
 OPD
 CAPFN
