@@ -108,7 +108,8 @@ module mod_surface
         surf_roof_b,            set_surf_roof_b,           &
         surf_ccr_angle_err2,    set_surf_ccr_angle_err2,   &
         surf_ccr_b,             set_surf_ccr_b,            &
-        surf_inr_flag,          set_surf_inr_flag
+        surf_inr_flag,          set_surf_inr_flag,         &
+        surf_deform_update_flag, set_surf_deform_update_flag
 
 contains
 
@@ -1043,6 +1044,16 @@ contains
     subroutine set_surf_profit_data(s, val)
         integer, intent(in) :: s; real(real64), intent(in) :: val
         ALENS(107, s) = val
+    end subroutine
+
+    ! ALENS(109,s): deformable-surface update flag (0=not loaded, 1=loaded)
+    real(real64) function surf_deform_update_flag(s)
+        integer, intent(in) :: s
+        surf_deform_update_flag = ALENS(109, s)
+    end function
+    subroutine set_surf_deform_update_flag(s, val)
+        integer, intent(in) :: s; real(real64), intent(in) :: val
+        ALENS(109, s) = val
     end subroutine
 
     ! ALENS(58,s): FOOTBLOK flag (1=on, 0=off)

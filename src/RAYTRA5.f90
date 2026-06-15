@@ -1264,8 +1264,7 @@ subroutine compute_ray_energy
    use DATLEN
    use mod_surface
    use DATMAI, only: PII
-   use surface_params, only: A_COATING, A_GRATING, A_GRAT_SPACE, &
-      & A_N2_OFFSET, A_N_OFFSET, A_SURFTYPE
+   use mod_lens_data_manager, only: ldm
    use mod_system, only: sys_screen, sys_screen_d, sys_screen_excl_angle, &
       sys_screen_h, sys_screen_s, sys_screen_surf
    use zoa_output, only: zoa_emit
@@ -1303,26 +1302,18 @@ subroutine compute_ray_energy
       END IF
       ! --- refractive indices either side of this surface --------------
       IF(I.EQ.NEWOBJ) THEN
-         IF(WA3.GE.1.AND.WA3.LE.5) THEN
-            RN1=(ALENS(A_N_OFFSET+WA3,I))
-            RN2=(ALENS(A_N_OFFSET+WA3,I))
-         END IF
-         IF(WA3.GE.6.AND.WA3.LE.10) THEN
-            RN1=(ALENS(A_N2_OFFSET+WA3,I))
-            RN2=(ALENS(A_N2_OFFSET+WA3,I))
+         IF(WA3.GE.1.AND.WA3.LE.10) THEN
+            RN1=ldm%getSurfIndex(I, WA3)
+            RN2=ldm%getSurfIndex(I, WA3)
          END IF
       ELSE
-         IF(WA3.GE.1.AND.WA3.LE.5) THEN
-            RN1=(ALENS(A_N_OFFSET+WA3,I-1))
-            RN2=(ALENS(A_N_OFFSET+WA3,I))
-         END IF
-         IF(WA3.GE.6.AND.WA3.LE.10) THEN
-            RN1=(ALENS(A_N2_OFFSET+WA3,I-1))
-            RN2=(ALENS(A_N2_OFFSET+WA3,I))
+         IF(WA3.GE.1.AND.WA3.LE.10) THEN
+            RN1=ldm%getSurfIndex(I-1, WA3)
+            RN2=ldm%getSurfIndex(I, WA3)
          END IF
       END IF
       ! --- apodization grid surface (type 19) --------------------------
-      IF(ALENS(A_SURFTYPE,I).EQ.19.0D0) THEN
+      IF(ldm%getSurfSpecialType(I).EQ.19) THEN
          ISURF=I
          GERROR=.FALSE.
          XPASS=RAYRAY(1,I)
@@ -1366,7 +1357,7 @@ subroutine compute_ray_energy
          END IF
       END IF
       ! --- non-apodization surface: polarisation + coatings + grating --
-      IF(ALENS(A_SURFTYPE,I).NE.19.0D0) THEN
+      IF(ldm%getSurfSpecialType(I).NE.19) THEN
          IF(DUM(I).AND.I.GT.0) THEN
             RAYRAY(34:38,I)=0.0D0
          END IF
@@ -1443,7 +1434,7 @@ subroutine compute_ray_energy
          RAYRAY(40,I)=DSIN(POLANG)*DACOS(RAYRAY(9,I))
          ! Coating transmission
          IF(COATSET) THEN
-            J=INT(ALENS(A_COATING,I))
+            J=surf_coating_index(I)
             IF(RAYRAY(9,I).GT.1.0D0) RAYRAY(9,I)=1.0D0
             IF(RAYRAY(9,I).LT.-1.0D0) RAYRAY(9,I)=-1.0D0
             IF(RAYRAY(10,I).GT.1.0D0) RAYRAY(10,I)=1.0D0
@@ -1458,7 +1449,7 @@ subroutine compute_ray_energy
             IF(I.GT.NEWOBJ) RAYRAY(25,I)=RAYRAY(25,I)*ENERGY_FACTOR
          END IF
          ! Grating diffraction efficiency
-         IF(ALENS(A_GRATING,I).EQ.1.0D0.AND.ALENS(A_GRAT_SPACE,I).NE.0.0D0) THEN
+         IF(surf_diffraction_flag(I).EQ.1.AND.surf_grating_spacing(I).NE.0.0D0) THEN
             IA=DACOS(RAYRAY(9,I))
             WA3=INT(WW3)
             ENERGY_FACTOR=1.0D0
@@ -1496,7 +1487,7 @@ subroutine compute_aim_target(ref_surf, ww1_in, ww2_in, tarx, tary)
    use mod_surface
    use DATMAI, only: PII
    use surface_params, only: AP_CIRC, AP_RECT, AP_ELLIP, AP_RCTK, AP_IPOLY, AP_POLY, &
-      & A_CURV, SYS_FLIPREFX, SYS_FLIPREFY
+      & SYS_FLIPREFX, SYS_FLIPREFY
    use mod_system, only: sys_aplanatic_aim, sys_ref_orient
    use clear_apertures, only: clear_aperture
    use iso_fortran_env, only: real64
@@ -1526,8 +1517,8 @@ subroutine compute_aim_target(ref_surf, ww1_in, ww2_in, tarx, tary)
       clapt = (cap%decenter_y /= 0.0d0 .or. cap%decenter_x /= 0.0d0 .or. cap%tilt /= 0.0d0)
 
       ! Aplanatic aiming adjustment for centred circular apertures
-      if (sys_aplanatic_aim() == 1.0d0             .and. ALENS(A_CURV,ref_surf)      /= 0.0d0        .and. cap%shape == 1        .and. cap%decenter_y == 0.0d0        .and. cap%decenter_x == 0.0d0        .and. cap%tilt == 0.0d0) then
-         if (dabs(1.0d0/ALENS(A_CURV,ref_surf)) >= dabs(cap%dim1) .and. dabs(1.0d0/ALENS(A_CURV,ref_surf)) >= dabs(cap%dim2)) call APLANA(ref_surf, ww1_in, ww2_in, www1, www2)
+      if (sys_aplanatic_aim() == 1.0d0             .and. surf_curvature(ref_surf)      /= 0.0d0        .and. cap%shape == 1        .and. cap%decenter_y == 0.0d0        .and. cap%decenter_x == 0.0d0        .and. cap%tilt == 0.0d0) then
+         if (dabs(1.0d0/surf_curvature(ref_surf)) >= dabs(cap%dim1) .and. dabs(1.0d0/surf_curvature(ref_surf)) >= dabs(cap%dim2)) call APLANA(ref_surf, ww1_in, ww2_in, www1, www2)
       end if
 
       select case (cap%shape)
