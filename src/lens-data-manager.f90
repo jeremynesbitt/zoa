@@ -31,6 +31,8 @@ module mod_lens_data_manager
     contains
      procedure :: initialize => init_ldm
      procedure, public, pass(self) :: getSurfThi, setSurfThi
+     procedure, public, pass(self) :: getSurfXDec, getSurfYDec
+     procedure, public, pass(self) :: getSurfIdealEFL, getSurfSpecialType
      procedure, public, pass(self) :: isThiSolveOnSurf
      procedure, public, pass(self) :: isPIMSolveOnSurf
      procedure, public, pass(self) :: isYZCurvSolveOnSurf
@@ -275,6 +277,38 @@ module mod_lens_data_manager
         thi = surf_thickness(surfIdx)
         !thi = curr_lens_data%thicknesses(surfIdx+1)
 
+    end function
+
+    function getSurfXDec(self, surfIdx) result(xdec)
+        use mod_surface, only: surf_decenter_x
+        class(lens_data_manager) :: self
+        integer :: surfIdx
+        real(kind=real64) :: xdec
+        xdec = surf_decenter_x(surfIdx)
+    end function
+
+    function getSurfYDec(self, surfIdx) result(ydec)
+        use mod_surface, only: surf_decenter_y
+        class(lens_data_manager) :: self
+        integer :: surfIdx
+        real(kind=real64) :: ydec
+        ydec = surf_decenter_y(surfIdx)
+    end function
+
+    function getSurfIdealEFL(self, surfIdx) result(efl)
+        use mod_surface, only: surf_ideal_efl
+        class(lens_data_manager) :: self
+        integer :: surfIdx
+        real(kind=real64) :: efl
+        efl = surf_ideal_efl(surfIdx)
+    end function
+
+    function getSurfSpecialType(self, surfIdx) result(stype)
+        use mod_surface, only: surf_special_type
+        class(lens_data_manager) :: self
+        integer :: surfIdx
+        integer :: stype
+        stype = surf_special_type(surfIdx)
     end function
 
     function getConicConstant(self, surfIdx) result(k)

@@ -370,9 +370,6 @@ end subroutine
 subroutine real_ray_trace_core(for_optimization)
    use GLOBALS
    use mod_lens_data_manager, only: ldm
-   use surface_params, only: A_CURV, &
-      & A_IDEAL_FL, A_N2_OFFSET, A_N_OFFSET, &
-      & A_SURFTYPE, A_THI, A_XDEC, A_YDEC
    use mod_system, only: sys_ray_aiming, sys_scx, sys_scy, &
       & sys_screen, sys_screen_d, sys_screen_h, sys_screen_s, sys_screen_surf, &
       & sys_telecentric, sys_wavelength, sys_screen_excl_angle
@@ -544,9 +541,9 @@ subroutine real_ray_trace_core(for_optimization)
             IF(sys_telecentric().EQ.0.0D0) THEN
 !     TEL OFF
                X1AIM=WW2*JKX
-               X1AIM=(X1AIM)-ALENS(A_XDEC,NEWOBJ+1)
+               X1AIM=(X1AIM)-ldm%getSurfXDec(NEWOBJ+1)
                Y1AIM=WW1*JKY
-               Y1AIM=(Y1AIM)-ALENS(A_YDEC,NEWOBJ+1)
+               Y1AIM=(Y1AIM)-ldm%getSurfYDec(NEWOBJ+1)
                Z1AIM=0.0D0
                XC=X1AIM
                YC=Y1AIM
@@ -571,9 +568,9 @@ subroutine real_ray_trace_core(for_optimization)
          ELSE
 !     RAY AIMING
             X1AIM=(LFOB(2)*DABS(PXTRAX(5,NEWOBJ+1)))+(WW2*JKX)
-            X1AIM=(X1AIM)-ALENS(A_XDEC,NEWOBJ+1)
+            X1AIM=(X1AIM)-ldm%getSurfXDec(NEWOBJ+1)
             Y1AIM=(LFOB(1)*DABS(PXTRAY(5,NEWOBJ+1)))+(WW1*JKY)
-            Y1AIM=(Y1AIM)-ALENS(A_YDEC,NEWOBJ+1)
+            Y1AIM=(Y1AIM)-ldm%getSurfYDec(NEWOBJ+1)
             Z1AIM=0.0D0
             XC=X1AIM
             YC=Y1AIM
@@ -650,8 +647,8 @@ subroutine real_ray_trace_core(for_optimization)
    FAIL=.FALSE.
 
    newton_raphson: do
-   IF(ALENS(A_THI,NEWOBJ).LT.0.0D0) REVSTR=.TRUE.
-   IF(ALENS(A_THI,NEWOBJ).GE.0.0D0) REVSTR=.FALSE.
+   IF(ldm%getSurfThi(NEWOBJ).LT.0.0D0) REVSTR=.TRUE.
+   IF(ldm%getSurfThi(NEWOBJ).GE.0.0D0) REVSTR=.FALSE.
    RV=.FALSE.
    KKK=KKK+1
 !     [DIFF 4] KKK>NRAITR failure
@@ -747,8 +744,8 @@ subroutine real_ray_trace_core(for_optimization)
       END IF
 !     CALCULATE X1AIM,Y1AIM AND Z1AIM IN THE COORDINATE SYSTEM OBJ SURF
 !     DON'T NEED BAKONE HERE
-      X1AIM=WW2WW*ALENS(A_THI,0)
-      Y1AIM=WW1WW*ALENS(A_THI,0)
+      X1AIM=WW2WW*ldm%getSurfThi(0)
+      Y1AIM=WW1WW*ldm%getSurfThi(0)
       Z1AIM=0.0D0
       XC=X1AIM
       YC=Y1AIM
@@ -925,10 +922,9 @@ subroutine real_ray_trace_core(for_optimization)
          RAYRAY(8,I)=0.0D0
       END IF
       IF(GLANAM(I-1,2).EQ.'IDEAL        ') THEN
-         RAYRAY(8,I)=-(ALENS(A_IDEAL_FL,I-1)-ALENS(A_THI,I-1))*RAYRAY(6,I-1)
+         RAYRAY(8,I)=-(ldm%getSurfIdealEFL(I-1)-ldm%getSurfThi(I-1))*RAYRAY(6,I-1)
       END IF
-      IF(INT(WW3).GE.1.AND.INT(WW3).LE.5)RAYRAY(7,I)=RAYRAY(8,I)*DABS(ALENS(A_N_OFFSET+INT(WW3),(I-1)))
-      IF(INT(WW3).GE.6.AND.INT(WW3).LE.10)RAYRAY(7,I)=RAYRAY(8,I)*DABS(ALENS(A_N2_OFFSET+INT(WW3),(I-1)))
+      IF(INT(WW3).GE.1.AND.INT(WW3).LE.10)RAYRAY(7,I)=RAYRAY(8,I)*DABS(ldm%getSurfIndex(I-1, INT(WW3)))
       IF(.NOT.RV) RAYRAY(7,I)=RAYRAY(7,I)+PHASE
       IF(RV) RAYRAY(7,I)=RAYRAY(7,I)-PHASE
 
@@ -992,7 +988,7 @@ subroutine real_ray_trace_core(for_optimization)
                END IF
                GLSURF=-99
                DO IK=0,NEWIMG
-                  IF(DABS(ALENS(A_THI,IK)).LE.1.0D10) THEN
+                  IF(DABS(ldm%getSurfThi(IK)).LE.1.0D10) THEN
                      GLSURF=IK
                      EXIT
                   END IF
@@ -1069,7 +1065,7 @@ subroutine real_ray_trace_core(for_optimization)
             YC1=YC
             ZC1=ZC
 !           [DIFF 12] GETZEE1 guard: both use same logic
-            IF(ALENS(A_CURV,1).NE.0.0D0)CALL GETZEE1
+            IF(surf_curvature(1).NE.0.0D0)CALL GETZEE1
             X1AIM=XC
             Y1AIM=YC
             Z1AIM=ZC
@@ -1114,7 +1110,7 @@ subroutine real_ray_trace_core(for_optimization)
          R_Z=RAYRAY(3,R_I)
 
          MMSG=MSG
-         IF(DABS(ALENS(A_SURFTYPE,R_I)).NE.24.0D0) THEN
+         IF(ABS(ldm%getSurfSpecialType(R_I)).NE.24) THEN
             IF(surf_multi_clap_flag(R_I).EQ.0.AND.surf_multi_cobs_flag(R_I).EQ.0) THEN
                CALL CACHEK(0.0D0,0.0D0,0.0D0,0)
             ELSE
@@ -1198,7 +1194,7 @@ subroutine real_ray_trace_core(for_optimization)
          END IF
          GLSURF=-99
          glsurf_search: do I=0,NEWIMG
-            IF(DABS(ALENS(A_THI,I)).LE.1.0D10) THEN
+            IF(DABS(ldm%getSurfThi(I)).LE.1.0D10) THEN
                GLSURF=I
                EXIT glsurf_search
             END IF
