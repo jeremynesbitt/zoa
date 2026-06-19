@@ -917,13 +917,14 @@ subroutine real_ray_trace_core(for_optimization)
       IF(SNIND2.GT.0.0D0) RAYRAY(24,I)=1.0D0
       IF(SNIND2.LT.0.0D0) RAYRAY(24,I)=-1.0D0
 
-      IF(GLANAM(I-1,2).EQ.'PERFECT      ') THEN
-         RAYRAY(7,I)=0.0D0
-         RAYRAY(8,I)=0.0D0
-      END IF
-      IF(GLANAM(I-1,2).EQ.'IDEAL        ') THEN
-         RAYRAY(8,I)=-(ldm%getSurfIdealEFL(I-1)-ldm%getSurfThi(I-1))*RAYRAY(6,I-1)
-      END IF
+      ! Am phasing out support of PERFECT and IDEAL KDP Glass types.  for now just comment out.
+!       IF(GLANAM(I-1,2).EQ.'PERFECT      ') THEN
+!          RAYRAY(7,I)=0.0D0
+!          RAYRAY(8,I)=0.0D0
+!       END IF
+!       IF(GLANAM(I-1,2).EQ.'IDEAL        ') THEN
+!          RAYRAY(8,I)=-(ldm%getSurfIdealEFL(I-1)-ldm%getSurfThi(I-1))*RAYRAY(6,I-1)
+!       END IF
       IF(INT(WW3).GE.1.AND.INT(WW3).LE.10)RAYRAY(7,I)=RAYRAY(8,I)*DABS(ldm%getSurfIndex(I-1, INT(WW3)))
       IF(.NOT.RV) RAYRAY(7,I)=RAYRAY(7,I)+PHASE
       IF(RV) RAYRAY(7,I)=RAYRAY(7,I)-PHASE
