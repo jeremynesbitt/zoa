@@ -1,0 +1,100 @@
+
+RAYTRACE DATA (XZ AND YZ-PLANE) - (CFG # 1)
+ANGULAR OUTPUT MODE IS DEGREES
+SLOPES/ANGLES  MEASURED WITH RESPECT TO THE Z-AXIS
+
+SURF      X              Y              Z             XANG           YANG
+  0    0.00000      -0.249328E+20    0.00000       0.971012E-17    14.0000
+  1    16.9474        2.82755        2.79795       -7.26467        7.50531
+  2    16.0749        3.72923       0.895318       -8.03537        13.0350
+  3    15.5841        4.53417        3.87220       -15.2307        5.12458
+  4    12.8266        5.44243        0.00000       -15.3973        5.18310
+  5    10.7524        6.12563        3.75473       -4.53793        19.8672
+  6    9.91916        9.91916        0.00000       -4.53793        19.8672
+  7    9.35250        12.4991       -5.28836        6.37053        24.2583
+  8    10.3646        16.5843        0.00000        6.29026        23.9851
+  9    10.8121        18.3907       -6.77396       -1.66833        19.4279
+ 10    10.5577        21.4722        1.46285       -2.25575        9.25127
+ 11    10.5206        21.6254       -4.45424       -9.55807        2.83627
+ 12   0.887988E-01    24.6947        0.00000       -9.55807        2.83627
+ 13   0.119686        24.6856        0.00000       -9.55807        2.83627
+Reference rays built for 3 field(s).
+RAYTRACE DATA (XZ AND YZ-PLANE) - (CFG # 1)
+ANGULAR OUTPUT MODE IS DEGREES
+SLOPES/ANGLES  MEASURED WITH RESPECT TO THE Z-AXIS
+
+SURF      X              Y              Z             XANG           YANG
+  0    0.00000      -0.249328E+20    0.00000       0.971012E-17    14.0000
+  1    16.9474        2.82755        2.79795       -7.26467        7.50531
+  2    16.0749        3.72923       0.895318       -8.03537        13.0350
+  3    15.5841        4.53417        3.87220       -15.2307        5.12458
+  4    12.8266        5.44243        0.00000       -15.3973        5.18310
+  5    10.7524        6.12563        3.75473       -4.53793        19.8672
+  6    9.91916        9.91916        0.00000       -4.53793        19.8672
+  7    9.35250        12.4991       -5.28836        6.37053        24.2583
+  8    10.3646        16.5843        0.00000        6.29026        23.9851
+  9    10.8121        18.3907       -6.77396       -1.66833        19.4279
+ 10    10.5577        21.4722        1.46285       -2.25575        9.25127
+ 11    10.5206        21.6254       -4.45424       -9.55807        2.83627
+ 12   0.887988E-01    24.6947        0.00000       -9.55807        2.83627
+ 13   0.119686        24.6856        0.00000       -9.55807        2.83627
+Reference rays: 3 field(s)
+F1  x=0.0000 y=0.0000  wl=2
+  R1CHF   ok=T vig=F  Ximg=0.0000 Yimg=0.0000
+  R2UPR   ok=T vig=F  Ximg=0.0000 Yimg=-0.0167
+  R3LWR   ok=T vig=F  Ximg=0.0000 Yimg=0.0167
+  R4+XSG  ok=T vig=F  Ximg=-0.0167 Yimg=0.0000
+  R5-XSG  ok=T vig=F  Ximg=0.0167 Yimg=0.0000
+F2  x=0.0000 y=0.7000  wl=2
+  R1CHF   ok=T vig=F  Ximg=0.0000 Yimg=17.0925
+  R2UPR   ok=T vig=F  Ximg=0.0000 Yimg=17.1100
+  R3LWR   ok=T vig=F  Ximg=0.0000 Yimg=17.0879
+  R4+XSG  ok=T vig=F  Ximg=-0.0100 Yimg=17.0942
+  R5-XSG  ok=T vig=F  Ximg=0.0100 Yimg=17.0942
+F3  x=0.0000 y=1.0000  wl=2
+  R1CHF   ok=T vig=F  Ximg=0.0000 Yimg=24.5515
+  R2UPR   ok=T vig=F  Ximg=0.0000 Yimg=24.5589
+  R3LWR   ok=T vig=F  Ximg=0.0000 Yimg=24.5588
+  R4+XSG  ok=T vig=F  Ximg=0.0055 Yimg=24.5484
+  R5-XSG  ok=T vig=F  Ximg=-0.0055 Yimg=24.5484
+
+Reference rays built for 3 field(s).
+Reference rays: 3 field(s)
+F1  x=0.0000 y=0.0000  wl=1
+  R1CHF   ok=T vig=F  Ximg=0.0000 Yimg=0.0000
+  R2UPR   ok=T vig=F  Ximg=0.0000 Yimg=-0.0003
+  R3LWR   ok=T vig=F  Ximg=0.0000 Yimg=0.0003
+  R4+XSG  ok=T vig=F  Ximg=-0.0003 Yimg=0.0000
+  R5-XSG  ok=T vig=F  Ximg=0.0003 Yimg=0.0000
+F2  x=0.0000 y=0.7000  wl=1
+  R1CHF   ok=T vig=F  Ximg=0.0000 Yimg=-6.8387
+  R2UPR   ok=T vig=F  Ximg=0.0000 Yimg=-6.8388
+  R3LWR   ok=T vig=F  Ximg=0.0000 Yimg=-6.8377
+  R4+XSG  ok=T vig=F  Ximg=-0.0005 Yimg=-6.8386
+  R5-XSG  ok=T vig=F  Ximg=0.0005 Yimg=-6.8386
+F3  x=0.0000 y=1.0000  wl=1
+  R1CHF   ok=T vig=F  Ximg=0.0000 Yimg=-9.7695
+  R2UPR   ok=T vig=F  Ximg=0.0000 Yimg=-9.7696
+  R3LWR   ok=T vig=F  Ximg=0.0000 Yimg=-9.7684
+  R4+XSG  ok=T vig=F  Ximg=-0.0003 Yimg=-9.7695
+  R5-XSG  ok=T vig=F  Ximg=0.0003 Yimg=-9.7695
+Reference rays built for 3 field(s).
+Reference rays: 3 field(s)
+F1  x=0.0000 y=0.0000  wl=1
+  R1CHF   ok=T vig=F  Ximg=0.0000 Yimg=0.0000
+  R2UPR   ok=T vig=F  Ximg=0.0000 Yimg=-0.0003
+  R3LWR   ok=T vig=F  Ximg=0.0000 Yimg=0.0003
+  R4+XSG  ok=T vig=F  Ximg=-0.0003 Yimg=0.0000
+  R5-XSG  ok=T vig=F  Ximg=0.0003 Yimg=0.0000
+F2  x=0.0000 y=0.7000  wl=1
+  R1CHF   ok=T vig=F  Ximg=0.0000 Yimg=-6.8387
+  R2UPR   ok=T vig=F  Ximg=0.0000 Yimg=-6.8387
+  R3LWR   ok=T vig=F  Ximg=0.0000 Yimg=-6.8387
+  R4+XSG  ok=T vig=F  Ximg=-0.0000 Yimg=-6.8386
+  R5-XSG  ok=T vig=F  Ximg=0.0000 Yimg=-6.8386
+F3  x=0.0000 y=1.0000  wl=1
+  R1CHF   ok=T vig=F  Ximg=0.0000 Yimg=-9.7695
+  R2UPR   ok=T vig=F  Ximg=0.0000 Yimg=-9.7696
+  R3LWR   ok=T vig=F  Ximg=0.0000 Yimg=-9.7684
+  R4+XSG  ok=T vig=F  Ximg=-0.0003 Yimg=-9.7695
+  R5-XSG  ok=T vig=F  Ximg=0.0003 Yimg=-9.7695

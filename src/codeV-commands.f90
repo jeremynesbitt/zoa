@@ -309,6 +309,9 @@ module codeV_commands
    module subroutine execSET(iptStr)
     character(len=*) :: iptStr
    end subroutine execSET
+   module subroutine execRAYREF(iptStr)
+    character(len=*) :: iptStr
+   end subroutine execRAYREF
    module subroutine execUndo(iptStr)
     character(len=*) :: iptStr
    end subroutine execUndo
@@ -752,6 +755,8 @@ module codeV_commands
         zoaCmds(690)%execFunc => execZOO
         zoaCmds(691)%cmd = "POS"
         zoaCmds(691)%execFunc => execPOS
+        zoaCmds(692)%cmd = "RAYREF"
+        zoaCmds(692)%execFunc => execRAYREF
 
 
     end subroutine

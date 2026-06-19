@@ -26,9 +26,20 @@ contains
   ! Mirrors gui_replot_flush in zzhandlers.f90: if dirty, take an undo snapshot.
   subroutine headless_replot_flush()
     use undo_manager, only: undo_snapshot
+    use mod_reference_rays, only: refRays
+    use zoa_file_handler, only: zoa_file_depth
     if (lens_dirty) then
       lens_dirty = .false.
       call undo_snapshot()
+      ! Retrace the per-field reference rays for the new lens (CODE V behaviour),
+      ! but only for settled top-level edits -- not for the transient intermediate
+      ! states while a lens is being built/loaded line-by-line (zoa_file_depth>0).
+      ! populate's inner FOB/RAY do not modify the lens, so re-clear the dirty flag
+      ! afterwards to absorb any spurious re-arming.
+      if (zoa_file_depth == 0) then
+        call refRays%populate()
+        lens_dirty = .false.
+      end if
     end if
   end subroutine
 

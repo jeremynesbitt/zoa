@@ -236,6 +236,7 @@ contains
         use mod_lens_data_manager, only: ldm
         use undo_manager, only: undo_reset_baseline
         use zoom_manager, only: zoom_reset
+        use global_widgets, only: sysConfig
         implicit none
         integer :: locStr, locDot, i
         character(len=1024) :: fileName
@@ -258,9 +259,10 @@ contains
                 if (present(printOnly)) then
                     call process_zoa_file(trim(fileName), printOnly=.TRUE.)
                 else
-                    ! Clear prior zoom before loading; the file's own ZOO/POS
-                    ! lines (if any) rebuild the configs during processing.
+                    ! Clear prior zoom + vignetting before loading; the file's own
+                    ! ZOO/POS and SET VIG lines (if any) rebuild them during processing.
                     call zoom_reset()
+                    call sysConfig%resetVignetting()
                     call process_zoa_file(trim(fileName))
                     call ldm%load_surfaces_from_alens()
                     ! A user load replaces the lens: reset the undo history with
@@ -277,9 +279,10 @@ contains
                 if (present(printOnly)) then
                     call process_zoa_file(trim(fileName), printOnly=.TRUE.)
                 else
-                    ! Clear prior zoom before loading; the file's own ZOO/POS
-                    ! lines (if any) rebuild the configs during processing.
+                    ! Clear prior zoom + vignetting before loading; the file's own
+                    ! ZOO/POS and SET VIG lines (if any) rebuild them during processing.
                     call zoom_reset()
+                    call sysConfig%resetVignetting()
                     call process_zoa_file(trim(fileName))
                     call ldm%load_surfaces_from_alens()
                     ! A user load replaces the lens: reset the undo history with
@@ -364,5 +367,58 @@ contains
         end interface
         call MMAB3_NEW(.TRUE., sysConfig%refWavelengthIndex, .TRUE.)
     end procedure execTHO
+
+    module procedure execRAYREF
+        use mod_reference_rays, only: refRays, NUM_REF_RAYS
+        use type_utils, only: real2str, int2str
+        use iso_fortran_env, only: real64
+        implicit none
+
+        character(len=80) :: tokens(40)
+        integer :: numTokens, i, k
+        real(real64) :: xi, yi
+        logical :: ok
+        character(len=6), parameter :: rayLbl(NUM_REF_RAYS) = &
+            ['R1CHF ', 'R2UPR ', 'R3LWR ', 'R4+XSG', 'R5-XSG']
+
+        call parse(trim(iptStr), ' ', tokens, numTokens)
+
+        ! RAYREF [BUILD] : (re)build the store.  RAYREF LIST : dump it as text.
+        if (numTokens >= 2 .and. trim(tokens(2)) == 'LIST') then
+            if (.not. refRays%valid .or. refRays%getNumFields() < 1) then
+                call zoa_emit("RAYREF: no reference rays stored. Run RAYREF BUILD first.", "red")
+                return
+            end if
+            call zoa_emit("Reference rays: "//trim(int2str(refRays%getNumFields()))//" field(s)", "black")
+            do i = 1, refRays%getNumFields()
+                call zoa_emit("F"//trim(int2str(i))//"  x="// &
+                    trim(real2str(refRays%fields(i)%xfrac,4))//" y="// &
+                    trim(real2str(refRays%fields(i)%yfrac,4))//"  wl="// &
+                    trim(int2str(refRays%fields(i)%wavelength)), "black")
+                do k = 1, NUM_REF_RAYS
+                    call refRays%getImagePoint(i, k, xi, yi, ok)
+                    call zoa_emit("  "//rayLbl(k)//"  ok="//logChar(refRays%fields(i)%ray(k)%traced_ok)// &
+                        " vig="//logChar(refRays%isVignetted(i,k))// &
+                        "  Ximg="//trim(real2str(xi,4))//" Yimg="//trim(real2str(yi,4)), "black")
+                end do
+            end do
+        else
+            call refRays%populate()
+            if (refRays%valid) then
+                call zoa_emit("Reference rays built for "// &
+                    trim(int2str(refRays%getNumFields()))//" field(s).", "black")
+            else
+                call zoa_emit("RAYREF: no field points defined; nothing built.", "red")
+            end if
+        end if
+
+    contains
+        pure function logChar(b) result(c)
+            logical, intent(in) :: b
+            character(len=1) :: c
+            c = 'F'
+            if (b) c = 'T'
+        end function
+    end procedure execRAYREF
 
 end submodule mod_codev_utils

@@ -1,4 +1,5 @@
 DCON ALL
+DEL VIG
 LEN
 TIT 'New Lens From Template'
 EPD 2

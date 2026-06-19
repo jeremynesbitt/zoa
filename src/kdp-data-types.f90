@@ -81,6 +81,9 @@ type sys_config
  type(idText), allocatable :: rayAimOptions(:)
  real(kind=real64), dimension(2) :: refFieldValue
  real(kind=real64), dimension(2,10) :: relativeFields
+ ! Per-field CODE V vignetting factors, column = field index.
+ ! Rows: 1=VUY (upper-y), 2=VLY (lower-y), 3=VUX (+x), 4=VLX (-x). 0 = no vignetting.
+ real(kind=real64), dimension(4,10) :: vignetting = 0.0_real64
  integer :: numFields, numWavelengths
  integer, dimension(10) :: wavelengthIndices
  character(len=80) :: lensTitle
@@ -120,6 +123,9 @@ contains
  procedure, public, pass(self) :: setWavelengths
  procedure, public, pass(self) :: setSpectralWeights
  procedure, public, pass(self) :: setRelativeFields
+ procedure, public, pass(self) :: setVignetting
+ procedure, public, pass(self) :: getVignetting
+ procedure, public, pass(self) :: resetVignetting
  procedure, public, pass(self) :: setAbsoluteFields
  procedure, public, pass(self) :: getFieldText
  procedure :: getLensUnitsText
@@ -500,6 +506,7 @@ type(sys_config) function sys_config_constructor() result(self)
 
   self%numFields = CFLDCNT
   self%relativeFields = CFLDS
+  self%vignetting = 0.0_real64
 
   ! self%colorNames = [character(len=8) :: "Red", "Green", "Magenta", "Red", "Cyan", &
   ! & "Green", "Blue", "Grey", "Black"]
@@ -1384,6 +1391,18 @@ subroutine genSaveOutputText(self, fID)
     end do
     write(fID, *) trim(strFLDWGT)
 
+    ! Per-field vignetting factors (only emit fields that have any set, so a lens
+    ! with no vignetting saves identically to before this feature).
+    do ii=1,self%numFields
+      if (any(self%vignetting(:,ii) /= 0.0_real64)) then
+        write(fID, *) "SET VIG "//trim(int2str(ii))//blankStr(1)// &
+          real2str(self%vignetting(1,ii),4)//blankStr(1)// &
+          real2str(self%vignetting(2,ii),4)//blankStr(1)// &
+          real2str(self%vignetting(3,ii),4)//blankStr(1)// &
+          real2str(self%vignetting(4,ii),4)
+      end if
+    end do
+
 
 
  
@@ -1459,6 +1478,44 @@ subroutine setRelativeFields(self, col, row, newval)
   CFLDS = self%relativeFields
 
 end subroutine
+
+! Set the four CODE V vignetting factors for one field point (1-based index).
+subroutine setVignetting(self, field, vuy, vly, vux, vlx)
+  use iso_fortran_env, only: real64
+  implicit none
+  class(sys_config), intent(inout) :: self
+  integer, intent(in) :: field
+  real(kind=real64), intent(in) :: vuy, vly, vux, vlx
+  if (field < 1 .or. field > 10) return
+  self%vignetting(1, field) = vuy
+  self%vignetting(2, field) = vly
+  self%vignetting(3, field) = vux
+  self%vignetting(4, field) = vlx
+end subroutine
+
+! Clear all per-field vignetting factors. Called wherever the lens is replaced
+! (new lens / file load), mirroring zoom_reset; the loaded file's own SET VIG lines
+! (emitted by genSaveOutputText) then re-apply any that belong to that lens.
+subroutine resetVignetting(self)
+  use iso_fortran_env, only: real64
+  implicit none
+  class(sys_config), intent(inout) :: self
+  self%vignetting = 0.0_real64
+end subroutine
+
+! Return the four vignetting factors (VUY,VLY,VUX,VLX) for one field point.
+function getVignetting(self, field) result(vig)
+  use iso_fortran_env, only: real64
+  implicit none
+  class(sys_config), intent(in) :: self
+  integer, intent(in) :: field
+  real(kind=real64) :: vig(4)
+  if (field < 1 .or. field > 10) then
+    vig = 0.0_real64
+  else
+    vig = self%vignetting(:, field)
+  end if
+end function
 
 
 subroutine updateApertureSelectionByCode(self, ID_SELECTION, xAp, yAp, xySame)

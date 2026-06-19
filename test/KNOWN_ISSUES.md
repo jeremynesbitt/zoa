@@ -131,3 +131,27 @@ These commands were added in Batch 9; all are now TESTED in `test/misc_commands.
 |------|-----------|-------|
 | `DXF3D.DXF` | `DXF NEW` + `DXF END` | Written to CWD; file content not goldenised (only console text is captured). Idempotent: regenerated each run. |
 | `AUTO.DAT` | `AUTO SAVE` (when data exists) | In optim_extra test, `AUTO SAVE` reports no data to store; no file written |
+
+---
+
+## TODO: Unify the new-lens / lens-load reset paths
+
+The several ways a lens gets loaded/replaced reset their per-lens "extra" state
+(zoom configs, vignetting factors, etc.) through **different mechanisms**, and do
+not all behave identically:
+
+- **New from template** (`newLens` → `Library/Macros/newlens.zoa`): resets via
+  script commands (`DCON ALL`, `DEL VIG`, …) plus a direct `zoom_reset()` in `newLens`.
+- **`CV2PRG`** (CODE V seq import): resets via direct calls inside the subroutine,
+  and those calls sit on an inconsistent path (the cleanup block at the end is only
+  reached on the HOE branch; the common no-HOE path returns early — so the
+  vignetting reset had to be placed up front). CV2PRG also does **not** translate
+  CODE V vignetting (`VUY/VLY/VUX/VLX`) from the seq.
+- **`.zoa` restore** (`processZoaFileInput`) and **undo restore**: reset via direct
+  `zoom_reset()` / `sysConfig%resetVignetting()` before re-running the saved file.
+
+These should eventually be funnelled through **one shared "new lens / lens replaced"
+routine** (or a single reset macro) so every entry point clears the same state the
+same way. Surfaced during the per-field vignetting / reference-rays work
+(`SET VIG` / `DEL VIG`). Until then, any new per-lens state must remember to hook
+*all* of these sites.

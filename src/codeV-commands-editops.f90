@@ -244,6 +244,7 @@ contains
         character(len=200) :: line
 
         ! A new lens starts single-config; clear any prior zoom before loading.
+        ! (Per-field vignetting is cleared by the DEL VIG line in newlens.zoa.)
         call zoom_reset()
         open(unit=9, file=trim(basePath)//'Macros/newlens.zoa', iostat=ios)
         if (ios /= 0) stop "Error opening file "
@@ -566,10 +567,13 @@ contains
 
     module procedure execSET
         use mod_lens_data_manager, only: ldm
+        use global_widgets, only: sysConfig
+        use type_utils, only: str2real8
         implicit none
 
         character(len=80) :: tokens(40)
-        integer :: numTokens
+        integer :: numTokens, fld
+        real(kind=real64) :: vuy, vly, vux, vlx
 
         call parse(trim(iptStr), ' ', tokens, numTokens)
         if (numTokens >= 2 .and. trim(tokens(2)) == 'CAP') then
@@ -579,8 +583,26 @@ contains
             ! the lens editor reflects the new ALENS clap data.
             call PROCESKDP('SETCLAP REAL')
             call ldm%load_surfaces_from_alens()
+        else if (numTokens >= 2 .and. trim(tokens(2)) == 'VIG') then
+            ! SET VIG <field> <vuy> <vly> <vux> <vlx>: per-field vignetting factors.
+            ! Missing factors default to 0 (no vignetting on that edge).
+            if (numTokens < 3) then
+                call zoa_emit("Usage: SET VIG <field> [vuy] [vly] [vux] [vlx]", "red")
+                return
+            end if
+            fld = nint(str2real8(tokens(3)))
+            if (fld < 1 .or. fld > sysConfig%numFields) then
+                call zoa_emit("SET VIG: field index out of range", "red")
+                return
+            end if
+            vuy = 0.0_real64; vly = 0.0_real64; vux = 0.0_real64; vlx = 0.0_real64
+            if (numTokens >= 4) vuy = str2real8(tokens(4))
+            if (numTokens >= 5) vly = str2real8(tokens(5))
+            if (numTokens >= 6) vux = str2real8(tokens(6))
+            if (numTokens >= 7) vlx = str2real8(tokens(7))
+            call sysConfig%setVignetting(fld, vuy, vly, vux, vlx)
         else
-            call zoa_emit("Unknown SET subcommand. Try: SET CAP", "red")
+            call zoa_emit("Unknown SET subcommand. Try: SET CAP, SET VIG", "red")
         end if
     end procedure execSET
 

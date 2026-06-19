@@ -10,6 +10,7 @@ SUBROUTINE CV2PRG
    use DATMAI
    use mod_lens_data_manager, only: ldm
    use undo_manager, only: undo_reset_baseline
+   use global_widgets, only: sysConfig
    use zoom_manager, only: zoom_reset
    use iso_fortran_env, only: real64
    IMPLICIT NONE
@@ -163,6 +164,12 @@ SUBROUTINE CV2PRG
    call notify_close_all_tabs("You are about to open a new " //&
    &"lens system.  This will invalidate all plots.   " //&
    &"Press yes to close them.")
+
+!     Clear any vignetting carried over from the previously loaded lens. NOTE:
+!     CV2PRG does not yet translate CODE V vignetting (VUY/VLY/VUX/VLX) from the
+!     seq, so a converted lens currently starts with none; revisit if/when seq
+!     vignetting import is added (it would set factors after this reset).
+   call sysConfig%resetVignetting()
 
 !     FILES EXISTS, CREATE PROGRAM FILE NAME
    !call logger%logText("CV2PRG Find Extension in File Name")

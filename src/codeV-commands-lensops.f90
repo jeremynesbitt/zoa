@@ -429,7 +429,7 @@ contains
 
     module procedure deleteStuff
         use command_utils, only: isInputNumber
-        use global_widgets, only: curr_lens_data
+        use global_widgets, only: curr_lens_data, sysConfig
         use optim_types
         implicit none
 
@@ -463,6 +463,9 @@ contains
                 else
                     call zoa_emit("Improper format detected.  Expect DEL CON ID", "red")
                 end if
+            case('VIG')
+                ! DEL VIG: clear all per-field vignetting factors.
+                call sysConfig%resetVignetting()
             end select
         end if
     end procedure deleteStuff

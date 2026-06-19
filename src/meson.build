@@ -67,6 +67,7 @@ srcs += files(
   'plot-setting-manager.f90',
   'kdp-data-types.f90',
   'global_widgets.f90',
+  'mod_reference_rays.f90',
   'gtk-hl-zoa.f90',
   'zoa-plot.f90',
   'zoa-macro-ui.f90',

@@ -77,9 +77,10 @@ contains
     integer, intent(in) :: seq
     character(len=1040) :: path
     in_restore = .true.
-    ! Clear zoom first; the snapshot's ZOO/POS lines rebuild the exact config
-    ! state, so stale operands from the current state don't linger.
+    ! Clear zoom + vignetting first; the snapshot's ZOO/POS and SET VIG lines
+    ! rebuild the exact state, so nothing stale lingers from the current lens.
     call zoom_reset()
+    call sysConfig%resetVignetting()
     path = trim(getTempDirectory())//trim(slot_name(seq))
     call process_zoa_file(trim(path))
     call ldm%load_surfaces_from_alens()
