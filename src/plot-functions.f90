@@ -188,7 +188,10 @@ subroutine vie_go(psm)
     use DATMAI
     use g
     use handlers, only: zoatabMgr
-    use global_widgets, only: currVieData
+    use global_widgets, only: currVieData, curr_lens_data
+    use mod_lens_data_manager, only: ldm
+    use kdp_data_types, only: check_clear_apertures
+    use zoa_output, only: zoa_suppress_output
 
    use iso_fortran_env, only: real64
     implicit none
@@ -198,7 +201,16 @@ subroutine vie_go(psm)
 
     character(len=1024) :: inputCmd, tabName
     integer :: objIdx, pIdx
-    logical :: replot
+    logical :: replot, prevSup, discardSup
+
+    ! Size the typed surfaces and fill each surface's ray-traced (display-only)
+    ! clear-aperture extent, so the lens drawing can size surfaces without an
+    ! explicit clear aperture from the real ray footprint (see CAOJK).  Muted: this
+    ! is internal sizing and its ray trace must not pollute captured plot output.
+    prevSup = zoa_suppress_output(.true.)
+    call ldm%load_surfaces_from_alens()
+    call check_clear_apertures(curr_lens_data, ldm%surfaces)
+    discardSup = zoa_suppress_output(prevSup)
 
     !if (allocated(NEUTARRAY)) then
     !  call LogTermDebug("NEUTARRAYSize before vie_psm is "//int2str(size(NEUTARRAY)))

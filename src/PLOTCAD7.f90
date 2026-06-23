@@ -2663,6 +2663,7 @@ SUBROUTINE CAOJK(YMIN,XMIN,YMAX,XMAX,&
 !
    use DATLEN
    use DATMAI
+   use mod_lens_data_manager, only: ldm
    use iso_fortran_env, only: real64
    IMPLICIT NONE
 !
@@ -2675,7 +2676,7 @@ SUBROUTINE CAOJK(YMIN,XMIN,YMAX,XMAX,&
    real(real64) X,Y,XMIN,YMIN,XMAX,YMAX,XOLDX,YOLDY,ZDELZ &
    &,XMINO,YMINO,XMAXO,YMAXO,XTOPO,GAM,RHO2,RHO &
    &,CLPLCX(0:499),CLPLCY(0:499),KAPPA,CEE,ZEE,PEEPEE,&
-   &YMIN2,XMIN2,YMAX2,XMAX2,THETA,THETA2
+   &YMIN2,XMIN2,YMAX2,XMAX2,THETA,THETA2,APX,APY,CHX,CHY
 !
    COMMON/CLPLOC/CLPLCX,CLPLCY
 !
@@ -2697,15 +2698,31 @@ SUBROUTINE CAOJK(YMIN,XMIN,YMAX,XMAX,&
 !
       IF(CAFLG.EQ.0) THEN
 !
-!     COORDINATES OF THE END POINTS FOR PROF
-         XMAX=(((DABS(PXTRAX(1,I))+DABS(PXTRAX(5,I))))*DCOS(THETA))&
-         &+CLPLCX(I)
-         YMAX=(((DABS(PXTRAY(1,I))+DABS(PXTRAY(5,I))))*DSIN(THETA))&
-         &+CLPLCY(I)
-         XMIN=(((DABS(PXTRAX(1,I))+DABS(PXTRAX(5,I))))*DCOS(THETA2))&
-         &+CLPLCX(I)
-         YMIN=(((DABS(PXTRAY(1,I))+DABS(PXTRAY(5,I))))*DSIN(THETA2))&
-         &+CLPLCY(I)
+!     COORDINATES OF THE END POINTS FOR PROF.
+!     With no clear aperture, the surface half-extent is estimated from paraxial
+!     data: |marginal ray height| + |chief ray height|.  The chief term blows up
+!     for a surface at an infinite conjugate (object/image at infinity, where
+!     chief height = field angle x ~infinite distance); drop it when it is
+!     non-physically large AND utterly dominates the marginal, so such a surface
+!     does not draw enormously and wreck the plot autoscale.
+         APX=DABS(PXTRAX(1,I))
+         APY=DABS(PXTRAY(1,I))
+         CHX=DABS(PXTRAX(5,I))
+         CHY=DABS(PXTRAY(5,I))
+         IF(CHX.GT.1.0D10.AND.CHX.GT.1.0D6*APX) CHX=0.0D0
+         IF(CHY.GT.1.0D10.AND.CHY.GT.1.0D6*APY) CHY=0.0D0
+         APX=APX+CHX
+         APY=APY+CHY
+!     Prefer the ray-traced footprint (display-only auto clear aperture, filled by
+!     check_clear_apertures) when it is larger, so the drawn surface always covers
+!     the rays that hit it -- the paraxial estimate underestimates fast/aberrated
+!     surfaces (e.g. a Cassegrain secondary with no defined clear aperture).
+         APX=MAX(APX, DABS(ldm%getSurfAutoSemiX(I)))
+         APY=MAX(APY, DABS(ldm%getSurfAutoSemiY(I)))
+         XMAX=(APX*DCOS(THETA))+CLPLCX(I)
+         YMAX=(APY*DSIN(THETA))+CLPLCY(I)
+         XMIN=(APX*DCOS(THETA2))+CLPLCX(I)
+         YMIN=(APY*DSIN(THETA2))+CLPLCY(I)
 !
          XMIN2=XMIN
          YMIN2=YMIN
