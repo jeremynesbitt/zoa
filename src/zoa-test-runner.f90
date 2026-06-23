@@ -7,6 +7,14 @@
 !   1 argument:  Run script, write output to stdout (for generating reference files)
 !   2 arguments: Run script, compare output to reference file
 !
+! Plot PNGs:
+!   In compare mode each rendered plot (/tmp/zoa_plot_<N>.png) is checked for a
+!   valid PNG/dimensions AND compared byte-for-byte against a baseline
+!   <ref>.p<N>.png (Cairo rendering is deterministic).  A mismatch fails the test
+!   (PNGDIFF); a missing baseline is a non-fatal PNGNOBASE.
+!   Regenerate text refs:  ./buildHB/zoa_test test/X.zoa > test/X.ref
+!   Regenerate PNG baselines:  ZOA_GEN_PNG_BASELINE=1 ./buildHB/zoa_test test/X.zoa test/X.ref
+!
 ! Exit codes:
 !   0 = pass (or no reference file to compare)
 !   1 = fail (output differs from reference)
@@ -22,11 +30,17 @@ program zoa_test_runner
 
   character(len=512) :: test_file, ref_file
   integer :: nargs, dev_null_unit
-  logical :: has_ref, passed
+  logical :: has_ref, passed, gen_png_baseline
   integer :: num_diffs, png_fails
   real(8) :: tolerance
+  character(len=32) :: envval
 
   tolerance = 1.0d-6
+
+  ! When ZOA_GEN_PNG_BASELINE is set, save each rendered plot PNG as the baseline
+  ! (<ref>.p<N>.png) instead of comparing -- used to (re)generate baselines.
+  call get_environment_variable('ZOA_GEN_PNG_BASELINE', envval)
+  gen_png_baseline = (len_trim(envval) > 0)
 
   nargs = command_argument_count()
   if (nargs < 1 .or. nargs > 2) then
@@ -105,6 +119,8 @@ contains
     integer(1) :: hdr(24)
     integer :: w_announced, h_announced, w_ihdr, h_ihdr
     logical :: has_dim
+    character(len=512) :: basepath
+    logical :: have_n, base_exist
 
     n = get_num_captured()
     do i = 1, n
@@ -198,8 +214,76 @@ contains
         end if
       end if
 
-      write(out_unit, '(A)') 'PNGOK: '//trim(basename)
+      ! 6. Content comparison against baseline <ref>.p<N>.png.  Cairo rendering is
+      !    deterministic, so plots are compared byte-for-byte.  Baseline number N
+      !    is parsed from the basename "zoa_plot_<N>.png".
+      if (.not. has_ref) then
+        ! Generate mode: sanity only (no reference to compare/store against).
+        write(out_unit, '(A)') 'PNGOK: '//trim(basename)
+        cycle
+      end if
+
+      call build_baseline_path(trim(basename), trim(ref_file), basepath, have_n)
+      if (.not. have_n) then
+        write(out_unit, '(A)') 'PNGOK: '//trim(basename)//' (sanity only; plot name not parsed)'
+      else if (gen_png_baseline) then
+        call execute_command_line('cp '//trim(fpath)//' '//trim(basepath))
+        write(out_unit, '(A)') 'PNGSAVED: '//trim(basepath)
+      else
+        inquire(file=trim(basepath), exist=base_exist)
+        if (.not. base_exist) then
+          ! No baseline yet -- sanity passed, but no content check possible.
+          write(out_unit, '(A)') 'PNGNOBASE: '//trim(basename)//' (no baseline '//trim(basepath)//')'
+        else if (files_equal(trim(fpath), trim(basepath))) then
+          write(out_unit, '(A)') 'PNGOK: '//trim(basename)
+        else
+          write(out_unit, '(A)') 'PNGDIFF: '//trim(basename)//' differs from baseline '//trim(basepath)
+          png_fails = png_fails + 1
+        end if
+      end if
     end do
   end subroutine check_plot_pngs
+
+  ! Build the baseline path <ref>.p<N>.png from a plot basename "zoa_plot_<N>.png".
+  subroutine build_baseline_path(bname, refpath, bpath, ok)
+    character(len=*), intent(in)  :: bname, refpath
+    character(len=*), intent(out) :: bpath
+    logical, intent(out) :: ok
+    integer :: us, dot
+    ok = .false.
+    bpath = ''
+    us = index(bname, 'zoa_plot_')
+    if (us == 0) return
+    us = us + len('zoa_plot_')
+    dot = index(bname(us:), '.')
+    if (dot <= 1) return
+    bpath = trim(refpath)//'.p'//bname(us:us+dot-2)//'.png'
+    ok = .true.
+  end subroutine
+
+  ! Byte-exact file comparison (reads both fully; PNGs are ~100 KB).
+  function files_equal(a, b) result(equal)
+    character(len=*), intent(in) :: a, b
+    logical :: equal
+    integer :: ua, ub, ios
+    integer(8) :: sza, szb
+    integer(1), allocatable :: bufa(:), bufb(:)
+    equal = .false.
+    inquire(file=a, size=sza)
+    inquire(file=b, size=szb)
+    if (sza /= szb .or. sza <= 0) return
+    allocate(bufa(sza), bufb(szb))
+    open(newunit=ua, file=a, access='stream', form='unformatted', status='old', action='read', iostat=ios)
+    if (ios /= 0) return
+    read(ua, iostat=ios) bufa
+    close(ua)
+    if (ios /= 0) return
+    open(newunit=ub, file=b, access='stream', form='unformatted', status='old', action='read', iostat=ios)
+    if (ios /= 0) return
+    read(ub, iostat=ios) bufb
+    close(ub)
+    if (ios /= 0) return
+    equal = all(bufa == bufb)
+  end function
 
 end program zoa_test_runner
