@@ -251,21 +251,16 @@ end subroutine
     use hl_gtk_zoa
     use iso_fortran_env, only: real64
     type(c_ptr), value :: renderer, path, text, gdata
-    real(kind=real64) :: cellData
+    real(kind=real64) :: cellData, vig(4)
 
     character(len=200) :: fpath, ftext
     integer :: row, col
     type(c_ptr) :: locallist
 
-    call getRowAndColFromCallback(renderer, path, row, col) 
- 
-     
-    
+    call getRowAndColFromCallback(renderer, path, row, col)
 
-
-   ! Only want to update field points.  Ignore updates for other columns
-   ! This could be handled better than checking column number I'm sure.
-   if (col /= 3 ) THEN
+   ! Column dispatch: 1/2 = field X/Y, 4-7 = vignetting +Y/-Y/+X/-X, 3 = color combo.
+   if (col == 1 .or. col == 2) then
      ! TODO:  Make this into a sub?
     locallist = g_object_get_data(renderer, "view"//c_null_char)
     call hl_gtk_listn_set_cell(locallist, row, col, &
@@ -274,9 +269,17 @@ end subroutine
     call convertCellData(text, ftext, realData=cellData)
     absFields(col,row+1) = cellData
     call sysConfig%setAbsoluteFields(reshape(absFields(col,:), [10]), col)
+   else if (col >= 4 .and. col <= 7) then
+    ! Vignetting factor index = col-3:  +Y->VUY(1), -Y->VLY(2), +X->VUX(3), -X->VLX(4)
+    locallist = g_object_get_data(renderer, "view"//c_null_char)
+    call convertCellData(text, ftext, realData=cellData)
+    call hl_gtk_listn_set_cell(locallist, row, col, svalue=trim(ftext))
+    vig = sysConfig%getVignetting(row+1)
+    vig(col-3) = cellData
+    call sysConfig%setVignetting(row+1, vig(1), vig(2), vig(3), vig(4))
    else
     call hl_gtk_listn_combo_set_by_list_id(uiFieldSettings%ihlist, row, 3_c_int, &
-    & targetValue=sysConfig%fieldColorCodes(row+1))    
+    & targetValue=sysConfig%fieldColorCodes(row+1))
 
   end if
   
@@ -285,6 +288,31 @@ end subroutine
 
   end subroutine
 
+
+  ! "Clear All Vignetting" button: clear all factors via the DEL VIG command,
+  ! then refresh the displayed +Y/-Y/+X/-X cells to zero.
+  subroutine callback_clear_vignetting(widget, gdata) bind(c)
+    use hl_gtk_zoa
+    type(c_ptr), value :: widget, gdata
+    integer(c_int) :: i, c
+    call PROCESKDP("DEL VIG")
+    do i = 1, 10
+      do c = 4, 7
+        call hl_gtk_listn_set_cell(uiFieldSettings%ihlist, i-1_c_int, &
+             & int(c, c_int), fvalue=REAL(0.0,4))
+      end do
+    end do
+  end subroutine
+
+  ! "Set Vignetting..." button. CODE V computes vignetting by ray-tracing the
+  ! aperture limits; that search is not implemented yet (factors can be entered
+  ! directly in the +Y/-Y/+X/-X columns, or via the SET VIG command).
+  subroutine callback_set_vignetting(widget, gdata) bind(c)
+    use zoa_output, only: zoa_emit
+    type(c_ptr), value :: widget, gdata
+    call zoa_emit("Automatic 'Set Vignetting' is not yet implemented; enter "// &
+      & "factors directly in the +Y/-Y/+X/-X columns or use SET VIG.", "red")
+  end subroutine
 
   function getComboBoxSelection(renderer, iter) result(ivalue)
     type(c_ptr), value, intent(in) :: renderer
@@ -488,11 +516,11 @@ function createFieldPointSelectionTable(self) result(base)
   implicit none
   class(ui_field_settings) :: self
 
-  type(c_ptr) :: base, ihscrollcontain
+  type(c_ptr) :: base, ihscrollcontain, btn_box, btn_set, btn_clear
   character(len=35) :: line
   integer(c_int) :: i, ltr
   integer(c_int), target :: fmt_col = 2
-    integer, parameter :: ncols = 4, nrows=10
+    integer, parameter :: ncols = 8, nrows=10
     integer(type_kind), dimension(ncols) :: ctypes
     character(len=20), dimension(ncols) :: titles, renderers
     integer(c_int), dimension(ncols) :: sortable, editable
@@ -517,22 +545,30 @@ function createFieldPointSelectionTable(self) result(base)
   ! Now make a column box & put it into the window
   base = hl_gtk_box_new()
 
-  ! Now make a multi column list with multiple selections enabled
-  ctypes = [ G_TYPE_INT, G_TYPE_FLOAT, G_TYPE_FLOAT, G_TYPE_STRING]
-  sortable = [ FALSE, FALSE, FALSE, FALSE ]
-  editable = [ FALSE, TRUE, TRUE, TRUE ]
-  widths = [-1,-1,-1,-1] !Fixed width needed when adding pixbuf
+  ! Now make a multi column list with multiple selections enabled.
+  ! Columns 5-8 are the per-field CODE V vignetting factors:
+  !   +Y = VUY (upper-y), -Y = VLY (lower-y), +X = VUX, -X = VLX.
+  ctypes = [ G_TYPE_INT, G_TYPE_FLOAT, G_TYPE_FLOAT, G_TYPE_STRING, &
+       & G_TYPE_FLOAT, G_TYPE_FLOAT, G_TYPE_FLOAT, G_TYPE_FLOAT]
+  sortable = [ FALSE, FALSE, FALSE, FALSE, FALSE, FALSE, FALSE, FALSE ]
+  editable = [ FALSE, TRUE, TRUE, TRUE, TRUE, TRUE, TRUE, TRUE ]
+  widths = [-1,-1,-1,-1,-1,-1,-1,-1] !Fixed width needed when adding pixbuf
 
   titles(1) = "Point"
   titles(2) = "X"
   titles(3) = "Y"
   titles(4) = "Color"
+  titles(5) = "+Y"
+  titles(6) = "-Y"
+  titles(7) = "+X"
+  titles(8) = "-X"
 
 
 ! Now make a multi column list with multiple selections enabled
 
 renderers = [ hl_gtk_cell_text, hl_gtk_cell_text, hl_gtk_cell_text, &
-     & hl_gtk_cell_combo] !, hl_gtk_cell_pixbuf ]
+     & hl_gtk_cell_combo, hl_gtk_cell_text, hl_gtk_cell_text, &
+     & hl_gtk_cell_text, hl_gtk_cell_text] !, hl_gtk_cell_pixbuf ]
 
 
 self%ihlist = hl_gtk_listn_new(types=ctypes, &
@@ -566,11 +602,31 @@ do i=1,nrows
    call hl_gtk_listn_combo_set_by_list_id(self%ihlist, i-1_c_int, 3_c_int, &
         & targetValue=sysConfig%fieldColorCodes(i))
 
-   !call hl_gtk_listn_set_cell(ihlist, i-1_c_int, 10_c_int, logvalue= i==4)
+   ! Vignetting factors: +Y / -Y / +X / -X  (columns 4-7)
+   call hl_gtk_listn_set_cell(self%ihlist, i-1_c_int, 4_c_int, &
+        & fvalue=REAL(sysConfig%vignetting(1,i),4))
+   call hl_gtk_listn_set_cell(self%ihlist, i-1_c_int, 5_c_int, &
+        & fvalue=REAL(sysConfig%vignetting(2,i),4))
+   call hl_gtk_listn_set_cell(self%ihlist, i-1_c_int, 6_c_int, &
+        & fvalue=REAL(sysConfig%vignetting(3,i),4))
+   call hl_gtk_listn_set_cell(self%ihlist, i-1_c_int, 7_c_int, &
+        & fvalue=REAL(sysConfig%vignetting(4,i),4))
 end do
 
 
   call hl_gtk_box_pack(base, self%ihlist)
+
+  ! Button row: Set Vignetting | Clear All Vignetting  (mirrors CODE V)
+  btn_box = gtk_box_new(GTK_ORIENTATION_HORIZONTAL, 6_c_int)
+  btn_set = gtk_button_new_with_label('Set Vignetting...'//c_null_char)
+  call g_signal_connect(btn_set, 'clicked'//c_null_char, &
+       & c_funloc(callback_set_vignetting), c_null_ptr)
+  call gtk_box_append(btn_box, btn_set)
+  btn_clear = gtk_button_new_with_label('Clear All Vignetting'//c_null_char)
+  call g_signal_connect(btn_clear, 'clicked'//c_null_char, &
+       & c_funloc(callback_clear_vignetting), c_null_ptr)
+  call gtk_box_append(btn_box, btn_clear)
+  call hl_gtk_box_pack(base, btn_box)
 
 end function
 
