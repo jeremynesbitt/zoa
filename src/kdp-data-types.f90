@@ -2163,6 +2163,18 @@ function genAsphereSavOutputText(self, surf, fID) result(strSurfLine)
   lblsPart1 = [character(len=1) :: 'A', 'B', 'C', 'D']
   lblsPart2 = [character(len=1) :: 'E', 'F', 'G', 'H']
 
+  ! A conic-only surface (conic K but no aspheric coefficients) must NOT emit an
+  ! ASP block: the conic is saved separately as 'K', and an all-zero ASP both
+  ! bloats the file and -- because it spans two lines -- garbles on restore
+  ! ("INVALID CMD LEVEL COMMAND / EOS").  surf_is_asphere() is true for any conic
+  ! (ALENS(8)/=0), so guard on the actual coefficients here.
+  if (ALENS(4,surf)==0.0_real64 .and. ALENS(5,surf)==0.0_real64 .and. &
+      ALENS(6,surf)==0.0_real64 .and. ALENS(7,surf)==0.0_real64 .and. &
+      ALENS(81,surf)==0.0_real64 .and. ALENS(82,surf)==0.0_real64 .and. &
+      ALENS(83,surf)==0.0_real64 .and. ALENS(84,surf)==0.0_real64) then
+    strSurfLine = ''
+    return
+  end if
 
 
       ! Gather terms and add to line
@@ -2185,9 +2197,10 @@ function genAsphereSavOutputText(self, surf, fID) result(strSurfLine)
   do ii = 1,4
       strSurfLine = trim(strSurfLine)//blankStr(1)//lblsPart2(ii)//blankStr(1)// &
       & trim(real2str(ALENS(ii+80,surf),sci=.TRUE.))//' ;'
-  end do  
-  ! Remove last semicolon
-  strSurfLine(len_trim(strSurfLine):len_trim(strSurfLine)) = ' '
+  end do
+  ! Drop the trailing ' ;' (the -1 removes the semicolon, as for the A-D line).
+  ! Previously this also blanked the semicolon first, so the -1 then truncated a
+  ! real digit (e.g. "...D+00" -> "...D+0"), corrupting the value on restore.
   write(fID, *) strSurfLine(1:len_trim(strSurfLine)-1)
     
 
