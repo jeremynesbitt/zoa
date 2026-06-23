@@ -1426,13 +1426,15 @@ module codeV_commands
       subroutine executeCodeVLensUpdateCommand(iptCmd, debugFlag, exitLensUpdate)
         use kdp_utils, only: inLensUpdateLevel
         use global_widgets, only: ioConfig
+        use DATLEN, only: SURF
 
         implicit none
         character(len=*) :: iptCmd
         logical, optional :: debugFlag, exitLensUpdate
         logical :: redirectFlag, inUpdate
+        integer :: savedSurf
 
-        if(present(debugFlag)) then 
+        if(present(debugFlag)) then
             redirectFlag = .NOT.debugFlag
         else
             redirectFlag = .TRUE.
@@ -1440,7 +1442,13 @@ module codeV_commands
 
         ! Hide KDP Commands from user
         if (redirectFlag) call ioConfig%setTextView(ID_TERMINAL_KDPDUMP)
-          
+
+        ! Preserve the current-surface pointer across the update.  Some commands
+        ! issued here recompute the lens (e.g. STO -> REFS) which resets the global
+        ! SURF to 0; without this, a saved lens's bare "S/STO/CIR" build sequence
+        ! loses its place and overwrites a surface instead of adding one.
+        savedSurf = SURF
+
         inUpdate = inLensUpdateLevel()
         if (inUpdate) then
             call PROCESKDP(iptCmd)
@@ -1459,6 +1467,9 @@ module codeV_commands
         !    if(exitLensUpdate.eqv..TRUE..OR.inUpdate.eqv..FALSE.) CALL PROCESKDP('EOS')
         end if
          if(inUpdate.eqv..FALSE.) CALL PROCESKDP('EOS')
+
+        ! Restore the surface pointer clobbered by any recompute above.
+        SURF = savedSurf
         
 
     
@@ -1484,10 +1495,17 @@ module codeV_commands
                                   ! the last surface.
             ptrIdx = ldm%getSurfacePointer()
             if (ptrIdx >= ldm%getLastSurf()-1) then
-                ! increment surface
+                ! At (or past) the last real surface: add a new surface before the
+                ! image, then advance the pointer to it so following modifiers and
+                ! the next bare S act on / after the surface just added.  (The
+                ! pointer must be set explicitly: a recompute inside the update --
+                ! e.g. REFS from a STO -- resets the global SURF, so the bare S/STO/
+                ! CIR sequence emitted by a saved lens would otherwise overwrite an
+                ! existing surface instead of adding one.  See setSurfacePointer.)
                 surfNum = curr_lens_data%num_surfaces-1
                 call executeCodeVLensUpdateCommand('CHG '//trim(int2str(surfNum))// &
                 &  "; INSK "//trim(int2str(surfNum)))
+                call ldm%setSurfacePointer(surfNum)
             else ! Move pointer to next surface
                 call ldm%incrementSurfacePointer()
                 surfNum = ptrIdx+1

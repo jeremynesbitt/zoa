@@ -32,6 +32,7 @@ module mod_lens_data_manager
      procedure :: initialize => init_ldm
      procedure, public, pass(self) :: getSurfThi, setSurfThi
      procedure, public, pass(self) :: getSurfXDec, getSurfYDec
+     procedure, public, pass(self) :: getSurfAutoSemiX, getSurfAutoSemiY
      procedure, public, pass(self) :: getSurfIdealEFL, getSurfSpecialType
      procedure, public, pass(self) :: isThiSolveOnSurf
      procedure, public, pass(self) :: isPIMSolveOnSurf
@@ -54,7 +55,7 @@ module mod_lens_data_manager
      procedure :: setVarOnSurf
      procedure :: isSolveOnSurf, isPikupOnSurf, isVarOnSurf
      procedure :: getCCYCodeAsStr, getTHCCodeAsStr
-     procedure :: getSurfacePointer, incrementSurfacePointer
+     procedure :: getSurfacePointer, incrementSurfacePointer, setSurfacePointer
      procedure, public, pass(self) :: genSaveOutputText => genLDMSaveOutputText
      procedure :: outputPikupText, genSurfPikupSavText, getSurfTypeName, getExtraParamCmd
      procedure, public, pass(self) :: removeAllSurfaceData
@@ -259,14 +260,48 @@ module mod_lens_data_manager
 
     end function
 
-    subroutine incrementSurfacePointer(self) 
+    subroutine incrementSurfacePointer(self)
         use DATLEN, only: SURF
         implicit none
-        class(lens_data_manager) :: self 
+        class(lens_data_manager) :: self
 
         SURF = SURF + 1
 
-    end subroutine 
+    end subroutine
+
+    subroutine setSurfacePointer(self, idx)
+        use DATLEN, only: SURF
+        implicit none
+        class(lens_data_manager) :: self
+        integer, intent(in) :: idx
+
+        SURF = idx
+
+    end subroutine
+
+    ! Ray-traced (display-only) clear-aperture semi-extent for a surface, filled by
+    ! check_clear_apertures.  Returns 0 if not computed / surface out of range.
+    function getSurfAutoSemiY(self, surfIdx) result(semi)
+        class(lens_data_manager) :: self
+        integer, intent(in) :: surfIdx
+        real(kind=real64) :: semi
+        semi = 0.0_real64
+        if (.not. allocated(self%surfaces)) return
+        if (surfIdx < lbound(self%surfaces,1) .or. surfIdx > ubound(self%surfaces,1)) return
+        if (.not. allocated(self%surfaces(surfIdx)%s)) return
+        semi = self%surfaces(surfIdx)%s%clap%auto_semi_y
+    end function
+
+    function getSurfAutoSemiX(self, surfIdx) result(semi)
+        class(lens_data_manager) :: self
+        integer, intent(in) :: surfIdx
+        real(kind=real64) :: semi
+        semi = 0.0_real64
+        if (.not. allocated(self%surfaces)) return
+        if (surfIdx < lbound(self%surfaces,1) .or. surfIdx > ubound(self%surfaces,1)) return
+        if (.not. allocated(self%surfaces(surfIdx)%s)) return
+        semi = self%surfaces(surfIdx)%s%clap%auto_semi_x
+    end function
 
     function getSurfThi(self, surfIdx) result(thi)
         use mod_surface, only: surf_thickness
