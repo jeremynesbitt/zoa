@@ -222,17 +222,7 @@ contains
     end subroutine
 
 ! wrap_FANFIELD removed (FANFOV was in PLOTCAD8_fan, now deleted)
-
-    subroutine wrap_GRAOUT(iptStr)
-        use GLOBALS, only: HEADLESS_MODE
-        use zoa_output, only: zoa_emit
-        character(len=*) :: iptStr
-        if (HEADLESS_MODE) then
-            call zoa_emit("GRAOUT requires GUI", "red")
-            return
-        end if
-        call PPLOTT
-    end subroutine
+! wrap_GRAOUT removed (GRAOUT plot-to-file command retired)
 
     subroutine wrap_GRID(iptStr)
         character(len=*) :: iptStr

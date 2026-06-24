@@ -2,7 +2,6 @@ RES osdtriplet
 ! ---- GUI-only commands: each emits a "requires GUI" error in headless mode ----
 AUTUI
 FANS
-GRAOUT
 ! ---- EDI PREF: requires GUI subcommand ----
 EDI PREF
 ! ---- TERM: silent no-op in headless mode ----
