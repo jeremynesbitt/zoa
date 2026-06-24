@@ -2938,7 +2938,7 @@ SUBROUTINE PLTSC1(XMINI,XMAXI,YMINI,YMAXI)
 !
    real(real64) X,Y,Z,XN,YN,ZN,ROT1X,ROT1Z,ROT2Y,&
    &ROT2Z,AX,AY,AZ,AALF,APHI,YMAXI,YMINI,XMAXI,XMINI,MAXI,MINI &
-   &,VIEPH,VIEAL,TMAXI,TMINI,TMAXIX,TMAXIY
+   &,VIEPH,VIEAL,TMAXI,TMINI,TMAXIX,TMAXIY,CHXT,CHYT
 !
    INTEGER I
 !
@@ -3018,44 +3018,39 @@ SUBROUTINE PLTSC1(XMINI,XMAXI,YMINI,YMAXI)
             MAXI=YMAXI
             MINI=YMINI
          END IF
-         IF(MAXI.EQ.0.0D0.AND.MINI.EQ.0.0D0) THEN
-            DO I=STASUR,STPSUR
-               IF(surf_clap_type(I) == 0.OR.surf_clap_type(I) == 5) THEN
-                  TMAXIX=DABS(PXTRAX(1,I))+DABS(PXTRAX(5,I))
-                  TMAXIY=DABS(PXTRAY(1,I))+DABS(PXTRAY(5,I))
-                  TMAXI=TMAXIX
-                  IF(TMAXIY.GT.TMAXIX) TMAXI=TMAXIY
-               ELSE
-                  IF(surf_clap_type(I) == 1) THEN
-                     TMAXIY=DABS(surf_clap_dim(I, 1))+DABS(surf_clap_dim(I, 3))
-                     TMAXIX=DABS(surf_clap_dim(I, 1))+DABS(surf_clap_dim(I, 4))
-                     TMAXI=TMAXIX
-                     IF(TMAXIY.GT.TMAXIX) TMAXI=TMAXIY
-                     TMINI=-TMAXI
-                     IF(TMAXI.GT.MAXI) MAXI=TMAXI
-                     IF(TMINI.LT.MAXI) MINI=TMINI
-                  END IF
-                  IF(surf_clap_type(I) == 6) THEN
-                     TMAXIY=DABS(surf_clap_dim(I, 2))+DABS(surf_clap_dim(I, 3))
-                     TMAXIX=DABS(surf_clap_dim(I, 2))+DABS(surf_clap_dim(I, 4))
-                     TMAXI=TMAXIX
-                     IF(TMAXIY.GT.TMAXIX) TMAXI=TMAXIY
-                     TMINI=-TMAXI
-                     IF(TMAXI.GT.MAXI) MAXI=TMAXI
-                     IF(TMINI.LT.MAXI) MINI=TMINI
-                  END IF
-                  IF(surf_clap_type(I) >= 2.AND.surf_clap_type(I) <= 4) THEN
-                     TMAXIY=DABS(surf_clap_dim(I, 1))+DABS(surf_clap_dim(I, 3))
-                     TMAXIX=DABS(surf_clap_dim(I, 2))+DABS(surf_clap_dim(I, 4))
-                     TMAXI=TMAXIX
-                     IF(TMAXIY.GT.TMAXIX) TMAXI=TMAXIY
-                     TMINI=-TMAXI
-                     IF(TMAXI.GT.MAXI) MAXI=TMAXI
-                     IF(TMINI.LT.MAXI) MINI=TMINI
-                  END IF
-               END IF
-            END DO
-         END IF
+!     FOLD IN THE PER-SURFACE CLEAR-APERTURE / MARGINAL-RAY EXTENTS SO A
+!     HIGH-APERTURE SYSTEM (E.G. A FAST MIRROR) IS NOT CLIPPED BY A SCALE
+!     COMPUTED FROM THE SURFACE VERTICES ALONE.  THIS USED TO RUN ONLY AS
+!     A FALLBACK WHEN THE VERTEX RANGE WAS EXACTLY ZERO; NOW IT ALWAYS
+!     RUNS SO THE APERTURE CANNOT OVERFLOW THE PLOTTING WINDOW.
+         DO I=STASUR,STPSUR
+            IF(surf_clap_type(I) == 1) THEN
+               TMAXIY=DABS(surf_clap_dim(I, 1))+DABS(surf_clap_dim(I, 3))
+               TMAXIX=DABS(surf_clap_dim(I, 1))+DABS(surf_clap_dim(I, 4))
+            ELSE IF(surf_clap_type(I) == 6) THEN
+               TMAXIY=DABS(surf_clap_dim(I, 2))+DABS(surf_clap_dim(I, 3))
+               TMAXIX=DABS(surf_clap_dim(I, 2))+DABS(surf_clap_dim(I, 4))
+            ELSE IF(surf_clap_type(I) >= 2.AND.surf_clap_type(I) <= 4) THEN
+               TMAXIY=DABS(surf_clap_dim(I, 1))+DABS(surf_clap_dim(I, 3))
+               TMAXIX=DABS(surf_clap_dim(I, 2))+DABS(surf_clap_dim(I, 4))
+            ELSE
+!     NO STORED CLEAR APERTURE: USE THE PARAXIAL MARGINAL + CHIEF RAY
+!     HEIGHTS, BUT DISCARD A CHIEF-RAY HEIGHT THAT HAS BLOWN UP FOR AN
+!     OBJECT AT INFINITY (SAME GUARD AS CAOJK IN PLOTCAD7).
+               TMAXIX=DABS(PXTRAX(1,I))
+               TMAXIY=DABS(PXTRAY(1,I))
+               CHXT=DABS(PXTRAX(5,I))
+               CHYT=DABS(PXTRAY(5,I))
+               IF(CHXT.GT.1.0D10.AND.CHXT.GT.1.0D6*TMAXIX) CHXT=0.0D0
+               IF(CHYT.GT.1.0D10.AND.CHYT.GT.1.0D6*TMAXIY) CHYT=0.0D0
+               TMAXIX=TMAXIX+CHXT
+               TMAXIY=TMAXIY+CHYT
+            END IF
+            TMAXI=TMAXIX
+            IF(TMAXIY.GT.TMAXIX) TMAXI=TMAXIY
+            IF(TMAXI.GT.MAXI) MAXI=TMAXI
+            IF((-TMAXI).LT.MINI) MINI=-TMAXI
+         END DO
 !     WE NOW HAVE THE MAXI AND MINI FOR THE SCALE FACTOR CALCULATION
 !     NOW CALCULATE THE AUTO SCALE FACTOR AND SET APPROPRIATE FLAGS
 !
