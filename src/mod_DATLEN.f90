@@ -1,6 +1,14 @@
 module DATLEN
    use iso_fortran_env, only: real64
 
+!  VIE lens-drawing: surface index to draw highlighted (selected in the lens
+!  editor). -1 = none. Dedicated (non-volatile) because the SURF pointer is
+!  reused as a loop variable and is clobbered by draw time.
+   integer :: HILITE_SURF = -1
+!  Colour code for the highlighted surface (see the COLPASS map in
+!  kdp-draw.f90); 16 = orange.
+   integer, parameter :: HILITE_COLOR = 16
+
 !
 !       RDM TRUE IS RADIUS MODE FOR GUI
 !       RDM FALSE IS CURVATURE MODE FOR GUI

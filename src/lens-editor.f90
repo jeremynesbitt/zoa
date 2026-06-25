@@ -1771,14 +1771,21 @@ subroutine updateColumnHeadersIfNeeded(surfIdx)
 end subroutine
 
 subroutine lens_edit_row_selected(widget, position, n_items, userdata) bind(c)
+  use DATLEN, only: HILITE_SURF
   type(c_ptr), value ::  widget, userdata
   integer(c_int) :: position, n_items
   type(c_ptr) :: listitem
-  print *, "Row selected! "
+  integer :: selSurf
   listitem = gtk_single_selection_get_selected_item(widget)
-  call updateColumnHeadersIfNeeded(lens_item_get_surface_number(listitem))
+  selSurf = lens_item_get_surface_number(listitem)
+  call updateColumnHeadersIfNeeded(selSurf)
   call gtk_widget_set_sensitive(dbut, TRUE)
   call gtk_widget_set_sensitive(ibut, TRUE)
+  ! Zemax-style surface highlight: redraw any active lens plot (VIE) with the
+  ! selected surface drawn in the highlight colour.
+  HILITE_SURF = selSurf
+  call notify_replot()
+  call notify_replot_flush()
 end subroutine
 
   function lens_editor_create_table() result(boxNew)

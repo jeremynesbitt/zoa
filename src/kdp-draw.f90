@@ -455,6 +455,11 @@ SUBROUTINE DRAWOPTICALSYSTEM(cairo_drawing_area, my_cairo_context, win_width, wi
 !
       IF(STRINGER.EQ.'E') THEN
 !     SETTING THE FOREGROUND COLOR
+!     Flush any pending path with the CURRENT colour before switching, so a
+!     polyline is stroked in the colour active when it was drawn (color
+!     commands arrive before the next polyline's path, so without this the
+!     pending path would be stroked with the next element's colour).
+      call cairo_stroke(my_cairo_context)
       !  IF (II1.NE.COLPASS) THEN
       !   PRINT *, "COLPASS CHANGED NEWVAL = ", II1, " ", J
       !    COLTRUE = COLPASS
@@ -505,6 +510,7 @@ SUBROUTINE DRAWOPTICALSYSTEM(cairo_drawing_area, my_cairo_context, win_width, wi
       IF(COLPASS.EQ.13) COLTRUE=96
       IF(COLPASS.EQ.14) call cairo_set_source_rgb(my_cairo_context, 0.0d0, 0.0d0, 0.513d0)
       IF(COLPASS.EQ.15) call cairo_set_source_rgb(my_cairo_context, 0.0d0, 0.0d0, 0.0d0)
+      IF(COLPASS.EQ.16) call cairo_set_source_rgb(my_cairo_context, 1.0d0, 0.5d0, 0.0d0)
 
       call cairo_set_line_width(my_cairo_context, fontScaleFactor*1d0)
       !call cairo_stroke(my_cairo_context)
