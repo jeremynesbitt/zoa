@@ -1,0 +1,20 @@
+! Aperture-stop sizing: a flat air-air "dummy" surface marked STO must report
+! its real clear aperture (the beam footprint), not 0.  Regression for the
+! Bentley5p5 case (check_clear_apertures used to skip dummy surfaces).
+LEN NEW
+TIT 'StopApertureTest'
+EPD 10.0
+INS S2..5
+RDY S1         60
+THI S1         6
+GLA S1         NSK16_SCHOTT
+RDY S2         -150
+THI S2         18
+THI S3         18
+STO S3
+RDY S4         150
+THI S4         6
+GLA S4         NSK16_SCHOTT
+RDY S5         -60
+PIM
+CLI

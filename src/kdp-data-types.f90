@@ -2290,6 +2290,9 @@ DIMENSION VERARRAY(:,:)
 ALLOCATABLE :: VERARRAY
 DEALLOCATE(VERARRAY,STAT=ALLOERR)
 ALLOCATE(VERARRAY(1:220,0:MAXSUR),STAT=ALLOERR)
+! Zero it: dummy surfaces store ray data only for the on-axis field, so the
+! unwritten slots must read 0 (not ALLOCATE garbage) when we size them below.
+VERARRAY = 0.0D0
 
 10   FORMAT('          CLEAR APERTURE ASSIGNED TO SURFACE ',I3)
 15   FORMAT('CLEAR APERTURE DIMENSIONS CHANGED AT SURFACE ',I3)
@@ -2616,7 +2619,10 @@ IF(.NOT.RAYEXT) RWARN=1
   REST_KDP(1)=RESTINPT(1)
 !     SAVE RAY DATA
                  DO I=0,INT(sys_last_surf())
-          IF(.NOT.DUMMMY(I).OR.DF1.EQ.0.AND.DF2.EQ.0) THEN
+!     Store the ray footprint at EVERY surface, including dummies, so the
+!     aperture stop (a flat air-air dummy) is sized from the beam that passes
+!     through it instead of being left at 0.
+          IF(.TRUE.) THEN
              VERARRAY(M,I)=RAYRAY(1,I)
              VERARRAY(M+1,I)=RAYRAY(2,I)
 VERARRAY(M+2,I)=DSQRT((RAYRAY(1,I)**2)+(RAYRAY(2,I)**2))
@@ -2649,8 +2655,12 @@ END DO
 !
 DO I=0,INT(sys_last_surf())
 IF(I.GE.INT(W1).AND.I.LE.INT(W2)) THEN
-          ! Dummy includes stop surfaced
-      IF(.NOT.DUMMMY(I)) THEN !.OR.DF1.EQ.0.AND.DF2.EQ.0) THEN
+          ! Size every surface from its ray-traced beam footprint, INCLUDING
+          ! flat air-air "dummy" surfaces (e.g. an aperture stop marked with
+          ! STO).  Dummies store ray data only for the on-axis field; the rest
+          ! of VERARRAY is zeroed above, so a dummy with no footprint stays 0
+          ! while one the beam passes through gets its true semi-diameter.
+      IF(.TRUE.) THEN
   RMAX=-1.0D10
   HXMAX=-1.0D10
   HYMAX=-1.0D10

@@ -374,6 +374,11 @@ test('raytrace', test_runner,
             meson.project_source_root() / 'test/raytrace.ref'],
      timeout: 120, is_parallel: false)
 
+test('stop_aperture', test_runner,
+     args: [meson.project_source_root() / 'test/stop_aperture.zoa',
+            meson.project_source_root() / 'test/stop_aperture.ref'],
+     timeout: 120, is_parallel: false)
+
 test('refrays', test_runner,
      args: [meson.project_source_root() / 'test/refrays.zoa',
             meson.project_source_root() / 'test/refrays.ref'],

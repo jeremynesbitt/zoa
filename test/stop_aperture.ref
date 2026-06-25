@@ -1,0 +1,13 @@
+All constraints removed
+
+
+CMD LEVEL
+Calling check_clear_apetures
+
+       Y-FAN     X-FAN
+  1  5.00657     5.54091
+  2  4.82363     5.27963
+STO  3.51996     3.51996
+  4  2.22144     2.67127
+  5  1.92319     2.45871
+IMG  0.02885     0.90636
