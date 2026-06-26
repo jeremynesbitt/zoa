@@ -1,0 +1,25 @@
+! Aperture-stop drawing: a STO on a flat air-air "dummy" surface must render as
+! the traditional two-bar stop symbol in the lens layout, not be skipped as an
+! undrawn dummy surface.  Regression for the Bentley5p5-style stop (surface 3).
+LEN NEW
+TIT 'StopDrawTest'
+EPD 10.0
+INS S2..5
+RDY S1         60
+THI S1         6
+GLA S1         NSK16_SCHOTT
+RDY S2         -150
+THI S2         18
+THI S3         18
+STO S3
+RDY S4         150
+THI S4         6
+GLA S4         NSK16_SCHOTT
+RDY S5         -60
+CIR S1 5
+CIR S2 5
+CIR S4 5
+CIR S5 5
+PIM
+VIE
+GO
