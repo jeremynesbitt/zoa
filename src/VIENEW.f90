@@ -1798,11 +1798,13 @@ NORAYPLOT=.FALSE.
         use DATMAI
         use mod_surface
         use mod_system, only: sys_last_surf
+        use mod_lens_data_manager, only: ldm
    use command_utils, only: is_command_query
    use iso_fortran_env, only: real64
         IMPLICIT NONE
 
        !type(hdf5_file) :: h5f
+       real(real64) :: STOPYMAX, STOPYMIN, STOPXC, STOPEXT
 
 !
 !       THIS ROUTINE DOES THE PLOT PROF COMMAND AT THE CMD LEVEL
@@ -2499,6 +2501,24 @@ NORAYPLOT=.FALSE.
 !     WITH THE PEN UP, GO TO THE STARTING PLOT POSITION
         IF(.NOT.PLEXIS) PLEXIS=.TRUE.
       IF(WQ.EQ.'PROF') THEN
+!     APERTURE STOP on a flat air-air DUMMY surface: draw two short vertical
+!     bars at the clear-aperture edges, extending outward (the traditional stop
+!     symbol), in place of the (otherwise undrawn) dummy.  A stop that sits on a
+!     real lens surface keeps its normal profile.  PRO is in device coords here.
+      IF(I.EQ.ldm%getStopSurf().AND.DUMMMY(I)) THEN
+        STOPYMAX=MAXVAL(PRO(1:360,2,I))
+        STOPYMIN=MINVAL(PRO(1:360,2,I))
+        STOPXC=PRO(1,1,I)
+        STOPEXT=0.5D0*(STOPYMAX-STOPYMIN)/2.0D0
+        PRO(1,1,I)=STOPXC ; PRO(1,2,I)=STOPYMAX         ; PRO(1,4,I)=1.0D0
+        PRO(2,1,I)=STOPXC ; PRO(2,2,I)=STOPYMAX+STOPEXT ; PRO(2,4,I)=1.0D0
+        PRO(3,1,I)=STOPXC ; PRO(3,2,I)=STOPYMAX+STOPEXT ; PRO(3,4,I)=0.0D0
+        PRO(4,1,I)=STOPXC ; PRO(4,2,I)=STOPYMIN         ; PRO(4,4,I)=1.0D0
+        PRO(5,1,I)=STOPXC ; PRO(5,2,I)=STOPYMIN-STOPEXT ; PRO(5,4,I)=1.0D0
+        DO J=6,360
+          PRO(J,1,I)=STOPXC ; PRO(J,2,I)=STOPYMIN-STOPEXT ; PRO(J,4,I)=0.0D0
+        END DO
+      END IF
 !     FIRST CLAP PROFILE
                 DO J=1,360
 !     PUT INSTRUCTIONS IN P1ARAY TO DROP PEN AND DRAW
@@ -2537,6 +2557,9 @@ NORAYPLOT=.FALSE.
                         CLRR=0
       IF(DUMMMY(I).AND.surf_clap_type(I) == 0) &
       CLRR=-1
+!     Always draw the aperture-stop symbol, even on a flat air-air dummy stop
+!     (which would otherwise be suppressed as an undrawn dummy surface).
+      IF(I.EQ.ldm%getStopSurf().AND.DUMMMY(I)) CLRR=0
       IF(DUMMMY(I).AND.surf_clap_type(I) /= 0) THEN
       IF(DASHH) LNTYPE=2
                         ELSE
