@@ -324,6 +324,11 @@ module codeV_commands
    module subroutine execPOS(iptStr)
     character(len=*) :: iptStr
    end subroutine execPOS
+   ! VIE lens-drawing setting commands (NUMRAYS/DRAWSI/DRAWSF/ELEV/AZI/ORIENT).
+   ! All route here; the keyword selects which curr_psm setting to update.
+   module subroutine adjustVieSettings(iptStr)
+    character(len=*) :: iptStr
+   end subroutine adjustVieSettings
     end interface
 
 
@@ -755,6 +760,17 @@ module codeV_commands
         zoaCmds(691)%execFunc => execPOS
         zoaCmds(692)%cmd = "RAYREF"
         zoaCmds(692)%execFunc => execRAYREF
+        ! VIE lens-drawing setting commands (valid inside a VIE ; ... ; GO loop)
+        zoaCmds(693)%cmd = "NUMRAYS"
+        zoaCmds(693)%execFunc => adjustVieSettings
+        zoaCmds(694)%cmd = "DRAWSI"
+        zoaCmds(694)%execFunc => adjustVieSettings
+        zoaCmds(695)%cmd = "DRAWSF"
+        zoaCmds(695)%execFunc => adjustVieSettings
+        zoaCmds(696)%cmd = "ELEV"
+        zoaCmds(696)%execFunc => adjustVieSettings
+        zoaCmds(697)%cmd = "AZI"
+        zoaCmds(697)%execFunc => adjustVieSettings
 
 
     end subroutine
@@ -769,36 +785,8 @@ module codeV_commands
 
         boolResult = .FALSE.
 
-        ! VIE-loop subcommands — only valid inside a VIE ; ... ; GO sequence.
-        ! These update curr_psm settings; they are not general CLI commands.
-        if (cmd_loop == VIE_LOOP) then
-            spacePos = index(trim(currentCommand), ' ')
-            if (spacePos > 0) then
-                valStr = adjustl(currentCommand(spacePos+1:))
-                select case (trim(iptCmd))
-                case ('NUMRAYS')
-                    call curr_psm%updateSetting(ID_LENSDRAW_NUM_FIELD_RAYS, &
-                        & str2int(trim(valStr)))
-                    boolResult = .TRUE.; return
-                case ('DRAWSI')
-                    call curr_psm%updateSetting(ID_LENS_FIRSTSURFACE, &
-                        & str2int(trim(valStr)))
-                    boolResult = .TRUE.; return
-                case ('DRAWSF')
-                    call curr_psm%updateSetting(ID_LENS_LASTSURFACE, &
-                        & str2int(trim(valStr)))
-                    boolResult = .TRUE.; return
-                case ('ELEV')
-                    call curr_psm%updateSetting(ID_LENSDRAW_ELEVATION, &
-                        & real(str2real8(trim(valStr)), real64))
-                    boolResult = .TRUE.; return
-                case ('AZI')
-                    call curr_psm%updateSetting(ID_LENSDRAW_AZIMUTH, &
-                        & real(str2real8(trim(valStr)), real64))
-                    boolResult = .TRUE.; return
-                end select
-            end if
-        end if
+        ! (VIE-loop setting subcommands NUMRAYS/DRAWSI/DRAWSF/ELEV/AZI/ORIENT are
+        !  now registered CodeV commands routed to adjustVieSettings, below.)
 
         do ii=1,size(zoaCmds)
         if (iptCmd == zoaCmds(ii)%cmd) then

@@ -1,0 +1,10 @@
+! VIE lens-drawing setting commands (NUMRAYS/DRAWSI/DRAWSF) must take effect on
+! the plot.  Regression: these were rejected as unrecognized commands before
+! reaching the handler that updates the plot's psm, so every replot used the
+! defaults.  Now they are registered CodeV commands routed to adjustVieSettings.
+RES osdtriplet
+VIE
+NUMRAYS 13
+DRAWSI 2
+DRAWSF 5
+GO

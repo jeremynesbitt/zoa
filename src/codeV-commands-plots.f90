@@ -395,4 +395,34 @@ contains
         end select
     end procedure execCIR
 
+    ! NUMRAYS/DRAWSI/DRAWSF/ELEV/AZI/ORIENT all dispatch here.  The keyword
+    ! selects which lens-draw setting on curr_psm to update.  Only meaningful
+    ! inside a VIE ; ... ; GO loop (where curr_psm is the lens-draw psm).
+    module procedure adjustVieSettings
+        use type_utils, only: str2int, str2real8
+        use iso_fortran_env, only: real64
+        implicit none
+
+        character(len=80) :: tokens(40)
+        integer :: numTokens
+
+        if (cmd_loop /= VIE_LOOP) return
+
+        call parse(trim(iptStr), ' ', tokens, numTokens)
+        if (numTokens < 2) return
+
+        select case (trim(tokens(1)))
+        case ('NUMRAYS')
+            call curr_psm%updateSetting(ID_LENSDRAW_NUM_FIELD_RAYS, str2int(trim(tokens(2))))
+        case ('DRAWSI')
+            call curr_psm%updateSetting(ID_LENS_FIRSTSURFACE, str2int(trim(tokens(2))))
+        case ('DRAWSF')
+            call curr_psm%updateSetting(ID_LENS_LASTSURFACE, str2int(trim(tokens(2))))
+        case ('ELEV')
+            call curr_psm%updateSetting(ID_LENSDRAW_ELEVATION, real(str2real8(trim(tokens(2))), real64))
+        case ('AZI')
+            call curr_psm%updateSetting(ID_LENSDRAW_AZIMUTH, real(str2real8(trim(tokens(2))), real64))
+        end select
+    end procedure adjustVieSettings
+
 end submodule mod_codev_plots
