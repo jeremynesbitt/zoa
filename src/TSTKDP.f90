@@ -275,13 +275,38 @@ SUBROUTINE PROCESKDP(ftext)
    IMPLICIT NONE
 
    character(len=*), intent(in) :: ftext
+   integer :: stIdx, scIdx, nLen
 
    !WRITE(OUTLYNE,*) "PROCESKDP START F5 = ", F5
    !CALL SHOWIT(19)
 
-
-   INPUT = trim(ftext)
-   CALL PROCES
+   ! The legacy command buffer INPUT is CHARACTER*140, and PROCES splits a single
+   ! input line on ';' internally.  A command longer than 140 characters -- e.g. a
+   ! regenerated GUI plot command "VIE P1 ; ... ; GO" -- would be truncated when
+   ! copied into INPUT, silently dropping its trailing pieces (notably the closing
+   ! GO, which leaves the plot loop open and the plot un-refreshed).  When the
+   ! command exceeds the buffer, dispatch each ';'-separated piece as its own
+   ! command (state such as cmd_loop persists across calls) so nothing is lost.
+   if (len_trim(ftext) <= 140) then
+      INPUT = trim(ftext)
+      CALL PROCES
+   else
+      nLen = len_trim(ftext)
+      stIdx = 1
+      do
+         if (stIdx > nLen) exit
+         scIdx = index(ftext(stIdx:nLen), ';')
+         if (scIdx == 0) then
+            INPUT = adjustl(ftext(stIdx:nLen))
+            if (len_trim(INPUT) > 0) CALL PROCES
+            exit
+         else
+            INPUT = adjustl(ftext(stIdx:stIdx+scIdx-2))
+            if (len_trim(INPUT) > 0) CALL PROCES
+            stIdx = stIdx + scIdx
+         end if
+      end do
+   end if
 
    !WRITE(OUTLYNE,*) "PROCESKDP END F5 = ", F5
    !CALL SHOWIT(19)

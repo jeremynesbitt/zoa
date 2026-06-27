@@ -147,7 +147,7 @@ contains
       self%numSettings = self%numSettings + 1
       call self%ps(self%numSettings)%initialize(ID_LENS_FIRSTSURFACE, & 
       & "First Surface", real(0),0.0,real(ldm%getLastSurf()), &
-      & "DRAWSI", "DRAWSI "//trim(int2str(20)), UITYPE_SPINBUTTON)
+      & "DRAWSI", "DRAWSI "//trim(int2str(0)), UITYPE_SPINBUTTON)
 
       self%numSettings = self%numSettings + 1
       call self%ps(self%numSettings)%initialize(ID_LENS_LASTSURFACE, & 
