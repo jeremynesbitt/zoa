@@ -31,6 +31,15 @@ module plot_setting_manager
       character(len=80) :: cmd ! The Command used to change the value.  Eg SETWV or SETDENS
       character(len=80) :: fullCmd ! command + value to change.  eg SETWV 1
 
+      ! Coupled (compound) settings: one command carries several settings.
+      !   OWNER  -> coupledIDs lists the child setting IDs it also sets
+      !             (e.g. ORIENT owns ELEV, AZI); its fullCmd is the whole
+      !             "ORIENT YZ ELEV 26.2 AZI 232.2" string.
+      !   CHILD  -> ownerID is the owner's setting ID.  A child is NOT emitted
+      !             on its own in generatePlotCommand (the owner carries it).
+      integer, allocatable :: coupledIDs(:)
+      integer :: ownerID = -1
+
 
       contains
        procedure, public, pass(self) :: initialize => init_setting
@@ -59,6 +68,8 @@ module plot_setting_manager
     procedure, public, pass(self) :: getFieldSetting
     procedure, public, pass(self) :: generatePlotCommand
     procedure, public, pass(self) :: getSettingValueByCode
+    procedure, public, pass(self) :: getCommandByCode
+    procedure, public, pass(self) :: buildCoupledCmd
 
     procedure, public, pass(self) :: addFieldSetting
     procedure, public, pass(self) :: addDensitySetting   
@@ -144,14 +155,20 @@ contains
       & "DRAWSF ", "DRAWSF "//trim(int2str(ldm%getLastSurf())), UITYPE_SPINBUTTON)
 
       self%numSettings = self%numSettings + 1
-      call self%ps(self%numSettings)%initialize(ID_LENSDRAW_ELEVATION, & 
+      call self%ps(self%numSettings)%initialize(ID_LENSDRAW_ELEVATION, &
       & "Elevation", real(26.2),real(0.0),real(360.0), &
       & "ELEV", "ELEV "//trim(real2str(26.2)), UITYPE_SPINBUTTON)
+      self%ps(self%numSettings)%ownerID = ID_LENSDRAW_PLOT_ORIENTATION   ! coupled to ORIENT
 
       self%numSettings = self%numSettings + 1
-      call self%ps(self%numSettings)%initialize(ID_LENSDRAW_AZIMUTH, & 
+      call self%ps(self%numSettings)%initialize(ID_LENSDRAW_AZIMUTH, &
       & "Aziumuth", real(232.2),real(0.0),real(360.0), &
-      & "AZI", "AZI "//trim(real2str(232.2)), UITYPE_SPINBUTTON)       
+      & "AZI", "AZI "//trim(real2str(232.2)), UITYPE_SPINBUTTON)
+      self%ps(self%numSettings)%ownerID = ID_LENSDRAW_PLOT_ORIENTATION   ! coupled to ORIENT
+
+      ! Now that orientation + its children exist, build the coupled ORIENT cmd
+      ! ("ORIENT YZ ELEV 26.2 AZI 232.2") so it round-trips on the first replot.
+      call self%buildCoupledCmd(ID_LENSDRAW_PLOT_ORIENTATION)
 
       call self%addLensDrawScaleSettings()
 
@@ -208,7 +225,9 @@ contains
       call self%ps(self%numSettings)%initialize(ID_LENSDRAW_PLOT_ORIENTATION, &
       & "Plot Orientation", real(ID_LENSDRAW_YZ_PLOT_ORIENTATION),0.0,0.0, &
       & "ORIENT", "", UITYPE_COMBO, set=set)
-      
+      ! ORIENT is a coupled command: it also carries elevation and azimuth.
+      self%ps(self%numSettings)%coupledIDs = [ID_LENSDRAW_ELEVATION, ID_LENSDRAW_AZIMUTH]
+
 
     end subroutine
 
@@ -747,6 +766,95 @@ contains
 
       end function
 
+      ! Mirror of getSettingValueByCode, returning the setting's command keyword
+      ! (e.g. 'ELEV').  Used to tag a child's value inside a coupled command, so
+      ! the order of coupledIDs is cosmetic, not a parsing contract.
+      function getCommandByCode(self, setting_code) result(cmdStr)
+        class(zoaplot_setting_manager) :: self
+        integer :: setting_code
+        character(len=80) :: cmdStr
+        integer :: i
+        cmdStr = ''
+        do i=1,self%numSettings
+          if (self%ps(i)%ID == setting_code) then
+            cmdStr = trim(self%ps(i)%cmd)
+            return
+          end if
+        end do
+      end function
+
+      ! Rebuild the fullCmd of a coupled OWNER from the live values of itself and
+      ! its children, e.g. "ORIENT YZ ELEV 26.2 AZI 232.2".  Children are tagged
+      ! with their own command keyword (getCommandByCode) so generation and
+      ! parsing share one source of truth (coupledIDs) and need no order contract.
+      subroutine buildCoupledCmd(self, ownerID)
+        class(zoaplot_setting_manager) :: self
+        integer, intent(in) :: ownerID
+        integer :: i, k, cid, oIdx
+        character(len=140) :: str
+        character(len=80)  :: tcmd
+        real :: tval
+
+        oIdx = -1
+        do i=1,self%numSettings
+          if (self%ps(i)%ID == ownerID) oIdx = i
+        end do
+        if (oIdx < 0) return
+        if (.not. allocated(self%ps(oIdx)%coupledIDs)) return
+
+        ! Owner keyword + owner value (combo owners render as a short text code)
+        if (self%ps(oIdx)%uitype == UITYPE_COMBO) then
+          str = trim(self%ps(oIdx)%cmd)//" "//trim(orientCode(int(self%ps(oIdx)%default)))
+        else
+          tval = self%ps(oIdx)%default
+          str = trim(self%ps(oIdx)%cmd)//" "//trim(real2str(tval))
+        end if
+
+        ! Each child as "TAG value".  Use temporaries -- do NOT pass a function
+        ! result directly to real2str's class(*) dummy (crashes under gfortran).
+        do k=1,size(self%ps(oIdx)%coupledIDs)
+          cid  = self%ps(oIdx)%coupledIDs(k)
+          tcmd = self%getCommandByCode(cid)
+          tval = self%getSettingValueByCode(cid)
+          str  = trim(str)//" "//trim(tcmd)//" "//trim(real2str(tval))
+        end do
+
+        self%ps(oIdx)%fullCmd = trim(str)
+      end subroutine
+
+      ! Lens-draw orientation id <-> short command code (YZ/XZ/XY/Ortho).
+      function orientCode(id) result(code)
+        integer, intent(in) :: id
+        character(len=8) :: code
+        select case (id)
+          case (ID_LENSDRAW_XZ_PLOT_ORIENTATION);    code = 'XZ'
+          case (ID_LENSDRAW_XY_PLOT_ORIENTATION);    code = 'XY'
+          case (ID_LENSDRAW_ORTHO_PLOT_ORIENTATION); code = 'ORTHO'
+          case default;                              code = 'YZ'
+        end select
+      end function
+
+      ! Case-insensitive: CLI args arrive uppercased by the command processor,
+      ! but GUI callers may pass mixed case.
+      function orientId(code) result(id)
+        character(len=*), intent(in) :: code
+        integer :: id
+        integer :: j, c
+        character(len=8) :: uc
+        uc = ' '
+        do j = 1, min(len_trim(code), len(uc))
+          c = ichar(code(j:j))
+          if (c >= 97 .and. c <= 122) c = c - 32
+          uc(j:j) = char(c)
+        end do
+        select case (trim(uc))
+          case ('XZ');    id = ID_LENSDRAW_XZ_PLOT_ORIENTATION
+          case ('XY');    id = ID_LENSDRAW_XY_PLOT_ORIENTATION
+          case ('ORTHO'); id = ID_LENSDRAW_ORTHO_PLOT_ORIENTATION
+          case default;   id = ID_LENSDRAW_YZ_PLOT_ORIENTATION
+        end select
+      end function
+
 
       subroutine updateSetting(self, setting_code, newVal)
         use global_widgets, only: sysConfig
@@ -782,15 +890,20 @@ contains
                 type is (real)
                 self%ps(i)%default = real(newVal)
                 self%ps(i)%fullCmd = trim(self%ps(i)%cmd)// &
-                & " "//trim(real2str(newVal))                    
+                & " "//trim(real2str(newVal))
             end select
+            ! If this setting participates in a coupled command, rebuild the
+            ! owner's fullCmd from all current values (overrides the simple
+            ! "cmd value" set above for an owner; refreshes the owner for a child).
+            if (self%ps(i)%ownerID >= 0) call self%buildCoupledCmd(self%ps(i)%ownerID)
+            if (allocated(self%ps(i)%coupledIDs)) call self%buildCoupledCmd(self%ps(i)%ID)
           end if
-        
+
         end do
 
-      end subroutine 
+      end subroutine
 
-      subroutine updateDensitySetting(self, newVal) 
+      subroutine updateDensitySetting(self, newVal)
         use global_widgets, only: sysConfig
 
         class(zoaplot_setting_manager) :: self
@@ -835,6 +948,8 @@ contains
 
       strOut = trim(self%baseCmd)
       do i=1,self%numSettings
+        ! Children of a coupled command are carried by the owner's fullCmd -- skip
+        if (self%ps(i)%ownerID >= 0) cycle
         if (len_trim(self%ps(i)%fullCmd) > 0) then
           strOut = trim(strOut) // " ; "//self%ps(i)%fullCmd
         end if

@@ -400,11 +400,12 @@ contains
     ! inside a VIE ; ... ; GO loop (where curr_psm is the lens-draw psm).
     module procedure adjustVieSettings
         use type_utils, only: str2int, str2real8
+        use plot_setting_manager, only: orientId
         use iso_fortran_env, only: real64
         implicit none
 
         character(len=80) :: tokens(40)
-        integer :: numTokens
+        integer :: numTokens, k
 
         if (cmd_loop /= VIE_LOOP) return
 
@@ -422,6 +423,15 @@ contains
             call curr_psm%updateSetting(ID_LENSDRAW_ELEVATION, real(str2real8(trim(tokens(2))), real64))
         case ('AZI')
             call curr_psm%updateSetting(ID_LENSDRAW_AZIMUTH, real(str2real8(trim(tokens(2))), real64))
+        case ('ORIENT')
+            ! Coupled: ORIENT <orient> [TAG value]...  The orientation is set,
+            ! then each trailing "TAG value" pair is re-dispatched as its own
+            ! child command (ELEV/AZI), so order is irrelevant and partial input
+            ! (e.g. just "ORIENT Ortho") works.
+            call curr_psm%updateSetting(ID_LENSDRAW_PLOT_ORIENTATION, orientId(trim(tokens(2))))
+            do k = 3, numTokens-1, 2
+                call adjustVieSettings(trim(tokens(k))//" "//trim(tokens(k+1)))
+            end do
         end select
     end procedure adjustVieSettings
 

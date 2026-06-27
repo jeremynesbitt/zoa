@@ -3,7 +3,6 @@ implicit none
 contains
 
     module procedure execSTO
-        use command_utils, only : parseCommandIntoTokens
         use mod_lens_data_manager, only: ldm
 
         implicit none
@@ -13,7 +12,7 @@ contains
         integer :: numTokens
 
         surfNum = -1
-        call parseCommandIntoTokens(trim(iptStr), tokens, numTokens, ' ')
+        call parse(trim(iptStr), ' ', tokens, numTokens)
         if (numTokens == 2) then
             if (isSurfCommand(trim(tokens(2)))) then
                 surfNum = getSurfNumFromSurfCommand(trim(tokens(2)))

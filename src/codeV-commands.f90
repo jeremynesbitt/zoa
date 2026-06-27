@@ -771,6 +771,8 @@ module codeV_commands
         zoaCmds(696)%execFunc => adjustVieSettings
         zoaCmds(697)%cmd = "AZI"
         zoaCmds(697)%execFunc => adjustVieSettings
+        zoaCmds(698)%cmd = "ORIENT"
+        zoaCmds(698)%execFunc => adjustVieSettings
 
 
     end subroutine

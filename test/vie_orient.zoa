@@ -1,0 +1,11 @@
+! Coupled VIE ORIENT command: a single tagged command must update the lens-draw
+! orientation AND its coupled elevation/azimuth in one shot, order-independent.
+!   ORIENT <YZ|XZ|XY|ORTHO> [ELEV <deg>] [AZI <deg>]
+! ELEV/AZI are children of the orientation owner: the owner's regenerated command
+! carries them (generatePlotCommand skips the children), so a replot round-trips.
+! Args arrive uppercased, so ORTHO must resolve regardless of typed case.
+RES osdtriplet
+VIE
+ORIENT ORTHO ELEV 37.3 AZI 48.3
+NUMRAYS 9
+GO

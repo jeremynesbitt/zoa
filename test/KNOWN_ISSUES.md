@@ -155,3 +155,26 @@ routine** (or a single reset macro) so every entry point clears the same state t
 same way. Surfaced during the per-field vignetting / reference-rays work
 (`SET VIG` / `DEL VIG`). Until then, any new per-lens state must remember to hook
 *all* of these sites.
+
+---
+
+## TODO: Retire `parseCommandIntoTokens` (mishandles repeated spaces)
+
+`parseCommandIntoTokens` (in `src/command-utils.f90`) splits on a single
+delimiter character and emits an **empty token** for each repeated space, so
+`"STO  S3"` (two spaces, as written in the traditionally-aligned Bentley macros)
+tokenizes as `['STO', '', 'S3']` → `numTokens = 3`, not 2.
+
+This silently broke `execSTO`, whose `if (numTokens == 2)` check then fell through
+to the default and set the aperture stop to the surface *pointer* (surface 1)
+instead of the requested `S3`. Result: the stop landed on the wrong surface for
+any aligned/multi-space `STO` command (e.g. `Bentley/Bentley5p5.zoa`), and
+`ldm%getStopSurf()` returned the wrong surface. Fixed for `STO` by switching that
+handler to the whitespace-collapsing `parse` procedure.
+
+**Other commands almost certainly have the same latent bug** wherever they use
+`parseCommandIntoTokens` plus an exact `numTokens == N` test. The real fix is to
+**retire `parseCommandIntoTokens` in favour of the `parse` procedure** (which
+collapses consecutive delimiters) everywhere, then delete it. Until then, treat
+any `numTokens ==`-based logic on `parseCommandIntoTokens` output as suspect for
+multi-space input. Surfaced during the aperture-stop drawing work.

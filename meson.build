@@ -389,6 +389,11 @@ test('vie_settings', test_runner,
             meson.project_source_root() / 'test/vie_settings.ref'],
      timeout: 120, is_parallel: false)
 
+test('vie_orient', test_runner,
+     args: [meson.project_source_root() / 'test/vie_orient.zoa',
+            meson.project_source_root() / 'test/vie_orient.ref'],
+     timeout: 120, is_parallel: false)
+
 test('refrays', test_runner,
      args: [meson.project_source_root() / 'test/refrays.zoa',
             meson.project_source_root() / 'test/refrays.ref'],
