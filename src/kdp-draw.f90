@@ -427,8 +427,8 @@ SUBROUTINE DRAWOPTICALSYSTEM(cairo_drawing_area, my_cairo_context, win_width, wi
 
 
   case default
-      call cairo_scale(my_cairo_context, 0.1d0, 0.1d0)
-      kdp_height = 1*7050.0 ! TODO:  Merge this with kdp_gen_plot variable
+      call cairo_scale(my_cairo_context, real(KDP_CAIRO_SCALE,8), real(KDP_CAIRO_SCALE,8))
+      kdp_height = KDP_PLOT_HEIGHT   ! full-plot y-flip origin (RMS overlay uses 0)
       fontScaleFactor = 20
 
 

@@ -38,8 +38,19 @@ type(ray_fan_data) :: curr_ray_fan_data
   type(c_ptr) :: preferences_window = c_null_ptr
 
 
-  REAL :: kdp_width = 10500
-  REAL :: kdp_height = 7050
+  ! Lens-drawing device-space constants -- single source of truth, referenced by
+  ! the renderer (DRAWOPTICALSYSTEM/JK_MOVETOCAIRO in kdp-draw.f90) and the
+  ! cursor->world transform (mod_vie_transform.f90) so they can never drift apart.
+  !   KDP_PLOT_HEIGHT : y-flip origin for the lens drawing (KDP device units)
+  !   KDP_CAIRO_SCALE : KDP units -> screen pixels factor (cairo_scale)
+  ! See test/KNOWN_ISSUES.md for the separate (frame) dimension set in kdp_plot_gen.
+  real(real64), parameter :: KDP_PLOT_HEIGHT = 7050.0d0
+  real(real64), parameter :: KDP_CAIRO_SCALE = 0.1d0
+
+  ! kdp_height doubles as the per-plot y-flip origin (lens draw uses the full
+  ! height, the RMS-field overlay sets it to 0), so it stays a mutable variable.
+  REAL :: kdp_width  = 10500
+  REAL :: kdp_height = KDP_PLOT_HEIGHT
 
   logical :: debug_messages = .FALSE.
 

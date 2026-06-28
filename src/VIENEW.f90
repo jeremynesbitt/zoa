@@ -491,6 +491,15 @@ END IF ! X plotting
   !CALL PROCES
   !        REST_KDP(1)=RESTINPT(1)
   !         END IF
+
+  ! Snapshot the world->screen transform so the cursor-hover readout can map a
+  ! pixel back to global coordinates (read-only; no effect on the drawing).
+  block
+    use mod_vie_transform, only: capture_vie_transform
+    use kdp_plot_gen, only: height_mid
+    call capture_vie_transform(plotOrient, height_mid)
+  end block
+
                     RETURN
                     END
 
@@ -1346,9 +1355,9 @@ NORAYPLOT=.FALSE.
       CALL MY_COLTYP(COLPAS)
         CALL MY_PLOT(0,0,0,0,-10,kdp_width,-10,kdp_height)
 !     DROP PEN, DRAW BOX
-        CALL MY_PLOT(10000,0,1,0,-10,kdp_width,-10,kdp_height)
-        CALL MY_PLOT(10000,7000,1,0,-10,kdp_width,-10,kdp_height)
-        CALL MY_PLOT(0,7000,1,0,-10,kdp_width,-10,kdp_height)
+        CALL MY_PLOT(kdp_width,0,1,0,-10,kdp_width,-10,kdp_height)
+        CALL MY_PLOT(kdp_width,kdp_height,1,0,-10,kdp_width,-10,kdp_height)
+        CALL MY_PLOT(0,kdp_height,1,0,-10,kdp_width,-10,kdp_height)
         CALL MY_PLOT(0,0,1,0,-10,kdp_width,-10,kdp_height)
                        END IF
                        RETURN

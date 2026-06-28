@@ -114,6 +114,7 @@ srcs += files(
   'kdp-interfaces.f90',
   'kdp-seidel.f90',
   'VIENEW.f90',
+  'mod_vie_transform.f90',
   'TestCommands.f90',
   'RCImageBasic.f90',
   'RCImagePrimitive.f90',

@@ -178,3 +178,34 @@ handler to the whitespace-collapsing `parse` procedure.
 collapses consecutive delimiters) everywhere, then delete it. Until then, treat
 any `numTokens ==`-based logic on `parseCommandIntoTokens` output as suspect for
 multi-space input. Surfaced during the aperture-stop drawing work.
+
+---
+
+## TODO: Unify plot dimensions + retire hard-coded plot geometry
+
+The lens-drawing pipeline carries **two different, overlapping plot-dimension
+sets**, and a lot of plot geometry is still written as bare literals:
+
+- **Frame extent** lives in module `kdp_plot_gen` (`src/VIENEW.f90`):
+  `kdp_width = 10000`, `kdp_height = 7000`. Used by VIENEW for the plot frame,
+  bounds, and a `JUSOFF` calc.
+- **Device y-flip origin / scale** lives in `global_widgets`:
+  `KDP_PLOT_HEIGHT = 7050`, `KDP_CAIRO_SCALE = 0.1`. Used by the renderer
+  (`DRAWOPTICALSYSTEM`/`JK_MOVETOCAIRO` in `kdp-draw.f90`) and the cursor→world
+  transform (`mod_vie_transform.f90`).
+
+So there are two "plot heights" (7000 vs 7050) ~50 units apart, plus a now-unused
+`global_widgets%kdp_width = 10500`. They can't simply be merged: the values differ,
+so unifying them would shift the rendering (and the PNG baselines). A proper pass
+should pick one canonical dimension set, reconcile the 50-unit gap deliberately
+(regenerating baselines with justification), and route everything through it.
+
+Separately, **`PLOTCAD3/4/6.f90` are full of hard-coded plot geometry** — title
+blocks, borders, and clip bounds written as hundreds of literal `10500`/`7500`/
+`10000`/`7000` values in `MY_PLOT` calls. These look like a large amount of legacy
+/ likely-dead drawing code worth its own cleanup project. Out of scope for the
+VIE hover-coordinate work; flagged here so it isn't forgotten.
+
+Partial progress already made: the VIE frame corners in `VIENEW.f90` (PLOTBOX) now
+use `kdp_width`/`kdp_height` instead of literal `10000`/`7000`, and the `7050`/`0.1`
+device constants are single-source in `global_widgets`.

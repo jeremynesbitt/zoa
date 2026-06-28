@@ -194,7 +194,13 @@ module zoa_plot_manip_toolbar
                               & c_funloc(tmp_motion_event), c_null_ptr)
 
   
-        call gtk_widget_add_controller(cairo_drawing_area, controller_m)   
+        call gtk_widget_add_controller(cairo_drawing_area, controller_m)
+
+        ! Hover readout: GTK fires "query-tooltip" when the pointer rests over the
+        ! drawing area.  The callback maps the cursor pixel to global coordinates.
+        call gtk_widget_set_has_tooltip(cairo_drawing_area, 1_c_int)
+        call g_signal_connect(cairo_drawing_area, "query-tooltip"//c_null_char, &
+                            & c_funloc(vie_query_tooltip), c_null_ptr)
 
 
 
@@ -513,8 +519,32 @@ subroutine tmp_motion_event(controller, x, y, gdata) bind(c)
   type(c_ptr), value, intent(in)    :: controller, gdata
   real(c_double), value, intent(in) :: x, y
 
-  write(*, "(2I5,A)", advance='no') nint(x), nint(y), c_carriage_return
-end subroutine 
+  ! The global-coordinate readout is now shown as a hover tooltip
+  ! (vie_query_tooltip), so no continuous terminal output here.
+end subroutine
+
+! query-tooltip handler: maps the cursor pixel to global (world, mm) coordinates
+! and shows them as a tooltip when the cursor rests on the lens drawing.
+function vie_query_tooltip(widget, x, y, keyboard_mode, tooltip, gdata) result(ret) bind(c)
+  use iso_fortran_env, only: real64
+  use mod_vie_transform, only: vie_pixel_to_world
+  type(c_ptr), value, intent(in)     :: widget, tooltip, gdata
+  integer(c_int), value, intent(in)  :: x, y, keyboard_mode
+  logical(c_bool) :: ret
+  character(len=1) :: hL, vL
+  real(real64)     :: hV, vV
+  logical          :: ok
+  character(len=80) :: txt
+
+  call vie_pixel_to_world(real(x, real64), real(y, real64), hL, hV, vL, vV, ok)
+  if (ok) then
+    write(txt, '(A," = ",F0.3,"     ",A," = ",F0.3)') hL, hV, vL, vV
+  else
+    txt = '3D view - coordinates N/A'
+  end if
+  call gtk_tooltip_set_text(tooltip, trim(txt)//c_null_char)
+  ret = .true._c_bool
+end function
  !subroutine im_update_event_h(controller, gdata) bind(c)
  ! type(c_ptr), value, intent(in)    :: controller, gdata
  ! print *, "im_update event detected"

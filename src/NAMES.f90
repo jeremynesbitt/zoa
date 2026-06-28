@@ -26,7 +26,7 @@ SUBROUTINE NAMES
    WCC(1)='OUTPUT'
    WCC(2)='OUT'
    WCC(3)='?'
-   WCC(4)='OPWTA'
+   WCC(4)='OPWTA' ! Can go.  does nothing in CMDER but return
    WCC(5)='EXIT'
    WCC(6)='EXI'
    WCC(7)='SETK'
