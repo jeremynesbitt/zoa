@@ -209,7 +209,6 @@ srcs += files(
   'PLOTCAD9.f90',
   'PLOTCAD10.f90',
   'PLOTCAD11.f90',
-  'PROFIT_GLOBAL.f90',
   'RAYTRA1.f90',
   'RAYTRA2.f90',
   'RAYTRA3.f90',
