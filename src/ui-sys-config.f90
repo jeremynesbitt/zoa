@@ -864,7 +864,7 @@ subroutine callback_sys_config_settings (widget, gdata ) bind(c)
    use hl_gtk_zoa
    use zoa_ui
    use iso_fortran_env, only: real64
-   use zoa_ui_callbacks, only: notify_replot
+   use zoa_ui_callbacks, only: notify_replot, notify_replot_flush
    implicit none
    type(c_ptr), value, intent(in) :: widget, gdata
    integer :: int_value
@@ -906,7 +906,10 @@ subroutine callback_sys_config_settings (widget, gdata ) bind(c)
   case (ID_SYSCON_EDGE_FACTOR)
       sysConfig%defaultEdgeScaleFactor = &
       & real(gtk_spin_button_get_value(spinButton_edgeFactor), real64)
+      ! This is a GTK callback (not a name_enter command), so drain the deferred
+      ! replot here or the open plots never refresh.
       call notify_replot()
+      call notify_replot_flush()
 
 case (ID_SYSCON_Y_APERTURE)
     yAp = REAL(gtk_spin_button_get_value (spinButton_yAperture))
