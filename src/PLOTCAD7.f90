@@ -2724,6 +2724,15 @@ SUBROUTINE CAOJK(YMIN,XMIN,YMAX,XMAX,&
 !     surfaces (e.g. a Cassegrain secondary with no defined clear aperture).
          APX=MAX(APX, DABS(ldm%getSurfAutoSemiX(I)))
          APY=MAX(APY, DABS(ldm%getSurfAutoSemiY(I)))
+!     Edge (physical) aperture: an explicit CIR EDG value overrides the extent;
+!     otherwise the system default edge factor scales the auto/paraxial extent.
+         IF(ldm%getEdgeSemiAperture(I).GT.0.0D0) THEN
+            APX=ldm%getEdgeSemiAperture(I)
+            APY=ldm%getEdgeSemiAperture(I)
+         ELSE
+            APX=APX*dF
+            APY=APY*dF
+         END IF
          XMAX=(APX*DCOS(THETA))+CLPLCX(I)
          YMAX=(APY*DSIN(THETA))+CLPLCY(I)
          XMIN=(APX*DCOS(THETA2))+CLPLCX(I)
@@ -3334,22 +3343,28 @@ SUBROUTINE CAO(YLFT,XLFT,YRHT,XRHT,XTOP,YTOP,XBOT,YBOT,&
 !       CAFLG=0 NO CLAP, USE PARAXIAL DATA
 !
       IF(CAFLG.EQ.0) THEN
-!
+!     Auto (paraxial) aperture with no explicit clear aperture.  Apply the edge
+!     (physical) size: an explicit CIR EDG value overrides the extent; otherwise
+!     the system default edge factor scales the paraxial extent.
+         X=(DABS(PXTRAX(1,I))+DABS(PXTRAX(5,I)))
+         Y=(DABS(PXTRAY(1,I))+DABS(PXTRAY(5,I)))
+         IF(ldm%getEdgeSemiAperture(I).GT.0.0D0) THEN
+            X=ldm%getEdgeSemiAperture(I)
+            Y=ldm%getEdgeSemiAperture(I)
+         ELSE
+            X=X*dF
+            Y=Y*dF
+         END IF
 !     COORDINATES OF THE END POINTS FOR PROFX
-!     RIGHT POINT
-         XRHT=((DABS(PXTRAX(1,I))+DABS(PXTRAX(5,I))))+CLPLCX(I)
+         XRHT=( X)+CLPLCX(I)
          YRHT=0.0D0+CLPLCY(I)
-!     LEFT POINT
-         XLFT=(-(DABS(PXTRAX(1,I))+DABS(PXTRAX(5,I))))+CLPLCX(I)
+         XLFT=(-X)+CLPLCX(I)
          YLFT=0.0D0+CLPLCY(I)
-!
 !     COORDINATES OF THE END POINTS FOR PROFY
-!     UPPER POINT
          XTOP=0.0D0+CLPLCX(I)
-         YTOP=( (DABS(PXTRAY(1,I))+DABS(PXTRAY(5,I))))+CLPLCY(I)
-!     BOTTOM POINT
+         YTOP=( Y)+CLPLCY(I)
          XBOT=0.0D0+CLPLCX(I)
-         YBOT=(-(DABS(PXTRAY(1,I))+DABS(PXTRAY(5,I))))+CLPLCY(I)
+         YBOT=(-Y)+CLPLCY(I)
          XTOP2=XTOP
          YTOP2=YTOP
          XBOT2=XBOT
