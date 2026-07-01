@@ -908,10 +908,8 @@ subroutine callback_sys_config_settings (widget, gdata ) bind(c)
       ! Spin shows a margin percentage; store the scale factor (1 + margin/100).
       sysConfig%defaultEdgeScaleFactor = &
       & 1.0_real64 + real(gtk_spin_button_get_value(spinButton_edgeFactor), real64)/100.0_real64
-      ! This is a GTK callback (not a name_enter command), so drain the deferred
-      ! replot here or the open plots never refresh.
+      ! Display-only setting (no EOS), so mark a replot for the flush below.
       call notify_replot()
-      call notify_replot_flush()
 
 case (ID_SYSCON_Y_APERTURE)
     yAp = REAL(gtk_spin_button_get_value (spinButton_yAperture))
@@ -958,6 +956,13 @@ case (ID_SYSCON_X_APERTURE)
 
   end select
 
+  ! Any System Config change (aperture/EPD, fields, wavelengths, edge margin) can
+  ! alter the ray footprint and therefore the auto clear apertures.  This is a GTK
+  ! callback -- it does not pass through name_enter -- so drain the deferred replot
+  ! here, which refreshes open plots (they recompute clear apertures on render).
+  ! Only drains what a lens-changing case actually deferred (via its EOS), so a
+  ! no-op combo click does not force a spurious replot/undo snapshot.
+  call notify_replot_flush()
 
   !PRINT *, "Value ID is ", hl_zoa_combo_get_selected_list2_id(widget)
 
