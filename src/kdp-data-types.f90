@@ -84,6 +84,9 @@ type sys_config
  ! Per-field CODE V vignetting factors, column = field index.
  ! Rows: 1=VUY (upper-y), 2=VLY (lower-y), 3=VUX (+x), 4=VLX (-x). 0 = no vignetting.
  real(kind=real64), dimension(4,10) :: vignetting = 0.0_real64
+ ! Default edge (physical) aperture scale factor for lens drawing: physical size
+ ! = clear aperture * this, used when a surface has no explicit CIR EDG value.
+ real(kind=real64) :: defaultEdgeScaleFactor = 1.02_real64
  integer :: numFields, numWavelengths
  integer, dimension(10) :: wavelengthIndices
  character(len=80) :: lensTitle

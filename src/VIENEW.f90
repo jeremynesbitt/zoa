@@ -26,6 +26,7 @@ SUBROUTINE VIE_psm(psm)
     use DATMAI
       use mod_surface
       use mod_system, only: sys_units, sys_wl_ref
+      use mod_lens_data_manager, only: ldm
     IMPLICIT NONE
 
        type(zoaplot_setting_manager) :: psm
@@ -328,9 +329,12 @@ SUBROUTINE VIE_psm(psm)
           SQ=1
           STI=0
           SST=0
-                    SFI=1.0D0
                     DO I=Si, Sf
                     !DO I=INT(W1),INT(W2)
+               ! Draw at the physical (edge) aperture: scale the clear aperture
+               ! by the per-surface edge factor (explicit CIR EDG value, else the
+               ! system default edge scale factor).
+               SFI = ldm%getEdgeApertureScale(I, sysConfig%defaultEdgeScaleFactor)
                IF(surf_array_parity(I) /= 0) THEN
                    DO J=1,surf_array_parity(I)
                MDX=MULTCLAP(J,1,I)

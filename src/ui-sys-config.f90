@@ -103,9 +103,10 @@ end type
   integer, parameter :: ID_SYSCON_Y_APERTURE = 7050
   integer, parameter :: ID_SYSCON_X_APERTURE = 7051
   integer, parameter :: ID_SYSCON_RAYAIM = 7052
+  integer, parameter :: ID_SYSCON_EDGE_FACTOR = 7053
 
 
-  type(c_ptr) :: spinButton_xAperture, spinButton_yAperture
+  type(c_ptr) :: spinButton_xAperture, spinButton_yAperture, spinButton_edgeFactor
 
   type(c_ptr) :: spinButton_numFields, spinButton_numWavelengths, spinButton_refWavelength
 
@@ -124,6 +125,7 @@ contains
 
     integer, target :: TARGET_X_APERTURE = ID_SYSCON_X_APERTURE
     integer, target :: TARGET_Y_APERTURE = ID_SYSCON_Y_APERTURE
+    integer, target :: TARGET_EDGE_FACTOR = ID_SYSCON_EDGE_FACTOR
 
 
     call self%addListBoxTextID("Aperture ",  &
@@ -173,6 +175,18 @@ contains
     call self%addCheckBox("XY Symmetric", c_funloc(callback_sys_config_settings), &
     & c_loc(TARGET_XYSAME), ID_SYSCON_APERTURE_XYSAME)
     self%idxBoolXYSame = self%numSettings
+
+    ! Default edge (physical) aperture scale factor for lens drawing.
+    spinButton_edgeFactor = gtk_spin_button_new (gtk_adjustment_new( &
+                                                     & value=sysConfig%defaultEdgeScaleFactor*1d0, &
+                                                               & lower=1d0, &
+                                                               & upper=2d0, &
+                                                               & step_increment=0.01d0, &
+                                                               & page_increment=0.05d0, &
+                                                               & page_size=0d0),climb_rate=2d0, &
+                                                               & digits=3_c_int)
+    call self%addSpinBox("Default Edge Aperture Factor", spinButton_edgeFactor, &
+    & c_funloc(callback_sys_config_settings), c_loc(TARGET_EDGE_FACTOR), ID_SYSCON_EDGE_FACTOR)
 
 
   end subroutine
@@ -849,6 +863,8 @@ subroutine callback_sys_config_settings (widget, gdata ) bind(c)
    use iso_c_binding
    use hl_gtk_zoa
    use zoa_ui
+   use iso_fortran_env, only: real64
+   use zoa_ui_callbacks, only: notify_replot
    implicit none
    type(c_ptr), value, intent(in) :: widget, gdata
    integer :: int_value
@@ -885,7 +901,12 @@ subroutine callback_sys_config_settings (widget, gdata ) bind(c)
       int_value = hl_zoa_combo_get_selected_list2_id(widget)
       if (int_value.NE.sysConfig%currRayAimID) THEN
          call sysConfig%updateRayAimSelectionByCode(int_value)
-       end if         
+       end if
+
+  case (ID_SYSCON_EDGE_FACTOR)
+      sysConfig%defaultEdgeScaleFactor = &
+      & real(gtk_spin_button_get_value(spinButton_edgeFactor), real64)
+      call notify_replot()
 
 case (ID_SYSCON_Y_APERTURE)
     yAp = REAL(gtk_spin_button_get_value (spinButton_yAperture))

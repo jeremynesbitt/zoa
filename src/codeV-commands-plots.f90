@@ -364,6 +364,9 @@ contains
 
     module procedure execCIR
         use command_utils, only : parseCommandIntoTokens, isInputNumber
+        use type_utils, only: str2real8
+        use mod_lens_data_manager, only: ldm
+        use zoa_ui_callbacks, only: notify_replot
 
         implicit none
 
@@ -371,6 +374,24 @@ contains
         integer :: numTokens, surfNum
 
         call parse(trim(iptStr), ' ', tokens, numTokens)
+
+        ! Edge (physical) aperture:  CIR EDG Sk <value>
+        if (numTokens == 4 .and. trim(tokens(2)) == 'EDG') then
+            if (.not. isSurfCommand(trim(tokens(3)))) then
+                call zoa_emit("Error: expected a surface (e.g. S4) after 'CIR EDG'", "red")
+                return
+            end if
+            if (.not. isInputNumber(trim(tokens(4)))) then
+                call zoa_emit("Error: unable to interpret edge aperture value '" &
+                    & //trim(tokens(4))//"'", "red")
+                return
+            end if
+            surfNum = getSurfNumFromSurfCommand(trim(tokens(3)))
+            call ldm%setEdgeSemiAperture(surfNum, str2real8(trim(tokens(4))))
+            call notify_replot()
+            return
+        end if
+
         select case (numTokens)
         case (2)
             if (isInputNumber(trim(tokens(2)))) then

@@ -137,7 +137,8 @@ These commands were added in Batch 9; all are now TESTED in `test/misc_commands.
 ## TODO: Unify the new-lens / lens-load reset paths
 
 The several ways a lens gets loaded/replaced reset their per-lens "extra" state
-(zoom configs, vignetting factors, etc.) through **different mechanisms**, and do
+(zoom configs, vignetting factors, per-surface edge apertures via
+`ldm%clearEdgeApertures()`, etc.) through **different mechanisms**, and do
 not all behave identically:
 
 - **New from template** (`newLens` → `Library/Macros/newlens.zoa`): resets via

@@ -22,6 +22,11 @@ module mod_lens_data_manager
 
     real(long), dimension(0:499,3) :: vars ! CCY THC GLC for now.  Hard code max of 500 surfaces.  Default is 100
 
+    ! Persistent per-surface edge (physical) semi-aperture in Y.  0 => unset.
+    ! Owned here (NOT ALENS) so it survives load_surfaces_from_alens() rebuilds;
+    ! copied into surfaces(s)%s%clap%semi_edge_y after each rebuild.  Set via CIR EDG.
+    real(real64), dimension(0:499) :: edge_semi_y = 0.0_real64
+
     ! Array of surface type objects indexed 0:last_surf.
     ! Each slot holds an allocatable CLASS(surface_type) so surfaces can have
     ! different dynamic types (sphere_surface, asphere_surface, etc.).
@@ -33,6 +38,9 @@ module mod_lens_data_manager
      procedure, public, pass(self) :: getSurfThi, setSurfThi
      procedure, public, pass(self) :: getSurfXDec, getSurfYDec
      procedure, public, pass(self) :: getSurfAutoSemiX, getSurfAutoSemiY
+     procedure, public, pass(self) :: getEdgeSemiAperture, setEdgeSemiAperture
+     procedure, public, pass(self) :: getEdgeApertureScale, clearEdgeApertures
+     procedure, public, pass(self) :: getClearApertureForLensDraw
      procedure, public, pass(self) :: getSurfIdealEFL, getSurfSpecialType
      procedure, public, pass(self) :: isThiSolveOnSurf
      procedure, public, pass(self) :: isPIMSolveOnSurf
@@ -291,6 +299,98 @@ module mod_lens_data_manager
         if (.not. allocated(self%surfaces(surfIdx)%s)) return
         semi = self%surfaces(surfIdx)%s%clap%auto_semi_y
     end function
+
+    ! Raw per-surface edge semi-aperture (Y).  0 => unset (caller applies the
+    ! system default edge scale factor).  Reads the typed clear_aperture.
+    function getEdgeSemiAperture(self, surfIdx) result(semi)
+        class(lens_data_manager) :: self
+        integer, intent(in) :: surfIdx
+        real(kind=real64) :: semi
+        semi = 0.0_real64
+        if (.not. allocated(self%surfaces)) return
+        if (surfIdx < lbound(self%surfaces,1) .or. surfIdx > ubound(self%surfaces,1)) return
+        if (.not. allocated(self%surfaces(surfIdx)%s)) return
+        semi = self%surfaces(surfIdx)%s%clap%semi_edge_y
+    end function
+
+    subroutine setEdgeSemiAperture(self, surfIdx, val)
+        class(lens_data_manager) :: self
+        integer, intent(in) :: surfIdx
+        real(kind=real64), intent(in) :: val
+        if (surfIdx < 0 .or. surfIdx > ubound(self%edge_semi_y,1)) return
+        ! Persistent owner (survives load_surfaces_from_alens rebuilds)...
+        self%edge_semi_y(surfIdx) = val
+        ! ...and mirror onto the live typed surface if present.
+        if (allocated(self%surfaces)) then
+          if (surfIdx >= lbound(self%surfaces,1) .and. surfIdx <= ubound(self%surfaces,1)) then
+            if (allocated(self%surfaces(surfIdx)%s)) &
+              self%surfaces(surfIdx)%s%clap%semi_edge_y = val
+          end if
+        end if
+    end subroutine
+
+    ! Per-surface edge-aperture scale factor for lens drawing.  If the surface has
+    ! an explicit edge semi-aperture, convert it to a factor relative to the clear
+    ! (clipping) aperture; otherwise use the supplied system default factor.
+    function getEdgeApertureScale(self, surfIdx, defaultFactor) result(sfi)
+        class(lens_data_manager) :: self
+        integer, intent(in) :: surfIdx
+        real(kind=real64), intent(in) :: defaultFactor
+        real(kind=real64) :: sfi, edgeSemi, clipSemi
+        sfi = defaultFactor
+        if (.not. allocated(self%surfaces)) return
+        if (surfIdx < lbound(self%surfaces,1) .or. surfIdx > ubound(self%surfaces,1)) return
+        if (.not. allocated(self%surfaces(surfIdx)%s)) return
+        edgeSemi = self%surfaces(surfIdx)%s%clap%semi_edge_y
+        if (edgeSemi <= 0.0_real64) return                 ! unset -> default factor
+        clipSemi = self%surfaces(surfIdx)%s%clap%display_semi_y()
+        if (clipSemi <= 0.0_real64) return                 ! no clip to scale from
+        sfi = edgeSemi / clipSemi
+    end function
+
+    ! Semi-aperture to DRAW for a surface in the lens layout (typed replacement
+    ! for the raw ALENS(10)/ALENS(11) reads in the drawing routines).
+    !   axis = 1 -> Y semi (clap dim1),  axis = 2 -> X semi (clap dim2)
+    ! Returns the physical (edge) size: the clear aperture scaled by the surface's
+    ! edge factor -- an explicit CIR EDG value if set, else defaultFactor.  The Y
+    ! axis therefore returns the explicit edge value exactly when one is set.
+    function getClearApertureForLensDraw(self, surfIdx, axis, defaultFactor) result(semi)
+        class(lens_data_manager) :: self
+        integer, intent(in) :: surfIdx, axis
+        real(kind=real64), intent(in) :: defaultFactor
+        real(kind=real64) :: semi, clipAxis, clipY, edgeY, factor
+        semi = 0.0_real64
+        if (.not. allocated(self%surfaces)) return
+        if (surfIdx < lbound(self%surfaces,1) .or. surfIdx > ubound(self%surfaces,1)) return
+        if (.not. allocated(self%surfaces(surfIdx)%s)) return
+        clipY = self%surfaces(surfIdx)%s%clap%dim1      ! ALENS(10): Y semi
+        edgeY = self%surfaces(surfIdx)%s%clap%semi_edge_y
+        if (edgeY > 0.0_real64 .and. clipY > 0.0_real64) then
+          factor = edgeY / clipY                        ! explicit edge -> exact Y
+        else
+          factor = defaultFactor
+        end if
+        if (axis == 1) then
+          clipAxis = clipY
+        else
+          clipAxis = self%surfaces(surfIdx)%s%clap%dim2  ! ALENS(11): X semi
+        end if
+        semi = clipAxis * factor
+    end function
+
+    ! Reset all per-surface edge apertures.  Called wherever the lens is replaced
+    ! (see the unified-reset TODO in test/KNOWN_ISSUES.md).
+    subroutine clearEdgeApertures(self)
+        class(lens_data_manager) :: self
+        integer :: s
+        self%edge_semi_y = 0.0_real64
+        if (allocated(self%surfaces)) then
+          do s = lbound(self%surfaces,1), ubound(self%surfaces,1)
+            if (allocated(self%surfaces(s)%s)) &
+              self%surfaces(s)%s%clap%semi_edge_y = 0.0_real64
+          end do
+        end if
+    end subroutine
 
     function getSurfAutoSemiX(self, surfIdx) result(semi)
         class(lens_data_manager) :: self
@@ -817,6 +917,12 @@ module mod_lens_data_manager
                   & trim(real2str(ldm%surfaces(ii-1)%s%clap%dim1, 10))
                   write(fID, *) trim(strSurfLine)
                 end if
+                ! Explicit per-surface edge (physical) aperture, if set.
+                if (ldm%surfaces(ii-1)%s%clap%semi_edge_y /= 0.0_real64) then
+                  strSurfLine = blankStr(2)//'CIR EDG S'//trim(int2str(ii-1))//' '// &
+                  & trim(real2str(ldm%surfaces(ii-1)%s%clap%semi_edge_y, 10))
+                  write(fID, *) trim(strSurfLine)
+                end if
               end if
             end if
           end if
@@ -1240,6 +1346,9 @@ module mod_lens_data_manager
             if (s > 0) self%surfaces(s)%s%n_pre(w) = surf_refractive_index(s-1, w)
           end do
           call self%surfaces(s)%s%clap%from_alens(s)
+          ! Edge aperture is not an ALENS quantity; restore it from the ldm's
+          ! persistent store so a rebuild does not drop a CIR EDG setting.
+          self%surfaces(s)%s%clap%semi_edge_y = self%edge_semi_y(s)
         end do
       end subroutine load_surfaces_from_alens
 

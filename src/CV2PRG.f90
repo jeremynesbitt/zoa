@@ -170,6 +170,7 @@ SUBROUTINE CV2PRG
 !     seq, so a converted lens currently starts with none; revisit if/when seq
 !     vignetting import is added (it would set factors after this reset).
    call sysConfig%resetVignetting()
+   call ldm%clearEdgeApertures()
 
 !     FILES EXISTS, CREATE PROGRAM FILE NAME
    !call logger%logText("CV2PRG Find Extension in File Name")

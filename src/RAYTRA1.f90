@@ -1179,12 +1179,12 @@ SUBROUTINE SETCLAP
       END DO
 !
       DO I=0,INT(sys_last_surf())
-         call LogTermFOR("Surf "//trim(int2str(I))//&
-         &" ALENS(9,1 ) "//trim(real2str(surf_clap_type(I))) //&
-         &" surf_array_parity(I) "//trim(real2str(surf_array_parity(I))) //&
-         &" W1 is "//trim(real2str(W1)) //&
-         &" W2 is "//trim(real2str(W2)))
-         PRINT *, "DUMMY(I) is ", DUMMMY(I)
+         !call LogTermFOR("Surf "//trim(int2str(I))//&
+         !&" ALENS(9,1 ) "//trim(real2str(surf_clap_type(I))) //&
+         !&" surf_array_parity(I) "//trim(real2str(surf_array_parity(I))) //&
+         !&" W1 is "//trim(real2str(W1)) //&
+         !&" W2 is "//trim(real2str(W2)))
+         !PRINT *, "DUMMY(I) is ", DUMMMY(I)
          IF(I.GE.INT(W1).AND.I.LE.INT(W2)) THEN
             IF(.NOT.DUMMMY(I).OR.DF1.EQ.0.AND.DF2.EQ.0) THEN
                RMAX=-1.0D10

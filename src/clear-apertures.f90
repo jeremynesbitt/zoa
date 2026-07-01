@@ -33,6 +33,12 @@ module clear_apertures
         type(spider_obscuration) :: spider
         real(real64) :: auto_semi_x = 0.0_real64  ! ray-traced extent: DISPLAY ONLY
         real(real64) :: auto_semi_y = 0.0_real64
+        ! Edge (physical/mechanical) semi-aperture in Y -- larger than the clear
+        ! aperture to allow coating roll-off, polishing, and mounting.  0 => unset
+        ! (use the system default edge scale factor).  Set via `CIR EDG Sk v`.
+        ! Persistent owner is the ldm (edge apertures are NOT an ALENS quantity);
+        ! load_surfaces_from_alens re-populates this field after each rebuild.
+        real(real64) :: semi_edge_y = 0.0_real64
     contains
         procedure :: from_alens
         procedure :: to_alens
