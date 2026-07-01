@@ -176,16 +176,17 @@ contains
     & c_loc(TARGET_XYSAME), ID_SYSCON_APERTURE_XYSAME)
     self%idxBoolXYSame = self%numSettings
 
-    ! Default edge (physical) aperture scale factor for lens drawing.
+    ! Default clear-aperture margin (%) for lens drawing.  Shown as a percentage;
+    ! stored internally as a scale factor (factor = 1 + margin/100).
     spinButton_edgeFactor = gtk_spin_button_new (gtk_adjustment_new( &
-                                                     & value=sysConfig%defaultEdgeScaleFactor*1d0, &
-                                                               & lower=1d0, &
-                                                               & upper=2d0, &
-                                                               & step_increment=0.01d0, &
-                                                               & page_increment=0.05d0, &
+                                                     & value=(sysConfig%defaultEdgeScaleFactor-1d0)*100d0, &
+                                                               & lower=0d0, &
+                                                               & upper=100d0, &
+                                                               & step_increment=1d0, &
+                                                               & page_increment=5d0, &
                                                                & page_size=0d0),climb_rate=2d0, &
-                                                               & digits=3_c_int)
-    call self%addSpinBox("Default Edge Aperture Factor", spinButton_edgeFactor, &
+                                                               & digits=1_c_int)
+    call self%addSpinBox("Default Clear Aperture Margin [%]", spinButton_edgeFactor, &
     & c_funloc(callback_sys_config_settings), c_loc(TARGET_EDGE_FACTOR), ID_SYSCON_EDGE_FACTOR)
 
 
@@ -904,8 +905,9 @@ subroutine callback_sys_config_settings (widget, gdata ) bind(c)
        end if
 
   case (ID_SYSCON_EDGE_FACTOR)
+      ! Spin shows a margin percentage; store the scale factor (1 + margin/100).
       sysConfig%defaultEdgeScaleFactor = &
-      & real(gtk_spin_button_get_value(spinButton_edgeFactor), real64)
+      & 1.0_real64 + real(gtk_spin_button_get_value(spinButton_edgeFactor), real64)/100.0_real64
       ! This is a GTK callback (not a name_enter command), so drain the deferred
       ! replot here or the open plots never refresh.
       call notify_replot()

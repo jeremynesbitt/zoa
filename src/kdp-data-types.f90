@@ -86,7 +86,9 @@ type sys_config
  real(kind=real64), dimension(4,10) :: vignetting = 0.0_real64
  ! Default edge (physical) aperture scale factor for lens drawing: physical size
  ! = clear aperture * this, used when a surface has no explicit CIR EDG value.
- real(kind=real64) :: defaultEdgeScaleFactor = 1.02_real64
+ ! Exposed in the GUI as a margin percentage (factor = 1 + margin/100); default
+ ! 1.0 = 0% margin (draw at the clear aperture).
+ real(kind=real64) :: defaultEdgeScaleFactor = 1.0_real64
  integer :: numFields, numWavelengths
  integer, dimension(10) :: wavelengthIndices
  character(len=80) :: lensTitle
