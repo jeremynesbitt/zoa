@@ -2664,6 +2664,9 @@ SUBROUTINE CAOJK(YMIN,XMIN,YMAX,XMAX,&
    use DATLEN
    use DATMAI
    use mod_lens_data_manager, only: ldm
+   use global_widgets, only: sysConfig
+   use mod_surface, only: surf_clap_type, surf_clap_dim, surf_clap_tilt, &
+                          surf_special_type, surf_curvature
    use iso_fortran_env, only: real64
    IMPLICIT NONE
 !
@@ -2679,17 +2682,19 @@ SUBROUTINE CAOJK(YMIN,XMIN,YMAX,XMAX,&
    &YMIN2,XMIN2,YMAX2,XMAX2,THETA,THETA2,APX,APY,CHX,CHY
 !
    COMMON/CLPLOC/CLPLCX,CLPLCY
+   real(real64) :: dF   ! system default edge-aperture scale factor
 !
 !
    ZDELZ=0.0D0
+   dF = sysConfig%defaultEdgeScaleFactor
 !
    THETA2=THETA+PII
 !
 !       SET FLAGS CAFLG AND COFLG
-   CAFLG=INT(ALENS(9,I))
+   CAFLG=surf_clap_type(I)
    COFLG=INT(ALENS(16,I))
    GAM=0.0D0
-   IF(ALENS(34,I).NE.18.0D0) THEN
+   IF(surf_special_type(I) /= 18) THEN
 !     NOT TYPE 18 SPECIAL SURFACE
 !
 !       CAFLG AND COFLG HAVE BEEN SET
@@ -2735,13 +2740,13 @@ SUBROUTINE CAOJK(YMIN,XMIN,YMAX,XMAX,&
 !       CAFLG=1 CIRCULAR CLAP
       IF(CAFLG.EQ.1) THEN
 !
-         PEEPEE=DABS(ALENS(10,I))
+         PEEPEE=DABS(ldm%getClearApertureForLensDraw(I,1,dF))
 !
 !       RIGHT POINT
-         XMAX=((PEEPEE)*DCOS(THETA))+ALENS(13,I)
-         YMAX=((PEEPEE)*DSIN(THETA))+ALENS(12,I)
-         XMIN=((PEEPEE)*DCOS(THETA2))+ALENS(13,I)
-         YMIN=((PEEPEE)*DSIN(THETA2))+ALENS(12,I)
+         XMAX=((PEEPEE)*DCOS(THETA))+surf_clap_dim(I,4)
+         YMAX=((PEEPEE)*DSIN(THETA))+surf_clap_dim(I,3)
+         XMIN=((PEEPEE)*DCOS(THETA2))+surf_clap_dim(I,4)
+         YMIN=((PEEPEE)*DSIN(THETA2))+surf_clap_dim(I,3)
          XMAX2=XMAX
          YMAX2=YMAX
          XMIN2=XMIN
@@ -2753,23 +2758,23 @@ SUBROUTINE CAOJK(YMIN,XMIN,YMAX,XMAX,&
 !       CAFLG=2,3,OR 4
       IF(CAFLG.EQ.2.OR.CAFLG.EQ.3.OR.CAFLG.EQ.4) THEN
 !
-         GAM=(PII/180.0D0)*ALENS(15,I)
-         XMAX=(ALENS(11,I))*DCOS(THETA)
-         YMAX=(ALENS(10,I))*DSIN(THETA)
+         GAM=(PII/180.0D0)*surf_clap_tilt(I)
+         XMAX=(ldm%getClearApertureForLensDraw(I,2,dF))*DCOS(THETA)
+         YMAX=(ldm%getClearApertureForLensDraw(I,1,dF))*DSIN(THETA)
          X=(XMAX*DCOS(GAM))-(YMAX*DSIN(GAM))
          Y=(YMAX*DCOS(GAM))+(XMAX*DSIN(GAM))
-         XMAX=X+ALENS(13,I)
-         YMAX=Y+ALENS(12,I)
-         XMAX2=X+ALENS(13,I)
-         YMAX2=Y+ALENS(12,I)
-         XMIN=(ALENS(11,I))*DCOS(THETA2)
-         YMIN=(ALENS(10,I))*DSIN(THETA2)
+         XMAX=X+surf_clap_dim(I,4)
+         YMAX=Y+surf_clap_dim(I,3)
+         XMAX2=X+surf_clap_dim(I,4)
+         YMAX2=Y+surf_clap_dim(I,3)
+         XMIN=(ldm%getClearApertureForLensDraw(I,2,dF))*DCOS(THETA2)
+         YMIN=(ldm%getClearApertureForLensDraw(I,1,dF))*DSIN(THETA2)
          X=(XMIN*DCOS(GAM))-(YMIN*DSIN(GAM))
          Y=(YMIN*DCOS(GAM))+(XMIN*DSIN(GAM))
-         XMIN=X+ALENS(13,I)
-         YMIN=Y+ALENS(12,I)
-         XMIN2=X+ALENS(13,I)
-         YMIN2=Y+ALENS(12,I)
+         XMIN=X+surf_clap_dim(I,4)
+         YMIN=Y+surf_clap_dim(I,3)
+         XMIN2=X+surf_clap_dim(I,4)
+         YMIN2=Y+surf_clap_dim(I,3)
       ELSE
 !     CAFLG NOT 2,3 OR 4
       END IF
@@ -2788,14 +2793,14 @@ SUBROUTINE CAOJK(YMIN,XMIN,YMAX,XMAX,&
 
             XOLDX=X
             YOLDY=Y
-            X=(DBLE(J)*0.01D0*ALENS(10,I))*DCOS(THETA)
-            Y=(DBLE(J)*0.01D0*ALENS(10,I))*DSIN(THETA)
+            X=(DBLE(J)*0.01D0*ldm%getClearApertureForLensDraw(I,1,dF))*DCOS(THETA)
+            Y=(DBLE(J)*0.01D0*ldm%getClearApertureForLensDraw(I,1,dF))*DSIN(THETA)
             NEWIN=ISITIN(X,Y,I)
             IF(OLDIN.AND..NOT.NEWIN) THEN
                X=(X+XOLDX)/2.0D0
                Y=(Y+YOLDY)/2.0D0
-               X=X+ALENS(13,I)
-               Y=Y+ALENS(12,I)
+               X=X+surf_clap_dim(I,4)
+               Y=Y+surf_clap_dim(I,3)
                XMAX=X
                YMAX=Y
                XMAX2=X
@@ -2815,14 +2820,14 @@ SUBROUTINE CAOJK(YMIN,XMIN,YMAX,XMAX,&
 
             XOLDX=X
             YOLDY=Y
-            X=-(DBLE(J)*0.01D0*ALENS(10,I))*DCOS(THETA)
-            Y=-(DBLE(J)*0.01D0*ALENS(10,I))*DSIN(THETA)
+            X=-(DBLE(J)*0.01D0*ldm%getClearApertureForLensDraw(I,1,dF))*DCOS(THETA)
+            Y=-(DBLE(J)*0.01D0*ldm%getClearApertureForLensDraw(I,1,dF))*DSIN(THETA)
             NEWIN=ISITIN(X,Y,I)
             IF(OLDIN.AND..NOT.NEWIN) THEN
                X=(X+XOLDX)/2.0D0
                Y=(Y+YOLDY)/2.0D0
-               X=X+ALENS(13,I)
-               Y=Y+ALENS(12,I)
+               X=X+surf_clap_dim(I,4)
+               Y=Y+surf_clap_dim(I,3)
                XMIN=X
                YMIN=Y
                XMIN2=X
@@ -2849,14 +2854,14 @@ SUBROUTINE CAOJK(YMIN,XMIN,YMAX,XMAX,&
 
             XOLDX=X
             YOLDY=Y
-            X=(DBLE(J)*0.01D0*ALENS(10,I))*DCOS(THETA)
-            Y=(DBLE(J)*0.01D0*ALENS(10,I))*DSIN(THETA)
+            X=(DBLE(J)*0.01D0*ldm%getClearApertureForLensDraw(I,1,dF))*DCOS(THETA)
+            Y=(DBLE(J)*0.01D0*ldm%getClearApertureForLensDraw(I,1,dF))*DSIN(THETA)
             NEWIN=ISITIN(X,Y,I)
             IF(OLDIN.AND..NOT.NEWIN) THEN
                X=(X+XOLDX)/2.0D0
                Y=(Y+YOLDY)/2.0D0
-               X=X+ALENS(13,I)
-               Y=Y+ALENS(12,I)
+               X=X+surf_clap_dim(I,4)
+               Y=Y+surf_clap_dim(I,3)
                XMAX=X
                YMAX=Y
                XMAX2=X
@@ -2876,14 +2881,14 @@ SUBROUTINE CAOJK(YMIN,XMIN,YMAX,XMAX,&
 
             XOLDX=X
             YOLDY=Y
-            X=-(DBLE(J)*0.01D0*ALENS(10,I))*DCOS(THETA)
-            Y=-(DBLE(J)*0.01D0*ALENS(10,I))*DSIN(THETA)
+            X=-(DBLE(J)*0.01D0*ldm%getClearApertureForLensDraw(I,1,dF))*DCOS(THETA)
+            Y=-(DBLE(J)*0.01D0*ldm%getClearApertureForLensDraw(I,1,dF))*DSIN(THETA)
             NEWIN=ISITIN(X,Y,I)
             IF(OLDIN.AND..NOT.NEWIN) THEN
                X=(X+XOLDX)/2.0D0
                Y=(Y+YOLDY)/2.0D0
-               X=X+ALENS(13,I)
-               Y=Y+ALENS(12,I)
+               X=X+surf_clap_dim(I,4)
+               Y=Y+surf_clap_dim(I,3)
                XMIN=X
                YMIN=Y
                XMIN2=X
@@ -2897,10 +2902,10 @@ SUBROUTINE CAOJK(YMIN,XMIN,YMAX,XMAX,&
       END IF
 20    CONTINUE
 !       CAFLG=1 CIRCULAR CLAP
-      IF(ALENS(13,I).EQ.0.0D0.AND.ALENS(12,I).EQ.0.0D0) THEN
+      IF(surf_clap_dim(I,4).EQ.0.0D0.AND.surf_clap_dim(I,3).EQ.0.0D0) THEN
          IF(CAFLG.EQ.1) THEN
 !
-            PEEPEE=DABS(ALENS(10,I))
+            PEEPEE=DABS(ldm%getClearApertureForLensDraw(I,1,dF))
 !
 !     CLAP DEC MUST BE 0
 !
@@ -2917,12 +2922,12 @@ SUBROUTINE CAOJK(YMIN,XMIN,YMAX,XMAX,&
 !
             DOIT=ISAIR(I,POSDIR)
             IF(DOIT) THEN
-               IF(ALENS(1,I).GT.0.0D0.AND.POSDIR.OR.&
-               &ALENS(1,I).LT.0.0D0.AND..NOT.POSDIR) THEN
+               IF(surf_curvature(I).GT.0.0D0.AND.POSDIR.OR.&
+               &surf_curvature(I).LT.0.0D0.AND..NOT.POSDIR) THEN
 !     ADJUST POINT
-                  PEEPEE=DABS(ALENS(11,I))
-                  IF(ALENS(1,I).GT.0.0D0) ZDELZ=-DABS(ALENS(14,I))
-                  IF(ALENS(1,I).LT.0.0D0) ZDELZ=DABS(ALENS(14,I))
+                  PEEPEE=DABS(ldm%getClearApertureForLensDraw(I,2,dF))
+                  IF(surf_curvature(I).GT.0.0D0) ZDELZ=-DABS(surf_clap_dim(I,5))
+                  IF(surf_curvature(I).LT.0.0D0) ZDELZ=DABS(surf_clap_dim(I,5))
                END IF
             END IF
 !
@@ -2931,12 +2936,12 @@ SUBROUTINE CAOJK(YMIN,XMIN,YMAX,XMAX,&
             DOIT=.FALSE.
             DOIT=ISAIR2(I,POSDIR)
             IF(DOIT) THEN
-               IF(ALENS(1,I).LT.0.0D0.AND.POSDIR.OR.&
-               &ALENS(1,I).GT.0.0D0.AND..NOT.POSDIR) THEN
+               IF(surf_curvature(I).LT.0.0D0.AND.POSDIR.OR.&
+               &surf_curvature(I).GT.0.0D0.AND..NOT.POSDIR) THEN
 !     ADJUST POINT
-                  PEEPEE=DABS(ALENS(11,I))
-                  IF(ALENS(1,I).GT.0.0D0) ZDELZ=-DABS(ALENS(14,I))
-                  IF(ALENS(1,I).LT.0.0D0) ZDELZ=DABS(ALENS(14,I))
+                  PEEPEE=DABS(ldm%getClearApertureForLensDraw(I,2,dF))
+                  IF(surf_curvature(I).GT.0.0D0) ZDELZ=-DABS(surf_clap_dim(I,5))
+                  IF(surf_curvature(I).LT.0.0D0) ZDELZ=DABS(surf_clap_dim(I,5))
                END IF
             END IF
 !
@@ -3294,6 +3299,10 @@ SUBROUTINE CAO(YLFT,XLFT,YRHT,XRHT,XTOP,YTOP,XBOT,YBOT,&
    use DATLEN
    use DATMAI
    use iso_fortran_env, only: real64
+   use mod_lens_data_manager, only: ldm
+   use global_widgets, only: sysConfig
+   use mod_surface, only: surf_clap_type, surf_clap_dim, surf_clap_tilt, &
+                          surf_special_type, surf_curvature
    IMPLICIT NONE
 !
    INTEGER CAFLG,COFLG,I,CAFLG2
@@ -3308,14 +3317,16 @@ SUBROUTINE CAO(YLFT,XLFT,YRHT,XRHT,XTOP,YTOP,XBOT,YBOT,&
    &YLFT2,XLFT2,YRHT2,XRHT2,XTOP2,YTOP2,XBOT2,YBOT2,ZDELZ
 !
    COMMON/CLPLOC/CLPLCX,CLPLCY
+   real(real64) :: dF   ! system default edge-aperture scale factor
 !
    ZDELZ=0.0D0
+   dF = sysConfig%defaultEdgeScaleFactor
 !
 !       SET FLAGS CAFLG AND COFLG
-   CAFLG=INT(ALENS(9,I))
+   CAFLG=surf_clap_type(I)
    COFLG=INT(ALENS(16,I))
    GAM=0.0D0
-   IF(ALENS(34,I).NE.18.0D0) THEN
+   IF(surf_special_type(I) /= 18) THEN
 !     NOT TYPE 18 SPECIAL SURFACE
 !
 !       CAFLG AND COFLG HAVE BEEN SET
@@ -3354,20 +3365,20 @@ SUBROUTINE CAO(YLFT,XLFT,YRHT,XRHT,XTOP,YTOP,XBOT,YBOT,&
 !       CAFLG=1 CIRCULAR CLAP
       IF(CAFLG.EQ.1) THEN
 !
-         PEEPEE=DABS(ALENS(10,I))
+         PEEPEE=DABS(ldm%getClearApertureForLensDraw(I,1,dF))
 !
 !       RIGHT POINT
-         XRHT=(PEEPEE)+ALENS(13,I)
-         YRHT=0.0D0+ALENS(12,I)
+         XRHT=(PEEPEE)+surf_clap_dim(I,4)
+         YRHT=0.0D0+surf_clap_dim(I,3)
 !       LEFT POINT
-         XLFT=(-PEEPEE)+ALENS(13,I)
-         YLFT=0.0D0+ALENS(12,I)
+         XLFT=(-PEEPEE)+surf_clap_dim(I,4)
+         YLFT=0.0D0+surf_clap_dim(I,3)
 !       TOP POINT
-         XTOP=0.0D0+ALENS(13,I)
-         YTOP=(PEEPEE)+ALENS(12,I)
+         XTOP=0.0D0+surf_clap_dim(I,4)
+         YTOP=(PEEPEE)+surf_clap_dim(I,3)
 !       BOTTOM BOINT
-         XBOT=0.0D0+ALENS(13,I)
-         YBOT=(-PEEPEE)+ALENS(12,I)
+         XBOT=0.0D0+surf_clap_dim(I,4)
+         YBOT=(-PEEPEE)+surf_clap_dim(I,3)
       ELSE
 !       CAFLG NOT 1
       END IF
@@ -3375,96 +3386,96 @@ SUBROUTINE CAO(YLFT,XLFT,YRHT,XRHT,XTOP,YTOP,XBOT,YBOT,&
 !       CAFLG=2
       IF(CAFLG.EQ.2) THEN
 !
-         GAM=(PII/180.0D0)*ALENS(15,I)
+         GAM=(PII/180.0D0)*surf_clap_tilt(I)
 !       RIGHT POINT
-         XRHT=( ALENS(11,I))
+         XRHT=( ldm%getClearApertureForLensDraw(I,2,dF))
          YRHT=0.0D0
          X=(XRHT*DCOS(GAM))-(YRHT*DSIN(GAM))
          Y=(YRHT*DCOS(GAM))+(XRHT*DSIN(GAM))
-         XRHT=X+ALENS(13,I)
-         YRHT=Y+ALENS(12,I)
-         XRHT2=X+ALENS(13,I)
-         YRHT2=Y+ALENS(12,I)
+         XRHT=X+surf_clap_dim(I,4)
+         YRHT=Y+surf_clap_dim(I,3)
+         XRHT2=X+surf_clap_dim(I,4)
+         YRHT2=Y+surf_clap_dim(I,3)
 !       LEFT POINT
-         XLFT=(-ALENS(11,I))
+         XLFT=(-ldm%getClearApertureForLensDraw(I,2,dF))
          YLFT=0.0D0
          X=(XLFT*DCOS(GAM))-(YLFT*DSIN(GAM))
          Y=(YLFT*DCOS(GAM))+(XLFT*DSIN(GAM))
-         XLFT=X+ALENS(13,I)
-         YLFT=Y+ALENS(12,I)
-         XLFT2=X+ALENS(13,I)
-         YLFT2=Y+ALENS(12,I)
+         XLFT=X+surf_clap_dim(I,4)
+         YLFT=Y+surf_clap_dim(I,3)
+         XLFT2=X+surf_clap_dim(I,4)
+         YLFT2=Y+surf_clap_dim(I,3)
 !       TOP POINT
          XTOP=0.0D0
-         YTOP=( ALENS(10,I))
+         YTOP=( ldm%getClearApertureForLensDraw(I,1,dF))
          X=(XTOP*DCOS(GAM))-(YTOP*DSIN(GAM))
          Y=(YTOP*DCOS(GAM))+(XTOP*DSIN(GAM))
-         XTOP=X+ALENS(13,I)
-         YTOP=Y+ALENS(12,I)
-         XTOP2=X+ALENS(13,I)
-         YTOP2=Y+ALENS(12,I)
+         XTOP=X+surf_clap_dim(I,4)
+         YTOP=Y+surf_clap_dim(I,3)
+         XTOP2=X+surf_clap_dim(I,4)
+         YTOP2=Y+surf_clap_dim(I,3)
 !       BOTTOM POINT
          XBOT=0.0D0
-         YBOT=(-ALENS(10,I))
+         YBOT=(-ldm%getClearApertureForLensDraw(I,1,dF))
          X=(XBOT*DCOS(GAM))-(YBOT*DSIN(GAM))
          Y=(YBOT*DCOS(GAM))+(XBOT*DSIN(GAM))
-         XBOT=X+ALENS(13,I)
-         YBOT=Y+ALENS(12,I)
-         XBOT2=X+ALENS(13,I)
-         YBOT2=Y+ALENS(12,I)
+         XBOT=X+surf_clap_dim(I,4)
+         YBOT=Y+surf_clap_dim(I,3)
+         XBOT2=X+surf_clap_dim(I,4)
+         YBOT2=Y+surf_clap_dim(I,3)
       ELSE
 !     CAFLG NOT 2
       END IF
 !       CAFLG=3,OR 4
       IF(CAFLG.EQ.3.OR.CAFLG.EQ.4) THEN
 !
-         GAM=(PII/180.0D0)*ALENS(15,I)
+         GAM=(PII/180.0D0)*surf_clap_tilt(I)
 !       RIGHT POINT
-         XRHT=( ALENS(11,I))
+         XRHT=( ldm%getClearApertureForLensDraw(I,2,dF))
          YRHT=0.0D0
          X=(XRHT*DCOS(GAM))-(YRHT*DSIN(GAM))
          Y=(YRHT*DCOS(GAM))+(XRHT*DSIN(GAM))
-         XRHT=X+ALENS(13,I)
-         YRHT=Y+ALENS(12,I)
-         XRHT2=X+ALENS(13,I)
-         YRHT2=Y+ALENS(12,I)
+         XRHT=X+surf_clap_dim(I,4)
+         YRHT=Y+surf_clap_dim(I,3)
+         XRHT2=X+surf_clap_dim(I,4)
+         YRHT2=Y+surf_clap_dim(I,3)
 !       LEFT POINT
-         XLFT=(-ALENS(11,I))
+         XLFT=(-ldm%getClearApertureForLensDraw(I,2,dF))
          YLFT=0.0D0
          X=(XLFT*DCOS(GAM))-(YLFT*DSIN(GAM))
          Y=(YLFT*DCOS(GAM))+(XLFT*DSIN(GAM))
-         XLFT=X+ALENS(13,I)
-         YLFT=Y+ALENS(12,I)
-         XLFT2=X+ALENS(13,I)
-         YLFT2=Y+ALENS(12,I)
+         XLFT=X+surf_clap_dim(I,4)
+         YLFT=Y+surf_clap_dim(I,3)
+         XLFT2=X+surf_clap_dim(I,4)
+         YLFT2=Y+surf_clap_dim(I,3)
 !       TOP POINT
          XTOP=0.0D0
-         YTOP=( ALENS(10,I))
+         YTOP=( ldm%getClearApertureForLensDraw(I,1,dF))
          X=(XTOP*DCOS(GAM))-(YTOP*DSIN(GAM))
          Y=(YTOP*DCOS(GAM))+(XTOP*DSIN(GAM))
-         XTOP=X+ALENS(13,I)
-         YTOP=Y+ALENS(12,I)
-         XTOP2=X+ALENS(13,I)
-         YTOP2=Y+ALENS(12,I)
+         XTOP=X+surf_clap_dim(I,4)
+         YTOP=Y+surf_clap_dim(I,3)
+         XTOP2=X+surf_clap_dim(I,4)
+         YTOP2=Y+surf_clap_dim(I,3)
 !       BOTTOM POINT
          XBOT=0.0D0
-         YBOT=(-ALENS(10,I))
+         YBOT=(-ldm%getClearApertureForLensDraw(I,1,dF))
          X=(XBOT*DCOS(GAM))-(YBOT*DSIN(GAM))
          Y=(YBOT*DCOS(GAM))+(XBOT*DSIN(GAM))
-         XBOT=X+ALENS(13,I)
-         YBOT=Y+ALENS(12,I)
-         XBOT2=X+ALENS(13,I)
-         YBOT2=Y+ALENS(12,I)
+         XBOT=X+surf_clap_dim(I,4)
+         YBOT=Y+surf_clap_dim(I,3)
+         XBOT2=X+surf_clap_dim(I,4)
+         YBOT2=Y+surf_clap_dim(I,3)
       ELSE
 !     CAFLG NOT 2,3 OR 4
       END IF
 !       CAFLG=1 CIRCULAR CLAP
       IF(CAFLG.EQ.1) THEN
 !
-         PEEPEE=DABS(ALENS(10,I))
+         PEEPEE=DABS(ldm%getClearApertureForLensDraw(I,1,dF))
 !
 !     CLAP DEC MUST BE 0
-         IF(ALENS(12,I).EQ.0.0D0.AND.ALENS(13,I).EQ.0.0D0) THEN
+         IF(surf_clap_dim(I,3).EQ.0.0D0.AND.surf_clap_dim(I,4).EQ.0.0D0) THEN
 !
 !     WE HAVE A CIRCULAR CLAP. IS THE SURFACE ONE WHICH COULD HAVE A
 !     FLAT ON IT. ONLY IF SURFACE IS CONCAVE TO AIR.
@@ -3477,12 +3488,12 @@ SUBROUTINE CAO(YLFT,XLFT,YRHT,XRHT,XTOP,YTOP,XBOT,YBOT,&
             DOIT=.FALSE.
             DOIT=ISAIR(I,POSDIR)
             IF(DOIT) THEN
-               IF(ALENS(1,I).GT.0.0D0.AND.POSDIR.OR.&
-               &ALENS(1,I).LT.0.0D0.AND..NOT.POSDIR) THEN
+               IF(surf_curvature(I).GT.0.0D0.AND.POSDIR.OR.&
+               &surf_curvature(I).LT.0.0D0.AND..NOT.POSDIR) THEN
 !     ADJUST POINT
-                  PEEPEE=DABS(ALENS(11,I))
-                  IF(ALENS(1,I).GT.0.0D0) ZDELZ=-DABS(ALENS(14,I))
-                  IF(ALENS(1,I).LT.0.0D0) ZDELZ=DABS(ALENS(14,I))
+                  PEEPEE=DABS(ldm%getClearApertureForLensDraw(I,2,dF))
+                  IF(surf_curvature(I).GT.0.0D0) ZDELZ=-DABS(surf_clap_dim(I,5))
+                  IF(surf_curvature(I).LT.0.0D0) ZDELZ=DABS(surf_clap_dim(I,5))
                END IF
             END IF
 !
@@ -3491,12 +3502,12 @@ SUBROUTINE CAO(YLFT,XLFT,YRHT,XRHT,XTOP,YTOP,XBOT,YBOT,&
             DOIT=.FALSE.
             DOIT=ISAIR2(I,POSDIR)
             IF(DOIT) THEN
-               IF(ALENS(1,I).LT.0.0D0.AND.POSDIR.OR.&
-               &ALENS(1,I).GT.0.0D0.AND..NOT.POSDIR) THEN
+               IF(surf_curvature(I).LT.0.0D0.AND.POSDIR.OR.&
+               &surf_curvature(I).GT.0.0D0.AND..NOT.POSDIR) THEN
 !     ADJUST POINT
-                  PEEPEE=DABS(ALENS(11,I))
-                  IF(ALENS(1,I).GT.0.0D0) ZDELZ=-DABS(ALENS(14,I))
-                  IF(ALENS(1,I).LT.0.0D0) ZDELZ=DABS(ALENS(14,I))
+                  PEEPEE=DABS(ldm%getClearApertureForLensDraw(I,2,dF))
+                  IF(surf_curvature(I).GT.0.0D0) ZDELZ=-DABS(surf_clap_dim(I,5))
+                  IF(surf_curvature(I).LT.0.0D0) ZDELZ=DABS(surf_clap_dim(I,5))
                END IF
             END IF
          ELSE
