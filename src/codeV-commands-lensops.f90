@@ -429,6 +429,8 @@ contains
     module procedure deleteStuff
         use command_utils, only: isInputNumber
         use global_widgets, only: curr_lens_data, sysConfig
+        use mod_lens_data_manager, only: ldm
+        use zoa_ui_callbacks, only: notify_replot
         use optim_types
         implicit none
 
@@ -465,6 +467,16 @@ contains
             case('VIG')
                 ! DEL VIG: clear all per-field vignetting factors.
                 call sysConfig%resetVignetting()
+            case('APE')
+                ! DEL APE SA: delete clear apertures AND edge apertures on all
+                ! surfaces (SA = "surfaces, all").
+                if (numTokens >= 3 .and. trim(tokens(3)) == 'SA') then
+                    call zoa_emit("Deleting all clear and edge apertures", "blue")
+                    call ldm%deleteAllApertures()
+                    call notify_replot()
+                else
+                    call zoa_emit("Expected 'DEL APE SA'", "red")
+                end if
             end select
         end if
     end procedure deleteStuff

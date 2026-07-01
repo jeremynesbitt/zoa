@@ -263,6 +263,10 @@ contains
                     ! ZOO/POS and SET VIG lines (if any) rebuild them during processing.
                     call zoom_reset()
                     call sysConfig%resetVignetting()
+                    ! Edge apertures live in the ldm store, not the ALENS lens data
+                    ! that LEN clears, so zero them here; the file's CIR EDG lines
+                    ! (if any) reapply during processing.
+                    call ldm%clearEdgeApertures()
                     call process_zoa_file(trim(fileName))
                     call ldm%load_surfaces_from_alens()
                     ! A user load replaces the lens: reset the undo history with
@@ -283,6 +287,10 @@ contains
                     ! ZOO/POS and SET VIG lines (if any) rebuild them during processing.
                     call zoom_reset()
                     call sysConfig%resetVignetting()
+                    ! Edge apertures live in the ldm store, not the ALENS lens data
+                    ! that LEN clears, so zero them here; the file's CIR EDG lines
+                    ! (if any) reapply during processing.
+                    call ldm%clearEdgeApertures()
                     call process_zoa_file(trim(fileName))
                     call ldm%load_surfaces_from_alens()
                     ! A user load replaces the lens: reset the undo history with

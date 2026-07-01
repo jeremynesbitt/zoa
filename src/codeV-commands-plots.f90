@@ -375,20 +375,30 @@ contains
 
         call parse(trim(iptStr), ' ', tokens, numTokens)
 
-        ! Edge (physical) aperture:  CIR EDG Sk <value>
-        if (numTokens == 4 .and. trim(tokens(2)) == 'EDG') then
-            if (.not. isSurfCommand(trim(tokens(3)))) then
-                call zoa_emit("Error: expected a surface (e.g. S4) after 'CIR EDG'", "red")
-                return
-            end if
-            if (.not. isInputNumber(trim(tokens(4)))) then
-                call zoa_emit("Error: unable to interpret edge aperture value '" &
-                    & //trim(tokens(4))//"'", "red")
-                return
-            end if
-            surfNum = getSurfNumFromSurfCommand(trim(tokens(3)))
-            call ldm%setEdgeSemiAperture(surfNum, str2real8(trim(tokens(4))))
-            call notify_replot()
+        ! Edge (physical) aperture.  Two forms, mirroring CIR:
+        !   CIR EDG <value>      -> current surface (surface pointer), used in .zoa
+        !   CIR EDG Sk <value>   -> explicit surface k
+        if (trim(tokens(2)) == 'EDG') then
+            block
+                character(len=80) :: valStr
+                if (numTokens == 3) then
+                    surfNum = ldm%getSurfacePointer()
+                    valStr  = tokens(3)
+                else if (numTokens == 4 .and. isSurfCommand(trim(tokens(3)))) then
+                    surfNum = getSurfNumFromSurfCommand(trim(tokens(3)))
+                    valStr  = tokens(4)
+                else
+                    call zoa_emit("Error: use 'CIR EDG <value>' or 'CIR EDG Sk <value>'", "red")
+                    return
+                end if
+                if (.not. isInputNumber(trim(valStr))) then
+                    call zoa_emit("Error: unable to interpret edge aperture value '" &
+                        & //trim(valStr)//"'", "red")
+                    return
+                end if
+                call ldm%setEdgeSemiAperture(surfNum, str2real8(trim(valStr)))
+                call notify_replot()
+            end block
             return
         end if
 

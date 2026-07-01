@@ -40,6 +40,7 @@ module mod_lens_data_manager
      procedure, public, pass(self) :: getSurfAutoSemiX, getSurfAutoSemiY
      procedure, public, pass(self) :: getEdgeSemiAperture, setEdgeSemiAperture
      procedure, public, pass(self) :: getEdgeApertureScale, clearEdgeApertures
+     procedure, public, pass(self) :: deleteAllApertures
      procedure, public, pass(self) :: getClearApertureForLensDraw
      procedure, public, pass(self) :: getSurfIdealEFL, getSurfSpecialType
      procedure, public, pass(self) :: isThiSolveOnSurf
@@ -390,6 +391,21 @@ module mod_lens_data_manager
               self%surfaces(s)%s%clap%semi_edge_y = 0.0_real64
           end do
         end if
+    end subroutine
+
+    ! Delete every clear aperture AND edge aperture on all surfaces (DEL APE SA).
+    ! Mirrors the per-surface CLAPD delete (ldm8.f90) across all surfaces.
+    subroutine deleteAllApertures(self)
+        use mod_surface, only: set_surf_clap_type, set_surf_multi_clap_flag
+        class(lens_data_manager) :: self
+        integer :: s
+        do s = 0, self%getLastSurf()
+            call set_surf_clap_type(s, 0)
+            call set_surf_multi_clap_flag(s, 0)
+            call self%clearClearApertureParams(s)
+            call self%clearClearApertureData(s)
+        end do
+        call self%clearEdgeApertures()
     end subroutine
 
     function getSurfAutoSemiX(self, surfIdx) result(semi)
@@ -917,9 +933,11 @@ module mod_lens_data_manager
                   & trim(real2str(ldm%surfaces(ii-1)%s%clap%dim1, 10))
                   write(fID, *) trim(strSurfLine)
                 end if
-                ! Explicit per-surface edge (physical) aperture, if set.
+                ! Explicit edge (physical) aperture, if set.  Emitted without a
+                ! surface qualifier so it attaches to the current surface being
+                ! built (the surface pointer), like the CIR clear aperture above.
                 if (ldm%surfaces(ii-1)%s%clap%semi_edge_y /= 0.0_real64) then
-                  strSurfLine = blankStr(2)//'CIR EDG S'//trim(int2str(ii-1))//' '// &
+                  strSurfLine = blankStr(2)//'CIR EDG '// &
                   & trim(real2str(ldm%surfaces(ii-1)%s%clap%semi_edge_y, 10))
                   write(fID, *) trim(strSurfLine)
                 end if
