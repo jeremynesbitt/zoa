@@ -469,9 +469,9 @@ contains
                 call sysConfig%resetVignetting()
             case('APE')
                 ! DEL APE SA: delete clear apertures AND edge apertures on all
-                ! surfaces (SA = "surfaces, all").
+                ! surfaces (SA = "surfaces, all").  Silent, like DEL VIG, so it can
+                ! be used in reset macros (newlens.zoa) without polluting output.
                 if (numTokens >= 3 .and. trim(tokens(3)) == 'SA') then
-                    call zoa_emit("Deleting all clear and edge apertures", "blue")
                     call ldm%deleteAllApertures()
                     call notify_replot()
                 else
