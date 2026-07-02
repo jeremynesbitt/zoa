@@ -19,6 +19,7 @@ module zoa_ui_callbacks
   private
   public :: notify_replot, notify_refresh_status, notify_close_all_tabs
   public :: notify_replot_flush
+  public :: notify_refresh_sysconfig, zoa_set_refresh_sysconfig_callback
   public :: zoa_set_replot_callback, zoa_set_refresh_status_callback, &
             zoa_set_close_all_tabs_callback, zoa_set_replot_flush_callback
   ! notify_show_optimizer_ui, notify_show_editor_ui, notify_show_sysconfig_ui:
@@ -77,6 +78,7 @@ module zoa_ui_callbacks
 
   procedure(replot_iface),              pointer :: replot_cb             => null()
   procedure(refresh_status_iface),      pointer :: refresh_status_cb     => null()
+  procedure(refresh_status_iface),      pointer :: refresh_sysconfig_cb  => null()
   procedure(close_tabs_iface),          pointer :: close_tabs_cb         => null()
   procedure(show_macro_ui_iface),       pointer :: show_macro_ui_cb      => null()
   procedure(query_confirm_iface),       pointer :: query_confirm_cb      => null()
@@ -111,6 +113,11 @@ contains
   subroutine zoa_set_refresh_status_callback(cb)
     procedure(refresh_status_iface) :: cb
     refresh_status_cb => cb
+  end subroutine
+
+  subroutine zoa_set_refresh_sysconfig_callback(cb)
+    procedure(refresh_status_iface) :: cb
+    refresh_sysconfig_cb => cb
   end subroutine
 
   subroutine zoa_set_close_all_tabs_callback(cb)
@@ -156,6 +163,11 @@ contains
 
   subroutine notify_refresh_status()
     if (associated(refresh_status_cb)) call refresh_status_cb()
+  end subroutine
+
+  ! Refresh the System Config panel to reflect a lens/config change made elsewhere.
+  subroutine notify_refresh_sysconfig()
+    if (associated(refresh_sysconfig_cb)) call refresh_sysconfig_cb()
   end subroutine
 
   subroutine notify_close_all_tabs(msg)

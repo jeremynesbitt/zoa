@@ -1092,7 +1092,11 @@ end subroutine
   end subroutine
 
   subroutine gui_notify_refresh_status()
+    use zoa_ui_callbacks, only: notify_refresh_sysconfig
     call refreshStatusBar()
+    ! Also refresh the System Config panel (no-op if it is not open) so an
+    ! EPD/aperture change from the CLI shows up there too.
+    call notify_refresh_sysconfig()
   end subroutine
 
   subroutine gui_notify_close_all_tabs(msg)

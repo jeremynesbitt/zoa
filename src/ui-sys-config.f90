@@ -110,6 +110,10 @@ end type
 
   type(c_ptr) :: spinButton_numFields, spinButton_numWavelengths, spinButton_refWavelength
 
+  ! Set .TRUE. while refreshSysConfigUI() pushes current values into the controls,
+  ! so the widget "changed" callbacks don't fire back and re-apply them.
+  logical :: sysconfig_updating = .false.
+
 
 
 contains
@@ -224,7 +228,42 @@ contains
     !call hl_zoa_combo_set_selected_by_list2_id(self%apertureType, sysConfig%currApertureID)
     call hl_zoa_combo_set_selected_by_list2_id(self%getWidget(1), sysConfig%currRayAimID)
 
-  end subroutine  
+  end subroutine
+
+  ! Push current sysConfig values back into the open System Config panel, so it
+  ! reflects changes made elsewhere (e.g. an EPD/aperture change from the CLI).
+  ! No-op if the panel is not open.  sysconfig_updating guards the widget
+  ! callbacks so this does not re-apply the values it writes.
+  subroutine refreshSysConfigUI()
+    use hl_gtk_zoa
+    use iso_c_binding, only: c_associated
+    use global_widgets, only: sys_config_window
+    if (.not. c_associated(sys_config_window)) return
+    ! Re-read current system data (aperture, fields, wavelengths) into sysConfig
+    ! before pushing it into the controls.
+    call sysConfig%updateParameters()
+    sysconfig_updating = .true.
+
+    ! Aperture (X/Y value + type, edge margin)
+    call gtk_spin_button_set_value(spinButton_xAperture, sysConfig%refApertureValue(1)*1d0)
+    call gtk_spin_button_set_value(spinButton_yAperture, sysConfig%refApertureValue(2)*1d0)
+    call gtk_spin_button_set_value(spinButton_edgeFactor, &
+      & (sysConfig%defaultEdgeScaleFactor - 1d0)*100d0)
+    call uiApertureSettings%updateSettings()
+
+    ! Fields
+    call gtk_spin_button_set_value(spinButton_numFields, sysConfig%numFields*1d0)
+    call uiFieldSettings%updateSettings()
+
+    ! Wavelengths
+    call gtk_spin_button_set_value(spinButton_refWavelength, sysConfig%refWavelengthIndex*1d0)
+    call gtk_spin_button_set_value(spinButton_numWavelengths, sysConfig%numWavelengths*1d0)
+
+    ! Ray aiming
+    call uiRayAimSettings%updateSettings()
+
+    sysconfig_updating = .false.
+  end subroutine
 
 !type(ui_field_settings)  function ui_field_settings_constructor() result(self)
 
@@ -771,6 +810,12 @@ subroutine sys_config_new(parent_window)
   call sysConfig%updateParameters() ! Just in case any out of sync values
   PRINT *, "ABOUT TO FIRE UP SYS CONFIG WINDOW!"
 
+  ! Let core code refresh this panel when the lens/config changes elsewhere.
+  block
+    use zoa_ui_callbacks, only: zoa_set_refresh_sysconfig_callback
+    call zoa_set_refresh_sysconfig_callback(refreshSysConfigUI)
+  end block
+
   ! Create a modal dialogue
   sys_config_window = gtk_window_new()
 
@@ -873,6 +918,10 @@ subroutine callback_sys_config_settings (widget, gdata ) bind(c)
    integer :: xySame
 
   integer(kind=c_int), pointer :: ID_SETTING
+
+  ! Ignore the "changed" signals fired while refreshSysConfigUI() writes current
+  ! values into the controls (otherwise it would re-apply them / loop).
+  if (sysconfig_updating) return
 
   call c_f_pointer(gdata, ID_SETTING)
 
