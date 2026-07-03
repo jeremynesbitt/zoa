@@ -8,7 +8,7 @@ OBJ:    INFINITY    INFINITY                              100     100
 STO:    -37.530    1.50000               N-F2_SCH2000   100     100
 005:    14.08000    5.00000                              100     100
 006:    50.26000    3.50000               N-SK16_SCH2000 100     100
-007:    -31.380    4.16968                              100     100
+007:    -31.380    38.51522                              100     100
 IMG:    INFINITY    0.00000                              100     100
           RDY          THI     RMD          GLA          CCY     THC     GLC
 OBJ:    INFINITY    INFINITY                              100     100
@@ -18,7 +18,7 @@ OBJ:    INFINITY    INFINITY                              100     100
 STO:    -37.530    1.50000               N-F2_SCH2000   100     100
 005:    14.08000    5.00000                              100     100
 006:    50.26000    3.50000               N-SK16_SCH2000 100     100
-007:    -31.380    4.16968                              100     100
+007:    -31.380    -270.906                              100     100
 IMG:    INFINITY    0.00000                              100     100
           RDY          THI     RMD          GLA          CCY     THC     GLC
 OBJ:    INFINITY    INFINITY                              100     100
@@ -28,7 +28,7 @@ OBJ:    INFINITY    INFINITY                              100     100
 STO:    -37.530    1.50000               N-F2_SCH2000   100     100
 005:    14.08000    5.00000                              100     100
 006:    50.26000    3.50000               N-SK16_SCH2000 100     100
-007:    -31.380    2.54167                              100     100
+007:    -31.380    57.77952                              100     100
 IMG:    INFINITY    0.00000                              100     100
           RDY          THI     RMD          GLA          CCY     THC     GLC
 OBJ:    INFINITY    INFINITY                              100     100

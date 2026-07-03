@@ -225,9 +225,12 @@ module procedure execSUR
             surfNum = getSurfNumFromSurfCommand(trim(tokens(2)))
             if (numTokens > 2) then
                if (isInputNumber(trim(tokens(3)))) then ! FORMAT: CUY Sk VAL
+                ! Like RDY: refresh the edited surface's typed-store radius before
+                ! the finalizing EOS so a PIM/PY solve resolves off the new
+                ! curvature (drop ';GO', let executeCodeVLensUpdateCommand EOS).
                 call executeCodeVLensUpdateCommand('CHG '//trim(int2str(surfNum))// &
-                & '; CV, ' // trim(tokens(3))//";GO")
-               else                 
+                & '; CV, ' // trim(tokens(3)), refreshSurf=surfNum)
+               else
                 
 
                select case (trim(tokens(3)))

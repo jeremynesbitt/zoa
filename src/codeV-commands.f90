@@ -1411,7 +1411,7 @@ module codeV_commands
 
       end function
 
-      subroutine executeCodeVLensUpdateCommand(iptCmd, debugFlag, exitLensUpdate, refreshSurf)
+      subroutine executeCodeVLensUpdateCommand(iptCmd, debugFlag, exitLensUpdate, refreshSurf, refreshAll)
         use kdp_utils, only: inLensUpdateLevel
         use global_widgets, only: ioConfig
         use DATLEN, only: SURF
@@ -1425,6 +1425,11 @@ module codeV_commands
         ! ALENS BELOW, before the finalizing EOS traces, so a PIM/PY solve resolves
         ! against the new geometry instead of the stale frozen radius.
         integer, optional :: refreshSurf
+        ! refreshAll: this command changed the surface COUNT/layout (e.g. INSK), so
+        ! the whole typed store must be rebuilt from ALENS before the EOS traces --
+        ! otherwise the finalizing trace (and any PIM re-solve) runs against a
+        ! stale-layout store.
+        logical, optional :: refreshAll
         logical :: redirectFlag, inUpdate
         integer :: savedSurf
 
@@ -1453,9 +1458,14 @@ module codeV_commands
             call PROCESKDP('U L;'// iptCmd )
         end if
 
-        ! Re-sync the just-edited surface's geometry into the typed store BEFORE
-        ! the EOS below traces, so PIM/PY solves resolve off the new radius.
-        if (present(refreshSurf)) call ldm%refresh_typed_surf_geom(refreshSurf)
+        ! Re-sync the typed store BEFORE the EOS below traces, so PIM/PY solves
+        ! resolve off the new geometry: a full rebuild for a topology change
+        ! (refreshAll), else just the one edited surface (refreshSurf).
+        if (present(refreshAll)) then
+            if (refreshAll) call ldm%load_surfaces_from_alens()
+        else if (present(refreshSurf)) then
+            call ldm%refresh_typed_surf_geom(refreshSurf)
+        end if
 
         ! If the called asked to exit update, then exit.
         ! If we were not in lens update level, then exit (return to prior state)

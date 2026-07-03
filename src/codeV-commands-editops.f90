@@ -189,7 +189,8 @@ contains
                         movePIM = (i == curr_lens_data%num_surfaces - 1) .AND. &
                                 & ldm%isPIMSolveOnSurf(i - 1)
                         pimSurf = i - 1
-                        call executeCodeVLensUpdateCommand('INSK, '//trim(int2str(i)), exitLensUpdate=.TRUE.)
+                        call executeCodeVLensUpdateCommand('INSK, '//trim(int2str(i)), &
+                        & exitLensUpdate=.TRUE., refreshAll=.TRUE.)
                         if (movePIM) then
                             call executeCodeVLensUpdateCommand('CHG '//trim(int2str(pimSurf))//'; TSD; GO')
                             call executeCodeVLensUpdateCommand('CHG '//trim(int2str(i))//'; PY, 0; GO')
@@ -203,7 +204,8 @@ contains
                 if (surfNum .NE. -1) then
                     movePIM = (surfNum == curr_lens_data%num_surfaces - 1) .AND. &
                             & ldm%isPIMSolveOnSurf(surfNum - 1)
-                    call executeCodeVLensUpdateCommand('INSK, '//trim(int2str(surfNum)), exitLensUpdate=.TRUE.)
+                    call executeCodeVLensUpdateCommand('INSK, '//trim(int2str(surfNum)), &
+                    & exitLensUpdate=.TRUE., refreshAll=.TRUE.)
                     if (movePIM) then
                         call executeCodeVLensUpdateCommand('CHG '//trim(int2str(surfNum - 1))//'; TSD; GO')
                         call executeCodeVLensUpdateCommand('CHG '//trim(int2str(surfNum))//'; PY, 0; GO')
