@@ -113,6 +113,7 @@ module mod_lens_data_manager
      procedure, public, pass(self) :: clearApertureTypeAndParams
      procedure, public, pass(self) :: clearApertureTypeAndAllParams
      procedure, public, pass(self) :: load_surfaces_from_alens
+     procedure, public, pass(self) :: refresh_typed_surf_geom
      procedure, public, pass(self) :: sync_alens_from_surfaces
      procedure, public, pass(self) :: setSurfaceType
 
@@ -1369,6 +1370,31 @@ module mod_lens_data_manager
           self%surfaces(s)%s%clap%semi_edge_y = self%edge_semi_y(s)
         end do
       end subroutine load_surfaces_from_alens
+
+      ! Refresh only the geometry (radius/thickness/conic) of ONE existing typed
+      ! surface slot from live ALENS -- no reallocation, no topology change.
+      ! The typed store is a frozen copy that load_surfaces_from_alens rebuilds
+      ! only on load/editor/replot; an in-place edit (RDY) or a mid-trace
+      ! pickup/solve updates ALENS but not this copy, so the paraxial trace
+      ! (which refracts through surfaces(k)%s%radius) goes stale.  This copies
+      ! the same surf_radius/surf_thickness/surf_conic expressions the full
+      ! rebuild uses, so for an unchanged surface it reproduces the identical
+      ! bits (no round-trip noise); for a just-edited/just-resolved surface it
+      ! brings the frozen copy current.  Cheap enough to call per surface at the
+      ! exact point geometry changes.
+      subroutine refresh_typed_surf_geom(self, s)
+        use mod_surface, only: surf_radius, surf_thickness, surf_conic
+        class(lens_data_manager), intent(inout) :: self
+        integer, intent(in) :: s
+
+        if (.not. allocated(self%surfaces)) return
+        if (s < lbound(self%surfaces,1) .or. s > ubound(self%surfaces,1)) return
+        if (.not. allocated(self%surfaces(s)%s)) return
+
+        self%surfaces(s)%s%radius    = surf_radius(s)
+        self%surfaces(s)%s%thickness = surf_thickness(s)
+        self%surfaces(s)%s%conic     = surf_conic(s)
+      end subroutine refresh_typed_surf_geom
 
       ! Write self%surfaces(:) data back into ALENS so legacy ray-tracing code
       ! sees any changes made through the typed surface API.

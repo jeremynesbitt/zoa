@@ -271,8 +271,12 @@ module procedure execSUR
         call parse(iptStr, ' ', tokens, numTokens)
         if(isSurfCommand(trim(tokens(2)))) then
             surfNum = getSurfNumFromSurfCommand(trim(tokens(2)))
+            ! No ';GO': let executeCodeVLensUpdateCommand issue the finalizing EOS,
+            ! and pass refreshSurf so it re-syncs this surface's typed-store radius
+            ! from ALENS *before* that EOS traces.  Otherwise a PIM/PY solve would
+            ! resolve off the stale frozen radius and lag one edit behind.
             call executeCodeVLensUpdateCommand('CHG '//trim(int2str(surfNum))// &
-            & '; RD, ' // trim(tokens(3))//';GO')          
+            & '; RD, ' // trim(tokens(3)), refreshSurf=surfNum)
         else
             call zoa_emit("Surface not input correctly.  Should be SO or Sk where k is the surface of interest", "red")
             return

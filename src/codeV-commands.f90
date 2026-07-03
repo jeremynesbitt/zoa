@@ -1411,14 +1411,20 @@ module codeV_commands
 
       end function
 
-      subroutine executeCodeVLensUpdateCommand(iptCmd, debugFlag, exitLensUpdate)
+      subroutine executeCodeVLensUpdateCommand(iptCmd, debugFlag, exitLensUpdate, refreshSurf)
         use kdp_utils, only: inLensUpdateLevel
         use global_widgets, only: ioConfig
         use DATLEN, only: SURF
+        use mod_lens_data_manager, only: ldm
 
         implicit none
         character(len=*) :: iptCmd
         logical, optional :: debugFlag, exitLensUpdate
+        ! refreshSurf: a surface whose geometry this command just changed in ALENS.
+        ! Its frozen copy in the typed store (ldm%surfaces(k)%s) is re-synced from
+        ! ALENS BELOW, before the finalizing EOS traces, so a PIM/PY solve resolves
+        ! against the new geometry instead of the stale frozen radius.
+        integer, optional :: refreshSurf
         logical :: redirectFlag, inUpdate
         integer :: savedSurf
 
@@ -1446,7 +1452,11 @@ module codeV_commands
             ! clear apertures, etc
             call PROCESKDP('U L;'// iptCmd )
         end if
-        
+
+        ! Re-sync the just-edited surface's geometry into the typed store BEFORE
+        ! the EOS below traces, so PIM/PY solves resolve off the new radius.
+        if (present(refreshSurf)) call ldm%refresh_typed_surf_geom(refreshSurf)
+
         ! If the called asked to exit update, then exit.
         ! If we were not in lens update level, then exit (return to prior state)
         !eosCalled = .FALSE.

@@ -3364,6 +3364,7 @@ end function
 subroutine resolvePikup(L)
     use DATLEN, only: ALENS
     use mod_surface, only: surf_pickup_count, set_surf_pickup_count
+    use mod_lens_data_manager, only: ldm
     integer :: L
 
     integer :: COMI
@@ -3371,7 +3372,12 @@ subroutine resolvePikup(L)
     COMMON/PIKCOM/COMI
 
     COMI=L
-    IF(surf_pickup_count(COMI) /= 0) CALL PIKRES
+    IF(surf_pickup_count(COMI) /= 0) THEN
+        CALL PIKRES
+        ! PIKRES wrote the resolved geometry into ALENS; bring the typed surface
+        ! store current so traNextSurf reads the freshly picked-up value.
+        call ldm%refresh_typed_surf_geom(L)
+    END IF
 
 end subroutine
 
@@ -3382,12 +3388,18 @@ subroutine resolveSolve(L)
 
     INTEGER SLV1,SLV2
     !
-    COMMON/CSLVRS/SLV1,SLV2    
+    COMMON/CSLVRS/SLV1,SLV2
 
     SLV1=L
     SLV2=1
     IF(SOLVE(6,L).NE.0.0D0 .OR. &
     SOLVE(8,L).NE.0.0D0) CALL SLVRS
+    ! NB: we deliberately do NOT refresh the typed store here.  A thickness solve
+    ! (SOLVE(6)) does not change the surface's radius, and the trace already reads
+    ! thickness live (getSurfThi -> surf_thickness).  Refreshing here also proved
+    ! unsafe when the store layout is stale relative to ALENS (e.g. mid-INS), which
+    ! corrupted the just-inserted lens.  Curvature-solve-after-edit is handled by
+    ! the edit-point refresh (setRadius etc.), not here.
 
 end subroutine
 

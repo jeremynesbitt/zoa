@@ -261,6 +261,11 @@ contains
         end do
         close(unit=9)
         ldm%vars(:,:) = 100
+        ! Rebuild the typed surface store from the freshly-loaded template so it
+        ! does not carry stale surfaces from a previous lens.  Without this, a
+        ! per-surface geometry refresh on the *next* lens can act on a leftover
+        ! store, making an otherwise-identical macro non-idempotent on re-run.
+        call ldm%load_surfaces_from_alens()
         ! A new lens replaces the system: reset undo history with it as baseline.
         call undo_reset_baseline()
     end procedure newLens
