@@ -35,11 +35,11 @@ module mod_surface_type
   ! (gfortran requires the type to be defined before the abstract interface
   ! body that references it via 'import').
   type, abstract :: surface_type
-    real(real64)        :: radius    = huge(0.0_real64)  ! inf => flat surface
     ! Base curvature (1/radius), the AUTHORITATIVE geometry the traces use.  Kept
     ! exact from ALENS (surf_curvature) by load_surfaces_from_alens /
     ! refresh_typed_surf_geom so the paraxial/real refraction never round-trips
-    ! through 1/(1/curvature).  0 => flat.
+    ! through 1/(1/curvature).  0 => flat.  (Radius is not stored; derive 1/cv if
+    ! ever needed.)
     real(real64)        :: cv        = 0.0_real64
     real(real64)        :: thickness = 0.0_real64
     real(real64)        :: conic     = 0.0_real64        ! conic constant K
@@ -150,7 +150,6 @@ contains
     character(len=*), intent(in), optional :: glass_name, glass_catalog
     type(sphere_surface) :: s
     s%type_name  = "Sphere"
-    s%radius     = radius
     s%cv         = merge(0.0_real64, 1.0_real64/radius, abs(radius) > 1.0e15_real64)
     s%thickness  = thickness
     s%conic      = conic
@@ -178,7 +177,6 @@ contains
     real(real64),     intent(in), optional :: coeffs(10)
     type(asphere_surface) :: s
     s%type_name  = "Asphere"
-    s%radius     = radius
     s%cv         = merge(0.0_real64, 1.0_real64/radius, abs(radius) > 1.0e15_real64)
     s%thickness  = thickness
     s%conic      = conic

@@ -114,7 +114,6 @@ module mod_lens_data_manager
      procedure, public, pass(self) :: clearApertureTypeAndAllParams
      procedure, public, pass(self) :: load_surfaces_from_alens
      procedure, public, pass(self) :: refresh_typed_surf_geom
-     procedure, public, pass(self) :: sync_alens_from_surfaces
      procedure, public, pass(self) :: setSurfaceType
 
     end type
@@ -1375,19 +1374,18 @@ module mod_lens_data_manager
         end do
       end subroutine load_surfaces_from_alens
 
-      ! Refresh only the geometry (radius/thickness/conic) of ONE existing typed
+      ! Refresh only the geometry (cv/thickness/conic) of ONE existing typed
       ! surface slot from live ALENS -- no reallocation, no topology change.
       ! The typed store is a frozen copy that load_surfaces_from_alens rebuilds
-      ! only on load/editor/replot; an in-place edit (RDY) or a mid-trace
-      ! pickup/solve updates ALENS but not this copy, so the paraxial trace
-      ! (which refracts through surfaces(k)%s%radius) goes stale.  This copies
-      ! the same surf_radius/surf_thickness/surf_conic expressions the full
-      ! rebuild uses, so for an unchanged surface it reproduces the identical
-      ! bits (no round-trip noise); for a just-edited/just-resolved surface it
-      ! brings the frozen copy current.  Cheap enough to call per surface at the
-      ! exact point geometry changes.
+      ! only on load/editor/replot; an in-place edit (RDY/CUY) or a mid-trace
+      ! pickup/solve updates ALENS but not this copy, so the paraxial/real trace
+      ! (which refracts through surfaces(k)%s%cv) goes stale.  This copies the
+      ! same surf_curvature/surf_thickness/surf_conic values the full rebuild
+      ! uses, so for an unchanged surface it reproduces the identical bits; for a
+      ! just-edited/just-resolved surface it brings the frozen copy current.
+      ! Cheap enough to call per surface at the exact point geometry changes.
       subroutine refresh_typed_surf_geom(self, s)
-        use mod_surface, only: surf_radius, surf_thickness, surf_conic, surf_curvature
+        use mod_surface, only: surf_thickness, surf_conic, surf_curvature
         class(lens_data_manager), intent(inout) :: self
         integer, intent(in) :: s
 
@@ -1395,57 +1393,11 @@ module mod_lens_data_manager
         if (s < lbound(self%surfaces,1) .or. s > ubound(self%surfaces,1)) return
         if (.not. allocated(self%surfaces(s)%s)) return
 
-        self%surfaces(s)%s%radius    = surf_radius(s)
         self%surfaces(s)%s%cv        = surf_curvature(s)   ! exact, authoritative
         self%surfaces(s)%s%thickness = surf_thickness(s)
         self%surfaces(s)%s%conic     = surf_conic(s)
       end subroutine refresh_typed_surf_geom
 
-      ! Write self%surfaces(:) data back into ALENS so legacy ray-tracing code
-      ! sees any changes made through the typed surface API.
-      ! Retired once all ray-tracing code reads directly from surfaces(:)%s.
-      subroutine sync_alens_from_surfaces(self)
-        use mod_surface, only: set_surf_curvature, set_surf_conic, &
-                               set_surf_thickness, set_surf_asphere_flag, &
-                               set_surf_asphere_coeff
-        use DATLEN, only: GLANAM
-        class(lens_data_manager), intent(inout) :: self
-        integer :: s, last
-        real(real64) :: cv
-
-        if (.not. allocated(self%surfaces)) return
-        last = ubound(self%surfaces, 1)
-
-        do s = 0, last
-          if (.not. allocated(self%surfaces(s)%s)) cycle
-          associate(surf => self%surfaces(s)%s)
-            cv = merge(0.0_real64, 1.0_real64/surf%radius, abs(surf%radius) > 1.0e15_real64)
-            call set_surf_curvature(s, cv)
-            call set_surf_conic(s, surf%conic)
-            call set_surf_thickness(s, surf%thickness)
-            GLANAM(s, 2) = surf%glass_name
-            GLANAM(s, 1) = surf%glass_catalog
-
-            select type(surf)
-            type is (asphere_surface)
-              call set_surf_asphere_flag(s, .true.)
-              call set_surf_asphere_coeff(s, 4,  surf%data(1))
-              call set_surf_asphere_coeff(s, 6,  surf%data(2))
-              call set_surf_asphere_coeff(s, 8,  surf%data(3))
-              call set_surf_asphere_coeff(s, 10, surf%data(4))
-              call set_surf_asphere_coeff(s, 12, surf%data(5))
-              call set_surf_asphere_coeff(s, 14, surf%data(6))
-              call set_surf_asphere_coeff(s, 16, surf%data(7))
-              call set_surf_asphere_coeff(s, 18, surf%data(8))
-              call set_surf_asphere_coeff(s, 20, surf%data(9))
-              call set_surf_asphere_coeff(s, 2,  surf%data(10))
-            type is (sphere_surface)
-              call set_surf_asphere_flag(s, .false.)
-            end select
-            call surf%clap%to_alens(s)
-          end associate
-        end do
-      end subroutine sync_alens_from_surfaces
 
       ! Change surface s to asphere type (sets flag in ALENS, rebuilds surfaces(:)).
       ! Set surface s to the named type. No-op if already that type.
