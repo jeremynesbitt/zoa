@@ -36,6 +36,11 @@ module mod_surface_type
   ! body that references it via 'import').
   type, abstract :: surface_type
     real(real64)        :: radius    = huge(0.0_real64)  ! inf => flat surface
+    ! Base curvature (1/radius), the AUTHORITATIVE geometry the traces use.  Kept
+    ! exact from ALENS (surf_curvature) by load_surfaces_from_alens /
+    ! refresh_typed_surf_geom so the paraxial/real refraction never round-trips
+    ! through 1/(1/curvature).  0 => flat.
+    real(real64)        :: cv        = 0.0_real64
     real(real64)        :: thickness = 0.0_real64
     real(real64)        :: conic     = 0.0_real64        ! conic constant K
     type(clear_aperture) :: clap
@@ -146,6 +151,7 @@ contains
     type(sphere_surface) :: s
     s%type_name  = "Sphere"
     s%radius     = radius
+    s%cv         = merge(0.0_real64, 1.0_real64/radius, abs(radius) > 1.0e15_real64)
     s%thickness  = thickness
     s%conic      = conic
     s%num_params = 0
@@ -173,6 +179,7 @@ contains
     type(asphere_surface) :: s
     s%type_name  = "Asphere"
     s%radius     = radius
+    s%cv         = merge(0.0_real64, 1.0_real64/radius, abs(radius) > 1.0e15_real64)
     s%thickness  = thickness
     s%conic      = conic
     s%num_params = 10
@@ -212,15 +219,15 @@ contains
   end subroutine
 
   ! Newton-Raphson intersection with a conic surface.
-  subroutine intersect_conic(radius, conic, ray, tol)
-    real(real64),        intent(in)    :: radius, conic
+  subroutine intersect_conic(cv, conic, ray, tol)
+    real(real64),        intent(in)    :: cv, conic
     type(surf_ray_data), intent(inout) :: ray
     real(real64),        intent(in)    :: tol
-    real(real64) :: cv, rho2, sag, ds, ft, dft, t, xi, yi, mag
+    real(real64) :: rho2, sag, ds, ft, dft, t, xi, yi, mag
     integer :: iter
     integer, parameter :: MAXITER = 50
 
-    if (abs(radius) > 1.0e15_real64) then
+    if (abs(cv) < 1.0e-15_real64) then
       if (abs(ray%n) > 1.0e-15_real64) then
         t = -ray%z / ray%n
         ray%x = ray%x + ray%l*t;  ray%y = ray%y + ray%m*t;  ray%z = 0.0_real64
@@ -230,7 +237,6 @@ contains
       return
     end if
 
-    cv = 1.0_real64 / radius
     t  = -ray%z / ray%n
 
     do iter = 1, MAXITER
@@ -256,16 +262,15 @@ contains
 
   ! Newton-Raphson intersection with an even asphere.
   ! coeffs(1:9)=A4,A6,A8,A10,A12,A14,A16,A18,A20;  coeffs(10)=A2 (plano term)
-  subroutine intersect_asphere(radius, conic, coeffs, ray, tol)
-    real(real64),        intent(in)    :: radius, conic, coeffs(10)
+  subroutine intersect_asphere(cv, conic, coeffs, ray, tol)
+    real(real64),        intent(in)    :: cv, conic, coeffs(10)
     type(surf_ray_data), intent(inout) :: ray
     real(real64),        intent(in)    :: tol
-    real(real64) :: cv, rho2, rho4, rho6, rho8, rho10
+    real(real64) :: rho2, rho4, rho6, rho8, rho10
     real(real64) :: sag, ds, poly, dpoly, ft, dft, t, xi, yi, mag
     integer :: iter
     integer, parameter :: MAXITER = 50
 
-    cv = merge(0.0_real64, 1.0_real64/radius, abs(radius) > 1.0e15_real64)
     t  = merge(0.0_real64, -ray%z/ray%n, abs(ray%n) < 1.0e-15_real64)
 
     do iter = 1, MAXITER
@@ -336,11 +341,9 @@ contains
   end subroutine apply_snell
 
   ! Standard paraxial refraction: n'u' = nu - y(n'-n)c
-  subroutine paraxial_refract(radius, h_in, u_in, n_in, n_out, h_out, u_out)
-    real(real64), intent(in)  :: radius, h_in, u_in, n_in, n_out
+  subroutine paraxial_refract(cv, h_in, u_in, n_in, n_out, h_out, u_out)
+    real(real64), intent(in)  :: cv, h_in, u_in, n_in, n_out
     real(real64), intent(out) :: h_out, u_out
-    real(real64) :: cv
-    cv    = merge(0.0_real64, 1.0_real64/radius, abs(radius) > 1.0e15_real64)
     h_out = h_in
     u_out = (n_in*u_in - h_in*(n_out - n_in)*cv) / n_out
   end subroutine paraxial_refract
@@ -353,14 +356,14 @@ contains
     class(sphere_surface), intent(in)    :: self
     type(surf_ray_data),   intent(inout) :: ray
     real(real64),          intent(in)    :: tol
-    call intersect_conic(self%radius, self%conic, ray, tol)
+    call intersect_conic(self%cv, self%conic, ray, tol)
   end subroutine
 
   subroutine sphere_real_trace(self, ray, tol)
     class(sphere_surface), intent(in)    :: self
     type(surf_ray_data),   intent(inout) :: ray
     real(real64),          intent(in)    :: tol
-    call intersect_conic(self%radius, self%conic, ray, tol)
+    call intersect_conic(self%cv, self%conic, ray, tol)
     call apply_snell(ray)
   end subroutine
 
@@ -368,7 +371,7 @@ contains
     class(sphere_surface), intent(in) :: self
     real(real64), intent(in)  :: h_in, u_in, n_in, n_out
     real(real64), intent(out) :: h_out, u_out
-    call paraxial_refract(self%radius, h_in, u_in, n_in, n_out, h_out, u_out)
+    call paraxial_refract(self%cv, h_in, u_in, n_in, n_out, h_out, u_out)
   end subroutine
 
   ! ---------------------------------------------------------------------------
@@ -380,14 +383,14 @@ contains
     type(surf_ray_data),    intent(inout) :: ray
     real(real64),           intent(in)    :: tol
     ! data(2:10)=A4..A20, data(11)=A2 — matches intersect_asphere coeffs(1:9)+coeffs(10)
-    call intersect_asphere(self%radius, self%conic, self%data(2:11), ray, tol)
+    call intersect_asphere(self%cv, self%conic, self%data(2:11), ray, tol)
   end subroutine
 
   subroutine asphere_real_trace(self, ray, tol)
     class(asphere_surface), intent(in)    :: self
     type(surf_ray_data),    intent(inout) :: ray
     real(real64),           intent(in)    :: tol
-    call intersect_asphere(self%radius, self%conic, self%data(2:11), ray, tol)
+    call intersect_asphere(self%cv, self%conic, self%data(2:11), ray, tol)
     call apply_snell(ray)
   end subroutine
 
@@ -396,11 +399,9 @@ contains
     real(real64), intent(in)  :: h_in, u_in, n_in, n_out
     real(real64), intent(out) :: h_out, u_out
     ! A2 (data(11)) gives an effective curvature correction for plano-aspheres
-    real(real64) :: cv_base, cv_eff, eff_radius
-    cv_base    = merge(0.0_real64, 1.0_real64/self%radius, abs(self%radius) > 1.0e15_real64)
-    cv_eff     = cv_base + 2.0_real64*self%data(11)
-    eff_radius = merge(huge(0.0_real64), 1.0_real64/cv_eff, abs(cv_eff) < 1.0e-30_real64)
-    call paraxial_refract(eff_radius, h_in, u_in, n_in, n_out, h_out, u_out)
+    real(real64) :: cv_eff
+    cv_eff = self%cv + 2.0_real64*self%data(11)
+    call paraxial_refract(cv_eff, h_in, u_in, n_in, n_out, h_out, u_out)
   end subroutine
 
 end module mod_surface_type

@@ -1323,7 +1323,7 @@ module mod_lens_data_manager
         use mod_surface_type, only: make_sphere, make_asphere
         use mod_surface, only: surf_radius, surf_is_asphere, surf_conic, &
                                surf_thickness, surf_asphere_coeff, &
-                               surf_refractive_index
+                               surf_refractive_index, surf_curvature
         use DATLEN, only: GLANAM
         class(lens_data_manager), intent(inout) :: self
         integer :: s, last, w
@@ -1360,6 +1360,10 @@ module mod_lens_data_manager
             end select
           end if
 
+          ! Authoritative curvature straight from ALENS (exact), overwriting the
+          ! 1/radius the factory derived -- avoids the 1/(1/curvature) round-trip.
+          self%surfaces(s)%s%cv = surf_curvature(s)
+
           do w = 1, 10
             self%surfaces(s)%s%n_post(w) = surf_refractive_index(s, w)
             if (s > 0) self%surfaces(s)%s%n_pre(w) = surf_refractive_index(s-1, w)
@@ -1383,7 +1387,7 @@ module mod_lens_data_manager
       ! brings the frozen copy current.  Cheap enough to call per surface at the
       ! exact point geometry changes.
       subroutine refresh_typed_surf_geom(self, s)
-        use mod_surface, only: surf_radius, surf_thickness, surf_conic
+        use mod_surface, only: surf_radius, surf_thickness, surf_conic, surf_curvature
         class(lens_data_manager), intent(inout) :: self
         integer, intent(in) :: s
 
@@ -1392,6 +1396,7 @@ module mod_lens_data_manager
         if (.not. allocated(self%surfaces(s)%s)) return
 
         self%surfaces(s)%s%radius    = surf_radius(s)
+        self%surfaces(s)%s%cv        = surf_curvature(s)   ! exact, authoritative
         self%surfaces(s)%s%thickness = surf_thickness(s)
         self%surfaces(s)%s%conic     = surf_conic(s)
       end subroutine refresh_typed_surf_geom
