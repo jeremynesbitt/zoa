@@ -20,7 +20,11 @@ module mod_lens_data_manager
 
     type lens_data_manager
 
-    real(long), dimension(0:499,3) :: vars ! CCY THC GLC for now.  Hard code max of 500 surfaces.  Default is 100
+    ! Per-surface variable codes, column = VAR_* code (see zoa-ui.f90):
+    ! 1=CCY curvature, 2=THC thickness, 3=KC conic, 4..12=AC..IC asphere coeffs
+    ! A4..A20.  Value 0 => variable, 100 => frozen (default).
+    ! Hard code max of 500 surfaces.
+    real(long), dimension(0:499,NUM_VAR_CODES) :: vars
 
     ! Persistent per-surface edge (physical) semi-aperture in Y.  0 => unset.
     ! Owned here (NOT ALENS) so it survives load_surfaces_from_alens() rebuilds;
@@ -679,6 +683,26 @@ module mod_lens_data_manager
             VAR_CODE = VAR_CURV
         case('KC')
             VAR_CODE = VAR_K
+        case('AC')
+            VAR_CODE = VAR_A4
+        case('BC')
+            VAR_CODE = VAR_A6
+        case('CC')
+            VAR_CODE = VAR_A8
+        case('DC')
+            VAR_CODE = VAR_A10
+        case('EC')
+            VAR_CODE = VAR_A12
+        case('FC')
+            VAR_CODE = VAR_A14
+        case('GC')
+            VAR_CODE = VAR_A16
+        case('HC')
+            VAR_CODE = VAR_A18
+        case('IC')
+            VAR_CODE = VAR_A20
+        case default
+            return
         end select
 
         if (s0==sf) then

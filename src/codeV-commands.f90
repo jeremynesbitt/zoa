@@ -374,6 +374,7 @@ module codeV_commands
 
         integer :: i
         character(len=1), dimension(8) :: evenAsphereTerms = ['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H']
+        character(len=2), dimension(9) :: asphereVarCodes  = ['AC', 'BC', 'CC', 'DC', 'EC', 'FC', 'GC', 'HC', 'IC']
 
         ! Initialize all command slots to empty (prevents garbage matches)
         do i = 1, size(zoaCmds)
@@ -777,6 +778,17 @@ module codeV_commands
         ! 20th-order asphere coefficient (completes A..I; KDP command AL)
         zoaCmds(699)%cmd = 'I'
         zoaCmds(699)%execFunc => updateAsphereTerms
+
+        ! CODE V-style variable codes for the asphere coefficients A4..A20
+        ! (param cmd + 'C', paralleling CCY/THC/KC):  <code> Sj 0 = variable,
+        ! <code> Sj 100 = frozen.  All route through updateVarCodes, which
+        ! passes the command name to the name->VAR_* maps.
+        ! (The legacy KDP commands CC and AC were renamed CCK/ACK to free
+        ! these names.)
+        do i=1,9
+            zoaCmds(699+i)%cmd      = asphereVarCodes(i)
+            zoaCmds(699+i)%execFunc => updateVarCodes
+        end do
 
 
     end subroutine

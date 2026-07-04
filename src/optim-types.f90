@@ -328,19 +328,22 @@ module optim_types
         integer :: i
 
         call PROCESSILENT('U L')
-        
+
         ! Using KDP commands because the new commands get into bad loops during optimization.
         ! obviously should fix this to directly update lens data but a project for another day..
         do i=1,nV
-            select case(VARS(i,2))
-            case(VAR_CURV)
-                call PROCESSILENT('CHG '//int2str(VARS(i,1))//' ; CV '//real2str(x(i)))
-            case(VAR_THI)
-                call PROCESSILENT('CHG '//int2str(VARS(i,1))//' ; TH '//real2str(x(i)))
-            case(VAR_K)
-                call PROCESSILENT('CHG '//int2str(VARS(i,1))//' ; CCK '//real2str(x(i)))
-            end select
-
+            if (VARS(i,2) >= VAR_A4 .and. VARS(i,2) <= VAR_A20) then
+                ! Asphere coefficients live at 1e-4..1e-8: the default F9.5
+                ! formatting of real2str would quantize them to zero, so apply
+                ! them in scientific notation (D23.10).  CV/TH/CCK keep the
+                ! original fixed format so existing optimization trajectories
+                ! (and their golden refs) are unchanged.
+                call PROCESSILENT('CHG '//int2str(VARS(i,1))//' ; '// &
+                &  trim(getVarKdpCmd(VARS(i,2)))//' '//real2str(x(i), sci=.TRUE.))
+            else
+                call PROCESSILENT('CHG '//int2str(VARS(i,1))//' ; '// &
+                &  trim(getVarKdpCmd(VARS(i,2)))//' '//real2str(x(i)))
+            end if
         end do
 
         call PROCESSILENT('EOS')
@@ -393,6 +396,26 @@ module optim_types
             VAR_CODE = VAR_CURV
         case('KC')
             VAR_CODE = VAR_K
+        case('AC')
+            VAR_CODE = VAR_A4
+        case('BC')
+            VAR_CODE = VAR_A6
+        case('CC')
+            VAR_CODE = VAR_A8
+        case('DC')
+            VAR_CODE = VAR_A10
+        case('EC')
+            VAR_CODE = VAR_A12
+        case('FC')
+            VAR_CODE = VAR_A14
+        case('GC')
+            VAR_CODE = VAR_A16
+        case('HC')
+            VAR_CODE = VAR_A18
+        case('IC')
+            VAR_CODE = VAR_A20
+        case default
+            return
         end select
 
         ! New Code
@@ -492,6 +515,9 @@ module optim_types
     function getVarCmd(int_code) result(outCmd)
         integer :: int_code
         character(len=4) :: outCmd
+        ! CODE V variable-code commands for the asphere coefficients A4..A20
+        character(len=2), parameter :: asphVarCmds(9) = &
+            ['AC','BC','CC','DC','EC','FC','GC','HC','IC']
 
         outCmd = ''
         select case (int_code)
@@ -500,7 +526,31 @@ module optim_types
         case(VAR_THI)
             outCmd = 'THC'
         case(VAR_K)
-            outCmd = 'KC'            
+            outCmd = 'KC'
+        case(VAR_A4:VAR_A20)
+            outCmd = asphVarCmds(int_code - VAR_A4 + 1)
+        end select
+
+    end function
+
+    ! KDP set-command used to apply a variable's value during optimization.
+    function getVarKdpCmd(int_code) result(outCmd)
+        integer :: int_code
+        character(len=4) :: outCmd
+        ! KDP asphere coefficient commands for A4..A20
+        character(len=2), parameter :: asphKdpCmds(9) = &
+            ['AD','AE','AF','AG','AH','AI','AJ','AK','AL']
+
+        outCmd = ''
+        select case (int_code)
+        case(VAR_CURV)
+            outCmd = 'CV'
+        case(VAR_THI)
+            outCmd = 'TH'
+        case(VAR_K)
+            outCmd = 'CCK'
+        case(VAR_A4:VAR_A20)
+            outCmd = asphKdpCmds(int_code - VAR_A4 + 1)
         end select
 
     end function
@@ -581,6 +631,7 @@ module optim_types
 
     function gatherVariableData(self) result(VARDATA)
         use mod_lens_data_manager
+        use mod_surface, only: surf_asphere_coeff
         implicit none
         class(optimizer) :: self
         real(long), dimension(nV,3) :: VARDATA
@@ -608,12 +659,17 @@ module optim_types
                     case(VAR_THI)
                         VARDATA(ctr,1) = ldm%getSurfThi(i)
                         VARDATA(ctr,2) = -0.1*huge(0.0_long)
-                        VARDATA(ctr,3) = 0.1*huge(0.0_long)           
+                        VARDATA(ctr,3) = 0.1*huge(0.0_long)
                     case(VAR_K)
                         VARDATA(ctr,1) = ldm%getConicConstant(i)
                         VARDATA(ctr,2) = -0.1*huge(0.0_long)
-                        VARDATA(ctr,3) = 0.1*huge(0.0_long)           
-                end select                    
+                        VARDATA(ctr,3) = 0.1*huge(0.0_long)
+                    case(VAR_A4:VAR_A20)
+                        ! Asphere coefficient A(2n): order = 4,6,..,20
+                        VARDATA(ctr,1) = surf_asphere_coeff(i, 4 + 2*(j - VAR_A4))
+                        VARDATA(ctr,2) = -0.1*huge(0.0_long)
+                        VARDATA(ctr,3) = 0.1*huge(0.0_long)
+                end select
                     
                 end if
             end do

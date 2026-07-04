@@ -197,6 +197,18 @@ integer, parameter :: wlIndices(*) = [1,2,3,4,5,6,7,8,9,10,ID_SETTING_WAVELENGTH
 integer, parameter :: VAR_CURV = 1
 integer, parameter :: VAR_THI = 2
 integer, parameter :: VAR_K = 3 ! Conic constant
+! Asphere coefficient variables (CODE V codes AC..IC).  Contiguous so
+! VAR_A4 + (param-2) maps asphere extra-param index (2..10) to its code.
+integer, parameter :: VAR_A4  = 4   ! AC
+integer, parameter :: VAR_A6  = 5   ! BC
+integer, parameter :: VAR_A8  = 6   ! CC
+integer, parameter :: VAR_A10 = 7   ! DC
+integer, parameter :: VAR_A12 = 8   ! EC
+integer, parameter :: VAR_A14 = 9   ! FC
+integer, parameter :: VAR_A16 = 10  ! GC
+integer, parameter :: VAR_A18 = 11  ! HC
+integer, parameter :: VAR_A20 = 12  ! IC
+integer, parameter :: NUM_VAR_CODES = 12
 
 
 ! Constraints
