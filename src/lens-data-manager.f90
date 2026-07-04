@@ -67,6 +67,7 @@ module mod_lens_data_manager
      procedure :: getSurfacePointer, incrementSurfacePointer, setSurfacePointer
      procedure, public, pass(self) :: genSaveOutputText => genLDMSaveOutputText
      procedure :: outputPikupText, genSurfPikupSavText, getSurfTypeName, getExtraParamCmd
+     procedure :: getExtraParamKdpCmd, getExtraParamPikupQual, getExtraParamPikupIdx
      procedure, public, pass(self) :: removeAllSurfaceData
      procedure, public, pass(self) :: clearClearApertureData
      procedure, public, pass(self) :: clearObscurationData
@@ -241,7 +242,50 @@ module mod_lens_data_manager
           end block
         end if
 
-    end function       
+    end function
+
+    ! KDP set-command for extra param colIdx on surfIdx (e.g. CCK, AD..AL).
+    ! Blank => the surface type defines no such param / no KDP command.
+    function getExtraParamKdpCmd(self, surfIdx, colIdx) result(cmd)
+        class(lens_data_manager) :: self
+        integer, intent(in) :: surfIdx, colIdx
+        character(len=4) :: cmd
+
+        cmd = ' '
+        if (.not. allocated(self%surfaces)) return
+        if (surfIdx < lbound(self%surfaces,1) .or. surfIdx > ubound(self%surfaces,1)) return
+        if (.not. allocated(self%surfaces(surfIdx)%s)) return
+        if (colIdx >= 1 .and. colIdx <= self%surfaces(surfIdx)%s%num_params) &
+            cmd = trim(self%surfaces(surfIdx)%s%param_cmds_kdp(colIdx))
+    end function
+
+    ! PIKUP/PIKD qualifier word for extra param colIdx (e.g. CC, AD..AL).
+    function getExtraParamPikupQual(self, surfIdx, colIdx) result(qual)
+        class(lens_data_manager) :: self
+        integer, intent(in) :: surfIdx, colIdx
+        character(len=4) :: qual
+
+        qual = ' '
+        if (.not. allocated(self%surfaces)) return
+        if (surfIdx < lbound(self%surfaces,1) .or. surfIdx > ubound(self%surfaces,1)) return
+        if (.not. allocated(self%surfaces(surfIdx)%s)) return
+        if (colIdx >= 1 .and. colIdx <= self%surfaces(surfIdx)%s%num_params) &
+            qual = trim(self%surfaces(surfIdx)%s%param_pikup_qual(colIdx))
+    end function
+
+    ! PIKUP array J index for extra param colIdx (0 => no pickup support).
+    function getExtraParamPikupIdx(self, surfIdx, colIdx) result(jIdx)
+        class(lens_data_manager) :: self
+        integer, intent(in) :: surfIdx, colIdx
+        integer :: jIdx
+
+        jIdx = 0
+        if (.not. allocated(self%surfaces)) return
+        if (surfIdx < lbound(self%surfaces,1) .or. surfIdx > ubound(self%surfaces,1)) return
+        if (.not. allocated(self%surfaces(surfIdx)%s)) return
+        if (colIdx >= 1 .and. colIdx <= self%surfaces(surfIdx)%s%num_params) &
+            jIdx = self%surfaces(surfIdx)%s%param_pikup_idx(colIdx)
+    end function
 
     function getCurrentConfig(self) result(cfg)
         class(lens_data_manager) :: self

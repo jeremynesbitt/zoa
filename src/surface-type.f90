@@ -57,6 +57,17 @@ module mod_surface_type
     real(real64)        :: data(SURF_DATA_SIZE)          = 0.0_real64
     character(len=SURF_PARAM_NAME_LEN) :: param_names(SURF_DATA_SIZE) = ' '
     character(len=SURF_CMD_LEN)        :: param_cmds(SURF_DATA_SIZE)  = ' '
+    ! Modifier plumbing per extra param (blank/0 => not supported for that param):
+    !   param_cmds_kdp(i)   — KDP set-command for data(i) (e.g. CCK, AD..AL),
+    !                         used e.g. by the optimizer to apply a variable value.
+    !   param_pikup_qual(i) — PIKUP/PIKD qualifier word (e.g. CC, AD..AL; note the
+    !                         conic qualifier stays CC while its command is CCK).
+    !   param_pikup_idx(i)  — PIKUP array J index (CC=4, AD..AG=5..8, AH..AL=27..31).
+    ! The CODE V variable-code command for data(i) is param_cmds(i)//'C'
+    ! (K->KC, A->AC, ...), so it needs no separate array.
+    character(len=SURF_CMD_LEN)        :: param_cmds_kdp(SURF_DATA_SIZE)   = ' '
+    character(len=SURF_CMD_LEN)        :: param_pikup_qual(SURF_DATA_SIZE) = ' '
+    integer                            :: param_pikup_idx(SURF_DATA_SIZE)  = 0
     integer             :: num_params = 0
   contains
     procedure(intersect_iface),   deferred :: intersect
@@ -192,6 +203,12 @@ contains
     s%param_names(8)  = "16th order (G)";   s%param_cmds(8)  = "G"
     s%param_names(9)  = "18th order (H)";   s%param_cmds(9)  = "H"
     s%param_names(10) = "20th order (I)";   s%param_cmds(10) = "I"
+    ! KDP set-commands and PIKUP qualifiers/J-indexes (see type comment).
+    s%param_cmds_kdp(1:10)   = [character(len=SURF_CMD_LEN) :: &
+      "CCK", "AD", "AE", "AF", "AG", "AH", "AI", "AJ", "AK", "AL"]
+    s%param_pikup_qual(1:10) = [character(len=SURF_CMD_LEN) :: &
+      "CC",  "AD", "AE", "AF", "AG", "AH", "AI", "AJ", "AK", "AL"]
+    s%param_pikup_idx(1:10)  = [4, 5, 6, 7, 8, 27, 28, 29, 30, 31]
     if (present(coeffs)) then
       s%data(2:10) = coeffs(1:9)   ! A4..A20
       s%data(11)   = coeffs(10)    ! A2 (plano/internal)

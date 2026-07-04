@@ -360,7 +360,9 @@ module procedure execSUR
         case('G')
             aspKDP = 'AJ'
         case('H')
-            aspKDP = 'AK'                       
+            aspKDP = 'AK'
+        case('I')
+            aspKDP = 'AL'
 
         end select
         call execTranslatedSurfCmd(iptStr, aspKDP)

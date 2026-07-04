@@ -349,7 +349,7 @@ module codeV_commands
 
 
     character(len=4), dimension(500) :: surfCmds
-    type(zoa_cmd), dimension(700) :: zoaCmds
+    type(zoa_cmd), dimension(720) :: zoaCmds
 
     type(zoaplot_setting_manager)  :: curr_psm
     character(len=10024) :: cmdTOW
@@ -773,6 +773,10 @@ module codeV_commands
         zoaCmds(697)%execFunc => adjustVieSettings
         zoaCmds(698)%cmd = "ORIENT"
         zoaCmds(698)%execFunc => adjustVieSettings
+
+        ! 20th-order asphere coefficient (completes A..I; KDP command AL)
+        zoaCmds(699)%cmd = 'I'
+        zoaCmds(699)%execFunc => updateAsphereTerms
 
 
     end subroutine
