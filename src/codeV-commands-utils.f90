@@ -134,25 +134,16 @@ contains
     end procedure isInputSurfaceParameter
 
     module procedure setPickup
-        use pickup_manager, only: pickup_j_from_cli, pickup_qual_from_j
-        character(len=8) :: kParam
-        logical :: scaleOffset
+        use pickup_manager, only: pickup_j_from_cli, pickup_set_cmd
         integer :: jIdx
 
-        ! CLI param name -> KDP PIKUP qualifier via the pickup-kind table
-        ! (e.g. RDY->RD, THI->TH, K->CC, A..I->AD..AL, GLA->GLASS).
+        ! CLI param name -> pickup kind via the table (RDY, THI, GLA, K, A..I);
+        ! the manager builds the KDP PIKUP command (incl. the GLASS no-scale form).
         jIdx = pickup_j_from_cli(param1)
         if (jIdx == 0) return
-        kParam = pickup_qual_from_j(jIdx)
-        ! Glass pickups take no scale/offset arguments
-        scaleOffset = (trim(kParam) /= 'GLASS')
 
-        if (scaleOffset) then
-            call executeCodeVLensUpdateCommand("CHG "//trim(int2str(si))//";PIKUP "//trim(kParam)//","// &
-            & trim(int2str(sj))//","//trim(real2str(scale))//","//trim(real2str(offset)))
-        else
-            call executeCodeVLensUpdateCommand("CHG "//trim(int2str(si))//";PIKUP "//trim(kParam)//","//trim(int2str(sj)))
-        end if
+        call executeCodeVLensUpdateCommand("CHG "//trim(int2str(si))//";"// &
+        & trim(pickup_set_cmd(jIdx, sj, scale, offset)))
     end procedure setPickup
 
     module procedure parsePickupInput

@@ -651,6 +651,7 @@ function buildLensEditTable() result(store)
   ! when closed, update kdp
   subroutine ui_pickup(row, pickup_type, btn)
       use mod_lens_data_manager
+      use pickup_manager, only: pickup_get
       use type_utils, only:  int2str
 
       integer :: row, pickup_type
@@ -660,15 +661,19 @@ function buildLensEditTable() result(store)
       type(c_ptr) :: win,pUpdate, pCancel, boxWin, cBut, uBut
       type(c_ptr) :: table, lblSurf
       real(kind=c_double) :: pickupScale
+      integer :: pkSrc
+      real(kind=c_double) :: pkScale, pkOffset
+      logical :: pkFound
 
       ! pickup_type is the PIKUP array J index (RD=1, TH=3, CC=4, AD..AL=5-8,27-31)
+      pkFound = pickup_get(row, pickup_type, pkSrc, pkScale, pkOffset)
 
       pData%ID_type = pickup_type
       call pData%setPickupText()
       pData%surf = row
-      pData%surf_ref = INT(curr_lens_data%pickups(2,row+1,pickup_type))
-      pData%scale = curr_lens_data%pickups(3,row+1,pickup_type)
-      pData%offset = curr_lens_data%pickups(4,row+1,pickup_type)
+      pData%surf_ref = pkSrc
+      pData%scale = pkScale
+      pData%offset = pkOffset
 
       ! Create the window:
       win = gtk_window_new()
@@ -691,7 +696,7 @@ function buildLensEditTable() result(store)
       call gtk_grid_set_row_homogeneous(table, TRUE)      
 
       dropDown = gtk_drop_down_new_from_strings(getSurfacesAsCStringArray())
-      call gtk_drop_down_set_selected(dropDown, INT(curr_lens_data%pickups(2,row+1,pickup_type)))
+      call gtk_drop_down_set_selected(dropDown, pkSrc)
 
       lblSurf = gtk_label_new("Surface"//c_null_char)
       !gtk_grid_attach (GtkGrid *grid, GtkWidget *child, int column, int row, int width, int height);
@@ -704,8 +709,8 @@ function buildLensEditTable() result(store)
       call gtk_grid_attach(table, lblScale, 0_c_int, 1_c_int, 1_c_int, 1_c_int)
       call gtk_grid_attach(table, lblOffset, 0_c_int, 2_c_int, 1_c_int, 1_c_int)
 
-      if (ldm%isPikupOnSurfJ(row, pickup_type)) then
-        pickupScale = curr_lens_data%pickups(3,row+1,pickup_type)*1d0
+      if (pkFound) then
+        pickupScale = pkScale
       else
         pickupScale = 1.0d0
       end if
@@ -719,7 +724,7 @@ function buildLensEditTable() result(store)
       & digits=3_c_int)
 
       sbOffset = gtk_spin_button_new (gtk_adjustment_new( &
-      & value=curr_lens_data%pickups(4,row+1,pickup_type)*1d0, &
+      & value=pkOffset, &
       & lower=-1000*1d0, &
       & upper=1000*1d0, &
       & step_increment=1d0, &
@@ -761,6 +766,7 @@ function buildLensEditTable() result(store)
 
   subroutine pickupUpdate_click(widget, gdata) bind(c)
     use type_utils, only: int2str
+    use pickup_manager, only: pickup_set_cmd
     type(c_ptr), value, intent(in) :: widget, gdata
 
     PRINT *, "Button clicked!"
@@ -768,18 +774,13 @@ function buildLensEditTable() result(store)
     pData%offset = gtk_spin_button_get_value (sbOffset)
     pData%surf_ref = gtk_drop_down_get_selected(dropDown)
 
-  
-    ! It's time to update the pickup
+
+    ! It's time to update the pickup (command built by the pickup manager)
     CALL PROCESKDP('U L')
-    !CALL PROCESKDP("CHG, "//trim(choice))
     CALL PROCESKDP("CHG, "//trim(int2str(pData%surf)))
 
-    call PROCESKDP(trim(pData%genKDPCMD()))
-
-    !CALL PROCESKDP("PIKUP "//trim(pData%pickupTxt)//","//trim(int2str(surfNum))//","//trim(real2str(scale))// &
-    !& ","//trim(real2str(offset))//","//"0.0,")
-
-    PRINT *, "Update cmd tst is ", trim(pData%genKDPCMD())
+    call PROCESKDP(trim(pickup_set_cmd(pData%ID_type, pData%surf_ref, &
+    &                                  pData%scale, pData%offset)))
 
     CALL PROCESKDP('EOS')
     mod_update = .TRUE.
@@ -1140,25 +1141,22 @@ subroutine removeSolve(act, avalue, btn) bind(c)
 end subroutine
 
 subroutine removePickup(act, avalue, btn) bind(c)
+  use pickup_manager, only: pickup_remove_cmd
   type(c_ptr), value :: act, avalue, btn
   type(c_ptr) :: cStr
   character(len=100) :: rcCode
-  type(pickup)  :: pData
-  integer :: surfIdx, colIdx
+  integer :: surfIdx, colIdx, jIdx
 
   cStr = gtk_widget_get_name(gtk_widget_get_parent(btn))
-  call convert_c_string(cStr, rcCode)  
+  call convert_c_string(cStr, rcCode)
   print *, "Val is ", trim(rcCode)
   surfIdx = getSurfaceIndexFromRowColumnCode(trim(rcCode), colIdx)
 
-  pData%surf = surfIdx
-  ! Qualifier word for PIKD, derived from the column's PIKUP J index
-  pData%ID_type = colToPikupJ(surfIdx, colIdx)
-  if (pData%ID_type == 0) return
-  call pData%setPickupText()
-  print *, "Hook working!"
+  ! PIKD command built by the pickup manager from the column's kind
+  jIdx = colToPikupJ(surfIdx, colIdx)
+  if (jIdx == 0) return
   CALL PROCESKDP('U L ; '// &
-  & trim(pData%genKDPCMDToRemovePickup())//';EOS')
+  & trim(pickup_remove_cmd(jIdx, surfIdx))//';EOS')
   call rebuildLensEditorTable()
 
 end subroutine

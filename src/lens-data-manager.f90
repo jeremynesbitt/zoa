@@ -70,7 +70,7 @@ module mod_lens_data_manager
      procedure :: getCCYCodeAsStr, getTHCCodeAsStr
      procedure :: getSurfacePointer, incrementSurfacePointer, setSurfacePointer
      procedure, public, pass(self) :: genSaveOutputText => genLDMSaveOutputText
-     procedure :: outputPikupText, genSurfPikupSavText, getSurfTypeName, getExtraParamCmd
+     procedure :: outputPikupText, getSurfTypeName, getExtraParamCmd
      procedure :: getExtraParamKdpCmd, getExtraParamPikupQual, getExtraParamPikupIdx
      procedure, public, pass(self) :: removeAllSurfaceData
      procedure, public, pass(self) :: clearClearApertureData
@@ -869,62 +869,16 @@ module mod_lens_data_manager
 
     end function    
 
+    ! Pickup save lines now live in the pickup manager; kept as a thin
+    ! delegate so genLDMSaveOutputText's call sequence is unchanged.
     subroutine outputPikupText(self, fID)
-        use pickup_manager, only: PIKUP_KINDS, NUM_PICKUP_KINDS
+        use pickup_manager, only: pickup_genSaveOutputText
         class(lens_data_manager) :: self
         integer :: fID
-        integer :: ii, jj
-        character(len=512) :: outTxt
 
-        ! Save every pickup kind that has a CodeV CLI name (PIK <cli> ... is
-        ! re-parseable on load).  Kinds without a CLI name (torics, tilts,
-        ! decenters, ...) are not yet expressible in .zoa saves.
-        ! NOTE: GLA pickups are skipped for now -- PIK GLA takes no scale/
-        ! offset and genSurfPikupSavText emits the scale/offset form.
-        do ii=0,self%getLastSurf()
-            do jj=1,NUM_PICKUP_KINDS
-                if (len_trim(PIKUP_KINDS(jj)%cli) == 0) cycle
-                if (trim(PIKUP_KINDS(jj)%cli) == 'GLA') cycle
-                outTxt = self%genSurfPikupSavText(ii, PIKUP_KINDS(jj)%j, &
-                &                                 trim(PIKUP_KINDS(jj)%cli))
-                if (len(trim(outTxt)) > 0) then
-                    write(fID, *) trim(outTxt)
-                end if
-            end do
-        end do
-
+        call pickup_genSaveOutputText(fID)
 
     end subroutine
-
-    function genSurfPikupSavText(self, surf, jIdx, cliName) result(outTxt)
-        use DATLEN, only: PIKUP
-        use type_utils
-        class(lens_data_manager) :: self
-        integer :: surf, jIdx, si, sf
-        character(len=*) :: cliName
-        character(len=512) :: outTxt, surfTxt
-        real(kind=long) :: scale, offset
-
-        outTxt = ' '
-        if (self%isPikupOnSurfJ(surf, jIdx)) then
-            si = INT(PIKUP(2,surf,jIdx)) ! Start Surface
-            sf = si ! Temp
-            !sf = INT(PIKUP(3,surf,jIdx)) ! End Surface
-            scale = PIKUP(3,surf, jIdx) ! Default 1
-            offset = PIKUP(4,surf,jIdx) ! Default 0
-
-            if (si==sf) then
-                surfTxt = 'S'//trim(int2str(si))
-            else
-                surfTxt = 'S'//trim(int2str(si))//'..'//trim(int2str(sf))
-            end if
-
-            outTxt = 'PIK '//trim(cliName)//' S'//trim(int2str(surf))//' '//trim(cliName)//' '// &
-            & trim(surfTxt)//' '//trim(real2str(scale,4))//' '//trim(real2str(offset,4))
-
-        end if
-
-    end function
 
 
     subroutine genLDMSaveOutputText(self, fID, skip_alens_refresh)

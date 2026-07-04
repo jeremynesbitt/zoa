@@ -32,6 +32,8 @@ module pickup_manager
   public :: pickup_j_from_qual, pickup_qual_from_j
   public :: pickup_j_from_cli, pickup_cli_from_j
   public :: pickup_on_surf, surf_has_pickups
+  public :: pickup_get, pickup_set_cmd, pickup_remove_cmd
+  public :: pickup_genSaveOutputText
 
   type :: pickup_kind
     integer           :: j          ! PIKUP array 3rd index
@@ -132,6 +134,77 @@ contains
     cli = ' '
     if (j >= 1 .and. j <= NUM_PICKUP_KINDS) cli = PIKUP_KINDS(j)%cli
   end function
+
+  ! Fetch pickup parameters for kind j on surface s.
+  ! found=.false. (and zeroed outputs) if no such pickup.
+  function pickup_get(s, j, src, scale, offset) result(found)
+    use DATLEN, only: PIKUP
+    integer,      intent(in)  :: s, j
+    integer,      intent(out) :: src
+    real(real64), intent(out) :: scale, offset
+    logical :: found
+
+    src = 0;  scale = 1.0_real64;  offset = 0.0_real64
+    found = pickup_on_surf(s, j)
+    if (.not. found) return
+    src    = int(PIKUP(2, s, j))
+    scale  = PIKUP(3, s, j)
+    offset = PIKUP(4, s, j)
+  end function
+
+  ! Build the KDP command that creates/updates a pickup of kind j from source
+  ! surface src (issue it at lens-update level on the TARGET surface, i.e.
+  ! after a CHG).  Glass pickups take no scale/offset.
+  function pickup_set_cmd(j, src, scale, offset) result(cmd)
+    use type_utils, only: int2str, real2str
+    integer,      intent(in) :: j, src
+    real(real64), intent(in) :: scale, offset
+    character(len=80) :: cmd
+
+    cmd = ' '
+    if (j < 1 .or. j > NUM_PICKUP_KINDS) return
+    if (trim(PIKUP_KINDS(j)%qual) == 'GLASS') then
+      cmd = 'PIKUP GLASS,'//trim(int2str(src))
+    else
+      cmd = 'PIKUP '//trim(PIKUP_KINDS(j)%qual)//','//trim(int2str(src))//','// &
+      &     trim(real2str(scale))//','//trim(real2str(offset))
+    end if
+  end function
+
+  ! Build the KDP command that deletes the pickup of kind j on surface s
+  ! (issue at lens-update level).
+  function pickup_remove_cmd(j, s) result(cmd)
+    use type_utils, only: int2str
+    integer, intent(in) :: j, s
+    character(len=80) :: cmd
+
+    cmd = ' '
+    if (j < 1 .or. j > NUM_PICKUP_KINDS) return
+    cmd = 'PIKD '//trim(PIKUP_KINDS(j)%qual)//','//trim(int2str(s))//','
+  end function
+
+  ! Write the .zoa save lines (PIK <cli> Starget <cli> Ssource scale offset)
+  ! for every pickup whose kind has a CodeV CLI name.  Kinds without one
+  ! (torics, tilts, decenters, ...) are not yet expressible in .zoa saves;
+  ! GLA is skipped because PIK GLA takes no scale/offset arguments.
+  subroutine pickup_genSaveOutputText(fID)
+    use type_utils, only: int2str, real2str
+    use mod_system, only: sys_last_surf
+    integer, intent(in) :: fID
+    integer :: s, k, src
+    real(real64) :: scale, offset
+
+    do s = 0, int(sys_last_surf())
+      do k = 1, NUM_PICKUP_KINDS
+        if (len_trim(PIKUP_KINDS(k)%cli) == 0) cycle
+        if (trim(PIKUP_KINDS(k)%cli) == 'GLA') cycle
+        if (.not. pickup_get(s, PIKUP_KINDS(k)%j, src, scale, offset)) cycle
+        write(fID, *) 'PIK '//trim(PIKUP_KINDS(k)%cli)//' S'//trim(int2str(s))// &
+        &  ' '//trim(PIKUP_KINDS(k)%cli)//' S'//trim(int2str(src))// &
+        &  ' '//trim(real2str(scale,4))//' '//trim(real2str(offset,4))
+      end do
+    end do
+  end subroutine
 
   ! Does surface s carry a pickup of kind j?  Read straight from the PIKUP
   ! existence flags (bounds-guarded).
