@@ -31,6 +31,7 @@ module pickup_manager
   public :: pickup_kind, PIKUP_KINDS, NUM_PICKUP_KINDS
   public :: pickup_j_from_qual, pickup_qual_from_j
   public :: pickup_j_from_cli, pickup_cli_from_j
+  public :: pickup_on_surf, surf_has_pickups
 
   type :: pickup_kind
     integer           :: j          ! PIKUP array 3rd index
@@ -130,6 +131,33 @@ contains
     character(len=4) :: cli
     cli = ' '
     if (j >= 1 .and. j <= NUM_PICKUP_KINDS) cli = PIKUP_KINDS(j)%cli
+  end function
+
+  ! Does surface s carry a pickup of kind j?  Read straight from the PIKUP
+  ! existence flags (bounds-guarded).
+  function pickup_on_surf(s, j) result(hasIt)
+    use DATLEN, only: PIKUP
+    integer, intent(in) :: s, j
+    logical :: hasIt
+    hasIt = .false.
+    if (s < 0 .or. s > 499) return
+    if (j < 1 .or. j > NUM_PICKUP_KINDS) return
+    hasIt = (PIKUP(1, s, j) == 1.0d0)
+  end function
+
+  ! Does surface s carry ANY pickup?  Derived from the PIKUP existence flags
+  ! -- deliberately NOT from a maintained counter.  The legacy counters
+  ! (ALENS 32 "pickup count", never incremented; ALENS 34 "special type",
+  ! overloaded with non-pickup uses) drifted for years and silently disabled
+  ! pickup resolution; deriving from the store makes that class of bug
+  ! impossible.  Used to gate PIKRES calls in the paraxial trace.
+  function surf_has_pickups(s) result(hasAny)
+    use DATLEN, only: PIKUP
+    integer, intent(in) :: s
+    logical :: hasAny
+    hasAny = .false.
+    if (s < 0 .or. s > 499) return
+    hasAny = any(PIKUP(1, s, 1:NUM_PICKUP_KINDS) == 1.0d0)
   end function
 
 end module pickup_manager

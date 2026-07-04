@@ -773,18 +773,16 @@ module mod_lens_data_manager
         end select
     end function
 
-    ! Direct PIKUP-existence check by PIKUP array J index.
+    ! Direct PIKUP-existence check by PIKUP array J index (delegates to the
+    ! pickup manager; kept as a type-bound convenience for existing callers).
     function isPikupOnSurfJ(self, sur, jIdx) result(boolResult)
-        use DATLEN, only: PIKUP
+        use pickup_manager, only: pickup_on_surf
         implicit none
         class(lens_data_manager) :: self
         integer, intent(in) :: sur, jIdx
         logical :: boolResult
 
-        boolResult = .FALSE.
-        if (jIdx >= 1 .and. jIdx <= 45) then
-            if (PIKUP(1,sur,jIdx) == 1.0) boolResult = .TRUE.
-        end if
+        boolResult = pickup_on_surf(sur, jIdx)
     end function
 
     ! TODO:  Refactor with solve?

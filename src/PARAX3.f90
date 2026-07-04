@@ -3832,7 +3832,8 @@ SUBROUTINE FINIYZ
 !
    use DATLEN
    use DATMAI
-   use mod_surface, only: surf_curvature, surf_thickness, surf_toric_flag, surf_toric_curvature, surf_pickup_count, surf_special_type, surf_ideal_efl, surf_asphere_coeff
+   use mod_surface, only: surf_curvature, surf_thickness, surf_toric_flag, surf_toric_curvature, surf_ideal_efl, surf_asphere_coeff
+   use pickup_manager, only: surf_has_pickups
    use mod_system, only: sys_wl_ref
    use mod_lens_data_manager, only: ldm
    use iso_fortran_env, only: real64
@@ -3856,7 +3857,7 @@ SUBROUTINE FINIYZ
 !               VALUES AT SURFACE K
 !       CALL PIKRES FOR THE SURFACE K
 !
-   IF(surf_special_type(K).NE.0) CALL PIKRES ! pickup count lives in ALENS(34); ALENS(32) was never incremented
+   IF(surf_has_pickups(K)) CALL PIKRES ! existence derived from PIKUP flags (pickup_manager)
 !
    IF(K.GT.0) THEN
       PXTRAY(1,K)=PXTRAY(1,(K-1))+(surf_thickness(K-1)*PXTRAY(2,(K-1)))
@@ -3930,7 +3931,8 @@ SUBROUTINE FINIXZ
 !
    use DATLEN
    use DATMAI
-   use mod_surface, only: surf_curvature, surf_thickness, surf_toric_flag, surf_toric_curvature, surf_pickup_count, surf_special_type, surf_ideal_efl, surf_asphere_coeff
+   use mod_surface, only: surf_curvature, surf_thickness, surf_toric_flag, surf_toric_curvature, surf_ideal_efl, surf_asphere_coeff
+   use pickup_manager, only: surf_has_pickups
    use mod_system, only: sys_wl_ref
    use mod_lens_data_manager, only: ldm
    use iso_fortran_env, only: real64
@@ -3954,7 +3956,7 @@ SUBROUTINE FINIXZ
 !               VALUES AT SURFACE K
 !       CALL PIKRES FOR THE SURFACE K
 !
-   IF(surf_special_type(K).NE.0) CALL PIKRES ! pickup count lives in ALENS(34); ALENS(32) was never incremented
+   IF(surf_has_pickups(K)) CALL PIKRES ! existence derived from PIKUP flags (pickup_manager)
 !
    PXTRAX(1,K)=PXTRAX(1,(K-1))+(surf_thickness(K-1)*PXTRAX(2,(K-1)))
 !
