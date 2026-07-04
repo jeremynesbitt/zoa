@@ -210,3 +210,25 @@ VIE hover-coordinate work; flagged here so it isn't forgotten.
 Partial progress already made: the VIE frame corners in `VIENEW.f90` (PLOTBOX) now
 use `kdp_width`/`kdp_height` instead of literal `10000`/`7000`, and the `7050`/`0.1`
 device constants are single-source in `global_widgets`.
+
+## Pickup / "special surface" counter ownership (ALENS 32 & 34 audit)
+
+The pickup refactor (pickup_manager, 2026-07) derives pickup existence directly
+from the `PIKUP(1,surf,J)` flags, so the paraxial-trace `CALL PIKRES` gates no
+longer depend on any maintained counter. Two legacy counters remain and need a
+deliberate ownership audit:
+
+- **ALENS(32) `surf_pickup_count` is vestigial**: nothing increments it (pickup
+  creation never did — the cause of the years-dead pickup resolution); it is
+  only zeroed (LDM15 surface resets) and decremented (LDM6 deletion paths).
+  Remaining readers should migrate to `pickup_manager%surf_has_pickups` and the
+  slot retired.
+- **ALENS(34) `surf_special_type` is overloaded**: pickup creation/deletion
+  increments/decrements it, but it has ~380 non-pickup readers (SPECSUR2 ~200,
+  RAYTRA2/3/4 ~90, FOBBS, DXF, LDM3/ldm8 listings) that treat it as a general
+  "surface is special" gate. Pickups must keep maintaining it for those
+  consumers until each is audited for what it actually needs.
+- **PIKRES's chained-resolution loop count** (`PIKCNT = surf_special_type(I)`,
+  PIKUPS1.f90) still reads ALENS(34). The count controls how many resolution
+  passes run (chained pickups converge by iteration), so changing its source
+  is a behavior risk and was deliberately left out of the refactor.
