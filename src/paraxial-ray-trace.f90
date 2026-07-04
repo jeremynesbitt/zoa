@@ -15,7 +15,7 @@ module paraxial_ray_trace_test
             use global_widgets
     
             use DATMAI
-            use mod_surface, only: surf_curvature, surf_thickness, surf_toric_flag, surf_toric_curvature, surf_asphere_coeff, surf_ideal_efl, surf_pickup_count
+            use mod_surface, only: surf_curvature, surf_thickness, surf_toric_flag, surf_toric_curvature, surf_asphere_coeff, surf_ideal_efl, surf_pickup_count, surf_special_type
             use mod_system, only: sys_astop, sys_last_surf, sys_sax, sys_say, sys_scx, sys_scy, &
                & sys_telecentric, sys_wl_ref, sys_x1_scx, sys_y1_scy, &
                & sys_set_x1_scx, sys_set_y1_scy
@@ -373,7 +373,7 @@ module paraxial_ray_trace_test
     !***************************************************************
     !       CALL PIKRES FOR THE OBJECT SURFACE
                    COMI=0
-            IF(surf_pickup_count(COMI) /= 0) CALL PIKRES
+            IF(surf_special_type(COMI) /= 0) CALL PIKRES ! pickup count lives in ALENS(34); ALENS(32) was never incremented
     !
     !       PX(0)=0,  ALWAYS
                             PXTRAX(1,0)=0.0D0
@@ -431,7 +431,7 @@ module paraxial_ray_trace_test
     !               INITIAL VALUES AT SURFACE 1
     !       CALL PIKRES FOR THE SURFACE 1
                    COMI=1
-            IF(surf_pickup_count(COMI) /= 0) CALL PIKRES
+            IF(surf_special_type(COMI) /= 0) CALL PIKRES ! pickup count lives in ALENS(34); ALENS(32) was never incremented
     !
     !       PX(1) IS EQUAL TO THE SPECIFIED SAX VALUE IN SYS13
                             PXTRAX(1,1)=(SYS13)
@@ -526,7 +526,7 @@ module paraxial_ray_trace_test
     !               VALUES AT SURFACE L
     !       CALL PIKRES FOR THE SURFACE L
                    COMI=L
-            IF(surf_pickup_count(COMI) /= 0) CALL PIKRES
+            IF(surf_special_type(COMI) /= 0) CALL PIKRES ! pickup count lives in ALENS(34); ALENS(32) was never incremented
     !
     !       PX(L) = PX(L-1)+TH(L-1)*PUX(L-1) ; THIS IS THE TRANSFER EQUATION
             PXTRAX(1,L)=PXTRAX(1,(L-1))+(surf_thickness(L-1)*PXTRAX(2,(L-1)))
@@ -636,7 +636,7 @@ module paraxial_ray_trace_test
     !
     !       CALL PIKRES FOR THE OBJECT SURFACE
                    COMI=0
-            IF(surf_pickup_count(COMI) /= 0) CALL PIKRES
+            IF(surf_special_type(COMI) /= 0) CALL PIKRES ! pickup count lives in ALENS(34); ALENS(32) was never incremented
     !
     !       PX(0)=0,  ALWAYS
                             PXTRAX(1,0)=0.0D0
@@ -677,7 +677,7 @@ module paraxial_ray_trace_test
     !               INITIAL VALUES AT SURFACE 1
     !       CALL PIKRES FOR THE SURFACE 1
                    COMI=1
-            IF(surf_pickup_count(COMI) /= 0) CALL PIKRES
+            IF(surf_special_type(COMI) /= 0) CALL PIKRES ! pickup count lives in ALENS(34); ALENS(32) was never incremented
     !
     !       PX(1) IS EQUAL TO THE SPECIFIED SAX VALUE IN SYS13
                             PXTRAX(1,1)=(SYS13)
@@ -769,7 +769,7 @@ module paraxial_ray_trace_test
     !               VALUES AT SURFACE L
     !       CALL PIKRES FOR THE SURFACE L
                    COMI=L
-            IF(surf_pickup_count(COMI) /= 0) CALL PIKRES
+            IF(surf_special_type(COMI) /= 0) CALL PIKRES ! pickup count lives in ALENS(34); ALENS(32) was never incremented
     !
     !       PX(L) = PX(L-1)+TH(L-1)*PUX(L-1) ; THIS IS THE TRANSFER EQUATION
             PXTRAX(1,L)=PXTRAX(1,(L-1))+(surf_thickness(L-1)*PXTRAX(2,(L-1)))
@@ -884,7 +884,7 @@ module paraxial_ray_trace_test
             DO 9000 L=((INT(sys_astop()))+1),INT(sys_last_surf())
     !       CALL PIKRES FOR THE SURFACE L
                    COMI=L
-            IF(surf_pickup_count(COMI) /= 0) CALL PIKRES
+            IF(surf_special_type(COMI) /= 0) CALL PIKRES ! pickup count lives in ALENS(34); ALENS(32) was never incremented
     !
     !               VALUES AT SURFACE L
     !
@@ -1000,7 +1000,7 @@ module paraxial_ray_trace_test
     !               INITIAL VALUES AT SURFACE 0
     !       CALL PIKRES FOR THE OBJECT SURFACE
                    COMI=0
-            IF(surf_pickup_count(COMI) /= 0) CALL PIKRES
+            IF(surf_special_type(COMI) /= 0) CALL PIKRES ! pickup count lives in ALENS(34); ALENS(32) was never incremented
     !
     !
     !       PX(0)=0,  ALWAYS
@@ -1045,7 +1045,7 @@ module paraxial_ray_trace_test
     !               INITIAL VALUES AT SURFACE 1
     !       CALL PIKRES FOR THE SURFACE 1
                    COMI=1
-            IF(surf_pickup_count(COMI) /= 0) CALL PIKRES
+            IF(surf_special_type(COMI) /= 0) CALL PIKRES ! pickup count lives in ALENS(34); ALENS(32) was never incremented
     !
     !       PX(1) IS EQUAL TO THE SPECIFIED SAX VALUE IN SYS13
                             PXTRAX(1,1)=(SYS13)
@@ -1154,7 +1154,7 @@ module paraxial_ray_trace_test
     !               VALUES AT SURFACE L
     !       CALL PIKRES FOR THE SURFACE L
                    COMI=L
-            IF(surf_pickup_count(COMI) /= 0) CALL PIKRES
+            IF(surf_special_type(COMI) /= 0) CALL PIKRES ! pickup count lives in ALENS(34); ALENS(32) was never incremented
     !*******************************************************************************
     !       PX(L)=PX(L-1)+CV(L-1)*PUX(L-1)
     !       NOW CALCULATE PX VALUE
@@ -1399,7 +1399,7 @@ end function
 
 subroutine resolvePikup(L)
     use DATLEN, only: ALENS
-    use mod_surface, only: surf_pickup_count, set_surf_pickup_count
+    use mod_surface, only: surf_pickup_count, set_surf_pickup_count, surf_special_type
     use mod_lens_data_manager, only: ldm
     integer :: L
 
@@ -1443,7 +1443,7 @@ function setInitialParaxialRays(CON) result(initialRays)
     use DATLEN, only: SYSTEM
     use DATMAI, only: OUTLYNE
     use mod_system, only: sys_scy, sys_wl_ref
-    use mod_surface, only: surf_pickup_count, surf_thickness
+    use mod_surface, only: surf_pickup_count, surf_thickness, surf_special_type
     use mod_lens_data_manager
     use parax_calcs
     use type_utils, only: real2str
@@ -1543,7 +1543,7 @@ function setInitialParaxialRays(CON) result(initialRays)
 !       INITIAL VALUES AT SURFACE 1
 !       CALL PIKRES FOR THE SURFACE 1
            COMI=1
-    IF(surf_pickup_count(COMI) /= 0) CALL PIKRES
+    IF(surf_special_type(COMI) /= 0) CALL PIKRES ! pickup count lives in ALENS(34); ALENS(32) was never incremented
 !
 
     initialRays(1:4,1) = traNextSurf(initialRays(1:4,0),1,INT(sys_wl_ref()))

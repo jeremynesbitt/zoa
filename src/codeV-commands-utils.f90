@@ -128,9 +128,13 @@ contains
 
     module procedure isInputSurfaceParameter
         boolResult = .FALSE.
-        if (iptStr == 'RDY' .or. iptStr == 'THI' .or. iptStr == 'GLA') then
+        select case (trim(iptStr))
+        case ('RDY', 'THI', 'GLA')
             boolResult = .TRUE.
-        end if
+        ! Special-surface extra params: conic + asphere coefficients A4..A20
+        case ('K', 'A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I')
+            boolResult = .TRUE.
+        end select
     end procedure isInputSurfaceParameter
 
     module procedure setPickup
@@ -146,6 +150,28 @@ contains
         case('GLA')
             kParam = 'GLASS'
             scaleOffset = .FALSE.
+        ! Conic + asphere coefficients: PIKUP qualifier words (PIKUPS2 CT map).
+        ! Note the conic pickup qualifier is CC (the renamed set-command is CCK).
+        case('K')
+            kParam = 'CC'
+        case('A')
+            kParam = 'AD'
+        case('B')
+            kParam = 'AE'
+        case('C')
+            kParam = 'AF'
+        case('D')
+            kParam = 'AG'
+        case('E')
+            kParam = 'AH'
+        case('F')
+            kParam = 'AI'
+        case('G')
+            kParam = 'AJ'
+        case('H')
+            kParam = 'AK'
+        case('I')
+            kParam = 'AL'
         end select
 
         if (scaleOffset) then

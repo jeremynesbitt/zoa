@@ -66,7 +66,7 @@ module mod_lens_data_manager
      procedure :: getGlassName
      procedure :: updateOptimVars
      procedure :: setVarOnSurf
-     procedure :: isSolveOnSurf, isPikupOnSurf, isVarOnSurf
+     procedure :: isSolveOnSurf, isPikupOnSurf, isPikupOnSurfJ, isVarOnSurf
      procedure :: getCCYCodeAsStr, getTHCCodeAsStr
      procedure :: getSurfacePointer, incrementSurfacePointer, setSurfacePointer
      procedure, public, pass(self) :: genSaveOutputText => genLDMSaveOutputText
@@ -749,6 +749,42 @@ module mod_lens_data_manager
 
     end function
 
+    ! PIKUP array J index for a VAR_* code (0 => no pickup type for that code).
+    ! J values from the PIKUPS2 qualifier map: RD=1, TH=3, CC=4, AD..AG=5..8,
+    ! AH..AL=27..31.
+    function varCodeToPikupJ(var_code) result(jIdx)
+        integer, intent(in) :: var_code
+        integer :: jIdx
+        integer, parameter :: asphJ(9) = [5, 6, 7, 8, 27, 28, 29, 30, 31]
+
+        select case (var_code)
+        case (VAR_CURV)
+            jIdx = ID_PICKUP_RAD
+        case (VAR_THI)
+            jIdx = ID_PICKUP_THIC
+        case (VAR_K)
+            jIdx = 4
+        case (VAR_A4:VAR_A20)
+            jIdx = asphJ(var_code - VAR_A4 + 1)
+        case default
+            jIdx = 0
+        end select
+    end function
+
+    ! Direct PIKUP-existence check by PIKUP array J index.
+    function isPikupOnSurfJ(self, sur, jIdx) result(boolResult)
+        use DATLEN, only: PIKUP
+        implicit none
+        class(lens_data_manager) :: self
+        integer, intent(in) :: sur, jIdx
+        logical :: boolResult
+
+        boolResult = .FALSE.
+        if (jIdx >= 1 .and. jIdx <= 45) then
+            if (PIKUP(1,sur,jIdx) == 1.0) boolResult = .TRUE.
+        end if
+    end function
+
     ! TODO:  Refactor with solve?
     function isPikupOnSurf(self, sur, var_code) result(boolResult)
         use DATLEN
@@ -757,15 +793,7 @@ module mod_lens_data_manager
         integer, intent(in) :: sur, var_code
         logical :: boolResult
 
-        ! Default is false
-        boolResult = .FALSE.
-
-        select case (var_code)
-        case (VAR_CURV)
-            if(PIKUP(1,sur, ID_PICKUP_RAD) == 1.0) boolResult = .TRUE.
-        case (VAR_THI)
-            if(PIKUP(1,sur,ID_PICKUP_THIC) == 1.0) boolResult = .TRUE.
-        end select
+        boolResult = self%isPikupOnSurfJ(sur, varCodeToPikupJ(var_code))
 
     end function
 
@@ -846,12 +874,16 @@ module mod_lens_data_manager
         integer :: fID
         integer :: ii, jj
         character(len=512) :: outTxt
-        integer, dimension(2) :: pickupTypes = [ID_PICKUP_RAD, ID_PICKUP_THIC]
+        ! PIKUP array J indexes and the CLI parameter name each saves as.
+        ! RD/TH plus conic (CC) and the asphere coefficients AD..AL.
+        integer,          parameter :: pickupJ(12)    = [1, 3, 4, 5, 6, 7, 8, 27, 28, 29, 30, 31]
+        character(len=3), parameter :: pickupCli(12)  = ['RDY', 'THI', 'K  ', 'A  ', 'B  ', 'C  ', &
+                                                       & 'D  ', 'E  ', 'F  ', 'G  ', 'H  ', 'I  ']
 
         do ii=0,self%getLastSurf()
-            do jj=1,size(pickupTypes)
-                outTxt = self%genSurfPikupSavText(ii, pickupTypes(jj))
-                if (len(trim(outTxt)) > 0) then 
+            do jj=1,size(pickupJ)
+                outTxt = self%genSurfPikupSavText(ii, pickupJ(jj), pickupCli(jj))
+                if (len(trim(outTxt)) > 0) then
                     write(fID, *) trim(outTxt)
                 end if
             end do
@@ -860,29 +892,22 @@ module mod_lens_data_manager
 
     end subroutine
 
-    function genSurfPikupSavText(self, surf, var_code) result(outTxt)
+    function genSurfPikupSavText(self, surf, jIdx, cliName) result(outTxt)
         use DATLEN, only: PIKUP
         use type_utils
         class(lens_data_manager) :: self
-        integer :: surf, var_code, si, sf
-        character(len=512) :: outTxt, surfTxt 
-        character(len=3) :: pType
+        integer :: surf, jIdx, si, sf
+        character(len=*) :: cliName
+        character(len=512) :: outTxt, surfTxt
         real(kind=long) :: scale, offset
 
         outTxt = ' '
-        if (self%isPikupOnSurf(surf, var_code)) then 
-            si = INT(PIKUP(2,surf,var_code)) ! Start Surface
+        if (self%isPikupOnSurfJ(surf, jIdx)) then
+            si = INT(PIKUP(2,surf,jIdx)) ! Start Surface
             sf = si ! Temp
-            !sf = INT(PIKUP(3,surf,var_code)) ! End Surface
-            scale = PIKUP(3,surf, var_code) ! Default 1
-            offset = PIKUP(4,surf,var_code) ! Default 0
-
-            select case (var_code)
-            case (ID_PICKUP_RAD)
-                pType = 'RDY'
-            case (ID_PICKUP_THIC)
-                pType = 'THI'
-            end select
+            !sf = INT(PIKUP(3,surf,jIdx)) ! End Surface
+            scale = PIKUP(3,surf, jIdx) ! Default 1
+            offset = PIKUP(4,surf,jIdx) ! Default 0
 
             if (si==sf) then
                 surfTxt = 'S'//trim(int2str(si))
@@ -890,9 +915,9 @@ module mod_lens_data_manager
                 surfTxt = 'S'//trim(int2str(si))//'..'//trim(int2str(sf))
             end if
 
-            outTxt = 'PIK '//trim(pType)//' S'//trim(int2str(surf))//' '//trim(pType)//' '// &
+            outTxt = 'PIK '//trim(cliName)//' S'//trim(int2str(surf))//' '//trim(cliName)//' '// &
             & trim(surfTxt)//' '//trim(real2str(scale,4))//' '//trim(real2str(offset,4))
-           
+
         end if
 
     end function

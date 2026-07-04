@@ -472,6 +472,7 @@ SUBROUTINE PIKRES
    use mod_surface
    use DATMAI
    use mod_system, only: sys_last_surf
+   use mod_lens_data_manager, only: ldm
    use iso_fortran_env, only: real64
    IMPLICIT NONE
 !
@@ -2596,6 +2597,12 @@ SUBROUTINE PIKRES
 !       RAN THROUGH ALL THE TYPES
 10    CONTINUE
 !       RESOLVED ALL THE PIKUPS
+!       The resolutions above wrote curvature/conic/thickness/asphere values
+!       into ALENS via set_surf_*; bring the typed surface store current so the
+!       paraxial/real trace (which refracts through ldm%surfaces(I)%s%cv) uses
+!       the freshly picked-up geometry.  Doing it here covers every PIKRES call
+!       site (PRTRA_NEW inline calls, resolvePikup, PARAX3 helpers).
+      call ldm%refresh_typed_surf_geom(I)
    ELSE
 !       NO PIKUPS,JUST RETURN
    END IF
