@@ -8,3 +8,19 @@ THI S2 4
 SUR SA
 ! Next line is a deliberate error (CUY is not a valid surface parameter):
 PIK CUY S3 S1
+! Save/reload round-trip: both pickups must survive and stay LIVE
+! (targets track new source values after reload).  Note THI pickups were
+! historically dropped from saves entirely -- this guards that fix.
+SAV pickuptest
+RES pickuptest
+RDY S1 40
+THI S2 5
+SUR SA
+! Removal: after PIKD the targets must stop tracking the source.
+U L
+PIKD RD,3
+PIKD TH,4
+EOS
+RDY S1 60
+THI S2 7
+SUR SA

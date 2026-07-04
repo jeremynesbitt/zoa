@@ -28,3 +28,28 @@ STO:    45.00000    1.50000               N-F2_SCH2000   100     100
 006:    -31.380    52.07698                              100     100
 IMG:    INFINITY    0.00000                              100     100
 Error!  Cannot parse parameter CUY to known surface parameter
+Number of tokens is 2
+File name to save is PICKUPTEST.zoa
+
+Field Weights Command WTF     100     100     100 Not supported
+          RDY          THI     RMD          GLA          CCY     THC     GLC
+OBJ:    INFINITY    INFINITY                              100     100
+001:    40.00000    3.50000               N-SK16_SCH2000 100     100
+002:    INFINITY    5.00000                              100     100
+STO:    40.00000    1.50000               N-F2_SCH2000   100     100
+004:    14.08000    10.00000                              100     100
+005:    50.26000    3.50000               N-SK16_SCH2000 100     100
+006:    -31.380    43.47150                              100     100
+IMG:    INFINITY    0.00000                              100     100
+ SURFACE           3  RD       :PIKUP DELETED
+ SURFACE           4  TH       :PIKUP DELETED
+
+          RDY          THI     RMD          GLA          CCY     THC     GLC
+OBJ:    INFINITY    INFINITY                              100     100
+001:    60.00000    3.50000               N-SK16_SCH2000 100     100
+002:    INFINITY    7.00000                              100     100
+STO:    40.00000    1.50000               N-F2_SCH2000   100     100
+004:    14.08000    10.00000                              100     100
+005:    50.26000    3.50000               N-SK16_SCH2000 100     100
+006:    -31.380    55.51581                              100     100
+IMG:    INFINITY    0.00000                              100     100

@@ -241,7 +241,8 @@ module zoa_file_handler
             ! module cycle: zoa_ui_callbacks -> plot_setting_manager ->
             ! mod_lens_data_manager -> zoa_file_handler.)
             if (HEADLESS_MODE) then
-              call LogTermFOR("Clearing file")
+              ! Silent (no "Clearing file" log): the message would make test
+              ! output depend on whether the save file already exists.
               call delete_file(trim(fullPath))
             else
               msg(1) = "Do you want to overwrite"

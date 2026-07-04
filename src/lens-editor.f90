@@ -1774,7 +1774,9 @@ subroutine setLensEditColumns(colView)
     column = gtk_column_view_column_new(trim(extraParamColNames(ii))//c_null_char, factory)
     call gtk_column_view_column_set_id(column, trim(int2str(colIDs(ii+extra_param_start-1))))
     call gtk_column_view_column_set_resizable(column, 1_c_int)
-    call gtk_column_view_column_set_fixed_width(column, 80_c_int) ! THis shouldn't be hard coded but until I figure out a better way
+    ! Same default width as the Radius/Thickness columns: these now hold an
+    ! entry plus the modifier menu button, which 80px was too narrow for.
+    call gtk_column_view_column_set_fixed_width(column, 135_c_int) ! THis shouldn't be hard coded but until I figure out a better way
     call gtk_column_view_append_column (colView, column)
     call g_object_unref (column)    
   end do
