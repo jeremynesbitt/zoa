@@ -1,0 +1,41 @@
+! Asphere-parameter modifiers: variables (AC..IC var codes), pickups
+! (PIK K/A..I), save/reload round-trip, and optimization via a coefficient.
+!
+! 1) Pickups: S4 mirrors S1's conic and A4 (PIK K / PIK A), including after
+!    a post-reload edit of the source surface (proves the pickup stays live).
+RES OsdAsDoublet
+ASP S1
+ASP S4
+K S1 -0.5
+A S1 1.0e-5
+PIK K S4 S1
+PIK A S4 S1
+SUR SA
+LIS
+SAV asphmod
+RES asphmod
+K S1 -0.9
+A S1 3.0e-5
+LIS
+! 2) Variable codes: AC/KC round-trip through save (merit block) and display.
+AC S1 0
+KC S1 0
+SAV asphmod
+RES asphmod
+! 3) Optimization: singlet with SAS=0 constraint driven by the A4 coefficient
+! (proves the optimizer actually varies an asphere coefficient).
+LEN NEW
+EPD 20.0
+THI S1 6.0
+GLA S1 BK7
+STO S1
+INS S2
+RDY S2 -10.0
+ASP S2
+PIM
+SI 0.0 0.0
+AC S2 0
+AUT
+SAS = 0
+GO
+LIS

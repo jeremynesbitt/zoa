@@ -199,6 +199,7 @@ module zoa_file_handler
         function open_file_to_sav_lens(fName, dirName, overwriteFlag) result(fID)
           use gtk_hl_dialog
           use iso_c_binding, only:  c_null_char
+          use GLOBALS, only: HEADLESS_MODE
           implicit none
           character(len=*) :: fName
           character(len=*), optional :: dirName
@@ -233,18 +234,27 @@ module zoa_file_handler
               return 
             end if
               
-            ! Ask user if they want to overwrite
-            msg(1) = "Do you want to overwrite" 
-            msg(2) = fName//" ?" 
-            !msg(2) = "File "//fName//" ?"
-            resp = hl_gtk_message_dialog_show(msg, GTK_BUTTONS_YES_NO, &
-            & "Warning"//c_null_char)    
-            if (resp == GTK_RESPONSE_YES) then  
-              call LogTermFOR("Clearing file")  
+            ! Ask user if they want to overwrite.  In headless mode default to
+            ! yes without asking -- creating the GTK dialog with no display
+            ! segfaulted (any headless SAV over an existing file crashed).
+            ! (zoa_ui_callbacks%query_yes_no would be cleaner but creates a
+            ! module cycle: zoa_ui_callbacks -> plot_setting_manager ->
+            ! mod_lens_data_manager -> zoa_file_handler.)
+            if (HEADLESS_MODE) then
+              call LogTermFOR("Clearing file")
               call delete_file(trim(fullPath))
             else
-              call LogTermFOR("Save cancelled to avoid overwriting previous file.")
-            end if            
+              msg(1) = "Do you want to overwrite"
+              msg(2) = fName//" ?"
+              resp = hl_gtk_message_dialog_show(msg, GTK_BUTTONS_YES_NO, &
+              & "Warning"//c_null_char)
+              if (resp == GTK_RESPONSE_YES) then
+                call LogTermFOR("Clearing file")
+                call delete_file(trim(fullPath))
+              else
+                call LogTermFOR("Save cancelled to avoid overwriting previous file.")
+              end if
+            end if
           end if
           
           

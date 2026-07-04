@@ -419,6 +419,11 @@ test('zoom_basic', test_runner,
             meson.project_source_root() / 'test/zoom_basic.ref'],
      timeout: 120, is_parallel: false)
 
+test('asph_modifiers', test_runner,
+     args: [meson.project_source_root() / 'test/asph_modifiers.zoa',
+            meson.project_source_root() / 'test/asph_modifiers.ref'],
+     timeout: 120, is_parallel: false)
+
 test('plots_geom', test_runner,
      args: [meson.project_source_root() / 'test/plots_geom.zoa',
             meson.project_source_root() / 'test/plots_geom.ref'],
