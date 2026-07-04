@@ -750,22 +750,24 @@ module mod_lens_data_manager
     end function
 
     ! PIKUP array J index for a VAR_* code (0 => no pickup type for that code).
-    ! J values from the PIKUPS2 qualifier map: RD=1, TH=3, CC=4, AD..AG=5..8,
-    ! AH..AL=27..31.
+    ! Qualifier names resolved through the pickup_manager kind table.
     function varCodeToPikupJ(var_code) result(jIdx)
+        use pickup_manager, only: pickup_j_from_qual
         integer, intent(in) :: var_code
         integer :: jIdx
-        integer, parameter :: asphJ(9) = [5, 6, 7, 8, 27, 28, 29, 30, 31]
+        ! KDP qualifiers for the asphere coefficient variables A4..A20
+        character(len=2), parameter :: asphQual(9) = &
+            ['AD','AE','AF','AG','AH','AI','AJ','AK','AL']
 
         select case (var_code)
         case (VAR_CURV)
-            jIdx = ID_PICKUP_RAD
+            jIdx = pickup_j_from_qual('RD')
         case (VAR_THI)
-            jIdx = ID_PICKUP_THIC
+            jIdx = pickup_j_from_qual('TH')
         case (VAR_K)
-            jIdx = 4
+            jIdx = pickup_j_from_qual('CC')
         case (VAR_A4:VAR_A20)
-            jIdx = asphJ(var_code - VAR_A4 + 1)
+            jIdx = pickup_j_from_qual(asphQual(var_code - VAR_A4 + 1))
         case default
             jIdx = 0
         end select
@@ -870,19 +872,23 @@ module mod_lens_data_manager
     end function    
 
     subroutine outputPikupText(self, fID)
+        use pickup_manager, only: PIKUP_KINDS, NUM_PICKUP_KINDS
         class(lens_data_manager) :: self
         integer :: fID
         integer :: ii, jj
         character(len=512) :: outTxt
-        ! PIKUP array J indexes and the CLI parameter name each saves as.
-        ! RD/TH plus conic (CC) and the asphere coefficients AD..AL.
-        integer,          parameter :: pickupJ(12)    = [1, 3, 4, 5, 6, 7, 8, 27, 28, 29, 30, 31]
-        character(len=3), parameter :: pickupCli(12)  = ['RDY', 'THI', 'K  ', 'A  ', 'B  ', 'C  ', &
-                                                       & 'D  ', 'E  ', 'F  ', 'G  ', 'H  ', 'I  ']
 
+        ! Save every pickup kind that has a CodeV CLI name (PIK <cli> ... is
+        ! re-parseable on load).  Kinds without a CLI name (torics, tilts,
+        ! decenters, ...) are not yet expressible in .zoa saves.
+        ! NOTE: GLA pickups are skipped for now -- PIK GLA takes no scale/
+        ! offset and genSurfPikupSavText emits the scale/offset form.
         do ii=0,self%getLastSurf()
-            do jj=1,size(pickupJ)
-                outTxt = self%genSurfPikupSavText(ii, pickupJ(jj), pickupCli(jj))
+            do jj=1,NUM_PICKUP_KINDS
+                if (len_trim(PIKUP_KINDS(jj)%cli) == 0) cycle
+                if (trim(PIKUP_KINDS(jj)%cli) == 'GLA') cycle
+                outTxt = self%genSurfPikupSavText(ii, PIKUP_KINDS(jj)%j, &
+                &                                 trim(PIKUP_KINDS(jj)%cli))
                 if (len(trim(outTxt)) > 0) then
                     write(fID, *) trim(outTxt)
                 end if

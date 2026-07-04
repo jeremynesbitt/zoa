@@ -183,10 +183,12 @@ contains
   !   data(11) = A2  (plano term, internal — excluded from num_params)
   ! coeffs argument: coeffs(1:9)=A4..A20, coeffs(10)=A2 (unchanged from ALENS loading)
   function make_asphere(radius, thickness, conic, glass_name, glass_catalog, coeffs) result(s)
+    use pickup_manager, only: pickup_j_from_cli, pickup_qual_from_j
     real(real64),     intent(in)           :: radius, thickness, conic
     character(len=*), intent(in), optional :: glass_name, glass_catalog
     real(real64),     intent(in), optional :: coeffs(10)
     type(asphere_surface) :: s
+    integer :: i
     s%type_name  = "Asphere"
     s%cv         = merge(0.0_real64, 1.0_real64/radius, abs(radius) > 1.0e15_real64)
     s%thickness  = thickness
@@ -203,12 +205,16 @@ contains
     s%param_names(8)  = "16th order (G)";   s%param_cmds(8)  = "G"
     s%param_names(9)  = "18th order (H)";   s%param_cmds(9)  = "H"
     s%param_names(10) = "20th order (I)";   s%param_cmds(10) = "I"
-    ! KDP set-commands and PIKUP qualifiers/J-indexes (see type comment).
+    ! KDP set-commands and PIKUP qualifiers/J-indexes.  The pickup J index
+    ! comes from the pickup_manager kind table via the param's CLI name
+    ! (K -> CC=4, A..I -> AD..AL = 5..8,27..31); the set-command differs from
+    ! the qualifier only for the conic (CCK vs CC, after the CC rename).
     s%param_cmds_kdp(1:10)   = [character(len=SURF_CMD_LEN) :: &
       "CCK", "AD", "AE", "AF", "AG", "AH", "AI", "AJ", "AK", "AL"]
-    s%param_pikup_qual(1:10) = [character(len=SURF_CMD_LEN) :: &
-      "CC",  "AD", "AE", "AF", "AG", "AH", "AI", "AJ", "AK", "AL"]
-    s%param_pikup_idx(1:10)  = [4, 5, 6, 7, 8, 27, 28, 29, 30, 31]
+    do i = 1, 10
+      s%param_pikup_idx(i)  = pickup_j_from_cli(trim(s%param_cmds(i)))
+      s%param_pikup_qual(i) = pickup_qual_from_j(s%param_pikup_idx(i))
+    end do
     if (present(coeffs)) then
       s%data(2:10) = coeffs(1:9)   ! A4..A20
       s%data(11)   = coeffs(10)    ! A2 (plano/internal)

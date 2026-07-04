@@ -127,52 +127,25 @@ contains
     end procedure getSymmetryPlane
 
     module procedure isInputSurfaceParameter
-        boolResult = .FALSE.
-        select case (trim(iptStr))
-        case ('RDY', 'THI', 'GLA')
-            boolResult = .TRUE.
-        ! Special-surface extra params: conic + asphere coefficients A4..A20
-        case ('K', 'A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I')
-            boolResult = .TRUE.
-        end select
+        use pickup_manager, only: pickup_j_from_cli
+        ! A parameter is PIK-able iff it has a CLI name in the pickup-kind
+        ! table (RDY, THI, GLA, K, A..I).
+        boolResult = (pickup_j_from_cli(trim(iptStr)) /= 0)
     end procedure isInputSurfaceParameter
 
     module procedure setPickup
-        character(len=6) :: kParam
+        use pickup_manager, only: pickup_j_from_cli, pickup_qual_from_j
+        character(len=8) :: kParam
         logical :: scaleOffset
+        integer :: jIdx
 
-        scaleOffset = .TRUE.
-        select case (param1)
-        case('RDY')
-            kParam = 'RD'
-        case('THI')
-            kParam = 'TH'
-        case('GLA')
-            kParam = 'GLASS'
-            scaleOffset = .FALSE.
-        ! Conic + asphere coefficients: PIKUP qualifier words (PIKUPS2 CT map).
-        ! Note the conic pickup qualifier is CC (the renamed set-command is CCK).
-        case('K')
-            kParam = 'CC'
-        case('A')
-            kParam = 'AD'
-        case('B')
-            kParam = 'AE'
-        case('C')
-            kParam = 'AF'
-        case('D')
-            kParam = 'AG'
-        case('E')
-            kParam = 'AH'
-        case('F')
-            kParam = 'AI'
-        case('G')
-            kParam = 'AJ'
-        case('H')
-            kParam = 'AK'
-        case('I')
-            kParam = 'AL'
-        end select
+        ! CLI param name -> KDP PIKUP qualifier via the pickup-kind table
+        ! (e.g. RDY->RD, THI->TH, K->CC, A..I->AD..AL, GLA->GLASS).
+        jIdx = pickup_j_from_cli(param1)
+        if (jIdx == 0) return
+        kParam = pickup_qual_from_j(jIdx)
+        ! Glass pickups take no scale/offset arguments
+        scaleOffset = (trim(kParam) /= 'GLASS')
 
         if (scaleOffset) then
             call executeCodeVLensUpdateCommand("CHG "//trim(int2str(si))//";PIKUP "//trim(kParam)//","// &
