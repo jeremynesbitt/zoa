@@ -660,15 +660,8 @@ function buildLensEditTable() result(store)
       type(c_ptr) :: win,pUpdate, pCancel, boxWin, cBut, uBut
       type(c_ptr) :: table, lblSurf
       real(kind=c_double) :: pickupScale
-      integer :: surfType
 
-      ! Translation from UI to ldm.  Should merge these
-      select case (pickup_type)
-      case(ID_PICKUP_RAD)
-        surfType = VAR_CURV
-      case(ID_PICKUP_THIC)
-        surfType = VAR_THI
-      end select
+      ! pickup_type is the PIKUP array J index (RD=1, TH=3, CC=4, AD..AL=5-8,27-31)
 
       pData%ID_type = pickup_type
       call pData%setPickupText()
@@ -711,10 +704,10 @@ function buildLensEditTable() result(store)
       call gtk_grid_attach(table, lblScale, 0_c_int, 1_c_int, 1_c_int, 1_c_int)
       call gtk_grid_attach(table, lblOffset, 0_c_int, 2_c_int, 1_c_int, 1_c_int)
 
-      if (ldm%isPikupOnSurf(row, surfType)) then
+      if (ldm%isPikupOnSurfJ(row, pickup_type)) then
         pickupScale = curr_lens_data%pickups(3,row+1,pickup_type)*1d0
       else
-        pickupScale = 1.0d0 
+        pickupScale = 1.0d0
       end if
       sbScale = gtk_spin_button_new (gtk_adjustment_new( &
       & value=pickupScale, &
@@ -1159,12 +1152,10 @@ subroutine removePickup(act, avalue, btn) bind(c)
   surfIdx = getSurfaceIndexFromRowColumnCode(trim(rcCode), colIdx)
 
   pData%surf = surfIdx
-  select case (colIdx)
-  case(ID_COL_RADIUS)
-    pData%pickupTxt = "RD"
-  case(ID_COL_THICKNESS)
-    pData%pickupTxt = "TH"
-  end select
+  ! Qualifier word for PIKD, derived from the column's PIKUP J index
+  pData%ID_type = colToPikupJ(surfIdx, colIdx)
+  if (pData%ID_type == 0) return
+  call pData%setPickupText()
   print *, "Hook working!"
   CALL PROCESKDP('U L ; '// &
   & trim(pData%genKDPCMDToRemovePickup())//';EOS')
@@ -1213,15 +1204,11 @@ subroutine enablePickup(act, avalue, btn) bind(c)
   print *, "Val is ", trim(rcCode)
   
   surfIdx = getSurfaceIndexFromRowColumnCode(trim(rcCode), colIdx)
-  print *, "surfIdx is ", surfIdx  
-  mod_update = .FALSE.  
+  print *, "surfIdx is ", surfIdx
+  mod_update = .FALSE.
 
-  select case (colIdx)
-  case(ID_COL_RADIUS)
-    colCode = ID_PICKUP_RAD
-  case(ID_COL_THICKNESS)
-    colCode = ID_PICKUP_THIC
-  end select
+  colCode = colToPikupJ(surfIdx, colIdx)
+  if (colCode == 0) return
 
   call ui_pickup(surfIdx, colCode, btn)
 
@@ -1231,27 +1218,23 @@ subroutine enableVar(act, avalue, btn) bind(c)
   use type_utils
   type(c_ptr), value :: act, avalue, btn
   type(c_ptr) :: cStr
-  integer :: surfIdx, colIdx, colCode
+  integer :: surfIdx, colIdx
   character(len=100) :: rcCode
-  character(len=4) :: cmd
+  character(len=5) :: cmd
 
   !cStr = gtk_widget_get_name(btn)
   cStr = gtk_widget_get_name(gtk_widget_get_parent(btn))
-  call convert_c_string(cStr, rcCode)  
+  call convert_c_string(cStr, rcCode)
   print *, "Val is ", trim(rcCode)
-  
+
   surfIdx = getSurfaceIndexFromRowColumnCode(trim(rcCode), colIdx)
-  print *, "surfIdx is ", surfIdx  
-  mod_update = .FALSE.  
+  print *, "surfIdx is ", surfIdx
+  mod_update = .FALSE.
 
-  select case (colIdx)
-  case(ID_COL_RADIUS)
-    cmd = "CCY "
-  case(ID_COL_THICKNESS)
-    cmd = "THC "
-  end select
+  cmd = colToVarCmd(surfIdx, colIdx)
+  if (len_trim(cmd) == 0) return
 
-  call PROCESSILENT(cmd//"S"//trim(int2str(surfIdx))//" 0")
+  call PROCESSILENT(trim(cmd)//" S"//trim(int2str(surfIdx))//" 0")
   call rebuildLensEditorTable()
 
 end subroutine
@@ -1260,32 +1243,94 @@ subroutine removeVar(act, avalue, btn) bind(c)
   use type_utils
   type(c_ptr), value :: act, avalue, btn
   type(c_ptr) :: cStr
-  integer :: surfIdx, colIdx, colCode
+  integer :: surfIdx, colIdx
   character(len=100) :: rcCode
-  character(len=4) :: cmd
+  character(len=5) :: cmd
 
   !cStr = gtk_widget_get_name(btn)
   cStr = gtk_widget_get_name(gtk_widget_get_parent(btn))
-  call convert_c_string(cStr, rcCode)  
+  call convert_c_string(cStr, rcCode)
   print *, "Val is ", trim(rcCode)
-  
+
   surfIdx = getSurfaceIndexFromRowColumnCode(trim(rcCode), colIdx)
-  print *, "surfIdx is ", surfIdx  
-  mod_update = .FALSE.  
+  print *, "surfIdx is ", surfIdx
+  mod_update = .FALSE.
 
-  select case (colIdx)
-  case(ID_COL_RADIUS)
-    cmd = "CCY "
-  case(ID_COL_THICKNESS)
-    cmd = "THC "
-  end select
+  cmd = colToVarCmd(surfIdx, colIdx)
+  if (len_trim(cmd) == 0) return
 
-  print *, "about to run cmd ", cmd//"S"//trim(int2str(surfIdx))//" 100"
-
-  call PROCESSILENT(cmd//"S"//trim(int2str(surfIdx))//" 100")
+  call PROCESSILENT(trim(cmd)//" S"//trim(int2str(surfIdx))//" 100")
   call rebuildLensEditorTable()
 
 end subroutine
+
+! --- Column -> modifier-code helpers ------------------------------------------
+! The lens editor columns map to backend codes as: Radius(5)=curvature,
+! Thickness(6)=thickness, extra-param columns (9..18) = surface-type params
+! (asphere: 1=K conic, 2..10=A4..A20).  These helpers centralize that mapping
+! for variables (VAR_* code + CODE V var-code command) and pickups (PIKUP J).
+
+! VAR_* code for a column (0 => column has no variable support on this surface)
+function colToVarCode(surf, colIdx) result(varCode)
+  use mod_lens_data_manager
+  integer, intent(in) :: surf, colIdx
+  integer :: varCode, i
+
+  varCode = 0
+  select case (colIdx)
+  case(ID_COL_RADIUS)
+    varCode = VAR_CURV
+  case(ID_COL_THICKNESS)
+    varCode = VAR_THI
+  case(extra_param_start:extra_param_start+9)
+    i = colIdx - extra_param_start + 1
+    ! Only params with pickup/KDP plumbing (i.e. defined on the surface type)
+    if (ldm%getExtraParamPikupIdx(surf, i) /= 0) then
+      if (i == 1) then
+        varCode = VAR_K
+      else
+        varCode = VAR_A4 + (i - 2)
+      end if
+    end if
+  end select
+end function
+
+! CODE V variable-code command for a column (CCY/THC/KC/AC..IC; blank => none)
+function colToVarCmd(surf, colIdx) result(cmd)
+  use mod_lens_data_manager
+  integer, intent(in) :: surf, colIdx
+  character(len=5) :: cmd
+  integer :: i
+
+  cmd = ' '
+  select case (colIdx)
+  case(ID_COL_RADIUS)
+    cmd = 'CCY'
+  case(ID_COL_THICKNESS)
+    cmd = 'THC'
+  case(extra_param_start:extra_param_start+9)
+    i = colIdx - extra_param_start + 1
+    if (ldm%getExtraParamPikupIdx(surf, i) /= 0) &
+      cmd = trim(ldm%getExtraParamCmd(surf, i))//'C'   ! K->KC, A->AC, ...
+  end select
+end function
+
+! PIKUP array J index for a column (0 => no pickup support)
+function colToPikupJ(surf, colIdx) result(jIdx)
+  use mod_lens_data_manager
+  integer, intent(in) :: surf, colIdx
+  integer :: jIdx
+
+  jIdx = 0
+  select case (colIdx)
+  case(ID_COL_RADIUS)
+    jIdx = ID_PICKUP_RAD
+  case(ID_COL_THICKNESS)
+    jIdx = ID_PICKUP_THIC
+  case(extra_param_start:extra_param_start+9)
+    jIdx = ldm%getExtraParamPikupIdx(surf, colIdx - extra_param_start + 1)
+  end select
+end function
 
 function createModMenu(btn, surf, colIdx) result(menuOptions)
   use mod_lens_data_manager
@@ -1295,14 +1340,14 @@ function createModMenu(btn, surf, colIdx) result(menuOptions)
   type(c_ptr) :: actGroup, actP, mPickup, mSolve, actS
   type(c_ptr) :: actRemoveSolve, mRemoveSolve, actRemovePickup, mRemovePickup
   type(c_ptr) :: actVar, mVar, actRemoveVar, mRemoveVar
-  integer :: surf, colIdx, colType
+  integer :: surf, colIdx, colType, pikJ
+  logical :: hasSolve
 
-  select case (colIdx)
-  case(ID_COL_RADIUS)
-    colType = VAR_CURV
-  case(ID_COL_THICKNESS)
-    colType = VAR_THI
-  end select
+  colType = colToVarCode(surf, colIdx)
+  pikJ    = colToPikupJ(surf, colIdx)
+  ! Solves exist only for curvature and thickness (SLVRS); the special-surface
+  ! params (conic/asphere coefficients) offer Variable and Pickup only.
+  hasSolve = (colIdx == ID_COL_RADIUS .or. colIdx == ID_COL_THICKNESS)
 
   actGroup = g_simple_action_group_new()
   call gtk_widget_insert_action_group(btn, "mod"//c_null_char,actGroup)
@@ -1313,37 +1358,45 @@ function createModMenu(btn, surf, colIdx) result(menuOptions)
   mPickup = g_menu_item_new("Set Pickup"//c_null_char, "mod.setPickup"//trim(int2str(surf))//c_null_char)
 
   actRemovePickup = g_simple_action_new("removePickup"//trim(int2str(surf))//c_null_char, c_null_ptr)
-  if (ldm%isPikupOnSurf(surf, colType)) call g_action_map_add_action(actGroup, actRemovePickup)  
+  if (ldm%isPikupOnSurfJ(surf, pikJ)) call g_action_map_add_action(actGroup, actRemovePickup)
   call g_signal_connect(actRemovePickup, "activate"//c_null_char, c_funloc(removePickup), btn)
-  mRemovePickup = g_menu_item_new("Remove Pickup"//c_null_char, "mod.removePickup"//trim(int2str(surf))//c_null_char)   
+  mRemovePickup = g_menu_item_new("Remove Pickup"//c_null_char, "mod.removePickup"//trim(int2str(surf))//c_null_char)
 
-  actS = g_simple_action_new("setSolve"//trim(int2str(surf))//c_null_char, c_null_ptr)
-  call g_action_map_add_action(actGroup, actS)  
-  call g_signal_connect(actS, "activate"//c_null_char, c_funloc(enableSolve), btn)
-  mSolve = g_menu_item_new("Set Solve"//c_null_char, "mod.setSolve"//trim(int2str(surf))//c_null_char)  
+  if (hasSolve) then
+    actS = g_simple_action_new("setSolve"//trim(int2str(surf))//c_null_char, c_null_ptr)
+    call g_action_map_add_action(actGroup, actS)
+    call g_signal_connect(actS, "activate"//c_null_char, c_funloc(enableSolve), btn)
+    mSolve = g_menu_item_new("Set Solve"//c_null_char, "mod.setSolve"//trim(int2str(surf))//c_null_char)
 
-  actRemoveSolve = g_simple_action_new("removeSolve"//trim(int2str(surf))//c_null_char, c_null_ptr)
-  if (ldm%isSolveOnSurf(surf, colType)) call g_action_map_add_action(actGroup, actRemoveSolve)  
-  call g_signal_connect(actRemoveSolve, "activate"//c_null_char, c_funloc(removeSolve), btn)
-  mRemoveSolve = g_menu_item_new("Remove Solve"//c_null_char, "mod.removeSolve"//trim(int2str(surf))//c_null_char) 
+    actRemoveSolve = g_simple_action_new("removeSolve"//trim(int2str(surf))//c_null_char, c_null_ptr)
+    if (ldm%isSolveOnSurf(surf, colType)) call g_action_map_add_action(actGroup, actRemoveSolve)
+    call g_signal_connect(actRemoveSolve, "activate"//c_null_char, c_funloc(removeSolve), btn)
+    mRemoveSolve = g_menu_item_new("Remove Solve"//c_null_char, "mod.removeSolve"//trim(int2str(surf))//c_null_char)
+  end if
   
   actVar = g_simple_action_new("setVar"//trim(int2str(surf))//c_null_char, c_null_ptr)
-  if (ldm%isVarOnSurf(surf, colType) .eqv. .FALSE.) call g_action_map_add_action(actGroup, actVar)  
+  if (colType /= 0) then
+    if (ldm%isVarOnSurf(surf, colType) .eqv. .FALSE.) call g_action_map_add_action(actGroup, actVar)
+  end if
   call g_signal_connect(actVar, "activate"//c_null_char, c_funloc(enableVar), btn)
-  mVar = g_menu_item_new("Set Variable"//c_null_char, "mod.setVar"//trim(int2str(surf))//c_null_char)  
+  mVar = g_menu_item_new("Set Variable"//c_null_char, "mod.setVar"//trim(int2str(surf))//c_null_char)
 
   actRemoveVar = g_simple_action_new("removeVar"//trim(int2str(surf))//c_null_char, c_null_ptr)
-  if (ldm%isVarOnSurf(surf, colType)) call g_action_map_add_action(actGroup, actRemoveVar)  
+  if (colType /= 0) then
+    if (ldm%isVarOnSurf(surf, colType)) call g_action_map_add_action(actGroup, actRemoveVar)
+  end if
   call g_signal_connect(actRemoveVar, "activate"//c_null_char, c_funloc(removeVar), btn)
-  mRemoveVar = g_menu_item_new("Remove Variable"//c_null_char, "mod.removeVar"//trim(int2str(surf))//c_null_char)   
+  mRemoveVar = g_menu_item_new("Remove Variable"//c_null_char, "mod.removeVar"//trim(int2str(surf))//c_null_char)
 
   menuOptions = g_menu_new()
   call g_menu_append_item(menuOptions, mPickup)
   call g_menu_append_item(menuOptions, mRemovePickup)
-  call g_menu_append_item(menuOptions, mSolve)
-  call g_menu_append_item(menuOptions, mRemoveSolve)
+  if (hasSolve) then
+    call g_menu_append_item(menuOptions, mSolve)
+    call g_menu_append_item(menuOptions, mRemoveSolve)
+  end if
   call g_menu_append_item(menuOptions, mVar)
-  call g_menu_append_item(menuOptions, mRemoveVar)  
+  call g_menu_append_item(menuOptions, mRemoveVar)
 
 
 end function
@@ -1427,13 +1480,16 @@ subroutine setup_cb(factory,listitem, gdata) bind(c)
     call gtk_box_append(boxS, entryCB)
     call gtk_list_item_set_child(listitem, boxS)      
     
-  ! Extra params  
+  ! Extra params (surface-type-specific: conic + asphere coefficients).
+  ! Same entry+menu-button pattern as Radius/Thickness; bind_cb hides the
+  ! button for columns beyond the surface's defined params.
   case(9:18)
-    ! Put it in a box to use the same callback for this entry and entries with menu buttons
     boxS = hl_gtk_box_new(horizontal=TRUE, spacing=0_c_int)
     entryCB = hl_gtk_entry_new(10_c_int, editable=TRUE, activate=c_funloc(extraParam_changed), data=c_null_ptr)
+    menuB = gtk_menu_button_new()
     call gtk_box_append(boxS, entryCB)
-    call gtk_list_item_set_child(listitem, boxS)   
+    call gtk_box_append(boxS, menuB)
+    call gtk_list_item_set_child(listitem, boxS)
    case default 
     label =gtk_label_new(c_null_char)
     call gtk_list_item_set_child(listitem,label)
@@ -1443,6 +1499,7 @@ end subroutine
 subroutine bind_cb(factory,listitem, gdata) bind(c)
   use type_utils
   use mod_surface_type, only: surface_type_index
+  use mod_lens_data_manager, only: ldm
   type(c_ptr), value :: factory
   type(c_ptr), value :: listitem, gdata
   type(c_ptr) :: widget, item, label, buffer, entryCB, menuCB
@@ -1534,14 +1591,37 @@ subroutine bind_cb(factory,listitem, gdata) bind(c)
     buffer = gtk_entry_get_buffer(entryCB)    
     call gtk_entry_buffer_set_text(buffer, trim(colName),-1_c_int)
   case(9:18)
-    entryCB = gtk_widget_get_first_child(label)  
+    entryCB = gtk_widget_get_first_child(label)
     buffer = gtk_entry_get_buffer(entryCB)
-    if (abs(lens_item_get_extra_param(item, ID_COL-9)) < .01) then 
+    if (abs(lens_item_get_extra_param(item, ID_COL-9)) < .01) then
         colName = trim(real2str(lens_item_get_extra_param(item, ID_COL-9),sci=.TRUE.))//c_null_char
     else
         colName = trim(real2str(lens_item_get_extra_param(item, ID_COL-9)))//c_null_char
     end if
-    call gtk_entry_buffer_set_text(buffer, trim(colName),-1_c_int)     
+    call gtk_entry_buffer_set_text(buffer, trim(colName),-1_c_int)
+
+    ! Modifier menu button (Variable/Pickup): only for params this surface's
+    ! type defines (pickup J index 0 => undefined => hide the button).
+    block
+      integer :: surfNo, pikJ, varCode
+      menuCB = gtk_widget_get_next_sibling(entryCB)
+      surfNo = lens_item_get_surface_number(item)
+      pikJ   = colToPikupJ(surfNo, ID_COL)
+      if (pikJ == 0) then
+        call gtk_widget_set_visible(menuCB, FALSE)
+      else
+        call gtk_widget_set_visible(menuCB, TRUE)
+        call gtk_menu_button_set_menu_model(menuCB, createModMenu(menuCB, surfNo, ID_COL))
+        varCode = colToVarCode(surfNo, ID_COL)
+        if (ldm%isPikupOnSurfJ(surfNo, pikJ)) then
+          call gtk_menu_button_set_icon_name(menuCB, 'letter-p'//c_null_char)
+        else if (varCode /= 0 .and. ldm%isVarOnSurf(surfNo, varCode)) then
+          call gtk_menu_button_set_icon_name(menuCB, 'letter-v'//c_null_char)
+        else
+          call gtk_menu_button_set_icon_name(menuCB, 'letter-blank'//c_null_char)
+        end if
+      end if
+    end block
    end select
 
     ! Encode row and column for later use  

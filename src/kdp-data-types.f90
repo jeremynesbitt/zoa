@@ -1734,12 +1734,33 @@ subroutine setPickupText(self)
  class(pickup) :: self
 
 
+ ! ID_type is the PIKUP array J index; text is the PIKUP/PIKD qualifier word.
  select case (self%ID_type)
 
  case(ID_PICKUP_RAD)
    self%pickupTxt = "RD"
  case(ID_PICKUP_THIC)
    self%pickupTxt = "TH"
+ case(4)
+   self%pickupTxt = "CC"   ! conic
+ case(5)
+   self%pickupTxt = "AD"   ! A4
+ case(6)
+   self%pickupTxt = "AE"   ! A6
+ case(7)
+   self%pickupTxt = "AF"   ! A8
+ case(8)
+   self%pickupTxt = "AG"   ! A10
+ case(27)
+   self%pickupTxt = "AH"   ! A12
+ case(28)
+   self%pickupTxt = "AI"   ! A14
+ case(29)
+   self%pickupTxt = "AJ"   ! A16
+ case(30)
+   self%pickupTxt = "AK"   ! A18
+ case(31)
+   self%pickupTxt = "AL"   ! A20
 
  end select
 
