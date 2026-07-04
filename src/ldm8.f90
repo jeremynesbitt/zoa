@@ -1242,7 +1242,7 @@ SUBROUTINE SASPH
 !               WE ARE AT LENS INPUT OR LENS UPDATE LEVEL
       IF(SN.EQ.1) call set_surf_asphere_flag(SURF, .TRUE.)
 !       ONLY CHANGE COEF VALUES IF INPUT EXPLICITLY
-      IF(WC.EQ.'ASPH'.OR.WC.EQ.'AC'.OR.WC.EQ.'AD'.OR.WC.EQ.'AE'.OR.WC.EQ.'AF'.OR.WC.EQ.'AG') THEN
+      IF(WC.EQ.'ASPH'.OR.WC.EQ.'ACK'.OR.WC.EQ.'AD'.OR.WC.EQ.'AE'.OR.WC.EQ.'AF'.OR.WC.EQ.'AG') THEN
          IF(SN.EQ.0) THEN
             call set_surf_asphere_coeff(SURF, 2, 0.0D0)
             call ldm%clearAsphericCoeffs(SURF)
@@ -1267,11 +1267,11 @@ SUBROUTINE SASPH
       END IF
 !
 !     DUMP OTHER PIKUPS
-      IF(WC.EQ.'ASPH'.OR.WC.EQ.'AC') THEN
+      IF(WC.EQ.'ASPH'.OR.WC.EQ.'ACK') THEN
          IF(PIKUP(1,SURF,26).GT.0.0D0) THEN
             PIKUP(1:6,SURF,26)=0.0D0
             call set_surf_special_type(SURF, surf_special_type(SURF)-1)
-            WRITE(OUTLYNE,*)'SURFACE',SURF,' :PIKUP (AC) DELETED'
+            WRITE(OUTLYNE,*)'SURFACE',SURF,' :PIKUP (ACK) DELETED'
             CALL SHOWIT(1)
          END IF
       END IF

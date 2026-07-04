@@ -265,7 +265,7 @@ SUBROUTINE CFGOUT(LINE1,LINE2,LINE3,LINE4,&
       LINE3(1:140)='AE      ,'//AN2//',,,,,'
       LINE4(1:140)='AF      ,'//AN3//',,,,,'
       LINE5(1:140)='AG      ,'//AN4//',,,,,'
-      LINE6(1:140)='AC      ,'//AN5//',,,,,'
+      LINE6(1:140)='ACK     ,'//AN5//',,,,,'
       LNCNT=5
       RETURN
    ELSE
@@ -374,12 +374,12 @@ SUBROUTINE CFGOUT(LINE1,LINE2,LINE3,LINE4,&
       RETURN
    ELSE
    END IF
-   IF(WC.EQ.'AC') THEN
+   IF(WC.EQ.'ACK') THEN
       CALL NWTOAWB(W1,W2,W3,W4,W5,AN1,AN2,AN3,AN4,AN5,&
       &BN1,BN2,BN3,BN4,BN5)
 !
       LINE1(1:140)='ASPH,,,,,,'
-      LINE2(1:140)='AC      ,'//AN1//',,,,,'
+      LINE2(1:140)='ACK     ,'//AN1//',,,,,'
       LNCNT=2
       RETURN
    ELSE
@@ -1039,7 +1039,7 @@ SUBROUTINE CFGIN2
       IF(WC.EQ.'LI'.OR.WC.EQ.'LIC'.OR.WC.EQ.'WV'.OR.WC.EQ.'UNITS'&
       &.OR.WC.EQ.'PCW'.OR.WC.EQ.'SCW'.OR.WC.EQ.'CW'.OR.WC.EQ.'LBL'&
       &.OR.WC.EQ.'SAY'.OR.WC.EQ.'SAX'.OR.WC.EQ.'SCY'.OR.WC.EQ.'SCX'&
-      &.OR.WC.EQ.'CV'.OR.WC.EQ.'RD'.OR.WC.EQ.'CC'.OR.WC.EQ.'ASPH'&
+      &.OR.WC.EQ.'CV'.OR.WC.EQ.'RD'.OR.WC.EQ.'CCK'.OR.WC.EQ.'ASPH'&
       &.OR.WC.EQ.'APY'.OR.WC.EQ.'MODE'.OR.WC.EQ.'SPTWT'.OR.WC.EQ.&
       &'LABEL'.OR.WC.EQ.'APX'.OR.WC.EQ.'CCTOR'.OR.WC.EQ.'TILTD'&
       &.OR.WC.EQ.'NAOX'.OR.WC.EQ.'NAOY'.OR.WC.EQ.'WV2'.OR.WC.EQ.'INR'&
@@ -1089,7 +1089,7 @@ SUBROUTINE CFGIN2
 !               CONTINUE TESTING
                IF(WC.EQ.'BETA'.OR.WC.EQ.'GAMMA'.OR.WC.EQ.'AD'.OR.WC.EQ.'GRTD'&
                &.OR.WC.EQ.'AE'.OR.WC.EQ.'AF'.OR.WC.EQ.'AG'.OR.WC.EQ.'ASPHD'&
-               &.OR.WC.EQ.'CSD'.OR.WC.EQ.'AC'.OR.WQ.EQ.'AH'.OR.WC.EQ.'AI'.OR.WQ &
+               &.OR.WC.EQ.'CSD'.OR.WC.EQ.'ACK'.OR.WQ.EQ.'AH'.OR.WC.EQ.'AI'.OR.WQ &
                &.EQ.'CSDX'.OR.WC.EQ.'CSDY'.OR.WC.EQ.'TSD'.OR.WC.EQ.'PIKD'.OR.&
                &WC.EQ.'CLAPD'.OR.WC.EQ.'COBSD'.OR.WC.EQ.'AJ'&
                &.OR.WC.EQ.'AK'.OR.WC.EQ.'AL'.OR.WC.EQ.'INDEX'.OR.WC.EQ.'PXIM'.OR.&

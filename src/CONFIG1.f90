@@ -964,7 +964,7 @@ SUBROUTINE CFSC1
          END IF
 !
 !       SCALE (AC)
-         IF((HOLDER(1:2)).EQ.'AC') THEN
+         IF((HOLDER(1:3)).EQ.'ACK') THEN
             AVAL1=(HOLDER(10:32))
             AV1=AVAL1
             CALL ATON3
@@ -973,7 +973,7 @@ SUBROUTINE CFSC1
             V1=VAL1
             CALL NTOA3
             AVAL1=AV1
-            HOLDER='AC      ,'//AVAL1//',,,,,'
+            HOLDER='ACK     ,'//AVAL1//',,,,,'
             GO TO 299
          ELSE
          END IF

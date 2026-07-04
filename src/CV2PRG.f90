@@ -1696,7 +1696,7 @@ SUBROUTINE CV2PRG
             END IF
             IF(TEMPC(I)(1:1).EQ.'K') THEN
                WRITE(OUTLYNE2,2053) VALV
-2053           FORMAT('CC,'D23.15)
+2053           FORMAT('CCK,'D23.15)
                CALL UPDATECV2INPUTANDPROCESCOMMAND(OUTLYNE2, SUB)
             END IF
             IF(TEMPC(I)(1:1).EQ.'A') THEN
@@ -1824,7 +1824,7 @@ SUBROUTINE CV2PRG
             END IF
             IF(TEMPC(I)(1:2).EQ.'KY') THEN
                WRITE(OUTLYNE2,2067) VALV
-2067           FORMAT('CC,'D23.15)
+2067           FORMAT('CCK,'D23.15)
                CALL UPDATECV2INPUTANDPROCESCOMMAND(OUTLYNE2, SUB)
             END IF
             IF(TEMPC(I)(1:2).EQ.'KX') THEN

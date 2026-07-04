@@ -5877,7 +5877,7 @@ SUBROUTINE PRO3
 !
 !     CC
 !
-            IF(WC.EQ.'CC'.AND.DF1.EQ.0.AND.DF2.EQ.0) THEN
+            IF(WC.EQ.'CCK'.AND.DF1.EQ.0.AND.DF2.EQ.0) THEN
                HOLD1=W1
                HOLD2=W2
                HOLD3=W3

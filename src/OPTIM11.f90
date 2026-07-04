@@ -955,7 +955,7 @@ SUBROUTINE MONTE
          &VTYPE.GE.141.0D0.AND.VTYPE.LE.153.0D0) THEN
             SURF=INT(VARABL(I,3))
             SAVE_KDP(7)=SAVEINPT(7)
-            IF(VTYPE.EQ.4) WC='CC'
+            IF(VTYPE.EQ.4) WC='CCK'
             IF(VTYPE.EQ.3) WC='TH'
             IF(VTYPE.EQ.5) WC='AD'
             IF(VTYPE.EQ.6) WC='AE'
@@ -976,7 +976,7 @@ SUBROUTINE MONTE
             IF(VTYPE.EQ.23) WC='N3'
             IF(VTYPE.EQ.24) WC='N4'
             IF(VTYPE.EQ.25) WC='N5'
-            IF(VTYPE.EQ.75) WC='AC'
+            IF(VTYPE.EQ.75) WC='ACK'
             IF(VTYPE.EQ.124) WC='N6'
             IF(VTYPE.EQ.125) WC='N7'
             IF(VTYPE.EQ.126) WC='N8'

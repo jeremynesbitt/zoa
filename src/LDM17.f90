@@ -3208,7 +3208,7 @@ SUBROUTINE LENSFAC(I)
 
       WRITE(OUTLYNE,11) surf_conic(I)
       CALL SHOWIT(10)
-11    FORMAT('CC,',E15.7)
+11    FORMAT('CCK,',E15.7)
    END IF
 
 !               THICKNESS
@@ -3423,7 +3423,7 @@ SUBROUTINE RLENSF(I)
 !               CONIC CONSTANT
       WRITE(OUTLYNE,11) surf_conic(I)
       CALL SHOWIT(10)
-11    FORMAT('CC      ,',G23.15)
+11    FORMAT('CCK     ,',G23.15)
    END IF
 !               THICKNESS
    IF(I.NE.0) WRITE(OUTLYNE,12) surf_thickness((I-1))
@@ -4084,7 +4084,7 @@ SUBROUTINE LENSF(I,RDOUT)
 
       WRITE(OUTLYNE,11) surf_conic(I)
       CALL SHOWIT(10)
-11    FORMAT('CC      ,',G23.15)
+11    FORMAT('CCK     ,',G23.15)
    END IF
 
 !               THICKNESS

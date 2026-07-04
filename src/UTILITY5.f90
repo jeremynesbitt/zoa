@@ -1008,8 +1008,8 @@ SUBROUTINE CONTRO
       IF(WC.EQ.'TH      ') OHFUN=.TRUE.
       IF(WC.EQ.'THM     ') OHFUN=.TRUE.
       IF(WC.EQ.'PRICE   ') OHFUN=.TRUE.
-      IF(WC.EQ.'CC      ') OHFUN=.TRUE.
-      IF(WC.EQ.'AC      ') OHFUN=.TRUE.
+      IF(WC.EQ.'CCK     ') OHFUN=.TRUE.
+      IF(WC.EQ.'ACK     ') OHFUN=.TRUE.
       IF(WC.EQ.'AD      ') OHFUN=.TRUE.
       IF(WC.EQ.'AE      ') OHFUN=.TRUE.
       IF(WC.EQ.'AF      ') OHFUN=.TRUE.
@@ -1695,8 +1695,8 @@ SUBROUTINE CONTRO
       IF(WC.EQ.'TH      ') OHFUN=.TRUE.
       IF(WC.EQ.'THM     ') OHFUN=.TRUE.
       IF(WC.EQ.'PRICE   ') OHFUN=.TRUE.
-      IF(WC.EQ.'CC      ') OHFUN=.TRUE.
-      IF(WC.EQ.'AC      ') OHFUN=.TRUE.
+      IF(WC.EQ.'CCK     ') OHFUN=.TRUE.
+      IF(WC.EQ.'ACK     ') OHFUN=.TRUE.
       IF(WC.EQ.'AD      ') OHFUN=.TRUE.
       IF(WC.EQ.'AE      ') OHFUN=.TRUE.
       IF(WC.EQ.'AF      ') OHFUN=.TRUE.
@@ -2393,8 +2393,8 @@ SUBROUTINE CONTRO
       IF(WC.EQ.'TH      ') OHFUN=.TRUE.
       IF(WC.EQ.'THM     ') OHFUN=.TRUE.
       IF(WC.EQ.'PRICE   ') OHFUN=.TRUE.
-      IF(WC.EQ.'CC      ') OHFUN=.TRUE.
-      IF(WC.EQ.'AC      ') OHFUN=.TRUE.
+      IF(WC.EQ.'CCK     ') OHFUN=.TRUE.
+      IF(WC.EQ.'ACK     ') OHFUN=.TRUE.
       IF(WC.EQ.'AD      ') OHFUN=.TRUE.
       IF(WC.EQ.'AE      ') OHFUN=.TRUE.
       IF(WC.EQ.'AF      ') OHFUN=.TRUE.
@@ -5222,13 +5222,13 @@ SUBROUTINE CONTF(WC,WS,SST,IS)
    IF(WC.EQ.'FOOTBLOK')    IS=.TRUE.
    IF(WC.EQ.'PIVOT')       IS=.TRUE.
    IF(WC.EQ.'PIVAXIS')     IS=.TRUE.
-   IF(WC.EQ.'CC')          IS=.TRUE.
+   IF(WC.EQ.'CCK')         IS=.TRUE.
    IF(WC.EQ.'CCTOR')       IS=.TRUE.
    IF(WC.EQ.'ARRAY')       IS=.TRUE.
    IF(WC.EQ.'ASPH')        IS=.TRUE.
    IF(WC.EQ.'ASPH2')       IS=.TRUE.
    IF(WC.EQ.'TASPH')       IS=.TRUE.
-   IF(WC.EQ.'AC')          IS=.TRUE.
+   IF(WC.EQ.'ACK')         IS=.TRUE.
    IF(WC.EQ.'AD')          IS=.TRUE.
    IF(WC.EQ.'AE')          IS=.TRUE.
    IF(WC.EQ.'AF')          IS=.TRUE.
@@ -5506,7 +5506,7 @@ SUBROUTINE CONTG(WC,WS,SST,IS)
    IF(WC.EQ.'RXIM')        IS=.TRUE.
    IF(WC.EQ.'CV')          IS=.TRUE.
    IF(WC.EQ.'RD')          IS=.TRUE.
-   IF(WC.EQ.'CC')          IS=.TRUE.
+   IF(WC.EQ.'CCK')         IS=.TRUE.
    IF(WC.EQ.'ASPH')        IS=.TRUE.
    IF(WC.EQ.'ASPH2')       IS=.TRUE.
    IF(WC.EQ.'YTORIC')      IS=.TRUE.
@@ -5609,7 +5609,7 @@ SUBROUTINE CONTG(WC,WS,SST,IS)
    IF(WC.EQ.'AETOR')       IS=.TRUE.
    IF(WC.EQ.'AFTOR')       IS=.TRUE.
    IF(WC.EQ.'AGTOR')       IS=.TRUE.
-   IF(WC.EQ.'AC')          IS=.TRUE.
+   IF(WC.EQ.'ACK')         IS=.TRUE.
    IF(WC.EQ.'AD')          IS=.TRUE.
    IF(WC.EQ.'AE')          IS=.TRUE.
    IF(WC.EQ.'AF')          IS=.TRUE.
@@ -6826,8 +6826,8 @@ SUBROUTINE CONTO(WC,IS)
    IF(WC.EQ.'RD')          IS=.TRUE.
    IF(WC.EQ.'CV')          IS=.TRUE.
    IF(WC.EQ.'TH')          IS=.TRUE.
-   IF(WC.EQ.'CC')          IS=.TRUE.
-   IF(WC.EQ.'AC')          IS=.TRUE.
+   IF(WC.EQ.'CCK')         IS=.TRUE.
+   IF(WC.EQ.'ACK')         IS=.TRUE.
    IF(WC.EQ.'AD')          IS=.TRUE.
    IF(WC.EQ.'AE')          IS=.TRUE.
    IF(WC.EQ.'AF')          IS=.TRUE.
@@ -7121,8 +7121,8 @@ SUBROUTINE CONTP(WC,F51,IS)
    IF(WC.EQ.'RD')          IS=.TRUE.
    IF(WC.EQ.'CV')          IS=.TRUE.
    IF(WC.EQ.'TH')          IS=.TRUE.
-   IF(WC.EQ.'CC')          IS=.TRUE.
-   IF(WC.EQ.'AC')          IS=.TRUE.
+   IF(WC.EQ.'CCK')         IS=.TRUE.
+   IF(WC.EQ.'ACK')         IS=.TRUE.
    IF(WC.EQ.'AD')          IS=.TRUE.
    IF(WC.EQ.'AE')          IS=.TRUE.
    IF(WC.EQ.'AF')          IS=.TRUE.
@@ -7415,8 +7415,8 @@ SUBROUTINE CONTQ(WC,F52,IS)
    IF(WC.EQ.'RD')          IS=.TRUE.
    IF(WC.EQ.'CV')          IS=.TRUE.
    IF(WC.EQ.'TH')          IS=.TRUE.
-   IF(WC.EQ.'CC')          IS=.TRUE.
-   IF(WC.EQ.'AC')          IS=.TRUE.
+   IF(WC.EQ.'CCK')         IS=.TRUE.
+   IF(WC.EQ.'ACK')         IS=.TRUE.
    IF(WC.EQ.'AD')          IS=.TRUE.
    IF(WC.EQ.'AE')          IS=.TRUE.
    IF(WC.EQ.'AF')          IS=.TRUE.
@@ -7724,7 +7724,7 @@ SUBROUTINE CONTR(WC,WQ,SQ,IS)
    IF(WC.EQ.'RXIM')        IS=.TRUE.
    IF(WC.EQ.'CV')          IS=.TRUE.
    IF(WC.EQ.'RD')          IS=.TRUE.
-   IF(WC.EQ.'CC')          IS=.TRUE.
+   IF(WC.EQ.'CCK')         IS=.TRUE.
    IF(WC.EQ.'ASPH')        IS=.TRUE.
    IF(WC.EQ.'ASPH2')       IS=.TRUE.
    IF(WC.EQ.'YTORIC')      IS=.TRUE.
@@ -7830,7 +7830,7 @@ SUBROUTINE CONTR(WC,WQ,SQ,IS)
    IF(WC.EQ.'AETOR')       IS=.TRUE.
    IF(WC.EQ.'AFTOR')       IS=.TRUE.
    IF(WC.EQ.'AGTOR')       IS=.TRUE.
-   IF(WC.EQ.'AC')          IS=.TRUE.
+   IF(WC.EQ.'ACK')         IS=.TRUE.
    IF(WC.EQ.'AD')          IS=.TRUE.
    IF(WC.EQ.'AE')          IS=.TRUE.
    IF(WC.EQ.'AF')          IS=.TRUE.

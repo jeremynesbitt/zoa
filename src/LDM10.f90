@@ -1541,7 +1541,7 @@ SUBROUTINE PRPIK
                GO TO 11
             END IF
             IF(I.EQ.4) THEN
-               TYPE='CC     '
+               TYPE='CCK    '
                JSURF=INT(PIKUP(2,SURF,I))
                IF(PIKUP(6,SURF,I).EQ.0.0D0) THEN
                   WRITE(OUTLYNE,200) SURF,TYPE,JSURF,PIKUP(3,SURF,I),PIKUP(4,SURF,I),B10
@@ -1928,7 +1928,7 @@ SUBROUTINE PRPIK
                GO TO 11
             END IF
             IF(I.EQ.26) THEN
-               TYPE='AC     '
+               TYPE='ACK    '
                JSURF=INT(PIKUP(2,SURF,I))
                IF(PIKUP(6,SURF,I).EQ.0.0D0) THEN
                   WRITE(OUTLYNE,200) SURF,TYPE,JSURF,PIKUP(3,SURF,I),PIKUP(4,SURF,I),B10
@@ -2065,7 +2065,7 @@ SUBROUTINE PRPIK
                   GO TO 21
                END IF
                IF(I.EQ.4) THEN
-                  TYPE='CC     '
+                  TYPE='CCK    '
                   JSURF=INT(PIKUP(2,SURF,I))
                   IF(PIKUP(6,SURF,I).EQ.0.0D0) THEN
                      WRITE(OUTLYNE,200) SURF,TYPE,JSURF,PIKUP(3,SURF,I),PIKUP(4,SURF,I),B10
@@ -2435,7 +2435,7 @@ SUBROUTINE PRPIK
                   GO TO 21
                END IF
                IF(I.EQ.26) THEN
-                  TYPE='AC     '
+                  TYPE='ACK    '
                   JSURF=INT(PIKUP(2,SURF,I))
                   IF(PIKUP(6,SURF,I).EQ.0.0D0) THEN
                      WRITE(OUTLYNE,200) SURF,TYPE,JSURF,PIKUP(3,SURF,I),PIKUP(4,SURF,I),B10

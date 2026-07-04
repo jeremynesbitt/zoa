@@ -23,7 +23,7 @@ SUBROUTINE VUNITS(PNAME,VUNI)
    IF(PNAME.EQ.'RD_FR   ') VUNI=UVAL
    IF(PNAME.EQ.'CV_FR   ') VUNI=IUVAL
    IF(PNAME.EQ.'TH      ') VUNI=UVAL
-   IF(PNAME.EQ.'CC      ') VUNI='        '
+   IF(PNAME.EQ.'CCK     ') VUNI='        '
    IF(PNAME.EQ.'AD      ') VUNI='        '
    IF(PNAME.EQ.'AE      ') VUNI='        '
    IF(PNAME.EQ.'AF      ') VUNI='        '
@@ -178,7 +178,7 @@ SUBROUTINE VUNITS(PNAME,VUNI)
    IF(PNAME.EQ.'C94     ') VUNI='        '
    IF(PNAME.EQ.'C95     ') VUNI='        '
    IF(PNAME.EQ.'C96     ') VUNI='        '
-   IF(PNAME.EQ.'AC      ') VUNI='        '
+   IF(PNAME.EQ.'ACK     ') VUNI='        '
    RETURN
 END
 SUBROUTINE INVSENSIOUT(IV)
@@ -2062,7 +2062,7 @@ SUBROUTINE SENSI(ITY)
          SURF=INT(VARABL(I,3))
          SAVE_KDP(7)=SAVEINPT(7)
          WC='        '
-         IF(VTYPE.EQ.4) WC='CC'
+         IF(VTYPE.EQ.4) WC='CCK'
          IF(VTYPE.EQ.3) WC='TH'
          IF(VTYPE.EQ.5) WC='AD'
          IF(VTYPE.EQ.6) WC='AE'
@@ -2083,7 +2083,7 @@ SUBROUTINE SENSI(ITY)
          IF(VTYPE.EQ.23) WC='N3'
          IF(VTYPE.EQ.24) WC='N4'
          IF(VTYPE.EQ.25) WC='N5'
-         IF(VTYPE.EQ.75) WC='AC'
+         IF(VTYPE.EQ.75) WC='ACK'
          IF(VTYPE.EQ.124) WC='N6'
          IF(VTYPE.EQ.125) WC='N7'
          IF(VTYPE.EQ.126) WC='N8'
@@ -2168,7 +2168,7 @@ SUBROUTINE SENSI(ITY)
          SURF=INT(VARABL(I,3))
          SAVE_KDP(7)=SAVEINPT(7)
          WC='        '
-         IF(VTYPE.EQ.4) WC='CC'
+         IF(VTYPE.EQ.4) WC='CCK'
          IF(VTYPE.EQ.3) WC='TH'
          IF(VTYPE.EQ.5) WC='AD'
          IF(VTYPE.EQ.6) WC='AE'
@@ -2189,7 +2189,7 @@ SUBROUTINE SENSI(ITY)
          IF(VTYPE.EQ.23) WC='N3'
          IF(VTYPE.EQ.24) WC='N4'
          IF(VTYPE.EQ.25) WC='N5'
-         IF(VTYPE.EQ.75) WC='AC'
+         IF(VTYPE.EQ.75) WC='ACK'
          IF(VTYPE.EQ.124) WC='N6'
          IF(VTYPE.EQ.125) WC='N7'
          IF(VTYPE.EQ.126) WC='N8'
@@ -3079,7 +3079,7 @@ SUBROUTINE CVARBLL
    IF(WC.EQ.'RD      ') VALT=1
    IF(WC.EQ.'CV      ') VALT=2
    IF(WC.EQ.'TH      ') VALT=3
-   IF(WC.EQ.'CC      ') VALT=4
+   IF(WC.EQ.'CCK     ') VALT=4
    IF(WC.EQ.'AD      ') VALT=5
    IF(WC.EQ.'AE      ') VALT=6
    IF(WC.EQ.'AF      ') VALT=7
@@ -3149,7 +3149,7 @@ SUBROUTINE CVARBLL
    IF(WC.EQ.'C46     ') VALT=72
    IF(WC.EQ.'C47     ') VALT=73
    IF(WC.EQ.'C48     ') VALT=74
-   IF(WC.EQ.'AC      ') VALT=75
+   IF(WC.EQ.'ACK     ') VALT=75
    IF(WC.EQ.'C49     ') VALT=76
    IF(WC.EQ.'C50     ') VALT=77
    IF(WC.EQ.'C51     ') VALT=78
@@ -3334,8 +3334,8 @@ SUBROUTINE CVARBLL
       IF(WC.EQ.'RD      ') DINCR=DINC2
       IF(WC.EQ.'CV      ') DINCR=DINC2
       IF(WC.EQ.'TH      ') DINCR=DINC3
-      IF(WC.EQ.'CC      ') DINCR=DINC4
-      IF(WC.EQ.'AD'.OR.WC.EQ.'AE'.OR.WC.EQ.'AF'.OR.WC.EQ.'AG'.OR.WC.EQ.'AH'.OR.WC.EQ.'AI'.OR.WC.EQ.'AJ'.OR.WC.EQ.'AK'.OR.WC.EQ.'AL'.OR.WC.EQ.'AC') THEN
+      IF(WC.EQ.'CCK     ') DINCR=DINC4
+      IF(WC.EQ.'AD'.OR.WC.EQ.'AE'.OR.WC.EQ.'AF'.OR.WC.EQ.'AG'.OR.WC.EQ.'AH'.OR.WC.EQ.'AI'.OR.WC.EQ.'AJ'.OR.WC.EQ.'AK'.OR.WC.EQ.'AL'.OR.WC.EQ.'ACK') THEN
          GOFORIT=.FALSE.
          IF(surf_toric_flag(INT(W2)).EQ.0.0D0.OR.surf_toric_flag(INT(W2)).EQ.1.0D0) THEN
 !     NO TORIC OR Y-TORIC
@@ -3369,7 +3369,7 @@ SUBROUTINE CVARBLL
             IF(sys_units().EQ.2.0D0) WAVERCW=WAVERCW*(1.0D-4)
             IF(sys_units().EQ.3.0D0) WAVERCW=WAVERCW*(1.0D-3)
             IF(sys_units().EQ.4.0D0) WAVERCW=WAVERCW*(1.0D-6)
-            IF(WC.EQ.'AC') THEN
+            IF(WC.EQ.'ACK') THEN
                DINCR=WAVERCW/((DABS(HM1)+DABS(HC1))**2)
             END IF
             IF(WC.EQ.'AD') THEN
@@ -3411,7 +3411,7 @@ SUBROUTINE CVARBLL
                IF(WC.EQ.'AJ      ') DINCR=DINC11A
                IF(WC.EQ.'AK      ') DINCR=DINC12A
                IF(WC.EQ.'AL      ') DINCR=DINC13A
-               IF(WC.EQ.'AC      ') DINCR=DINC14A
+               IF(WC.EQ.'ACK     ') DINCR=DINC14A
             ELSE
                IF(WC.EQ.'AD      ') DINCR=DINC5B
                IF(WC.EQ.'AE      ') DINCR=DINC6B
@@ -3422,7 +3422,7 @@ SUBROUTINE CVARBLL
                IF(WC.EQ.'AJ      ') DINCR=DINC11B
                IF(WC.EQ.'AK      ') DINCR=DINC12B
                IF(WC.EQ.'AL      ') DINCR=DINC13B
-               IF(WC.EQ.'AC      ') DINCR=DINC14B
+               IF(WC.EQ.'ACK     ') DINCR=DINC14B
             END IF
          END IF
       END IF
@@ -5931,7 +5931,7 @@ SUBROUTINE CVCHECK
          IF(JKVAR(I,1).EQ.1.0D0) VNA='CV'
          IF(JKVAR(I,1).EQ.2.0D0) VNA='CV'
          IF(JKVAR(I,1).EQ.3.0D0) VNA='TH'
-         IF(JKVAR(I,1).EQ.4.0D0) VNA='CC'
+         IF(JKVAR(I,1).EQ.4.0D0) VNA='CCK'
          IF(JKVAR(I,1).EQ.5.0D0) VNA='AD'
          IF(JKVAR(I,1).EQ.6.0D0) VNA='AE'
          IF(JKVAR(I,1).EQ.7.0D0) VNA='AF'
@@ -6001,7 +6001,7 @@ SUBROUTINE CVCHECK
          IF(JKVAR(I,1).EQ.72.0D0) VNA='C46'
          IF(JKVAR(I,1).EQ.73.0D0) VNA='C47'
          IF(JKVAR(I,1).EQ.74.0D0) VNA='C48'
-         IF(JKVAR(I,1).EQ.75.0D0) VNA='AC'
+         IF(JKVAR(I,1).EQ.75.0D0) VNA='ACK'
          IF(JKVAR(I,1).EQ.76.0D0) VNA='C49'
          IF(JKVAR(I,1).EQ.77.0D0) VNA='C50'
          IF(JKVAR(I,1).EQ.78.0D0) VNA='C51'

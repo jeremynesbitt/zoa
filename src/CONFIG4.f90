@@ -1338,7 +1338,7 @@ SUBROUTINE CFDFLT
          CALL SHOWIT(1)
       END IF
    END IF
-   IF(WC.EQ.'CC'.OR.WC.EQ.'AG'.OR.WC.EQ.'AH'.OR.WC.EQ.'AJ'&
+   IF(WC.EQ.'CCK'.OR.WC.EQ.'AG'.OR.WC.EQ.'AH'.OR.WC.EQ.'AJ'&
    &.OR.WC.EQ.'CCTOR'.OR.WC.EQ.'PIY'.OR.WC.EQ.'PIX'.OR.&
    &WC.EQ.'PICY'.OR.WC.EQ.'AK'.OR.WC.EQ.'AI'.OR.WC.EQ.&
    &'PICX'.OR.WC.EQ.'PUCY'.OR.WC.EQ.'PUCX'.OR.WC.EQ.'TH'&
@@ -1347,7 +1347,7 @@ SUBROUTINE CFDFLT
    &WC.EQ.'XD'.OR.WC.EQ.'YD'.OR.WC.EQ.'ALPHA'.OR.WC.EQ.'ADTOR'&
    &.OR.WC.EQ.'AETOR'.OR.WC.EQ.'AFTOR'.OR.WC.EQ.'AGTOR'&
    &.OR.WC.EQ.'BETA'.OR.WC.EQ.'GAMMA'.OR.WC.EQ.'AD'.OR.&
-   &WC.EQ.'AE'.OR.WC.EQ.'AF'.OR.WC.EQ.'AC'.OR.WC.EQ.'ZD'&
+   &WC.EQ.'AE'.OR.WC.EQ.'AF'.OR.WC.EQ.'ACK'.OR.WC.EQ.'ZD'&
    &.OR.WC.EQ.'PIVX'.OR.WC.EQ.'PIVY'.OR.WC.EQ.'PIVZ'.OR.WC.EQ.'THM'&
    &.OR.WC.EQ.'GDX'.OR.WC.EQ.'GDY'.OR.WC.EQ.'GDZ'.OR.WC.EQ.'GALPHA'&
    &.OR.WC.EQ.'GBETA'.OR.WC.EQ.'GGAMMA'.OR.WC.EQ.'SPGR'.OR.WQ.EQ.&
@@ -1396,14 +1396,14 @@ SUBROUTINE CFDFLT
 !
       IF(S2.EQ.1.OR.S3.EQ.1.OR.S4.EQ.1 &
       &.OR.S5.EQ.1) THEN
-         IF(WC.EQ.'CC'.OR.WC.EQ.'AG'.OR.WC.EQ.'AH'.OR.WC.EQ.'AI'&
+         IF(WC.EQ.'CCK'.OR.WC.EQ.'AG'.OR.WC.EQ.'AH'.OR.WC.EQ.'AI'&
          &.OR.WC.EQ.'TH'.OR.WC.EQ.'AJ'.OR.WC.EQ.'AK'.OR.WC.EQ.'AL'&
          &.OR.WC.EQ.'PY'.OR.WC.EQ.'PX'.OR.&
          &WC.EQ.'XD'.OR.WC.EQ.'YD'.OR.WC.EQ.'ZD'&
-         &.OR.WC.EQ.'AD'.OR.WC.EQ.'AC'.OR.&
+         &.OR.WC.EQ.'AD'.OR.WC.EQ.'ACK'.OR.&
          &WC.EQ.'AE'.OR.WC.EQ.'AF') THEN
             WRITE(OUTLYNE,*)&
-            &'"',WC(1:2),'" TAKES NO NUMERIC WORD #2 THROUGH #5 INPUT'
+            &'"',trim(WC),'" TAKES NO NUMERIC WORD #2 THROUGH #5 INPUT'
             CALL SHOWIT(1)
             WRITE(OUTLYNE,*)'RE-ENTER COMMAND'
             CALL SHOWIT(1)
@@ -1451,14 +1451,14 @@ SUBROUTINE CFDFLT
          RETURN
       END IF
       IF(SST.EQ.1) THEN
-         IF(WC.EQ.'CC'.OR.WC.EQ.'AG'.OR.WC.EQ.'AJ'.OR.WC.EQ.'AK'&
+         IF(WC.EQ.'CCK'.OR.WC.EQ.'AG'.OR.WC.EQ.'AJ'.OR.WC.EQ.'AK'&
          &.OR.WC.EQ.'TH'.OR.WC.EQ.'AH'.OR.WC.EQ.'AI'.OR.WC.EQ.'AL'&
          &.OR.WC.EQ.'PY'.OR.WC.EQ.'PX'.OR.&
          &WC.EQ.'XD'.OR.WC.EQ.'YD'.OR.WC.EQ.'ZD'&
-         &.OR.WC.EQ.'AD'.OR.WC.EQ.'AC'.OR.&
+         &.OR.WC.EQ.'AD'.OR.WC.EQ.'ACK'.OR.&
          &WC.EQ.'AE'.OR.WC.EQ.'AF') THEN
             WRITE(OUTLYNE,*)&
-            &'"',WC(1:2),'" TAKES NO STRING INPUT'
+            &'"',trim(WC),'" TAKES NO STRING INPUT'
             CALL SHOWIT(1)
             WRITE(OUTLYNE,*)'RE-ENTER COMMAND'
             CALL SHOWIT(1)
@@ -1507,13 +1507,13 @@ SUBROUTINE CFDFLT
          RETURN
       END IF
       IF(WQ.NE.'        '.AND.WQ.NE.'DELT'.AND.WQ.NE.'CENT') THEN
-         IF(WC.EQ.'CC'.OR.WC.EQ.'AG'.OR.WC.EQ.'AH'.OR.WC.EQ.'AI'&
+         IF(WC.EQ.'CCK'.OR.WC.EQ.'AG'.OR.WC.EQ.'AH'.OR.WC.EQ.'AI'&
          &.OR.WC.EQ.'TH'.OR.WC.EQ.'AJ'.OR.WC.EQ.'AK'.OR.WC.EQ.'AL'.OR.&
          &WC.EQ.'XD'.OR.WC.EQ.'YD'.OR.WC.EQ.'ZD'&
-         &.OR.WC.EQ.'AD'.OR.WC.EQ.'AC'.OR.&
+         &.OR.WC.EQ.'AD'.OR.WC.EQ.'ACK'.OR.&
          &WC.EQ.'AE'.OR.WC.EQ.'AF') THEN
             WRITE(OUTLYNE,*)&
-            &'INVALID QUALIFIER USED WITH "',WC(1:2),'"'
+            &'INVALID QUALIFIER USED WITH "',trim(WC),'"'
             CALL SHOWIT(1)
             WRITE(OUTLYNE,*)'RE-ENTER COMMAND'
             CALL SHOWIT(1)
@@ -3128,7 +3128,7 @@ SUBROUTINE CFDFLT
          RETURN
       END IF
       IF(WQ.EQ.'RD'.OR.WQ.EQ.'CV'.OR.WQ.EQ.'CC'.OR.WQ.EQ.'AH'&
-      &.OR.WQ.EQ.'TH'.OR.WQ.EQ.'AD'.OR.WC.EQ.'AE'.OR.WC.EQ.'AC'&
+      &.OR.WQ.EQ.'TH'.OR.WQ.EQ.'AD'.OR.WC.EQ.'AE'.OR.WC.EQ.'ACK'&
       &.OR.WQ.EQ.'AF'.OR.WQ.EQ.'AG'.OR.WQ.EQ.'CVTOR'.OR.WQ.EQ.'AI'&
       &.OR.WQ.EQ.'RDTOR'.OR.WQ.EQ.'YD'.OR.WQ.EQ.'XD'.OR.WQ.EQ.'AJ'&
       &.OR.WQ.EQ.'ALPHA'.OR.WQ.EQ.'BETA'.OR.WQ.EQ.'AK'.OR.WQ &

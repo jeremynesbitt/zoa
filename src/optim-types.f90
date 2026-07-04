@@ -338,7 +338,7 @@ module optim_types
             case(VAR_THI)
                 call PROCESSILENT('CHG '//int2str(VARS(i,1))//' ; TH '//real2str(x(i)))
             case(VAR_K)
-                call PROCESSILENT('CHG '//int2str(VARS(i,1))//' ; CC '//real2str(x(i)))
+                call PROCESSILENT('CHG '//int2str(VARS(i,1))//' ; CCK '//real2str(x(i)))
             end select
 
         end do

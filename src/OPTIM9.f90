@@ -1066,7 +1066,7 @@ SUBROUTINE TVARBLL
    IF(WC.EQ.'RD      ') VALT=1
    IF(WC.EQ.'CV      ') VALT=2
    IF(WC.EQ.'TH      ') VALT=3
-   IF(WC.EQ.'CC      ') VALT=4
+   IF(WC.EQ.'CCK     ') VALT=4
    IF(WC.EQ.'AD      ') VALT=5
    IF(WC.EQ.'AE      ') VALT=6
    IF(WC.EQ.'AF      ') VALT=7
@@ -1136,7 +1136,7 @@ SUBROUTINE TVARBLL
    IF(WC.EQ.'C46     ') VALT=72
    IF(WC.EQ.'C47     ') VALT=73
    IF(WC.EQ.'C48     ') VALT=74
-   IF(WC.EQ.'AC      ') VALT=75
+   IF(WC.EQ.'ACK     ') VALT=75
    IF(WC.EQ.'C49     ') VALT=76
    IF(WC.EQ.'C50     ') VALT=77
    IF(WC.EQ.'C51     ') VALT=78
@@ -1409,7 +1409,7 @@ SUBROUTINE TVARBLL
          IF(WC.EQ.'TH      ') DELTTA=DELTT3
          IF(WC.EQ.'CLPX    ') DELTTA=DELTT3
          IF(WC.EQ.'CLPY    ') DELTTA=DELTT3
-         IF(WC.EQ.'CC      ') DELTTA=DELTT4
+         IF(WC.EQ.'CCK     ') DELTTA=DELTT4
          IF(REFHTT.GE.1.0D0) THEN
             IF(WC.EQ.'AD      ') DELTTA=DELTT5A
             IF(WC.EQ.'AE      ') DELTTA=DELTT6A
@@ -1420,7 +1420,7 @@ SUBROUTINE TVARBLL
             IF(WC.EQ.'AJ      ') DELTTA=DELTT11A
             IF(WC.EQ.'AK      ') DELTTA=DELTT12A
             IF(WC.EQ.'AL      ') DELTTA=DELTT13A
-            IF(WC.EQ.'AC      ') DELTTA=DELTT14A
+            IF(WC.EQ.'ACK     ') DELTTA=DELTT14A
          ELSE
             IF(WC.EQ.'AD      ') DELTTA=DELTT5B
             IF(WC.EQ.'AE      ') DELTTA=DELTT6B
@@ -1431,7 +1431,7 @@ SUBROUTINE TVARBLL
             IF(WC.EQ.'AJ      ') DELTTA=DELTT11B
             IF(WC.EQ.'AK      ') DELTTA=DELTT12B
             IF(WC.EQ.'AL      ') DELTTA=DELTT13B
-            IF(WC.EQ.'AC      ') DELTTA=DELTT14B
+            IF(WC.EQ.'ACK     ') DELTTA=DELTT14B
          END IF
          IF(WC.EQ.'RDTOR   ') DELTTA=DELTT15
          IF(WC.EQ.'CVTOR   ') DELTTA=DELTT16
@@ -1654,7 +1654,7 @@ SUBROUTINE TVARBLL
          IF(WC.EQ.'TH      ') DELTTA=DELTT3
          IF(WC.EQ.'CLPX    ') DELTTA=DELTT3
          IF(WC.EQ.'CLPY    ') DELTTA=DELTT3
-         IF(WC.EQ.'CC      ') DELTTA=DELTT4
+         IF(WC.EQ.'CCK     ') DELTTA=DELTT4
          IF(REFHTT.GE.1.0D0) THEN
             IF(WC.EQ.'AD      ') DELTTA=DELTT5A
             IF(WC.EQ.'AE      ') DELTTA=DELTT6A
@@ -1665,7 +1665,7 @@ SUBROUTINE TVARBLL
             IF(WC.EQ.'AJ      ') DELTTA=DELTT11A
             IF(WC.EQ.'AK      ') DELTTA=DELTT12A
             IF(WC.EQ.'AL      ') DELTTA=DELTT13A
-            IF(WC.EQ.'AC      ') DELTTA=DELTT14A
+            IF(WC.EQ.'ACK     ') DELTTA=DELTT14A
          ELSE
             IF(WC.EQ.'AD      ') DELTTA=DELTT5B
             IF(WC.EQ.'AE      ') DELTTA=DELTT6B
@@ -1676,7 +1676,7 @@ SUBROUTINE TVARBLL
             IF(WC.EQ.'AJ      ') DELTTA=DELTT11B
             IF(WC.EQ.'AK      ') DELTTA=DELTT12B
             IF(WC.EQ.'AL      ') DELTTA=DELTT13B
-            IF(WC.EQ.'AC      ') DELTTA=DELTT14B
+            IF(WC.EQ.'ACK     ') DELTTA=DELTT14B
          END IF
          IF(WC.EQ.'RDTOR   ') DELTTA=DELTT15
          IF(WC.EQ.'CVTOR   ') DELTTA=DELTT16
@@ -1899,7 +1899,7 @@ SUBROUTINE TVARBLL
          IF(WC.EQ.'TH      ') DELTTA=DELTT3
          IF(WC.EQ.'CLPX    ') DELTTA=DELTT3
          IF(WC.EQ.'CLPY    ') DELTTA=DELTT3
-         IF(WC.EQ.'CC      ') DELTTA=DELTT4
+         IF(WC.EQ.'CCK     ') DELTTA=DELTT4
          IF(REFHTT.GE.1.0D0) THEN
             IF(WC.EQ.'AD      ') DELTTA=DELTT5A
             IF(WC.EQ.'AE      ') DELTTA=DELTT6A
@@ -1910,7 +1910,7 @@ SUBROUTINE TVARBLL
             IF(WC.EQ.'AJ      ') DELTTA=DELTT11A
             IF(WC.EQ.'AK      ') DELTTA=DELTT12A
             IF(WC.EQ.'AL      ') DELTTA=DELTT13A
-            IF(WC.EQ.'AC      ') DELTTA=DELTT14A
+            IF(WC.EQ.'ACK     ') DELTTA=DELTT14A
          ELSE
             IF(WC.EQ.'AD      ') DELTTA=DELTT5B
             IF(WC.EQ.'AE      ') DELTTA=DELTT6B
@@ -1921,7 +1921,7 @@ SUBROUTINE TVARBLL
             IF(WC.EQ.'AJ      ') DELTTA=DELTT11B
             IF(WC.EQ.'AK      ') DELTTA=DELTT12B
             IF(WC.EQ.'AL      ') DELTTA=DELTT13B
-            IF(WC.EQ.'AC      ') DELTTA=DELTT14B
+            IF(WC.EQ.'ACK     ') DELTTA=DELTT14B
          END IF
          IF(WC.EQ.'RDTOR   ') DELTTA=DELTT15
          IF(WC.EQ.'CVTOR   ') DELTTA=DELTT16
@@ -4798,7 +4798,7 @@ SUBROUTINE TVCHECK
       IF(JKVAR(I,1).EQ.1.0D0) VNA='RD'
       IF(JKVAR(I,1).EQ.2.0D0) VNA='CV'
       IF(JKVAR(I,1).EQ.3.0D0) VNA='TH'
-      IF(JKVAR(I,1).EQ.4.0D0) VNA='CC'
+      IF(JKVAR(I,1).EQ.4.0D0) VNA='CCK'
       IF(JKVAR(I,1).EQ.5.0D0) VNA='AD'
       IF(JKVAR(I,1).EQ.6.0D0) VNA='AE'
       IF(JKVAR(I,1).EQ.7.0D0) VNA='AF'
@@ -4868,7 +4868,7 @@ SUBROUTINE TVCHECK
       IF(JKVAR(I,1).EQ.72.0D0) VNA='C46'
       IF(JKVAR(I,1).EQ.73.0D0) VNA='C47'
       IF(JKVAR(I,1).EQ.74.0D0) VNA='C48'
-      IF(JKVAR(I,1).EQ.75.0D0) VNA='AC'
+      IF(JKVAR(I,1).EQ.75.0D0) VNA='ACK'
       IF(JKVAR(I,1).EQ.76.0D0) VNA='C49'
       IF(JKVAR(I,1).EQ.77.0D0) VNA='C50'
       IF(JKVAR(I,1).EQ.78.0D0) VNA='C51'

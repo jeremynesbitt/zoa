@@ -2572,7 +2572,7 @@ SUBROUTINE AUXCFG
                   ELSE
 !     PROCEED
                   END IF
-                  IF(SCRATH(J)(1:8).EQ.'CC      ') THEN
+                  IF(SCRATH(J)(1:8).EQ.'CCK     ') THEN
                      K=K+1
                      AUXMAX=K
                      CFADD(K,1)=4
