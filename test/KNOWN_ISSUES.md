@@ -232,3 +232,12 @@ deliberate ownership audit:
   PIKUPS1.f90) still reads ALENS(34). The count controls how many resolution
   passes run (chained pickups converge by iteration), so changing its source
   is a behavior risk and was deliberately left out of the refactor.
+
+## LINK / LINKD commands appear dead
+
+`LINKIT` (PIKUPS2.f90) unconditionally executes `LERROR=.TRUE.` + `CALL MACFAL`
+after its target-surface range check (the statements sit outside the IF), so
+`LINK`/`LINKD` never create or delete a pickup — verified identical before and
+after the refactor-#9 LINKIT rewrite, with both argument orders. No test uses
+them. If LINK is ever wanted, fix the error-flag scoping; otherwise the pair
+is a candidate for removal.

@@ -541,80 +541,86 @@ SUBROUTINE PIKAPE
    RETURN
 END
 ! SUB SPIKD.FOR
-SUBROUTINE SPIKD
-!
-   use DATLEN
-   use mod_surface
-   use mod_system, only: sys_last_surf
-   use DATMAI
-   IMPLICIT NONE
 !
 !       THIS IS SUBROUTINE SPIKD. THIS IS THE SUBROUTINE WHICH
 !       HANDLES THE LENS PARAMETER PIKUP DELETIONS AT THE
 !       UPDATE LENS LEVEL.
 !
-   INTEGER PIKCNT,I,J,K,SF
-
+!       Pilot conversion for refactor #9: takes the parsed command as an
+!       explicit argument instead of reading/mutating the DATMAI parse
+!       globals.  Callers build the record with capture_command().  The
+!       default-filling that used to write W1/W2/S1/S2/DF1/DF2 back into the
+!       globals now stays local to the record (nothing downstream consumed
+!       those writes).  The 44-line qualifier ladder is replaced by the
+!       pickup_manager kind table.
+SUBROUTINE SPIKD(cmd)
+!
+   use DATLEN
+   use mod_surface
+   use mod_system, only: sys_last_surf
+   use DATMAI
+   use mod_parsed_command, only: parsed_command
+   use pickup_manager, only: pickup_j_from_qual
+   IMPLICIT NONE
+!
+   type(parsed_command), intent(inout) :: cmd
+   INTEGER PIKCNT,I,K,SF
 !
 !       FILE LENSSTORE.DOC CONTAINS INFORMATION ON THE
 !       SPECIFIC STORAGE LOCATIONS FOR LENS DATA,SOLVE AND
 !       PIKUP ITEMS.
 !
-   IF(SST.EQ.1.OR.S3.EQ.1.OR.S4.EQ.1.OR.S5.EQ.1) THEN
+   IF(cmd%sst.EQ.1.OR.cmd%s3.EQ.1.OR.cmd%s4.EQ.1.OR.cmd%s5.EQ.1) THEN
       CALL REPORT_ERROR_AND_FAIL(&
       & '"PIKD" TAKES NO STRING OR NUMERIC WORD #3 THROUGH #5 INPUT'//'\n'//&
       & 'RE-ENTER COMMAND', 1)
       RETURN
    END IF
-   IF(DF1.EQ.1.AND.DF2.EQ.1) THEN
-      W1=DBLE(SURF)
-      W2=DBLE(SURF)
-      S1=1
-      S2=1
-      DF1=0
-      DF2=0
+   IF(cmd%df1.EQ.1.AND.cmd%df2.EQ.1) THEN
+      cmd%w1=DBLE(SURF)
+      cmd%w2=DBLE(SURF)
+      cmd%s1=1
+      cmd%s2=1
+      cmd%df1=0
+      cmd%df2=0
    END IF
-   IF(DF1.EQ.0.AND.DF2.EQ.1) THEN
-      W2=W1
-      S1=1
-      S2=1
-      DF1=0
-      DF2=0
+   IF(cmd%df1.EQ.0.AND.cmd%df2.EQ.1) THEN
+      cmd%w2=cmd%w1
+      cmd%s1=1
+      cmd%s2=1
+      cmd%df1=0
+      cmd%df2=0
    END IF
-   IF(DF1.EQ.1.AND.DF2.EQ.0.OR.DF1.EQ.0.AND.DF2.EQ.1) THEN
+   IF(cmd%df1.EQ.1.AND.cmd%df2.EQ.0.OR.cmd%df1.EQ.0.AND.cmd%df2.EQ.1) THEN
       CALL REPORT_ERROR_AND_FAIL(&
       & '"PIKD" USES EITHER TWO OR ZERO NUMERIC WORDS'//'\n'//&
       & 'RE-ENTER COMMAND', 1)
       RETURN
    END IF
-   IF(INT(W1).LT.0) THEN
+   IF(INT(cmd%w1).LT.0) THEN
       CALL REPORT_ERROR_AND_FAIL(&
       & 'STARTING SURFACE NUMBER MUST BE GREATER THAN OR EQUAL TO 0'//'\n'//&
       & 'RE-ENTER COMMAND', 1)
       RETURN
    END IF
-   IF(INT(W2).GT.INT(sys_last_surf())) THEN
+   IF(INT(cmd%w2).GT.INT(sys_last_surf())) THEN
       WRITE(OUTLYNE,*)'ENDING SURFACE NUMBER MUST BE LESS THAN OR EQUAL TO ',INT(sys_last_surf())
       CALL SHOWIT(1)
       CALL REPORT_ERROR_AND_FAIL('RE-ENTER COMMAND', 1)
       RETURN
    END IF
-   IF(W1.GT.W2) THEN
+   IF(cmd%w1.GT.cmd%w2) THEN
       CALL REPORT_ERROR_AND_FAIL(&
       & 'THE ENDING SURFACE # MUST BE GREATER THAN OR EQUAL TO#'//'\n'//&
       & 'THE STARTING SURFACE #'//'\n'//&
       & 'RE-ENTER COMMAND', 1)
       RETURN
    END IF
-   DO SF=INT(W1),INT(W2)
-!
-!       HERE IS WHERE THE DECISION ON SPECIFIC SUBROUTINE
-!       CALLS IS MADE FOR THE PROPER DISPOSITION OF PIKUP
-!       INPUT DATA.
+   DO SF=INT(cmd%w1),INT(cmd%w2)
 !
 !       DECIDE WHICH PARAMETER PIKUP IS TO BE DELETED
 !       IF SQ=0, ALL PIKUPS MUST GO
-      IF(SQ.EQ.0) THEN
+      IF(cmd%sq.EQ.0) THEN
          IF(surf_special_type(SF).EQ.0.0D0) THEN
 !
 !       NO PIKUPS TO DELETE
@@ -627,54 +633,10 @@ SUBROUTINE SPIKD
 
       ELSE
 !       SQ NOT 0 SO THERE WAS A QUALIFIER AND ONLY SOME OF THE
-!       PIKUPS MUST GO.
+!       PIKUPS MUST GO.  Qualifier -> PIKUP J index via the kind table.
 !
-         K=-1
-         IF(WQ.EQ.'RD      ') K=1
-         IF(WQ.EQ.'CV      ') K=2
-         IF(WQ.EQ.'TH      ') K=3
-         IF(WQ.EQ.'CC      ') K=4
-         IF(WQ.EQ.'AD      ') K=5
-         IF(WQ.EQ.'AE      ') K=6
-         IF(WQ.EQ.'AF      ') K=7
-         IF(WQ.EQ.'AG      ') K=8
-         IF(WQ.EQ.'CVTOR   ') K=9
-         IF(WQ.EQ.'RDTOR   ') K=10
-         IF(WQ.EQ.'PRO     ') K=11
-         IF(WQ.EQ.'NPRO    ') K=12
-         IF(WQ.EQ.'YD      ') K=13
-         IF(WQ.EQ.'XD      ') K=14
-         IF(WQ.EQ.'ALPHA   ') K=15
-         IF(WQ.EQ.'BETA    ') K=16
-         IF(WQ.EQ.'GAMMA   ') K=17
-         IF(WQ.EQ.'CLAP    ') K=18
-         IF(WQ.EQ.'COBS    ') K=19
-         IF(WQ.EQ.'GLASS   ') K=20
-         IF(WQ.EQ.'CCTOR   ') K=21
-         IF(WQ.EQ.'ADTOR   ') K=22
-         IF(WQ.EQ.'AETOR   ') K=23
-         IF(WQ.EQ.'AFTOR   ') K=24
-         IF(WQ.EQ.'AGTOR   ') K=25
-         IF(WQ.EQ.'AC      ') K=26
-         IF(WQ.EQ.'AH      ') K=27
-         IF(WQ.EQ.'AI      ') K=28
-         IF(WQ.EQ.'AJ      ') K=29
-         IF(WQ.EQ.'AK      ') K=30
-         IF(WQ.EQ.'AL      ') K=31
-         IF(WQ.EQ.'THOAL   ') K=32
-         IF(WQ.EQ.'ZD      ') K=33
-         IF(WQ.EQ.'PIVX    ') K=34
-         IF(WQ.EQ.'PIVY    ') K=35
-         IF(WQ.EQ.'PIVZ    ') K=36
-         IF(WQ.EQ.'GDX     ') K=37
-         IF(WQ.EQ.'GDY     ') K=38
-         IF(WQ.EQ.'GDZ     ') K=39
-         IF(WQ.EQ.'GALPHA  ') K=40
-         IF(WQ.EQ.'GBETA   ') K=41
-         IF(WQ.EQ.'GGAMMA  ') K=42
-         IF(WQ.EQ.'GRT     ') K=43
-         IF(WQ.EQ.'COATING ') K=44
-         IF(K.EQ.-1) THEN
+         K = pickup_j_from_qual(cmd%wq)
+         IF(K.EQ.0) THEN
             CALL REPORT_ERROR_AND_FAIL(&
             & 'INVALID QUALIFIER WORD ISSUED WITH "PIKD"'//'\n'//&
             & 'RE-ENTER COMMAND', 1)
@@ -684,11 +646,11 @@ SUBROUTINE SPIKD
          IF(PIKUP(1,SF,K).EQ.0.0D0) THEN
 !
 !       PIKUP NOT THERE TO BE DELETED
-            WRITE(OUTLYNE,*)'SURFACE',SF,' :',TRIM(WQ),' PIKUP TO BE DELETED WAS NOT FOUND'
+            WRITE(OUTLYNE,*)'SURFACE',SF,' :',TRIM(cmd%wq),' PIKUP TO BE DELETED WAS NOT FOUND'
             CALL SHOWIT(1)
          ELSE
             PIKUP(1:6,SF,K)=0.0D0
-            WRITE(OUTLYNE,*)'SURFACE',SF,' ',WQ,' :PIKUP DELETED'
+            WRITE(OUTLYNE,*)'SURFACE',SF,' ',cmd%wq,' :PIKUP DELETED'
             CALL SHOWIT(1)
 !
 !       DECREMENT THE PIKUP COUNTER
@@ -718,10 +680,12 @@ SUBROUTINE LINKIT(LERROR)
    use mod_surface
    use mod_system, only: sys_last_surf
    use DATMAI
+   use mod_parsed_command, only: parsed_command, capture_command, apply_command
    IMPLICIT NONE
    INTEGER IVAL
    LOGICAL LERROR
    CHARACTER IAVAL*3
+   type(parsed_command) :: saved, shifted, cmdRec
       CALL KDP_EXEC('UPDATE LENS')
    IVAL=W1
    IF(IVAL.LT.0.OR.IVAL.GT.sys_last_surf())OUTLYNE='INVALID TARGET SURFACE NUMBER FOR LINKING'
@@ -737,28 +701,31 @@ SUBROUTINE LINKIT(LERROR)
             CALL KDP_EXEC('CHG '//IAVAL)
    END IF
    IF(WC.EQ.'LINK') THEN
-      SAVE_KDP(1)=SAVEINPT(1)
-      W1=W2
-      W2=W3
-      W3=W4
-      W4=W5
-      S1=S2
-      S2=S3
-      S3=S4
-      S4=S5
-      DF1=DF2
-      DF2=DF3
-      DF3=DF4
-      DF4=DF5
-      DF5=1
-      S5=0
-      W5=0.0D0
-      IF(WC.EQ.'LINK') WC='PIKUP'
-      IF(WC.EQ.'PIKUP')CALL SPIKUP
-      REST_KDP(1)=RESTINPT(1)
+!       "LINK t <qual> a b c" behaves as "PIKUP <qual> a b c" on surface t:
+!       build the shifted parse EXPLICITLY instead of mutating the globals
+!       word-by-word in place (this was the codebase's last manual
+!       W1<-W2/S1<-S2 shift hack; refactor #9).
+      saved = capture_command()
+      shifted = saved
+      shifted%wc  = 'PIKUP'
+      shifted%w1  = saved%w2;   shifted%w2  = saved%w3
+      shifted%w3  = saved%w4;   shifted%w4  = saved%w5
+      shifted%w5  = 0.0D0
+      shifted%s1  = saved%s2;   shifted%s2  = saved%s3
+      shifted%s3  = saved%s4;   shifted%s4  = saved%s5
+      shifted%s5  = 0
+      shifted%df1 = saved%df2;  shifted%df2 = saved%df3
+      shifted%df3 = saved%df4;  shifted%df4 = saved%df5
+      shifted%df5 = 1
+      call apply_command(shifted)
+      CALL SPIKUP
+      call apply_command(saved)
    END IF
-   IF(WC.EQ.'LINKD') WC='PIKD'
-   IF(WC.EQ.'PIKD')CALL SPIKD
+   IF(WC.EQ.'LINKD') THEN
+      WC='PIKD'
+      cmdRec = capture_command()
+      CALL SPIKD(cmdRec)
+   END IF
       CALL KDP_EXEC('EOS')
    LERROR=.FALSE.
    RETURN

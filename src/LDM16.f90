@@ -560,6 +560,7 @@ SUBROUTINE LENUP
    use DATMAI
    use mod_surface
    use command_utils, only: is_command_query
+   use mod_parsed_command, only: parsed_command, capture_command
    use iso_fortran_env, only: real64
    IMPLICIT NONE
 !
@@ -1247,7 +1248,12 @@ SUBROUTINE LENUP
       END IF
 !       COMMANDS (PIKD)
       IF(WC.EQ.'PIKD') THEN
-         CALL SPIKD
+         ! SPIKD takes the parsed command explicitly (refactor #9 pilot)
+         block
+           type(parsed_command) :: cmd
+           cmd = capture_command()
+           CALL SPIKD(cmd)
+         end block
          RETURN
       END IF
    END IF
