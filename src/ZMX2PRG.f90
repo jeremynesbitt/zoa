@@ -480,10 +480,7 @@ SUBROUTINE ZMX2PRG
       END IF
 !     VERS
       IF(TEMPC(I)(1:4).EQ.'VERS') THEN
-         SAVE_KDP(1)=SAVEINPT(1)
-         INPUT='LENS'
-         CALL PROCES
-         REST_KDP(1)=RESTINPT(1)
+                  CALL KDP_EXEC('LENS')
 !     SET DEFAULT UNITS TO MM SINCE THAT IS HOW ZEMAX WAKES UP
          SAVE_KDP(1)=SAVEINPT(1)
          INPUT(1:132)=BL1024(1:132)
@@ -497,10 +494,7 @@ SUBROUTINE ZMX2PRG
       IF(TEMPC(I)(1:4).EQ.'NAME') THEN
          ! Need to enter lens input level.  Put it here for now
          CALL PROCESKDP('LENS')
-         SAVE_KDP(1)=SAVEINPT(1)
-         INPUT='LI '//TEMPC(I)(5:80)
-         CALL PROCES
-         REST_KDP(1)=RESTINPT(1)
+                  CALL KDP_EXEC('LI '//TEMPC(I)(5:80))
          TEMPC(I)(1:1024)=BL1024(1:1024)
          GO TO 8888
       END IF
@@ -957,14 +951,8 @@ SUBROUTINE ZMX2PRG
       END IF
 !     STOP
       IF(TEMPC(I)(1:4).EQ.'STOP') THEN
-         SAVE_KDP(1)=SAVEINPT(1)
-         INPUT='ASTOP'
-         CALL PROCES
-         REST_KDP(1)=RESTINPT(1)
-         SAVE_KDP(1)=SAVEINPT(1)
-         INPUT='REFS'
-         CALL PROCES
-         REST_KDP(1)=RESTINPT(1)
+                  CALL KDP_EXEC('ASTOP')
+                  CALL KDP_EXEC('REFS')
          TEMPC(I)(1:1024)=BL1024(1:1024)
          GO TO 8888
       END IF
@@ -972,27 +960,15 @@ SUBROUTINE ZMX2PRG
       IF(TEMPC(I)(1:4).EQ.'UNIT') THEN
          IF(INDEX(TEMPC(I)(5:1024),'MM').GT.0) THEN
             PRINT *, "Set Units to MM"
-            SAVE_KDP(1)=SAVEINPT(1)
-            INPUT='UNITS MM'
-            CALL PROCES
-            REST_KDP(1)=RESTINPT(1)
+                        CALL KDP_EXEC('UNITS MM')
          ELSEIF(INDEX(TEMPC(I)(5:1024),'M ').GT.0) THEN
-            SAVE_KDP(1)=SAVEINPT(1)
-            INPUT='UNITS M'
-            CALL PROCES
-            REST_KDP(1)=RESTINPT(1)
+                        CALL KDP_EXEC('UNITS M')
          END IF
          IF(INDEX(TEMPC(I)(5:1024),'CM').GT.0) THEN
-            SAVE_KDP(1)=SAVEINPT(1)
-            INPUT='UNITS CM'
-            CALL PROCES
-            REST_KDP(1)=RESTINPT(1)
+                        CALL KDP_EXEC('UNITS CM')
          END IF
          IF(INDEX(TEMPC(I)(5:1024),'IN').GT.0) THEN
-            SAVE_KDP(1)=SAVEINPT(1)
-            INPUT='UNITS IN'
-            CALL PROCES
-            REST_KDP(1)=RESTINPT(1)
+                        CALL KDP_EXEC('UNITS IN')
          END IF
 
 

@@ -365,10 +365,7 @@ SUBROUTINE CMDER
          GRIDSUNLOADED19(0:MAXSUR)=.TRUE.
          GRIDSUNLOADED20(0:MAXSUR)=.TRUE.
          GRIDSUNLOADED22(0:MAXSUR)=.TRUE.
-         SAVE_KDP(1)=SAVEINPT(1)
-         INPUT='CFG 1'
-         CALL PROCES
-         REST_KDP(1)=RESTINPT(1)
+                  CALL KDP_EXEC('CFG 1')
          CALL LENOUT
          RETURN
       END IF
@@ -376,10 +373,7 @@ SUBROUTINE CMDER
          GRIDSUNLOADED19(0:MAXSUR)=.TRUE.
          GRIDSUNLOADED20(0:MAXSUR)=.TRUE.
          GRIDSUNLOADED22(0:MAXSUR)=.TRUE.
-         SAVE_KDP(1)=SAVEINPT(1)
-         INPUT='CFG 1'
-         CALL PROCES
-         REST_KDP(1)=RESTINPT(1)
+                  CALL KDP_EXEC('CFG 1')
          CALL LENOCSV
          RETURN
       END IF
@@ -1560,25 +1554,13 @@ SUBROUTINE CMDER
       IF(WC.EQ.'MTRACEI1') THEN
          MSG=.FALSE.
 !       SHUT OFF DIFFERENTIAL TRACING
-         SAVE_KDP(1)=SAVEINPT(1)
-         INPUT='DIFFOB OFF'
-         CALL PROCES
-         REST_KDP(1)=RESTINPT(1)
-         SAVE_KDP(1)=SAVEINPT(1)
-         INPUT='DIFRAY OFF'
-         CALL PROCES
-         REST_KDP(1)=RESTINPT(1)
+                  CALL KDP_EXEC('DIFFOB OFF')
+                  CALL KDP_EXEC('DIFRAY OFF')
          CALL MTRACERI_GRID1
 !       TURN ON DIFFERENTIAL TRACING
 !     DONE, MSG BACK ON
-         SAVE_KDP(1)=SAVEINPT(1)
-         INPUT='DIFFOB ON'
-         CALL PROCES
-         REST_KDP(1)=RESTINPT(1)
-         SAVE_KDP(1)=SAVEINPT(1)
-         INPUT='DIFRAY ON'
-         CALL PROCES
-         REST_KDP(1)=RESTINPT(1)
+                  CALL KDP_EXEC('DIFFOB ON')
+                  CALL KDP_EXEC('DIFRAY ON')
          IF(F34.EQ.1) MSG=.FALSE.
          IF(F34.EQ.0) MSG=.TRUE.
          RETURN
@@ -1586,25 +1568,13 @@ SUBROUTINE CMDER
       IF(WC.EQ.'MTRACEI2') THEN
          MSG=.FALSE.
 !       SHUT OFF DIFFERENTIAL TRACING
-         SAVE_KDP(1)=SAVEINPT(1)
-         INPUT='DIFFOB OFF'
-         CALL PROCES
-         REST_KDP(1)=RESTINPT(1)
-         SAVE_KDP(1)=SAVEINPT(1)
-         INPUT='DIFRAY OFF'
-         CALL PROCES
-         REST_KDP(1)=RESTINPT(1)
+                  CALL KDP_EXEC('DIFFOB OFF')
+                  CALL KDP_EXEC('DIFRAY OFF')
          CALL MTRACERI_GRID2
 !       TURN ON DIFFERENTIAL TRACING
 !     DONE, MSG BACK ON
-         SAVE_KDP(1)=SAVEINPT(1)
-         INPUT='DIFFOB ON'
-         CALL PROCES
-         REST_KDP(1)=RESTINPT(1)
-         SAVE_KDP(1)=SAVEINPT(1)
-         INPUT='DIFRAY ON'
-         CALL PROCES
-         REST_KDP(1)=RESTINPT(1)
+                  CALL KDP_EXEC('DIFFOB ON')
+                  CALL KDP_EXEC('DIFRAY ON')
          IF(F34.EQ.1) MSG=.FALSE.
          IF(F34.EQ.0) MSG=.TRUE.
          RETURN
@@ -2680,10 +2650,7 @@ SUBROUTINE CMDER
          RETURN
       END IF
       IF(WC.EQ.'EDIT') THEN
-         SAVE_KDP(1)=SAVEINPT(1)
-         INPUT='REPLACE'
-         CALL PROCES
-         REST_KDP(1)=RESTINPT(1)
+                  CALL KDP_EXEC('REPLACE')
          IF(HEADLESS_MODE) THEN
             OUTLYNE='Command requires GUI'
             CALL SHOWIT(1)
@@ -2743,26 +2710,11 @@ SUBROUTINE CMDER
                   EXIT
                END IF
                IF(sys_verbose_optim().NE.0.0D0) THEN
-                  SAVE_KDP(1)=SAVEINPT(1)
-                  INPUT='VB'
-                  CALL PROCES
-                  REST_KDP(1)=RESTINPT(1)
-                  SAVE_KDP(1)=SAVEINPT(1)
-                  INPUT='VBA'
-                  CALL PROCES
-                  REST_KDP(1)=RESTINPT(1)
-                  SAVE_KDP(1)=SAVEINPT(1)
-                  INPUT='OP'
-                  CALL PROCES
-                  REST_KDP(1)=RESTINPT(1)
-                  SAVE_KDP(1)=SAVEINPT(1)
-                  INPUT='OPA'
-                  CALL PROCES
-                  REST_KDP(1)=RESTINPT(1)
-                  SAVE_KDP(1)=SAVEINPT(1)
-                  INPUT='OPRD'
-                  CALL PROCES
-                  REST_KDP(1)=RESTINPT(1)
+                                    CALL KDP_EXEC('VB')
+                                    CALL KDP_EXEC('VBA')
+                                    CALL KDP_EXEC('OP')
+                                    CALL KDP_EXEC('OPA')
+                                    CALL KDP_EXEC('OPRD')
                END IF
                IF(F28.EQ.0.OR.KILOPT) GO TO 8769
             END DO
@@ -2777,26 +2729,11 @@ SUBROUTINE CMDER
                ITERROR=.FALSE.
             END IF
             IF(sys_verbose_optim().NE.0.0D0) THEN
-               SAVE_KDP(1)=SAVEINPT(1)
-               INPUT='VB'
-               CALL PROCES
-               REST_KDP(1)=RESTINPT(1)
-               SAVE_KDP(1)=SAVEINPT(1)
-               INPUT='VBA'
-               CALL PROCES
-               REST_KDP(1)=RESTINPT(1)
-               SAVE_KDP(1)=SAVEINPT(1)
-               INPUT='OP'
-               CALL PROCES
-               REST_KDP(1)=RESTINPT(1)
-               SAVE_KDP(1)=SAVEINPT(1)
-               INPUT='OPA'
-               CALL PROCES
-               REST_KDP(1)=RESTINPT(1)
-               SAVE_KDP(1)=SAVEINPT(1)
-               INPUT='OPRD'
-               CALL PROCES
-               REST_KDP(1)=RESTINPT(1)
+                              CALL KDP_EXEC('VB')
+                              CALL KDP_EXEC('VBA')
+                              CALL KDP_EXEC('OP')
+                              CALL KDP_EXEC('OPA')
+                              CALL KDP_EXEC('OPRD')
             END IF
          END IF
          OPTMES=.TRUE.
@@ -2818,26 +2755,11 @@ SUBROUTINE CMDER
             ITERROR=.FALSE.
          END IF
          IF(sys_verbose_optim().NE.0.0D0) THEN
-            SAVE_KDP(1)=SAVEINPT(1)
-            INPUT='VB'
-            CALL PROCES
-            REST_KDP(1)=RESTINPT(1)
-            SAVE_KDP(1)=SAVEINPT(1)
-            INPUT='VBA'
-            CALL PROCES
-            REST_KDP(1)=RESTINPT(1)
-            SAVE_KDP(1)=SAVEINPT(1)
-            INPUT='OP'
-            CALL PROCES
-            REST_KDP(1)=RESTINPT(1)
-            SAVE_KDP(1)=SAVEINPT(1)
-            INPUT='OPA'
-            CALL PROCES
-            REST_KDP(1)=RESTINPT(1)
-            SAVE_KDP(1)=SAVEINPT(1)
-            INPUT='OPRD'
-            CALL PROCES
-            REST_KDP(1)=RESTINPT(1)
+                        CALL KDP_EXEC('VB')
+                        CALL KDP_EXEC('VBA')
+                        CALL KDP_EXEC('OP')
+                        CALL KDP_EXEC('OPA')
+                        CALL KDP_EXEC('OPRD')
          END IF
          OPTMES=.TRUE.
          F28=0
@@ -2858,26 +2780,11 @@ SUBROUTINE CMDER
             ITERROR=.FALSE.
          END IF
          IF(sys_verbose_optim().NE.0.0D0) THEN
-            SAVE_KDP(1)=SAVEINPT(1)
-            INPUT='VB'
-            CALL PROCES
-            REST_KDP(1)=RESTINPT(1)
-            SAVE_KDP(1)=SAVEINPT(1)
-            INPUT='VBA'
-            CALL PROCES
-            REST_KDP(1)=RESTINPT(1)
-            SAVE_KDP(1)=SAVEINPT(1)
-            INPUT='OP'
-            CALL PROCES
-            REST_KDP(1)=RESTINPT(1)
-            SAVE_KDP(1)=SAVEINPT(1)
-            INPUT='OPA'
-            CALL PROCES
-            REST_KDP(1)=RESTINPT(1)
-            SAVE_KDP(1)=SAVEINPT(1)
-            INPUT='OPRD'
-            CALL PROCES
-            REST_KDP(1)=RESTINPT(1)
+                        CALL KDP_EXEC('VB')
+                        CALL KDP_EXEC('VBA')
+                        CALL KDP_EXEC('OP')
+                        CALL KDP_EXEC('OPA')
+                        CALL KDP_EXEC('OPRD')
          END IF
          OPTMES=.TRUE.
          F28=0

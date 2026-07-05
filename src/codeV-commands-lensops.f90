@@ -426,6 +426,13 @@ contains
         end if
     end procedure setMagSolve
 
+    !## cmd:      DEL
+    !## syntax:   DEL VIG | APE SA | PIM
+    !## category: General
+    !## desc:     Allows for deleting user defined parameters of the system, such as 
+    !##           Vignetting, Apertures, and Solves 
+    !##           
+    !##    
     module procedure deleteStuff
         use command_utils, only: isInputNumber
         use global_widgets, only: curr_lens_data, sysConfig
@@ -467,6 +474,7 @@ contains
             case('VIG')
                 ! DEL VIG: clear all per-field vignetting factors.
                 call sysConfig%resetVignetting()
+                call notify_replot()
             case('APE')
                 ! DEL APE SA: delete clear apertures AND edge apertures on all
                 ! surfaces (SA = "surfaces, all").  Silent, like DEL VIG, so it can

@@ -1749,14 +1749,8 @@ SUBROUTINE GET
             REG(13)=1.0D0+VLO
          END IF
          IF(SHOW) THEN
-            SAVE_KDP(1)=SAVEINPT(1)
-            INPUT='WRITE X MAX-'//REMWQ
-            CALL PROCES
-            REST_KDP(1)=RESTINPT(1)
-            SAVE_KDP(1)=SAVEINPT(1)
-            INPUT='WRITE IX MIN-'//REMWQ
-            CALL PROCES
-            REST_KDP(1)=RESTINPT(1)
+                        CALL KDP_EXEC('WRITE X MAX-'//REMWQ)
+                        CALL KDP_EXEC('WRITE IX MIN-'//REMWQ)
             RETURN
          END IF
       END IF
@@ -6107,10 +6101,7 @@ SUBROUTINE GET
    NUM5=INT(W5)
    CALL GETA
    IF(SHOW) THEN
-      SAVE_KDP(1)=SAVEINPT(1)
-      INPUT='WRITE X '//REMWQ
-      CALL PROCES
-      REST_KDP(1)=RESTINPT(1)
+            CALL KDP_EXEC('WRITE X '//REMWQ)
    END IF
    RETURN
 END

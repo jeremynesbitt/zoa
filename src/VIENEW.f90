@@ -122,10 +122,7 @@ SUBROUTINE VIE_psm(psm)
                     GRASET=.TRUE.
 !     DO A FRAME
                     CALL PLOTBOX
-      SAVE_KDP(1)=SAVEINPT(1)
-      INPUT='PLOT LI'
-      CALL PROCES
-      REST_KDP(1)=RESTINPT(1)
+            CALL KDP_EXEC('PLOT LI')
             END IF
 !
 !******************************************
@@ -244,23 +241,14 @@ SUBROUTINE VIE_psm(psm)
 
           REST_KDP(1)=RESTINPT(1)
     IF(.NOT.VIEOVERLAY) THEN
-          SAVE_KDP(1)=SAVEINPT(1)
-          INPUT='PLOT AXIS'
-          CALL PROCES
-          REST_KDP(1)=RESTINPT(1)
-          SAVE_KDP(1)=SAVEINPT(1)
-          INPUT='PLOT YESLOOK'
-          CALL PROCES
-          REST_KDP(1)=RESTINPT(1)
+                    CALL KDP_EXEC('PLOT AXIS')
+                    CALL KDP_EXEC('PLOT YESLOOK')
             END IF
           !PRINT *, "LINE 2311, SCFAY IS ", SCFAY
 
 !
 !  GUT RAY
-          SAVE_KDP(1)=SAVEINPT(1)
-          INPUT='FOB'
-          CALL PROCES
-          REST_KDP(1)=RESTINPT(1)
+                    CALL KDP_EXEC('FOB')
 !
           SAVE_KDP(1)=SAVEINPT(1)
           WW1=0.0D0

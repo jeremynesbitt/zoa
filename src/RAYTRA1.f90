@@ -3084,10 +3084,7 @@ SUBROUTINE MTRACERI_NOGRID
       ELSE
          FOBNUMBER=FOBNUMBER+1
       END IF
-      SAVE_KDP(1)=SAVEINPT(1)
-      INPUT='SPD ACC'
-      CALL PROCES
-      REST_KDP(1)=RESTINPT(1)
+            CALL KDP_EXEC('SPD ACC')
       IF(SPDEXT) THEN
          SAVE_KDP(1)=SAVEINPT(1)
          INPUT='FAILACC 2 2'
@@ -3171,10 +3168,7 @@ SUBROUTINE MTRACERI_NOGRID
 !
             TFW2=TFW2+FXSTEP
 !
-            SAVE_KDP(1)=SAVEINPT(1)
-            INPUT='SPD ACC'
-            CALL PROCES
-            REST_KDP(1)=RESTINPT(1)
+                        CALL KDP_EXEC('SPD ACC')
             IF(SPDEXT) THEN
                SAVE_KDP(1)=SAVEINPT(1)
                INPUT='FAILACC 2'
@@ -3516,10 +3510,7 @@ SUBROUTINE MTRACERI_GRID1
 
          FOBNUMBER=FOBNUMBER+1
       END IF
-      SAVE_KDP(1)=SAVEINPT(1)
-      INPUT='SPD ACC'
-      CALL PROCES
-      REST_KDP(1)=RESTINPT(1)
+            CALL KDP_EXEC('SPD ACC')
       KK=1
       IF(SPDEXT) THEN
 !       NOW CALC TAREA
@@ -3681,10 +3672,7 @@ SUBROUTINE MTRACERI_GRID1
 !
             TFW2=TFW2+FXSTEP
 !
-            SAVE_KDP(1)=SAVEINPT(1)
-            INPUT='SPD ACC'
-            CALL PROCES
-            REST_KDP(1)=RESTINPT(1)
+                        CALL KDP_EXEC('SPD ACC')
             IF(SPDEXT) THEN
 !       NOW CALC TAREA
                DO I=ID1+1,ITOT-1
@@ -4035,10 +4023,7 @@ SUBROUTINE MTRACERI_GRID2
 
          FOBNUMBER=FOBNUMBER+1
       END IF
-      SAVE_KDP(1)=SAVEINPT(1)
-      INPUT='SPD ACC,,,3'
-      CALL PROCES
-      REST_KDP(1)=RESTINPT(1)
+            CALL KDP_EXEC('SPD ACC,,,3')
       KK=1
       IF(SPDEXT) THEN
          area_fill=0.0D0
@@ -4161,10 +4146,7 @@ SUBROUTINE MTRACERI_GRID2
 !
             TFW2=TFW2+FXSTEP
 !
-            SAVE_KDP(1)=SAVEINPT(1)
-            INPUT='SPD ACC,,,3'
-            CALL PROCES
-            REST_KDP(1)=RESTINPT(1)
+                        CALL KDP_EXEC('SPD ACC,,,3')
             IF(SPDEXT) THEN
                FAREA=0.0D0
                AREA_FILL=0.0D0

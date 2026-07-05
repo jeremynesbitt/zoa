@@ -26,6 +26,7 @@ module mod_parsed_command
 
   public :: parsed_command, capture_command, apply_command
   public :: kdp_slot, KDP_SLOT_MAX
+  public :: kdp_exec, kdp_exec_norestore
 
   type :: parsed_command
     character(len=8)  :: wc  = ' '      ! command word
@@ -45,10 +46,16 @@ module mod_parsed_command
 
   ! Legacy save/restore slots for SAVEINPT/RESTINPT (SAVEREST.f90).  Callers
   ! historically pick their own slot index (1, 31, ...); kept for
-  ! compatibility.  New code should use kdp_exec (added in a later phase)
-  ! instead of the slot pattern.
+  ! compatibility.  New code should use kdp_exec instead of the slot pattern.
   integer, parameter :: KDP_SLOT_MAX = 200
   type(parsed_command), save :: kdp_slot(0:KDP_SLOT_MAX)
+
+  ! True LIFO stack used by kdp_exec -- separate storage from the legacy
+  ! slots, so converted and unconverted call sites can nest freely without
+  ! slot-index collisions.
+  integer, parameter :: EXEC_STACK_MAX = 64
+  type(parsed_command), save :: exec_stack(EXEC_STACK_MAX)
+  integer,              save :: exec_depth = 0
 
 contains
 
@@ -78,4 +85,55 @@ contains
     SB1 = cmd%sb1;  SB2 = cmd%sb2;  SC1 = cmd%sc1; SC2 = cmd%sc2
   end subroutine
 
+  ! Execute a synthesized KDP command, preserving the caller's parsed-command
+  ! state.  Replaces the historical 4-line dance
+  !     SAVE_KDP(i)=SAVEINPT(i) / INPUT='...' / CALL PROCES / REST_KDP(i)=RESTINPT(i)
+  ! with proper LIFO nesting (no caller-chosen slot indices to collide).
+  ! NOTE: like the legacy pattern, the raw INPUT buffer is not restored --
+  ! only the parsed state is.
+  subroutine kdp_exec(cmdString)
+    use DATMAI
+    character(len=*), intent(in) :: cmdString
+
+    if (exec_depth >= EXEC_STACK_MAX) then
+      ! Should never happen (legacy depth was <= a handful); execute without
+      ! save/restore rather than corrupt the stack.
+      call kdp_exec_norestore(cmdString)
+      return
+    end if
+
+    exec_depth = exec_depth + 1
+    exec_stack(exec_depth) = capture_command()
+
+    INPUT = cmdString
+    CALL PROCES
+
+    call apply_command(exec_stack(exec_depth))
+    exec_depth = exec_depth - 1
+  end subroutine
+
+  ! Execute a synthesized KDP command WITHOUT restoring the parsed state
+  ! afterwards -- for the (deliberate) legacy sites whose whole point is to
+  ! leave the new state in place (e.g. mode-entering commands).
+  subroutine kdp_exec_norestore(cmdString)
+    use DATMAI
+    character(len=*), intent(in) :: cmdString
+
+    INPUT = cmdString
+    CALL PROCES
+  end subroutine
+
 end module mod_parsed_command
+
+
+! External shim so legacy F77-style code can `CALL KDP_EXEC('...')` without
+! adding use statements to hundreds of scattered subroutines -- the same
+! implicit-interface convention every legacy file already uses for PROCESKDP.
+! (The module procedure and this external have distinct link names; code with
+! `use mod_parsed_command` gets the module version, legacy code gets this.)
+subroutine KDP_EXEC(cmdString)
+  use mod_parsed_command, only: kdp_exec_m => kdp_exec
+  implicit none
+  character(len=*), intent(in) :: cmdString
+  call kdp_exec_m(cmdString)
+end subroutine
