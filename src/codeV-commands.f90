@@ -270,6 +270,9 @@ module codeV_commands
    module subroutine setCurvature(iptStr)
     character(len=*) :: iptStr
    end subroutine setCurvature
+   module subroutine setCurvatureX(iptStr)
+    character(len=*) :: iptStr
+   end subroutine setCurvatureX
    module subroutine setRadius(iptStr)
     character(len=*) :: iptStr
    end subroutine setRadius
@@ -778,6 +781,9 @@ module codeV_commands
         ! 20th-order asphere coefficient (completes A..I; KDP command AL)
         zoaCmds(699)%cmd = 'I'
         zoaCmds(699)%execFunc => updateAsphereTerms
+
+        zoaCmds(700)%cmd = 'CUX'
+        zoaCmds(700)%execFunc => setCurvatureX
 
         ! CODE V-style variable codes for the asphere coefficients A4..A20
         ! (param cmd + 'C', paralleling CCY/THC/KC):  <code> Sj 0 = variable,

@@ -241,3 +241,37 @@ after its target-surface range check (the statements sit outside the IF), so
 after the refactor-#9 LINKIT rewrite, with both argument orders. No test uses
 them. If LINK is ever wanted, fix the error-flag scoping; otherwise the pair
 is a candidate for removal.
+
+## Solve counter ownership (`surf_solve_flag`) audit
+
+The solve refactor (`solve_manager`, 2026-07) derives solve existence directly
+from the `SOLVE(type_slot, surf)` codes (slots 6/4/8/2), so the new-world
+queries (`ldm%is*SolveOnSurf`, the save path) no longer depend on a maintained
+counter. One legacy counter remains and, like the pickup counters above, drifts:
+
+- **`surf_solve_flag` (an ALENS slot) is a fractional per-plane/class tally**
+  (+1.0 YZ-thickness, +0.1 XZ-thickness, +2.0 YZ-curvature, +0.2 XZ-curvature).
+  It is recalculated from the SOLVE codes at every *command-level* solve
+  create/delete (THSOLV in LDM1, CVSOLV in LDM12, TSD, CSD/CSDY/CSDX), but it is
+  **not** refreshed when SOLVE slots are zeroed *directly* — e.g. surface delete
+  (LDM6) and toric resets (LDM2) — so it can disagree with the actual SOLVE
+  codes after those paths.
+- **Risk is lower than the pickup counters**: the paraxial-trace solve gates
+  (`SLVRS`, LDM5; `resolveSolve`, paraxial-ray-trace) read `SOLVE(6,L)`/
+  `SOLVE(8,L)` *directly*, not the flag. `surf_solve_flag`'s readers are the
+  display/listing paths and a few LDM2 toric checks, so drift shows up as a
+  stale UI marker rather than a wrong trace.
+- **Migration**: readers should move to `solve_manager`'s
+  `surf_has_thi_solve` / `surf_has_curv_solve` / `surf_has_any_solve` (derived
+  from the SOLVE array), after which the flag can be retired. Left out of the
+  refactor because, like `PIKCNT` above, retargeting a value that also feeds
+  legacy toric logic is a behavior risk warranting its own audit.
+
+Also unmapped by design: **`COCY`/`COCX`** (curvature-of-curvature) and
+**`CAY`/`CAX`** (clear-aperture) solves have no CODE V command spelling, so they
+are not user-settable from the CODE V layer and are skipped by the lens-file
+writer (they persist only through the GUI/KDP path). Separately, **`COCX`
+creation is buggy in legacy CVSOLV** (LDM12): it writes code 14 into `SOLVE(8)`
+(a YZ slot) while the writer/reader expect it in `SOLVE(2)` (XZ), so a COCX
+solve is created in the wrong slot and never persists — documented in
+`solve-manager.f90`; not fixed here to preserve legacy trace behavior.

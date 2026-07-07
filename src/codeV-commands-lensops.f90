@@ -439,6 +439,8 @@ contains
         use mod_lens_data_manager, only: ldm
         use zoa_ui_callbacks, only: notify_replot
         use optim_types
+        use solve_manager, only: solve_del_cmd, SLV_YZ_THI_SLOT, &
+        &                        SLV_YZ_CURV_SLOT, SLV_XZ_CURV_SLOT
         implicit none
 
         integer :: surfNum
@@ -453,15 +455,27 @@ contains
                 surfNum = curr_lens_data%num_surfaces - 2
                 call executeCodeVLensUpdateCommand('CHG '//trim(int2str(surfNum))//'; TSD ;GO')
             case('SOL')
-                if (numTokens > 2) then
-                    call zoa_emit("Deleting Solve", "blue")
-                    select case(trim(tokens(3)))
-                    case('CUY')
-                        if (isSurfCommand(trim(tokens(4)))) then
+                ! DEL SOL <verb> Sk : delete the solve of that class on surface Sk.
+                !   CUY -> CSDY (YZ curvature), CUX -> CSDX (XZ curvature),
+                !   THI -> TSD (thickness).  Verb->delete-word via solve_manager.
+                if (numTokens > 3 .and. isSurfCommand(trim(tokens(4)))) then
+                    block
+                        integer :: delSlot
+                        select case(trim(tokens(3)))
+                        case('CUY'); delSlot = SLV_YZ_CURV_SLOT
+                        case('CUX'); delSlot = SLV_XZ_CURV_SLOT
+                        case('THI'); delSlot = SLV_YZ_THI_SLOT
+                        case default; delSlot = -1
+                        end select
+                        if (delSlot /= -1) then
+                            call zoa_emit("Deleting Solve", "blue")
                             surfNum = getSurfNumFromSurfCommand(trim(tokens(4)))
-                            call executeCodeVLensUpdateCommand('CHG '//trim(int2str(surfNum))//'; CSDY ;GO')
+                            call executeCodeVLensUpdateCommand('CHG '//trim(int2str(surfNum))// &
+                            & '; '//trim(solve_del_cmd(delSlot))//' ;GO')
+                        else
+                            call zoa_emit("Unknown solve type.  Expect DEL SOL CUY|CUX|THI Sk", "red")
                         end if
-                    end select
+                    end block
                 else
                     call zoa_emit("No Angle Solve Specified.  Please try again", "red")
                 end if

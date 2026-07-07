@@ -1,6 +1,43 @@
+! --- Magnification (RED) + PIM solve basics ---
 RES osdtriplet
 RED -0.5
 FIR
 SUR SA
 DEL PIM
 FIR
+
+! --- CODE V solve commands: per-family save/reload round-trip + delete ---
+! Each family is exercised on its own fresh lens so the resolved solve VALUE is
+! stable (coupled solves resolve to an order-dependent fixed point).  For every
+! family: set via the CODE V command, SAV/RES, confirm the solve survives with
+! its type + target + resolved value (curvature/thickness solves historically
+! did NOT persist), then remove it with DEL SOL and confirm only osdtriplet's
+! own PY image solve (S6) remains.
+
+! PUY -- ray-slope YZ curvature solve (CUY Sk UMY j)
+RES osdtriplet
+CUY S3 UMY 0.1
+SAV solvetest
+RES solvetest
+SLV ALL
+DEL SOL CUY S3
+SLV ALL
+
+! APY -- aplanatic YZ curvature solve (CUY Sk AMY; takes NO value)
+RES osdtriplet
+CUY S2 AMY
+SAV solvetest
+RES solvetest
+SLV ALL
+DEL SOL CUY S2
+SLV ALL
+
+! PCY -- chief-ray-height thickness solve (THI Sk HCY j).  S5 is after the S3
+! stop, where chief-ray solves are allowed.
+RES osdtriplet
+THI S5 HCY 1.5
+SAV solvetest
+RES solvetest
+SLV ALL
+DEL SOL THI S5
+SLV ALL

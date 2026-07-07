@@ -533,34 +533,32 @@ module mod_lens_data_manager
     end subroutine    
 
     function isThiSolveOnSurf(self, surfIdx) result(boolResult)
-        use DATLEN, only: SOLVE
+        use solve_manager, only: solve_code, SLV_YZ_THI_SLOT
         class(lens_data_manager) :: self
         integer :: surfIdx
         logical :: boolResult
 
-        boolResult = .FALSE.
-        IF(SOLVE(6,surfIdx).NE.0.0D0) boolResult = .TRUE.
+        boolResult = (solve_code(surfIdx, SLV_YZ_THI_SLOT) /= 0)
 
     end function
 
     function isPIMSolveOnSurf(self, surfIdx) result(boolResult)
-        use DATLEN, only: SOLVE
+        use solve_manager, only: solve_code, SLV_YZ_THI_SLOT
         class(lens_data_manager) :: self
         integer :: surfIdx
         logical :: boolResult
 
-        boolResult = (SOLVE(6,surfIdx) == 1.0D0)
+        boolResult = (solve_code(surfIdx, SLV_YZ_THI_SLOT) == 1)
 
     end function
 
     function isYZCurvSolveOnSurf(self, surfIdx) result(boolResult)
-        use DATLEN, only: SOLVE
+        use solve_manager, only: solve_code, SLV_YZ_CURV_SLOT
         class(lens_data_manager) :: self
         integer :: surfIdx
         logical :: boolResult
 
-        boolResult = .FALSE.
-        IF(SOLVE(8,surfIdx).NE.0.0D0) boolResult = .TRUE.
+        boolResult = (solve_code(surfIdx, SLV_YZ_CURV_SLOT) /= 0)
 
     end function
 
@@ -885,6 +883,7 @@ module mod_lens_data_manager
         use type_utils, only: real2str, blankStr, int2str
         use zoa_file_handler, only: genOutputLineWithSpacing
         use mod_surface, only: surf_curvature, surf_radius, surf_thickness, surf_conic
+        use solve_manager, only: SLV_YZ_THI_SLOT, SLV_YZ_CURV_SLOT
         class(lens_data_manager) :: self
         integer :: fID
         ! skip_alens_refresh: when .TRUE., skip the load_surfaces_from_alens() call.
@@ -1007,10 +1006,10 @@ module mod_lens_data_manager
             write(fID, *) trim(strSurfLine)
           end if
       
-            if (curr_lens_data%isSolveOnSurface(ii)) then
-              strSurfLine = curr_lens_data%thickSolves(ii)%genCodeVCMDToSetSolve()
-              write(fID, *) trim(strSurfLine)
-            end if
+            ! Thickness solves (slot 6) are emitted inline: they reload fine
+            ! mid-build (PY -> the historical "PIM" line; PCY/etc. now too).
+            ! Curvature solves are deferred to a post-"GO" pass (see below).
+            call writeSolveSaveLine(fID, curr_lens_data, ii, SLV_YZ_THI_SLOT)
           
         end do
       
@@ -1048,6 +1047,36 @@ module mod_lens_data_manager
         call self%outputPikupText(fID)
         write(fID, *) "GO"
 
+        ! Curvature solves (slot 8), emitted AFTER "GO" so they apply to the
+        ! fully built & traced lens: an aplanatic curvature solve needs a
+        ! marginal-ray trace of the complete system to establish and cannot be
+        ! set mid-build.  Each line carries an explicit Sk (from
+        ! solve_save_line), so order does not matter.  Kinds with no CODE V
+        ! spelling (COCY/COCX) are skipped.
+        do ii = 2, curr_lens_data%num_surfaces-1
+          call writeSolveSaveLine(fID, curr_lens_data, ii, SLV_YZ_CURV_SLOT)
+        end do
+
+      end subroutine
+
+      ! Write the CODE V save line for the solve (if any) held in type-slot
+      ! typeSlot of surface-record index recIdx (self%solves(:,recIdx), which
+      ! describes CODE V surface recIdx-1).  Emits nothing when the slot has no
+      ! solve or the kind has no CODE V spelling.
+      subroutine writeSolveSaveLine(fID, lData, recIdx, typeSlot)
+        use kdp_data_types, only: lens_data
+        use solve_manager, only: solve_kind_at, solve_save_line, SOLVE_KINDS
+        integer, intent(in) :: fID
+        type(lens_data), intent(in) :: lData
+        integer, intent(in) :: recIdx, typeSlot
+        integer :: code, kidx
+        character(len=280) :: line
+
+        code = nint(lData%solves(typeSlot, recIdx))
+        kidx = solve_kind_at(typeSlot, code)
+        if (kidx == 0) return
+        line = solve_save_line(recIdx-1, kidx, dble(lData%solves(SOLVE_KINDS(kidx)%tgt_slot, recIdx)))
+        if (len_trim(line) > 0) write(fID, *) trim(line)
       end subroutine
 
       subroutine removeAllSurfaceData(self, surfIdx)

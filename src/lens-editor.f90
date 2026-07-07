@@ -987,6 +987,8 @@ end subroutine
 
 subroutine solveUpdate_click(widget, gdata) bind(c)
   use type_utils, only: int2str
+  use solve_manager, only: solve_set_cmd, solve_remove_cmd, solve_kind_from_cmd, &
+  &                        SLV_YZ_THI_SLOT, SLV_YZ_CURV_SLOT
   type(c_ptr), value, intent(in) :: widget, gdata
   integer, pointer :: ID_SETTING
   integer :: selection
@@ -1011,11 +1013,12 @@ subroutine solveUpdate_click(widget, gdata) bind(c)
   ! on surface
   if (sData%ID_solve == ID_SOLVE_NONE) then
     CALL PROCESKDP('U L ; '// &
-    & trim(sData%genKDPCMDToRemoveSolve(sData%surf))//';EOS')
-  else   
+    & trim(solve_remove_cmd(merge(SLV_YZ_THI_SLOT, SLV_YZ_CURV_SLOT, &
+    &      ID_SETTING == ID_PICKUP_THIC), sData%surf))//';EOS')
+  else
   ! It's time to update the pickup
     CALL PROCESKDP('U L ; CHG, '//trim(int2str(sData%surf)) &
-    & //"; "//trim(sData%genKDPCMDToSetSolve())//";EOS")
+    & //"; "//trim(solve_set_cmd(solve_kind_from_cmd(sData%cmd_kdp), sData%param1))//";EOS")
   end if
   
 
@@ -1115,6 +1118,7 @@ end if
 end subroutine
 
 subroutine removeSolve(act, avalue, btn) bind(c)
+  use solve_manager, only: solve_remove_cmd, SLV_YZ_THI_SLOT, SLV_YZ_CURV_SLOT
   type(c_ptr), value :: act, avalue, btn
   type(c_ptr) :: cStr
   character(len=100) :: rcCode
@@ -1135,7 +1139,8 @@ subroutine removeSolve(act, avalue, btn) bind(c)
   end select
   print *, "Hook working!"
   CALL PROCESKDP('U L ; '// &
-  & trim(sData%genKDPCMDToRemoveSolve(sData%surf))//';EOS')
+  & trim(solve_remove_cmd(merge(SLV_YZ_THI_SLOT, SLV_YZ_CURV_SLOT, &
+  &      sData%solve_type == ID_PICKUP_THIC), sData%surf))//';EOS')
   call rebuildLensEditorTable()
 
 end subroutine

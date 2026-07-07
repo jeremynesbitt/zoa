@@ -137,16 +137,20 @@ module procedure execSUR
 
     ! end procedure
     !## cmd:      THI
-    !## syntax:   THI Sk X
+    !## syntax:   THI Sk X  |  THI Sk <qual> j
     !## category: Surface Parameters
     !## desc:     Sets the thickness on surface Sk to X.
     !##           Sk can be S0 (object), S1..SN (surface by number), or Si (current surface).
     !##           X is the new thickness value in current lens units.
+    !##           A solve qualifier sets a thickness solve instead: HMY j (paraxial
+    !##           marginal height, KDP PY), HCY j (chief height, PCY), HMX/HCX for XZ.
     !##
     module procedure setThickness
-        call execTranslatedSurfCmd(iptStr, 'TH')
-    
-    end procedure    
+        logical :: handled
+        call tryCodeVSolve(iptStr, 'THI', handled)
+        if (.not. handled) call execTranslatedSurfCmd(iptStr, 'TH')
+
+    end procedure
 
     !## cmd:      GLA
     !## syntax:   GLA Sk name
@@ -206,11 +210,13 @@ module procedure execSUR
     end function
 
     !## cmd:      CUY
-    !## syntax:   CUY Sk X
+    !## syntax:   CUY Sk X  |  CUY Sk <qual> j
     !## category: Surface Parameters
-    !## desc:     Sets the curvature (1/radius) on surface Sk to X.
+    !## desc:     Sets the YZ curvature (1/radius) on surface Sk to X.
     !##           Sk can be S0 (object), S1..SN (surface by number), or Si (current surface).
-    !##           Use CUY Sk UMY X to set a paraxial marginal ray angle solve.
+    !##           A solve qualifier sets a curvature solve instead: AMY (aplanatic
+    !##           marginal, KDP APY), ACY (aplanatic chief, APCY), IMY j (angle of
+    !##           incidence, PIY), ICY j (PICY), UMY j (ray slope, PUY), UCY j (PUCY).
     !##
     module procedure setCurvature
         use command_utils, only : parseCommandIntoTokens, isInputNumber
@@ -219,6 +225,11 @@ module procedure execSUR
         integer :: surfNum
         character(len=80) :: tokens(40)
         integer :: numTokens
+        logical :: handled
+
+        ! Solve form (CUY Sk <qual> j) handled by the shared helper.
+        call tryCodeVSolve(iptStr, 'CUY', handled)
+        if (handled) return
 
         call parseCommandIntoTokens(iptStr, tokens, numTokens, ' ')
         if(isSurfCommand(trim(tokens(2)))) then
@@ -231,28 +242,34 @@ module procedure execSUR
                 call executeCodeVLensUpdateCommand('CHG '//trim(int2str(surfNum))// &
                 & '; CV, ' // trim(tokens(3)), refreshSurf=surfNum)
                else
-                
-
-               select case (trim(tokens(3)))
-               case('UMY')
-                PRINT *, "In the right place!  How exciting!!"
-                PRINT *, "numTokens is ", numTokens
-                if (numTokens > 3 ) then
-                    call zoa_emit("Give it a try!", "blue")
-                    call executeCodeVLensUpdateCommand('CHG '//trim(int2str(surfNum))// &
-                    & '; PUY, ' // trim(tokens(4))//";GO") 
-                end if
-
-               end select 
-            end if ! Tokens > 2 loop
+                call zoa_emit("Unrecognized YZ curvature solve.  Expect e.g. CUY Sk UMY j", "red")
+               end if ! Tokens > 2 loop
             else
                 call zoa_emit("No Angle Solve Specified.  Please try again", "red")
             end if
-         
+
         else
             call zoa_emit("Surface not input correctly.  Should be SO or Sk where k is the surface of interest", "red")
             return
-        end if          
+        end if
+
+    end procedure
+
+    !## cmd:      CUX
+    !## syntax:   CUX Sk <qual> j
+    !## category: Surface Parameters
+    !## desc:     Sets an XZ (X-toric) curvature solve on surface Sk.  Qualifiers:
+    !##           AMX (aplanatic marginal, KDP APX), ACX (aplanatic chief, APCX),
+    !##           IMX j (angle of incidence, PIX), ICX j (PICX), UMX j (ray slope,
+    !##           PUX), UCX j (PUCX).
+    !##
+    module procedure setCurvatureX
+        implicit none
+        logical :: handled
+
+        call tryCodeVSolve(iptStr, 'CUX', handled)
+        if (.not. handled) call zoa_emit( &
+        & "Unrecognized XZ curvature solve.  Expect e.g. CUX Sk UMX j", "red")
 
     end procedure
 
@@ -491,6 +508,45 @@ module procedure execSUR
         end select
 
 
+    end subroutine
+
+    ! Try to interpret "<verb> Sk <qual> [val]" as a CODE V solve (e.g.
+    ! THI S2 HCY 1.5, CUY S3 UMY 0.1, CUX S3 AMX).  If tokens(3) is a solve
+    ! qualifier for this verb, issue the matching KDP solve on surface Sk and
+    ! set handled=.TRUE.  Otherwise handled=.FALSE. and the caller falls back
+    ! to its normal (plain value) handling.  All the command<->KDP knowledge
+    ! lives in the solve_manager kind table.
+    subroutine tryCodeVSolve(iptStr, verb, handled)
+        use iso_fortran_env, only: real64
+        use command_utils, only: isInputNumber
+        use solve_manager, only: solve_kdp_from_codev, solve_kind_from_cmd, solve_set_cmd
+        character(len=*), intent(in) :: iptStr, verb
+        logical, intent(out) :: handled
+        integer :: surfNum, numTokens, kidx
+        character(len=80) :: tokens(40)
+        character(len=8) :: kdpWord
+        real(real64) :: target
+
+        handled = .FALSE.
+        call parse(iptStr, ' ', tokens, numTokens)
+        if (numTokens < 3) return
+        if (.not. isSurfCommand(trim(tokens(2)))) return
+
+        ! Is tokens(3) a solve qualifier for this verb?  (Empty => it's a plain
+        ! numeric value, or garbage; let the caller deal with it.)
+        kdpWord = solve_kdp_from_codev(verb, trim(tokens(3)))
+        if (len_trim(kdpWord) == 0) return
+
+        surfNum = getSurfNumFromSurfCommand(trim(tokens(2)))
+        target = 0.0d0
+        if (numTokens >= 4) then
+            if (isInputNumber(trim(tokens(4)))) read(tokens(4), *) target
+        end if
+
+        kidx = solve_kind_from_cmd(trim(kdpWord))
+        call executeCodeVLensUpdateCommand('CHG '//trim(int2str(surfNum))// &
+        & '; '//trim(solve_set_cmd(kidx, target)), refreshSurf=surfNum)
+        handled = .TRUE.
     end subroutine
 
 

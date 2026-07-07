@@ -44,3 +44,51 @@ OBJ DIS   -55.4383
 TT        -25.3285
 IMG DIS   13.5098
 OAL       16.6000
+
+Field Weights Command WTF     100     100     100 Not supported
+Number of tokens is 2
+File name to save is SOLVETEST.zoa
+
+Field Weights Command WTF     100     100     100 Not supported
+SOLVES
+
+SURF TYPE   PARAMETER       VALUE           SLV DATUM
+  3  PUY       CV        -0.15204         0.10000
+  6  PY        TH         -44.037          0.0000
+Deleting Solve
+SOLVES
+
+SURF TYPE   PARAMETER       VALUE           SLV DATUM
+  6  PY        TH         -44.037          0.0000
+
+Field Weights Command WTF     100     100     100 Not supported
+Number of tokens is 2
+File name to save is SOLVETEST.zoa
+
+Field Weights Command WTF     100     100     100 Not supported
+SOLVES
+
+SURF TYPE   PARAMETER       VALUE           SLV DATUM
+  2  APY       CV         0.45326E-01      0.0000
+  6  PY        TH         -575.28          0.0000
+Deleting Solve
+SOLVES
+
+SURF TYPE   PARAMETER       VALUE           SLV DATUM
+  6  PY        TH         -575.28          0.0000
+
+Field Weights Command WTF     100     100     100 Not supported
+Number of tokens is 2
+File name to save is SOLVETEST.zoa
+
+Field Weights Command WTF     100     100     100 Not supported
+SOLVES
+
+SURF TYPE   PARAMETER       VALUE           SLV DATUM
+  5  PCY       TH         0.88388          1.5000
+  6  PY        TH          38.606          0.0000
+Deleting Solve
+SOLVES
+
+SURF TYPE   PARAMETER       VALUE           SLV DATUM
+  6  PY        TH          38.606          0.0000

@@ -60,6 +60,7 @@ srcs += files(
   'clear-apertures.f90',
   'mod_system.f90',
   'pickup-manager.f90',
+  'solve-manager.f90',
   'surface-type.f90',
   'lens-data-manager.f90',
   'analysis-manager.f90',
