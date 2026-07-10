@@ -10,8 +10,7 @@ SUBROUTINE CV2PRG
    use DATMAI
    use mod_lens_data_manager, only: ldm
    use undo_manager, only: undo_reset_baseline
-   use global_widgets, only: sysConfig
-   use zoom_manager, only: zoom_reset
+   use codeV_commands, only: resetToNewLensTemplate
    use iso_fortran_env, only: real64
    IMPLICIT NONE
 !
@@ -165,12 +164,13 @@ SUBROUTINE CV2PRG
    &"lens system.  This will invalidate all plots.   " //&
    &"Press yes to close them.")
 
-!     Clear any vignetting carried over from the previously loaded lens. NOTE:
-!     CV2PRG does not yet translate CODE V vignetting (VUY/VLY/VUX/VLX) from the
-!     seq, so a converted lens currently starts with none; revisit if/when seq
+!     The lens is being replaced: run the shared newlens.zoa reset (DCON ALL,
+!     DEL VIG, DEL APE SA, zoom reset, template lens) so every load path clears
+!     the same state the same way as LEN NEW.  NOTE: CV2PRG does not yet
+!     translate CODE V vignetting (VUY/VLY/VUX/VLX) from the seq, so a
+!     converted lens currently starts with none; revisit if/when seq
 !     vignetting import is added (it would set factors after this reset).
-   call sysConfig%resetVignetting()
-   call ldm%clearEdgeApertures()
+   call resetToNewLensTemplate()
 
 !     FILES EXISTS, CREATE PROGRAM FILE NAME
    !call logger%logText("CV2PRG Find Extension in File Name")
@@ -1986,6 +1986,13 @@ SUBROUTINE CV2PRG
    CLDY=.FALSE.
    CLTILT=.FALSE.
    CALL UPDATECV2INPUTANDPROCESCOMMAND(OUTLYNE2, SUB)
+!     Refresh the typed surface store from the fully imported ALENS BEFORE the
+!     finalizing EOS: the YZ paraxial trace/solve at EOS reads ldm%surfaces
+!     geometry (same stale-store family as the RDY refreshSurf fix).  Without
+!     this the trace ran on the PREVIOUS lens's surfaces and the imported
+!     lens's first-order values (EFL etc.) came out wrong -- wrong in a way
+!     that depended on whatever lens happened to be loaded before the import.
+   call ldm%load_surfaces_from_alens()
    WRITE(OUTLYNE2,2088)
 2088 FORMAT('EOS')
    CALL UPDATECV2INPUTANDPROCESCOMMAND(OUTLYNE2, SUB)
@@ -1995,7 +2002,9 @@ SUBROUTINE CV2PRG
    END DO
    CALL CLOSE_FILE(37,1)
    CALL CLOSE_FILE(38,1)
-   RETURN
+!     No HOE surfaces: jump to the common finalize (previously this path
+!     RETURNed early and skipped load_surfaces/undo-baseline entirely).
+   GO TO 221
 220 CONTINUE
    WRITE(OUTLYNE2,2089)
 2089 FORMAT('SPSRF')
@@ -2056,14 +2065,15 @@ SUBROUTINE CV2PRG
    CALL UPDATECV2INPUTANDPROCESCOMMAND(OUTLYNE2, SUB)
    CALL CLOSE_FILE(37,1)
    CALL CLOSE_FILE(38,1)
+!     Common finalize for BOTH the HOE and no-HOE paths (zoom was already
+!     reset by resetToNewLensTemplate up front; the importer creates none).
+221 CONTINUE
    DEALLOCATE (TEMPA,TEMPB,TEMPC,STAT=ALLOERR)
    DEALLOCATE (HOE,HOESUR,HV1,HV2,HX1,HY1,HZ1 &
    &,HWL,HX2,HY2,HZ2,HOR,STAT=ALLOERR)
    call ldm%load_surfaces_from_alens()
    ! Converting a CODE V file replaces the lens: reset undo history with it as baseline.
    call undo_reset_baseline()
-   ! A converted lens starts single-config.
-   call zoom_reset()
    RETURN
    !100  FORMAT(A132)
    !100  FORMAT(readformat)

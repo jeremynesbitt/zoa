@@ -234,40 +234,52 @@ contains
         end select
     end procedure setDim
 
-    module procedure newLens
+    ! Shared "the lens is being replaced" reset: every entry point that loads or
+    ! creates a lens (LEN NEW, CV2PRG, ZMX2PRG, RES/.zoa restore) funnels through
+    ! here so per-lens extra state is cleared ONE way -- by running the
+    ! newlens.zoa template macro (DCON ALL, DEL VIG, DEL APE SA, then a minimal
+    ! template lens), exactly what LEN NEW has always done.  Deliberate
+    ! exception: undo restore_snapshot keeps its minimal direct resets (it must
+    ! not touch the undo baseline, and snapshots fully encode the state).
+    module procedure resetToNewLensTemplate
         use mod_lens_data_manager
-        use undo_manager, only: undo_reset_baseline
         use zoom_manager, only: zoom_reset
         implicit none
 
-        integer :: resp
-        character(len=80), dimension(3) :: msg
-        integer :: ios, n
+        integer :: ios, fID
         character(len=200) :: line
 
         ! A new lens starts single-config; clear any prior zoom before loading.
-        ! (Per-field vignetting is cleared by the DEL VIG line in newlens.zoa.)
+        ! (Per-field vignetting is cleared by the DEL VIG line in newlens.zoa;
+        ! clear + edge apertures by its DEL APE SA; constraints by DCON ALL.)
         call zoom_reset()
-        open(unit=9, file=trim(basePath)//'Macros/newlens.zoa', iostat=ios)
+        ! newunit (not a hardcoded unit): this also runs nested inside
+        ! process_zoa_file when a script line triggers a lens load.
+        open(newunit=fID, file=trim(basePath)//'Macros/newlens.zoa', iostat=ios)
         if (ios /= 0) stop "Error opening file "
 
-        n = 0
         do
-            read(9, '(A)', iostat=ios) line
+            read(fID, '(A)', iostat=ios) line
             if (ios /= 0) then
                 exit
             else
                 call PROCESKDP(trim(line))
             end if
-            n = n + 1
         end do
-        close(unit=9)
+        close(unit=fID)
         ldm%vars(:,:) = 100
         ! Rebuild the typed surface store from the freshly-loaded template so it
         ! does not carry stale surfaces from a previous lens.  Without this, a
         ! per-surface geometry refresh on the *next* lens can act on a leftover
         ! store, making an otherwise-identical macro non-idempotent on re-run.
         call ldm%load_surfaces_from_alens()
+    end procedure resetToNewLensTemplate
+
+    module procedure newLens
+        use undo_manager, only: undo_reset_baseline
+        implicit none
+
+        call resetToNewLensTemplate()
         ! A new lens replaces the system: reset undo history with it as baseline.
         call undo_reset_baseline()
     end procedure newLens

@@ -14,6 +14,7 @@ SUBROUTINE LNSEOS
    use mod_system, only: sys_autofunc, sys_last_surf, sys_nss_present, sys_set_last_surf, &
       & sys_high_cfg, sys_scy, sys_scy_fang
    use mod_surface, only: surf_thickness
+   use mod_lens_data_manager, only: ldm
    use iso_fortran_env, only: real64
    IMPLICIT NONE
 !
@@ -24,6 +25,23 @@ SUBROUTINE LNSEOS
 !
    OF5=F5
    OF6=F6
+
+!     Rebuild the typed surface store from ALENS BEFORE any solve/pickup
+!     resolution or paraxial trace runs, but ONLY when the lens topology
+!     (surface count) changed -- i.e. a different lens was just built while
+!     the store still holds the previous one.  The YZ trace refracts through
+!     ldm%surfaces geometry, and every lens-finalize path (GO, EOS, imports)
+!     funnels through LNSEOS; without this, loading lens B while lens A sat
+!     in the store resolved B's solves/pickups against A's surfaces (values
+!     depended on whatever was loaded before).  Same-topology finalizes (an
+!     optimizer iteration, a U L edit cycle) are deliberately left alone:
+!     they keep the existing per-surface refresh mechanisms and their exact
+!     legacy trace behavior.
+   if (.not. allocated(ldm%surfaces)) then
+      call ldm%load_surfaces_from_alens()
+   else if (ubound(ldm%surfaces,1) /= ldm%getLastSurf()) then
+      call ldm%load_surfaces_from_alens()
+   end if
 
 
 !

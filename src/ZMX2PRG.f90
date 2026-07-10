@@ -28,6 +28,10 @@ SUBROUTINE ZMX2PRG
    use mod_system, only: sys_units
    use DATMAI
    use command_utils, only: is_command_query
+   use mod_lens_data_manager, only: ldm
+   use undo_manager, only: undo_reset_baseline
+   use codeV_commands, only: resetToNewLensTemplate
+   use zoa_ui_callbacks, only: notify_close_all_tabs
    use iso_fortran_env, only: real64
    IMPLICIT NONE
 !
@@ -154,6 +158,18 @@ SUBROUTINE ZMX2PRG
       CALL REPORT_ERROR_AND_FAIL('NO ZEMAX INPUT FILE EXISTS TO READ'//'\n'//'NO ACTION TAKEN', 1)
       RETURN
    END IF
+
+   call notify_close_all_tabs("You are about to open a new " //&
+   &"lens system.  This will invalidate all plots.   " //&
+   &"Press yes to close them.")
+
+!     The lens is being replaced: run the shared newlens.zoa reset (DCON ALL,
+!     DEL VIG, DEL APE SA, zoom reset, template lens) so the Zemax import
+!     clears the same state the same way as LEN NEW and CV2PRG.  (Previously
+!     ZMX2PRG performed no reset at all and inherited whatever per-lens state
+!     the prior lens left behind.)
+   call resetToNewLensTemplate()
+
 !     FILES EXISTS, CREATE PROGRAM FILE NAME
    NPERIOD=9
    DO I=1,80
@@ -1792,23 +1808,26 @@ SUBROUTINE ZMX2PRG
    IF(GLASSA(1:3).EQ.'   ') GLASSA='AIR                        '
    WRITE(OUTLYNE,2016) GLASSA
 
-   SAVE_KDP(1)=SAVEINPT(1)
-   INPUT(1:132)=OUTLYNE(1:132)
    PRINT *, "8888 SURF GLASSA is ", GLASSA
-   PRINT *, "LINE TO PROCES IS ", INPUT(1:132)
-   CALL PROCES
-   REST_KDP(1)=RESTINPT(1)
+   PRINT *, "LINE TO PROCES IS ", OUTLYNE(1:132)
+   CALL KDP_EXEC(OUTLYNE(1:132))
 
    SURFER=SURFER+1
+!     Refresh the typed surface store from the fully imported ALENS BEFORE the
+!     finalizing EOS: the YZ paraxial trace/solve at EOS reads ldm%surfaces
+!     geometry, and without this it runs on the PREVIOUS lens's surfaces
+!     (same stale-store fix as CV2PRG).
+   call ldm%load_surfaces_from_alens()
    WRITE(OUTLYNE,2089)
 2089 FORMAT('EOS')
-   SAVE_KDP(1)=SAVEINPT(1)
-   INPUT(1:132)=OUTLYNE(1:132)
-   CALL PROCES
-   REST_KDP(1)=RESTINPT(1)
+   CALL KDP_EXEC(OUTLYNE(1:132))
    CALL CLOSE_FILE(37,1)
    CALL CLOSE_FILE(38,1)
    DEALLOCATE (TEMPA,TEMPB,TEMPC,STAT=ALLOERR)
+!     Importing a Zemax file replaces the lens: rebuild the typed store and
+!     reset the undo history with the imported lens as the new baseline.
+   call ldm%load_surfaces_from_alens()
+   call undo_reset_baseline()
    RETURN
 100 FORMAT(A132)
 END

@@ -134,28 +134,61 @@ These commands were added in Batch 9; all are now TESTED in `test/misc_commands.
 
 ---
 
-## TODO: Unify the new-lens / lens-load reset paths
+## Unified new-lens / lens-load reset paths (RESOLVED 2026-07)
 
-The several ways a lens gets loaded/replaced reset their per-lens "extra" state
-(zoom configs, vignetting factors, per-surface edge apertures via
-`ldm%clearEdgeApertures()`, etc.) through **different mechanisms**, and do
-not all behave identically:
+Every entry point that loads or creates a lens now funnels through one shared
+routine, `resetToNewLensTemplate()` (codeV-commands-editops.f90), which runs
+`Library/Macros/newlens.zoa` — `DCON ALL`, `DEL VIG`, `DEL APE SA`, a minimal
+template lens — plus `zoom_reset()`, `vars=100`, and a typed-store rebuild;
+exactly what `LEN NEW` has always done:
 
-- **New from template** (`newLens` → `Library/Macros/newlens.zoa`): resets via
-  script commands (`DCON ALL`, `DEL VIG`, …) plus a direct `zoom_reset()` in `newLens`.
-- **`CV2PRG`** (CODE V seq import): resets via direct calls inside the subroutine,
-  and those calls sit on an inconsistent path (the cleanup block at the end is only
-  reached on the HOE branch; the common no-HOE path returns early — so the
-  vignetting reset had to be placed up front). CV2PRG also does **not** translate
-  CODE V vignetting (`VUY/VLY/VUX/VLX`) from the seq.
-- **`.zoa` restore** (`processZoaFileInput`) and **undo restore**: reset via direct
-  `zoom_reset()` / `sysConfig%resetVignetting()` before re-running the saved file.
+- **`LEN NEW`** (`newLens`) = shared reset + `undo_reset_baseline()`.
+- **`CV2PRG`** (seq import) and **`ZMX2PRG`** (Zemax import): shared reset up
+  front (ZMX2PRG previously had **no reset at all**), then the import, then a
+  common finalize (`load_surfaces_from_alens` + `undo_reset_baseline`) on
+  **every** exit path (CV2PRG's finalize used to run only on the HOE branch).
+- **`RES <file>`** (`processZoaFileInput` plain branch) and **`RESAUTO`**
+  (session restore): shared reset, then the file, then the same finalize. The
+  file's own ZOO/POS, SET VIG, CIR EDG lines rebuild their state.
+- **Deliberate exception — `RES macro:<file>`**: macros are NOT forced through
+  the reset; a macro may be pure analysis operating on the current lens. A
+  lens-defining macro starts with `LEN NEW` (the Bentley macros do), which
+  performs the shared reset itself.
+- **Deliberate exception — undo `restore_snapshot`**: keeps its minimal direct
+  resets (zoom + vignetting). It must not touch the undo baseline, and
+  snapshots fully encode the remaining state.
 
-These should eventually be funnelled through **one shared "new lens / lens replaced"
-routine** (or a single reset macro) so every entry point clears the same state the
-same way. Surfaced during the per-field vignetting / reference-rays work
-(`SET VIG` / `DEL VIG`). Until then, any new per-lens state must remember to hook
-*all* of these sites.
+Any new per-lens state now needs exactly two hooks: a reset line in
+`newlens.zoa` (or `resetToNewLensTemplate`) and a save/restore line in the
+lens-file writer.
+
+**Root-caused along the way — stale typed-store resolution (fixed):** the YZ
+paraxial trace/solve/pickup resolution reads `ldm%surfaces` geometry, but
+building a lens (import, `RES`, `LEN…GO`) left the PREVIOUS lens's surfaces in
+the store when the finalizing EOS resolved solves/pickups. Result: an imported
+lens's first-order values depended on whatever lens was loaded before it
+(DoubleGauss.seq: EFL 99.5 from a clean start, 127.8 after `LEN NEW`, 86.1
+after `RES osdtriplet` — verified against an independent paraxial trace,
+EFL = 99.5006). Fixed at the chokepoint: `LNSEOS` (LDM15.f90) rebuilds the
+typed store from ALENS **when the surface count changed** (a different lens was
+just built). Same-topology finalizes (optimizer iterations, `U L` edit cycles)
+are deliberately left on the legacy per-surface refresh so optimizer
+trajectories and golden traces stay bit-identical. CV2PRG/ZMX2PRG additionally
+refresh the store right before their finalizing EOS (their surface count can
+match the previous lens's by coincidence).
+
+Ref changes from this work (all validated line-by-line): every `RES`/import now
+emits the template's "All constraints removed" + blank lines;
+`litho_restart` first-order values moved to the independently-verified correct
+ones (657.34 → 660.04 etc.); `wavefront_zern`/`raytrace_opt` shifted by ~1 ulp
+(resolution now runs against the actual lens geometry).
+
+Remaining (unchanged) notes:
+- CV2PRG still does **not** translate CODE V vignetting (`VUY/VLY/VUX/VLX`).
+- The optimizer's EFL constraint evaluates LithoKotaro at 654.51 while
+  FIR/first-order (and an independent trace) give 660.04 — the optimizer's EFL
+  operand computes something different (wavelength or method); worth its own
+  investigation.
 
 ---
 

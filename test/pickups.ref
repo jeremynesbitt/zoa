@@ -1,3 +1,6 @@
+All constraints removed
+
+
 
 Field Weights Command WTF     100     100     100 Not supported
           RDY          THI     RMD          GLA          CCY     THC     GLC
@@ -30,6 +33,9 @@ IMG:    INFINITY    0.00000                              100     100
 Error!  Cannot parse parameter CUY to known surface parameter
 Number of tokens is 2
 File name to save is PICKUPTEST.zoa
+All constraints removed
+
+
 
 Field Weights Command WTF     100     100     100 Not supported
           RDY          THI     RMD          GLA          CCY     THC     GLC

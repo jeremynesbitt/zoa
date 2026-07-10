@@ -1,3 +1,6 @@
+All constraints removed
+
+
 
 Field Weights Command WTF     100     100     100 Not supported
 
@@ -20,6 +23,9 @@ SURF      X              Y              Z             XANG           YANG
   5    0.00000        2.66921       0.709281E-01    0.00000      -0.788230
   6    0.00000        2.62354      -0.109864        0.00000       -4.27618
   7    0.00000      -0.264548        0.00000        0.00000       -4.27618
+All constraints removed
+
+
 
 Field Weights Command WTF     100     100     100 Not supported
 GLOBAL RAY TRACING HAS BEEN SHUT OFF IN PREPARATION
@@ -46,6 +52,9 @@ THI       6.7224
 EXIT PUPIL
 DIA       9.7476
 THI       -10.2334
+All constraints removed
+
+
 
 Field Weights Command WTF     100     100     100 Not supported
 
@@ -69,6 +78,9 @@ SURF      X              Y              Z             XANG           YANG
   5   0.100000        2.70963       0.731938E-01  -0.437180E-01  -0.563628
   6   0.974727E-01    2.67704      -0.114550      -0.182512       -3.97155
   7  -0.255807E-01  -0.493447E-02    0.00000      -0.182512       -3.97155
+All constraints removed
+
+
 
 Field Weights Command WTF     100     100     100 Not supported
 GLOBAL RAY TRACING HAS BEEN SHUT OFF IN PREPARATION
@@ -96,6 +108,9 @@ THI       6.7224
 EXIT PUPIL
 DIA       9.7476
 THI       -10.2334
+All constraints removed
+
+
 
 Field Weights Command WTF     100     100     100 Not supported
 SURFACE PIVAXIS DATA

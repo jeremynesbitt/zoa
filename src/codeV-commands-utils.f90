@@ -225,8 +225,6 @@ contains
         use zoa_file_handler
         use mod_lens_data_manager, only: ldm
         use undo_manager, only: undo_reset_baseline
-        use zoom_manager, only: zoom_reset
-        use global_widgets, only: sysConfig
         implicit none
         integer :: locStr, locDot, i
         character(len=1024) :: fileName
@@ -249,19 +247,12 @@ contains
                 if (present(printOnly)) then
                     call process_zoa_file(trim(fileName), printOnly=.TRUE.)
                 else
-                    ! Clear prior zoom + vignetting before loading; the file's own
-                    ! ZOO/POS and SET VIG lines (if any) rebuild them during processing.
-                    call zoom_reset()
-                    call sysConfig%resetVignetting()
-                    ! Edge apertures live in the ldm store, not the ALENS lens data
-                    ! that LEN clears, so zero them here; the file's CIR EDG lines
-                    ! (if any) reapply during processing.
-                    call ldm%clearEdgeApertures()
+                    ! Macros are NOT forced through the new-lens reset: a macro
+                    ! may be pure analysis operating on the CURRENT lens system.
+                    ! A lens-defining macro starts with LEN NEW (the Bentley
+                    ! macros do), and that command performs the shared
+                    ! newlens.zoa reset + undo-baseline itself.
                     call process_zoa_file(trim(fileName))
-                    call ldm%load_surfaces_from_alens()
-                    ! A user load replaces the lens: reset the undo history with
-                    ! this loaded lens as the new baseline.
-                    call undo_reset_baseline()
                 end if
             end if
         else
@@ -273,14 +264,8 @@ contains
                 if (present(printOnly)) then
                     call process_zoa_file(trim(fileName), printOnly=.TRUE.)
                 else
-                    ! Clear prior zoom + vignetting before loading; the file's own
-                    ! ZOO/POS and SET VIG lines (if any) rebuild them during processing.
-                    call zoom_reset()
-                    call sysConfig%resetVignetting()
-                    ! Edge apertures live in the ldm store, not the ALENS lens data
-                    ! that LEN clears, so zero them here; the file's CIR EDG lines
-                    ! (if any) reapply during processing.
-                    call ldm%clearEdgeApertures()
+                    ! Same shared reset as the macro: branch above.
+                    call resetToNewLensTemplate()
                     call process_zoa_file(trim(fileName))
                     call ldm%load_surfaces_from_alens()
                     ! A user load replaces the lens: reset the undo history with

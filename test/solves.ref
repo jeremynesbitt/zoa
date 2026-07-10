@@ -1,3 +1,6 @@
+All constraints removed
+
+
 
 Field Weights Command WTF     100     100     100 Not supported
 
@@ -44,10 +47,16 @@ OBJ DIS   -55.4383
 TT        -25.3285
 IMG DIS   13.5098
 OAL       16.6000
+All constraints removed
+
+
 
 Field Weights Command WTF     100     100     100 Not supported
 Number of tokens is 2
 File name to save is SOLVETEST.zoa
+All constraints removed
+
+
 
 Field Weights Command WTF     100     100     100 Not supported
 SOLVES
@@ -60,10 +69,16 @@ SOLVES
 
 SURF TYPE   PARAMETER       VALUE           SLV DATUM
   6  PY        TH         -44.037          0.0000
+All constraints removed
+
+
 
 Field Weights Command WTF     100     100     100 Not supported
 Number of tokens is 2
 File name to save is SOLVETEST.zoa
+All constraints removed
+
+
 
 Field Weights Command WTF     100     100     100 Not supported
 SOLVES
@@ -76,10 +91,16 @@ SOLVES
 
 SURF TYPE   PARAMETER       VALUE           SLV DATUM
   6  PY        TH         -575.28          0.0000
+All constraints removed
+
+
 
 Field Weights Command WTF     100     100     100 Not supported
 Number of tokens is 2
 File name to save is SOLVETEST.zoa
+All constraints removed
+
+
 
 Field Weights Command WTF     100     100     100 Not supported
 SOLVES

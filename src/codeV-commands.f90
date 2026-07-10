@@ -171,6 +171,8 @@ module codeV_commands
    end subroutine setDim
    module subroutine newLens()
    end subroutine newLens
+   module subroutine resetToNewLensTemplate()
+   end subroutine resetToNewLensTemplate
    module subroutine setLensTitle(iptStr)
    character(len=*) :: iptStr
    end subroutine setLensTitle

@@ -1,8 +1,14 @@
+All constraints removed
+
+
 
 Number of tokens is 1
 File name to save is templens.zoa
 THE CURRENT INI IS BLANK
 Restoring from: templens.zoa
+All constraints removed
+
+
 
 Field Weights Command WTF     100     100     100 Not supported
 
@@ -24,7 +30,7 @@ POS # =  2 X-VALUE =   0.00000     Y-VALUE =  0.700000
 POS # =  3 X-VALUE =   0.00000     Y-VALUE =   1.00000
 YZ-PLANE FIRST ORDER OPERATING CONDITIONS
   EFL          BFD          IMG F-NUM    LENGTH       OAL          T-MAG
-  657.34       0.0000      0.66395       768.09       808.51     -0.24873
+  660.04       0.0000      0.66667       768.09       808.51     -0.25000
 XZ-PLANE FIRST ORDER OPERATING CONDITIONS
   EFL          BFD          IMG F-NUM    LENGTH       OAL          T-MAG
   660.04       0.0000      0.99747E-02   768.09       808.51     -0.25000
@@ -840,8 +846,8 @@ SURF     "INR" VALUE (IN CURRENT LENS UNITS)
  57             45.233639
  58             38.580871
  59             19.595907
- 60             35.616430
- 61             35.616430
+ 60             9.7709217
+ 61             9.7709217
 NO MIRROR THICKNESS DATA
 NO PRICE DATA
 SURFACE COATING NUMBER DATA

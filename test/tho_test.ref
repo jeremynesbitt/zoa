@@ -1,3 +1,6 @@
+All constraints removed
+
+
 
 Lithographic system, Kotaro
           Position 1, Wavelength = 248.3 nm
@@ -65,6 +68,9 @@ STO   0.00000   0.00000   0.00000   0.00000   0.00000   0.00000  -0.00000
 060   0.00000   0.00000   0.00000   0.00000   0.00000  -0.00000  -0.00000
 IMG   0.00000   0.00000   0.00000   0.00000   0.00000  -0.00000  -0.00000
 SUM   0.00159   0.00009  -0.00017   0.00009  -0.00002   0.00000   0.00000
+All constraints removed
+
+
 
 DOUBLE GAUSS
           Position 1, Wavelength = 587.6 nm

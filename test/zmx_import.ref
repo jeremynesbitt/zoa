@@ -1,3 +1,6 @@
+All constraints removed
+
+
 
           RDY          THI     RMD          GLA          CCY     THC     GLC
 OBJ:    INFINITY    INFINITY                              100     100
@@ -23,6 +26,9 @@ THI       0.0000
 EXIT PUPIL
 DIA       10.0686
 THI       -2.6552
+All constraints removed
+
+
 
           RDY          THI     RMD          GLA          CCY     THC     GLC
 OBJ:    INFINITY    INFINITY                              100     100

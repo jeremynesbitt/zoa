@@ -627,6 +627,8 @@ contains
 
     module procedure execRESAUTO
         use zoa_file_handler, only: getTempDirectory, getCurrentLensFileName, process_zoa_file
+        use undo_manager, only: undo_reset_baseline
+        use mod_lens_data_manager, only: ldm
         implicit none
         character(len=1024) :: fullPath
 
@@ -635,7 +637,13 @@ contains
         ! test output (full path still goes to the terminal via print).
         print *, "Restoring from: "//trim(fullPath)
         call zoa_emit("Restoring from: "//trim(getCurrentLensFileName()), "black")
+        ! The lens is being replaced: same shared newlens.zoa reset + finalize
+        ! as RES (processZoaFileInput), so session restore clears the same
+        ! state the same way as every other lens-load path.
+        call resetToNewLensTemplate()
         call process_zoa_file(trim(fullPath))
+        call ldm%load_surfaces_from_alens()
+        call undo_reset_baseline()
     end procedure execRESAUTO
 
 end submodule mod_codev_lensops

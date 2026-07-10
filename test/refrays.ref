@@ -1,3 +1,6 @@
+All constraints removed
+
+
 
 RAYTRACE DATA (XZ AND YZ-PLANE) - (CFG # 1)
 ANGULAR OUTPUT MODE IS DEGREES
@@ -57,6 +60,9 @@ F3  x=0.0000 y=1.0000  wl=2
   R3LWR   ok=T vig=F  Ximg=0.0000 Yimg=24.5588
   R4+XSG  ok=T vig=F  Ximg=0.0055 Yimg=24.5484
   R5-XSG  ok=T vig=F  Ximg=-0.0055 Yimg=24.5484
+All constraints removed
+
+
 
 Reference rays built for 3 field(s).
 Reference rays: 3 field(s)

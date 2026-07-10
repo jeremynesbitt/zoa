@@ -1,3 +1,6 @@
+All constraints removed
+
+
 
 Field Weights Command WTF     100     100     100 Not supported
 ENTRANCE PUPIL
@@ -20,6 +23,9 @@ EXIT PUPIL
 DIA       9.7476
 THI       -10.2334
 Saved CODE V file ZIPTRIP.SEQ
+All constraints removed
+
+
 
 ENTRANCE PUPIL
 DIA       10.0000
@@ -41,6 +47,9 @@ EXIT PUPIL
 DIA       9.7476
 THI       -48.7486
 Saved Zemax file ZIPTRIP.ZMX
+All constraints removed
+
+
 
           RDY          THI     RMD          GLA          CCY     THC     GLC
 OBJ:    INFINITY    INFINITY                              100     100
