@@ -414,6 +414,10 @@ module optim_types
             VAR_CODE = VAR_A18
         case('IC')
             VAR_CODE = VAR_A20
+        ! NOTE: 'GLC' (glass variable, VAR_GLA) is deliberately NOT mapped here:
+        ! the optimizer has no glass-variable support yet, so GLC only updates
+        ! the ldm%vars bookkeeping (lens-editor icon / GLC command) via
+        ! ldm%updateOptimVars.  Add it here when glass optimization lands.
         case default
             return
         end select

@@ -784,19 +784,28 @@ module codeV_commands
         zoaCmds(699)%cmd = 'I'
         zoaCmds(699)%execFunc => updateAsphereTerms
 
-        zoaCmds(700)%cmd = 'CUX'
-        zoaCmds(700)%execFunc => setCurvatureX
-
         ! CODE V-style variable codes for the asphere coefficients A4..A20
         ! (param cmd + 'C', paralleling CCY/THC/KC):  <code> Sj 0 = variable,
         ! <code> Sj 100 = frozen.  All route through updateVarCodes, which
         ! passes the command name to the name->VAR_* maps.
         ! (The legacy KDP commands CC and AC were renamed CCK/ACK to free
         ! these names.)
+        ! CAUTION: this loop occupies slots 700-708; the next free slot is 709.
+        ! (A CUX registration at 700 was once silently clobbered by this loop.)
         do i=1,9
             zoaCmds(699+i)%cmd      = asphereVarCodes(i)
             zoaCmds(699+i)%execFunc => updateVarCodes
         end do
+
+        zoaCmds(709)%cmd = 'CUX'
+        zoaCmds(709)%execFunc => setCurvatureX
+
+        ! Glass variable code (GLC Sj 0 = variable, GLC Sj 100 = frozen).
+        ! Placeholder depth: updates the ldm%vars bookkeeping (lens-editor
+        ! icon) only -- the optimizer has no glass-variable support yet
+        ! (see updateOptimVarsNew).
+        zoaCmds(710)%cmd = 'GLC'
+        zoaCmds(710)%execFunc => updateVarCodes
 
 
     end subroutine

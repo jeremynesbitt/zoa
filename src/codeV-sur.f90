@@ -69,7 +69,8 @@ module procedure execSUR
 
                     fullLine = surfTxt//blankStr(4)//trim(radTxt)// &
                     & blankStr(4)//trim(thiTxt)//blankStr(5)//rmdTxt &
-                    & //glaTxt//ldm%getCCYCodeAsStr(ii)//blankStr(5)//ldm%getTHCCodeAsStr(ii)//blankStr(5)         
+                    & //glaTxt//ldm%getCCYCodeAsStr(ii)//blankStr(5)//ldm%getTHCCodeAsStr(ii)//blankStr(5) &
+                    & //ldm%getGLCCodeAsStr(ii)
 
 
                     call zoa_emit(trim(fullLine), "black")

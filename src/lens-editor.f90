@@ -1269,9 +1269,10 @@ end subroutine
 
 ! --- Column -> modifier-code helpers ------------------------------------------
 ! The lens editor columns map to backend codes as: Radius(5)=curvature,
-! Thickness(6)=thickness, extra-param columns (9..18) = surface-type params
-! (asphere: 1=K conic, 2..10=A4..A20).  These helpers centralize that mapping
-! for variables (VAR_* code + CODE V var-code command) and pickups (PIKUP J).
+! Thickness(6)=thickness, Glass(7)=glass (pickup + GLC variable; no solve),
+! extra-param columns (9..18) = surface-type params (asphere: 1=K conic,
+! 2..10=A4..A20).  These helpers centralize that mapping for variables
+! (VAR_* code + CODE V var-code command) and pickups (PIKUP J).
 
 ! VAR_* code for a column (0 => column has no variable support on this surface)
 function colToVarCode(surf, colIdx) result(varCode)
@@ -1285,6 +1286,8 @@ function colToVarCode(surf, colIdx) result(varCode)
     varCode = VAR_CURV
   case(ID_COL_THICKNESS)
     varCode = VAR_THI
+  case(ID_COL_GLASS)
+    varCode = VAR_GLA
   case(extra_param_start:extra_param_start+9)
     i = colIdx - extra_param_start + 1
     ! Only params with pickup/KDP plumbing (i.e. defined on the surface type)
@@ -1311,6 +1314,8 @@ function colToVarCmd(surf, colIdx) result(cmd)
     cmd = 'CCY'
   case(ID_COL_THICKNESS)
     cmd = 'THC'
+  case(ID_COL_GLASS)
+    cmd = 'GLC'
   case(extra_param_start:extra_param_start+9)
     i = colIdx - extra_param_start + 1
     if (ldm%getExtraParamPikupIdx(surf, i) /= 0) &
@@ -1330,6 +1335,8 @@ function colToPikupJ(surf, colIdx) result(jIdx)
     jIdx = ID_PICKUP_RAD
   case(ID_COL_THICKNESS)
     jIdx = ID_PICKUP_THIC
+  case(ID_COL_GLASS)
+    jIdx = ID_PICKUP_GLASS
   case(extra_param_start:extra_param_start+9)
     jIdx = ldm%getExtraParamPikupIdx(surf, colIdx - extra_param_start + 1)
   end select
@@ -1472,11 +1479,13 @@ subroutine setup_cb(factory,listitem, gdata) bind(c)
     call gtk_box_append(boxS, entryCB)
     call gtk_box_append(boxS, menuB)
     call gtk_list_item_set_child(listitem,boxS)
-   case(7) ! Glass
+   case(7) ! Glass + modifier (Pickup/Variable menu; glass has no solve)
     boxS = hl_gtk_box_new(horizontal=TRUE, spacing=0_c_int)
     entryCB = hl_gtk_entry_new(10_c_int, editable=TRUE, activate=c_funloc(cell_changed), data=g_strdup('GLA'))
+    menuB = gtk_menu_button_new()
     call gtk_box_append(boxS, entryCB)
-    call gtk_list_item_set_child(listitem, boxS)       
+    call gtk_box_append(boxS, menuB)
+    call gtk_list_item_set_child(listitem, boxS)
   case(8) ! Aperture
     boxS = hl_gtk_box_new(horizontal=TRUE, spacing=0_c_int)
     entryCB = hl_gtk_entry_new(10_c_int, editable=TRUE, activate=c_funloc(cell_changed), data=g_strdup('CIR'))
@@ -1585,9 +1594,27 @@ subroutine bind_cb(factory,listitem, gdata) bind(c)
   case(7) ! Glass
     cStr = lens_item_get_glass(item)
     call convert_c_string(cStr, colName)
-    entryCB = gtk_widget_get_first_child(label)  
-    buffer = gtk_entry_get_buffer(entryCB)    
+    entryCB = gtk_widget_get_first_child(label)
+    buffer = gtk_entry_get_buffer(entryCB)
     call gtk_entry_buffer_set_text(buffer, trim(colName),-1_c_int)
+
+    ! Modifier menu button (Pickup/Variable; glass has no solve).  Same
+    ! pattern as the extra-param columns: icon shows P for a glass pickup,
+    ! V for a GLC variable, blank otherwise.
+    block
+      integer :: surfNo, varCode
+      menuCB = gtk_widget_get_next_sibling(entryCB)
+      surfNo = lens_item_get_surface_number(item)
+      call gtk_menu_button_set_menu_model(menuCB, createModMenu(menuCB, surfNo, ID_COL))
+      varCode = colToVarCode(surfNo, ID_COL)
+      if (ldm%isPikupOnSurfJ(surfNo, ID_PICKUP_GLASS)) then
+        call gtk_menu_button_set_icon_name(menuCB, 'letter-p'//c_null_char)
+      else if (ldm%isVarOnSurf(surfNo, varCode)) then
+        call gtk_menu_button_set_icon_name(menuCB, 'letter-v'//c_null_char)
+      else
+        call gtk_menu_button_set_icon_name(menuCB, 'letter-blank'//c_null_char)
+      end if
+    end block
   case(8) ! Clear Aperture
     colName = trim(real2str(lens_item_get_aperture(item)))//c_null_char  
     entryCB = gtk_widget_get_first_child(label)  

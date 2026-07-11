@@ -44,6 +44,15 @@ SUR SA
 SPH  S2
 SUR SA
 
+! ---- GLC: glass variable code (bookkeeping only; optimizer support TBD) ----
+! GLC Sk 0 marks the glass variable (SUR SA GLC column shows 0);
+! GLC Sk 100 freezes it again.
+RES osdtriplet
+GLC S2 0
+SUR SA
+GLC S2 100
+SUR SA
+
 ! ---- TOW: enter loop (FIR is not a zoaCmd so executes; GO not called → no GUI crash) ----
 TOW
 FIR

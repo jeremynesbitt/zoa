@@ -185,8 +185,9 @@ contains
 
   ! Write the .zoa save lines (PIK <cli> Starget <cli> Ssource scale offset)
   ! for every pickup whose kind has a CodeV CLI name.  Kinds without one
-  ! (torics, tilts, decenters, ...) are not yet expressible in .zoa saves;
-  ! GLA is skipped because PIK GLA takes no scale/offset arguments.
+  ! (torics, tilts, decenters, ...) are not yet expressible in .zoa saves.
+  ! GLA uses the short no-scale form 'PIK GLA Starget Ssource' (glass pickups
+  ! take no scale/offset; they were historically dropped from saves entirely).
   subroutine pickup_genSaveOutputText(fID)
     use type_utils, only: int2str, real2str
     use mod_system, only: sys_last_surf
@@ -197,11 +198,14 @@ contains
     do s = 0, int(sys_last_surf())
       do k = 1, NUM_PICKUP_KINDS
         if (len_trim(PIKUP_KINDS(k)%cli) == 0) cycle
-        if (trim(PIKUP_KINDS(k)%cli) == 'GLA') cycle
         if (.not. pickup_get(s, PIKUP_KINDS(k)%j, src, scale, offset)) cycle
-        write(fID, *) 'PIK '//trim(PIKUP_KINDS(k)%cli)//' S'//trim(int2str(s))// &
-        &  ' '//trim(PIKUP_KINDS(k)%cli)//' S'//trim(int2str(src))// &
-        &  ' '//trim(real2str(scale,4))//' '//trim(real2str(offset,4))
+        if (trim(PIKUP_KINDS(k)%cli) == 'GLA') then
+          write(fID, *) 'PIK GLA S'//trim(int2str(s))//' S'//trim(int2str(src))
+        else
+          write(fID, *) 'PIK '//trim(PIKUP_KINDS(k)%cli)//' S'//trim(int2str(s))// &
+          &  ' '//trim(PIKUP_KINDS(k)%cli)//' S'//trim(int2str(src))// &
+          &  ' '//trim(real2str(scale,4))//' '//trim(real2str(offset,4))
+        end if
       end do
     end do
   end subroutine

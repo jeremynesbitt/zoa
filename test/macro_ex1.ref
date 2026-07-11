@@ -10,10 +10,10 @@ All constraints removed
 CYCLE NUMBER 0
    ERROR FUNCTION = 0.00000
           RDY          THI     RMD          GLA          CCY     THC     GLC
-OBJ:    INFINITY    INFINITY                              100     100
-STO:    INFINITY    6.00000               BK7_SCHOTT     100     100
-002:    -10.000    19.34984                              100     100
-IMG:    INFINITY    0.00000                              100     100
+OBJ:    INFINITY    INFINITY                              100     100     100
+STO:    INFINITY    6.00000               BK7_SCHOTT     100     100     100
+002:    -10.000    19.34984                              100     100     100
+IMG:    INFINITY    0.00000                              100     100     100
 ___
 ASPHERES
 # 2 K -2.29510
@@ -24,10 +24,10 @@ SAS    0.0000000000000000  -0.0284117247435784  -0.0284117247435784
 CYCLE NUMBER 1
    ERROR FUNCTION = 0.00000
           RDY          THI     RMD          GLA          CCY     THC     GLC
-OBJ:    INFINITY    INFINITY                              100     100
-STO:    INFINITY    6.00000               BK7_SCHOTT     100     100
-002:    -10.000    19.34984                              100     100
-IMG:    INFINITY    0.00000                              100     100
+OBJ:    INFINITY    INFINITY                              100     100     100
+STO:    INFINITY    6.00000               BK7_SCHOTT     100     100     100
+002:    -10.000    19.34984                              100     100     100
+IMG:    INFINITY    0.00000                              100     100     100
 ___
 ASPHERES
 # 2 K -2.29794
@@ -38,10 +38,10 @@ SAS    0.0000000000000000  -0.0142117240106804  -0.0142117240106804
 CYCLE NUMBER 2
    ERROR FUNCTION = 0.00000
           RDY          THI     RMD          GLA          CCY     THC     GLC
-OBJ:    INFINITY    INFINITY                              100     100
-STO:    INFINITY    6.00000               BK7_SCHOTT     100     100
-002:    -10.000    19.34984                              100     100
-IMG:    INFINITY    0.00000                              100     100
+OBJ:    INFINITY    INFINITY                              100     100     100
+STO:    INFINITY    6.00000               BK7_SCHOTT     100     100     100
+002:    -10.000    19.34984                              100     100     100
+IMG:    INFINITY    0.00000                              100     100     100
 ___
 ASPHERES
 # 2 K -2.29936
@@ -52,10 +52,10 @@ SAS    0.0000000000000000  -0.0071117236442289  -0.0071117236442289
 CYCLE NUMBER 3
    ERROR FUNCTION = 0.00000
           RDY          THI     RMD          GLA          CCY     THC     GLC
-OBJ:    INFINITY    INFINITY                              100     100
-STO:    INFINITY    6.00000               BK7_SCHOTT     100     100
-002:    -10.000    19.34984                              100     100
-IMG:    INFINITY    0.00000                              100     100
+OBJ:    INFINITY    INFINITY                              100     100     100
+STO:    INFINITY    6.00000               BK7_SCHOTT     100     100     100
+002:    -10.000    19.34984                              100     100     100
+IMG:    INFINITY    0.00000                              100     100     100
 ___
 ASPHERES
 # 2 K -2.29936

@@ -208,7 +208,8 @@ integer, parameter :: VAR_A14 = 9   ! FC
 integer, parameter :: VAR_A16 = 10  ! GC
 integer, parameter :: VAR_A18 = 11  ! HC
 integer, parameter :: VAR_A20 = 12  ! IC
-integer, parameter :: NUM_VAR_CODES = 12
+integer, parameter :: VAR_GLA = 13  ! GLC (glass variable; optimizer support TBD)
+integer, parameter :: NUM_VAR_CODES = 13
 
 
 ! Constraints
@@ -293,6 +294,7 @@ integer, parameter :: ID_CON_GREATER_THAN = 3
 ! C     FOR THOAL NW5 IS SOURCE CONFIGURATION FLAG
 integer, parameter :: ID_PICKUP_RAD  = 1
 integer, parameter :: ID_PICKUP_CURV = 2
-integer, parameter :: ID_PICKUP_THIC = 3  
+integer, parameter :: ID_PICKUP_THIC = 3
+integer, parameter :: ID_PICKUP_GLASS = 20  ! PIKUP array J for GLASS (pickup_manager kind table)
 
 end module zoa_ui

@@ -67,7 +67,7 @@ module mod_lens_data_manager
      procedure :: updateOptimVars
      procedure :: setVarOnSurf
      procedure :: isSolveOnSurf, isPikupOnSurf, isPikupOnSurfJ, isVarOnSurf
-     procedure :: getCCYCodeAsStr, getTHCCodeAsStr
+     procedure :: getCCYCodeAsStr, getTHCCodeAsStr, getGLCCodeAsStr
      procedure :: getSurfacePointer, incrementSurfacePointer, setSurfacePointer
      procedure, public, pass(self) :: genSaveOutputText => genLDMSaveOutputText
      procedure :: outputPikupText, getSurfTypeName, getExtraParamCmd
@@ -699,6 +699,8 @@ module mod_lens_data_manager
             VAR_CODE = VAR_A18
         case('IC')
             VAR_CODE = VAR_A20
+        case('GLC')
+            VAR_CODE = VAR_GLA
         case default
             return
         end select
@@ -853,7 +855,7 @@ module mod_lens_data_manager
         use type_utils
 
         implicit none
-        
+
         class(lens_data_manager) :: self
         character(len=3) :: outStr
         integer :: si
@@ -865,6 +867,19 @@ module mod_lens_data_manager
         outStr = int2str(INT(self%vars(si,2)))
 
 
+    end function
+
+    ! Glass variable code (GLC) for the SUR SA table -- fills the GLC column
+    ! the header has always announced.  Bookkeeping only for now: the
+    ! optimizer has no glass-variable support yet.
+    function getGLCCodeAsStr(self, si) result(outStr)
+        use type_utils
+        implicit none
+        class(lens_data_manager) :: self
+        character(len=3) :: outStr
+        integer :: si
+
+        outStr = int2str(INT(self%vars(si, VAR_GLA)))
     end function    
 
     ! Pickup save lines now live in the pickup manager; kept as a thin

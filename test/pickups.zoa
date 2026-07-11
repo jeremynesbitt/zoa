@@ -24,3 +24,21 @@ EOS
 RDY S1 60
 THI S2 7
 SUR SA
+
+! --- Glass pickup (PIK GLA, no scale/offset) ---
+! S4 is air in osdtriplet; picking up S1's glass must fill it, survive a
+! SAV/RES round-trip (glass pickups were historically dropped from saves --
+! the writer's short 'PIK GLA Starget Ssource' form guards that fix), track a
+! source glass change, and stop tracking after PIKD GLASS.
+RES osdtriplet
+PIK GLA S4 S1
+SUR SA
+SAV pickuptest
+RES pickuptest
+GLA S1 NF2_SCHOTT
+SUR SA
+U L
+PIKD GLASS,4
+EOS
+GLA S1 NSK16_SCHOTT
+SUR SA

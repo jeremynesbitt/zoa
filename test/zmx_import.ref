@@ -3,10 +3,10 @@ All constraints removed
 
 
           RDY          THI     RMD          GLA          CCY     THC     GLC
-OBJ:    INFINITY    INFINITY                              100     100
-STO:    50.00000    4.00000               BK7_SCHOTT     100     100
-002:    -200.000    95.00000                              100     100
-IMG:    INFINITY    0.00000                              100     100
+OBJ:    INFINITY    INFINITY                              100     100     100
+STO:    50.00000    4.00000               BK7_SCHOTT     100     100     100
+002:    -200.000    95.00000                              100     100     100
+IMG:    INFINITY    0.00000                              100     100     100
 ENTRANCE PUPIL
 DIA       10.0000
 THI       0.0000
@@ -31,11 +31,11 @@ All constraints removed
 
 
           RDY          THI     RMD          GLA          CCY     THC     GLC
-OBJ:    INFINITY    INFINITY                              100     100
-STO:    62.50000    5.00000               BK7_SCHOTT     100     100
-002:    -45.455    2.50000               F2_SCHOTT      100     100
-003:    -166.667    95.00000                              100     100
-IMG:    INFINITY    0.00000                              100     100
+OBJ:    INFINITY    INFINITY                              100     100     100
+STO:    62.50000    5.00000               BK7_SCHOTT     100     100     100
+002:    -45.455    2.50000               F2_SCHOTT      100     100     100
+003:    -166.667    95.00000                              100     100     100
+IMG:    INFINITY    0.00000                              100     100     100
 ___
 ASPHERES
 # 2 K -0.50000
