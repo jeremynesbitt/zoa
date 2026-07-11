@@ -543,24 +543,27 @@ contains
     end procedure evalFunc
 
     module procedure listConstraints
-        use optim_types, only: nC, constraintsInUse
+        use optim_types, only: nM, meritInUse, numConstraints
         use type_utils, only: real2str
         use kdp_utils, only: OUTKDP
         implicit none
-        integer :: i
+        integer :: i, j
         character(len=1) :: conTypeStr
         character(len=80) :: outStr
 
-        if (nC == 0) then
+        if (numConstraints() == 0) then
             call OUTKDP('No constraints defined')
             return
         end if
 
         call OUTKDP('  #   NAME   TYPE        TARGET')
         call OUTKDP('  -   ----   ----   -----------')
-        do i = 1, nC
-            conTypeStr = constraintsInUse(i)%getConstraintTypeAsText()
-            write(outStr, '(I3, 3X, A4, 3X, A1, 3X, A)') i, constraintsInUse(i)%name, conTypeStr, trim(real2str(constraintsInUse(i)%targ))
+        j = 0
+        do i = 1, nM
+            if (meritInUse(i)%role /= ID_ROLE_CONSTRAINT) cycle
+            j = j + 1
+            conTypeStr = meritInUse(i)%getConstraintTypeAsText()
+            write(outStr, '(I3, 3X, A4, 3X, A1, 3X, A)') j, meritInUse(i)%name, conTypeStr, trim(real2str(meritInUse(i)%targ))
             call OUTKDP(trim(outStr))
         end do
     end procedure listConstraints

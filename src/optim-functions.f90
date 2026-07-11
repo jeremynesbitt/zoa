@@ -55,11 +55,12 @@ subroutine aut_go()
         return
     end if
 
-    ! nO is defined in optimTypes.
-    print *, "nO is ", nO
-    if (nO == 0 .AND. nC == 0) then
-        ! Default is Spot Size
-        call addOperand('SPO', 0.0_long)
+    ! Default merit: if the user defined nothing at all, minimize spot size.
+    ! (Deliberately unchanged rule: when only constraints exist, no objective
+    ! is added and the run is a pure feasibility solve.)
+    print *, "nM is ", nM
+    if (nM == 0) then
+        call addMeritEntry('SPO', ID_ROLE_OBJECTIVE, 0.0_long)
     end if
 
 
@@ -79,7 +80,7 @@ subroutine aut_go()
     meq = getNumberofEqualityConstraints()
 
     print *, "nV is ", nV
-    call solver%initialize(nV,nC,meq,max_iter,acc,optimizerFunc,dummy_grad,&
+    call solver%initialize(nV,numConstraints(),meq,max_iter,acc,optimizerFunc,dummy_grad,&
                            xl,xu,linesearch_mode=linesearch_mode,status_ok=status_ok,&
                            report=report_iteration,&
                            alphamin=0.1_long, alphamax=0.5_long, &
@@ -126,51 +127,43 @@ subroutine optimizerFunc(me, x,f,c)
     real(long),dimension(:),intent(in)  :: x   !! optimization variable vector
     real(long),intent(out)              :: f   !! value of the objective function
     real(long),dimension(:),intent(out) :: c   !! the constraint vector `dimension(m)`,
-    !type(operand), dimension(:) :: operandsInUse
-    !type(constant), dimension(:) :: constraintsInUse
 
     integer :: i, ieq, ineq
-    real(long), dimension(nC) :: ceq, cneq
+    real(long), dimension(nM) :: ceq, cneq
+    real(long) :: val
 
     call updateLensDuringOptimization(x)
+
+    ! Objective: sum of the objective-role merit entries.
+    ! (Weighted residuals f = sum w*(val-targ)**2 land in the next phase.)
     f = 0
-    do i=1,nO
-        f = f + operandsInUse(i)%func()
+    do i=1,nM
+        if (meritInUse(i)%role /= ID_ROLE_OBJECTIVE) cycle
+        val = meritInUse(i)%func()
+        meritInUse(i)%val = val
+        f = f + val
     end do
 
-
-    ! Optimzer requires sorting by equality constraints so set these firsrt
+    ! Constraints: slsqp requires equality constraints first, then
+    ! inequalities in the c(x) >= 0 convention.
     ieq  = 0
     ineq = 0
-    do i=1,nC
-        select case (constraintsInUse(i)%conType)
+    do i=1,nM
+        if (meritInUse(i)%role /= ID_ROLE_CONSTRAINT) cycle
+        val = meritInUse(i)%func()
+        meritInUse(i)%val = val
+        select case (meritInUse(i)%conType)
         case (ID_CON_EXACT)
             ieq = ieq + 1
-            ceq(ieq) = constraintsInUse(i)%func() - constraintsInUse(i)%targ
-        case(ID_CON_GREATER_THAN)     
+            ceq(ieq) = val - meritInUse(i)%targ
+        case(ID_CON_GREATER_THAN)
             ineq = ineq + 1
-            cneq(ineq) = constraintsInUse(i)%func() - constraintsInUse(i)%targ
+            cneq(ineq) = val - meritInUse(i)%targ
         case(ID_CON_LESS_THAN)
             ineq = ineq + 1
-            cneq(ineq) = -1*(constraintsInUse(i)%func() - constraintsInUse(i)%targ)
+            cneq(ineq) = -1*(val - meritInUse(i)%targ)
         end select
     end do
-
-
-    !     if(constraintsInUse(i)%conType == ID_CON_EXACT) then
-    !         ieq = ieq + 1
-    !         ceq(ieq) = constraintsInUse(i)%func()
-    !     else ! For inequality the requirement is that val > 0
-    !         ineq = ineq + 1
-
-    !         if(constraintsInUse(i)%conType == ID_CON_GREATER_THAN) then
-    !             cneq(ineq) = constraintsInUse(i)%func() - constraintsInUse(i)%targ
-    !         else ! must be <
-    !             cneq(ineq) = constraintsInUse(i)%targ - constraintsInUse(i)%func()
-    !         end if
-
-    !     end if  
-    ! end do
 
     c(1:ieq) = ceq(1:ieq)
     if (ineq.ne.0) c(ieq+1:ineq+ieq) = cneq(1:ineq)
@@ -207,16 +200,23 @@ subroutine report_iteration(me,iter,x,f,c)
     call PROCESKDP("SUR SA")
     call OUTKDP("                                                          l")! Blank line 
      
-    ! Print out constraint info if it exists
-    if (nC > 0) then
+    ! Print out constraint info if it exists.  NOTE: c(:) is packed with
+    ! equality constraints first (slsqp convention), while this table lists
+    ! entries in user-definition order -- the historical pairing (kept for
+    ! now; reworked with the role column in the weighted-residual phase).
+    if (numConstraints() > 0) then
         call OUTKDP("Const.   Target              Value              diff")
-        do i=1,nC
-            
-            write(output_line,'(*(F20.16,1X))') constraintsInUse(i)%targ, &
-            c(i)+constraintsInUse(i)%targ, c(i)
-            call OUTKDP(trim(constraintsInUse(i)%name//' '//trim(output_line)))
-        end do
-
+        block
+            integer :: j
+            j = 0
+            do i=1,nM
+                if (meritInUse(i)%role /= ID_ROLE_CONSTRAINT) cycle
+                j = j + 1
+                write(output_line,'(*(F20.16,1X))') meritInUse(i)%targ, &
+                c(j)+meritInUse(i)%targ, c(j)
+                call OUTKDP(trim(meritInUse(i)%name//' '//trim(output_line)))
+            end do
+        end block
     end if
     call ioConfig%restoreTextView()
     ! CALL OUTKDP("Constraint   target    value     diff ")

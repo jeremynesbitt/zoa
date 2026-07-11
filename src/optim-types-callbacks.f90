@@ -7,7 +7,7 @@ contains
         use plot_command_utils, only: getKDPSpotPlotCommand
         use global_widgets, only: sysConfig
         implicit none
-        class(operand) :: self
+        class(merit_entry) :: self
         real(long), dimension(2,sysConfig%numFields) :: rmsxyData
         real(long) :: res
         integer :: i
@@ -27,7 +27,7 @@ contains
 
     module function getEFLConstraint(self) result(res)
         use mod_lens_data_manager
-        class(constraint) :: self
+        class(merit_entry) :: self
         real(long) :: res
 
         res = ldm%getEFL()
@@ -35,7 +35,7 @@ contains
 
     module function getTransverseComaConstraint(self) result(res)
         use mod_analysis_manager
-        class(constraint) :: self
+        class(merit_entry) :: self
         real(long) :: res
 
         res = am%getTransverseComa()
@@ -43,7 +43,7 @@ contains
 
     module function getSphericalConstraint(self) result(res)
         use mod_analysis_manager
-        class(constraint) :: self
+        class(merit_entry) :: self
         real(long) :: res
 
         res = am%getTransverseSpherical()
@@ -51,7 +51,7 @@ contains
 
     module function getTransverseAstigmatismConstraint(self) result(res)
         use mod_analysis_manager
-        class(constraint) :: self
+        class(merit_entry) :: self
         real(long) :: res
 
         res = am%getTransverseAstigmatism()
@@ -59,7 +59,7 @@ contains
 
     module function getPetzvalBlurConstraint(self) result(res)
         use mod_analysis_manager
-        class(constraint) :: self
+        class(merit_entry) :: self
         real(long) :: res
 
         res = am%getPetzvalBlur()
@@ -67,7 +67,7 @@ contains
 
     module function setDistanceToImagePlaneConstraint(self) result(res)
         use mod_lens_data_manager
-        class(constraint) :: self
+        class(merit_entry) :: self
         real(long) :: res
 
         res = ldm%getSurfThi(ldm%getLastSurf()-1)
@@ -80,7 +80,7 @@ contains
     end function
 
     module function getConstraintTypeAsText(self) result (strType)
-        class(constraint) :: self
+        class(merit_entry) :: self
         character(len=1) :: strType
 
         select case (self%conType)

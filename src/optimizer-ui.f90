@@ -402,33 +402,34 @@ module optimizer_ui
         integer(c_int), dimension(numSurfTypes) :: surfTypeIDs
         real(kind=real64), dimension(16) :: extraParams
         type(c_ptr) :: store
-        integer :: numOperands, numRows
-      
-       
-        numOperands = nO
+        integer :: numOperands, numRows, j
 
-        ! Set some minimum amount 
-        if (numOperands < 20) then 
+
+        numOperands = numObjectives()
+
+        ! Set some minimum amount
+        if (numOperands < 20) then
             numRows = 20
         else
             numRows = numOperands
         end if
-      
 
-          print *, "number of Operands is ", getTotalNumberOfOperands()
+
+          print *, "number of merit entries is ", getTotalNumberOfOperands()
           store = g_list_store_new(G_TYPE_OBJECT)
-          do i=1,numRows
-            if (i <= numOperands ) then
-          store = append_operand_model(store, operandsInUse(i)%name, operandsInUse(i)%iW, operandsInUse(i)%iF, &
-          & operandsInUse(i)%px, operandsInUse(i)%py, operandsInUse(i)%hx, operandsInUse(i)%hy, &
-          & operandsInUse(i)%targ, operandsInUse(i)%op)
-            else 
-                print *, "Before list store blank error?"
-                store = append_blank_operand(store)
-            end if
+          j = 0
+          do i=1,nM
+            if (meritInUse(i)%role /= ID_ROLE_OBJECTIVE) cycle
+            j = j + 1
+            store = append_operand_model(store, meritInUse(i)%name, meritInUse(i)%iW, meritInUse(i)%iF, &
+            & meritInUse(i)%px, meritInUse(i)%py, meritInUse(i)%hx, meritInUse(i)%hy, &
+            & meritInUse(i)%targ, meritInUse(i)%val)
           end do
-      
-      
+          do i=j+1,numRows
+            store = append_blank_operand(store)
+          end do
+
+
         end function
 
         subroutine setOperandColumns(colView)
@@ -493,7 +494,7 @@ module optimizer_ui
                 ! Data is column dependent
                 select case (ID_COL)
                 case(ID_CONSTRAINT_NAME_COL)
-                 dropDown = gtk_drop_down_new_from_strings(convertListtoCStringArray(gatherOperandNames()))
+                 dropDown = gtk_drop_down_new_from_strings(convertListtoCStringArray(gatherEvaluatorNames()))
 
                 end select
 
@@ -757,37 +758,39 @@ module optimizer_ui
 ! I can live with
       function buildConstraintTable() result(store)
         use mod_lens_data_manager
-      
+
         integer :: i
-      
+
         type(c_ptr) :: store
-        integer :: numConstraints, numRows
+        integer :: nCon, numRows, j
         real(long) :: tmpVal
-      
-       
-        numConstraints = nC
 
-        print *, "Num Constraints is ", numConstraints
 
-        ! Set some minimum amount 
-        if (numConstraints < 20) then 
+        nCon = numConstraints()
+
+        print *, "Num Constraints is ", nCon
+
+        ! Set some minimum amount
+        if (nCon < 20) then
             numRows = 20
         else
-            numRows = numConstraints
+            numRows = nCon
         end if
-      
+
           store = g_list_store_new(G_TYPE_OBJECT)
-          do i=1,numRows
-            if (i <= numConstraints ) then
-          ! This did not work without () on the %func but did not throw and error.  Annoying
-          store = append_constraint_model(store, constraintsInUse(i)%name, constraintsInUse(i)%func(),  &
-          & constraintsInUse(i)%conType, constraintsInUse(i)%targ)          
-            else 
-                store = append_blank_constraint(store)
-            end if
+          j = 0
+          do i=1,nM
+            if (meritInUse(i)%role /= ID_ROLE_CONSTRAINT) cycle
+            j = j + 1
+            ! This did not work without () on the %func but did not throw and error.  Annoying
+            store = append_constraint_model(store, meritInUse(i)%name, meritInUse(i)%func(),  &
+            & meritInUse(i)%conType, meritInUse(i)%targ)
           end do
-      
-        end function      
+          do i=j+1,numRows
+            store = append_blank_constraint(store)
+          end do
+
+        end function
 
 
         subroutine setConstraintColumns(colView)
@@ -870,7 +873,7 @@ module optimizer_ui
                 ! Data is column dependent
                 select case (ID_COL)
                 case(ID_CONSTRAINT_NAME_COL)
-                 dropDown = gtk_drop_down_new_from_strings(convertListtoCStringArray(gatherConstraintNames()))
+                 dropDown = gtk_drop_down_new_from_strings(convertListtoCStringArray(gatherEvaluatorNames()))
                 case(ID_CONSTRAINT_TYPE_COL)
                  dropDown = gtk_drop_down_new_from_strings(convertListtoCStringArray(gatherConstraintTypeNames()))
                 end select

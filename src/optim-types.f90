@@ -1,29 +1,28 @@
-!TODO:  Get rid of exact/ub/lb for constraints and replace it with conType
-
 module optim_types
     use GLOBALS,only: long
     use zoa_ui
 
     implicit none
-    ! Try a similar design as the command parser - for each operand a function is supplied which will get the value.
-    ! Some operands will have multiple inputs and this should handle it.   
-    type :: operand
-    real(long) :: op !Value - always a single valued result
-    character(len=4) :: name
-    integer :: iW, iF, density
-    real(long) :: px, py, hx, hy, targ
-    procedure (operandFunc), pointer :: func
-    end type
 
-    type :: constraint
-       character(len=4) :: name
-       real(long) :: con
-       !logical :: exact, lb, ub ! bound if false.  To be depreciated
-       integer :: conType ! Either exact, lb, or ub
-       real(long) :: targ 
-       procedure (constraintFunc), pointer :: func ! share same interface for func
-       contains
-           procedure :: getConstraintTypeAsText
+    ! Unified merit entry: ONE type for what used to be separate "operand" and
+    ! "constraint" types.  Every evaluator (SPO, EFL, TCO, ...) is role-agnostic;
+    ! each USE of one is either an objective term (minimized) or a constraint
+    ! (must hold at the solution).  slsqp problem statement:
+    !     minimize f(x)  subject to  c_eq(x)=0, c_ineq(x)>=0, xl<=x<=xu
+    ! Objective terms feed f; constraint entries feed c.
+    type :: merit_entry
+        character(len=4) :: name
+        integer :: role = ID_ROLE_OBJECTIVE  ! ID_ROLE_OBJECTIVE / ID_ROLE_CONSTRAINT
+        integer :: conType = ID_CON_EXACT    ! =, >, < (constraints only)
+        real(long) :: targ = 0.0_long
+        real(long) :: weight = 1.0_long      ! objective terms only
+        real(long) :: val = 0.0_long         ! last computed value (display)
+        ! Evaluator inputs (used by field/pupil-sampled evaluators like SPO)
+        integer :: iW = 0, iF = 0, density = 0
+        real(long) :: px = 0.0_long, py = 0.0_long, hx = 0.0_long, hy = 0.0_long
+        procedure (meritFunc), pointer :: func
+        contains
+            procedure :: getConstraintTypeAsText
     end type
 
     type optimizer
@@ -37,80 +36,67 @@ module optim_types
 
     end type
 
-    ! The interface will include all possible inputs as optional args.  This will limit number of possible inputs for better or worse.
-    ! I may end up regretting this..
     abstract interface
-    function operandFunc (self)
+    function meritFunc (self)
         import long
-        import operand
-        class(operand) :: self
-        ! integer, optional :: iW, iF, density
-        ! real(long), optional :: px, py, hx, hy
-        real(long) :: operandFunc
-    end function operandFunc
-    function constraintFunc(self)
-        import constraint
-        import long
-        class(constraint) :: self
-        real(long) :: constraintFunc
-    end function
-
-
- end interface        
+        import merit_entry
+        class(merit_entry) :: self
+        real(long) :: meritFunc
+    end function meritFunc
+    end interface
 
     interface
         module function getSPO(self) result(res)
-            class(operand) :: self
+            class(merit_entry) :: self
             real(long) :: res
         end function
         module function getEFLConstraint(self) result(res)
-            class(constraint) :: self
+            class(merit_entry) :: self
             real(long) :: res
         end function
         module function getTransverseComaConstraint(self) result(res)
-            class(constraint) :: self
+            class(merit_entry) :: self
             real(long) :: res
         end function
         module function getSphericalConstraint(self) result(res)
-            class(constraint) :: self
+            class(merit_entry) :: self
             real(long) :: res
         end function
         module function getTransverseAstigmatismConstraint(self) result(res)
-            class(constraint) :: self
+            class(merit_entry) :: self
             real(long) :: res
         end function
         module function getPetzvalBlurConstraint(self) result(res)
-            class(constraint) :: self
+            class(merit_entry) :: self
             real(long) :: res
         end function
         module function setDistanceToImagePlaneConstraint(self) result(res)
-            class(constraint) :: self
+            class(merit_entry) :: self
             real(long) :: res
         end function
         module function getConstraintTypeAsText(self) result(strType)
-            class(constraint) :: self
+            class(merit_entry) :: self
             character(len=1) :: strType
         end function
     end interface
 
+    ! Role-agnostic evaluator registry (templates; role/target set per use).
+    ! Order matters for the UI name dropdowns: SPO first, then the six
+    ! quantities historically usable as constraints.
+    type(merit_entry), dimension(100) :: evaluators
+    ! The active merit function: objective terms + constraints, in the order
+    ! the user defined them.
+    type(merit_entry), dimension(100) :: meritInUse
 
-
-
-    type(operand), dimension(100) :: operands
-    type(operand), dimension(100) :: operandsInUse
-    type(constraint), dimension(100) :: constraints
-    type(constraint), dimension(100) :: constraintsInUse
-    
     type(optimizer) :: optim
 
 
     integer :: nV !Number of variables
     integer :: VARS(1000,2) ! Hard code number of vars for now!  index 1 is surface, index 2 is var type
-    !real(long) :: VARDATA(1000,3) ! Values of variables.  initial val, lb ub
 
-    integer :: nO, nC ! number of operands and constraints in use
+    integer :: nM ! number of merit entries in use (objectives + constraints)
 
-    integer :: idxConUpdate ! interface with CLI for updating constraintsInUse
+    integer :: idxConUpdate ! interface with CLI for updating merit entries (UPD CON; CHA n)
 
 
     contains
@@ -118,36 +104,54 @@ module optim_types
     subroutine initializeOptimizer()
 
         nV = 0 ! Num variables is 0
-        nO = 0 ! Initialize means 0 operands in use
-        nC = 0 ! num constraints is 0
+        nM = 0 ! no merit entries in use
 
         !Initialize for checking later
-        constraints(1:size(constraints))%name = ''
-        operands(1:size(operands))%name = ''
+        evaluators(1:size(evaluators))%name = ''
 
+        ! Role-agnostic evaluator registry.  Any of these can be used as an
+        ! objective term (NAME targ [weight]) or a constraint (NAME = targ).
+        ! Keep SPO first, then the historical constraint six, so the UI name
+        ! lists preserve their ordering.
+        evaluators(1)%name = 'SPO'
+        evaluators(1)%func => getSPO
+        evaluators(2)%name = 'EFL'
+        evaluators(2)%func => getEFLConstraint
+        evaluators(3)%name = 'TCO'
+        evaluators(3)%func => getTransverseComaConstraint
+        evaluators(4)%name = 'TAS'
+        evaluators(4)%func => getTransverseAstigmatismConstraint
+        evaluators(5)%name = 'PTB'
+        evaluators(5)%func => getPetzvalBlurConstraint
+        evaluators(6)%name = 'IMC'
+        evaluators(6)%func => setDistanceToImagePlaneConstraint
+        evaluators(7)%name = 'SAS'
+        evaluators(7)%func => getSphericalConstraint
 
-        operands(1)%name = 'SPO'
-        operands(1)%func => getSPO
-        constraints(1)%name = 'EFL'
-        constraints(1)%func => getEFLConstraint    
-        constraints(2)%name = 'TCO'
-        constraints(2)%func => getTransverseComaConstraint  
-        constraints(3)%name = 'TAS'
-        constraints(3)%func => getTransverseAstigmatismConstraint   
-        constraints(4)%name = 'PTB'
-        constraints(4)%func => getPetzvalBlurConstraint    
-        constraints(5)%name = 'IMC'
-        constraints(5)%func => setDistanceToImagePlaneConstraint          
-        constraints(6)%name = 'SAS'
-        constraints(6)%func => getSphericalConstraint                                             
-        
 
     end subroutine
+
+    ! Counts by role, derived from the merit list (no separate counters to drift).
+    function numObjectives() result(n)
+        integer :: n, i
+        n = 0
+        do i=1,nM
+            if (meritInUse(i)%role == ID_ROLE_OBJECTIVE) n = n + 1
+        end do
+    end function
+
+    function numConstraints() result(n)
+        integer :: n, i
+        n = 0
+        do i=1,nM
+            if (meritInUse(i)%role == ID_ROLE_CONSTRAINT) n = n + 1
+        end do
+    end function
 
     function getTotalNumberOfOperands() result(nT)
         integer :: nT
 
-        nT = nO + nC
+        nT = nM
 
     end function
 
@@ -171,152 +175,96 @@ module optim_types
 
     end subroutine
 
-    subroutine addOperand(name, targ)
+    ! Add (or update, via idxToUpdate) a merit entry.  role selects objective
+    ! term vs constraint; conType/weight apply to the matching role only.
+    subroutine addMeritEntry(name, role, targ, conType, weight, idxToUpdate)
         character(len=*) :: name
-        real(long), optional :: targ
-        integer :: idx
-        
-        idx = isNameInOperandList(name)
-        if (idx.ne.0) then
-            nO = nO +1
-            operandsInUse(nO) = operands(idx)
-            if(present(targ)) then
-                operandsInUse(nO)%targ = targ
-            else
-                operandsInUse(nO)%targ = 0.0_long
-            end if
-            ! Continue for all other constraints
+        integer, intent(in) :: role
+        real(long), intent(in) :: targ
+        integer, intent(in), optional :: conType
+        real(long), intent(in), optional :: weight
+        integer, intent(in), optional :: idxToUpdate ! UPD CON; CHA n / UI edit path
+        integer :: idx, ii
+
+        idx = isNameInEvaluatorList(name)
+        if (idx == 0) then
+            call LogTermFOR("Error in addMeritEntry!  Could not find "//name//" as a valid option")
+            return
         end if
 
-        ! if isNameInList ne 0 then
-        !    operandsInUse(n0+1) = operand(i)
-        !    add or init other vars
+        if (present(idxToUpdate)) then
+            if (idxToUpdate > 0 .AND. idxToUpdate <= nM) then
+                ii = idxToUpdate
+            else ! Add to end if the update index is not within the current list
+                nM = nM + 1
+                ii = nM
+            end if
+        else
+            nM = nM + 1
+            ii = nM
+        end if
 
+        meritInUse(ii) = evaluators(idx)
+        meritInUse(ii)%role = role
+        meritInUse(ii)%targ = targ
+        if (present(conType)) meritInUse(ii)%conType = conType
+        if (present(weight))  meritInUse(ii)%weight  = weight
 
     end subroutine
 
+    ! Back-compat wrapper: add an objective term (the old "operand").
+    subroutine addOperand(name, targ)
+        character(len=*) :: name
+        real(long), optional :: targ
+        real(long) :: t
 
+        t = 0.0_long
+        if (present(targ)) t = targ
+        call addMeritEntry(name, ID_ROLE_OBJECTIVE, t)
+
+    end subroutine
+
+    ! Back-compat wrapper: add/update a constraint from its CLI spelling.
     subroutine addConstraint(name, val, strType, idxToUpdate)
         character(len=*) :: name
         real(long) :: val
         character(len=1) :: strType ! Either >, < =
-        integer, optional :: idxToUpdate ! This is an interface if the user wants to update an existing constraint (or from ui)
-        integer :: idx, conType, ii
-        
-        idx = isNameInConstraintList(name)
+        integer, optional :: idxToUpdate
+        integer :: conType
 
         select case (strType)
-
         case('=')
             conType = ID_CON_EXACT
         case('>')
             conType = ID_CON_GREATER_THAN
-        case('<') 
+        case('<')
             conType = ID_CON_LESS_THAN
         case default
             call LogTermFOR("Error in addConstraint type!  Only support =, >, < at this type")
-            return 
+            return
         end select
 
-
-
-        if (idx.ne.0) then
-            if(present(idxToUpdate)) then 
-                if (idxToUpdate > 0 .AND. idxToUpdate <= nC) then
-                    ii = idxToUpdate
-                else ! Add to end if the update index is not within current constraint list - whether this is a good decision is TBD
-                    nC = nC +1
-                    ii=nC 
-                end if
-            else
-                nC = nC +1
-                ii = nC
-            end if
-            constraintsInUse(ii) = constraints(idx)
-            constraintsInUse(ii)%targ = val
-            constraintsInUse(ii)%conType = conType
-            !constraintsInUse(nC)%name = name 
+        if (present(idxToUpdate)) then
+            call addMeritEntry(name, ID_ROLE_CONSTRAINT, val, conType=conType, idxToUpdate=idxToUpdate)
         else
-            call LogTermFOR("Error in addConstraint name!  Could not find "//name// " as a valid option")
-            return             
+            call addMeritEntry(name, ID_ROLE_CONSTRAINT, val, conType=conType)
         end if
-                        
 
     end subroutine
 
-    function isNameInListNew(name, obj) result(idx)
+    function isNameInEvaluatorList(name) result(idx)
         character(len=*) :: name
         integer :: i
-        integer :: idx 
-        class(*), dimension(:), target :: obj
-   
-        type (constraint), dimension(:), pointer :: tmp
+        integer :: idx
 
         idx = 0
-        select type (obj)
-          type is (constraint)
-          tmp => obj
-          do i=1,size(tmp)
-            if (name == tmp(i)%name) then
+        do i=1,size(evaluators)
+            if (name == evaluators(i)%name) then
                 ! Found value
                 idx = i
                 return
             end if
         end do
-        end select
-    end function        
-
-    function isNameInOperandList(name) result(idx)
-        character(len=*) :: name
-        integer :: i
-        integer :: idx 
-
-        idx = 0
-        do i=1,size(operands)
-            if (name == operands(i)%name) then
-                ! Found value
-                idx = i
-                return
-            end if
-        end do
-    end function   
-    
-    function isNameInConstraintList(name) result(idx)
-        character(len=*) :: name
-        integer :: i
-        integer :: idx 
-
-        idx = 0
-        do i=1,size(constraints)
-            if (name == constraints(i)%name) then
-                ! Found value
-                idx = i
-                return
-            end if
-        end do
-    end function       
-    
-    function isNameInList(name, obj) result(ok)
-
-        character(len=*) :: name
-        integer :: i
-        logical :: ok
-        class(*), dimension(:), target :: obj
-   
-        type (constraint), dimension(:), pointer :: tmp
-
-        ok = .FALSE.
-        select type (obj)
-          type is (constraint)
-          tmp => obj
-          do i=1,size(tmp)
-            if (name == tmp(i)%name) then
-                ! Found value
-                ok = .TRUE.
-                return
-            end if
-        end do
-        end select
     end function
 
 
@@ -375,10 +323,11 @@ module optim_types
         implicit none
         integer :: neq
         integer :: i
-        
+
         neq = 0
-        do i=1,nC
-            if (constraintsInUse(i)%conType == ID_CON_EXACT) neq = neq+1
+        do i=1,nM
+            if (meritInUse(i)%role == ID_ROLE_CONSTRAINT .and. &
+            &   meritInUse(i)%conType == ID_CON_EXACT) neq = neq+1
         end do
 
     end function
@@ -559,10 +508,9 @@ module optim_types
 
     end function
 
-    ! TODO:  Constraints do not properly support > < 
     subroutine genSaveOutputText(self, fID)
         use type_utils
-        
+
         implicit none
         class(optimizer) :: self
         integer :: fID
@@ -570,7 +518,7 @@ module optim_types
         character(len=1) :: q
         real(long),dimension(nV,3) :: VARDATA
 
-        if (nV > 0 .OR. nC > 0 .OR. nO > 0) then
+        if (nV > 0 .OR. nM > 0) then
             write(fID, *) "! Merit"
         if (nV > 0) then
                 ! No guarantee that var data has been gathered so do this first.  Don't need
@@ -582,20 +530,22 @@ module optim_types
                     write(fID,*) trim(getVarCmd(VARS(i,2)))//" S"//trim(int2str(VARS(i,1)))//" 0"
                 end do
             end if
-            if (nO > 0 .OR. nC > 0) then
+            if (nM > 0) then
                 write(fID, *) "TAR"
-            if (nO > 0) then
-                do i=1,nO 
-                  write(fID, *) operandsInUse(i)%name//" "//real2str(operandsInUse(i)%targ)
-                end do
-
-            end if
-            if (nC > 0 ) then
-                do i=1,nC
-                    q = constraintsInUse(i)%getConstraintTypeAsText()
-                    write(fID,*) trim(constraintsInUse(i)%name)//" "//q//" "//real2str(constraintsInUse(i)%targ)
-                end do
-            end if
+            ! Objective terms first, then constraints (preserves the historical
+            ! file order).  Objective line: NAME targ; the loader treats a bare
+            ! numeric second token as an objective add.
+            do i=1,nM
+                if (meritInUse(i)%role == ID_ROLE_OBJECTIVE) then
+                  write(fID, *) meritInUse(i)%name//" "//real2str(meritInUse(i)%targ)
+                end if
+            end do
+            do i=1,nM
+                if (meritInUse(i)%role == ID_ROLE_CONSTRAINT) then
+                    q = meritInUse(i)%getConstraintTypeAsText()
+                    write(fID,*) trim(meritInUse(i)%name)//" "//q//" "//real2str(meritInUse(i)%targ)
+                end if
+            end do
             write(fID, *) "GO"
         end if
         end if
@@ -625,11 +575,15 @@ module optim_types
 
     end subroutine freezeAllSurfaces
 
+    ! Clears the WHOLE merit list (objective terms AND constraints).  Called by
+    ! DCON ALL and therefore by the newlens.zoa lens-replacement reset -- this
+    ! also fixes the historical stale-operand leak (nO was only ever reset in
+    ! initializeOptimizer, so an old SPO target survived lens loads).
     subroutine removeAllConstraints(self)
         implicit none
         class(optimizer) :: self
 
-        nC = 0 
+        nM = 0
 
     end subroutine removeAllConstraints
 
@@ -681,49 +635,27 @@ module optim_types
 
     end function
 
-    function gatherConstraintNames() result(strNameList)
+    ! All registered evaluator names (usable as either role).  The trailing
+    ! blank entry is preserved for the UI dropdown convention (an empty final
+    ! slot), matching the historical gatherConstraintNames behavior.
+    function gatherEvaluatorNames() result(strNameList)
         character(len=4), dimension(:), allocatable :: strNameList
-        integer :: ii, n_c 
+        integer :: ii, n_c
 
-
-        do ii=1,size(constraints)
-           if (constraints(ii)%name(1:2) == "") then
+        do ii=1,size(evaluators)
+           if (evaluators(ii)%name(1:2) == "") then
             n_c = ii
-            exit 
+            exit
            end if
         end do
 
         allocate(character(len=4) :: strNameList(n_c))
 
-        !allocate(character(len=4), dimension(nC) :: strNameList)
         do ii=1,n_c
-           strNameList(ii) = constraints(ii)%name
-           !strNameList(ii) = "ABC"
+           strNameList(ii) = evaluators(ii)%name
         end do
 
     end function
-
-    function gatherOperandNames() result(strNameList)
-        character(len=4), dimension(:), allocatable :: strNameList
-        integer :: ii, n_c 
-
-
-        do ii=1,size(operands)
-           if (operands(ii)%name(1:2) == "") then
-            n_c = ii
-            exit 
-           end if
-        end do
-
-        allocate(character(len=4) :: strNameList(n_c))
-
-        !allocate(character(len=4), dimension(nC) :: strNameList)
-        do ii=1,n_c
-           strNameList(ii) = operands(ii)%name
-           !strNameList(ii) = "ABC"
-        end do
-
-    end function    
 
     function gatherConstraintTypeNames() result(strNameList)
         character(len=1), dimension(3) :: strNameList
@@ -734,26 +666,17 @@ module optim_types
 
     end function    
 
+    ! Delete merit entry idx (1-based position in the unified list) and shift
+    ! the rest down.  Name kept for the DEL CON command path.
     subroutine deleteConstraint(idx)
         integer :: idx
-        type(constraint), dimension(size(constraintsInUse)) :: tmpConstraints
-        integer :: ii, jj
+        integer :: ii
 
-        print *, "Delete Constraint called!"
-        print *, "idx is ", idx
-        if(idx>0 .AND. idx<=nC) then
-
-
-        do ii=1,idx
-            print *, "ii is ", ii
-           tmpConstraints(ii) = constraintsInUse(ii)
-        end do
-        do jj=idx+1,nC
-           tmpConstraints(ii+jj) = constraintsInUse(ii+1+jj)
-        end do
-        constraintsInUse = tmpConstraints
-        nC = nC -1
-
+        if(idx>0 .AND. idx<=nM) then
+            do ii=idx,nM-1
+                meritInUse(ii) = meritInUse(ii+1)
+            end do
+            nM = nM - 1
         end if
 
     end subroutine

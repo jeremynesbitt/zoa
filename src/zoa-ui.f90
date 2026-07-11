@@ -217,6 +217,11 @@ integer, parameter :: ID_CON_EXACT       = 1
 integer, parameter :: ID_CON_LESS_THAN    = 2
 integer, parameter :: ID_CON_GREATER_THAN = 3
 
+! Merit-entry roles: the same evaluator (EFL, SPO, ...) can serve either as an
+! objective term (minimized, weighted residual) or as a hard constraint.
+integer, parameter :: ID_ROLE_OBJECTIVE  = 1
+integer, parameter :: ID_ROLE_CONSTRAINT = 2
+
 
 
 ! Pikups (aka Pickups)
