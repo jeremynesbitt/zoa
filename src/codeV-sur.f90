@@ -5,9 +5,9 @@ module procedure execSUR
     ! for now support SUR SA only
     ! New code - add abstraction of row titles and new columns of RMD GLA CCY THC GLC
                 
-        use command_utils, only : parseCommandIntoTokens
+        use strings, only: parse
         use mod_lens_data_manager
-    
+
         implicit none
 
         !class(zoa_cmd) :: self
@@ -24,7 +24,7 @@ module procedure execSUR
         !numSurfaces = curr_lens_data%num_surfaces
         !call LogTermFOR("Num Surfaces is "//trim(int2str(curr_lens_data%num_surfaces)))
 
-        call parseCommandIntoTokens(trim(iptStr), tokens, numTokens, ' ')
+        call parse(trim(iptStr), ' ', tokens, numTokens)
         if (numTokens == 2 ) then
             if (isSurfCommand(trim(tokens(2)))) then
                 !call logTermFOR("SUR Cmd here!")
@@ -114,28 +114,6 @@ module procedure execSUR
 
     end procedure
 
-    ! module procedure setThickness
-    !     use command_utils, only : parseCommandIntoTokens
-    !     use DATMAI
-    !     implicit none
-
-    !     integer :: surfNum
-    !     character(len=80) :: tokens(40)
-    !     integer :: numTokens
-
-    !     call parseCommandIntoTokens(iptStr, tokens, numTokens, ' ')
-    !     PRINT *, "Token is ", trim(tokens(2))
-    !     if(isSurfCommand(trim(tokens(2)))) then
-    !         PRINT *, "Token is ", trim(tokens(2))
-    !         surfNum = getSurfNumFromSurfCommand(trim(tokens(2)))
-    !         call executeCodeVLensUpdateCommand('CHG '//trim(int2str(surfNum))// &
-    !         & '; TH, ' // trim(tokens(3))//';GO')          
-    !     else
-    !         call updateTerminalLog("Surface not input correctly.  Should be SO or Sk where k is the surface of interest", "red")
-    !         return
-    !     end if       
-
-    ! end procedure
     !## cmd:      THI
     !## syntax:   THI Sk X  |  THI Sk <qual> j
     !## category: Surface Parameters
@@ -219,7 +197,8 @@ module procedure execSUR
     !##           incidence, PIY), ICY j (PICY), UMY j (ray slope, PUY), UCY j (PUCY).
     !##
     module procedure setCurvature
-        use command_utils, only : parseCommandIntoTokens, isInputNumber
+        use command_utils, only : isInputNumber
+        use strings, only: parse
         implicit none
 
         integer :: surfNum
@@ -231,7 +210,7 @@ module procedure execSUR
         call tryCodeVSolve(iptStr, 'CUY', handled)
         if (handled) return
 
-        call parseCommandIntoTokens(iptStr, tokens, numTokens, ' ')
+        call parse(iptStr, ' ', tokens, numTokens)
         if(isSurfCommand(trim(tokens(2)))) then
             surfNum = getSurfNumFromSurfCommand(trim(tokens(2)))
             if (numTokens > 2) then
@@ -305,14 +284,14 @@ module procedure execSUR
     end procedure
 
     module procedure execAsphere
-        use command_utils, only: parseCommandIntoTokens
+        use strings, only: parse
         use mod_lens_data_manager
         implicit none
 
         character(len=80) :: tokens(40)
         integer :: numTokens, surfNum
 
-        call parseCommandIntoTokens(iptStr, tokens, numTokens, ' ')
+        call parse(iptStr, ' ', tokens, numTokens)
 
         select case (numTokens)
         case (1)
@@ -330,14 +309,14 @@ module procedure execSUR
     end procedure
 
     module procedure execSphere
-        use command_utils, only: parseCommandIntoTokens
+        use strings, only: parse
         use mod_lens_data_manager
         implicit none
 
         character(len=80) :: tokens(40)
         integer :: numTokens, surfNum
 
-        call parseCommandIntoTokens(iptStr, tokens, numTokens, ' ')
+        call parse(iptStr, ' ', tokens, numTokens)
 
         if (numTokens < 2 .or. .not. isSurfCommand(trim(tokens(2)))) then
             call zoa_emit("SPH: usage: SPH Sk", "red")
@@ -390,7 +369,8 @@ module procedure execSUR
     ! K Val - update current lens (eg when loading from file)
     ! K Sk - return val on current lens (not currently implemented) 
     module procedure updateConicConstant
-        use command_utils, only: isInputNumber, parseCommandIntoTokens
+        use command_utils, only: isInputNumber
+        use strings, only: parse
         use mod_surface, only: set_surf_conic, set_surf_asphere_flag, surf_is_asphere
         use mod_lens_data_manager
         implicit none
@@ -400,7 +380,7 @@ module procedure execSUR
         integer :: numTokens
         real(real64) :: newVal
 
-        call parseCommandIntoTokens(iptStr, tokens, numTokens, ' ')
+        call parse(iptStr, ' ', tokens, numTokens)
 
         select case (numTokens)
         case(2)

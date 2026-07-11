@@ -33,6 +33,17 @@ EFL = 60
 GO
 LCON
 DCON ALL
+! ---- Multi-space robustness (parseCommandIntoTokens retirement regression) ----
+! Aligned/multi-space commands must parse identically to single-spaced ones;
+! the retired tokenizer emitted empty tokens for repeated spaces, silently
+! breaking any handler with an exact numTokens check (e.g. aligned STO).
+RES osdtriplet
+ASP  S2
+K  S2  -0.5
+SUR SA
+SPH  S2
+SUR SA
+
 ! ---- TOW: enter loop (FIR is not a zoaCmd so executes; GO not called → no GUI crash) ----
 TOW
 FIR

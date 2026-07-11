@@ -7,7 +7,8 @@ contains
     ! ZOO <p> Sk v.. -> define a per-config operand (p = THI/RDY/CUY/GLA/K), one value per config
     ! ZOO PIM        -> per-config paraxial image solve (re-applied on each switch)
     module procedure execZOO
-        use command_utils, only: parseCommandIntoTokens, isInputNumber
+        use command_utils, only: isInputNumber
+        use strings,       only: parse
         use type_utils,    only: str2int
         use zoom_manager,  only: zoom_set_count, zoom_define_operand, zoom_list
         implicit none
@@ -15,7 +16,7 @@ contains
         integer :: numTokens, surf, nVals
         character(len=8) :: param
 
-        call parseCommandIntoTokens(trim(iptStr), tokens, numTokens, ' ')
+        call parse(trim(iptStr), ' ', tokens, numTokens)
 
         if (numTokens <= 1) then
             call zoom_list()
@@ -51,14 +52,15 @@ contains
 
     ! POS n -> switch the active configuration to n
     module procedure execPOS
-        use command_utils, only: parseCommandIntoTokens, isInputNumber
+        use command_utils, only: isInputNumber
+        use strings,       only: parse
         use type_utils,    only: str2int
         use zoom_manager,  only: zoom_switch
         implicit none
         character(len=80) :: tokens(40)
         integer :: numTokens
 
-        call parseCommandIntoTokens(trim(iptStr), tokens, numTokens, ' ')
+        call parse(trim(iptStr), ' ', tokens, numTokens)
         if (numTokens < 2 .or. .not. isInputNumber(trim(tokens(2)))) then
             call zoa_emit("Usage: POS <config number>", "red")
             return

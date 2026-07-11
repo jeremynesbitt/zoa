@@ -311,7 +311,6 @@ contains
     end procedure setWavelengthWeights
 
     module procedure setField
-        use command_utils, only : parseCommandIntoTokens
         use kdp_utils, only: inLensUpdateLevel
         use global_widgets, only: sysConfig
         implicit none
@@ -372,7 +371,6 @@ contains
 
     module procedure setSurfaceCodeVStyle
         use mod_lens_data_manager
-        use command_utils, only : parseCommandIntoTokens
         implicit none
 
         integer :: surfNum

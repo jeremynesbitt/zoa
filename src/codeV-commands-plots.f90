@@ -17,7 +17,7 @@ contains
 
     module procedure findBestFocus
         use global_widgets, only: curr_par_ray_trace, sysConfig
-        use command_utils, only : parseCommandIntoTokens, isInputNumber
+        use command_utils, only : isInputNumber
         use DATLEN, only: COLRAY
         use algos
 
@@ -40,7 +40,7 @@ contains
     end procedure findBestFocus
 
     module procedure execFAN
-        use command_utils, only : parseCommandIntoTokens, isInputNumber
+        use command_utils, only : isInputNumber
         use global_widgets, only: sysConfig
         use DATLEN, only: COLRAY
 
@@ -363,7 +363,7 @@ contains
     end procedure execSPO_old
 
     module procedure execCIR
-        use command_utils, only : parseCommandIntoTokens, isInputNumber
+        use command_utils, only : isInputNumber
         use type_utils, only: str2real8
         use mod_lens_data_manager, only: ldm
         use zoa_ui_callbacks, only: notify_replot

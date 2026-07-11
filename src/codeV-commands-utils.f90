@@ -95,7 +95,7 @@ contains
 
     module procedure flipSurfaces
         use global_widgets, only: sysConfig
-        use command_utils, only : parseCommandIntoTokens, isInputNumber
+        use command_utils, only : isInputNumber
         use mod_lens_data_manager
         implicit none
 

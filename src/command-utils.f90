@@ -416,132 +416,6 @@ contains
 
   end function
 
-  subroutine parseCommandIntoTokens(cmdInput, tokens, numTokens, iptDelim, tokenLen)
-    implicit none
-    character(len=*) :: cmdInput
-    character(len=80) :: tokens(40)
-    integer :: numTokens, fst, lst, i, j, abslst
-    character(len=1), optional :: iptDelim
-    character(len=1) :: delim
-    integer, optional  :: tokenLen(40)
-    character(len=:), allocatable :: subString
-    integer :: tot
-
-  PRINT *, "Alphanumeric string is ", cmdInput
-
-  allocate(character(len=len(cmdInput)) :: subString)
-
-  if (.not.present(tokenLen))  PRINT *, "Tokenlen doesn't exist!"
-
-  if (.not.present(iptDelim))  then 
-     PRINT *, "Using blank as delimiter "
-     delim = " "
-  else
-     delim = iptDelim
-     
-  end if
-
-  !PRINT *, "delim is ", delim
-  !Test String Tokenizer
-  subString = cmdInput
-  fst = INDEX(subString, delim, BACK=.FALSE.)
-  abslst = INDEX(subString, delim, BACK=.TRUE.)
-
-  !print *, "fst is ", fst
-  !print *, "abslst is ", abslst
-  !print *, "len of cmdInput is ", len(cmdInput)
-
-  !print *, "End of string is ", cmdInput(abslst:len(cmdInput))
-  
-  ! Deal with case of one or two tokens.  I'm sure there is a more elegant way to do this
-  ! but this seems to work
-  if (fst==abslst) then
-    if (fst==0) then
-       numTokens = 1
-       tokens(numTokens) = subString
-    else
-      if (abslst < len(cmdInput)) then
-        numTokens = 2
-        tokens(1) = subString(1:fst-1)
-        tokens(2) = subString(abslst+1:len(cmdInput))
-      end if
-    end if
-
-  else
-    i = 1 
-    tot = 0
-
-  ! Keep on extracting tokens until we run out of delimiters or find that fst=last (end of tokens)  
-
-  do while (fst > 1)
-     fst = INDEX(subString, delim, BACK=.FALSE.)
-     lst = INDEX(subString, delim, BACK=.TRUE.)
-       !PRINT *, "i is ", i
-       !PRINT *, "fst is ", fst
-       !PRINT *, "lst is ", lst
-
-     !if (fst==lst) then
-       ! We have the last token.  Need to exit loop
-     !  tokens(i) = subString(1:fst-2)
-     !  fst = 0 ! exit loop
-       ! This is to compensate for i = i +1 at end of loop.  The best thing I can say is that
-       ! this code works, but it is far from elegant
-     !  i = i - 1
-     !else  
-       tokens(i) = subString(1:fst-1)
-       tot = tot + fst
-       if (tot == abslst) then
-        ! We have reached the last token.  Exit here 
-        if (abslst < len(cmdInput)) then
-          i = i + 1
-          tokens(i) = cmdInput(tot+1:len(cmdInput))
-          numTokens = i
-          return
-        else
-          numTokens = 1
-          return
-       end if
-      end if
-     !end if
-     !PRINT *, "token is ", tokens(i)
-     !PRINT *, "subString before removing token(i) is ", subString
-     !PRINT *, "tot is ", tot
-     !PRINT *, "remaining cmd is ", cmdInput(tot+1:len(cmdInput))
-     
-
-     if(present(tokenLen)) tokenLen(i) = fst-1
-     i = i+1
-     if (fst<len(cmdInput)) subString = subString(fst+1:len(cmdInput))
-     ! Skip consecutive delimiters so "CMD   ARG" parses the same as "CMD ARG"
-     do while (len(subString) > 0 .and. subString(1:1) == delim)
-       subString = subString(2:len(subString))
-     end do
-     !PRINT *, "subString is ", subString
-  end do
-
-    numTokens = i-1
-
-
-  end if
-
-  ! Compact out empty tokens produced by consecutive delimiters (e.g. "RMD      S1")
-  block
-    integer :: src, dst
-    dst = 0
-    do src = 1, numTokens
-      if (len_trim(tokens(src)) > 0) then
-        dst = dst + 1
-        tokens(dst) = tokens(src)
-      end if
-    end do
-    numTokens = dst
-  end block
-
-  if (numTokens > 0 ) PRINT *, "tokens ", tokens(1:numTokens)
-  !if(present(tokenLen) PRINT *, "Token Length = ", tokenLen(1:i-2)
-
-
-  end subroutine
 
   function cmdOptionExists(cmdTst) result(cmdExists)
     use DATMAI
@@ -557,6 +431,7 @@ contains
 
   function getCmdInputValue(cmdToGet) result(cmdVal)
     use DATMAI
+    use strings, only: parse
     implicit none
     character(len=*) :: cmdToGet
     real :: cmdVal
@@ -564,8 +439,9 @@ contains
     integer :: numTokens, fst,  i
   !call checkCommandInput(typeCode,
     PRINT *, "About to Parse ", WS
-    call parseCommandIntoTokens(trim(WS), tokens, numTokens)
-    PRINT *, "After parseCommandIntoTokens"
+    ! trim() copy so parse never mutates the WS parse global, even transiently.
+    call parse(trim(WS), ' ', tokens, numTokens)
+    PRINT *, "After parse"
 
     PRINT *, "cmdToGet is ", cmdToGet
     fst = 0

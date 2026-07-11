@@ -1102,7 +1102,8 @@ module codeV_commands
     ! Format RSI fi..k wi..k relApeX relApeY
     subroutine execRSI(iptStr)
         use global_widgets, only: sysConfig, curr_lens_data
-        use command_utils, only : parseCommandIntoTokens, isInputNumber
+        use command_utils, only : isInputNumber
+        use strings, only: parse
         use DATLEN, only: RAYRAY, NEWOBJ, NEWIMG
         use DATMAI, only: PII, TWOPII
         use result_builder
@@ -1131,7 +1132,7 @@ module codeV_commands
         relApeX = 0.0
         relApeY = 0.0
 
-        call parseCommandIntoTokens(trim(iptStr), tokens, numTokens, ' ')
+        call parse(trim(iptStr), ' ', tokens, numTokens)
 
         fields = cmd_parser_get_int_input_for_prefix('f', tokens(1:numTokens))
         wavelengths = cmd_parser_get_int_input_for_prefix('w', tokens(1:numTokens))

@@ -966,7 +966,7 @@ if (result) call PROCESKDP(getTabPlotCommand(tabIdx))
 end subroutine
 
  subroutine updateCommand(cmdOrig, cmdToUpdate, newVal, cmdNew)
-  use command_utils, only:  parseCommandIntoTokens
+  use strings, only: parse
   implicit none
   character(len=*) :: cmdOrig
   character(len=*) :: cmdToUpdate
@@ -987,7 +987,9 @@ end subroutine
      !PRINT *, "New command is supposed to be ", cmdOrig//", "//cmdToUpdate//" "//newVal
   else
      locCmd = 0
-     call parseCommandIntoTokens(cmdOrig(locBlank+1:len(cmdOrig)), tokens, numTokens, blank)
+     ! trim() copy so parse never mutates the caller's string, even
+     ! transiently (parse compacts its argument in place, then restores).
+     call parse(trim(cmdOrig(locBlank+1:len(cmdOrig))), blank, tokens, numTokens)
      do i=1,numTokens
        locCmd = index(tokens(i), cmdToUpdate)
        if (locCmd.GT.0) then

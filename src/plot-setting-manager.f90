@@ -557,7 +557,6 @@ contains
 
     subroutine init_plotSettingManager(self, strCmd)
       !use plotSettingParser
-      !use command_utils, only:  parseCommandIntoTokens
 
       class(zoaplot_setting_manager) :: self
       character(len=*) :: strCmd

@@ -192,26 +192,25 @@ Remaining (unchanged) notes:
 
 ---
 
-## TODO: Retire `parseCommandIntoTokens` (mishandles repeated spaces)
+## Retired `parseCommandIntoTokens` (RESOLVED 2026-07)
 
-`parseCommandIntoTokens` (in `src/command-utils.f90`) splits on a single
-delimiter character and emits an **empty token** for each repeated space, so
+`parseCommandIntoTokens` (formerly in `src/command-utils.f90`) split on a single
+delimiter character and emitted an **empty token** for each repeated space, so
 `"STO  S3"` (two spaces, as written in the traditionally-aligned Bentley macros)
-tokenizes as `['STO', '', 'S3']` → `numTokens = 3`, not 2.
+tokenized as `['STO', '', 'S3']` → `numTokens = 3`, not 2 — silently breaking
+any handler with an exact `numTokens == N` check (the original symptom: aligned
+`STO` set the stop to the surface pointer instead of the requested surface).
 
-This silently broke `execSTO`, whose `if (numTokens == 2)` check then fell through
-to the default and set the aperture stop to the surface *pointer* (surface 1)
-instead of the requested `S3`. Result: the stop landed on the wrong surface for
-any aligned/multi-space `STO` command (e.g. `Bentley/Bentley5p5.zoa`), and
-`ldm%getStopSurf()` returned the wrong surface. Fixed for `STO` by switching that
-handler to the whitespace-collapsing `parse` procedure.
+All 15 remaining call sites (codeV-sur, lensops, zoom, execRSI, zoa-tab,
+command-utils internal) were converted to the whitespace-collapsing `parse`
+procedure (module `strings`, etc/stringmod.f90), every import pruned, and the
+subroutine **deleted**. The CLAUDE.md new-command template now shows `parse`.
+A multi-space regression block (`ASP  S2`, `K  S2  -0.5`, `SPH  S2`) lives in
+test/misc_commands.zoa.
 
-**Other commands almost certainly have the same latent bug** wherever they use
-`parseCommandIntoTokens` plus an exact `numTokens == N` test. The real fix is to
-**retire `parseCommandIntoTokens` in favour of the `parse` procedure** (which
-collapses consecutive delimiters) everywhere, then delete it. Until then, treat
-any `numTokens ==`-based logic on `parseCommandIntoTokens` output as suspect for
-multi-space input. Surfaced during the aperture-stop drawing work.
+One `parse` caveat, noted in CLAUDE.md: it briefly compacts its first argument
+in place before restoring it, so pass `trim(...)` (a temporary copy) when the
+actual argument is a parser global like `INPUT` or `WS`.
 
 ---
 

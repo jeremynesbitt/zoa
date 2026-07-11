@@ -46,7 +46,7 @@ contains
 
     module procedure execRestore_old
         use zoa_file_handler
-        use command_utils, only : parseCommandIntoTokens
+        use strings, only: parse
         use zoa_file_handler, only: open_file_to_sav_lens, doesFileExist
         use zoa_ui_callbacks, only: query_confirm, query_yes_no, notify_close_all_tabs
         implicit none
@@ -57,7 +57,7 @@ contains
         integer :: numTokens, locDot
         logical :: confirmed, save_lens
 
-        call parseCommandIntoTokens(trim(iptStr), tokens, numTokens, ' ')
+        call parse(trim(iptStr), ' ', tokens, numTokens)
 
         if (numTokens == 2) then
             fName = trim(tokens(2))
@@ -262,7 +262,6 @@ contains
 
     module procedure execSAV
         use global_widgets, only: sysConfig, curr_lens_data
-        use command_utils, only : parseCommandIntoTokens
         use zoa_file_handler, only: open_file_to_sav_lens, getTempDirectory, getCurrentLensFileName
         use optim_types, only: optim
         use zoom_manager, only: zoom_genSaveOutputText
@@ -308,7 +307,6 @@ contains
     module procedure execSaveSessionToFile
         use zoa_ui_callbacks, only: notify_write_tab_state
         use global_widgets, only: sysConfig, curr_lens_data
-        use command_utils, only : parseCommandIntoTokens
         use zoa_file_handler, only: open_file_to_sav_lens
         use mod_lens_data_manager, only: ldm
         implicit none
@@ -338,13 +336,13 @@ contains
     end procedure execSaveSessionToFile
 
     module procedure execSetWavelengthIndex
-        use command_utils, only : parseCommandIntoTokens
+        use strings, only: parse
         implicit none
 
         character(len=80) :: tokens(40)
         integer :: numTokens
 
-        call parseCommandIntoTokens(trim(iptStr), tokens, numTokens, ' ')
+        call parse(trim(iptStr), ' ', tokens, numTokens)
         if (numTokens == 2) then
             call executeCodeVLensUpdateCommand('CW '//trim(tokens(2)))
         else
@@ -354,14 +352,14 @@ contains
     end procedure execSetWavelengthIndex
 
     module procedure execRMD
-        use command_utils, only : parseCommandIntoTokens
+        use strings, only: parse
         implicit none
 
         integer :: surfNum
         character(len=80) :: tokens(40)
         integer :: numTokens
 
-        call parseCommandIntoTokens(iptStr, tokens, numTokens, ' ')
+        call parse(iptStr, ' ', tokens, numTokens)
 
         if (isSurfCommand(trim(tokens(2)))) then
             surfNum = getSurfNumFromSurfCommand(trim(tokens(2)))
@@ -384,7 +382,7 @@ contains
     end procedure execRMD
 
     module procedure execSetCodeVCmd
-        use command_utils, only : parseCommandIntoTokens
+        use strings, only: parse
         use global_widgets, only: curr_lens_data, curr_par_ray_trace
         use DATMAI
         implicit none
@@ -392,7 +390,9 @@ contains
         character(len=80) :: tokens(40)
         integer :: numTokens
 
-        call parseCommandIntoTokens(INPUT, tokens, numTokens, ' ')
+        ! trim() copy so parse never touches the global INPUT buffer, even
+        ! transiently (parse compacts its argument in place, then restores).
+        call parse(trim(INPUT), ' ', tokens, numTokens)
         if (numTokens > 1) then
             select case(trim(tokens(2)))
             case('MAG')
@@ -592,14 +592,14 @@ contains
     end function getSetGlassText
 
     module procedure execEDI
-        use command_utils, only : parseCommandIntoTokens
+        use strings, only: parse
         use globals, only: HEADLESS_MODE
         implicit none
 
         character(len=80) :: tokens(40)
         integer :: numTokens
 
-        call parseCommandIntoTokens(trim(iptStr), tokens, numTokens, ' ')
+        call parse(trim(iptStr), ' ', tokens, numTokens)
 
         if (numTokens < 2) then
             call zoa_emit("EDI requires a subcommand (e.g. EDI PREF)", "red")

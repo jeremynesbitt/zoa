@@ -1349,7 +1349,6 @@ END
 ! SUB GLASSP.FOR
 SUBROUTINE GLASSP
    use glass_manager
-   use command_utils, only : parseCommandIntoTokens
 !
    use DATLEN
    use DATMAI
@@ -1471,7 +1470,6 @@ SUBROUTINE GLASSP
 
       ! Since some glasses are more than 8 characters parse the input
       ! instead of using WQ
-      !call parseCommandIntoTokens(trim(INPUT), tokens, numTokens, ' ')
       !glassCand = trim(tokens(2))
 
       !call LogTermFOR("Can I use input? "//trim(glassCand))
