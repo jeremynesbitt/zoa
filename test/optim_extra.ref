@@ -176,3 +176,13 @@ THI       6.7191
 EXIT PUPIL
 DIA       9.7835
 THI       -8.9652
+All constraints removed
+
+
+
+Field Weights Command WTF     100     100     100 Not supported
+AUT: no variables are defined; nothing to optimize.
+Set at least one variable first (e.g. CCY S2 0, THC S3 0, KC S2 0), or use the lens editor's Set Variable menu.
+AUT: no variables are defined; nothing to optimize.
+Set at least one variable first (e.g. CCY S2 0, THC S3 0, KC S2 0), or use the lens editor's Set Variable menu.
+All constraints removed

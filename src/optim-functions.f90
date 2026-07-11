@@ -45,9 +45,19 @@ subroutine aut_go()
     !real(kind=long), dimension(nV) :: oldVars
 
 
-    ! nO is defined in optimTypes.  
+    ! No variables -> nothing to optimize.  Bail out with a clear message
+    ! instead of handing the solver an empty variable vector (slsqp init
+    ! fails and the old code hit an ERROR STOP, killing the whole program).
+    if (nV < 1) then
+        call zoa_emit("AUT: no variables are defined; nothing to optimize.", "red")
+        call zoa_emit("Set at least one variable first (e.g. CCY S2 0, THC S3 0, "// &
+        &  "KC S2 0), or use the lens editor's Set Variable menu.", "red")
+        return
+    end if
+
+    ! nO is defined in optimTypes.
     print *, "nO is ", nO
-    if (nO == 0 .AND. nC == 0) then 
+    if (nO == 0 .AND. nC == 0) then
         ! Default is Spot Size
         call addOperand('SPO', 0.0_long)
     end if
@@ -95,8 +105,11 @@ subroutine aut_go()
         write(*,*) 'iterations :', iterations
         write(*,*) ''
     else
-        error stop 'error calling slsqp.'
-    end if              
+        ! Never ERROR STOP from a user command -- that terminates the whole
+        ! program.  Report and return; the lens is untouched.
+        call zoa_emit("AUT: optimizer initialization failed (slsqp); "// &
+        &  "check variables and constraints.", "red")
+    end if
 
 
 end subroutine

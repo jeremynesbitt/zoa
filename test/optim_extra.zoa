@@ -37,3 +37,15 @@ XXFF P -50 25 30
 OIF P -200 50
 ! ---- DO: repeat FIR 3 times (deterministic) ----
 DO FIR 1 3
+
+! ---- AUT with no variables: must not crash ----
+! Regression: AUT;GO without any variable used to ERROR STOP inside the slsqp
+! initialization (killing the whole program).  Now it prints a clear message
+! and returns.  Both the bare form and the with-constraint form are covered.
+RES osdtriplet
+AUT
+GO
+AUT
+EFL = 50
+GO
+DCON ALL
