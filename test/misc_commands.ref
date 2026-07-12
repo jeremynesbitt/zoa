@@ -42,13 +42,13 @@ Relative Y Aperture is 0.70000
 RE-ENTER COMMAND
 GLASS IS NOT A "MODEL" GLASS
 "FINDGLAS" TOOK NO ACTION
-  #   NAME   TYPE        TARGET
-  -   ----   ----   -----------
-  1   EFL    =   50.00000
+  #   NAME   ROLE         TYPE        TARGET   WEIGHT
+  -   ----   ----------   ----   -----------   ------
+  1   EFL    Constraint   =         50.00000
 All constraints removed
-  #   NAME   TYPE        TARGET
-  -   ----   ----   -----------
-  1   EFL    =   60.00000
+  #   NAME   ROLE         TYPE        TARGET   WEIGHT
+  -   ----   ----------   ----   -----------   ------
+  1   EFL    Constraint   =         60.00000
 All constraints removed
 All constraints removed
 

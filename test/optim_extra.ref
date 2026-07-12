@@ -83,12 +83,12 @@ IMG:    INFINITY    0.00000                              100     100     100
 Name  Role        Typ  Target              Value               diff
 TAS   Constraint  =    0.0100000000000000   0.0147962107242198   0.0047962107242198
 TCO   Constraint  =    0.0050000000000000   0.0044607099245819  -0.0005392900754181
-  #   NAME   TYPE        TARGET
-  -   ----   ----   -----------
-  1   TAS    =   0.01000
-  2   TCO    =   0.00500
+  #   NAME   ROLE         TYPE        TARGET   WEIGHT
+  -   ----   ----------   ----   -----------   ------
+  1   TAS    Constraint   =          0.01000
+  2   TCO    Constraint   =          0.00500
 All constraints removed
-No constraints defined
+No merit entries (operands or constraints) defined
 NO AUTOFUNC FUNCTION IS CURRENTLY SPECIFIED
 TRACING        256 RAYS AT WAVELENGTH 1
  CAPFN RAY TRACING COMPLETED
@@ -186,3 +186,29 @@ Set at least one variable first (e.g. CCY S2 0, THC S3 0, KC S2 0), or use the l
 AUT: no variables are defined; nothing to optimize.
 Set at least one variable first (e.g. CCY S2 0, THC S3 0, KC S2 0), or use the lens editor's Set Variable menu.
 All constraints removed
+All constraints removed
+
+
+
+Field Weights Command WTF     100     100     100 Not supported
+About to add operand SPO
+  #   NAME   ROLE         TYPE        TARGET   WEIGHT
+  -   ----   ----------   ----   -----------   ------
+  1   SPO    Operand                 0.00000   2.00000
+  2   EFL    Operand                55.00000   0.50000
+  3   TAS    Constraint   =          0.01000
+Number of tokens is 2
+File name to save is MERITTEST.zoa
+All constraints removed
+
+
+
+Field Weights Command WTF     100     100     100 Not supported
+About to add operand SPO
+  #   NAME   ROLE         TYPE        TARGET   WEIGHT
+  -   ----   ----------   ----   -----------   ------
+  1   SPO    Operand                 0.00000   2.00000
+  2   EFL    Operand                55.00000   0.50000
+  3   TAS    Constraint   =          0.01000
+All constraints removed
+No merit entries (operands or constraints) defined

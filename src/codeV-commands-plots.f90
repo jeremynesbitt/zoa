@@ -326,12 +326,21 @@ contains
         call parse(trim(iptStr), ' ', tokens, numTokens)
 
         if (cmd_loop == AUT_LOOP .OR. cmd_loop == TAR_LOOP) then
-            if (isInputNumber(trim(tokens(2)))) then
+            ! SPO [target [weight]] -> objective term (same form the unified
+            ! parser accepts for the other evaluator names).
+            block
+                real(long) :: t, w
+                t = 0.0_long
+                w = 1.0_long
+                if (numTokens >= 2) then
+                    if (isInputNumber(trim(tokens(2)))) t = str2real8(trim(tokens(2)))
+                end if
+                if (numTokens >= 3) then
+                    if (isInputNumber(trim(tokens(3)))) w = str2real8(trim(tokens(3)))
+                end if
                 call LogTermDebug("About to add operand SPO")
-                call addOperand('SPO', str2real8(trim(tokens(2))))
-            else
-                call addOperand('SPO', 0.0_long)
-            end if
+                call addMeritEntry('SPO', ID_ROLE_OBJECTIVE, t, weight=w)
+            end block
             return
         end if
 

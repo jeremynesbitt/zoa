@@ -49,3 +49,22 @@ AUT
 EFL = 50
 GO
 DCON ALL
+
+! ---- Unified merit entries: operand vs constraint roles ----
+! NAME target [weight] (no operator) adds an OBJECTIVE term, minimized as
+! weight*(value-target)**2; NAME = value adds a hard constraint.  LCON lists
+! both with their role.  The merit block round-trips through SAV/RES
+! (including the weight), and DCON ALL clears operands too (historically
+! operands survived and leaked across lens loads).
+RES osdtriplet
+TAR
+SPO 0.0 2.0
+EFL 55 0.5
+TAS = 0.01
+GO
+LCON
+SAV merittest
+RES merittest
+LCON
+DCON ALL
+LCON

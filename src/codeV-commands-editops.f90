@@ -51,21 +51,24 @@ contains
         end if
     end procedure updateVarCodes
 
+    ! Unified merit-entry parser, dispatched for every registered evaluator
+    ! name (EFL, TCO, TAS, PTB, IMC, SAS; SPO arrives via execSPO) inside the
+    ! AUT/TAR/UPD CON loops:
+    !   NAME = v | NAME > v | NAME < v   -> hard constraint
+    !   NAME v [w]                       -> objective term, target v, weight w
+    !                                       (default 1); minimized as
+    !                                       w*(value-v)**2
     module procedure updateConstraint
         use command_utils, only : isInputNumber
         use mod_lens_data_manager
         use optim_types
         implicit none
 
-        integer :: surfNum
         character(len=80) :: tokens(40)
         integer :: numTokens
-        logical :: processResult
-        integer :: s0, sf, dotLoc
         character(len=256) :: normalStr
         integer :: ci, ni
-
-        processResult = .FALSE.
+        real(long) :: w
 
         if (cmd_loop == AUT_LOOP .OR. cmd_loop == TAR_LOOP .OR. cmd_loop == CON_UPDATE_LOOP) then
             normalStr = ''
@@ -82,18 +85,30 @@ contains
             end do
             call parse(trim(normalStr), ' ', tokens, numTokens)
 
-            if (numTokens == 3 .AND. isInputNumber(trim(tokens(3)))) then
-                if (trim(tokens(2)) == '=' .OR. trim(tokens(2)) == '>' .OR. trim(tokens(2)) == '<') then
+            if (numTokens == 3 .AND. .not. isInputNumber(trim(tokens(2)))) then
+                ! Constraint form: NAME <op> value
+                if ((trim(tokens(2)) == '=' .OR. trim(tokens(2)) == '>' .OR. trim(tokens(2)) == '<') &
+                &   .AND. isInputNumber(trim(tokens(3)))) then
                     if (cmd_loop == CON_UPDATE_LOOP) then
                         call addConstraint(trim(tokens(1)), str2real8(tokens(3)), trim(tokens(2)), idxConUpdate)
                     else
                         call addConstraint(trim(tokens(1)), str2real8(tokens(3)), trim(tokens(2)))
                     end if
                 else
-                    call zoa_emit("Error:  Unable to parse number for third token ", "red")
+                    call zoa_emit("Error:  Expect NAME = value (or > <), or NAME target [weight]", "red")
+                end if
+            else if (numTokens >= 2 .AND. isInputNumber(trim(tokens(2)))) then
+                ! Objective form: NAME target [weight]
+                w = 1.0_long
+                if (numTokens >= 3 .AND. isInputNumber(trim(tokens(3)))) w = str2real8(tokens(3))
+                if (cmd_loop == CON_UPDATE_LOOP) then
+                    call addMeritEntry(trim(tokens(1)), ID_ROLE_OBJECTIVE, str2real8(tokens(2)), &
+                    &                  weight=w, idxToUpdate=idxConUpdate)
+                else
+                    call addMeritEntry(trim(tokens(1)), ID_ROLE_OBJECTIVE, str2real8(tokens(2)), weight=w)
                 end if
             else
-                call zoa_emit("Error:  Unable to parse number for third token ", "red")
+                call zoa_emit("Error:  Expect NAME = value (or > <), or NAME target [weight]", "red")
             end if
         else
             call zoa_emit("Error:  Can only set constraint in AUT loop! ", "red")
@@ -542,28 +557,40 @@ contains
         end if
     end procedure evalFunc
 
+    ! List the whole merit function: objective terms and constraints, with
+    ! their role.  The # is the entry's position in the unified list (the
+    ! index UPD CON; CHA n edits).
     module procedure listConstraints
-        use optim_types, only: nM, meritInUse, numConstraints
+        use optim_types, only: nM, meritInUse
         use type_utils, only: real2str
         use kdp_utils, only: OUTKDP
         implicit none
-        integer :: i, j
+        integer :: i
         character(len=1) :: conTypeStr
-        character(len=80) :: outStr
+        character(len=10) :: roleStr
+        character(len=12) :: weightStr
+        character(len=100) :: outStr
 
-        if (numConstraints() == 0) then
-            call OUTKDP('No constraints defined')
+        if (nM == 0) then
+            call OUTKDP('No merit entries (operands or constraints) defined')
             return
         end if
 
-        call OUTKDP('  #   NAME   TYPE        TARGET')
-        call OUTKDP('  -   ----   ----   -----------')
-        j = 0
+        call OUTKDP('  #   NAME   ROLE         TYPE        TARGET   WEIGHT')
+        call OUTKDP('  -   ----   ----------   ----   -----------   ------')
         do i = 1, nM
-            if (meritInUse(i)%role /= ID_ROLE_CONSTRAINT) cycle
-            j = j + 1
-            conTypeStr = meritInUse(i)%getConstraintTypeAsText()
-            write(outStr, '(I3, 3X, A4, 3X, A1, 3X, A)') j, meritInUse(i)%name, conTypeStr, trim(real2str(meritInUse(i)%targ))
+            if (meritInUse(i)%role == ID_ROLE_CONSTRAINT) then
+                roleStr = 'Constraint'
+                conTypeStr = meritInUse(i)%getConstraintTypeAsText()
+                weightStr = ''
+            else
+                roleStr = 'Operand'
+                conTypeStr = ' '
+                weightStr = trim(real2str(meritInUse(i)%weight))
+            end if
+            write(outStr, '(I3, 3X, A4, 3X, A10, 3X, A1, 3X, A14, 3X, A)') &
+            &  i, meritInUse(i)%name, roleStr, conTypeStr, &
+            &  trim(real2str(meritInUse(i)%targ)), trim(weightStr)
             call OUTKDP(trim(outStr))
         end do
     end procedure listConstraints

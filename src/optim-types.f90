@@ -533,11 +533,13 @@ module optim_types
             if (nM > 0) then
                 write(fID, *) "TAR"
             ! Objective terms first, then constraints (preserves the historical
-            ! file order).  Objective line: NAME targ; the loader treats a bare
-            ! numeric second token as an objective add.
+            ! file order).  Objective line: NAME targ weight; the loader treats
+            ! a bare numeric second token as an objective add (weight optional,
+            ! so pre-weight files still load).
             do i=1,nM
                 if (meritInUse(i)%role == ID_ROLE_OBJECTIVE) then
-                  write(fID, *) meritInUse(i)%name//" "//real2str(meritInUse(i)%targ)
+                  write(fID, *) meritInUse(i)%name//" "//real2str(meritInUse(i)%targ)// &
+                  &  " "//real2str(meritInUse(i)%weight)
                 end if
             end do
             do i=1,nM
