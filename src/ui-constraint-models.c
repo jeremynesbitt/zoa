@@ -1,16 +1,19 @@
 #include<gtk/gtk.h>
 
-// Constraint table
+// Merit-entry table (historically "constraint" table; now holds both
+// objective terms ("operands") and constraints, distinguished by role).
 #define CONSTRAINT_TYPE_ITEM (constraint_item_get_type())
 G_DECLARE_FINAL_TYPE (ConstraintItem, constraint_item, CONSTRAINT, ITEM, GObject)
 
 struct _ConstraintItem
 {
-   GObject parent_instance; 
+   GObject parent_instance;
    const char *constraintName;
    double con;
+   int role;      // ID_ROLE_OBJECTIVE=1 / ID_ROLE_CONSTRAINT=2 / 0 = blank row
    int conType;
    double targ;
+   double weight; // objective terms only
 };
 
 struct _ConstraintItemClass
@@ -28,36 +31,39 @@ static void constraint_item_class_init(ConstraintItemClass *class)
 {
 }
 
-const char *constraintName;
-double con;
-int conType;
-double targ;
-
-static ConstraintItem * constraint_item_new(const char *constraintName, 
+static ConstraintItem * constraint_item_new(const char *constraintName,
     double con,
+    int role,
     int conType,
-    double targ)
+    double targ,
+    double weight)
 {
    ConstraintItem  *item = g_object_new(CONSTRAINT_TYPE_ITEM, NULL);
     item->constraintName = g_strup(constraintName);
     item->con     = con;
+    item->role    = role;
     item->conType = conType;
     item->targ    = targ;
+    item->weight  = weight;
     return item;
 }
 
-GListModel * append_constraint_model(GListStore *store, 
-   const char *constraintName, 
+GListModel * append_constraint_model(GListStore *store,
+   const char *constraintName,
    double con,
+   int role,
    int conType,
-   double targ)
+   double targ,
+   double weight)
 {
 
 g_list_store_append(store, constraint_item_new(
-    constraintName, 
+    constraintName,
     con,
+    role,
     conType,
-    targ));
+    targ,
+    weight));
 return G_LIST_MODEL(store);
 }
 
@@ -81,12 +87,24 @@ int constraint_item_get_contype(ConstraintItem *item)
    return item->conType;
 }
 
+int constraint_item_get_role(ConstraintItem *item)
+{
+   return item->role;
+}
+
+double constraint_item_get_weight(ConstraintItem *item)
+{
+   return item->weight;
+}
+
 GListModel * append_blank_constraint(GListStore *store)
 {
    g_list_store_append(store, constraint_item_new(
-      " ", 
+      " ",
       0.0,
+      0,
       1,
-      0.0));
+      0.0,
+      1.0));
    return G_LIST_MODEL(store);
 }

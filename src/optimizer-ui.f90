@@ -18,78 +18,55 @@ module optimizer_ui
 
     interface
 
-    function append_operand_model(store, operandName, waveLength, fieldPos,  &
-      & pupilX, pupilY, fieldX, fieldY, targ, currValue) bind(c)
-      import c_ptr, c_char, c_int, c_double
-      implicit none
-      type(c_ptr), value    :: store
-      integer(c_int), value :: waveLength, fieldPos
-      character(kind=c_char), dimension(*) :: operandName
-      type(c_ptr)    :: append_operand_model
-      real(c_double), value :: pupilX, pupilY, fieldX, fieldY, targ, currValue
-    end function    
-
-    function append_blank_operand(store) bind(c)
-        import c_ptr 
-        implicit none
-        type(c_ptr), value :: store 
-        type(c_ptr)    :: append_blank_operand
-    end function
-    function operand_item_get_name(item) bind(c)
-        import :: c_ptr
-        type(c_ptr), value :: item
-        type(c_ptr) :: operand_item_get_name
-      end function   
-       function operand_item_get_wavelength(item) bind(c)
-        import :: c_ptr, c_int
-        type(c_ptr), value :: item
-        integer(c_int) :: operand_item_get_wavelength
-      end function  
-      function operand_item_get_fieldpos(item) bind(c)
-        import :: c_ptr, c_int
-        type(c_ptr), value :: item
-        integer(c_int) :: operand_item_get_fieldPos
-      end function        
-
-
-! Constraints
-      function append_constraint_model(store, constraintName, conValue, contype,  &
-        & targ) bind(c)
+! Merit entries (historically "constraints"; the table now holds both
+! objective terms and constraints, distinguished by role)
+      function append_constraint_model(store, constraintName, conValue, role, contype,  &
+        & targ, weight) bind(c)
         import c_ptr, c_char, c_int, c_double
         implicit none
         type(c_ptr), value    :: store
         character(kind=c_char), dimension(*) :: constraintName
         type(c_ptr)    :: append_constraint_model
-        integer(c_int), value :: contype
-        real(c_double), value :: conValue, targ
-      end function    
-  
+        integer(c_int), value :: role, contype
+        real(c_double), value :: conValue, targ, weight
+      end function
+
       function append_blank_constraint(store) bind(c)
-          import c_ptr 
+          import c_ptr
           implicit none
-          type(c_ptr), value :: store 
+          type(c_ptr), value :: store
           type(c_ptr)    :: append_blank_constraint
       end function
       function constraint_item_get_name(item) bind(c)
         import :: c_ptr
         type(c_ptr), value :: item
         type(c_ptr) :: constraint_item_get_name
-      end function   
+      end function
        function constraint_item_get_value(item) bind(c)
         import :: c_ptr, c_double
         type(c_ptr), value :: item
         real(c_double) :: constraint_item_get_value
-      end function  
+      end function
       function constraint_item_get_target(item) bind(c)
         import :: c_ptr, c_double
         type(c_ptr), value :: item
         real(c_double) :: constraint_item_get_target
-      end function   
+      end function
       function constraint_item_get_contype(item) bind(c)
         import :: c_ptr, c_int
         type(c_ptr), value :: item
         integer(c_int) :: constraint_item_get_conType
-      end function              
+      end function
+      function constraint_item_get_role(item) bind(c)
+        import :: c_ptr, c_int
+        type(c_ptr), value :: item
+        integer(c_int) :: constraint_item_get_role
+      end function
+      function constraint_item_get_weight(item) bind(c)
+        import :: c_ptr, c_double
+        type(c_ptr), value :: item
+        real(c_double) :: constraint_item_get_weight
+      end function
 
     end interface
 
@@ -128,9 +105,6 @@ module optimizer_ui
 
 
     ! For now add some vars for column names and types.  WOuld like a more elegant solution
-    integer, parameter :: ID_OPERAND_NAME_COL = 1
-    integer, parameter :: ID_OPERAND_WL_COL = 2
-    integer, parameter :: ID_OPERAND_FIELD_COL = 3
 
 
     integer, parameter :: ID_DATATYPE_STR = 1
@@ -142,24 +116,17 @@ module optimizer_ui
     integer, parameter :: ID_WIDGET_TYPE_ENTRY = 4003
 
 
+    ! Unified merit table columns
     integer, parameter :: ID_CONSTRAINT_NAME_COL = 1
-    integer, parameter :: ID_CONSTRAINT_TARGET_COL = 3
-    integer, parameter :: ID_CONSTRAINT_TYPE_COL = 2
-    integer, parameter :: ID_CONSTRAINT_VALUE_COL = 4
+    integer, parameter :: ID_CONSTRAINT_ROLE_COL = 2
+    integer, parameter :: ID_CONSTRAINT_TYPE_COL = 3
+    integer, parameter :: ID_CONSTRAINT_TARGET_COL = 4
+    integer, parameter :: ID_CONSTRAINT_WEIGHT_COL = 5
+    integer, parameter :: ID_CONSTRAINT_VALUE_COL = 6
 
-    type(uiTableColumnInfo) :: operandColInfo(3)
-    type(uiTableColumnInfo) :: constraintColInfo(4)    
+    type(uiTableColumnInfo) :: constraintColInfo(6)
 
     contains
-
-    ! function tstWLInterface(item) result(intWL)
-    !     type(c_ptr), value :: item 
-    !     integer(c_int) :: intWL
-
-    !     intWL =  operand_item_get_wavelength(0)
-
-
-    ! end function
 
     subroutine optimizer_ui_new(parent_window)
 
@@ -178,22 +145,6 @@ module optimizer_ui
     
         PRINT *, "ABOUT TO FIRE UP OPTIMIZIER WINDOW!"
     
-
-        ! Build operaand info
-        operandColInfo(ID_OPERAND_NAME_COL )%colName = "Name"
-        operandColInfo(ID_OPERAND_NAME_COL)%colType = ID_WIDGET_TYPE_LABEL
-        operandColInfo(ID_OPERAND_NAME_COL)%dataType = ID_DATATYPE_STR
-        operandColInfo(ID_OPERAND_NAME_COL)%getFunc_str => operand_item_get_name
-    
-        operandColInfo(ID_OPERAND_WL_COL)%colName = "Wavelength"
-        operandColInfo(ID_OPERAND_WL_COL)%colType = ID_WIDGET_TYPE_LABEL
-        operandColInfo(ID_OPERAND_WL_COL)%dataType = ID_DATATYPE_INT
-        operandColInfo(ID_OPERAND_WL_COL)%getFunc_int => operand_item_get_wavelength
-    
-        operandColInfo(ID_OPERAND_FIELD_COL)%colName = "Field"
-        operandColInfo(ID_OPERAND_FIELD_COL)%colType = ID_WIDGET_TYPE_LABEL    
-        operandColInfo(ID_OPERAND_FIELD_COL)%dataType = ID_DATATYPE_INT    
-        operandColInfo(ID_OPERAND_FIELD_COL)%getFunc_int => operand_item_get_fieldpos
 
         call initConstraintColInfo()
         ! Create a modal dialogue
@@ -230,11 +181,10 @@ module optimizer_ui
         !basicLabel = gtk_label_new_with_mnemonic("_General"//c_null_char)
         !pageIdx = gtk_notebook_append_page(nbk, box1, basicLabel)
     
-        !AsphLabel = gtk_label_new_with_mnemonic("_Operands"//c_null_char)
-        !pageIdx = gtk_notebook_append_page(nbk, operands_create_table(), AsphLabel)
-
-        conLabel = gtk_label_new_with_mnemonic("_Constraints"//c_null_char)
-        pageIdx = gtk_notebook_append_page(nbk, constraints_create_table(), conLabel)        
+        ! Unified merit table: objective terms (operands) and constraints in
+        ! one table, distinguished by the Role column.
+        conLabel = gtk_label_new_with_mnemonic("_Merit"//c_null_char)
+        pageIdx = gtk_notebook_append_page(nbk, constraints_create_table(), conLabel)
     
         SolveLabel = gtk_label_new_with_mnemonic("_Optimize"//c_null_char)
         pageIdx = gtk_notebook_append_page(nbk, optimize_create_objects(), SolveLabel)
@@ -315,371 +265,51 @@ module optimizer_ui
         optimizer_window = c_null_ptr
     end subroutine
 
-    function operands_create_table() result(boxNew)
-        ! Columns:
-        ! Operand Name [dropdown]
-        ! Operand Type (contraint or weighted) unedited text (fcn of name)
-        ! Constraint -dropdown for > < = 
-        ! Constraint target (also target for weighted operand?)
-        ! Weight (not implemented yet?)  editable if weighted, greyed out and empty if contraint
-        ! For future use:  Field X Field Y Pupil X Pupil Y Wavelength
-
-        use, intrinsic :: iso_c_binding, only: c_ptr, c_funloc, c_null_char
-    
-        type(integer) :: ID_TAB
-        type(c_ptr) :: boxNew
-    
-        !Debug
-        integer :: ii
-        integer, target :: colIDs(10) = [(ii,ii=1,10)]
-    
-        type(c_ptr) :: store, cStrB, listitem, selection, factory, column, swin
-        character(len=1024) :: debugName
-    
-        type(c_ptr) :: cv, dbut, ibut, qbut
-    
-    
-        boxNew = hl_gtk_box_new()
-    
-    
-          store = buildOperandTable()
-        
-      
-          selection = gtk_multi_selection_new(store)
-          !call g_signal_connect(selection, 'selection-changed'//c_null_char, c_funloc(lens_edit_row_selected), c_null_ptr)      !selection = gtk_multi_selection_new(store)
-          call gtk_single_selection_set_autoselect(selection,TRUE)    
-          cv = gtk_column_view_new(selection)
-          call gtk_widget_set_name(cv, "Operand"//c_null_char)
-          call gtk_column_view_set_show_column_separators(cv, 1_c_int)
-          call gtk_column_view_set_show_row_separators(cv, 1_c_int)
-          call gtk_column_view_set_reorderable(cv, 0_c_int)
-    
-          call setOperandColumns(cv)
-    
-          swin = gtk_scrolled_window_new()
-          call gtk_scrolled_window_set_child(swin, cv)
-          call gtk_scrolled_window_set_min_content_height(swin, 300_c_int) !TODO:  Fix this properly 
-          call gtk_box_append(boxNew, swin)
-    
-          print *, "creating buttons"
-        ! Delete selected row
-          ibut = hl_gtk_button_new("Insert row"//c_null_char, &
-          & clicked=c_funloc(ins_optimizer_row), &
-          & tooltip="Insert new row above"//c_null_char, sensitive=FALSE)
-    
-          call hl_gtk_box_pack(boxNew, ibut)
-    
-          ! Delete selected row
-          dbut = hl_gtk_button_new("Delete selected row"//c_null_char, &
-                & clicked=c_funloc(del_optimizer_row), &
-                & tooltip="Delete the selected row"//c_null_char, sensitive=FALSE)
-    
-          call hl_gtk_box_pack(boxNew, dbut)
-    
-          ! Also a quit button
-          qbut = hl_gtk_button_new("Quit"//c_null_char, clicked=c_funloc(optimizer_ui_destroy), data=optimizer_window)
-          call hl_gtk_box_pack(boxNew,qbut)
-
-    
-      end function   
-
-! This func interfaces with the c struct that stores the data
-! At some point I may migrate this to fortran but for now the
-! main cost of this is a bunch of interfaces for each get which
-! I can live with
-      function buildOperandTable() result(store)
-        use mod_lens_data_manager
-      
-      
-        integer, allocatable, dimension(:) :: surfIdx
-        integer, allocatable, dimension(:) :: isRefSurface, radPickups, thiPickups
-        real(kind=real64), dimension(curr_lens_data%num_surfaces) :: clearApertures
-        integer :: i
-      
-        integer, parameter :: numSurfTypes = 1
-        character(kind=c_char, len=20),dimension(numSurfTypes) :: surfTypeNames
-        character(kind=c_char, len=20), dimension(curr_lens_data%num_surfaces) :: surfaceLabels
-        integer(c_int), dimension(numSurfTypes) :: surfTypeIDs
-        real(kind=real64), dimension(16) :: extraParams
-        type(c_ptr) :: store
-        integer :: numOperands, numRows, j
-
-
-        numOperands = numObjectives()
-
-        ! Set some minimum amount
-        if (numOperands < 20) then
-            numRows = 20
-        else
-            numRows = numOperands
-        end if
-
-
-          print *, "number of merit entries is ", getTotalNumberOfOperands()
-          store = g_list_store_new(G_TYPE_OBJECT)
-          j = 0
-          do i=1,nM
-            if (meritInUse(i)%role /= ID_ROLE_OBJECTIVE) cycle
-            j = j + 1
-            store = append_operand_model(store, meritInUse(i)%name, meritInUse(i)%iW, meritInUse(i)%iF, &
-            & meritInUse(i)%px, meritInUse(i)%py, meritInUse(i)%hx, meritInUse(i)%hy, &
-            & meritInUse(i)%targ, meritInUse(i)%val)
-          end do
-          do i=j+1,numRows
-            store = append_blank_operand(store)
-          end do
-
-
-        end function
-
-        subroutine setOperandColumns(colView)
-            use type_utils, only: int2str
-            type(c_ptr), value :: colView
-          
-            integer :: ii
-            integer, target :: colIDs(25) = [(ii,ii=1,25)]
-            type(c_ptr) :: factory, column
-
-
-            do ii=1,size(operandColInfo)
-              factory = gtk_signal_list_item_factory_new()
-              print *, "Before setup"
-              call g_signal_connect(factory, "setup"//c_null_char, c_funloc(setup_operand_cb),c_loc(colIDs(ii)))
-              print *, "Before bind"
-              call g_signal_connect(factory, "bind"//c_null_char, c_funloc(bind_operand_cb),c_loc(colIDs(ii)))
-              column = gtk_column_view_column_new(trim(operandColInfo(ii)%colName)//c_null_char, factory)
-              call gtk_column_view_column_set_id(column, trim(int2str(colIDs(ii))))
-              call gtk_column_view_column_set_resizable(column, 1_c_int)
-              call gtk_column_view_append_column (colView, column)
-              call g_object_unref (column)      
-            end do
-          end subroutine
-
-          
-          ! This is nearly identical to the constraint cb and screams for abstraction
-          ! but I cannot figure out how to do this without coverting my gobjects all to fortran
-          ! even then I am not sure it will work as I think the best way to do this is to attach
-          ! a pointer to a fortran object to one of these and I haven't tested this will work with
-          ! function pointers.  So for now do a copy/paste.
-          subroutine setup_operand_cb(factory,listitem, gdata) bind(c)
-            use hl_gtk_zoa, only: get_widget_name_f
-            use gtk_hl_entry
-            use gtk_hl_container
-            use ui_table_funcs
-            
-            type(c_ptr), value :: factory
-            type(c_ptr), value :: listitem, gdata
-            type(c_ptr) :: label, entryCB, menuB, boxS, dropDown
-            !integer(kind=c_int), pointer :: ID_COL
-            integer :: ii
-            integer, target :: colIDs(25) = [(ii,ii=1,25)]
-            character(len=3) :: cmd
-            character(len=200) :: widgetName
-            integer(kind=c_int), pointer :: ID_COL
- 
-            print *, "DEBUG: beginning of setup_operand_cb"
-          
-            label =gtk_label_new(c_null_char)
-            call gtk_list_item_set_child(listitem,label)
-          
-            call c_f_pointer(gdata, ID_COL)
-            !call getRowAndColumnFromStrPtr(gdata, row, ID_COL)
-            !call c_f_pointer(gdata, ID_COL)
-
-            select case (operandColInfo(ID_COL)%colType)
-            case (ID_WIDGET_TYPE_LABEL)
-                label =gtk_label_new(c_null_char)
-                call gtk_list_item_set_child(listitem,label)    
-            case (ID_WIDGET_TYPE_DROPDOWN)
-                ! Data is column dependent
-                select case (ID_COL)
-                case(ID_CONSTRAINT_NAME_COL)
-                 dropDown = gtk_drop_down_new_from_strings(convertListtoCStringArray(gatherEvaluatorNames()))
-
-                end select
-
-                call gtk_list_item_set_child(listitem,dropDown)     
-            case (ID_WIDGET_TYPE_ENTRY)
-                boxS = hl_gtk_box_new(horizontal=TRUE, spacing=0_c_int)
-                entryCB = hl_gtk_entry_new(4_c_int, editable=TRUE, activate=c_funloc(operand_cell_changed), data=c_null_ptr)                                           
-                !entryCB = hl_gtk_entry_new(10_c_int, editable=TRUE, activate=c_funloc(cell_changed), data=g_strdup('CIR'))                                           
-                call gtk_box_append(boxS, entryCB)
-                call gtk_list_item_set_child(listitem, boxS)  
-                
-            end select       
-            print *, "DEBUG:  End of setup_operand_cb"
-        end subroutine   
-
-        ! subroutine setup_operand_cb(factory,listitem, gdata) bind(c)
-        !     use gtk_hl_entry
-        !     use gtk_hl_container
-            
-        !     type(c_ptr), value :: factory
-        !     type(c_ptr), value :: listitem, gdata
-        !     type(c_ptr) :: label, entryCB, menuB, boxS, dropDown
-        !     integer(kind=c_int), pointer :: ID_COL
-        !     character(len=3) :: cmd
-            
-          
-        !     label =gtk_label_new(c_null_char)
-        !     call gtk_list_item_set_child(listitem,label)
-          
-        !     call c_f_pointer(gdata, ID_COL)
-
-        !     select case (operandColInfo(ID_COL)%colType)
-        !     case (ID_WIDGET_TYPE_LABEL)
-        !         label =gtk_label_new(c_null_char)
-        !         call gtk_list_item_set_child(listitem,label)                
-
-        !     end select
-        
-        !   end subroutine  
-          
-
-        subroutine bind_operand_cb(factory,listitem, gdata) bind(c)
-            use type_utils
-            type(c_ptr), value :: factory
-            type(c_ptr), value :: listitem, gdata
-            type(c_ptr) :: widget, item, label, buffer, entryCB, menuCB
-            type(c_ptr) :: cStr
-            real(kind=c_double) :: tmpDbl
-            integer(kind=c_int) :: tmpInt
-            character(len=140) :: colName
-            character(len=1), dimension(:), allocatable :: conTypeNames
-            class(*), pointer :: tmpPtr
-            character(len=100) :: rcCode
-            integer(kind=c_int), pointer :: ID_COL
-            integer :: row
-
-            call c_f_pointer(gdata, ID_COL)
-            !call getRowAndColumnFromStrPtr(gdata, row, ID_COL)
-            label = gtk_list_item_get_child(listitem)
-            item = gtk_list_item_get_item(listitem);
-          
-            select case (operandColInfo(ID_COL)%colType)
-            case (ID_WIDGET_TYPE_LABEL)
-
-                select case (operandColInfo(ID_COL)%dataType)
-                    case (ID_DATATYPE_INT)
-                    colName = trim(int2str(operandColInfo(ID_COL)%getFunc_int(item)))
-                       
-                    case (ID_DATATYPE_STR)
-                        cStr = operandColInfo(ID_COL)%getFunc_str(item)
-                        call convert_c_string(cStr, colName)      
-
-                    case (ID_DATATYPE_DBL)
-                        tmpDbl = operandColInfo(ID_COL)%getFunc_dbl(item)
-                        write(colName, *) tmpDbl
-                        
-                        !colName = real2str(constraintColInfo(ID_COL)%getFunc_dbl(item))
-                end select
-
-                call gtk_label_set_text(label, trim(colName)//c_null_char)   
-                ! colName = trim(int2str(operandColInfo(ID_COL)%getFunc(item)))//c_null_char
-                ! print *, "colName is ", trim(colName)
-                ! call gtk_label_set_text(label, trim(colName)//c_null_char)       
-
-            case (ID_WIDGET_TYPE_DROPDOWN)    
-                select case (ID_COL)
-                    case(ID_OPERAND_NAME_COL)
-                        cStr = operandColInfo(ID_COL)%getFunc_str(item)
-                        call convert_c_string(cStr, colName)   
-                        call setDropDownByString(label, colName)                
-                    end select
-
-                case (ID_WIDGET_TYPE_ENTRY)
-                    select case (operandColInfo(ID_COL)%dataType)
-                    case (ID_DATATYPE_INT)
-                    colName = trim(int2str(operandColInfo(ID_COL)%getFunc_int(item)))
-                       
-                    case (ID_DATATYPE_STR)
-                        cStr = operandColInfo(ID_COL)%getFunc_str(item)
-                        call convert_c_string(cStr, colName)      
-
-                    case (ID_DATATYPE_DBL)
-                        tmpDbl = operandColInfo(ID_COL)%getFunc_dbl(item)
-                        !write(colName, *) tmpDbl
-                        colName = real2str(tmpDbl)
-                        !if (tmpDbl == 0) colName = "0"
-                        !colName = real2str(constraintColInfo(ID_COL)%getFunc_dbl(item))
-                    end select
-                    entryCB = gtk_widget_get_first_child(label)  
-                    buffer = gtk_entry_get_buffer(entryCB)    
-                    call gtk_entry_buffer_set_text(buffer, trim(colName)//c_null_char,-1_c_int)                    
-
-
-            end select   
-            row = gtk_list_item_get_position(listitem)   
-            call gtk_widget_set_name(label,"R"//trim(int2str(row))//"C"//trim(int2str(ID_COL))//c_null_char)
-
-            if (operandColInfo(ID_COL)%colType == ID_WIDGET_TYPE_DROPDOWN) then
-                call g_signal_connect(label, "notify::selected"//c_null_char, c_funloc(operandDropDownChanged), c_null_ptr)
-            end if            
-
-            print *, "DEBUG:  End of bind operand cb"
-        end subroutine
-
-        !   subroutine bind_operand_cb(factory,listitem, gdata) bind(c)
-        !     use type_utils
-        !     type(c_ptr), value :: factory
-        !     type(c_ptr), value :: listitem, gdata
-        !     type(c_ptr) :: widget, item, label, buffer, entryCB, menuCB
-        !     type(c_ptr) :: cStr
-        !     integer(kind=c_int), pointer :: ID_COL
-        !     character(len=140) :: colName
-        !     class(*), pointer :: tmpPtr
-          
-        !     call c_f_pointer(gdata, ID_COL)
-        !     label = gtk_list_item_get_child(listitem)
-        !     item = gtk_list_item_get_item(listitem);
-          
-        !     select case (operandColInfo(ID_COL)%colType)
-        !     case (ID_WIDGET_TYPE_LABEL)
-
-        !         select case (operandColInfo(ID_COL)%dataType)
-        !             case (ID_DATATYPE_INT)
-        !             colName = trim(int2str(operandColInfo(ID_COL)%getFunc_int(item)))
-                       
-        !             case (ID_DATATYPE_STR)
-        !                 cStr = operandColInfo(ID_COL)%getFunc_str(item)
-        !                 call convert_c_string(cStr, colName)                        
-
-        !         end select
-
-        !         call gtk_label_set_text(label, trim(colName)//c_null_char)   
-        !         ! colName = trim(int2str(operandColInfo(ID_COL)%getFunc(item)))//c_null_char
-        !         ! print *, "colName is ", trim(colName)
-        !         ! call gtk_label_set_text(label, trim(colName)//c_null_char)       
-
-        !     end select
-
-        !   end subroutine          
-      
-
     subroutine initConstraintColInfo()
 
-        ! Build constraint info
+        ! Build merit-table info: Name | Role | Type | Target | Weight | Value.
+        ! Type applies to constraints; Weight applies to objective terms
+        ! (each is ignored for the other role when the edit command is built).
         constraintColInfo(ID_CONSTRAINT_NAME_COL)%colName = "Name"
         constraintColInfo(ID_CONSTRAINT_NAME_COL)%colType = ID_WIDGET_TYPE_DROPDOWN
         constraintColInfo(ID_CONSTRAINT_NAME_COL)%dataType = ID_DATATYPE_STR
         constraintColInfo(ID_CONSTRAINT_NAME_COL)%getFunc_str => constraint_item_get_name
 
+        constraintColInfo(ID_CONSTRAINT_ROLE_COL)%colName = "Role"
+        constraintColInfo(ID_CONSTRAINT_ROLE_COL)%colType = ID_WIDGET_TYPE_DROPDOWN
+        constraintColInfo(ID_CONSTRAINT_ROLE_COL)%dataType = ID_DATATYPE_INT
+        constraintColInfo(ID_CONSTRAINT_ROLE_COL)%getFunc_int => constraint_item_get_role
+
         constraintColInfo(ID_CONSTRAINT_TYPE_COL)%colName = "Type"
         constraintColInfo(ID_CONSTRAINT_TYPE_COL)%colType = ID_WIDGET_TYPE_DROPDOWN
         constraintColInfo(ID_CONSTRAINT_TYPE_COL)%dataType = ID_DATATYPE_INT
-        constraintColInfo(ID_CONSTRAINT_TYPE_COL)%getFunc_int => constraint_item_get_contype        
+        constraintColInfo(ID_CONSTRAINT_TYPE_COL)%getFunc_int => constraint_item_get_contype
 
         constraintColInfo(ID_CONSTRAINT_TARGET_COL)%colName = "Target"
         constraintColInfo(ID_CONSTRAINT_TARGET_COL)%colType = ID_WIDGET_TYPE_ENTRY
         constraintColInfo(ID_CONSTRAINT_TARGET_COL)%dataType = ID_DATATYPE_DBL
         constraintColInfo(ID_CONSTRAINT_TARGET_COL)%getFunc_dbl => constraint_item_get_target
 
+        constraintColInfo(ID_CONSTRAINT_WEIGHT_COL)%colName = "Weight"
+        constraintColInfo(ID_CONSTRAINT_WEIGHT_COL)%colType = ID_WIDGET_TYPE_ENTRY
+        constraintColInfo(ID_CONSTRAINT_WEIGHT_COL)%dataType = ID_DATATYPE_DBL
+        constraintColInfo(ID_CONSTRAINT_WEIGHT_COL)%getFunc_dbl => constraint_item_get_weight
+
         constraintColInfo(ID_CONSTRAINT_VALUE_COL)%colName = "Value"
         constraintColInfo(ID_CONSTRAINT_VALUE_COL)%colType = ID_WIDGET_TYPE_LABEL
         constraintColInfo(ID_CONSTRAINT_VALUE_COL)%dataType = ID_DATATYPE_DBL
-        constraintColInfo(ID_CONSTRAINT_VALUE_COL)%getFunc_dbl => constraint_item_get_value        
+        constraintColInfo(ID_CONSTRAINT_VALUE_COL)%getFunc_dbl => constraint_item_get_value
 
     end subroutine
+
+    ! Role names indexed by ID_ROLE_OBJECTIVE / ID_ROLE_CONSTRAINT
+    function gatherRoleNames() result(strNameList)
+        character(len=10), dimension(2) :: strNameList
+
+        strNameList(ID_ROLE_OBJECTIVE)  = 'Operand'
+        strNameList(ID_ROLE_CONSTRAINT) = 'Constraint'
+
+    end function
 
 
 
@@ -756,37 +386,33 @@ module optimizer_ui
 ! At some point I may migrate this to fortran but for now the
 ! main cost of this is a bunch of interfaces for each get which
 ! I can live with
+      ! Build the unified merit table: EVERY merit entry (objective terms and
+      ! constraints), in definition order -- the row number matches the # that
+      ! UPD CON; CHA n and LCON use.
       function buildConstraintTable() result(store)
         use mod_lens_data_manager
 
         integer :: i
 
         type(c_ptr) :: store
-        integer :: nCon, numRows, j
-        real(long) :: tmpVal
+        integer :: numRows
 
-
-        nCon = numConstraints()
-
-        print *, "Num Constraints is ", nCon
+        print *, "Num merit entries is ", nM
 
         ! Set some minimum amount
-        if (nCon < 20) then
+        if (nM < 20) then
             numRows = 20
         else
-            numRows = nCon
+            numRows = nM
         end if
 
           store = g_list_store_new(G_TYPE_OBJECT)
-          j = 0
           do i=1,nM
-            if (meritInUse(i)%role /= ID_ROLE_CONSTRAINT) cycle
-            j = j + 1
             ! This did not work without () on the %func but did not throw and error.  Annoying
             store = append_constraint_model(store, meritInUse(i)%name, meritInUse(i)%func(),  &
-            & meritInUse(i)%conType, meritInUse(i)%targ)
+            & meritInUse(i)%role, meritInUse(i)%conType, meritInUse(i)%targ, meritInUse(i)%weight)
           end do
-          do i=j+1,numRows
+          do i=nM+1,numRows
             store = append_blank_constraint(store)
           end do
 
@@ -874,6 +500,8 @@ module optimizer_ui
                 select case (ID_COL)
                 case(ID_CONSTRAINT_NAME_COL)
                  dropDown = gtk_drop_down_new_from_strings(convertListtoCStringArray(gatherEvaluatorNames()))
+                case(ID_CONSTRAINT_ROLE_COL)
+                 dropDown = gtk_drop_down_new_from_strings(convertListtoCStringArray(gatherRoleNames()))
                 case(ID_CONSTRAINT_TYPE_COL)
                  dropDown = gtk_drop_down_new_from_strings(convertListtoCStringArray(gatherConstraintTypeNames()))
                 end select
@@ -956,20 +584,33 @@ module optimizer_ui
                 ! print *, "colName is ", trim(colName)
                 ! call gtk_label_set_text(label, trim(colName)//c_null_char)       
 
-            case (ID_WIDGET_TYPE_DROPDOWN)    
+            case (ID_WIDGET_TYPE_DROPDOWN)
                 select case (ID_COL)
                     case(ID_CONSTRAINT_NAME_COL)
                         cStr = constraintColInfo(ID_COL)%getFunc_str(item)
-                        call convert_c_string(cStr, colName)   
-                        call setDropDownByString(label, colName)                
+                        call convert_c_string(cStr, colName)
+                        call setDropDownByString(label, colName)
+                    case (ID_CONSTRAINT_ROLE_COL)
+                        block
+                            character(len=10), dimension(2) :: roleNames
+                            tmpInt = constraintColInfo(ID_COL)%getFunc_int(item)
+                            roleNames = gatherRoleNames()
+                            if (tmpInt == ID_ROLE_OBJECTIVE .OR. tmpInt == ID_ROLE_CONSTRAINT) then
+                                call setDropDownByString(label, trim(roleNames(tmpInt)))
+                            else
+                                ! Blank row: default new entries to Constraint
+                                ! (the table's historical content).
+                                call setDropDownByString(label, trim(roleNames(ID_ROLE_CONSTRAINT)))
+                            end if
+                        end block
                     case (ID_CONSTRAINT_TYPE_COL)
                         tmpInt = constraintColInfo(ID_COL)%getFunc_int(item)
                         ! There is a bug where the getFunc is not returning a value ine
                         ! range.  I could not figure out why so for now just restrict values
-                        if (tmpInt > 0 .AND. tmpInt < 5) then 
+                        if (tmpInt > 0 .AND. tmpInt < 5) then
                         conTypeNames = gatherConstraintTypeNames()
                         call setDropDownByString(label, conTypeNames(tmpInt))
-                        else 
+                        else
                             conTypeNames = gatherConstraintTypeNames()
                             call setDropDownByString(label, conTypeNames(1))
                         end if
@@ -1261,34 +902,6 @@ module optimizer_ui
 
         end function
 
-        subroutine operand_cell_changed(widget, data) bind(c)
-            use type_utils
-            use strings
-            use ui_table_funcs
-          
-          type(c_ptr), value :: widget, data
-          type(c_ptr) :: buff2, cStr, item, model
-          character(len=100) :: rcCode, cmd, valTxt
-          character(len=140) :: ftext
-          character(len=1) :: conStr
-          integer :: row,col
-          integer(kind=c_int) :: conType
-          
-          model = getModelFromWidget(widget, "Operand")
-
-          buff2 = gtk_entry_get_buffer(widget)
-          call c_f_string_copy(gtk_entry_buffer_get_text(buff2), valTxt)
-
-          call getRowAndColumnFromStrPtr(gtk_widget_get_name(gtk_widget_get_parent(widget)),row,col)
-
-          cmd = getConstraintChangeCommand(model, row, col, trim(valTxt))
-
-          print *, "update cmd is ", trim(cmd)
-          !call PROCESKDP("UPD CON ; CHA "//trim(int2str(row+1))//" ; "//trim(cmd)//'; GO')
-          call rebuildTable(getColumnViewFromWidget(widget, "Operand"), buildOperandTable(), setOperandColumns)
-          end subroutine       
-          
-
         subroutine constraint_cell_changed(widget, data) bind(c)
             use type_utils
             use strings
@@ -1352,31 +965,6 @@ module optimizer_ui
         end subroutine
 
 
-        subroutine operandDropDownChanged(widget, gdata) bind(c)
-            use type_utils
-            type(c_ptr), value :: widget, gdata
-            type(c_ptr) :: buff2, cStr, item, model, currItem
-            character(len=100) :: rcCode, cmd, valTxt
-            character(len=140) :: ftext
-            character(len=1) :: conStr
-            integer :: row,col
-            integer(kind=c_int) :: conType
-            
-            model = getModelFromWidget(widget, "Operand")
-
-            call getRowAndColumnFromStrPtr(gtk_widget_get_name(widget),row,col)
-            currItem = gtk_drop_down_get_selected_item(widget)
-            cStr = gtk_string_object_get_string(currItem)
-            !cStr = g_value_get_string(cStr)
-            call convert_c_string(cStr, ftext)           
-
-            !cmd = getConstraintChangeCommand(model, row, col, trim(ftext))
-            !print *, "cmd is ", cmd
-            !call PROCESKDP("UPD CON ; CHA "//trim(int2str(row+1))//" ; "//trim(cmd)//'; GO')
-            !call rebuildTable(getColumnViewFromWidget(widget, "Constraint"), buildConstraintTable(), setConstraintColumns)
-    
-        end subroutine
-
         function getColValueAsStr(item, uiColInfo) result (outStr)
             use type_utils
             type(uiTableColumnInfo) :: uiColInfo 
@@ -1403,39 +991,72 @@ module optimizer_ui
 
         end function
 
+        ! Build the merit-entry line for UPD CON; CHA n from the row's current
+        ! item, substituting colText for the edited column.  Role decides the
+        ! form the unified parser expects:
+        !   Constraint:  NAME <=|<|>> target
+        !   Operand:     NAME target weight
+        ! Editing the Role dropdown therefore converts the entry in place.
         function getConstraintChangeCommand(model, row, col, colText) result(outStr)
             use type_utils, only: str2int
             type(c_ptr), value :: model
-            integer :: row, col 
+            integer :: row, col
             character(len=*) :: colText
-            character(len=200) :: outStr, tmpStr
+            character(len=200) :: outStr
+            character(len=240) :: nameStr, targStr, weightStr
+            character(len=10), dimension(2) :: roleNames
             character(len=1) :: conStr
-            type(c_ptr) :: item 
-            integer :: ii, conType
+            type(c_ptr) :: item
+            integer :: conType, role
 
             item = g_list_model_get_item(model, row) ! row 0 indexed
 
-            outStr = ''
-            do ii=1,size(constraintColInfo)
-                if (ii .ne. col) then 
-                    if (ii == ID_CONSTRAINT_TYPE_COL) then 
-                        conType = str2int(trim(getColValueAsStr(item, constraintColInfo(ii))))
-                        select case (conType)
-                        case(ID_CON_EXACT)
-                            conStr = '='
-                        case(ID_CON_GREATER_THAN)
-                            conStr = '>'
-                        case(ID_CON_LESS_THAN)
-                            conStr = '<'
-                        end select   
-                    outStr = trim(outStr)//' '//conStr
-                    else
-                    outStr = trim(outStr)//' '//trim(getColValueAsStr(item, constraintColInfo(ii)))
-                    end if ! ID_CONSTRAINT_TYPE_COL check
+            ! Gather every field, taking the edited column's new value from
+            ! colText (dropdown edits arrive as display text).
+            nameStr   = getColValueAsStr(item, constraintColInfo(ID_CONSTRAINT_NAME_COL))
+            targStr   = getColValueAsStr(item, constraintColInfo(ID_CONSTRAINT_TARGET_COL))
+            weightStr = getColValueAsStr(item, constraintColInfo(ID_CONSTRAINT_WEIGHT_COL))
+            role      = constraint_item_get_role(item)
+            conType   = constraint_item_get_contype(item)
+            if (role /= ID_ROLE_OBJECTIVE .AND. role /= ID_ROLE_CONSTRAINT) role = ID_ROLE_CONSTRAINT
+
+            select case (col)
+            case (ID_CONSTRAINT_NAME_COL)
+                nameStr = colText
+            case (ID_CONSTRAINT_ROLE_COL)
+                roleNames = gatherRoleNames()
+                if (colText == trim(roleNames(ID_ROLE_OBJECTIVE))) then
+                    role = ID_ROLE_OBJECTIVE
                 else
-                    outStr = trim(outStr)//' '//colText
+                    role = ID_ROLE_CONSTRAINT
                 end if
-            end do
+            case (ID_CONSTRAINT_TYPE_COL)
+                select case (colText)
+                case('='); conType = ID_CON_EXACT
+                case('>'); conType = ID_CON_GREATER_THAN
+                case('<'); conType = ID_CON_LESS_THAN
+                end select
+            case (ID_CONSTRAINT_TARGET_COL)
+                targStr = colText
+            case (ID_CONSTRAINT_WEIGHT_COL)
+                weightStr = colText
+            end select
+
+            if (role == ID_ROLE_CONSTRAINT) then
+                select case (conType)
+                case(ID_CON_EXACT)
+                    conStr = '='
+                case(ID_CON_GREATER_THAN)
+                    conStr = '>'
+                case(ID_CON_LESS_THAN)
+                    conStr = '<'
+                case default
+                    conStr = '='
+                end select
+                outStr = trim(nameStr)//' '//conStr//' '//trim(targStr)
+            else
+                outStr = trim(nameStr)//' '//trim(targStr)//' '//trim(weightStr)
+            end if
 
         end function
 
