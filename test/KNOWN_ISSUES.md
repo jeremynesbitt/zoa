@@ -307,3 +307,23 @@ creation is buggy in legacy CVSOLV** (LDM12): it writes code 14 into `SOLVE(8)`
 (a YZ slot) while the writer/reader expect it in `SOLVE(2)` (XZ), so a COCX
 solve is created in the wrong slot and never persists — documented in
 `solve-manager.f90`; not fixed here to preserve legacy trace behavior.
+
+## Optimizer merit list — deliberate deferrals (2026-07)
+
+The operand/constraint unification (`merit_entry` in optim-types.f90; slsqp
+problem: minimize `f = Σ wᵢ·(valᵢ−targᵢ)²` subject to constraints + variable
+bounds) left two known gaps on purpose:
+
+- **Constraints-only runs minimize nothing**: the default SPO objective is
+  added only when the merit list is completely empty, so `AUT; EFL = 50; GO`
+  runs with `f ≡ 0` — a pure feasibility solve that stops at the first lens
+  satisfying the constraints, whatever its image quality. Historical behavior,
+  kept for golden stability. If unwanted, add the default SPO whenever no
+  objective-role entry exists (one-line change in `aut_go`).
+- **No per-surface constraint vocabulary**: quantities like edge/center
+  thickness of a specific surface (`THI S3 > 2`) are not registered
+  evaluators. For quantities that ARE variables, the variable bounds (xl/xu
+  in `gatherVariableData`) are the right mechanism and already exist —
+  bounds are enforced natively by slsqp, cheaper and more robust than
+  general constraints. Evaluator registration (name + surface argument)
+  is the extension point for the rest.
