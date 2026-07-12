@@ -450,8 +450,8 @@ ___
 ASPHERES
 # 2 K 0.00000
                                                           l
-Const.   Target              Value              diff
-SAS    0.0000000000000000 -11.5034123169995866 -11.5034123169995866
+Name  Role        Typ  Target              Value               diff
+SAS   Constraint  =    0.0000000000000000 -11.5034123169995866 -11.5034123169995866
                                                           l
 CYCLE NUMBER 1
    ERROR FUNCTION = 0.00000
@@ -464,8 +464,8 @@ ___
 ASPHERES
 # 2 K 0.00000
                                                           l
-Const.   Target              Value              diff
-SAS    0.0000000000000000  -5.7517061601383803  -5.7517061601383803
+Name  Role        Typ  Target              Value               diff
+SAS   Constraint  =    0.0000000000000000  -5.7517061601383803  -5.7517061601383803
                                                           l
 CYCLE NUMBER 2
    ERROR FUNCTION = 0.00000
@@ -478,8 +478,8 @@ ___
 ASPHERES
 # 2 K 0.00000
                                                           l
-Const.   Target              Value              diff
-SAS    0.0000000000000000  -2.8758530757077780  -2.8758530757077780
+Name  Role        Typ  Target              Value               diff
+SAS   Constraint  =    0.0000000000000000  -2.8758530757077780  -2.8758530757077780
                                                           l
 CYCLE NUMBER 3
    ERROR FUNCTION = 0.00000
@@ -492,8 +492,8 @@ ___
 ASPHERES
 # 2 K 0.00000
                                                           l
-Const.   Target              Value              diff
-SAS    0.0000000000000000  -1.4379265374924779  -1.4379265374924779
+Name  Role        Typ  Target              Value               diff
+SAS   Constraint  =    0.0000000000000000  -1.4379265374924779  -1.4379265374924779
                                                           l
 CYCLE NUMBER 4
    ERROR FUNCTION = 0.00000
@@ -506,8 +506,8 @@ ___
 ASPHERES
 # 2 K 0.00000
                                                           l
-Const.   Target              Value              diff
-SAS    0.0000000000000000  -0.7189632723848262  -0.7189632723848262
+Name  Role        Typ  Target              Value               diff
+SAS   Constraint  =    0.0000000000000000  -0.7189632723848262  -0.7189632723848262
                                                           l
 CYCLE NUMBER 5
    ERROR FUNCTION = 0.00000
@@ -520,8 +520,8 @@ ___
 ASPHERES
 # 2 K 0.00000
                                                           l
-Const.   Target              Value              diff
-SAS    0.0000000000000000  -0.3594816338310025  -0.3594816338310025
+Name  Role        Typ  Target              Value               diff
+SAS   Constraint  =    0.0000000000000000  -0.3594816338310025  -0.3594816338310025
                                                           l
 CYCLE NUMBER 6
    ERROR FUNCTION = 0.00000
@@ -534,8 +534,8 @@ ___
 ASPHERES
 # 2 K 0.00000
                                                           l
-Const.   Target              Value              diff
-SAS    0.0000000000000000  -0.1797408165540901  -0.1797408165540901
+Name  Role        Typ  Target              Value               diff
+SAS   Constraint  =    0.0000000000000000  -0.1797408165540901  -0.1797408165540901
                                                           l
 CYCLE NUMBER 7
    ERROR FUNCTION = 0.00000
@@ -548,8 +548,8 @@ ___
 ASPHERES
 # 2 K 0.00000
                                                           l
-Const.   Target              Value              diff
-SAS    0.0000000000000000  -0.0898704079156331  -0.0898704079156331
+Name  Role        Typ  Target              Value               diff
+SAS   Constraint  =    0.0000000000000000  -0.0898704079156331  -0.0898704079156331
                                                           l
 CYCLE NUMBER 8
    ERROR FUNCTION = 0.00000
@@ -562,8 +562,8 @@ ___
 ASPHERES
 # 2 K 0.00000
                                                           l
-Const.   Target              Value              diff
-SAS    0.0000000000000000  -0.0449352055964042  -0.0449352055964042
+Name  Role        Typ  Target              Value               diff
+SAS   Constraint  =    0.0000000000000000  -0.0449352055964042  -0.0449352055964042
                                                           l
 CYCLE NUMBER 9
    ERROR FUNCTION = 0.00000
@@ -576,8 +576,8 @@ ___
 ASPHERES
 # 2 K 0.00000
                                                           l
-Const.   Target              Value              diff
-SAS    0.0000000000000000  -0.0224676044367906  -0.0224676044367906
+Name  Role        Typ  Target              Value               diff
+SAS   Constraint  =    0.0000000000000000  -0.0224676044367906  -0.0224676044367906
                                                           l
 CYCLE NUMBER 10
    ERROR FUNCTION = 0.00000
@@ -590,8 +590,8 @@ ___
 ASPHERES
 # 2 K 0.00000
                                                           l
-Const.   Target              Value              diff
-SAS    0.0000000000000000  -0.0112337998569829  -0.0112337998569829
+Name  Role        Typ  Target              Value               diff
+SAS   Constraint  =    0.0000000000000000  -0.0112337998569829  -0.0112337998569829
                                                           l
 CYCLE NUMBER 11
    ERROR FUNCTION = 0.00000
@@ -604,8 +604,8 @@ ___
 ASPHERES
 # 2 K 0.00000
                                                           l
-Const.   Target              Value              diff
-SAS    0.0000000000000000  -0.0056168995670795  -0.0056168995670795
+Name  Role        Typ  Target              Value               diff
+SAS   Constraint  =    0.0000000000000000  -0.0056168995670795  -0.0056168995670795
                                                           l
 CYCLE NUMBER 12
    ERROR FUNCTION = 0.00000
@@ -618,8 +618,8 @@ ___
 ASPHERES
 # 2 K 0.00000
                                                           l
-Const.   Target              Value              diff
-SAS    0.0000000000000000  -0.0056168995670795  -0.0056168995670795
+Name  Role        Typ  Target              Value               diff
+SAS   Constraint  =    0.0000000000000000  -0.0056168995670795  -0.0056168995670795
 CURRENT LENS DATA LISTING
 New Lens From Template
 THE CURRENT LIC IS BLANK

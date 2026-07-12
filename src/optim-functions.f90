@@ -134,14 +134,18 @@ subroutine optimizerFunc(me, x,f,c)
 
     call updateLensDuringOptimization(x)
 
-    ! Objective: sum of the objective-role merit entries.
-    ! (Weighted residuals f = sum w*(val-targ)**2 land in the next phase.)
+    ! Objective: weighted residuals over the objective-role merit entries.
+    !     f = sum  weight * (value - target)**2
+    ! With the default entry (SPO, targ 0, weight 1) this minimizes SPO**2;
+    ! a soft target like "EFL 50 0.5" pulls EFL toward 50 with weight 0.5,
+    ! trading against the other objective terms (unlike a hard constraint,
+    ! which must hold exactly / one-sidedly at the solution).
     f = 0
     do i=1,nM
         if (meritInUse(i)%role /= ID_ROLE_OBJECTIVE) cycle
         val = meritInUse(i)%func()
         meritInUse(i)%val = val
-        f = f + val
+        f = f + meritInUse(i)%weight * (val - meritInUse(i)%targ)**2
     end do
 
     ! Constraints: slsqp requires equality constraints first, then
@@ -200,21 +204,50 @@ subroutine report_iteration(me,iter,x,f,c)
     call PROCESKDP("SUR SA")
     call OUTKDP("                                                          l")! Blank line 
      
-    ! Print out constraint info if it exists.  NOTE: c(:) is packed with
-    ! equality constraints first (slsqp convention), while this table lists
-    ! entries in user-definition order -- the historical pairing (kept for
-    ! now; reworked with the role column in the weighted-residual phase).
-    if (numConstraints() > 0) then
-        call OUTKDP("Const.   Target              Value              diff")
+    ! Per-cycle merit table: every entry (objective terms AND constraints)
+    ! with its role.  Constraint values are reconstructed from the c(:) vector
+    ! the solver reports at this iterate, using the eq-first packing order and
+    ! the sign convention (fixes the historical row/packing mispairing, which
+    ! also mis-signed '<' constraints).  Objective values use the entry's last
+    ! evaluation (the scalar f is printed above).
+    if (nM > 0) then
+        call OUTKDP("Name  Role        Typ  Target              Value               diff")
         block
-            integer :: j
-            j = 0
+            integer :: meq_r, jeq, jineq, idx
+            character(len=10) :: roleTxt
+            character(len=1)  :: typTxt
+            real(long) :: val
+
+            meq_r = getNumberofEqualityConstraints()
+            jeq   = 0
+            jineq = 0
             do i=1,nM
-                if (meritInUse(i)%role /= ID_ROLE_CONSTRAINT) cycle
-                j = j + 1
-                write(output_line,'(*(F20.16,1X))') meritInUse(i)%targ, &
-                c(j)+meritInUse(i)%targ, c(j)
-                call OUTKDP(trim(meritInUse(i)%name//' '//trim(output_line)))
+                if (meritInUse(i)%role == ID_ROLE_CONSTRAINT) then
+                    roleTxt = 'Constraint'
+                    typTxt  = meritInUse(i)%getConstraintTypeAsText()
+                    select case (meritInUse(i)%conType)
+                    case (ID_CON_EXACT)
+                        jeq = jeq + 1
+                        idx = jeq
+                        val = meritInUse(i)%targ + c(idx)
+                    case (ID_CON_GREATER_THAN)
+                        jineq = jineq + 1
+                        idx = meq_r + jineq
+                        val = meritInUse(i)%targ + c(idx)
+                    case (ID_CON_LESS_THAN)
+                        jineq = jineq + 1
+                        idx = meq_r + jineq
+                        val = meritInUse(i)%targ - c(idx)
+                    end select
+                else
+                    roleTxt = 'Operand'
+                    typTxt  = ' '
+                    val = meritInUse(i)%val
+                end if
+                write(output_line,'(A4,2X,A10,2X,A1,2X,*(F20.16,1X))') &
+                &  meritInUse(i)%name, roleTxt, typTxt, meritInUse(i)%targ, &
+                &  val, val - meritInUse(i)%targ
+                call OUTKDP(trim(output_line))
             end do
         end block
     end if

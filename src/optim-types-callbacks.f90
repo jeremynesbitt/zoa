@@ -65,18 +65,17 @@ contains
         res = am%getPetzvalBlur()
     end function
 
+    ! IMC: distance from the last real surface to the image plane.  Returns
+    ! the RAW distance -- the residual/constraint math subtracts the target
+    ! centrally.  (Historically this evaluator subtracted self%targ itself,
+    ! and optimizerFunc subtracted it AGAIN, so "IMC > 2" actually enforced
+    ! distance >= 2*targ.  Fixed with the weighted-residual rework.)
     module function setDistanceToImagePlaneConstraint(self) result(res)
         use mod_lens_data_manager
         class(merit_entry) :: self
         real(long) :: res
 
         res = ldm%getSurfThi(ldm%getLastSurf()-1)
-
-        if (self%conType == ID_CON_EXACT .or. self%conType == ID_CON_GREATER_THAN) then
-           res = res - self%targ
-        else
-            res = res - self%targ
-        end if
     end function
 
     module function getConstraintTypeAsText(self) result (strType)

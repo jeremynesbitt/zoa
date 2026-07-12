@@ -18,8 +18,8 @@ ___
 ASPHERES
 # 2 K -2.29510
                                                           l
-Const.   Target              Value              diff
-SAS    0.0000000000000000  -0.0284117247435784  -0.0284117247435784
+Name  Role        Typ  Target              Value               diff
+SAS   Constraint  =    0.0000000000000000  -0.0284117247435784  -0.0284117247435784
                                                           l
 CYCLE NUMBER 1
    ERROR FUNCTION = 0.00000
@@ -32,8 +32,8 @@ ___
 ASPHERES
 # 2 K -2.29794
                                                           l
-Const.   Target              Value              diff
-SAS    0.0000000000000000  -0.0142117240106804  -0.0142117240106804
+Name  Role        Typ  Target              Value               diff
+SAS   Constraint  =    0.0000000000000000  -0.0142117240106804  -0.0142117240106804
                                                           l
 CYCLE NUMBER 2
    ERROR FUNCTION = 0.00000
@@ -46,8 +46,8 @@ ___
 ASPHERES
 # 2 K -2.29936
                                                           l
-Const.   Target              Value              diff
-SAS    0.0000000000000000  -0.0071117236442289  -0.0071117236442289
+Name  Role        Typ  Target              Value               diff
+SAS   Constraint  =    0.0000000000000000  -0.0071117236442289  -0.0071117236442289
                                                           l
 CYCLE NUMBER 3
    ERROR FUNCTION = 0.00000
@@ -60,8 +60,8 @@ ___
 ASPHERES
 # 2 K -2.29936
                                                           l
-Const.   Target              Value              diff
-SAS    0.0000000000000000  -0.0071117236442289  -0.0071117236442289
+Name  Role        Typ  Target              Value               diff
+SAS   Constraint  =    0.0000000000000000  -0.0071117236442289  -0.0071117236442289
 ENTRANCE PUPIL
 DIA       20.0000
 THI       0.0000
