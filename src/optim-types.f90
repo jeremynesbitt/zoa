@@ -27,6 +27,16 @@ module optim_types
 
     type optimizer
         real(kind=long) :: imp
+        ! General constraints (CODE V-style): global limits applied
+        ! automatically to every VARIABLE thickness during AUT (set inside the
+        ! loop, e.g. "AUT; MXT 14.0; GO").  Center-thickness limits become
+        ! slsqp variable bounds; edge limits become internal inequality
+        ! constraints evaluated via the typed surfaces' sag().
+        real(kind=long) :: mxt = 12.0_long    ! max element center thickness
+        real(kind=long) :: mnt = 2.0_long     ! min element center thickness
+        real(kind=long) :: mne = 2.0_long     ! min element edge thickness
+        real(kind=long) :: mna = 0.1_long     ! min axial air spacing
+        real(kind=long) :: mae = 0.0025_long  ! min air spacing at edge
 
     contains
         procedure ::  genSaveOutputText
@@ -130,6 +140,15 @@ module optim_types
 
 
     end subroutine
+
+    ! True when any general-constraint setting differs from its default
+    ! (drives whether the saved merit block needs a TAR section for them).
+    function genSettingsModified() result(modified)
+        logical :: modified
+        modified = (optim%mxt /= 12.0_long) .OR. (optim%mnt /= 2.0_long) .OR. &
+        &          (optim%mne /= 2.0_long)  .OR. (optim%mna /= 0.1_long) .OR. &
+        &          (optim%mae /= 0.0025_long)
+    end function
 
     ! Counts by role, derived from the merit list (no separate counters to drift).
     function numObjectives() result(n)
@@ -518,7 +537,7 @@ module optim_types
         character(len=1) :: q
         real(long),dimension(nV,3) :: VARDATA
 
-        if (nV > 0 .OR. nM > 0) then
+        if (nV > 0 .OR. nM > 0 .OR. genSettingsModified()) then
             write(fID, *) "! Merit"
         if (nV > 0) then
                 ! No guarantee that var data has been gathered so do this first.  Don't need
@@ -530,7 +549,7 @@ module optim_types
                     write(fID,*) trim(getVarCmd(VARS(i,2)))//" S"//trim(int2str(VARS(i,1)))//" 0"
                 end do
             end if
-            if (nM > 0) then
+            if (nM > 0 .OR. genSettingsModified()) then
                 write(fID, *) "TAR"
             ! Objective terms first, then constraints (preserves the historical
             ! file order).  Objective line: NAME targ weight; the loader treats
@@ -548,6 +567,12 @@ module optim_types
                     write(fID,*) trim(meritInUse(i)%name)//" "//q//" "//real2str(meritInUse(i)%targ)
                 end if
             end do
+            ! Non-default general-constraint settings (loop commands).
+            if (optim%mxt /= 12.0_long)   write(fID,*) "MXT "//real2str(optim%mxt)
+            if (optim%mnt /= 2.0_long)    write(fID,*) "MNT "//real2str(optim%mnt)
+            if (optim%mne /= 2.0_long)    write(fID,*) "MNE "//real2str(optim%mne)
+            if (optim%mna /= 0.1_long)    write(fID,*) "MNA "//real2str(optim%mna)
+            if (optim%mae /= 0.0025_long) write(fID,*) "MAE "//real2str(optim%mae)
             write(fID, *) "GO"
         end if
         end if
@@ -581,11 +606,19 @@ module optim_types
     ! DCON ALL and therefore by the newlens.zoa lens-replacement reset -- this
     ! also fixes the historical stale-operand leak (nO was only ever reset in
     ! initializeOptimizer, so an old SPO target survived lens loads).
+    ! The general-constraint settings also return to their defaults here so a
+    ! modified MXT/MNE/... cannot leak across lens loads (a loaded lens's own
+    ! values are re-applied by its saved merit block).
     subroutine removeAllConstraints(self)
         implicit none
         class(optimizer) :: self
 
         nM = 0
+        self%mxt = 12.0_long
+        self%mnt = 2.0_long
+        self%mne = 2.0_long
+        self%mna = 0.1_long
+        self%mae = 0.0025_long
 
     end subroutine removeAllConstraints
 

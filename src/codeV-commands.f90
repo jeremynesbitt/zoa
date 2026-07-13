@@ -166,6 +166,9 @@ module codeV_commands
    module subroutine execETH(iptStr)
    character(len=*) :: iptStr
    end subroutine execETH
+   module subroutine updateGeneralConstraint(iptStr)
+   character(len=*) :: iptStr
+   end subroutine updateGeneralConstraint
    module subroutine insertSurf(iptStr)
    character(len=*) :: iptStr
    end subroutine insertSurf
@@ -814,6 +817,21 @@ module codeV_commands
         ! the optimizer's MNE/MAE general constraints).
         zoaCmds(711)%cmd = 'ETH'
         zoaCmds(711)%execFunc => execETH
+
+        ! Optimizer general constraints (set inside the AUT/TAR loop).  NOTE:
+        ! MNT/MXT also exist as legacy KDP commands feeding the dead legacy
+        ! ITER optimizer (OPTIM11 THMINLIM/THMAXLIM); this registration
+        ! deliberately intercepts them for the new optimizer.
+        zoaCmds(712)%cmd = 'MXT'
+        zoaCmds(712)%execFunc => updateGeneralConstraint
+        zoaCmds(713)%cmd = 'MNT'
+        zoaCmds(713)%execFunc => updateGeneralConstraint
+        zoaCmds(714)%cmd = 'MNE'
+        zoaCmds(714)%execFunc => updateGeneralConstraint
+        zoaCmds(715)%cmd = 'MNA'
+        zoaCmds(715)%execFunc => updateGeneralConstraint
+        zoaCmds(716)%cmd = 'MAE'
+        zoaCmds(716)%execFunc => updateGeneralConstraint
 
 
     end subroutine

@@ -68,3 +68,19 @@ RES merittest
 LCON
 DCON ALL
 LCON
+
+! ---- General constraints: set/query + SAV/RES round-trip + reset on load ----
+! MXT/MNT/MNE/MNA/MAE apply to variable thicknesses at AUT;GO.  Modified
+! values persist in the saved merit block and reset to defaults on lens load.
+RES osdtriplet
+AUT
+MXT 14.0
+MNE 1.5
+MXT
+GO
+LCON
+SAV gencontest
+RES gencontest
+LCON
+RES osdtriplet
+LCON

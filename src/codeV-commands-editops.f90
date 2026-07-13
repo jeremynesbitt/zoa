@@ -147,6 +147,68 @@ contains
         end if
     end procedure execNBR
 
+    ! General-constraint settings (MXT/MNT/MNE/MNA/MAE): global limits applied
+    ! automatically to every VARIABLE thickness at AUT;GO.  Inside the AUT/TAR
+    ! loop:  "MXT 14.0" sets, bare "MXT" prints the current value.
+    module procedure updateGeneralConstraint
+        use command_utils, only : isInputNumber
+        use optim_types, only: optim
+        use type_utils, only: real2str, str2real8
+        implicit none
+
+        character(len=80) :: tokens(40)
+        integer :: numTokens
+        real(long) :: v
+        logical :: setIt
+
+        if (cmd_loop /= AUT_LOOP .AND. cmd_loop /= TAR_LOOP) then
+            call zoa_emit("Error:  General constraints (MXT/MNT/MNE/MNA/MAE) are set inside the AUT loop", "red")
+            return
+        end if
+
+        call parse(trim(iptStr), ' ', tokens, numTokens)
+        setIt = .FALSE.
+        if (numTokens >= 2) then
+            if (isInputNumber(trim(tokens(2)))) then
+                v = str2real8(tokens(2))
+                setIt = .TRUE.
+            end if
+        end if
+
+        select case (trim(tokens(1)))
+        case('MXT')
+            if (setIt) then
+                optim%mxt = v
+            else
+                call zoa_emit("MXT (max element thickness) = "//trim(real2str(optim%mxt)), "black")
+            end if
+        case('MNT')
+            if (setIt) then
+                optim%mnt = v
+            else
+                call zoa_emit("MNT (min element thickness) = "//trim(real2str(optim%mnt)), "black")
+            end if
+        case('MNE')
+            if (setIt) then
+                optim%mne = v
+            else
+                call zoa_emit("MNE (min edge thickness) = "//trim(real2str(optim%mne)), "black")
+            end if
+        case('MNA')
+            if (setIt) then
+                optim%mna = v
+            else
+                call zoa_emit("MNA (min axial air spacing) = "//trim(real2str(optim%mna)), "black")
+            end if
+        case('MAE')
+            if (setIt) then
+                optim%mae = v
+            else
+                call zoa_emit("MAE (min air spacing at edge) = "//trim(real2str(optim%mae)), "black")
+            end if
+        end select
+    end procedure updateGeneralConstraint
+
     ! ETH: list every gap's center and edge thickness.  Edge thickness is
     ! computed from the typed surfaces' sag() methods at the gap's evaluation
     ! height (max of the two surfaces' semi-diameters: explicit CIR EDG if
@@ -618,6 +680,7 @@ contains
 
         if (nM == 0) then
             call OUTKDP('No merit entries (operands or constraints) defined')
+            call printGeneralConstraintFooter()
             return
         end if
 
@@ -638,7 +701,21 @@ contains
             &  trim(real2str(meritInUse(i)%targ)), trim(weightStr)
             call OUTKDP(trim(outStr))
         end do
+        call printGeneralConstraintFooter()
     end procedure listConstraints
+
+    ! One-line summary of the general-constraint settings (they apply to
+    ! variable thicknesses only; see updateGeneralConstraint).
+    subroutine printGeneralConstraintFooter()
+        use optim_types, only: optim
+        use type_utils, only: real2str
+        use kdp_utils, only: OUTKDP
+        implicit none
+
+        call OUTKDP('General (variable thicknesses): MXT '//trim(real2str(optim%mxt))// &
+        &  '  MNT '//trim(real2str(optim%mnt))//'  MNE '//trim(real2str(optim%mne))// &
+        &  '  MNA '//trim(real2str(optim%mna))//'  MAE '//trim(real2str(optim%mae)))
+    end subroutine
 
     module procedure deleteConstraints
         use optim_types, only: optim

@@ -45,10 +45,12 @@ GLASS IS NOT A "MODEL" GLASS
   #   NAME   ROLE         TYPE        TARGET   WEIGHT
   -   ----   ----------   ----   -----------   ------
   1   EFL    Constraint   =         50.00000
+General (variable thicknesses): MXT 12.00000  MNT 2.00000  MNE 2.00000  MNA 0.10000  MAE 0.00250
 All constraints removed
   #   NAME   ROLE         TYPE        TARGET   WEIGHT
   -   ----   ----------   ----   -----------   ------
   1   EFL    Constraint   =         60.00000
+General (variable thicknesses): MXT 12.00000  MNT 2.00000  MNE 2.00000  MNA 0.10000  MAE 0.00250
 All constraints removed
 All constraints removed
 
