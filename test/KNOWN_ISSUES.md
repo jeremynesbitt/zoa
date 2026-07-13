@@ -322,8 +322,22 @@ bounds) left two known gaps on purpose:
   objective-role entry exists (one-line change in `aut_go`).
 - **No per-surface constraint vocabulary**: quantities like edge/center
   thickness of a specific surface (`THI S3 > 2`) are not registered
-  evaluators. For quantities that ARE variables, the variable bounds (xl/xu
-  in `gatherVariableData`) are the right mechanism and already exist —
-  bounds are enforced natively by slsqp, cheaper and more robust than
-  general constraints. Evaluator registration (name + surface argument)
-  is the extension point for the rest.
+  evaluators. The common cases are now covered by the **general constraints**
+  (MXT/MNT/MNE/MNA/MAE, applied automatically to variable thicknesses —
+  center limits as slsqp bounds, edge limits as internal constraints via the
+  typed surfaces' `sag()`); evaluator registration (name + surface argument)
+  remains the extension point for arbitrary per-surface constraints.
+
+General-constraint (MXT/MNT/MNE/MNA/MAE) deferrals:
+- Edge-thickness evaluation handles sphere/asphere only (the typed store's
+  types); torics/special surfaces are excluded.
+- Asphere-COEFFICIENT variables are not re-synced into the mid-run edge
+  evaluation (start-of-run polynomial used); center/curvature/conic are.
+- Evaluation height is captured once at GO (intentional, keeps the
+  constraint smooth); a large aperture growth during optimization is not
+  re-captured.
+- Zoom positions: constraints evaluate config 1 only (zoom v1).
+- AUTUI has no display/edit of the five settings yet (CLI + LCON footer).
+- The solver's loose caps (max_iter 25, toldf 0.05, alphamin/max) can stop a
+  run before a binding MNE is fully attained — constraint pressure is
+  correct; attainment is a solver-tuning matter.
