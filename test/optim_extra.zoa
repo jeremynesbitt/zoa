@@ -84,3 +84,18 @@ RES gencontest
 LCON
 RES osdtriplet
 LCON
+
+! ---- General constraints active in an optimization ----
+! THC S1 makes the first element's thickness a variable: bounds [MNT, MXT]
+! apply and an MNE edge constraint is generated (report shows the MNE row).
+! With MNE 2.5 (start edge 2.30) the optimizer must thicken the element;
+! ETH shows the edge moved toward the limit (exact attainment is bounded by
+! the solver's loose iteration caps -- max_iter/toldf tuning, not the
+! constraint wiring).
+RES osdtriplet
+THC S1 0
+AUT
+MNE 2.5
+GO
+ETH
+SUR SA

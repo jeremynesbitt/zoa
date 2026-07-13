@@ -2,6 +2,9 @@ All constraints removed
 
 
 
+
+AUT: MXT relaxed to 12.88301 on S5 so MNE can be satisfied
+AUT: variable thickness S5 reduced to its upper limit 12.88301
                                                           l
 CYCLE NUMBER 0
    ERROR FUNCTION = 0.00000
@@ -11,7 +14,7 @@ OBJ:    INFINITY    40.42559                              100     100     100
 002:    179.15865    2.10219                              100     100     100
 003:    204.53102    17.10842               SILICA_SPECIAL 100     100     100
 004:    -236.350    0.33688                              100     100     100
-005:    195.60568    16.04352               SILICA_SPECIAL 100     0       100
+005:    195.60568    12.88301               SILICA_SPECIAL 100     0       100
 006:    -404.858    0.33688                              0       100     100
 007:    210.59131    14.48202               SILICA_SPECIAL 100     100     100
 008:    -537.114    0.33688                              100     100     100
@@ -76,6 +79,7 @@ ASPHERES
 # 39 K 4.38088
                                                           l
 Name  Role        Typ  Target              Value               diff
-EFL   Constraint  =   50.0000000000000000 660.0447688898457272 610.0447688898457272
-PTB   Constraint  =    0.0000000000000000   0.0000584122457302   0.0000584122457302
+EFL   Constraint  =   50.0000000000000000 620.8817224542717668 570.8817224542717668
+PTB   Constraint  =    0.0000000000000000   0.0000626473735467   0.0000626473735467
 IMC   Constraint  >    2.0000000000000000   0.0000000000000000  -2.0000000000000000
+MNE           S5  >    2.0000000000000000   2.0069864526917898   0.0069864526917898

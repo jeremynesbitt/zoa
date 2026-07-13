@@ -90,6 +90,23 @@ module optim_types
         end function
     end interface
 
+    ! Internal edge-thickness constraints expanded from the general-constraint
+    ! settings at AUT;GO (one per variable thickness: MNE for glass gaps, MAE
+    ! for air gaps).  Deliberately NOT part of meritInUse: they are derived,
+    ! not user entries, so LCON/AUTUI stay clean; the per-cycle report lists
+    ! them separately.  rho is captured once at GO (fixed evaluation height
+    ! keeps the constraint smooth for the SQP solver).
+    type :: gen_constraint
+        character(len=4) :: name = ' '   ! 'MNE' or 'MAE'
+        integer :: surf = 0              ! gap between surf and surf+1
+        real(long) :: limit = 0.0_long   ! minimum edge value
+        real(long) :: rho = 0.0_long     ! evaluation height
+        real(long) :: val = 0.0_long     ! last computed edge (report)
+    end type
+
+    type(gen_constraint) :: genConstraints(100)
+    integer :: nGen = 0
+
     ! Role-agnostic evaluator registry (templates; role/target set per use).
     ! Order matters for the UI name dropdowns: SPO first, then the six
     ! quantities historically usable as constraints.

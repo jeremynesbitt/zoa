@@ -75,12 +75,17 @@ subroutine aut_go()
     xl = VARDATA(1:nV,2)  !! lower bounds
     xu = VARDATA(1:nV,3)  !! upper bounds
     x =  VARDATA(1:nV,1)
-    !x = [0.0_long, 0.00833_long, -0.02899_long] ! initial guess    
-    
+    !x = [0.0_long, 0.00833_long, -0.02899_long] ! initial guess
+
+    ! Expand the general constraints (MXT/MNT/MNE/MNA/MAE) over the variable
+    ! thicknesses: center limits become slsqp variable bounds; edge limits
+    ! become internal inequality constraints (genConstraints).
+    call expandGeneralConstraints(x, xl, xu)
+
     meq = getNumberofEqualityConstraints()
 
     print *, "nV is ", nV
-    call solver%initialize(nV,numConstraints(),meq,max_iter,acc,optimizerFunc,dummy_grad,&
+    call solver%initialize(nV,numConstraints()+nGen,meq,max_iter,acc,optimizerFunc,dummy_grad,&
                            xl,xu,linesearch_mode=linesearch_mode,status_ok=status_ok,&
                            report=report_iteration,&
                            alphamin=0.1_long, alphamax=0.5_long, &
@@ -115,11 +120,99 @@ subroutine aut_go()
 
 end subroutine
 
+! Expand the general-constraint settings over the variable thicknesses.
+! For each THC variable at surface k:
+!   glass gap: bounds [MNT, MXT] on the variable, plus edge >= MNE
+!   air gap:   lower bound MNA, plus edge >= MAE
+! Edge constraints get a FIXED evaluation height captured here (max of the two
+! surfaces' semi-diameters after a fresh aperture trace).  MNE-beats-MXT rule
+! (CODE V): if even at MXT the edge cannot reach MNE (using start-of-run
+! sags), raise that variable's upper bound and warn -- approximate when
+! curvatures are also variables.  A start value outside its bounds is clamped
+! (the constraint takes effect immediately) with a warning.
+subroutine expandGeneralConstraints(x, xl, xu)
+    use optim_types
+    use mod_lens_data_manager, only: ldm
+    use global_widgets, only: curr_lens_data
+    use kdp_data_types, only: check_clear_apertures
+    use type_utils, only: int2str, real2str
+    implicit none
+
+    real(long), dimension(:), intent(inout) :: x, xl, xu
+    integer :: i, k
+    real(long) :: rho, dSag, xuNeeded
+    logical :: isGlass
+
+    nGen = 0
+
+    ! Nothing to do without a thickness variable -- in particular, skip the
+    ! aperture ray trace below (it can spam ray-failure messages on systems
+    ! whose optimization has nothing to do with thicknesses).
+    if (.not. any(VARS(1:nV,2) == VAR_THI)) return
+
+    ! Fresh typed store + auto apertures for the evaluation heights.
+    call ldm%load_surfaces_from_alens()
+    call check_clear_apertures(curr_lens_data, ldm%surfaces)
+
+    do i = 1, nV
+        if (VARS(i,2) /= VAR_THI) cycle
+        k = VARS(i,1)
+        if (k < 1 .or. k+1 > ldm%getLastSurf()) cycle
+        isGlass = ldm%isGlassSurf(k)
+
+        if (isGlass) then
+            xl(i) = optim%mnt
+            xu(i) = optim%mxt
+        else
+            xl(i) = optim%mna
+        end if
+
+        ! Edge constraint for this gap.
+        rho = max(ldm%getEvalSemiDia(k), ldm%getEvalSemiDia(k+1))
+        nGen = nGen + 1
+        genConstraints(nGen)%surf  = k
+        genConstraints(nGen)%rho   = rho
+        if (isGlass) then
+            genConstraints(nGen)%name  = 'MNE'
+            genConstraints(nGen)%limit = optim%mne
+        else
+            genConstraints(nGen)%name  = 'MAE'
+            genConstraints(nGen)%limit = optim%mae
+        end if
+
+        ! MNE-beats-MXT: dSag = edge - center (fixed by the start-of-run
+        ! sags at this rho).  If MXT + dSag < MNE the two conflict; relax MXT
+        ! for this variable so MNE can be satisfied.
+        if (isGlass) then
+            dSag = ldm%edge_thickness(k, rho) - ldm%getSurfThi(k)
+            xuNeeded = optim%mne - dSag
+            if (xu(i) < xuNeeded) then
+                call zoa_emit("AUT: MXT relaxed to "//trim(real2str(xuNeeded))// &
+                &  " on S"//trim(int2str(k))//" so MNE can be satisfied", "black")
+                xu(i) = xuNeeded
+            end if
+        end if
+
+        ! Clamp the start value into its bounds (constraint applies now).
+        if (x(i) < xl(i)) then
+            call zoa_emit("AUT: variable thickness S"//trim(int2str(k))// &
+            &  " raised to its lower limit "//trim(real2str(xl(i))), "black")
+            x(i) = xl(i)
+        else if (x(i) > xu(i)) then
+            call zoa_emit("AUT: variable thickness S"//trim(int2str(k))// &
+            &  " reduced to its upper limit "//trim(real2str(xu(i))), "black")
+            x(i) = xu(i)
+        end if
+    end do
+
+end subroutine
+
 ! To not change solver interface, using info from optim_types directly
 ! It makes this code harder to read, but for now seems better than alternative
 subroutine optimizerFunc(me, x,f,c)
     use optim_types
     use slsqp_module
+    use mod_lens_data_manager, only: ldm
    use iso_fortran_env, only: real64
     implicit none
 
@@ -171,6 +264,26 @@ subroutine optimizerFunc(me, x,f,c)
 
     c(1:ieq) = ceq(1:ieq)
     if (ineq.ne.0) c(ieq+1:ineq+ieq) = cneq(1:ineq)
+
+    ! Internal edge-thickness constraints from the general-constraint
+    ! expansion (all inequalities: edge - limit >= 0), appended after the
+    ! user constraints.  refresh_typed_surf_geom brings the two surfaces'
+    ! cv/thickness/conic current with the just-applied variables (the
+    ! same-topology LNSEOS path deliberately does not rebuild the store).
+    ! NOTE: asphere COEFFICIENT variables are not re-synced here, so an edge
+    ! constraint on a gap whose asphere terms are being varied uses the
+    ! start-of-run polynomial -- acceptable v1 approximation.
+    block
+        integer :: k
+        do i = 1, nGen
+            k = genConstraints(i)%surf
+            call ldm%refresh_typed_surf_geom(k)
+            call ldm%refresh_typed_surf_geom(k+1)
+            val = ldm%edge_thickness(k, genConstraints(i)%rho)
+            genConstraints(i)%val = val
+            c(ieq+ineq+i) = val - genConstraints(i)%limit
+        end do
+    end block
 
 
 end subroutine
@@ -247,6 +360,17 @@ subroutine report_iteration(me,iter,x,f,c)
                 write(output_line,'(A4,2X,A10,2X,A1,2X,*(F20.16,1X))') &
                 &  meritInUse(i)%name, roleTxt, typTxt, meritInUse(i)%targ, &
                 &  val, val - meritInUse(i)%targ
+                call OUTKDP(trim(output_line))
+            end do
+
+            ! Internal edge constraints from the general-constraint expansion
+            ! (packed after the user inequalities in c(:)).
+            do i = 1, nGen
+                idx = meq_r + (numConstraints() - meq_r) + i
+                val = genConstraints(i)%limit + c(idx)
+                write(output_line,'(A4,2X,A10,2X,A1,2X,*(F20.16,1X))') &
+                &  genConstraints(i)%name, 'S'//trim(int2str(genConstraints(i)%surf)), '>', &
+                &  genConstraints(i)%limit, val, c(idx)
                 call OUTKDP(trim(output_line))
             end do
         end block
