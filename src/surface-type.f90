@@ -73,6 +73,7 @@ module mod_surface_type
     procedure(intersect_iface),   deferred :: intersect
     procedure(real_trace_iface),  deferred :: real_trace
     procedure(paraxial_iface),    deferred :: paraxial_trace
+    procedure(sag_iface),         deferred :: sag
   end type
 
   ! Sphere (or conic, or flat when radius=inf).
@@ -82,6 +83,7 @@ module mod_surface_type
     procedure :: intersect      => sphere_intersect
     procedure :: real_trace     => sphere_real_trace
     procedure :: paraxial_trace => sphere_paraxial
+    procedure :: sag            => sphere_sag
   end type
 
   ! Even asphere: base conic + polynomial terms in rho^2.
@@ -94,6 +96,7 @@ module mod_surface_type
     procedure :: intersect      => asphere_intersect
     procedure :: real_trace     => asphere_real_trace
     procedure :: paraxial_trace => asphere_paraxial
+    procedure :: sag            => asphere_sag
   end type
 
   ! Container wrapper required for heterogeneous polymorphic arrays.
@@ -131,6 +134,16 @@ module mod_surface_type
       real(real64), intent(in)  :: h_in, u_in, n_in, n_out
       real(real64), intent(out) :: h_out, u_out
     end subroutine
+    ! Surface sag z(rho^2): axial depth of the surface at radial height
+    ! rho = sqrt(x^2+y^2), positive toward +z for positive curvature.  Used by
+    ! edge-thickness calculations (ETH, optimizer general constraints); shares
+    ! its kernels with the ray-intersection code so the two cannot drift.
+    function sag_iface(self, rho2) result(z)
+      import :: surface_type, real64
+      class(surface_type), intent(in) :: self
+      real(real64), intent(in) :: rho2
+      real(real64) :: z
+    end function
   end interface
 
 contains
@@ -281,13 +294,35 @@ contains
     ray%ln = ray%ln/mag;  ray%mn = ray%mn/mag;  ray%nn = ray%nn/mag
   end subroutine intersect_conic
 
+  ! Even-asphere polynomial terms and their derivative with respect to rho^2.
+  ! coeffs(1:9)=A4,A6,A8,A10,A12,A14,A16,A18,A20;  coeffs(10)=A2 (plano term).
+  ! Shared by ray intersection and the sag() methods so they cannot drift.
+  subroutine compute_asphere_poly(coeffs, rho2, poly, dpoly_drho2)
+    real(real64), intent(in)  :: coeffs(10), rho2
+    real(real64), intent(out) :: poly, dpoly_drho2
+    real(real64) :: rho4, rho6, rho8, rho10
+
+    rho4  = rho2*rho2;  rho6 = rho4*rho2;  rho8 = rho6*rho2;  rho10 = rho8*rho2
+
+    poly  = coeffs(10)*rho2 + coeffs(1)*rho4 + coeffs(2)*rho6 + &
+            coeffs(3)*rho8 + coeffs(4)*rho10 + coeffs(5)*rho2*rho10 + &
+            coeffs(6)*rho4*rho10 + coeffs(7)*rho6*rho10 + &
+            coeffs(8)*rho8*rho10 + coeffs(9)*rho10*rho10
+
+    dpoly_drho2 = coeffs(10) + 2.0_real64*coeffs(1)*rho2  + 3.0_real64*coeffs(2)*rho4  + &
+            4.0_real64*coeffs(3)*rho6  + 5.0_real64*coeffs(4)*rho8  + &
+            6.0_real64*coeffs(5)*rho10 + 7.0_real64*coeffs(6)*rho2*rho10 + &
+            8.0_real64*coeffs(7)*rho4*rho10 + 9.0_real64*coeffs(8)*rho6*rho10 + &
+            10.0_real64*coeffs(9)*rho8*rho10
+  end subroutine compute_asphere_poly
+
   ! Newton-Raphson intersection with an even asphere.
   ! coeffs(1:9)=A4,A6,A8,A10,A12,A14,A16,A18,A20;  coeffs(10)=A2 (plano term)
   subroutine intersect_asphere(cv, conic, coeffs, ray, tol)
     real(real64),        intent(in)    :: cv, conic, coeffs(10)
     type(surf_ray_data), intent(inout) :: ray
     real(real64),        intent(in)    :: tol
-    real(real64) :: rho2, rho4, rho6, rho8, rho10
+    real(real64) :: rho2
     real(real64) :: sag, ds, poly, dpoly, ft, dft, t, xi, yi, mag
     integer :: iter
     integer, parameter :: MAXITER = 50
@@ -297,20 +332,9 @@ contains
     do iter = 1, MAXITER
       xi = ray%x + ray%l*t;  yi = ray%y + ray%m*t
       rho2  = xi*xi + yi*yi
-      rho4  = rho2*rho2;  rho6 = rho4*rho2;  rho8 = rho6*rho2;  rho10 = rho8*rho2
 
       call compute_conic_sag(cv, conic, rho2, sag, ds)
-
-      poly  = coeffs(10)*rho2 + coeffs(1)*rho4 + coeffs(2)*rho6 + &
-              coeffs(3)*rho8 + coeffs(4)*rho10 + coeffs(5)*rho2*rho10 + &
-              coeffs(6)*rho4*rho10 + coeffs(7)*rho6*rho10 + &
-              coeffs(8)*rho8*rho10 + coeffs(9)*rho10*rho10
-
-      dpoly = coeffs(10) + 2.0_real64*coeffs(1)*rho2  + 3.0_real64*coeffs(2)*rho4  + &
-              4.0_real64*coeffs(3)*rho6  + 5.0_real64*coeffs(4)*rho8  + &
-              6.0_real64*coeffs(5)*rho10 + 7.0_real64*coeffs(6)*rho2*rho10 + &
-              8.0_real64*coeffs(7)*rho4*rho10 + 9.0_real64*coeffs(8)*rho6*rho10 + &
-              10.0_real64*coeffs(9)*rho8*rho10
+      call compute_asphere_poly(coeffs, rho2, poly, dpoly)
 
       ft = ray%z + ray%n*t - (sag + poly)
       if (abs(ft) <= tol) exit
@@ -323,13 +347,8 @@ contains
     ray%path = ray%path + abs(t)
 
     rho2  = ray%x*ray%x + ray%y*ray%y
-    rho4  = rho2*rho2;  rho6 = rho4*rho2;  rho8 = rho6*rho2;  rho10 = rho8*rho2
     call compute_conic_sag(cv, conic, rho2, sag, ds)
-    dpoly = coeffs(10) + 2.0_real64*coeffs(1)*rho2  + 3.0_real64*coeffs(2)*rho4  + &
-            4.0_real64*coeffs(3)*rho6  + 5.0_real64*coeffs(4)*rho8  + &
-            6.0_real64*coeffs(5)*rho10 + 7.0_real64*coeffs(6)*rho2*rho10 + &
-            8.0_real64*coeffs(7)*rho4*rho10 + 9.0_real64*coeffs(8)*rho6*rho10 + &
-            10.0_real64*coeffs(9)*rho8*rho10
+    call compute_asphere_poly(coeffs, rho2, poly, dpoly)
 
     ray%ln = -2.0_real64*(ds + dpoly)*ray%x
     ray%mn = -2.0_real64*(ds + dpoly)*ray%y
@@ -395,6 +414,15 @@ contains
     call paraxial_refract(self%cv, h_in, u_in, n_in, n_out, h_out, u_out)
   end subroutine
 
+  ! Conic sag at radial height rho = sqrt(rho2).
+  function sphere_sag(self, rho2) result(z)
+    class(sphere_surface), intent(in) :: self
+    real(real64), intent(in) :: rho2
+    real(real64) :: z
+    real(real64) :: ds
+    call compute_conic_sag(self%cv, self%conic, rho2, z, ds)
+  end function
+
   ! ---------------------------------------------------------------------------
   ! asphere_surface methods
   ! ---------------------------------------------------------------------------
@@ -424,5 +452,17 @@ contains
     cv_eff = self%cv + 2.0_real64*self%data(11)
     call paraxial_refract(cv_eff, h_in, u_in, n_in, n_out, h_out, u_out)
   end subroutine
+
+  ! Full even-asphere sag: conic base + polynomial terms (A2, A4..A20), the
+  ! same expression the ray intersection solves against.
+  function asphere_sag(self, rho2) result(z)
+    class(asphere_surface), intent(in) :: self
+    real(real64), intent(in) :: rho2
+    real(real64) :: z
+    real(real64) :: ds, poly, dpoly
+    call compute_conic_sag(self%cv, self%conic, rho2, z, ds)
+    call compute_asphere_poly(self%data(2:11), rho2, poly, dpoly)
+    z = z + poly
+  end function
 
 end module mod_surface_type

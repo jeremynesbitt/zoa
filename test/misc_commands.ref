@@ -99,6 +99,19 @@ STO:    -37.530    1.50000               N-F2_SCH2000   100     100     100
 005:    50.26000    3.50000               N-SK16_SCH2000 100     100     100
 006:    -31.380    38.51522                              100     100     100
 IMG:    INFINITY    0.00000                              100     100     100
+All constraints removed
+
+
+
+Field Weights Command WTF     100     100     100 Not supported
+
+GAP        TYPE      CENTER        EVAL HT       EDGE
+S1-S2  GLASS          3.50000       5.87276       2.30256
+S2-S3  AIR            3.10000       5.25410       2.73040
+S3-S4  GLASS          1.50000       4.00735       2.29687
+S4-S5  AIR            5.00000       5.27857       4.25105
+S5-S6  GLASS          3.50000       5.60515       2.68181
+S6-S7  AIR           38.51522       8.82693      39.78227
 ENTRANCE PUPIL
 DIA       10.0000
 THI       6.7224

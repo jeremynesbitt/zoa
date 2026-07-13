@@ -43,6 +43,7 @@ module mod_lens_data_manager
      procedure, public, pass(self) :: getSurfXDec, getSurfYDec
      procedure, public, pass(self) :: getSurfAutoSemiX, getSurfAutoSemiY
      procedure, public, pass(self) :: getEdgeSemiAperture, setEdgeSemiAperture
+     procedure, public, pass(self) :: getEvalSemiDia, edge_thickness
      procedure, public, pass(self) :: getEdgeApertureScale, clearEdgeApertures
      procedure, public, pass(self) :: deleteAllApertures
      procedure, public, pass(self) :: getClearApertureForLensDraw
@@ -360,6 +361,43 @@ module mod_lens_data_manager
         if (surfIdx < lbound(self%surfaces,1) .or. surfIdx > ubound(self%surfaces,1)) return
         if (.not. allocated(self%surfaces(surfIdx)%s)) return
         semi = self%surfaces(surfIdx)%s%clap%semi_edge_y
+    end function
+
+    ! Semi-diameter used for edge-thickness evaluation on surface surfIdx:
+    ! the explicit edge aperture (CIR EDG) if set, else the ray-traced auto
+    ! extent (caller must have run check_clear_apertures for that to be
+    ! current).  0 => nothing known about this surface's aperture.
+    function getEvalSemiDia(self, surfIdx) result(semi)
+        class(lens_data_manager) :: self
+        integer, intent(in) :: surfIdx
+        real(kind=real64) :: semi
+        semi = self%getEdgeSemiAperture(surfIdx)
+        if (semi <= 0.0_real64) semi = self%getSurfAutoSemiY(surfIdx)
+    end function
+
+    ! Edge thickness of the gap between surfaces surfIdx and surfIdx+1,
+    ! evaluated at radial height rho:
+    !     edge = thi(surfIdx) - sag_k(rho^2) + sag_{k+1}(rho^2)
+    ! (biconvex element => edge < center).  Sags come from the typed surface
+    ! objects' sag() methods (sphere/asphere; the same kernels the ray
+    ! intersection uses).  Returns the center thickness unchanged if the typed
+    ! store is missing either surface.
+    function edge_thickness(self, surfIdx, rho) result(edge)
+        use mod_surface, only: surf_thickness
+        class(lens_data_manager) :: self
+        integer, intent(in) :: surfIdx
+        real(kind=real64), intent(in) :: rho
+        real(kind=real64) :: edge, rho2
+
+        edge = surf_thickness(surfIdx)
+        if (.not. allocated(self%surfaces)) return
+        if (surfIdx < lbound(self%surfaces,1) .or. surfIdx+1 > ubound(self%surfaces,1)) return
+        if (.not. allocated(self%surfaces(surfIdx)%s)) return
+        if (.not. allocated(self%surfaces(surfIdx+1)%s)) return
+
+        rho2 = rho*rho
+        edge = edge - self%surfaces(surfIdx)%s%sag(rho2) &
+        &           + self%surfaces(surfIdx+1)%s%sag(rho2)
     end function
 
     subroutine setEdgeSemiAperture(self, surfIdx, val)

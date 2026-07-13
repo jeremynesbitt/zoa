@@ -163,6 +163,9 @@ module codeV_commands
    module subroutine execCLI(iptStr)
    character(len=*) :: iptStr
    end subroutine execCLI
+   module subroutine execETH(iptStr)
+   character(len=*) :: iptStr
+   end subroutine execETH
    module subroutine insertSurf(iptStr)
    character(len=*) :: iptStr
    end subroutine insertSurf
@@ -806,6 +809,11 @@ module codeV_commands
         ! (see updateOptimVarsNew).
         zoaCmds(710)%cmd = 'GLC'
         zoaCmds(710)%execFunc => updateVarCodes
+
+        ! Edge-thickness listing (typed-surface sag; verification vehicle for
+        ! the optimizer's MNE/MAE general constraints).
+        zoaCmds(711)%cmd = 'ETH'
+        zoaCmds(711)%execFunc => execETH
 
 
     end subroutine

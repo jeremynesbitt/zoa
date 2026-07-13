@@ -53,6 +53,11 @@ SUR SA
 GLC S2 100
 SUR SA
 
+! ---- ETH: edge-thickness listing (typed-surface sag) ----
+! Hand-verified: S1-S2 edge = 3.5 - sag(R=15, rho=5.87276) = 2.30256.
+RES osdtriplet
+ETH
+
 ! ---- TOW: enter loop (FIR is not a zoaCmd so executes; GO not called → no GUI crash) ----
 TOW
 FIR

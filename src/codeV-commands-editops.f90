@@ -147,6 +147,51 @@ contains
         end if
     end procedure execNBR
 
+    ! ETH: list every gap's center and edge thickness.  Edge thickness is
+    ! computed from the typed surfaces' sag() methods at the gap's evaluation
+    ! height (max of the two surfaces' semi-diameters: explicit CIR EDG if
+    ! set, else the ray-traced auto extent).  Also the verification vehicle
+    ! for the optimizer's MNE/MAE general constraints.
+    module procedure execETH
+        use global_widgets, only: curr_lens_data
+        use kdp_data_types, only: check_clear_apertures
+        use mod_lens_data_manager, only: ldm
+        use kdp_utils, only: OUTKDP
+        use type_utils, only: int2str, real2str
+        implicit none
+
+        integer :: k, lastSurf
+        real(real64) :: rho, edge
+        character(len=8) :: gapTyp
+        character(len=120) :: outStr
+
+        ! Refresh the typed store + auto apertures (same pattern as CLI).
+        call ldm%load_surfaces_from_alens()
+        call check_clear_apertures(curr_lens_data, ldm%surfaces)
+
+        lastSurf = ldm%getLastSurf()
+        if (lastSurf < 2) then
+            call OUTKDP('ETH: no gaps to list')
+            return
+        end if
+
+        call OUTKDP('GAP        TYPE      CENTER        EVAL HT       EDGE')
+        do k = 1, lastSurf-1
+            if (ldm%isGlassSurf(k)) then
+                gapTyp = 'GLASS'
+            else
+                gapTyp = 'AIR'
+            end if
+            rho  = max(ldm%getEvalSemiDia(k), ldm%getEvalSemiDia(k+1))
+            edge = ldm%edge_thickness(k, rho)
+            write(outStr, '(A, 2X, A8, 2X, A12, 2X, A12, 2X, A12)') &
+            &  'S'//trim(int2str(k))//'-S'//trim(int2str(k+1)), gapTyp, &
+            &  trim(real2str(ldm%getSurfThi(k), 5)), trim(real2str(rho, 5)), &
+            &  trim(real2str(edge, 5))
+            call OUTKDP(trim(outStr))
+        end do
+    end procedure execETH
+
     module procedure execCLI
         use global_widgets, only: curr_lens_data
         use command_utils, only: isInputNumber
