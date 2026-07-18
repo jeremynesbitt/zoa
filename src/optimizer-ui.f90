@@ -126,6 +126,12 @@ module optimizer_ui
 
     type(uiTableColumnInfo) :: constraintColInfo(6)
 
+    ! Guard: .TRUE. while bind_constraint_cb programmatically sets dropdown
+    ! selections.  gtk fires 'notify::selected' on programmatic changes too,
+    ! and the recycled-widget handlers would build phantom UPD CON edit
+    ! commands from rows that were merely being (re)displayed.
+    logical :: binding_merit_row = .FALSE.
+
     contains
 
     subroutine optimizer_ui_new(parent_window)
@@ -569,7 +575,8 @@ module optimizer_ui
             !call getRowAndColumnFromStrPtr(gdata, row, ID_COL)
             label = gtk_list_item_get_child(listitem)
             item = gtk_list_item_get_item(listitem);
-          
+
+            binding_merit_row = .TRUE.
             select case (constraintColInfo(ID_COL)%colType)
             case (ID_WIDGET_TYPE_LABEL)
 
@@ -656,11 +663,18 @@ module optimizer_ui
             end select   
             row = gtk_list_item_get_position(listitem)   
             call gtk_widget_set_name(label,"R"//trim(int2str(row))//"C"//trim(int2str(ID_COL))//c_null_char)
+            binding_merit_row = .FALSE.
 
+            ! Connect ONCE per widget: list items are recycled and bind runs
+            ! repeatedly -- connecting every bind accumulated handlers, so a
+            ! single user dropdown change fired N edit commands.
             if (constraintColInfo(ID_COL)%colType == ID_WIDGET_TYPE_DROPDOWN) then
-                call g_signal_connect(label, "notify::selected"//c_null_char, c_funloc(constraintDropDownChanged), c_null_ptr)
-            end if            
- 
+                if (.not. c_associated(g_object_get_data(label, "zoa-dd-connected"//c_null_char))) then
+                    call g_signal_connect(label, "notify::selected"//c_null_char, c_funloc(constraintDropDownChanged), c_null_ptr)
+                    call g_object_set_data(label, "zoa-dd-connected"//c_null_char, label)
+                end if
+            end if
+
         end subroutine
 
         function getRowFromColumnView(cv) result(currPos)
@@ -947,7 +961,10 @@ module optimizer_ui
             character(len=1) :: conStr
             integer :: row,col
             integer(kind=c_int) :: conType
-            
+
+            ! Programmatic selection changes during (re)binding are not edits.
+            if (binding_merit_row) return
+
             model = getModelFromWidget(widget, "Constraint")
 
             ! cStr = gtk_widget_get_name(widget)

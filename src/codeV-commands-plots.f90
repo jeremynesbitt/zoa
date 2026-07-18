@@ -325,9 +325,12 @@ contains
 
         call parse(trim(iptStr), ' ', tokens, numTokens)
 
-        if (cmd_loop == AUT_LOOP .OR. cmd_loop == TAR_LOOP) then
+        if (cmd_loop == AUT_LOOP .OR. cmd_loop == TAR_LOOP .OR. cmd_loop == CON_UPDATE_LOOP) then
             ! SPO [target [weight]] -> objective term (same form the unified
-            ! parser accepts for the other evaluator names).
+            ! parser accepts for the other evaluator names).  In the UPD CON
+            ! loop the entry at idxConUpdate is UPDATED in place (this is the
+            ! AUTUI edit path -- without it an SPO edit fell through to the
+            ! spot-PLOT branch below instead of updating the merit entry).
             block
                 real(long) :: t, w
                 t = 0.0_long
@@ -339,7 +342,11 @@ contains
                     if (isInputNumber(trim(tokens(3)))) w = str2real8(trim(tokens(3)))
                 end if
                 call LogTermDebug("About to add operand SPO")
-                call addMeritEntry('SPO', ID_ROLE_OBJECTIVE, t, weight=w)
+                if (cmd_loop == CON_UPDATE_LOOP) then
+                    call addMeritEntry('SPO', ID_ROLE_OBJECTIVE, t, weight=w, idxToUpdate=idxConUpdate)
+                else
+                    call addMeritEntry('SPO', ID_ROLE_OBJECTIVE, t, weight=w)
+                end if
             end block
             return
         end if

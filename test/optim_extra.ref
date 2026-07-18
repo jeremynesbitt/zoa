@@ -3308,3 +3308,22 @@ THI       0.0000
 EXIT PUPIL
 DIA       21.1128
 THI       -3.4798
+All constraints removed
+
+
+All constraints removed
+
+
+About to add operand SPO
+  #   NAME   ROLE         TYPE        TARGET   WEIGHT
+  -   ----   ----------   ----   -----------   ------
+  1   SPO    Operand                 0.00000   1.00000
+  2   EFL    Constraint   =         50.00000
+General (variable thicknesses): MXT 12.00000  MNT 2.00000  MNE 2.00000  MNA 0.10000  MAE 0.00250
+About to add operand SPO
+  #   NAME   ROLE         TYPE        TARGET   WEIGHT
+  -   ----   ----------   ----   -----------   ------
+  1   SPO    Operand                 0.00000   1000.0000000
+  2   EFL    Constraint   =         50.00000
+General (variable thicknesses): MXT 12.00000  MNT 2.00000  MNE 2.00000  MNA 0.10000  MAE 0.00250
+All constraints removed

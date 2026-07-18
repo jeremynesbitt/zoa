@@ -25,6 +25,13 @@ contains
             cmd_loop = 0
             return
         end if
+        if (cmd_loop == CON_UPDATE_LOOP) then
+            ! UPD CON; CHA n; <line>; GO -- the GO only closes the update
+            ! loop.  Without this the loop state leaked past the command and
+            ! every later input still ran "inside" UPD CON.
+            cmd_loop = 0
+            return
+        end if
         if (cmd_loop == TOW_LOOP) then
             cmd_loop = 0
             call curr_psm%addGenericSetting(999, "Command", real(999), -1.0, -1.0, ' ', trim(cmdTOW), UITYPE_ENTRY)

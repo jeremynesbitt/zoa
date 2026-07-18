@@ -113,3 +113,20 @@ AUT
 EFL = 50
 GO
 FIR
+
+! ---- UPD CON edit of an SPO operand (the AUTUI edit path) ----
+! Regression: "SPO <targ> <weight>" inside the UPD CON loop fell through to
+! the spot-PLOT branch (never updating), and GO leaked CON_UPDATE_LOOP.  Now
+! the entry at CHA n is updated in place and the loop closes.
+RES OsdSinglet
+TAR
+SPO 0.0 1.0
+EFL = 50
+GO
+LCON
+UPD CON
+CHA 1
+SPO 0.0 1000
+GO
+LCON
+DCON ALL

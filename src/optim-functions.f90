@@ -118,7 +118,12 @@ subroutine aut_go()
             ! line-search point, not the solution, so without this the lens
             ! was left at an arbitrary nearby state.
             call updateLensDuringOptimization(x)
-            call ioConfig%restoreTextView()
+            ! Restore the terminal EXPLICITLY: ioConfig's set/restore is a
+            ! single-slot save (prev := current), and both report_iteration's
+            ! per-cycle redirects and PROCESSILENT leave prev == KDPDUMP, so
+            ! restoreTextView() here stranded the terminal on the hidden dump
+            ! view (the user needed the TERM backdoor to get output back).
+            call ioConfig%setTextView(ID_TERMINAL_DEFAULT)
             write(*,*) ''
             write(*,*) 'solution   :', x
             write(*,*) 'istat      :', istat
