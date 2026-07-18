@@ -338,6 +338,7 @@ General-constraint (MXT/MNT/MNE/MNA/MAE) deferrals:
   re-captured.
 - Zoom positions: constraints evaluate config 1 only (zoom v1).
 - AUTUI has no display/edit of the five settings yet (CLI + LCON footer).
-- The solver's loose caps (max_iter 25, toldf 0.05, alphamin/max) can stop a
-  run before a binding MNE is fully attained — constraint pressure is
-  correct; attainment is a solver-tuning matter.
+- Solver tuning: max_iter is 25 and alphamin/alphamax cap line-search steps,
+  so long runs report "More than max_iter iterations"; acc comes from
+  optim%imp (0.01). (The old toldf=0.05 cutoff — which stopped every run
+  after one iteration once the frozen-typed-store bug was fixed — is gone.)
