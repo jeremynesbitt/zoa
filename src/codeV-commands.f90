@@ -642,8 +642,6 @@ module codeV_commands
         zoaCmds(624)%execFunc => wrap_FOBDUMP
         zoaCmds(626)%cmd = 'OPD'
         zoaCmds(626)%execFunc => wrap_OPD
-        zoaCmds(627)%cmd = 'AUTO'
-        zoaCmds(627)%execFunc => wrap_AUTO
         zoaCmds(628)%cmd = 'HEADINGS'
         zoaCmds(628)%execFunc => wrap_HEADINGS
         zoaCmds(629)%cmd = 'DXF'
@@ -816,10 +814,7 @@ module codeV_commands
         zoaCmds(711)%cmd = 'ETH'
         zoaCmds(711)%execFunc => execETH
 
-        ! Optimizer general constraints (set inside the AUT/TAR loop).  NOTE:
-        ! MNT/MXT also exist as legacy KDP commands feeding the dead legacy
-        ! ITER optimizer (OPTIM11 THMINLIM/THMAXLIM); this registration
-        ! deliberately intercepts them for the new optimizer.
+        ! Optimizer general constraints (set inside the AUT/TAR loop).
         zoaCmds(712)%cmd = 'MXT'
         zoaCmds(712)%execFunc => updateGeneralConstraint
         zoaCmds(713)%cmd = 'MNT'

@@ -130,7 +130,6 @@ These commands were added in Batch 9; all are now TESTED in `test/misc_commands.
 | File | Written by | Notes |
 |------|-----------|-------|
 | `DXF3D.DXF` | `DXF NEW` + `DXF END` | Written to CWD; file content not goldenised (only console text is captured). Idempotent: regenerated each run. |
-| `AUTO.DAT` | `AUTO SAVE` (when data exists) | In optim_extra test, `AUTO SAVE` reports no data to store; no file written |
 
 ---
 

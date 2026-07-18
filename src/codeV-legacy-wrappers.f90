@@ -170,11 +170,6 @@ contains
         call PROPD
     end subroutine
 
-    subroutine wrap_AUTO(iptStr)
-        character(len=*) :: iptStr
-        call AUTO
-    end subroutine
-
     subroutine wrap_HEADINGS(iptStr)
         character(len=*) :: iptStr
         call SETHED

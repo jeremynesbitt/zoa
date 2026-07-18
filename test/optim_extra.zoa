@@ -24,9 +24,6 @@ WEIGHT 1 6
 PRICE ALL
 ! ---- DEFORM: no deformable surfaces in osdtriplet ----
 DEFORM
-! ---- AUTO (file save/reload) ≠ AUT (optimizer) ----
-AUTO SAVE
-AUTO RELOAD
 ! ---- INCR A 5: silently increments register A ----
 INCR A 5
 ! ---- XXF P: Newtonian equation, find missing value (two given) ----
