@@ -341,3 +341,37 @@ General-constraint (MXT/MNT/MNE/MNA/MAE) deferrals:
   so long runs report "More than max_iter iterations"; acc comes from
   optim%imp (0.01). (The old toldf=0.05 cutoff — which stopped every run
   after one iteration once the frozen-typed-store bug was fixed — is gone.)
+
+---
+
+## Legacy KDP optimizer + tolerancing removed (2026-07-18)
+
+OPTIM1..OPTIM11.f90 (45,505 lines: damped-least-squares ITER optimizer,
+SENSI/INVSENSI/MONTE tolerancing, TVAR/COMPVAR test variables/compensators,
+MERIT/TOPER/FOCRIT operand system) were deleted along with their CMDER
+dispatch, CONTRO level machinery, NAMES words (57), and scattered callers.
+`test/legacy_command_census.py --diff` tracks the CMDER/NAMES burn-down
+(baseline now 1257 words / 389 dispatch statements).
+
+Notes and follow-ups:
+
+- **Deformable-surface actuators**: raytra9's DEFGRIDS still writes
+  VARABL/VBCNT as "actuator pseudo-variables"; VARABL survives in DATSUB for
+  that reason only. The legacy deformable-surface implementation has no
+  long-term future — if it conflicts with later cleanups, drop it (a rebuild
+  would be a typed surface conforming to the new variable rules).
+- **UTILITY6 GET operand/variable queries** (`GET <op>` reading OPERND, GET
+  LCV, etc.) still exist and now report zeros/stale values; candidates for a
+  future GET-cleanup tranche. DATSUB keeps OPERND/OPCNT/CURFIG for them.
+- **CONTRO dead remnants**: prompt-string blocks and F1.EQ.0 level-input
+  guards for the removed levels (F27/F29/F51-F54, UTILITY5 ~766-3816) are
+  unreachable (no writer sets those flags nonzero) but were left in place;
+  free to delete in the next CONTRO tranche.
+- **NRD/CAPFNNRD/TGR/PGR/GRI/EXTENT** live on: former MERIT2 (OPTIM8) was
+  really the CAPFN/PSF pupil-grid settings handler; relocated to WAVSPOT2 as
+  CAPFNSET (OPNRD/TOLNRD words dropped).
+- **GREYSPOT removed**: it only fed the legacy grey-spot operands via OPSPOT
+  ring settings nothing else reads, and its internal OPRING calls were
+  already failing validation.
+- WAVSPOT5's CAPFN TPT==2 branches (TOLNRD/OPNRD grid selection) are now
+  dead code; OPNRD/TOLNRD variables stay initialized in INITKDP.
