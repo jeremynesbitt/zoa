@@ -755,7 +755,6 @@ SUBROUTINE CFGIN3
    F22=1
    LNSTYP=1
    CALL LNSEOS
-   IF(F28.EQ.0) CALL VCHECK
    RETURN
 END
 ! SUB CFGIN2.FOR
@@ -935,7 +934,6 @@ SUBROUTINE CFGIN2
       F6=1
       LNSTYP=1
       CALL LNSEOS
-      IF(F28.EQ.0) CALL VCHECK
       RETURN
    END IF
 !**********************************************************************
@@ -3758,7 +3756,6 @@ SUBROUTINE DEZOOM
          CALL CTOP
          LNSTYP=1
          CALL LNSEOS
-         IF(F28.EQ.0) CALL VCHECK
 !
       ELSE
          WRITE(OUTLYNE,*)'CONFIGURATION NUMBER BEYOND LEGAL RANGE'
@@ -3837,7 +3834,6 @@ SUBROUTINE DELCFG
          CFGCNT(INT(W1))=0
          LNSTYP=1
          CALL LNSEOS
-         IF(F28.EQ.0) CALL VCHECK
          WRITE(OUTLYNE,*)'CFG',INT(W1),' :CONFIG DATA DELETED'
          CALL SHOWIT(1)
       END IF

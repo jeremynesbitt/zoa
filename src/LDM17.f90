@@ -165,8 +165,6 @@ SUBROUTINE LENOUT
                   CALL SHOWIT(11)
                END DO
             END IF
-            CALL OPDMP
-            CALL TLDMP
          END IF
       END IF
       IF(ISKDP) CALL MULTFLDS
