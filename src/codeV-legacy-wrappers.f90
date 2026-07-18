@@ -90,11 +90,6 @@ contains
         call COLORS
     end subroutine
 
-    subroutine wrap_GREYSPOT(iptStr)
-        character(len=*) :: iptStr
-        call GREYSPOT
-    end subroutine
-
     subroutine wrap_REFK(iptStr)
         character(len=*) :: iptStr
         call SREF

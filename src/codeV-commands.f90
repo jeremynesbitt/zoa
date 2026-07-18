@@ -610,8 +610,6 @@ module codeV_commands
         zoaCmds(607)%execFunc => wrap_FINDGLAS
         zoaCmds(608)%cmd = 'COLORSET'
         zoaCmds(608)%execFunc => wrap_COLORSET
-        zoaCmds(609)%cmd = 'GREYSPOT'
-        zoaCmds(609)%execFunc => wrap_GREYSPOT
         zoaCmds(610)%cmd = 'REFK'
         zoaCmds(610)%execFunc => wrap_REFK
         zoaCmds(611)%cmd = 'PIVAXIS'

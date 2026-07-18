@@ -463,8 +463,6 @@ SUBROUTINE CMDER
          GRIDSUNLOADED20(0:MAXSUR)=.TRUE.
          GRIDSUNLOADED22(0:MAXSUR)=.TRUE.
          CALL GRIDS(1,0,LPASS1)
-!       CALL DEROFF
-!       CALL AUTOFF
          CALL SPSIN
          RETURN
       END IF
@@ -524,8 +522,6 @@ SUBROUTINE CMDER
          GRIDSUNLOADED19(0:MAXSUR)=.TRUE.
          GRIDSUNLOADED20(0:MAXSUR)=.TRUE.
          GRIDSUNLOADED22(0:MAXSUR)=.TRUE.
-         CALL DEROFF
-         CALL AUTOFF
          CALL CFGIN
          RETURN
       END IF
@@ -577,8 +573,6 @@ SUBROUTINE CMDER
          GRIDSUNLOADED19(0:MAXSUR)=.TRUE.
          GRIDSUNLOADED20(0:MAXSUR)=.TRUE.
          GRIDSUNLOADED22(0:MAXSUR)=.TRUE.
-         CALL DEROFF
-         CALL AUTOFF
          CALL DEZOOM
          RETURN
       END IF
@@ -699,8 +693,6 @@ SUBROUTINE CMDER
          RETURN
       END IF
       IF(WC.EQ.'LENADD') THEN
-         CALL DEROFF
-         CALL AUTOFF
          CALL LENADD
          RETURN
       END IF
@@ -1037,8 +1029,6 @@ SUBROUTINE CMDER
          LPASS1=.FALSE.
          LPASS2=.FALSE.
          CALL DEFGRIDS(1,0,LPASS1,LPASS2)
-         CALL DEROFF
-         CALL AUTOFF
          CALL LENNS
          RETURN
       END IF
@@ -1788,75 +1778,6 @@ SUBROUTINE CMDER
          LDIF2=OLDIF2
          RETURN
       END IF
-      IF(WC.EQ.'VB'.OR.WC.EQ.'VBA')  THEN
-         OPTMES=.FALSE.
-         CALL VARBLL
-         OPTMES=.TRUE.
-         RETURN
-      END IF
-      IF(WC.EQ.'TVB')  THEN
-         IF(F12.NE.1) THEN
-            OUTLYNE=&
-            &'CONFIGURATION #1 MUST BE THE CURRENT CONFIGURATION BEFORE'
-            CALL SHOWIT(1)
-            OUTLYNE=&
-            &'THE "TVB" COMMAND MAY BE ISSUED'
-            CALL SHOWIT(1)
-            OUTLYNE=&
-            &'NO ACTION TAKEN'
-            CALL SHOWIT(1)
-            CALL MACFAL
-            RETURN
-         END IF
-         OPTMES=.FALSE.
-         CALL TVARBLL
-         OPTMES=.TRUE.
-         RETURN
-      END IF
-      IF(WC.EQ.'COMPS')  THEN
-         IF(F12.NE.1) THEN
-            OUTLYNE=&
-            &'CONFIGURATION #1 MUST BE THE CURRENT CONFIGURATION BEFORE'
-            CALL SHOWIT(1)
-            OUTLYNE=&
-            &'THE "COMPS" COMMAND MAY BE ISSUED'
-            CALL SHOWIT(1)
-            OUTLYNE=&
-            &'NO ACTION TAKEN'
-            CALL SHOWIT(1)
-            CALL MACFAL
-            RETURN
-         END IF
-         OPTMES=.FALSE.
-         CALL CVARBLL
-         OPTMES=.TRUE.
-         RETURN
-      END IF
-      IF(WC.EQ.'MR'.OR.WC.EQ.'MRA'&
-      &.OR.WC.EQ.'OP'.OR.WC.EQ.'OPA')  THEN
-!       DO A FORCED RETURN TO CFG1
-         GRIDSUNLOADED19(0:MAXSUR)=.TRUE.
-         GRIDSUNLOADED20(0:MAXSUR)=.TRUE.
-         GRIDSUNLOADED22(0:MAXSUR)=.TRUE.
-         CALL FRCCF1(1)
-         OPTMES=.FALSE.
-         WQ='CFG' ! Hack
-         CALL MAROUT
-         OPTMES=.TRUE.
-         RETURN
-      END IF
-      IF(WC.EQ.'TOPS') THEN
-         OPTMES=.FALSE.
-         CALL TOPOUT
-         OPTMES=.TRUE.
-         RETURN
-      END IF
-      IF(WC.EQ.'CRITS') THEN
-         OPTMES=.FALSE.
-         CALL CRITOUT
-         OPTMES=.TRUE.
-         RETURN
-      END IF
       IF(WC.EQ.'AIMRAY'.OR.WC.EQ.'RAYAIM')  THEN
          IF(WQ.EQ.'YES') WQ='ON'
          IF(WQ.EQ.'NO') WQ='OFF'
@@ -2244,171 +2165,6 @@ SUBROUTINE CMDER
          CALL PRXYD
          RETURN
       END IF
-      IF(WC.EQ.'VARIABLE'.OR.WC.EQ.'VARI') THEN
-         TVBCNT=0
-         PFAC=1.0D0
-         ISCOMP(1:MAXCMP)=.FALSE.
-         CALL VRBL1
-         RETURN
-      END IF
-      IF(WC.EQ.'TVAR') THEN
-         IF(F12.NE.1) THEN
-            OUTLYNE=&
-            &'CONFIGURATION #1 MUST BE THE CURRENT CONFIGURATION BEFORE'
-            CALL SHOWIT(1)
-            OUTLYNE=&
-            &'THE "TVAR" COMMAND MAY BE ISSUED'
-            CALL SHOWIT(1)
-            OUTLYNE=&
-            &'NO ACTION TAKEN'
-            CALL SHOWIT(1)
-            CALL MACFAL
-            RETURN
-         END IF
-         CALL TVRBL1
-         RETURN
-      END IF
-      IF(WC.EQ.'COMPVAR') THEN
-         IF(F12.NE.1) THEN
-            OUTLYNE=&
-            &'CONFIGURATION #1 MUST BE THE CURRENT CONFIGURATION BEFORE'
-            CALL SHOWIT(1)
-            OUTLYNE=&
-            &'THE "COMPVAR" COMMAND MAY BE ISSUED'
-            CALL SHOWIT(1)
-            OUTLYNE=&
-            &'NO ACTION TAKEN'
-            CALL SHOWIT(1)
-            CALL MACFAL
-            RETURN
-         END IF
-         CALL CVRBL1
-         RETURN
-      END IF
-      IF(WC.EQ.'MERIT') THEN
-         PFAC=1.0D0
-!
-         FCCNT=0
-         TOPCNT=0
-         ISCRIT(1:MAXFOCRIT)=.FALSE.
-         ISTOP(1:MAXTOP)=.FALSE.
-         CALL MERIT
-         JK_CHMODE=.FALSE.
-         CORMOD=1
-         CURFIG=1
-         RETURN
-      END IF
-      IF(WC.EQ.'TOPER') THEN
-         CALL TOPER
-         JK_CHMODE=.FALSE.
-         RETURN
-      END IF
-      IF(WC.EQ.'FOCRIT') THEN
-         CALL FOCRIT
-         JK_CHMODE=.FALSE.
-         RETURN
-      END IF
-      IF(WC.EQ.'UPDATE'.AND.&
-      &WQ.EQ.'VARIABLE'.OR.&
-      &WC.EQ.'UPDATE'.AND.&
-      &WQ.EQ.'VB'.OR.&
-      &WC.EQ.'U'.AND.&
-      &WQ.EQ.'VARIABLE'.OR.&
-      &WC.EQ.'U'.AND.&
-      &WQ.EQ.'VB') THEN
-         CALL DEROFF
-         CALL UVRBL1
-         RETURN
-      END IF
-      IF(WC.EQ.'UPDATE'.AND.&
-      &WQ.EQ.'TVAR'.OR.&
-      &WC.EQ.'UPDATE'.AND.&
-      &WQ.EQ.'TVB'.OR.&
-      &WC.EQ.'U'.AND.&
-      &WQ.EQ.'TVAR'.OR.&
-      &WC.EQ.'U'.AND.&
-      &WQ.EQ.'TVB') THEN
-         IF(F12.NE.1) THEN
-            OUTLYNE=&
-            &'CONFIGURATION #1 MUST BE THE CURRENT CONFIGURATION BEFORE'
-            CALL SHOWIT(1)
-            OUTLYNE=&
-            &'THE "UPDATE TVAR" COMMAND MAY BE ISSUED'
-            CALL SHOWIT(1)
-            OUTLYNE=&
-            &'NO ACTION TAKEN'
-            CALL SHOWIT(1)
-            CALL MACFAL
-            RETURN
-         END IF
-         CALL DEROFF
-         CALL TUVRBL1
-         RETURN
-      END IF
-      IF(WC.EQ.'UPDATE'.AND.&
-      &WQ.EQ.'COMPVAR'.OR.&
-      &WC.EQ.'UPDATE'.AND.&
-      &WQ.EQ.'CMP'.OR.&
-      &WC.EQ.'U'.AND.&
-      &WQ.EQ.'COMPVAR'.OR.&
-      &WC.EQ.'U'.AND.&
-      &WQ.EQ.'CMP') THEN
-         IF(F12.NE.1) THEN
-            OUTLYNE=&
-            &'CONFIGURATION #1 MUST BE THE CURRENT CONFIGURATION BEFORE'
-            CALL SHOWIT(1)
-            OUTLYNE=&
-            &'THE "UPDATE COMPVAR" COMMAND MAY BE ISSUED'
-            CALL SHOWIT(1)
-            OUTLYNE=&
-            &'NO ACTION TAKEN'
-            CALL MACFAL
-            RETURN
-         END IF
-         CALL DEROFF
-         CALL UCVRBL1
-         RETURN
-      END IF
-      IF(WC.EQ.'UPDATE'.AND.&
-      &WQ.EQ.'MERIT'.OR.&
-      &WC.EQ.'UPDATE'.AND.&
-      &WQ.EQ.'M'.OR.&
-      &WC.EQ.'U'.AND.&
-      &WQ.EQ.'MERIT'.OR.&
-      &WC.EQ.'U'.AND.&
-      &WQ.EQ.'M') THEN
-         JK_CHMODE=.FALSE.
-         CORMOD=1
-         CURFIG=1
-         CALL DEROFF
-         CALL UMERIT
-         RETURN
-      END IF
-      IF(WC.EQ.'UPDATE'.AND.&
-      &WQ.EQ.'TOPER'.OR.&
-      &WC.EQ.'UPDATE'.AND.&
-      &WQ.EQ.'TOP'.OR.&
-      &WC.EQ.'U'.AND.&
-      &WQ.EQ.'TOPER'.OR.&
-      &WC.EQ.'U'.AND.&
-      &WQ.EQ.'TOP') THEN
-         CALL DEROFF
-         CALL UTOPER
-         RETURN
-      END IF
-      IF(WC.EQ.'UPDATE'.AND.&
-      &WQ.EQ.'FOCRIT'.OR.&
-      &WC.EQ.'UPDATE'.AND.&
-      &WQ.EQ.'FC'.OR.&
-      &WC.EQ.'U'.AND.&
-      &WQ.EQ.'FOCRIT'.OR.&
-      &WC.EQ.'U'.AND.&
-      &WQ.EQ.'FC') THEN
-         JK_CHMODE=.FALSE.
-         CALL DEROFF
-         CALL UFOCRIT
-         RETURN
-      END IF
       IF(WC.EQ.'PLOT'.OR.WC.EQ.'PNOTE') THEN
          IF(DEVTYP.NE.1) CALL PLTDEV
          PLOTCAPCON=.FALSE.
@@ -2574,18 +2330,10 @@ SUBROUTINE CMDER
          CALL SPOTSET
          RETURN
       END IF
-      IF(WC.EQ.'OPRING'.OR.WC.EQ.'OPRINGS'.OR.WC.EQ.'OPRANNUM'&
-      &.OR.WC.EQ.'OPSPDRST'.OR.&
-      &WC.EQ.'OPSPOT'.OR.WC.EQ.'OPRECT') THEN
-         GRSPT=0
-         CALL OPSPOTSET
-         RETURN
-      END IF
-      IF(WC.EQ.'OPNRD'&
-      &.OR.WC.EQ.'TOLNRD'.OR.WC.EQ.'NRD'.OR.WC.EQ.'TGR'&
+      IF(WC.EQ.'NRD'.OR.WC.EQ.'TGR'&
       &.OR.WC.EQ.'PGR'.OR.WC.EQ.'GRI'.OR.WC.EQ.'CAPFNNRD'.OR.&
       &WC.EQ.'EXTENT') THEN
-         CALL MERIT2
+         CALL CAPFNSET
          RETURN
       END IF
       IF(WC.EQ.'REDSQ'.OR.WC.EQ.'REDSUMSQ'.OR.WC.EQ.'SREDSQ') THEN
@@ -2657,171 +2405,6 @@ SUBROUTINE CMDER
          ELSE
             CALL EDITOR
          END IF
-         RETURN
-      END IF
-      IF(WC.EQ.'RESTORE') THEN
-         GRASET=.FALSE.
-         F28=1
-         MSG=.FALSE.
-         OPTMES=.FALSE.
-         CALL RESTOR(.TRUE.)
-         OPTMES=.TRUE.
-         F28=0
-         MSG=.TRUE.
-         RETURN
-      END IF
-      IF(WC.EQ.'ROBB') THEN
-         GRASET=.FALSE.
-         F28=1
-         MSG=.FALSE.
-         OPTMES=.FALSE.
-         CALL ROBB
-         OPTMES=.TRUE.
-         F28=0
-         MSG=.TRUE.
-         RETURN
-      END IF
-      IF(WC.EQ.'ITER'.OR.WC.EQ.'IT') THEN
-         OWC=WC
-         IF(SQ.EQ.1) OWQ=WQ
-         IF(SQ.EQ.0) OWQ='        '
-         GRASET=.FALSE.
-         F28=1
-         KILOPT=.FALSE.
-         MSG=.FALSE.
-         OPTMES=.FALSE.
-         IF(SQ.EQ.0.OR.WQ.EQ.'POWL'.OR.WQ.EQ.'P'.OR.WQ.EQ.'FULL'&
-         &.OR.WQ.EQ.'F'.OR.WQ.EQ.'DIR'.OR.WQ.EQ.'D'.OR.WQ.EQ.'POWELL') THEN
-            ITCT=INT(W1)
-            IF(ITCT.EQ.0) ITCT=1
-            DO ITNUM=1,ITCT
-               DEREXT=.FALSE.
-               WC=OWC
-               WQ=OWQ
-               SQ=0
-               IF(WQ.NE.'        ') SQ=1
-               DF1=1
-               S1=0
-               SN=0
-               ITERROR=.FALSE.
-               CALL ITER(1,1,ITERROR)
-               IF(ITERROR) THEN
-                  ITERROR=.FALSE.
-                  EXIT
-               END IF
-               IF(sys_verbose_optim().NE.0.0D0) THEN
-                                    CALL KDP_EXEC('VB')
-                                    CALL KDP_EXEC('VBA')
-                                    CALL KDP_EXEC('OP')
-                                    CALL KDP_EXEC('OPA')
-                                    CALL KDP_EXEC('OPRD')
-               END IF
-               IF(F28.EQ.0.OR.KILOPT) GO TO 8769
-            END DO
-8769        CONTINUE
-         ELSE
-            WC=OWC
-            WQ=OWQ
-            SQ=0
-            IF(WQ.NE.'        ') SQ=1
-            CALL ITER(1,1,ITERROR)
-            IF(ITERROR) THEN
-               ITERROR=.FALSE.
-            END IF
-            IF(sys_verbose_optim().NE.0.0D0) THEN
-                              CALL KDP_EXEC('VB')
-                              CALL KDP_EXEC('VBA')
-                              CALL KDP_EXEC('OP')
-                              CALL KDP_EXEC('OPA')
-                              CALL KDP_EXEC('OPRD')
-            END IF
-         END IF
-         OPTMES=.TRUE.
-         F28=0
-         MSG=.TRUE.
-         RETURN
-      END IF
-      IF(WC.EQ.'RSV') THEN
-!       RESOLVE THE EXISTING MATRIX BUT FIRST DO A RESTORE
-         GRASET=.FALSE.
-         F28=1
-         KILOPT=.FALSE.
-         MSG=.FALSE.
-         OPTMES=.FALSE.
-         WC='RSV'
-         SQ=0
-         CALL ITER(1,1,ITERROR)
-         IF(ITERROR) THEN
-            ITERROR=.FALSE.
-         END IF
-         IF(sys_verbose_optim().NE.0.0D0) THEN
-                        CALL KDP_EXEC('VB')
-                        CALL KDP_EXEC('VBA')
-                        CALL KDP_EXEC('OP')
-                        CALL KDP_EXEC('OPA')
-                        CALL KDP_EXEC('OPRD')
-         END IF
-         OPTMES=.TRUE.
-         F28=0
-         MSG=.TRUE.
-         RETURN
-      END IF
-      IF(WC.EQ.'SV') THEN
-!       RESOLVE THE EXISTING MATRIX WITHOUT FIRST DOING A RESTORE
-         GRASET=.FALSE.
-         F28=1
-         KILOPT=.FALSE.
-         MSG=.FALSE.
-         OPTMES=.FALSE.
-         WC='SV'
-         SQ=0
-         CALL ITER(1,1,ITERROR)
-         IF(ITERROR) THEN
-            ITERROR=.FALSE.
-         END IF
-         IF(sys_verbose_optim().NE.0.0D0) THEN
-                        CALL KDP_EXEC('VB')
-                        CALL KDP_EXEC('VBA')
-                        CALL KDP_EXEC('OP')
-                        CALL KDP_EXEC('OPA')
-                        CALL KDP_EXEC('OPRD')
-         END IF
-         OPTMES=.TRUE.
-         F28=0
-         MSG=.TRUE.
-         RETURN
-      END IF
-      IF(WC.EQ.'OPRD') THEN
-         IF(RAYCLEAR) THEN
-            RAYEXT=.FALSE.
-            POLEXT=.FALSE.
-            REFEXT=.FALSE.
-         END IF
-!       DO A FORCED RETURN TO CFG1
-         GRIDSUNLOADED19(0:MAXSUR)=.TRUE.
-         GRIDSUNLOADED20(0:MAXSUR)=.TRUE.
-         GRIDSUNLOADED22(0:MAXSUR)=.TRUE.
-         CALL FRCCF1(1)
-         GRASET=.FALSE.
-         F28=1
-         KILOPT=.FALSE.
-         MSG=.FALSE.
-         OPTMES=.FALSE.
-         CALL OPRD
-         OPTMES=.TRUE.
-         F28=0
-         MSG=.TRUE.
-         RETURN
-      END IF
-      IF(WC.EQ.'FMT') THEN
-         GRASET=.FALSE.
-         F28=1
-         MSG=.FALSE.
-         OPTMES=.FALSE.
-         CALL FMT
-         OPTMES=.TRUE.
-         F28=0
-         MSG=.TRUE.
          RETURN
       END IF
       IF(WC.EQ.'J1') THEN
@@ -3261,27 +2844,9 @@ SUBROUTINE CMDER
          CALL GLSRIN
          RETURN
       END IF
-      IF(WC.EQ.'MAKEAUTO'.OR.WC.EQ.'DFTYPE'.OR.WC.EQ.'DFDEL'&
-      &.OR.WC.EQ.'FP'.OR.WC.EQ.'DFP'.OR.WC.EQ.'MONO'.OR.&
-      &WC.EQ.'POLY'.OR.WC.EQ.'DFGRID'.OR.WC.EQ.'DFHEX') THEN
-         CALL MAKE_DEF_AUTO
-         RETURN
-      END IF
       IF(WC.EQ.'LENDIR'.OR.WC.EQ.'MACDIR'.OR.WC.EQ.'TRADIR'&
       &.OR.WC.EQ.'PLTDIR'.OR.WC.EQ.'CHGMAC') THEN
          CALL CHADIR
-         RETURN
-      END IF
-      IF(WC.EQ.'PFIND') THEN
-         GRASET=.FALSE.
-         F28=1
-         KILOPT=.FALSE.
-         MSG=.FALSE.
-         OPTMES=.FALSE.
-         CALL PFIND
-         OPTMES=.TRUE.
-         F28=0
-         MSG=.TRUE.
          RETURN
       END IF
       IF(WC.EQ.'MFG') THEN
@@ -3321,10 +2886,6 @@ SUBROUTINE CMDER
       END IF
       IF(WC.EQ.'BEA'.OR.WC.EQ.'BEAM') THEN
          CALL GBEAM
-         RETURN
-      END IF
-      IF(WC.EQ.'RAYS'.OR.WC.EQ.'FIELDS') THEN
-         CALL QRRYFL
          RETURN
       END IF
       IF(WC.EQ.'FLDS') THEN
@@ -3370,11 +2931,6 @@ SUBROUTINE CMDER
       IF(WC.EQ.'STAMPD'.OR.WC.EQ.'STAMPT') THEN
 !       SETS TIME AND DATE STAMPING FOR LI
          CALL STAMPER
-         RETURN
-      END IF
-      IF(WC.EQ.'DINCR') THEN
-!       SETS DEFAULT DINCRS FOR CLASSES OF VARIABLES
-         CALL DINCIT
          RETURN
       END IF
       IF(WC.EQ.'NEWSEED') THEN
@@ -3434,13 +2990,11 @@ SUBROUTINE CMDER
       END IF
       IF(WC.EQ.'LIMRAYS') THEN
 !       CALCULATES YZ AND XZ PLANE RAY EXTENTS
-         CALL DEROFF
          CALL SIZES
          RETURN
       END IF
       IF(WC.EQ.'BLKRAYS') THEN
 !       CALCULATES YZ AND XZ PLANE RAY BLOCKAGES
-         CALL DEROFF
          CALL SIZES2
          REFEXT=.FALSE.
          RETURN
@@ -3479,7 +3033,6 @@ SUBROUTINE CMDER
       END IF
       IF(WC.EQ.'SETCLAP') THEN
 !       CALCULATES YZ AND XZ PLANE RAY EXTENTS AND SETS CLAPS
-         CALL DEROFF
          CALL SETCLAP
          RETURN
       END IF
@@ -3526,33 +3079,6 @@ SUBROUTINE CMDER
          CALL VIGGER
          RETURN
       END IF
-      IF(WC.EQ.'SENSI') THEN
-!       INITIATE SENSITIVITY ANALYSIS
-         F31=1
-         CALL SENSI(0)
-         F31=0
-         RETURN
-      END IF
-      IF(WC.EQ.'MXT'.OR.WC.EQ.'MNT'&
-      &.OR.WC.EQ.'MPR'.OR.WC.EQ.'MNR') THEN
-!       SET MIN AND MAX THICKNESS/RADIUS LIMITS FOR VARIABLES
-         CALL THRDLIM
-         RETURN
-      END IF
-      IF(WC.EQ.'INVSENSI') THEN
-!       INITIATE INVERSE SENSITIVITY ANALYSIS
-         F31=1
-         CALL SENSI(1)
-         F31=0
-         RETURN
-      END IF
-      IF(WC.EQ.'MONTE') THEN
-!       INITIATE MONTE-CARLO ANALYSIS
-         F31=1
-         CALL MONTE
-         F31=0
-         RETURN
-      END IF
       IF(WC.EQ.'AVEC'.OR.WC.EQ.'BVEC'.OR.WC.EQ.'DOT'&
       &.OR.WC.EQ.'CROSS') THEN
          CALL VECTOROP
@@ -3564,38 +3090,6 @@ SUBROUTINE CMDER
          ALLOCATE (DARR(1:N,1:2),STAT=ALLOERR)
          CALL SHUFFLE(N,DARR)
          DEALLOCATE (DARR)
-         RETURN
-      END IF
-      FIELDER=.FALSE.
-      DO II=1,200
-         CALL ITOAAA(II,AI4)
-         IF(II.LE.9.AND.WC(1:2).EQ.'F'//AI4(1:1).OR.&
-         &II.GE.10.AND.I.LE.99.AND.WC(1:3).EQ.'F'//AI4(1:2).OR.&
-         &II.GE.100.AND.I.LE.999.AND.WC(1:4).EQ.'F'//AI4(1:3)) THEN
-            FIELDER =.TRUE.
-            GO TO 945
-         END IF
-      END DO
-945   CONTINUE
-      IF(FIELDER) THEN
-         CALL FIELDS
-         RETURN
-      END IF
-      RAYER=.FALSE.
-      DO II=1,5000
-         CALL ITOAAA(II,AI4)
-         IF(II.LE.9.AND.WC(1:8).EQ.'R'//AI4(1:1)//'      '.OR.&
-         &II.GE.10.AND.II.LE.99.AND.WC(1:8).EQ.'R'//AI4(1:2)//'     '.OR.&
-         &II.GE.100.AND.II.LE.999.AND.WC(1:8).EQ.'R'//AI4(1:3)//'    '.OR.&
-         &II.GE.1000.AND.II.LE.5000.AND.WC(1:8).EQ.'R'//AI4(1:4)//&
-         &'   ') THEN
-            RAYER=.TRUE.
-            GO TO 946
-         END IF
-      END DO
-946   CONTINUE
-      IF(RAYER) THEN
-         CALL RAYS
          RETURN
       END IF
       IF(WC.EQ.'NSSDEL'.OR.WC.EQ.'NSSNEW'.OR.WC.EQ.'NSSUNITS'.OR.&
