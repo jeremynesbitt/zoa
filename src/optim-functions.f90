@@ -55,11 +55,15 @@ subroutine aut_go()
         return
     end if
 
-    ! Default merit: if the user defined nothing at all, minimize spot size.
-    ! (Deliberately unchanged rule: when only constraints exist, no objective
-    ! is added and the run is a pure feasibility solve.)
+    ! Default merit: whenever the user defined no OBJECTIVE term, minimize
+    ! spot size.  This also covers constraints-only setups ("AUT; EFL = 50;
+    ! GO"): with a constant f = 0 the solver's |df| stopping test fired on
+    ! the first iteration and the run ended before the constraints were even
+    ! satisfied -- the user expectation is "minimize spot subject to the
+    ! constraints".
     print *, "nM is ", nM
-    if (nM == 0) then
+    if (numObjectives() == 0) then
+        call zoa_emit("AUT: no operand defined; minimizing spot size (SPO)", "black")
         call addMeritEntry('SPO', ID_ROLE_OBJECTIVE, 0.0_long)
     end if
 
@@ -85,11 +89,14 @@ subroutine aut_go()
     meq = getNumberofEqualityConstraints()
 
     print *, "nV is ", nV
+    ! NOTE: an earlier version passed toldf=0.05 ("to limit search steps") --
+    ! that stopped every run after one iteration once the frozen-typed-store
+    ! bug was fixed (per-iteration |df| is naturally small), so it is gone.
     call solver%initialize(nV,numConstraints()+nGen,meq,max_iter,acc,optimizerFunc,dummy_grad,&
                            xl,xu,linesearch_mode=linesearch_mode,status_ok=status_ok,&
                            report=report_iteration,&
                            alphamin=0.1_long, alphamax=0.5_long, &
-                           gradient_mode=gradient_mode, gradient_delta=gradient_delta, toldf=.05_long) !to limit search steps
+                           gradient_mode=gradient_mode, gradient_delta=gradient_delta)
 
     ! call solver%initialize(nV,nC,meq,max_iter,acc,test_func_spo_efl,dummy_grad,&
     !                         xl,xu,linesearch_mode=linesearch_mode,status_ok=status_ok,&
@@ -103,13 +110,25 @@ subroutine aut_go()
         ! Don't allow commands called during optimization to pollute output log
 
         call ioConfig%setTextView(ID_TERMINAL_KDPDUMP)
-        call solver%optimize(x,istat,iterations)
-        call ioConfig%restoreTextView()
-        write(*,*) ''
-        write(*,*) 'solution   :', x
-        write(*,*) 'istat      :', istat
-        write(*,*) 'iterations :', iterations
-        write(*,*) ''
+        block
+            character(len=:), allocatable :: status_message
+            call solver%optimize(x,istat,iterations,status_message)
+            ! Apply the RETURNED solution to the lens: the last merit
+            ! evaluation inside the solver is typically a gradient-probe or
+            ! line-search point, not the solution, so without this the lens
+            ! was left at an arbitrary nearby state.
+            call updateLensDuringOptimization(x)
+            call ioConfig%restoreTextView()
+            write(*,*) ''
+            write(*,*) 'solution   :', x
+            write(*,*) 'istat      :', istat
+            write(*,*) 'iterations :', iterations
+            write(*,*) ''
+            ! Report the solver's exit status to the user -- "silently
+            ! stopped" is indistinguishable from "converged" otherwise.
+            call zoa_emit("AUT: done after "//trim(int2str(iterations))// &
+            &  " iterations, status: "//trim(status_message), "black")
+        end block
     else
         ! Never ERROR STOP from a user command -- that terminates the whole
         ! program.  Report and return; the lens is untouched.

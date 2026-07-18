@@ -408,8 +408,11 @@ module optimizer_ui
 
           store = g_list_store_new(G_TYPE_OBJECT)
           do i=1,nM
+            ! Name must be trimmed + null-terminated: C reads to the NUL, and a
+            ! bare derived-type component has neither (the padding/overrun was
+            ! the AUTUI name-dropdown crash).
             ! This did not work without () on the %func but did not throw and error.  Annoying
-            store = append_constraint_model(store, meritInUse(i)%name, meritInUse(i)%func(),  &
+            store = append_constraint_model(store, trim(meritInUse(i)%name)//c_null_char, meritInUse(i)%func(),  &
             & meritInUse(i)%role, meritInUse(i)%conType, meritInUse(i)%targ, meritInUse(i)%weight)
           end do
           do i=nM+1,numRows
@@ -518,21 +521,27 @@ module optimizer_ui
         end subroutine   
 
 
+        ! Select the dropdown entry matching strCand.  Leaves the selection
+        ! unchanged when no entry matches -- must never crash on a miss.
+        ! (Historically the loop ran one past the end, where GTK returns NULL
+        ! and convert_c_string segfaulted in strlen; the AUTUI crash.)
         subroutine setDropDownByString(dropDown, strCand)
             type(c_ptr) :: dropDown
             character(len=*) :: strCand
 
-            type(c_ptr) :: model, cstr 
+            type(c_ptr) :: model, cstr
             character(len=140) :: strDD
             integer :: n_items, ii
 
             model = gtk_drop_down_get_model(dropDown)
+            if (.not. c_associated(model)) return
             n_items = g_list_model_get_n_items(model)
 
-            do ii=0,n_items
+            do ii=0,n_items-1
                 cstr = gtk_string_list_get_string(model, ii)
+                if (.not. c_associated(cstr)) cycle
                 call convert_c_string(cStr, strDD)
-                if (strDD == strCand) then 
+                if (strDD == strCand) then
                     call gtk_drop_down_set_selected(dropDown, ii)
                     exit
                 end if

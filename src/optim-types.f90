@@ -316,19 +316,24 @@ module optim_types
         ! Using KDP commands because the new commands get into bad loops during optimization.
         ! obviously should fix this to directly update lens data but a project for another day..
         do i=1,nV
-            if (VARS(i,2) >= VAR_A4 .and. VARS(i,2) <= VAR_A20) then
-                ! Asphere coefficients live at 1e-4..1e-8: the default F9.5
-                ! formatting of real2str would quantize them to zero, so apply
-                ! them in scientific notation (D23.10).  CV/TH/CCK keep the
-                ! original fixed format so existing optimization trajectories
-                ! (and their golden refs) are unchanged.
-                call PROCESSILENT('CHG '//int2str(VARS(i,1))//' ; '// &
-                &  trim(getVarKdpCmd(VARS(i,2)))//' '//real2str(x(i), sci=.TRUE.))
-            else
-                call PROCESSILENT('CHG '//int2str(VARS(i,1))//' ; '// &
-                &  trim(getVarKdpCmd(VARS(i,2)))//' '//real2str(x(i)))
-            end if
+            ! ALL variables are applied in scientific notation (D23.10).  The
+            ! default F9.5 fixed format quantizes at 1e-5: line-search steps on
+            ! a curvature (~1e-2) simply vanished, the lens never changed, and
+            ! slsqp aborted with "positive directional derivative" -- the same
+            ! failure that hit asphere coefficients (1e-4..1e-8) earlier.
+            call PROCESSILENT('CHG '//int2str(VARS(i,1))//' ; '// &
+            &  trim(getVarKdpCmd(VARS(i,2)))//' '//real2str(x(i), sci=.TRUE.))
         end do
+
+        ! CRITICAL: rebuild the typed surface store from the just-updated ALENS
+        ! before the finalizing EOS.  The paraxial trace (EFL etc.) and the
+        ! real-ray trace (SPO) refract through ldm%surfaces geometry, and the
+        ! same-topology LNSEOS path deliberately does not rebuild it -- without
+        ! this refresh every merit evaluation saw the ORIGINAL lens, gradients
+        ! were identically zero, and slsqp aborted immediately with "positive
+        ! directional derivative for linesearch" (the optimizer never worked
+        ! for curvature/thickness variables).
+        call ldm%load_surfaces_from_alens()
 
         call PROCESSILENT('EOS')
 

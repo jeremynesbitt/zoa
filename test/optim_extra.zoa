@@ -99,3 +99,17 @@ MNE 2.5
 GO
 ETH
 SUR SA
+
+! ---- Full optimization: singlet with a fixed EFL (the originally-broken case) ----
+! Regression for the frozen-typed-store bug: variable values applied during
+! optimization never reached the paraxial/real traces (the typed store was
+! not refreshed), every merit evaluation saw the ORIGINAL lens, gradients
+! were zero, and slsqp aborted immediately with "positive directional
+! derivative".  Now: spot is minimized subject to EFL = 50, converging
+! within acc (optim%imp), and the returned solution is applied to the lens.
+RES OsdSinglet
+CCY S1 0
+AUT
+EFL = 50
+GO
+FIR

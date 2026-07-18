@@ -5,8 +5,11 @@ CCY S1 0
 CCY S6 0
 THC S5 0
 AUT
+! PTB as the OBJECTIVE (minimize Petzval blur -- it is a field flattener),
+! not via the default SPO: real-ray spot evaluation of this 61-surface litho
+! lens costs minutes per optimization, while the Seidel-based PTB is instant.
+PTB 0
 EFL = 50
-PTB = 0
 IMC > 2
 GO
 

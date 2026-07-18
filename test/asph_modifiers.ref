@@ -438,9 +438,16 @@ Field Weights Command WTF     100 Not supported
 All constraints removed
 
 
+AUT: no operand defined; minimizing spot size (SPO)
+iSpotCalcMethod is 1
+Plot Cmd is  FOB    0.0000000000000000          0.0000000000000000; SPOT RECT;RECT 20;SPD 1
+iSpotCalcMethod is 1
+Plot Cmd is  FOB    0.0000000000000000          0.0000000000000000; SPOT RECT;RECT 20;SPD 1
+iSpotCalcMethod is 1
+Plot Cmd is  FOB    0.0000000000000000          0.0000000000000000; SPOT RECT;RECT 20;SPD 1
                                                           l
 CYCLE NUMBER 0
-   ERROR FUNCTION = 0.00000
+   ERROR FUNCTION = 25.64891
           RDY          THI     RMD          GLA          CCY     THC     GLC
 OBJ:    INFINITY    INFINITY                              100     100     100
 STO:    INFINITY    6.00000               BK7_SCHOTT     100     100     100
@@ -452,9 +459,16 @@ ASPHERES
                                                           l
 Name  Role        Typ  Target              Value               diff
 SAS   Constraint  =    0.0000000000000000 -11.5034123169995866 -11.5034123169995866
+SPO   Operand          0.0000000000000000   6.7173122498024203   6.7173122498024203
+iSpotCalcMethod is 1
+Plot Cmd is  FOB    0.0000000000000000          0.0000000000000000; SPOT RECT;RECT 20;SPD 1
+iSpotCalcMethod is 1
+Plot Cmd is  FOB    0.0000000000000000          0.0000000000000000; SPOT RECT;RECT 20;SPD 1
+iSpotCalcMethod is 1
+Plot Cmd is  FOB    0.0000000000000000          0.0000000000000000; SPOT RECT;RECT 20;SPD 1
                                                           l
 CYCLE NUMBER 1
-   ERROR FUNCTION = 0.00000
+   ERROR FUNCTION = 25.76572
           RDY          THI     RMD          GLA          CCY     THC     GLC
 OBJ:    INFINITY    INFINITY                              100     100     100
 STO:    INFINITY    6.00000               BK7_SCHOTT     100     100     100
@@ -466,9 +480,16 @@ ASPHERES
                                                           l
 Name  Role        Typ  Target              Value               diff
 SAS   Constraint  =    0.0000000000000000  -5.7517061601383803  -5.7517061601383803
+SPO   Operand          0.0000000000000000   4.7335241454217698   4.7335241454217698
+iSpotCalcMethod is 1
+Plot Cmd is  FOB    0.0000000000000000          0.0000000000000000; SPOT RECT;RECT 20;SPD 1
+iSpotCalcMethod is 1
+Plot Cmd is  FOB    0.0000000000000000          0.0000000000000000; SPOT RECT;RECT 20;SPD 1
+iSpotCalcMethod is 1
+Plot Cmd is  FOB    0.0000000000000000          0.0000000000000000; SPOT RECT;RECT 20;SPD 1
                                                           l
 CYCLE NUMBER 2
-   ERROR FUNCTION = 0.00000
+   ERROR FUNCTION = 26.99042
           RDY          THI     RMD          GLA          CCY     THC     GLC
 OBJ:    INFINITY    INFINITY                              100     100     100
 STO:    INFINITY    6.00000               BK7_SCHOTT     100     100     100
@@ -480,9 +501,16 @@ ASPHERES
                                                           l
 Name  Role        Typ  Target              Value               diff
 SAS   Constraint  =    0.0000000000000000  -2.8758530757077780  -2.8758530757077780
+SPO   Operand          0.0000000000000000   4.9920006718784471   4.9920006718784471
+iSpotCalcMethod is 1
+Plot Cmd is  FOB    0.0000000000000000          0.0000000000000000; SPOT RECT;RECT 20;SPD 1
+iSpotCalcMethod is 1
+Plot Cmd is  FOB    0.0000000000000000          0.0000000000000000; SPOT RECT;RECT 20;SPD 1
+iSpotCalcMethod is 1
+Plot Cmd is  FOB    0.0000000000000000          0.0000000000000000; SPOT RECT;RECT 20;SPD 1
                                                           l
 CYCLE NUMBER 3
-   ERROR FUNCTION = 0.00000
+   ERROR FUNCTION = 21.66743
           RDY          THI     RMD          GLA          CCY     THC     GLC
 OBJ:    INFINITY    INFINITY                              100     100     100
 STO:    INFINITY    6.00000               BK7_SCHOTT     100     100     100
@@ -494,9 +522,16 @@ ASPHERES
                                                           l
 Name  Role        Typ  Target              Value               diff
 SAS   Constraint  =    0.0000000000000000  -1.4379265374924779  -1.4379265374924779
+SPO   Operand          0.0000000000000000   6.4421995069531697   6.4421995069531697
+iSpotCalcMethod is 1
+Plot Cmd is  FOB    0.0000000000000000          0.0000000000000000; SPOT RECT;RECT 20;SPD 1
+iSpotCalcMethod is 1
+Plot Cmd is  FOB    0.0000000000000000          0.0000000000000000; SPOT RECT;RECT 20;SPD 1
+iSpotCalcMethod is 1
+Plot Cmd is  FOB    0.0000000000000000          0.0000000000000000; SPOT RECT;RECT 20;SPD 1
                                                           l
 CYCLE NUMBER 4
-   ERROR FUNCTION = 0.00000
+   ERROR FUNCTION = 9.79666
           RDY          THI     RMD          GLA          CCY     THC     GLC
 OBJ:    INFINITY    INFINITY                              100     100     100
 STO:    INFINITY    6.00000               BK7_SCHOTT     100     100     100
@@ -508,9 +543,18 @@ ASPHERES
                                                           l
 Name  Role        Typ  Target              Value               diff
 SAS   Constraint  =    0.0000000000000000  -0.7189632723848262  -0.7189632723848262
+SPO   Operand          0.0000000000000000   4.7802665696877211   4.7802665696877211
+iSpotCalcMethod is 1
+Plot Cmd is  FOB    0.0000000000000000          0.0000000000000000; SPOT RECT;RECT 20;SPD 1
+iSpotCalcMethod is 1
+Plot Cmd is  FOB    0.0000000000000000          0.0000000000000000; SPOT RECT;RECT 20;SPD 1
+iSpotCalcMethod is 1
+Plot Cmd is  FOB    0.0000000000000000          0.0000000000000000; SPOT RECT;RECT 20;SPD 1
+iSpotCalcMethod is 1
+Plot Cmd is  FOB    0.0000000000000000          0.0000000000000000; SPOT RECT;RECT 20;SPD 1
                                                           l
 CYCLE NUMBER 5
-   ERROR FUNCTION = 0.00000
+   ERROR FUNCTION = 9.46700
           RDY          THI     RMD          GLA          CCY     THC     GLC
 OBJ:    INFINITY    INFINITY                              100     100     100
 STO:    INFINITY    6.00000               BK7_SCHOTT     100     100     100
@@ -521,10 +565,21 @@ ASPHERES
 # 2 K 0.00000
                                                           l
 Name  Role        Typ  Target              Value               diff
-SAS   Constraint  =    0.0000000000000000  -0.3594816338310025  -0.3594816338310025
+SAS   Constraint  =    0.0000000000000000  -0.6830151065294439  -0.6830151065294439
+SPO   Operand          0.0000000000000000   4.7248326312865991   4.7248326312865991
+iSpotCalcMethod is 1
+Plot Cmd is  FOB    0.0000000000000000          0.0000000000000000; SPOT RECT;RECT 20;SPD 1
+iSpotCalcMethod is 1
+Plot Cmd is  FOB    0.0000000000000000          0.0000000000000000; SPOT RECT;RECT 20;SPD 1
+iSpotCalcMethod is 1
+Plot Cmd is  FOB    0.0000000000000000          0.0000000000000000; SPOT RECT;RECT 20;SPD 1
+iSpotCalcMethod is 1
+Plot Cmd is  FOB    0.0000000000000000          0.0000000000000000; SPOT RECT;RECT 20;SPD 1
+iSpotCalcMethod is 1
+Plot Cmd is  FOB    0.0000000000000000          0.0000000000000000; SPOT RECT;RECT 20;SPD 1
                                                           l
 CYCLE NUMBER 6
-   ERROR FUNCTION = 0.00000
+   ERROR FUNCTION = 9.43630
           RDY          THI     RMD          GLA          CCY     THC     GLC
 OBJ:    INFINITY    INFINITY                              100     100     100
 STO:    INFINITY    6.00000               BK7_SCHOTT     100     100     100
@@ -535,10 +590,23 @@ ASPHERES
 # 2 K 0.00000
                                                           l
 Name  Role        Typ  Target              Value               diff
-SAS   Constraint  =    0.0000000000000000  -0.1797408165540901  -0.1797408165540901
+SAS   Constraint  =    0.0000000000000000  -0.6796000303531834  -0.6796000303531834
+SPO   Operand          0.0000000000000000   4.7196259411167771   4.7196259411167771
+iSpotCalcMethod is 1
+Plot Cmd is  FOB    0.0000000000000000          0.0000000000000000; SPOT RECT;RECT 20;SPD 1
+iSpotCalcMethod is 1
+Plot Cmd is  FOB    0.0000000000000000          0.0000000000000000; SPOT RECT;RECT 20;SPD 1
+iSpotCalcMethod is 1
+Plot Cmd is  FOB    0.0000000000000000          0.0000000000000000; SPOT RECT;RECT 20;SPD 1
+iSpotCalcMethod is 1
+Plot Cmd is  FOB    0.0000000000000000          0.0000000000000000; SPOT RECT;RECT 20;SPD 1
+iSpotCalcMethod is 1
+Plot Cmd is  FOB    0.0000000000000000          0.0000000000000000; SPOT RECT;RECT 20;SPD 1
+iSpotCalcMethod is 1
+Plot Cmd is  FOB    0.0000000000000000          0.0000000000000000; SPOT RECT;RECT 20;SPD 1
                                                           l
 CYCLE NUMBER 7
-   ERROR FUNCTION = 0.00000
+   ERROR FUNCTION = 9.43325
           RDY          THI     RMD          GLA          CCY     THC     GLC
 OBJ:    INFINITY    INFINITY                              100     100     100
 STO:    INFINITY    6.00000               BK7_SCHOTT     100     100     100
@@ -549,10 +617,23 @@ ASPHERES
 # 2 K 0.00000
                                                           l
 Name  Role        Typ  Target              Value               diff
-SAS   Constraint  =    0.0000000000000000  -0.0898704079156331  -0.0898704079156331
+SAS   Constraint  =    0.0000000000000000  -0.6792602303356434  -0.6792602303356434
+SPO   Operand          0.0000000000000000   4.7191084275665958   4.7191084275665958
+iSpotCalcMethod is 1
+Plot Cmd is  FOB    0.0000000000000000          0.0000000000000000; SPOT RECT;RECT 20;SPD 1
+iSpotCalcMethod is 1
+Plot Cmd is  FOB    0.0000000000000000          0.0000000000000000; SPOT RECT;RECT 20;SPD 1
+iSpotCalcMethod is 1
+Plot Cmd is  FOB    0.0000000000000000          0.0000000000000000; SPOT RECT;RECT 20;SPD 1
+iSpotCalcMethod is 1
+Plot Cmd is  FOB    0.0000000000000000          0.0000000000000000; SPOT RECT;RECT 20;SPD 1
+iSpotCalcMethod is 1
+Plot Cmd is  FOB    0.0000000000000000          0.0000000000000000; SPOT RECT;RECT 20;SPD 1
+iSpotCalcMethod is 1
+Plot Cmd is  FOB    0.0000000000000000          0.0000000000000000; SPOT RECT;RECT 20;SPD 1
                                                           l
 CYCLE NUMBER 8
-   ERROR FUNCTION = 0.00000
+   ERROR FUNCTION = 9.43020
           RDY          THI     RMD          GLA          CCY     THC     GLC
 OBJ:    INFINITY    INFINITY                              100     100     100
 STO:    INFINITY    6.00000               BK7_SCHOTT     100     100     100
@@ -563,10 +644,23 @@ ASPHERES
 # 2 K 0.00000
                                                           l
 Name  Role        Typ  Target              Value               diff
-SAS   Constraint  =    0.0000000000000000  -0.0449352055964042  -0.0449352055964042
+SAS   Constraint  =    0.0000000000000000  -0.6789206023181159  -0.6789206023181159
+SPO   Operand          0.0000000000000000   4.7185912755718498   4.7185912755718498
+iSpotCalcMethod is 1
+Plot Cmd is  FOB    0.0000000000000000          0.0000000000000000; SPOT RECT;RECT 20;SPD 1
+iSpotCalcMethod is 1
+Plot Cmd is  FOB    0.0000000000000000          0.0000000000000000; SPOT RECT;RECT 20;SPD 1
+iSpotCalcMethod is 1
+Plot Cmd is  FOB    0.0000000000000000          0.0000000000000000; SPOT RECT;RECT 20;SPD 1
+iSpotCalcMethod is 1
+Plot Cmd is  FOB    0.0000000000000000          0.0000000000000000; SPOT RECT;RECT 20;SPD 1
+iSpotCalcMethod is 1
+Plot Cmd is  FOB    0.0000000000000000          0.0000000000000000; SPOT RECT;RECT 20;SPD 1
+iSpotCalcMethod is 1
+Plot Cmd is  FOB    0.0000000000000000          0.0000000000000000; SPOT RECT;RECT 20;SPD 1
                                                           l
 CYCLE NUMBER 9
-   ERROR FUNCTION = 0.00000
+   ERROR FUNCTION = 9.42716
           RDY          THI     RMD          GLA          CCY     THC     GLC
 OBJ:    INFINITY    INFINITY                              100     100     100
 STO:    INFINITY    6.00000               BK7_SCHOTT     100     100     100
@@ -577,10 +671,23 @@ ASPHERES
 # 2 K 0.00000
                                                           l
 Name  Role        Typ  Target              Value               diff
-SAS   Constraint  =    0.0000000000000000  -0.0224676044367906  -0.0224676044367906
+SAS   Constraint  =    0.0000000000000000  -0.6785811423005965  -0.6785811423005965
+SPO   Operand          0.0000000000000000   4.7180744788337394   4.7180744788337394
+iSpotCalcMethod is 1
+Plot Cmd is  FOB    0.0000000000000000          0.0000000000000000; SPOT RECT;RECT 20;SPD 1
+iSpotCalcMethod is 1
+Plot Cmd is  FOB    0.0000000000000000          0.0000000000000000; SPOT RECT;RECT 20;SPD 1
+iSpotCalcMethod is 1
+Plot Cmd is  FOB    0.0000000000000000          0.0000000000000000; SPOT RECT;RECT 20;SPD 1
+iSpotCalcMethod is 1
+Plot Cmd is  FOB    0.0000000000000000          0.0000000000000000; SPOT RECT;RECT 20;SPD 1
+iSpotCalcMethod is 1
+Plot Cmd is  FOB    0.0000000000000000          0.0000000000000000; SPOT RECT;RECT 20;SPD 1
+iSpotCalcMethod is 1
+Plot Cmd is  FOB    0.0000000000000000          0.0000000000000000; SPOT RECT;RECT 20;SPD 1
                                                           l
 CYCLE NUMBER 10
-   ERROR FUNCTION = 0.00000
+   ERROR FUNCTION = 9.42411
           RDY          THI     RMD          GLA          CCY     THC     GLC
 OBJ:    INFINITY    INFINITY                              100     100     100
 STO:    INFINITY    6.00000               BK7_SCHOTT     100     100     100
@@ -591,10 +698,23 @@ ASPHERES
 # 2 K 0.00000
                                                           l
 Name  Role        Typ  Target              Value               diff
-SAS   Constraint  =    0.0000000000000000  -0.0112337998569829  -0.0112337998569829
+SAS   Constraint  =    0.0000000000000000  -0.6782418502830835  -0.6782418502830835
+SPO   Operand          0.0000000000000000   4.7175580371463628   4.7175580371463628
+iSpotCalcMethod is 1
+Plot Cmd is  FOB    0.0000000000000000          0.0000000000000000; SPOT RECT;RECT 20;SPD 1
+iSpotCalcMethod is 1
+Plot Cmd is  FOB    0.0000000000000000          0.0000000000000000; SPOT RECT;RECT 20;SPD 1
+iSpotCalcMethod is 1
+Plot Cmd is  FOB    0.0000000000000000          0.0000000000000000; SPOT RECT;RECT 20;SPD 1
+iSpotCalcMethod is 1
+Plot Cmd is  FOB    0.0000000000000000          0.0000000000000000; SPOT RECT;RECT 20;SPD 1
+iSpotCalcMethod is 1
+Plot Cmd is  FOB    0.0000000000000000          0.0000000000000000; SPOT RECT;RECT 20;SPD 1
+iSpotCalcMethod is 1
+Plot Cmd is  FOB    0.0000000000000000          0.0000000000000000; SPOT RECT;RECT 20;SPD 1
                                                           l
 CYCLE NUMBER 11
-   ERROR FUNCTION = 0.00000
+   ERROR FUNCTION = 9.42107
           RDY          THI     RMD          GLA          CCY     THC     GLC
 OBJ:    INFINITY    INFINITY                              100     100     100
 STO:    INFINITY    6.00000               BK7_SCHOTT     100     100     100
@@ -605,10 +725,23 @@ ASPHERES
 # 2 K 0.00000
                                                           l
 Name  Role        Typ  Target              Value               diff
-SAS   Constraint  =    0.0000000000000000  -0.0056168995670795  -0.0056168995670795
+SAS   Constraint  =    0.0000000000000000  -0.6779027302655811  -0.6779027302655811
+SPO   Operand          0.0000000000000000   4.7170419563908075   4.7170419563908075
+iSpotCalcMethod is 1
+Plot Cmd is  FOB    0.0000000000000000          0.0000000000000000; SPOT RECT;RECT 20;SPD 1
+iSpotCalcMethod is 1
+Plot Cmd is  FOB    0.0000000000000000          0.0000000000000000; SPOT RECT;RECT 20;SPD 1
+iSpotCalcMethod is 1
+Plot Cmd is  FOB    0.0000000000000000          0.0000000000000000; SPOT RECT;RECT 20;SPD 1
+iSpotCalcMethod is 1
+Plot Cmd is  FOB    0.0000000000000000          0.0000000000000000; SPOT RECT;RECT 20;SPD 1
+iSpotCalcMethod is 1
+Plot Cmd is  FOB    0.0000000000000000          0.0000000000000000; SPOT RECT;RECT 20;SPD 1
+iSpotCalcMethod is 1
+Plot Cmd is  FOB    0.0000000000000000          0.0000000000000000; SPOT RECT;RECT 20;SPD 1
                                                           l
 CYCLE NUMBER 12
-   ERROR FUNCTION = 0.00000
+   ERROR FUNCTION = 9.41804
           RDY          THI     RMD          GLA          CCY     THC     GLC
 OBJ:    INFINITY    INFINITY                              100     100     100
 STO:    INFINITY    6.00000               BK7_SCHOTT     100     100     100
@@ -619,7 +752,408 @@ ASPHERES
 # 2 K 0.00000
                                                           l
 Name  Role        Typ  Target              Value               diff
-SAS   Constraint  =    0.0000000000000000  -0.0056168995670795  -0.0056168995670795
+SAS   Constraint  =    0.0000000000000000  -0.6775637782480852  -0.6775637782480852
+SPO   Operand          0.0000000000000000   4.7165262302727236   4.7165262302727236
+iSpotCalcMethod is 1
+Plot Cmd is  FOB    0.0000000000000000          0.0000000000000000; SPOT RECT;RECT 20;SPD 1
+iSpotCalcMethod is 1
+Plot Cmd is  FOB    0.0000000000000000          0.0000000000000000; SPOT RECT;RECT 20;SPD 1
+iSpotCalcMethod is 1
+Plot Cmd is  FOB    0.0000000000000000          0.0000000000000000; SPOT RECT;RECT 20;SPD 1
+iSpotCalcMethod is 1
+Plot Cmd is  FOB    0.0000000000000000          0.0000000000000000; SPOT RECT;RECT 20;SPD 1
+iSpotCalcMethod is 1
+Plot Cmd is  FOB    0.0000000000000000          0.0000000000000000; SPOT RECT;RECT 20;SPD 1
+iSpotCalcMethod is 1
+Plot Cmd is  FOB    0.0000000000000000          0.0000000000000000; SPOT RECT;RECT 20;SPD 1
+                                                          l
+CYCLE NUMBER 13
+   ERROR FUNCTION = 9.41500
+          RDY          THI     RMD          GLA          CCY     THC     GLC
+OBJ:    INFINITY    INFINITY                              100     100     100
+STO:    INFINITY    6.00000               BK7_SCHOTT     100     100     100
+002:    -10.000    19.34984                              100     100     100
+IMG:    INFINITY    0.00000                              100     100     100
+___
+ASPHERES
+# 2 K 0.00000
+                                                          l
+Name  Role        Typ  Target              Value               diff
+SAS   Constraint  =    0.0000000000000000  -0.6772249982306018  -0.6772249982306018
+SPO   Operand          0.0000000000000000   4.7160108646714818   4.7160108646714818
+iSpotCalcMethod is 1
+Plot Cmd is  FOB    0.0000000000000000          0.0000000000000000; SPOT RECT;RECT 20;SPD 1
+iSpotCalcMethod is 1
+Plot Cmd is  FOB    0.0000000000000000          0.0000000000000000; SPOT RECT;RECT 20;SPD 1
+iSpotCalcMethod is 1
+Plot Cmd is  FOB    0.0000000000000000          0.0000000000000000; SPOT RECT;RECT 20;SPD 1
+iSpotCalcMethod is 1
+Plot Cmd is  FOB    0.0000000000000000          0.0000000000000000; SPOT RECT;RECT 20;SPD 1
+iSpotCalcMethod is 1
+Plot Cmd is  FOB    0.0000000000000000          0.0000000000000000; SPOT RECT;RECT 20;SPD 1
+iSpotCalcMethod is 1
+Plot Cmd is  FOB    0.0000000000000000          0.0000000000000000; SPOT RECT;RECT 20;SPD 1
+iSpotCalcMethod is 1
+Plot Cmd is  FOB    0.0000000000000000          0.0000000000000000; SPOT RECT;RECT 20;SPD 1
+                                                          l
+CYCLE NUMBER 14
+   ERROR FUNCTION = 9.41470
+          RDY          THI     RMD          GLA          CCY     THC     GLC
+OBJ:    INFINITY    INFINITY                              100     100     100
+STO:    INFINITY    6.00000               BK7_SCHOTT     100     100     100
+002:    -10.000    19.34984                              100     100     100
+IMG:    INFINITY    0.00000                              100     100     100
+___
+ASPHERES
+# 2 K 0.00000
+                                                          l
+Name  Role        Typ  Target              Value               diff
+SAS   Constraint  =    0.0000000000000000  -0.6771911342288534  -0.6771911342288534
+SPO   Operand          0.0000000000000000   4.7159593548374001   4.7159593548374001
+iSpotCalcMethod is 1
+Plot Cmd is  FOB    0.0000000000000000          0.0000000000000000; SPOT RECT;RECT 20;SPD 1
+iSpotCalcMethod is 1
+Plot Cmd is  FOB    0.0000000000000000          0.0000000000000000; SPOT RECT;RECT 20;SPD 1
+iSpotCalcMethod is 1
+Plot Cmd is  FOB    0.0000000000000000          0.0000000000000000; SPOT RECT;RECT 20;SPD 1
+iSpotCalcMethod is 1
+Plot Cmd is  FOB    0.0000000000000000          0.0000000000000000; SPOT RECT;RECT 20;SPD 1
+iSpotCalcMethod is 1
+Plot Cmd is  FOB    0.0000000000000000          0.0000000000000000; SPOT RECT;RECT 20;SPD 1
+iSpotCalcMethod is 1
+Plot Cmd is  FOB    0.0000000000000000          0.0000000000000000; SPOT RECT;RECT 20;SPD 1
+iSpotCalcMethod is 1
+Plot Cmd is  FOB    0.0000000000000000          0.0000000000000000; SPOT RECT;RECT 20;SPD 1
+                                                          l
+CYCLE NUMBER 15
+   ERROR FUNCTION = 9.41440
+          RDY          THI     RMD          GLA          CCY     THC     GLC
+OBJ:    INFINITY    INFINITY                              100     100     100
+STO:    INFINITY    6.00000               BK7_SCHOTT     100     100     100
+002:    -10.000    19.34984                              100     100     100
+IMG:    INFINITY    0.00000                              100     100     100
+___
+ASPHERES
+# 2 K 0.00000
+                                                          l
+Name  Role        Typ  Target              Value               diff
+SAS   Constraint  =    0.0000000000000000  -0.6771572742271059  -0.6771572742271059
+SPO   Operand          0.0000000000000000   4.7159078520738920   4.7159078520738920
+iSpotCalcMethod is 1
+Plot Cmd is  FOB    0.0000000000000000          0.0000000000000000; SPOT RECT;RECT 20;SPD 1
+iSpotCalcMethod is 1
+Plot Cmd is  FOB    0.0000000000000000          0.0000000000000000; SPOT RECT;RECT 20;SPD 1
+iSpotCalcMethod is 1
+Plot Cmd is  FOB    0.0000000000000000          0.0000000000000000; SPOT RECT;RECT 20;SPD 1
+iSpotCalcMethod is 1
+Plot Cmd is  FOB    0.0000000000000000          0.0000000000000000; SPOT RECT;RECT 20;SPD 1
+iSpotCalcMethod is 1
+Plot Cmd is  FOB    0.0000000000000000          0.0000000000000000; SPOT RECT;RECT 20;SPD 1
+iSpotCalcMethod is 1
+Plot Cmd is  FOB    0.0000000000000000          0.0000000000000000; SPOT RECT;RECT 20;SPD 1
+iSpotCalcMethod is 1
+Plot Cmd is  FOB    0.0000000000000000          0.0000000000000000; SPOT RECT;RECT 20;SPD 1
+                                                          l
+CYCLE NUMBER 16
+   ERROR FUNCTION = 9.41409
+          RDY          THI     RMD          GLA          CCY     THC     GLC
+OBJ:    INFINITY    INFINITY                              100     100     100
+STO:    INFINITY    6.00000               BK7_SCHOTT     100     100     100
+002:    -10.000    19.34984                              100     100     100
+IMG:    INFINITY    0.00000                              100     100     100
+___
+ASPHERES
+# 2 K 0.00000
+                                                          l
+Name  Role        Typ  Target              Value               diff
+SAS   Constraint  =    0.0000000000000000  -0.6771234182253577  -0.6771234182253577
+SPO   Operand          0.0000000000000000   4.7158563563805576   4.7158563563805576
+iSpotCalcMethod is 1
+Plot Cmd is  FOB    0.0000000000000000          0.0000000000000000; SPOT RECT;RECT 20;SPD 1
+iSpotCalcMethod is 1
+Plot Cmd is  FOB    0.0000000000000000          0.0000000000000000; SPOT RECT;RECT 20;SPD 1
+iSpotCalcMethod is 1
+Plot Cmd is  FOB    0.0000000000000000          0.0000000000000000; SPOT RECT;RECT 20;SPD 1
+iSpotCalcMethod is 1
+Plot Cmd is  FOB    0.0000000000000000          0.0000000000000000; SPOT RECT;RECT 20;SPD 1
+iSpotCalcMethod is 1
+Plot Cmd is  FOB    0.0000000000000000          0.0000000000000000; SPOT RECT;RECT 20;SPD 1
+iSpotCalcMethod is 1
+Plot Cmd is  FOB    0.0000000000000000          0.0000000000000000; SPOT RECT;RECT 20;SPD 1
+iSpotCalcMethod is 1
+Plot Cmd is  FOB    0.0000000000000000          0.0000000000000000; SPOT RECT;RECT 20;SPD 1
+                                                          l
+CYCLE NUMBER 17
+   ERROR FUNCTION = 9.41379
+          RDY          THI     RMD          GLA          CCY     THC     GLC
+OBJ:    INFINITY    INFINITY                              100     100     100
+STO:    INFINITY    6.00000               BK7_SCHOTT     100     100     100
+002:    -10.000    19.34984                              100     100     100
+IMG:    INFINITY    0.00000                              100     100     100
+___
+ASPHERES
+# 2 K 0.00000
+                                                          l
+Name  Role        Typ  Target              Value               diff
+SAS   Constraint  =    0.0000000000000000  -0.6770895622236112  -0.6770895622236112
+SPO   Operand          0.0000000000000000   4.7158048616730674   4.7158048616730674
+iSpotCalcMethod is 1
+Plot Cmd is  FOB    0.0000000000000000          0.0000000000000000; SPOT RECT;RECT 20;SPD 1
+iSpotCalcMethod is 1
+Plot Cmd is  FOB    0.0000000000000000          0.0000000000000000; SPOT RECT;RECT 20;SPD 1
+iSpotCalcMethod is 1
+Plot Cmd is  FOB    0.0000000000000000          0.0000000000000000; SPOT RECT;RECT 20;SPD 1
+iSpotCalcMethod is 1
+Plot Cmd is  FOB    0.0000000000000000          0.0000000000000000; SPOT RECT;RECT 20;SPD 1
+iSpotCalcMethod is 1
+Plot Cmd is  FOB    0.0000000000000000          0.0000000000000000; SPOT RECT;RECT 20;SPD 1
+iSpotCalcMethod is 1
+Plot Cmd is  FOB    0.0000000000000000          0.0000000000000000; SPOT RECT;RECT 20;SPD 1
+iSpotCalcMethod is 1
+Plot Cmd is  FOB    0.0000000000000000          0.0000000000000000; SPOT RECT;RECT 20;SPD 1
+iSpotCalcMethod is 1
+Plot Cmd is  FOB    0.0000000000000000          0.0000000000000000; SPOT RECT;RECT 20;SPD 1
+                                                          l
+CYCLE NUMBER 18
+   ERROR FUNCTION = 9.41376
+          RDY          THI     RMD          GLA          CCY     THC     GLC
+OBJ:    INFINITY    INFINITY                              100     100     100
+STO:    INFINITY    6.00000               BK7_SCHOTT     100     100     100
+002:    -10.000    19.34984                              100     100     100
+IMG:    INFINITY    0.00000                              100     100     100
+___
+ASPHERES
+# 2 K 0.00000
+                                                          l
+Name  Role        Typ  Target              Value               diff
+SAS   Constraint  =    0.0000000000000000  -0.6770861742234358  -0.6770861742234358
+SPO   Operand          0.0000000000000000   4.7157997086062000   4.7157997086062000
+iSpotCalcMethod is 1
+Plot Cmd is  FOB    0.0000000000000000          0.0000000000000000; SPOT RECT;RECT 20;SPD 1
+iSpotCalcMethod is 1
+Plot Cmd is  FOB    0.0000000000000000          0.0000000000000000; SPOT RECT;RECT 20;SPD 1
+iSpotCalcMethod is 1
+Plot Cmd is  FOB    0.0000000000000000          0.0000000000000000; SPOT RECT;RECT 20;SPD 1
+iSpotCalcMethod is 1
+Plot Cmd is  FOB    0.0000000000000000          0.0000000000000000; SPOT RECT;RECT 20;SPD 1
+iSpotCalcMethod is 1
+Plot Cmd is  FOB    0.0000000000000000          0.0000000000000000; SPOT RECT;RECT 20;SPD 1
+iSpotCalcMethod is 1
+Plot Cmd is  FOB    0.0000000000000000          0.0000000000000000; SPOT RECT;RECT 20;SPD 1
+iSpotCalcMethod is 1
+Plot Cmd is  FOB    0.0000000000000000          0.0000000000000000; SPOT RECT;RECT 20;SPD 1
+iSpotCalcMethod is 1
+Plot Cmd is  FOB    0.0000000000000000          0.0000000000000000; SPOT RECT;RECT 20;SPD 1
+                                                          l
+CYCLE NUMBER 19
+   ERROR FUNCTION = 9.41373
+          RDY          THI     RMD          GLA          CCY     THC     GLC
+OBJ:    INFINITY    INFINITY                              100     100     100
+STO:    INFINITY    6.00000               BK7_SCHOTT     100     100     100
+002:    -10.000    19.34984                              100     100     100
+IMG:    INFINITY    0.00000                              100     100     100
+___
+ASPHERES
+# 2 K 0.00000
+                                                          l
+Name  Role        Typ  Target              Value               diff
+SAS   Constraint  =    0.0000000000000000  -0.6770827902232613  -0.6770827902232613
+SPO   Operand          0.0000000000000000   4.7157945616330883   4.7157945616330883
+iSpotCalcMethod is 1
+Plot Cmd is  FOB    0.0000000000000000          0.0000000000000000; SPOT RECT;RECT 20;SPD 1
+iSpotCalcMethod is 1
+Plot Cmd is  FOB    0.0000000000000000          0.0000000000000000; SPOT RECT;RECT 20;SPD 1
+iSpotCalcMethod is 1
+Plot Cmd is  FOB    0.0000000000000000          0.0000000000000000; SPOT RECT;RECT 20;SPD 1
+iSpotCalcMethod is 1
+Plot Cmd is  FOB    0.0000000000000000          0.0000000000000000; SPOT RECT;RECT 20;SPD 1
+iSpotCalcMethod is 1
+Plot Cmd is  FOB    0.0000000000000000          0.0000000000000000; SPOT RECT;RECT 20;SPD 1
+iSpotCalcMethod is 1
+Plot Cmd is  FOB    0.0000000000000000          0.0000000000000000; SPOT RECT;RECT 20;SPD 1
+iSpotCalcMethod is 1
+Plot Cmd is  FOB    0.0000000000000000          0.0000000000000000; SPOT RECT;RECT 20;SPD 1
+iSpotCalcMethod is 1
+Plot Cmd is  FOB    0.0000000000000000          0.0000000000000000; SPOT RECT;RECT 20;SPD 1
+                                                          l
+CYCLE NUMBER 20
+   ERROR FUNCTION = 9.41370
+          RDY          THI     RMD          GLA          CCY     THC     GLC
+OBJ:    INFINITY    INFINITY                              100     100     100
+STO:    INFINITY    6.00000               BK7_SCHOTT     100     100     100
+002:    -10.000    19.34984                              100     100     100
+IMG:    INFINITY    0.00000                              100     100     100
+___
+ASPHERES
+# 2 K 0.00000
+                                                          l
+Name  Role        Typ  Target              Value               diff
+SAS   Constraint  =    0.0000000000000000  -0.6770794062230868  -0.6770794062230868
+SPO   Operand          0.0000000000000000   4.7157894146698336   4.7157894146698336
+iSpotCalcMethod is 1
+Plot Cmd is  FOB    0.0000000000000000          0.0000000000000000; SPOT RECT;RECT 20;SPD 1
+iSpotCalcMethod is 1
+Plot Cmd is  FOB    0.0000000000000000          0.0000000000000000; SPOT RECT;RECT 20;SPD 1
+iSpotCalcMethod is 1
+Plot Cmd is  FOB    0.0000000000000000          0.0000000000000000; SPOT RECT;RECT 20;SPD 1
+iSpotCalcMethod is 1
+Plot Cmd is  FOB    0.0000000000000000          0.0000000000000000; SPOT RECT;RECT 20;SPD 1
+iSpotCalcMethod is 1
+Plot Cmd is  FOB    0.0000000000000000          0.0000000000000000; SPOT RECT;RECT 20;SPD 1
+iSpotCalcMethod is 1
+Plot Cmd is  FOB    0.0000000000000000          0.0000000000000000; SPOT RECT;RECT 20;SPD 1
+iSpotCalcMethod is 1
+Plot Cmd is  FOB    0.0000000000000000          0.0000000000000000; SPOT RECT;RECT 20;SPD 1
+iSpotCalcMethod is 1
+Plot Cmd is  FOB    0.0000000000000000          0.0000000000000000; SPOT RECT;RECT 20;SPD 1
+                                                          l
+CYCLE NUMBER 21
+   ERROR FUNCTION = 9.41367
+          RDY          THI     RMD          GLA          CCY     THC     GLC
+OBJ:    INFINITY    INFINITY                              100     100     100
+STO:    INFINITY    6.00000               BK7_SCHOTT     100     100     100
+002:    -10.000    19.34984                              100     100     100
+IMG:    INFINITY    0.00000                              100     100     100
+___
+ASPHERES
+# 2 K 0.00000
+                                                          l
+Name  Role        Typ  Target              Value               diff
+SAS   Constraint  =    0.0000000000000000  -0.6770760182229115  -0.6770760182229115
+SPO   Operand          0.0000000000000000   4.7157842616325549   4.7157842616325549
+iSpotCalcMethod is 1
+Plot Cmd is  FOB    0.0000000000000000          0.0000000000000000; SPOT RECT;RECT 20;SPD 1
+iSpotCalcMethod is 1
+Plot Cmd is  FOB    0.0000000000000000          0.0000000000000000; SPOT RECT;RECT 20;SPD 1
+iSpotCalcMethod is 1
+Plot Cmd is  FOB    0.0000000000000000          0.0000000000000000; SPOT RECT;RECT 20;SPD 1
+iSpotCalcMethod is 1
+Plot Cmd is  FOB    0.0000000000000000          0.0000000000000000; SPOT RECT;RECT 20;SPD 1
+iSpotCalcMethod is 1
+Plot Cmd is  FOB    0.0000000000000000          0.0000000000000000; SPOT RECT;RECT 20;SPD 1
+iSpotCalcMethod is 1
+Plot Cmd is  FOB    0.0000000000000000          0.0000000000000000; SPOT RECT;RECT 20;SPD 1
+iSpotCalcMethod is 1
+Plot Cmd is  FOB    0.0000000000000000          0.0000000000000000; SPOT RECT;RECT 20;SPD 1
+iSpotCalcMethod is 1
+Plot Cmd is  FOB    0.0000000000000000          0.0000000000000000; SPOT RECT;RECT 20;SPD 1
+iSpotCalcMethod is 1
+Plot Cmd is  FOB    0.0000000000000000          0.0000000000000000; SPOT RECT;RECT 20;SPD 1
+                                                          l
+CYCLE NUMBER 22
+   ERROR FUNCTION = 9.41367
+          RDY          THI     RMD          GLA          CCY     THC     GLC
+OBJ:    INFINITY    INFINITY                              100     100     100
+STO:    INFINITY    6.00000               BK7_SCHOTT     100     100     100
+002:    -10.000    19.34984                              100     100     100
+IMG:    INFINITY    0.00000                              100     100     100
+___
+ASPHERES
+# 2 K 0.00000
+                                                          l
+Name  Role        Typ  Target              Value               diff
+SAS   Constraint  =    0.0000000000000000  -0.6770756822228935  -0.6770756822228935
+SPO   Operand          0.0000000000000000   4.7157837505880762   4.7157837505880762
+iSpotCalcMethod is 1
+Plot Cmd is  FOB    0.0000000000000000          0.0000000000000000; SPOT RECT;RECT 20;SPD 1
+iSpotCalcMethod is 1
+Plot Cmd is  FOB    0.0000000000000000          0.0000000000000000; SPOT RECT;RECT 20;SPD 1
+iSpotCalcMethod is 1
+Plot Cmd is  FOB    0.0000000000000000          0.0000000000000000; SPOT RECT;RECT 20;SPD 1
+iSpotCalcMethod is 1
+Plot Cmd is  FOB    0.0000000000000000          0.0000000000000000; SPOT RECT;RECT 20;SPD 1
+iSpotCalcMethod is 1
+Plot Cmd is  FOB    0.0000000000000000          0.0000000000000000; SPOT RECT;RECT 20;SPD 1
+iSpotCalcMethod is 1
+Plot Cmd is  FOB    0.0000000000000000          0.0000000000000000; SPOT RECT;RECT 20;SPD 1
+iSpotCalcMethod is 1
+Plot Cmd is  FOB    0.0000000000000000          0.0000000000000000; SPOT RECT;RECT 20;SPD 1
+iSpotCalcMethod is 1
+Plot Cmd is  FOB    0.0000000000000000          0.0000000000000000; SPOT RECT;RECT 20;SPD 1
+iSpotCalcMethod is 1
+Plot Cmd is  FOB    0.0000000000000000          0.0000000000000000; SPOT RECT;RECT 20;SPD 1
+                                                          l
+CYCLE NUMBER 23
+   ERROR FUNCTION = 9.41366
+          RDY          THI     RMD          GLA          CCY     THC     GLC
+OBJ:    INFINITY    INFINITY                              100     100     100
+STO:    INFINITY    6.00000               BK7_SCHOTT     100     100     100
+002:    -10.000    19.34984                              100     100     100
+IMG:    INFINITY    0.00000                              100     100     100
+___
+ASPHERES
+# 2 K 0.00000
+                                                          l
+Name  Role        Typ  Target              Value               diff
+SAS   Constraint  =    0.0000000000000000  -0.6770753422228747  -0.6770753422228747
+SPO   Operand          0.0000000000000000   4.7157832334598293   4.7157832334598293
+iSpotCalcMethod is 1
+Plot Cmd is  FOB    0.0000000000000000          0.0000000000000000; SPOT RECT;RECT 20;SPD 1
+iSpotCalcMethod is 1
+Plot Cmd is  FOB    0.0000000000000000          0.0000000000000000; SPOT RECT;RECT 20;SPD 1
+iSpotCalcMethod is 1
+Plot Cmd is  FOB    0.0000000000000000          0.0000000000000000; SPOT RECT;RECT 20;SPD 1
+iSpotCalcMethod is 1
+Plot Cmd is  FOB    0.0000000000000000          0.0000000000000000; SPOT RECT;RECT 20;SPD 1
+iSpotCalcMethod is 1
+Plot Cmd is  FOB    0.0000000000000000          0.0000000000000000; SPOT RECT;RECT 20;SPD 1
+iSpotCalcMethod is 1
+Plot Cmd is  FOB    0.0000000000000000          0.0000000000000000; SPOT RECT;RECT 20;SPD 1
+iSpotCalcMethod is 1
+Plot Cmd is  FOB    0.0000000000000000          0.0000000000000000; SPOT RECT;RECT 20;SPD 1
+iSpotCalcMethod is 1
+Plot Cmd is  FOB    0.0000000000000000          0.0000000000000000; SPOT RECT;RECT 20;SPD 1
+iSpotCalcMethod is 1
+Plot Cmd is  FOB    0.0000000000000000          0.0000000000000000; SPOT RECT;RECT 20;SPD 1
+                                                          l
+CYCLE NUMBER 24
+   ERROR FUNCTION = 9.41366
+          RDY          THI     RMD          GLA          CCY     THC     GLC
+OBJ:    INFINITY    INFINITY                              100     100     100
+STO:    INFINITY    6.00000               BK7_SCHOTT     100     100     100
+002:    -10.000    19.34984                              100     100     100
+IMG:    INFINITY    0.00000                              100     100     100
+___
+ASPHERES
+# 2 K 0.00000
+                                                          l
+Name  Role        Typ  Target              Value               diff
+SAS   Constraint  =    0.0000000000000000  -0.6770750022228593  -0.6770750022228593
+SPO   Operand          0.0000000000000000   4.7157827163316819   4.7157827163316819
+iSpotCalcMethod is 1
+Plot Cmd is  FOB    0.0000000000000000          0.0000000000000000; SPOT RECT;RECT 20;SPD 1
+iSpotCalcMethod is 1
+Plot Cmd is  FOB    0.0000000000000000          0.0000000000000000; SPOT RECT;RECT 20;SPD 1
+iSpotCalcMethod is 1
+Plot Cmd is  FOB    0.0000000000000000          0.0000000000000000; SPOT RECT;RECT 20;SPD 1
+iSpotCalcMethod is 1
+Plot Cmd is  FOB    0.0000000000000000          0.0000000000000000; SPOT RECT;RECT 20;SPD 1
+iSpotCalcMethod is 1
+Plot Cmd is  FOB    0.0000000000000000          0.0000000000000000; SPOT RECT;RECT 20;SPD 1
+iSpotCalcMethod is 1
+Plot Cmd is  FOB    0.0000000000000000          0.0000000000000000; SPOT RECT;RECT 20;SPD 1
+iSpotCalcMethod is 1
+Plot Cmd is  FOB    0.0000000000000000          0.0000000000000000; SPOT RECT;RECT 20;SPD 1
+iSpotCalcMethod is 1
+Plot Cmd is  FOB    0.0000000000000000          0.0000000000000000; SPOT RECT;RECT 20;SPD 1
+iSpotCalcMethod is 1
+Plot Cmd is  FOB    0.0000000000000000          0.0000000000000000; SPOT RECT;RECT 20;SPD 1
+                                                          l
+CYCLE NUMBER 25
+   ERROR FUNCTION = 9.41366
+          RDY          THI     RMD          GLA          CCY     THC     GLC
+OBJ:    INFINITY    INFINITY                              100     100     100
+STO:    INFINITY    6.00000               BK7_SCHOTT     100     100     100
+002:    -10.000    19.34984                              100     100     100
+IMG:    INFINITY    0.00000                              100     100     100
+___
+ASPHERES
+# 2 K 0.00000
+                                                          l
+Name  Role        Typ  Target              Value               diff
+SAS   Constraint  =    0.0000000000000000  -0.6770746662228414  -0.6770746662228414
+SPO   Operand          0.0000000000000000   4.7157822052874954   4.7157822052874954
+AUT: done after 26 iterations, status: More than max_iter iterations in slsqp
 CURRENT LENS DATA LISTING
 New Lens From Template
 THE CURRENT LIC IS BLANK
@@ -671,7 +1205,7 @@ CONIC AND 4th THROUGH 10th ORDER ASPHERIC DATA
 TERM IN THE SECOND COLUMN INSTEAD OF A CONIC CONSTANT
 
 SURF   CC/AC           AD            AE            AF            AG
-  2   0.00000      0.187445E-03   0.00000       0.00000       0.00000
+  2   0.00000      0.270658E-03   0.00000       0.00000       0.00000
 NO 12th through 20th ORDER ASPHERIC DATA
 NO CONIC OR ASPHERIC ANAMORPHIC DATA
 NO DEFORMABLE SURFACE DATA

@@ -39,7 +39,11 @@ static ConstraintItem * constraint_item_new(const char *constraintName,
     double weight)
 {
    ConstraintItem  *item = g_object_new(CONSTRAINT_TYPE_ITEM, NULL);
-    item->constraintName = g_strup(constraintName);
+    // g_strdup (copy), NOT g_strup: g_strup uppercases IN PLACE and returns
+    // the same pointer -- with a Fortran-owned, non-null-terminated buffer
+    // that mutated caller memory and stored a pointer whose "string" ran into
+    // the adjacent record fields (the AUTUI name-dropdown crash).
+    item->constraintName = g_strdup(constraintName);
     item->con     = con;
     item->role    = role;
     item->conType = conType;
