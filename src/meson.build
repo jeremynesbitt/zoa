@@ -89,7 +89,6 @@ srcs += files(
   'optim-types-callbacks.f90',
   'undo-manager.f90',
   'zoom-manager.f90',
-  'optim-debug.f90',
   'ui-table-funcs.f90',  
   'optimizer-ui.f90',
   'tow-functions.f90',

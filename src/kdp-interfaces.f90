@@ -205,12 +205,6 @@ subroutine Sandbox_old()
   
   !call printFilesInCurrentDirectory()
 
-  !use optim_debug
-
-  !call check_clear_apertures(curr_lens_data)
-  !call simple_matlab_link()
-  !call test_slsqp
-
   ! C code
   ! GDir *dir;
   ! GError *error;
