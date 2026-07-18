@@ -2321,7 +2321,14 @@ DEALLOCATE(VERARRAY,STAT=ALLOERR)
 !IF(WQ.EQ.'REAL'.OR.WQ.EQ.'VREAL') THEN
 
 RWARN=0
-FWARN=0      
+FWARN=0
+! Save the ray-aiming flags and force aiming on for the aperture trace, as the
+! original SETCLAP (RAYTRA1) does; the restore after the trace loop below was
+! previously reading OLDLDIF/OLDLDIF2 without this save (uninitialized).
+OLDLDIF2=LDIF2
+OLDLDIF=LDIF
+LDIF2=.TRUE.
+LDIF=.TRUE.
 
 !     EIGHT PLACES AROUND THE FULL FOV
                  KK=0
