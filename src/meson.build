@@ -231,6 +231,7 @@ srcs += files(
   'SPECSUR3.f90',
   'SPECT1.f90',
   'SVD.f90',
+  'splines.f90',
   'TILTER.f90',
   'TSTKDP.f90',
   'USER1.f90',
