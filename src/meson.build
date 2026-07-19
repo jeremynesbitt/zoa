@@ -50,6 +50,7 @@ srcs += files(
   'mod_DATLEN.f90',
   'mod_DATMAI.f90',
   'mod_parsed_command.f90',
+  'mod_kdp_api.f90',
   'mod_DATSPD.f90',
   'mod_DATSUB.f90',
   'mod_DATCFG.f90',

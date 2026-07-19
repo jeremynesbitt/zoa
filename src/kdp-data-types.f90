@@ -2008,6 +2008,24 @@ self%EXPUPPOS = EXPUZ+self%imageDistance
 
 end subroutine
 
+! Set the object-surface thickness directly (was: PROCESSILENT("THI SO x"),
+! which re-entered the parser and quantized x through real2str).  The EOS in
+! kdp_lens_end re-runs LNSEOS, whose calculateFirstOrderParameters refreshes
+! curr_par_ray_trace -- exactly what the paraxial-mag iteration below reads.
+subroutine setObjectThickness(thick)
+  use mod_kdp_api, only: kdp_lens_begin, kdp_chg, kdp_lens_cmd, kdp_lens_end, &
+                         kdp_silent_begin, kdp_silent_end
+  use iso_fortran_env, only: real64
+  real(kind=real64), intent(in) :: thick
+  ! Silence the EOS trace chatter, as the old PROCESSILENT wrapper did.
+  call kdp_silent_begin()
+  call kdp_lens_begin()
+  call kdp_chg(0)
+  call kdp_lens_cmd('TH', w1=thick)
+  call kdp_lens_end(refreshSurf=0)
+  call kdp_silent_end()
+end subroutine
+
 function getObjectThicknessToSetParaxialMag(self, magTgt, lData) result(t0)
   use type_utils, only: real2str
   use mod_surface
@@ -2083,7 +2101,7 @@ function getObjectThicknessToSetParaxialMag(self, magTgt, lData) result(t0)
     dt = max(.01*thick0,1.0) 
 
 
-    CALL PROCESSILENT("THI SO "//real2str(thick0+dt)) 
+    call setObjectThickness(thick0+dt)
 
     uk2 = self%marginal_ray_angle(s2)
     u02 = self%marginal_ray_angle(s1)
@@ -2093,7 +2111,7 @@ function getObjectThicknessToSetParaxialMag(self, magTgt, lData) result(t0)
     uOffset = uk1-u01*uSlope
 
 
-    CALL PROCESSILENT("THI SO "//real2str(thick0))
+    call setObjectThickness(thick0)
 
     ! Finally ready to calculate new thickness
     thick0 = -1*self%marginal_ray_height(s1+1)*(magTgt*uSlope-1)/(magTgt*uOffset)

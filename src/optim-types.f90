@@ -306,36 +306,39 @@ module optim_types
 
     subroutine updateLensDuringOptimization(x)
         use type_utils
-        use mod_lens_data_manager
+        use mod_kdp_api, only: kdp_lens_begin, kdp_chg, kdp_lens_cmd, kdp_lens_end, &
+                               kdp_silent_begin, kdp_silent_end
         real(long), dimension(:) :: x
 
         integer :: i
 
-        call PROCESSILENT('U L')
+        ! Suppress trace chatter (TIR/ray-failure spam from the EOS
+        ! auto-aperture trace on intermediate geometries) exactly as the old
+        ! per-command PROCESSILENT wrappers did.  Single set/restore pair --
+        ! nothing inside redirects output itself.
+        call kdp_silent_begin()
 
-        ! Using KDP commands because the new commands get into bad loops during optimization.
-        ! obviously should fix this to directly update lens data but a project for another day..
+        ! Variables are applied through mod_kdp_api: the exact real64 value
+        ! lands in W1 with no text round-trip.  (The old PROCESSILENT path
+        ! formatted through real2str; its default F9.5 quantized at 1e-5 and
+        ! the lens never changed -- the frozen-lens bug.)
+        call kdp_lens_begin()
         do i=1,nV
-            ! ALL variables are applied in scientific notation (D23.10).  The
-            ! default F9.5 fixed format quantizes at 1e-5: line-search steps on
-            ! a curvature (~1e-2) simply vanished, the lens never changed, and
-            ! slsqp aborted with "positive directional derivative" -- the same
-            ! failure that hit asphere coefficients (1e-4..1e-8) earlier.
-            call PROCESSILENT('CHG '//int2str(VARS(i,1))//' ; '// &
-            &  trim(getVarKdpCmd(VARS(i,2)))//' '//real2str(x(i), sci=.TRUE.))
+            call kdp_chg(VARS(i,1))
+            call kdp_lens_cmd(trim(getVarKdpCmd(VARS(i,2))), w1=x(i))
         end do
 
-        ! CRITICAL: rebuild the typed surface store from the just-updated ALENS
-        ! before the finalizing EOS.  The paraxial trace (EFL etc.) and the
-        ! real-ray trace (SPO) refract through ldm%surfaces geometry, and the
-        ! same-topology LNSEOS path deliberately does not rebuild it -- without
-        ! this refresh every merit evaluation saw the ORIGINAL lens, gradients
-        ! were identically zero, and slsqp aborted immediately with "positive
-        ! directional derivative for linesearch" (the optimizer never worked
-        ! for curvature/thickness variables).
-        call ldm%load_surfaces_from_alens()
+        ! CRITICAL: refreshAll rebuilds the typed surface store from the
+        ! just-updated ALENS before the finalizing EOS traces.  The paraxial
+        ! trace (EFL etc.) and the real-ray trace (SPO) refract through
+        ! ldm%surfaces geometry, and the same-topology LNSEOS path
+        ! deliberately does not rebuild it -- without this refresh every
+        ! merit evaluation saw the ORIGINAL lens and slsqp aborted with
+        ! "positive directional derivative" (the optimizer never worked for
+        ! curvature/thickness variables).
+        call kdp_lens_end(refreshAll=.TRUE.)
 
-        call PROCESSILENT('EOS')
+        call kdp_silent_end()
 
     end subroutine
 

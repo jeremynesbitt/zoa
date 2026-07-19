@@ -382,6 +382,7 @@ module codeV_commands
         ! This is called when the program is initialized (currently INITKDP.FOR)
         use iso_c_binding, only: c_null_ptr
         use global_widgets, only: ioConfig
+        use mod_kdp_api, only: kdp_api_set_hooks
 
         integer :: i
         character(len=1), dimension(8) :: evenAsphereTerms = ['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H']
@@ -395,6 +396,12 @@ module codeV_commands
 
         ! Initialize null ptr textView to dump KDP print statements when needed
         call ioConfig%registerTextView(c_null_ptr, ID_TERMINAL_KDPDUMP)
+
+        ! Wire mod_kdp_api's store-resync/post-EOS hooks.  kdp_api itself may
+        ! only depend on DATMAI + mod_parsed_command (module-cycle rule), so
+        ! it reaches ldm/global_widgets through these registered procedures.
+        call kdp_api_set_hooks(kdpApiRefreshSurf, kdpApiRefreshAll, kdpApiPostEos, &
+             kdpApiSilenceOn, kdpApiSilenceOff)
 
 
         !zoaCmds(2)%cmd = 'WL'
@@ -1459,6 +1466,37 @@ module codeV_commands
         boolResult = isSurfCommand(tstCmd)
 
       end function
+
+      ! ---- mod_kdp_api hooks (registered in initializeCmds) ----------------
+      ! These give the dependency-free kdp_api access to the typed-surface
+      ! store and the CONTRO post-command refresh pair.
+      subroutine kdpApiRefreshSurf(surf)
+        use mod_lens_data_manager, only: ldm
+        integer, intent(in) :: surf
+        call ldm%refresh_typed_surf_geom(surf)
+      end subroutine
+
+      subroutine kdpApiRefreshAll()
+        use mod_lens_data_manager, only: ldm
+        call ldm%load_surfaces_from_alens()
+      end subroutine
+
+      subroutine kdpApiPostEos()
+        use global_widgets, only: curr_lens_data, sysConfig
+        call curr_lens_data%update()
+        call sysConfig%updateParameters()
+      end subroutine
+
+      subroutine kdpApiSilenceOn()
+        use global_widgets, only: ioConfig
+        call ioConfig%setTextView(ID_TERMINAL_KDPDUMP)
+      end subroutine
+
+      subroutine kdpApiSilenceOff()
+        use global_widgets, only: ioConfig
+        call ioConfig%restoreTextView()
+      end subroutine
+      ! ----------------------------------------------------------------------
 
       subroutine executeCodeVLensUpdateCommand(iptCmd, debugFlag, exitLensUpdate, refreshSurf, refreshAll)
         use kdp_utils, only: inLensUpdateLevel
