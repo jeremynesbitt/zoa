@@ -222,7 +222,6 @@ srcs += files(
   'splines.f90',
   'TILTER.f90',
   'TSTKDP.f90',
-  'USER1.f90',
   'UTILITY1.f90',
   'UTILITY2.f90',
   'UTILITY3.f90',

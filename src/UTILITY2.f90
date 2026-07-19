@@ -894,13 +894,6 @@ SUBROUTINE SAGSPC(I,X,Y,Z)
       RETURN
    END IF
 !
-!     SPECIAL SURFACE TYPE 21
-   IF(surf_special_type(I) == 21) THEN
-      CALL USERSURF(I,X,Y,Z,UERROR)
-      IF(UERROR) Z=0.0D0
-      IF(surf_paraxial_val(I) == 1) Z=0.0D0
-      RETURN
-   END IF
 !
 !     SPECIAL SURFACE TYPE 8
    IF(surf_special_type(I) == 8) THEN
