@@ -387,40 +387,6 @@ END SUBROUTINE LENSREST
 !
 ! ---------------------------------------------------------------------------
 !
-! ---------------------------------------------------------------------------
-! MMOD - MOD command: compute W1 modulo W2, result in accumulator REG(9).
-! ---------------------------------------------------------------------------
-SUBROUTINE MMOD
-   use DATMAI
-   use iso_fortran_env, only: real64
-   IMPLICIT NONE
-   IF(SQ.EQ.1.OR.SST.EQ.1.OR.S3.EQ.1.OR.S4.EQ.1 &
-   &.OR.S5.EQ.1) THEN
-      WRITE(OUTLYNE,*)'"MOD" ONLY TAKES NUMERIC WORD #1 AND #2 INPUT'
-      CALL SHOWIT(1)
-      WRITE(OUTLYNE,*)'RE-ENTER COMMAND'
-      CALL SHOWIT(1)
-      CALL MACFAL
-      RETURN
-   END IF
-   IF(DF1.EQ.1.OR.DF2.EQ.1) THEN
-      WRITE(OUTLYNE,*)&
-      &'"MOD" REQUIRES EXPLICIT NUMERIC WORD #1 AND #2 INPUT'
-      CALL SHOWIT(1)
-      WRITE(OUTLYNE,*)'RE-ENTER COMMAND'
-      CALL SHOWIT(1)
-      CALL MACFAL
-      RETURN
-   END IF
-   IF(W2.EQ.0.0D0) THEN
-      REG(40)=REG(9)
-      REG(9)=0.0D0
-   ELSE
-      REG(40)=REG(9)
-      REG(9)=DMOD(W1,W2)
-   END IF
-   RETURN
-END SUBROUTINE MMOD
 !
 ! ---------------------------------------------------------------------------
 ! NO_ZEROS - strip redundant zeros from numeric string output.
