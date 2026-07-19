@@ -375,3 +375,36 @@ Notes and follow-ups:
   already failing validation.
 - WAVSPOT5's CAPFN TPT==2 branches (TOLNRD/OPNRD grid selection) are now
   dead code; OPNRD/TOLNRD variables stay initialized in INITKDP.
+
+---
+
+## Legacy RPN calculator / register commands removed (2026-07-18)
+
+The KDP "ARITHMETIC PROCESSING COMMANDS" (manual p.54) are gone: A=..IT=
+assignments, PLUS/MINUS/MPY/DIV/trig/exp/log arithmetic, the full RPN stack
+(ENT/PULL/RUP/RDN/+,-,*,/ + complex variants), STOK/RCL/SAVEREG/CLEARREG,
+alphanumeric writers (ASTO/ARCL/AWRITE/CLASTO/STOAX/ATON), STOREMAX family,
+USERFUNC/USERSUBR/FUNNAME, RAND/J1/MOD/ATAN2, INCR, and legacy USER type-21
+special surfaces (SPECIAL now rejects type 21; USER1.f90 deleted).
+131 NAMES words removed (census baseline now 1126 words / 375 dispatch stmts).
+
+Survivors and why:
+- REG(1:50)/GPREG/AGPREG storage (mod_DATMAI) — the X-register REG(9) is the
+  value bus written by GET/SHO and read by new plot code.
+- GET/AGET/GETA and the words SHO/SHOW/ASHOW (SHO <qual> rewrites to GET).
+- **WRITE** — looks like a calculator command but is the display backend of
+  GET/SHO (UTILITY6 runs `KDP_EXEC('WRITE X <qual>')` to print "RMSOPD = v";
+  exercised by raytrace_opt/apertures_bes goldens). Dedicated CMDER block.
+- SEED/NEWSEED and the RNG (MATH.f90) — live consumers: RAYTRA3 random
+  ray-pointing error (surf_ray_error) and WAVSPOT3 RANDOM spot type/ITRACE.
+- COORD keeps the IN-MM/MM-IN unit conversions (polar R-P/P-R words removed).
+- W1–W5/W#CODE indirect addressing in CONTRO (parser core), PREAD (stubbed).
+
+Follow-up candidates surfaced by this rip:
+- Alphanumeric register READERS are now write-orphaned: UTILITY7 `M` message
+  (prints AGPREG(1)), LLAB label-from-register, LFORM format-from-register;
+  AGET still fills registers with lens IDs. Future annotation-cleanup tranche.
+- SHUFFLE command (MATH.f90): independent of the calculator, but its only
+  consumer was the deleted ITER POWELL optimizer — dead-command candidate.
+- Bentley7p1.zoa line `MOD S1` ("make S1 a lens module") referenced a feature
+  that never existed here; it now reports INVALID COMMAND (no golden runs it).
