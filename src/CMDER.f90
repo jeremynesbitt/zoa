@@ -1003,10 +1003,6 @@ SUBROUTINE CMDER
          CALL CWRITE
          RETURN
       END IF
-      IF(WC.EQ.'ATAN2') THEN
-         CALL ATANN2
-         RETURN
-      END IF
       IF(WC.EQ.'LENS') THEN
          PFAC=1.0D0
          IF(RAYCLEAR) THEN
@@ -1074,78 +1070,16 @@ SUBROUTINE CMDER
          CALL INPUTT
          RETURN
       END IF
-      IF(WC.EQ.'ENT'.OR.&
-      &WC.EQ.'ENTI'.OR.&
-      &WC.EQ.'ENTC'.OR.WC.EQ.'PULL'.OR.&
-      &WC.EQ.'IPULL'.OR.WC.EQ.'CPULL'.OR.&
-      &WC.EQ.'RUP'.OR.WC.EQ.'IRUP'.OR.WC &
-      &.EQ.'CRUP'.OR.WC.EQ.'RDN'.OR.WC.EQ.&
-      &'IRDN'.OR.WC.EQ.'CRDN'.OR.WC.EQ.'LASTX'.OR.WC.EQ.&
-      &'X-Y'.OR.&
-      &WC.EQ.'LASTIX'.OR.WC.EQ.'IX-IY'.OR.WC.EQ.'RE-IM'.OR.&
-      &WC.EQ.'CLX'.OR.WC.EQ.'CLIX'.OR.WC.EQ.&
-      &'CLSTK'.OR.WC.EQ.'CLSTKI'.OR.WC.EQ.'CLSTKC'.OR.WC.EQ.&
-      &'+'.OR.WC.EQ.'-'.OR.WC.EQ.'*'.OR.WC.EQ.'/'.OR.WC.EQ.&
-      &'C+'.OR.WC.EQ.'C-'.OR.WC.EQ.'C*'.OR.WC.EQ.'C/'.OR.WC.EQ.&
-      &'I+'.OR.WC.EQ.'I-'.OR.WC.EQ.'I*'.OR.WC.EQ.'I/'.OR.&
-      &WC.EQ.'Y**X'.OR.WC.EQ.'CY**CX'.OR.&
-      &WC.EQ.'IY**IX') THEN
-         CALL STACK
-         RETURN
-      END IF
-      IF(WC.EQ.'PRSTK'.OR.WC.EQ.'PRSTKC'.OR.&
-      &WC.EQ.'PRSTKI'.OR.WC.EQ.'PRLSTX'.OR.WC.EQ.'PRLSTIX') THEN
-         CALL STACK
-         RETURN
-      END IF
-      IF(WC.EQ.'R-P'.OR.WC.EQ.'P-R'.OR.WC.EQ.'R-SP'.OR.&
-      &WC.EQ.'SP-R'.OR.WC.EQ.'R-CYL'.OR.WC.EQ.'CYL-R'.OR.&
-      &WC.EQ.'H-HMS'.OR.WC.EQ.'HMS-H') THEN
-         CALL COORD
+!     WRITE is the register display used internally by GET/SHO
+!     (KDP_EXEC('WRITE X <qual>') in UTILITY6) -- it survives the
+!     calculator removal as the SHO output formatter.
+      IF(WC.EQ.'WRITE') THEN
+         CALL WRITE
          RETURN
       END IF
       IF(WC.EQ.'IN-MM'.OR.WC.EQ.'IN-CM'.OR.WC.EQ.'IN-M'.OR.&
       &WC.EQ.'MM-IN'.OR.WC.EQ.'CM-IN'.OR.WC.EQ.'M-IN') THEN
          CALL COORD
-         RETURN
-      END IF
-      IF(WC.EQ.'CLGREG'.OR.WC.EQ.'CLSTREG'&
-      &.OR.WC.EQ.'STADD'.OR.WC.EQ.'STSUB'.OR.&
-      &WC.EQ.'STDEV'.OR.WC.EQ.'MEAN'&
-      &) THEN
-         CALL GGPREG
-         RETURN
-      END IF
-!     THESE ARE 400 GENERAL PURPOSE CHARACTER*80 REGISTERS ADDED
-!     IN 3/93
-      IF(WC.EQ.'CLASTO'.OR.WC.EQ.'ASTO'.OR.WC.EQ.'ARCL'.OR.&
-      &WC.EQ.'AWRITE') THEN
-         CALL GPRGA
-         RETURN
-      END IF
-      IF(WC.EQ.'MOD') THEN
-         CALL MMOD
-         RETURN
-      END IF
-      IF(WC.EQ.'INTGR'.OR.WC.EQ.'FRAC'.OR.WC.EQ.'FACT'&
-      &.OR.WC.EQ.'CHS'.OR.WC.EQ.'RTD'.OR.WC.EQ.'DTR'&
-      &.OR.WC.EQ.'ASIN'.OR.WC.EQ.'ACOS'.OR.WC.EQ.'PLUS'&
-      &.OR.WC.EQ.'MINUS'.OR.WC.EQ.'DIV'.OR.WC.EQ.'MPY'&
-      &.OR.WC.EQ.'MOVE'.OR.WC.EQ.'ATAN'.OR.WC.EQ.'PI'&
-      &.OR.WC.EQ.'RAND'.OR.WC.EQ.'SIN'.OR.WC.EQ.'COS'&
-      &.OR.WC.EQ.'TAN'.OR.WC.EQ.'TANH'.OR.WC.EQ.'SINH'&
-      &.OR.WC.EQ.'COSH'.OR.WC.EQ.'SQRT'.OR.WC.EQ.'ABS'&
-      &.OR.WC.EQ.'EXP'.OR.WC.EQ.'RECIP'.OR.WC.EQ.'POW'&
-      &.OR.WC.EQ.'LOG10'.OR.WC.EQ.'LN'.OR.WC.EQ.'STORE'&
-      &.OR.WC.EQ.'SGN'.OR.WC.EQ.'CLREG'.OR.WC.EQ.'PRIREG'.OR.WC.EQ.&
-      &'WRITE'.OR.WC.EQ.'MAXVAL'.OR.WC.EQ.'MINVAL')&
-      &THEN
-         CALL RGMATH
-         RETURN
-      END IF
-      IF(WC.EQ.'STOREMIN'.OR.WC.EQ.'STOREMAX'.OR.&
-      &WC.EQ.'RESETMIN'.OR.WC.EQ.'RESETMAX') THEN
-         CALL MINMAXREG
          RETURN
       END IF
       IF(WC.EQ.'LFORMAT')  THEN
@@ -2407,10 +2341,6 @@ SUBROUTINE CMDER
          END IF
          RETURN
       END IF
-      IF(WC.EQ.'J1') THEN
-         CALL BESS
-         RETURN
-      END IF
       IF(WC.EQ.'GOTF') THEN
          GRASET=.FALSE.
          IF(LASTWASFOB) THEN
@@ -2760,14 +2690,6 @@ SUBROUTINE CMDER
          CALL DLRPFR
          RETURN
       END IF
-      IF(WC.EQ.'USERFUNC') THEN
-         CALL CALL_USERFUNC
-         RETURN
-      END IF
-      IF(WC.EQ.'USERSUBR') THEN
-         CALL CALL_USERSUBR
-         RETURN
-      END IF
       IF(WC.EQ.'CAPFN') THEN
          GRASET=.FALSE.
          MSGSPD=.TRUE.
@@ -2951,21 +2873,6 @@ SUBROUTINE CMDER
       IF(WC.EQ.'PREAD') THEN
 !       DOES PROMPTED INPUT
          CALL PREAD
-         RETURN
-      END IF
-      IF(WC.EQ.'CLEARREG') THEN
-!       CLEARS GENERAL PURPOSE STORAGE REGISTERS (SETS THEM TO 0.0)
-         CALL CLEARREG
-         RETURN
-      END IF
-      IF(WC.EQ.'STOAX') THEN
-!       STORE PROMPT READ VALUE INTO AN ALPH STORAGE REGISTER
-         CALL STOAX
-         RETURN
-      END IF
-      IF(WC.EQ.'ATON') THEN
-!       CONVERTS STRING TO NUMBER
-         CALL MACATON
          RETURN
       END IF
       IF(WC.EQ.'ID1')  RETURN
