@@ -636,8 +636,6 @@ module codeV_commands
         zoaCmds(621)%execFunc => wrap_OBJLEV
         zoaCmds(622)%cmd = 'FIGURE'
         zoaCmds(622)%execFunc => wrap_FIGURE
-        zoaCmds(623)%cmd = 'INCR'
-        zoaCmds(623)%execFunc => wrap_INCR
         zoaCmds(624)%cmd = 'FOBDUMP'
         zoaCmds(624)%execFunc => wrap_FOBDUMP
         zoaCmds(626)%cmd = 'OPD'
@@ -702,8 +700,6 @@ module codeV_commands
         zoaCmds(658)%execFunc => wrap_CAPFNOUT
         zoaCmds(659)%cmd = 'CAPGRID'
         zoaCmds(659)%execFunc => wrap_CAPGRID
-        zoaCmds(660)%cmd = 'FUNNAME'
-        zoaCmds(660)%execFunc => wrap_FUNNAME
         zoaCmds(661)%cmd = 'GLASSWV'
         zoaCmds(661)%execFunc => wrap_GLASSWV
         zoaCmds(662)%cmd = 'DO'

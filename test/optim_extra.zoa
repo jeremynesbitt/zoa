@@ -24,8 +24,6 @@ WEIGHT 1 6
 PRICE ALL
 ! ---- DEFORM: no deformable surfaces in osdtriplet ----
 DEFORM
-! ---- INCR A 5: silently increments register A ----
-INCR A 5
 ! ---- XXF P: Newtonian equation, find missing value (two given) ----
 XXF P -50 25
 ! ---- XXFF P: Newtonian equation with 4 terms (find one) ----

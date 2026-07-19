@@ -386,13 +386,6 @@ SUBROUTINE LENSREST
 END SUBROUTINE LENSREST
 !
 ! ---------------------------------------------------------------------------
-! FUNNAME - define alternate macro function names; no-op (binary macros removed).
-! ---------------------------------------------------------------------------
-SUBROUTINE FUNNAME
-   use iso_fortran_env, only: real64
-   IMPLICIT NONE
-   RETURN
-END SUBROUTINE FUNNAME
 !
 ! ---------------------------------------------------------------------------
 ! MMOD - MOD command: compute W1 modulo W2, result in accumulator REG(9).

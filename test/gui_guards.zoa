@@ -19,7 +19,5 @@ NBR ELE S1..3
 ! ---- VIEOVER: query prints help, bare form sets the overlay flag (no VIE render) ----
 VIEOVER ?
 VIEOVER
-! ---- FUNNAME: no-op stub, silent ----
-FUNNAME
 ! ---- inline comment: file handler strips it; no command executed ----
 ! this line is a comment and produces no output

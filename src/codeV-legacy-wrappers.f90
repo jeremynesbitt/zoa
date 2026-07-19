@@ -155,11 +155,6 @@ contains
         call FIGURE
     end subroutine
 
-    subroutine wrap_INCR(iptStr)
-        character(len=*) :: iptStr
-        call INCR
-    end subroutine
-
     subroutine wrap_FOBDUMP(iptStr)
         character(len=*) :: iptStr
         call FOBDMP
@@ -327,11 +322,6 @@ contains
     subroutine wrap_CAPGRID(iptStr)
         character(len=*) :: iptStr
         call CAPGRID
-    end subroutine
-
-    subroutine wrap_FUNNAME(iptStr)
-        character(len=*) :: iptStr
-        call FUNNAME
     end subroutine
 
     subroutine wrap_GLASSWV(iptStr)
