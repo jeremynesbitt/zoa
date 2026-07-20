@@ -3663,8 +3663,15 @@ SUBROUTINE PROCES
 
 
 
-   NUMCOM=1
-   IF(MULTICOM) NUMCOM=20
+!     NUMCOM was 1 unless the caller set MULTICOM=.TRUE. -- but PRO2/PRO3
+!     only INITIALIZE slots 1..NUMCOM while still parsing every ';'-segment
+!     that arrives, so segments 2+ inherited stale COMMWD/QUALWD/NW/STAT
+!     values from earlier commands.  Whether "A; B; C" parsed correctly
+!     depended on what happened to be in those slots (e.g. after CIR's
+!     internal 'U L;CHG k; CLAP x;GO', a following 'FOB 0; CAPFN; SHO
+!     RMSOPD' read CLAP's stale numeric into GET and returned RMSOP(8)=0).
+!     Always initialize all 20 slots; MULTICOM is now vestigial.
+   NUMCOM=20
 !
    LASTCOMWRD=WC
    LASTWASFOB=.FALSE.

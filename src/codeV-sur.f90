@@ -216,11 +216,10 @@ module procedure execSUR
             surfNum = getSurfNumFromSurfCommand(trim(tokens(2)))
             if (numTokens > 2) then
                if (isInputNumber(trim(tokens(3)))) then ! FORMAT: CUY Sk VAL
-                ! Like RDY: refresh the edited surface's typed-store radius before
-                ! the finalizing EOS so a PIM/PY solve resolves off the new
-                ! curvature (drop ';GO', let executeCodeVLensUpdateCommand EOS).
-                call executeCodeVLensUpdateCommand('CHG '//trim(int2str(surfNum))// &
-                & '; CV, ' // trim(tokens(3)), refreshSurf=surfNum)
+                ! Like RDY: refresh the edited surface's typed-store radius
+                ! before the finalizing EOS so a PIM/PY solve resolves off the
+                ! new curvature.  Typed path (no text round-trip).
+                call setSurfParamTyped(surfNum, 'CV', trim(tokens(3)))
                else
                 call zoa_emit("Unrecognized YZ curvature solve.  Expect e.g. CUY Sk UMY j", "red")
                end if ! Tokens > 2 loop
@@ -271,12 +270,11 @@ module procedure execSUR
         call parse(iptStr, ' ', tokens, numTokens)
         if(isSurfCommand(trim(tokens(2)))) then
             surfNum = getSurfNumFromSurfCommand(trim(tokens(2)))
-            ! No ';GO': let executeCodeVLensUpdateCommand issue the finalizing EOS,
-            ! and pass refreshSurf so it re-syncs this surface's typed-store radius
-            ! from ALENS *before* that EOS traces.  Otherwise a PIM/PY solve would
-            ! resolve off the stale frozen radius and lag one edit behind.
-            call executeCodeVLensUpdateCommand('CHG '//trim(int2str(surfNum))// &
-            & '; RD, ' // trim(tokens(3)), refreshSurf=surfNum)
+            ! Typed path; the refreshSurf resync (this surface's typed-store
+            ! radius from ALENS, *before* the finalizing EOS traces) is inside
+            ! setSurfParamTyped -- otherwise a PIM/PY solve would resolve off
+            ! the stale frozen radius and lag one edit behind.
+            call setSurfParamTyped(surfNum, 'RD', trim(tokens(3)))
         else
             call zoa_emit("Surface not input correctly.  Should be SO or Sk where k is the surface of interest", "red")
             return
@@ -431,10 +429,30 @@ module procedure execSUR
     ! cmd Val - update current lens (eg when loading from file)
     ! cmd Sk - return val on current lens (not currently implemented) 
     ! kdpCmd - the translated command for cmd
+    ! Typed one-surface parameter set: CHG surf; <kdpCmd> value; EOS with the
+    ! surface's typed-store geometry re-synced before the EOS traces.
+    subroutine setSurfParamTyped(surfNum, kdpCmd, valStr)
+        use mod_kdp_api, only: kdp_lens_begin, kdp_chg, kdp_lens_cmd, &
+                               kdp_lens_end, kdp_silent_begin, kdp_silent_end
+        use type_utils, only: str2real8
+        integer, intent(in) :: surfNum
+        character(len=*), intent(in) :: kdpCmd, valStr
+
+        call kdp_silent_begin()
+        call kdp_lens_begin()
+        call kdp_chg(surfNum)
+        call kdp_lens_cmd(kdpCmd, w1=str2real8(valStr))
+        call kdp_lens_end(refreshSurf=surfNum)
+        call kdp_silent_end()
+    end subroutine
+
     subroutine execTranslatedSurfCmd(iptStr, kdpCmd)
         use command_utils, only: isInputNumber, removeQuotes
         use mod_lens_data_manager
-        
+        use mod_kdp_api, only: kdp_lens_begin, kdp_chg, kdp_lens_cmd, &
+                               kdp_lens_end, kdp_silent_begin, kdp_silent_end
+        use type_utils, only: str2real8
+
         character(len=*) :: iptStr
         character(len=*) :: kdpCmd
         integer :: surfNum
@@ -442,28 +460,32 @@ module procedure execSUR
         integer :: numTokens
 
         call parse(iptStr, ' ', tokens, numTokens)
-        
+
         select case (numTokens)
 
-        case(2) 
+        case(2)
             if (isSurfCommand(trim(tokens(2)))) then
                     surfNum = getSurfNumFromSurfCommand(trim(tokens(2)))
             else
                 if (isInputNumber(trim(tokens(2)))) then
-                    ! Use current surface
-                    surfNum = ldm%getSurfacePointer()
-                    call executeCodeVLensUpdateCommand(kdpCmd//' '//trim(tokens(2)))
-                    return 
+                    ! Value only: applies at the current surface pointer.
+                    ! Typed path -- the value goes into W1 exactly, no text.
+                    call kdp_silent_begin()
+                    call kdp_lens_begin()
+                    call kdp_lens_cmd(kdpCmd, w1=str2real8(trim(tokens(2))))
+                    call kdp_lens_end()
+                    call kdp_silent_end()
+                    return
                 else
                     ! Some commands are not numbers
-                    if (trim(kdpCmd) == 'LBL') then 
-                        surfNum = ldm%getSurfacePointer()    
+                    if (trim(kdpCmd) == 'LBL') then
+                        surfNum = ldm%getSurfacePointer()
                         tokens(2) = removeQuotes(trim(tokens(2)))
                         call executeCodeVLensUpdateCommand(kdpCmd//' '//trim(tokens(2)))
-                        return 
-                    end if                       
+                        return
+                    end if
 
-                ! If not number and no special case then complain    
+                ! If not number and no special case then complain
                 call zoa_emit("Error! For "//trim(tokens(1))//"expect second argument to be Sk &
                 & or value to update for current lens pointer surface ", "red")
                 return
@@ -472,20 +494,24 @@ module procedure execSUR
 
         case(3) ! K Sk Val
             if (isSurfCommand(trim(tokens(2)))) then
-                surfNum = getSurfNumFromSurfCommand(trim(tokens(2)))  
-            end if          
+                surfNum = getSurfNumFromSurfCommand(trim(tokens(2)))
+            end if
             if (isInputNumber(trim(tokens(3)))) then
-                call executeCodeVLensUpdateCommand('CHG '//trim(int2str(surfNum))// &
-                & '; '//kdpCmd//' '//trim(tokens(3)))
-                return 
+                call kdp_silent_begin()
+                call kdp_lens_begin()
+                call kdp_chg(surfNum)
+                call kdp_lens_cmd(kdpCmd, w1=str2real8(trim(tokens(3))))
+                call kdp_lens_end()
+                call kdp_silent_end()
+                return
             else
                 ! Special case
-                if (trim(kdpCmd) == 'LBL') then 
+                if (trim(kdpCmd) == 'LBL') then
                     tokens(3) = removeQuotes(trim(tokens(3)))
                     call executeCodeVLensUpdateCommand('CHG '//trim(int2str(surfNum))// &
-                    & '; '//kdpCmd//' '//trim(tokens(3)))                       
-                end if                
-            end if           
+                    & '; '//kdpCmd//' '//trim(tokens(3)))
+                end if
+            end if
         end select
 
 
