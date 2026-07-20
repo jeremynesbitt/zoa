@@ -408,3 +408,59 @@ Follow-up candidates surfaced by this rip:
   consumer was the deleted ITER POWELL optimizer — dead-command candidate.
 - Bentley7p1.zoa line `MOD S1` ("make S1 a lens module") referenced a feature
   that never existed here; it now reports INVALID COMMAND (no golden runs it).
+
+---
+
+## Strangler-fig migration off the legacy parser: kdp_api + dispatch flip (2026-07)
+
+Two mechanisms now decouple new commands from the legacy KDP parser
+(PROCES → CONTRO → CMDER → NAMES):
+
+1. **`mod_kdp_api`** — typed, text-free entry into KDP handlers.  New code
+   drives lens edits via `kdp_lens_begin/chg/lens_cmd/lens_end` (exact real64
+   into W1, no `real2str` round-trip, no 140-char INPUT limit) instead of
+   formatting command text and re-parsing it.  Transaction-aware (only the
+   begin that opened the level issues EOS; SURF preserved); store/UI actions
+   via procedure-pointer hooks registered in `initializeCmds` so the module
+   depends only on DATMAI + mod_parsed_command.  Migrated so far: the
+   optimizer per-iteration variable apply, the paraxial-mag object-thickness
+   solve, and RDY/CUY/THI surface params.  Deferred (prelude-duplication cost,
+   low precision stakes): FOB/RAY/CAPFN/SPD — their CMDER dispatch blocks have
+   substantial preludes that should be extracted into shared subroutines
+   before wrapping.
+
+2. **The flip** — `tryNewFirstDispatch` in PRO3, just before `CALL CONTRO`.
+   At CMD level a registered `zoaCmds` command dispatches straight to its
+   handler, ahead of the NAMES-validation gate and the legacy router.  New
+   commands no longer need a NAMES entry (e.g. MXT, removed from NAMES in the
+   optimizer rip, still dispatches).  Lens-update (F6) hook stays in CONTRO.
+
+**Retirement telemetry (data-driven burn-down).**  `ZOA_FALLBACK_LOG=<file>`
+appends every CMD-level word that fell through to the legacy router; the
+`FALLBACK` command prints the tally; `legacy_command_census.py --fallback
+<file>` crosses it against NAMES.  Baseline over the full test suite
+(2026-07): **54 of 1126 NAMES words hit the legacy router** (10,356 events);
+**1072 never seen** = retirement candidates (subject to real-use coverage, not
+just the suite).  The 54 load-bearing words:
+
+```
+ASPH AST CAOB CAPFN CFG COATING CV2PRG DIST DUMOUT EOS FIELDS FIR FLDCV FOB
+FOOTBLOK GET GLOBAL GRT LEN LENS LI LIC LIS MAB3 NRD OCDX OCDY PIKK PLOT PRSPR
+PRXYZ PSFK RAY RAYS RECT RIN RIN2 RTGLBL SAX SAY SC SETCLAP SHO SLV SPD SPOT
+SPTWT SURTYPE TAD TASPH TR U UPDATE WRITE XFAN YFAN
+```
+
+Most are legacy-internal traffic (RES/LIS/plot code issuing PROCESKDP text),
+not user commands — so the next reductions come from migrating that internal
+traffic to kdp_api (or new-native handlers), which shrinks the fallback set
+directly.
+
+Follow-ups:
+- Extract CMDER FOB/RAY/CAPFN/SPD preludes into shared subroutines, then add
+  kdp_fob/kdp_ray/kdp_get/kdp_capfn/kdp_spd typed entry points.
+- Migrate the reference-ray / plot-function FOB/RAY text builders once the
+  above exists.
+- Fallback telemetry currently covers CMD level (F1) only; lens-update-level
+  (F6) fallback is not yet counted.
+- MULTICOM is now vestigial (PRO3 always initializes all 20 instruction slots
+  after the NUMCOM=20 fix); it can be removed in a later parser cleanup.
