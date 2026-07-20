@@ -899,9 +899,34 @@ module codeV_commands
         ! IF(isSurfCommand(iptCmd)) then
         !     CALL setSurfaceCodeVStyle(iptCmd)
         !     return
-        !   END IF            
-              
+        !   END IF
+
     end function
+
+    ! New-first dispatch -- "the flip".  Called from PRO3's per-instruction
+    ! loop immediately BEFORE `CALL CONTRO`, once the parse globals
+    ! (WC/WQ/W1..W5/S/DF/SQ/SST/STI) and currentCommand are fully populated.
+    ! At CMD level a registered CodeV command is dispatched straight to its
+    ! handler, so it bypasses CONTRO's NAMES-validation gate and the legacy
+    ! CMDER/level machinery -- new commands no longer need a NAMES entry and
+    ! never touch the legacy dispatch.  Everything else (legacy words, other
+    ! program levels) falls through to CONTRO unchanged.
+    !
+    ! This mirrors the existing CMDER hook (`startCodeVLensUpdateCmd(WC)` at
+    ! CMDER.f90:426) exactly -- same globals, same handler -- only moved one
+    ! step earlier, ahead of the NAMES gate.  Gated to F1==1 (CMD level): the
+    ! lens-update (F6) hook stays inside CONTRO because its dispatch is
+    ! conditioned on CONTG level validation we must not skip.  Verified: no
+    ! CMDER pre-hook special case (LEN NEW, '?', spectral START/WAVLN/ITF...,
+    ! *TST, MACROUI) is a registered zoaCmd, so nothing is shadowed.
+    subroutine tryNewFirstDispatch(handled)
+        use DATMAI, only: WC, F1
+        logical, intent(out) :: handled
+
+        handled = .FALSE.
+        if (F1 /= 1) return          ! CMD level only
+        handled = startCodeVLensUpdateCmd(WC)
+    end subroutine
      
     ! Would like to move these cmd_parser to command-utils, but there is a circulat
     ! dependency due to updateTerminalLog I need to solve.  Sigh.
