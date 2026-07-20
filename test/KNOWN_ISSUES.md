@@ -429,11 +429,20 @@ Two mechanisms now decouple new commands from the legacy KDP parser
    substantial preludes that should be extracted into shared subroutines
    before wrapping.
 
-2. **The flip** — `tryNewFirstDispatch` in PRO3, just before `CALL CONTRO`.
-   At CMD level a registered `zoaCmds` command dispatches straight to its
-   handler, ahead of the NAMES-validation gate and the legacy router.  New
-   commands no longer need a NAMES entry (e.g. MXT, removed from NAMES in the
-   optimizer rip, still dispatches).  Lens-update (F6) hook stays in CONTRO.
+2. **The flip** — a `PROCESKDP` front door.  PROCESKDP splits the line on
+   `';'` and routes each segment through `dispatchCodeVSegment` first: at CMD
+   level a registered `zoaCmds` command runs straight to its handler and never
+   enters `PROCES/PRO3/CONTRO/NAMES`; anything it declines runs the classic
+   way (`INPUT = segment; CALL PROCES`).  New commands need no NAMES entry
+   (e.g. MXT, removed from NAMES in the optimizer rip, still dispatches) and
+   skip the legacy tokenizer entirely.  This required first deleting the 78
+   `wrap_*` legacy bridges (they registered globals-based legacy subs as CodeV
+   commands) — those went back into CMDER's `IF(WC.EQ.…)` dispatch.  Front-door
+   rules: case-fold protects quoted strings; `INPUT = segment` is set before
+   dispatch (for handlers like `parseTitleCommand` that read the raw buffer);
+   every `zoaCmds` handler must self-tokenize `iptStr`, never read the parse
+   globals.  The `CMDER:426` hook stays for PROCES-direct re-entry; the
+   lens-update (F6) hook stays in CONTRO.
 
 **Retirement telemetry (data-driven burn-down).**  `ZOA_FALLBACK_LOG=<file>`
 appends every CMD-level word that fell through to the legacy router; the
