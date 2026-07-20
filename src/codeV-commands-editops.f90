@@ -340,19 +340,28 @@ contains
     end procedure insertSurf
 
     module procedure setDim
-        use command_utils
-        logical :: inputCheck
+        ! Self-tokenizing (parse the raw line) rather than reading the DATMAI
+        ! qualifier global via getQualWord -- so this works when the front door
+        ! dispatches it before PRO3 has run.
+        implicit none
+        character(len=80) :: tokens(40)
+        integer :: numTokens
 
-        inputCheck = checkCommandInput([ID_CMD_QUAL], qual_words=['M', 'C', 'I'], &
-        &qual_only_err_msg="DIM Takes only M(mm), C(cm), or I(inches) as input")
+        call parse(iptStr, ' ', tokens, numTokens)
+        if (numTokens < 2) then
+            call zoa_emit("DIM takes only M(mm), C(cm), or I(inches) as input", "red")
+            return
+        end if
 
-        select case (getQualWord())
+        select case (trim(tokens(2)))
         case ('M')
             call executeCodeVLensUpdateCommand("UNITS MM")
         case ('C')
             call executeCodeVLensUpdateCommand("UNITS CM")
         case ('I')
             call executeCodeVLensUpdateCommand("UNITS IN")
+        case default
+            call zoa_emit("DIM takes only M(mm), C(cm), or I(inches) as input", "red")
         end select
     end procedure setDim
 

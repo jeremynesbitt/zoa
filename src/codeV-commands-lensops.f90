@@ -504,11 +504,25 @@ contains
     end procedure deleteStuff
 
     module procedure setEPD
-        use command_utils
+        ! Self-tokenizing (parse the raw line) rather than reading the DATMAI
+        ! parse globals via getInputNumber -- so this handler works when
+        ! dispatched by the front door, before PRO3 has run.  Same net effect:
+        ! SAY (semi-aperture) = EPD / 2.
+        use command_utils, only: isInputNumber
+        use type_utils, only: str2real8, real2str
         implicit none
+        character(len=80) :: tokens(40)
+        integer :: numTokens
 
-        if (checkCommandInput([ID_CMD_NUM], max_num_terms=1)) then
-            call executeCodeVLensUpdateCommand('SAY '//real2str(getInputNumber(1)/2.0))
+        call parse(iptStr, ' ', tokens, numTokens)
+        if (numTokens == 2) then
+            if (isInputNumber(tokens(2))) then
+                call executeCodeVLensUpdateCommand('SAY '//real2str(str2real8(trim(tokens(2)))/2.0))
+            else
+                call zoa_emit("Error! Unable to parse EPD value "//trim(tokens(2))//" into a number", "red")
+            end if
+        else
+            call zoa_emit("Error! Expecting 'EPD X' where X is the entrance pupil diameter", "red")
         end if
     end procedure setEPD
 

@@ -143,7 +143,8 @@ module codeV_commands
    module subroutine deleteStuff(iptStr)
    character(len=*) :: iptStr
    end subroutine deleteStuff
-   module subroutine setEPD()
+   module subroutine setEPD(iptStr)
+    character(len=*) :: iptStr
    end subroutine setEPD
    module subroutine setParaxialImageSolve()
    end subroutine setParaxialImageSolve
@@ -844,6 +845,9 @@ module codeV_commands
         zoaCmds(717)%cmd = 'FALLBACK'
         zoaCmds(717)%execFunc => execFallbackReport
 
+        zoaCmds(718)%cmd = 'EPD'
+        zoaCmds(718)%execFunc => setEPD
+
 
     end subroutine
 
@@ -893,11 +897,9 @@ module codeV_commands
         case ('PIM')
             call setParaxialImageSolve()
             boolResult = .TRUE.
-            return     
-        case ('EPD')
-            call setEPD()
-            boolResult = .TRUE.
-            return   
+            return
+        ! (EPD is now a normal zoaCmds entry -> setEPD(iptStr), caught by the
+        !  registry loop above.)
         ! case ('CUY')
         !     call setCurvature()
         !     boolResult = .TRUE.
