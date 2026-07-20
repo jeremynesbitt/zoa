@@ -779,17 +779,54 @@ module codeV_commands
     ! conditioned on CONTG level validation we must not skip.  Verified: no
     ! CMDER pre-hook special case (LEN NEW, '?', spectral START/WAVLN/ITF...,
     ! *TST, MACROUI) is a registered zoaCmd, so nothing is shadowed.
-    subroutine tryNewFirstDispatch(handled)
-        use DATMAI, only: WC, F1
-        logical, intent(out) :: handled
+    ! Front-door dispatch for one command segment (already split on ';' by
+    ! PROCESKDP) -- "the flip".  Runs BEFORE the legacy parser: at CMD level a
+    ! registered CodeV command is handled directly, so it never enters
+    ! PROCES/PRO3/CONTRO and never touches the legacy tokenizer or NAMES gate.
+    ! Returns .false. (and records the word for retirement telemetry) when the
+    ! caller should fall back to `INPUT = seg; CALL PROCES` -- the legacy parser
+    ! then runs its full tokenization for that segment exactly as before.
+    !
+    ! Every registered zoaCmds handler self-tokenizes currentCommand (the
+    ! former wrap_* legacy bridges, which read the DATMAI parse globals, were
+    ! moved back into CMDER), so front-dooring a command -- before PRO3 has
+    ! populated those globals -- is safe.  Case is folded to upper to match
+    ! PRO2's `CALL UPPER`.  Only the common space-delimited form is
+    ! front-doored; anything else (comma-attached word, non-CMD level) falls
+    ! through to the legacy parser, which handles it -- graceful, never a miss.
+    ! The CMDER:426 hook remains as the safety net for commands that reach
+    ! PROCES directly (kdp_exec, legacy-internal INPUT=).
+    function dispatchCodeVSegment(seg) result(handled)
+        use DATMAI, only: F1, INPUT
+        character(len=*), intent(in) :: seg
+        logical :: handled
+        character(len=140) :: segU
+        character(len=80)  :: tokens(40)
+        integer :: numTokens
+        character(len=8)   :: token
 
         handled = .FALSE.
-        if (F1 /= 1) return          ! CMD level only
-        handled = startCodeVLensUpdateCmd(WC)
-        ! A CMD-level word the new layer did NOT handle is going to the legacy
-        ! CONTRO/CMDER router -- record it so retirement can be data-driven.
-        if (.not. handled) call recordFallback(WC)
-    end subroutine
+        if (F1 /= 1) return                     ! CMD level only
+        if (len_trim(seg) == 0) return
+
+        ! Fold case for the command-word lookup, but PROTECT quoted strings
+        ! (strings::uppercase does this): a title like TIT 'OSDmirror' keeps
+        ! its case in currentCommand rather than being force-uppercased.
+        segU = uppercase(adjustl(seg))
+        call parse(trim(segU), ' ', tokens, numTokens)
+        if (numTokens < 1) return
+        token = tokens(1)                       ! len-8 truncation on assignment
+
+        ! Mirror what PROCES would have set for a handler that reads the raw
+        ! command line: INPUT gets the ORIGINAL-case segment (so
+        ! parseTitleCommand and friends see the current command, and quoted
+        ! text keeps its case), and currentCommand gets the case-folded form
+        ! that PRO3 would have produced.
+        INPUT = seg
+        currentCommand = trim(segU)
+        handled = startCodeVLensUpdateCmd(token)
+        if (.not. handled) call recordFallback(token)
+    end function
 
     ! Fallback telemetry: tallies CMD-level command words that fell through to
     ! the legacy router (a word never observed here over real use + the test

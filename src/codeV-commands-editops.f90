@@ -417,6 +417,9 @@ contains
 
     module procedure setLensTitle
         use command_utils
+        ! parseTitleCommand() reads the raw INPUT buffer (case-preserved on
+        ! both the legacy and front-door paths -- the front door sets
+        ! INPUT = segment before dispatching for exactly this reason).
         call executeCodeVLensUpdateCommand('LI '// parseTitleCommand())
     end procedure setLensTitle
 

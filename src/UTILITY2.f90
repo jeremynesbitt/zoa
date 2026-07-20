@@ -4054,12 +4054,10 @@ END
 SUBROUTINE PRO3
    use glass_manager
    USE GLOBALS
-   use codeV_commands, only: tryNewFirstDispatch
 !
    use DATMAI
    use iso_fortran_env, only: real64
    IMPLICIT NONE
-   LOGICAL newFirstHandled
 !
 !       THIS ROUTINE PROCESSES UP TO NUMCOM INSTRUCTIONS
 !       INTO PROGRAM COMMANDS
@@ -6019,10 +6017,7 @@ SUBROUTINE PRO3
 !
 !
          END IF
-!        NEW-FIRST DISPATCH (THE FLIP): try the CodeV command layer before
-!        CONTRO.  If it handles this instruction, skip the legacy router.
-         CALL tryNewFirstDispatch(newFirstHandled)
-         IF(.NOT.newFirstHandled) CALL CONTRO
+         CALL CONTRO
       END IF
 !
 1999 CONTINUE

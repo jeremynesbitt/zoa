@@ -271,45 +271,47 @@ END SUBROUTINE
 
 SUBROUTINE PROCESKDP(ftext)
    use DATMAI, only: INPUT
+   use codeV_commands, only: dispatchCodeVSegment
    use iso_fortran_env, only: real64
    IMPLICIT NONE
 
    character(len=*), intent(in) :: ftext
    integer :: stIdx, scIdx, nLen
 
-   !WRITE(OUTLYNE,*) "PROCESKDP START F5 = ", F5
-   !CALL SHOWIT(19)
+   ! Split the line on ';' and route each segment.  The CodeV front door
+   ! (dispatchCodeVSegment) handles a registered new command directly -- it
+   ! never enters the legacy parser (PROCES/PRO3/CONTRO/NAMES).  Anything it
+   ! declines runs the classic way, INPUT = segment; CALL PROCES, which does
+   ! its own tokenization and lens-update-level routing.  Splitting here also
+   ! sidesteps the 140-char INPUT buffer for long ';'-joined lines (e.g. a
+   ! regenerated "VIE P1; ...; GO"), whose trailing pieces would otherwise be
+   ! truncated -- dropping the closing GO and leaving the plot loop open.
+   nLen = len_trim(ftext)
+   stIdx = 1
+   do
+      if (stIdx > nLen) exit
+      scIdx = index(ftext(stIdx:nLen), ';')
+      if (scIdx == 0) then
+         call routeSegment(adjustl(ftext(stIdx:nLen)))
+         exit
+      else
+         call routeSegment(adjustl(ftext(stIdx:stIdx+scIdx-2)))
+         stIdx = stIdx + scIdx
+      end if
+   end do
 
-   ! The legacy command buffer INPUT is CHARACTER*140, and PROCES splits a single
-   ! input line on ';' internally.  A command longer than 140 characters -- e.g. a
-   ! regenerated GUI plot command "VIE P1 ; ... ; GO" -- would be truncated when
-   ! copied into INPUT, silently dropping its trailing pieces (notably the closing
-   ! GO, which leaves the plot loop open and the plot un-refreshed).  When the
-   ! command exceeds the buffer, dispatch each ';'-separated piece as its own
-   ! command (state such as cmd_loop persists across calls) so nothing is lost.
-   if (len_trim(ftext) <= 140) then
-      INPUT = trim(ftext)
+contains
+
+   ! One command segment: CodeV front door first, else the legacy parser.
+   ! The legacy path keeps the segment's original case (PROCES/PRO2 upcases);
+   ! only the front door folds case internally for its zoaCmds lookup.
+   subroutine routeSegment(seg)
+      character(len=*), intent(in) :: seg
+      if (len_trim(seg) == 0) return
+      if (dispatchCodeVSegment(seg)) return
+      INPUT = seg
       CALL PROCES
-   else
-      nLen = len_trim(ftext)
-      stIdx = 1
-      do
-         if (stIdx > nLen) exit
-         scIdx = index(ftext(stIdx:nLen), ';')
-         if (scIdx == 0) then
-            INPUT = adjustl(ftext(stIdx:nLen))
-            if (len_trim(INPUT) > 0) CALL PROCES
-            exit
-         else
-            INPUT = adjustl(ftext(stIdx:stIdx+scIdx-2))
-            if (len_trim(INPUT) > 0) CALL PROCES
-            stIdx = stIdx + scIdx
-         end if
-      end do
-   end if
-
-   !WRITE(OUTLYNE,*) "PROCESKDP END F5 = ", F5
-   !CALL SHOWIT(19)
+   end subroutine
 
 END
 
