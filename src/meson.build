@@ -102,7 +102,6 @@ srcs += files(
   'lens-editor.f90',
   'parax_calcs.f90',
   'kdp-interfaces.f90',
-  'codeV-legacy-wrappers.f90',
   #'codeV-interfaces.f90',
   'codeV-commands.f90',
   'codeV-commands-undoredo.f90',

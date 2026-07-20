@@ -422,6 +422,328 @@ SUBROUTINE CMDER
          call setLens()
          RETURN
       END IF
+      ! Legacy CMD-level commands, restored here from the zoaCmds wrapper
+      ! registry (deleted): commit 8004793 had moved these IF(WC.EQ.) blocks
+      ! out of CMDER into thin wrap_* shims registered as CodeV commands,
+      ! which made them masquerade as new commands and blocked new-first
+      ! dispatch.  They are legacy: they read the parse globals, so they
+      ! belong in CMDER (after PRO3), calling the same original subs.
+      IF(WC.EQ.'ABSORB') THEN
+         CALL ABSORB
+         RETURN
+      END IF
+      IF(WC.EQ.'ECHO') THEN
+         CALL ECHO
+         RETURN
+      END IF
+      IF(WC.EQ.'ZMX2PRG') THEN
+         CALL ZMX2PRG
+         RETURN
+      END IF
+      IF(WC.EQ.'CF') THEN
+         CALL CFGPRT
+         RETURN
+      END IF
+      IF(WC.EQ.'GCONVERT') THEN
+         CALL GCONVERT
+         RETURN
+      END IF
+      IF(WC.EQ.'INI') THEN
+         CALL SINI
+         RETURN
+      END IF
+      IF(WC.EQ.'LTYPE') THEN
+         CALL SLTYPE
+         RETURN
+      END IF
+      IF(WC.EQ.'WV') THEN
+         CALL SWV
+         RETURN
+      END IF
+      IF(WC.EQ.'UNITS') THEN
+         CALL SUNITS
+         RETURN
+      END IF
+      IF(WC.EQ.'TPLATE') THEN
+         CALL TSTPLATE
+         RETURN
+      END IF
+      IF(WC.EQ.'ASTOP') THEN
+         CALL SASTOP
+         RETURN
+      END IF
+      IF(WC.EQ.'ZERNREPT') THEN
+         CALL ZERNREPT
+         RETURN
+      END IF
+      IF(WC.EQ.'MODE') THEN
+         CALL SMODE
+         RETURN
+      END IF
+      IF(WC.EQ.'FINDGLAS') THEN
+         CALL FNDGLS
+         RETURN
+      END IF
+      IF(WC.EQ.'COLORSET') THEN
+         CALL COLORS
+         RETURN
+      END IF
+      IF(WC.EQ.'REFK') THEN
+         CALL SREF
+         RETURN
+      END IF
+      IF(WC.EQ.'PIVAXIS') THEN
+         CALL PIVAXOUT
+         RETURN
+      END IF
+      IF(WC.EQ.'DISP') THEN
+         CALL HEXDISP
+         RETURN
+      END IF
+      IF(WC.EQ.'STILT') THEN
+         CALL HEXSTILT
+         RETURN
+      END IF
+      IF(WC.EQ.'BTILT') THEN
+         CALL HEXBTILT
+         RETURN
+      END IF
+      IF(WC.EQ.'ROLL') THEN
+         CALL HEXROLL
+         RETURN
+      END IF
+      IF(WC.EQ.'FLIP') THEN
+         CALL CVFLIP
+         RETURN
+      END IF
+      IF(WC.EQ.'SPC') THEN
+         CALL SSPC
+         RETURN
+      END IF
+      IF(WC.EQ.'INVAR') THEN
+         CALL INVAR
+         RETURN
+      END IF
+      IF(WC.EQ.'CHRSHIFT') THEN
+         CALL CHRSHIFT
+         RETURN
+      END IF
+      IF(WC.EQ.'FIRD') THEN
+         CALL FIRD
+         RETURN
+      END IF
+      IF(WC.EQ.'OBJLEV') THEN
+         CALL OBJLEV
+         RETURN
+      END IF
+      IF(WC.EQ.'FIGURE') THEN
+         CALL FIGURE
+         RETURN
+      END IF
+      IF(WC.EQ.'FOBDUMP') THEN
+         CALL FOBDMP
+         RETURN
+      END IF
+      IF(WC.EQ.'OPD') THEN
+         CALL PROPD
+         RETURN
+      END IF
+      IF(WC.EQ.'HEADINGS') THEN
+         CALL SETHED
+         RETURN
+      END IF
+      IF(WC.EQ.'DXF') THEN
+         CALL DDXFF
+         RETURN
+      END IF
+      IF(WC.EQ.'VIEOFF') THEN
+         CALL VIEOFF
+         RETURN
+      END IF
+      IF(WC.EQ.'SHOWNSS') THEN
+         CALL SHOWNSS
+         RETURN
+      END IF
+      IF(WC.EQ.'SPDSSI') THEN
+         CALL SPDSSI
+         RETURN
+      END IF
+      IF(WC.EQ.'DET') THEN
+         CALL DETECTOR
+         RETURN
+      END IF
+      IF(WC.EQ.'GRID') THEN
+         CALL MTFGRID
+         RETURN
+      END IF
+      IF(WC.EQ.'SPACE') THEN
+         CALL SPACER
+         RETURN
+      END IF
+      IF(WC.EQ.'CUTOFF') THEN
+         CALL CUTOFF
+         RETURN
+      END IF
+      IF(WC.EQ.'WAMAP') THEN
+         CALL WAMAP
+         RETURN
+      END IF
+      IF(WC.EQ.'AMAP') THEN
+         CALL AMAP
+         RETURN
+      END IF
+      IF(WC.EQ.'RAYLEIGH') THEN
+         CALL RAYLEIGH
+         RETURN
+      END IF
+      IF(WC.EQ.'WEIGHT') THEN
+         CALL WEIGHT
+         RETURN
+      END IF
+      IF(WC.EQ.'COST') THEN
+         CALL COST
+         RETURN
+      END IF
+      IF(WC.EQ.'DEFORM') THEN
+         CALL DEFIT
+         RETURN
+      END IF
+      IF(WC.EQ.'OUTFLAT') THEN
+         CALL OUTFLT
+         RETURN
+      END IF
+      IF(WC.EQ.'EXPUP') THEN
+         CALL EXPUP
+         RETURN
+      END IF
+      IF(WC.EQ.'RSPH') THEN
+         CALL RSPH
+         RETURN
+      END IF
+      IF(WC.EQ.'PRINT') THEN
+         CALL PRNLP
+         RETURN
+      END IF
+      IF(WC.EQ.'FITZERN') THEN
+         CALL OPDLOD
+         RETURN
+      END IF
+      IF(WC.EQ.'LISTOPD') THEN
+         CALL OPDLIS
+         RETURN
+      END IF
+      IF(WC.EQ.'LISTZERN') THEN
+         CALL WRTCOEFS
+         RETURN
+      END IF
+      IF(WC.EQ.'LISTREPT') THEN
+         CALL WRTREPORT
+         RETURN
+      END IF
+      IF(WC.EQ.'OIF') THEN
+         CALL OIF
+         RETURN
+      END IF
+      IF(WC.EQ.'XXF') THEN
+         CALL XXF
+         RETURN
+      END IF
+      IF(WC.EQ.'XXFF') THEN
+         CALL XXFF
+         RETURN
+      END IF
+      IF(WC.EQ.'IMAGEDIR') THEN
+         CALL IMAGEDIR
+         RETURN
+      END IF
+      IF(WC.EQ.'CAPFNOUT') THEN
+         CALL OPDOUT
+         RETURN
+      END IF
+      IF(WC.EQ.'CAPGRID') THEN
+         CALL CAPGRID
+         RETURN
+      END IF
+      IF(WC.EQ.'GLASSWV') THEN
+         CALL GLSWVL
+         RETURN
+      END IF
+      IF(WC.EQ.'DO') THEN
+         CALL DODODO
+         RETURN
+      END IF
+      IF(WC.EQ.'PRES') THEN
+         CALL PRES
+         RETURN
+      END IF
+      IF(WC.EQ.'STATS') THEN
+         CALL STATT
+         RETURN
+      END IF
+      IF(WC.EQ.'SPGR') THEN
+         CALL SPGR
+         RETURN
+      END IF
+      IF(WC.EQ.'PRICE') THEN
+         CALL PPRICE
+         RETURN
+      END IF
+      IF(WC.EQ.'AUTOFUNC') THEN
+         CALL AUTOFUNC
+         RETURN
+      END IF
+      IF(WC.EQ.'THM') THEN
+         CALL TTHM
+         RETURN
+      END IF
+      IF(WC.EQ.'INR') THEN
+         CALL INRINR
+         RETURN
+      END IF
+      IF(WC.EQ.'INRD') THEN
+         CALL INRINRD
+         RETURN
+      END IF
+      IF(WC.EQ.'VIEOVER') THEN
+         CALL VIEOVER
+         RETURN
+      END IF
+      IF(WC.EQ.'TFMOTION') THEN
+         CALL TFMOTION
+         RETURN
+      END IF
+      IF(WC.EQ.'FLDSARE') THEN
+         CALL FLDSARE
+         RETURN
+      END IF
+      IF(WC.EQ.'SEED') THEN
+         CALL MYNEWSEED
+         RETURN
+      END IF
+      IF(WC.EQ.'PROGSIZE') THEN
+         CALL PROGSIZE
+         RETURN
+      END IF
+      IF(WC.EQ.'RAYERROR') THEN
+         CALL RERROR
+         RETURN
+      END IF
+      IF(WC.EQ.'READIRAD') THEN
+         CALL READIRAD
+         RETURN
+      END IF
+      IF(WC.EQ.'TSTCMDS') THEN
+         CALL TestCommands
+         RETURN
+      END IF
+      IF(WC.EQ.'FANS') THEN
+         IF(HEADLESS_MODE) THEN
+            CALL zoa_emit("FANS requires GUI", "red")
+         ELSE
+            CALL RIMS
+         END IF
+         RETURN
+      END IF
       ! Check if we have a CodeV command to execute
       If (startCodeVLensUpdateCmd(WC)) then
          return
