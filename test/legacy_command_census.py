@@ -150,6 +150,32 @@ def print_diff(base, cur):
             print(f"  {w}")
 
 
+def print_fallback(cur, logfile):
+    """Cross the observed fallback log (words that reached the legacy router
+    at runtime, produced by ZOA_FALLBACK_LOG) against the NAMES table.
+
+    A NAMES word that NEVER appears in the fallback log across real use plus
+    the test suite is a retirement candidate: nothing routed to it.  A word
+    that DOES appear is still load-bearing (something -- user input or
+    legacy-internal PROCESKDP traffic -- depends on the legacy handler)."""
+    with open(logfile, errors='replace') as f:
+        observed = {ln.strip().upper() for ln in f if ln.strip()}
+    name_words = set(cur['words'])
+    hit = sorted(name_words & observed)
+    unseen = sorted(name_words - observed)
+    extra = sorted(observed - name_words)  # ran but not in NAMES (new cmds, aliases)
+    print()
+    print("=== fallback log vs NAMES ===")
+    print(f"log: {os.path.relpath(logfile, REPO_ROOT)}  "
+          f"({len(observed)} distinct words observed)")
+    print(f"NAMES words that hit the legacy router:   {len(hit)}")
+    print(f"NAMES words never seen (retirement cand.): {len(unseen)}")
+    print(f"observed words not in NAMES (new/aliases): {len(extra)}")
+    print(f"\nlegacy-router-hit NAMES words ({len(hit)}):")
+    for w in hit:
+        print(f"  {w}")
+
+
 def main():
     cur = build_census()
     print_report(cur)
@@ -167,6 +193,17 @@ def main():
         with open(BASELINE_FILE) as f:
             base = json.load(f)
         print_diff(base, cur)
+    elif '--fallback' in sys.argv:
+        i = sys.argv.index('--fallback')
+        if i + 1 >= len(sys.argv):
+            print("\n--fallback needs a logfile path (from ZOA_FALLBACK_LOG).",
+                  file=sys.stderr)
+            return 1
+        logfile = sys.argv[i + 1]
+        if not os.path.exists(logfile):
+            print(f"\nFallback log not found: {logfile}", file=sys.stderr)
+            return 1
+        print_fallback(cur, logfile)
     return 0
 
 
