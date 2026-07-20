@@ -365,6 +365,16 @@ module codeV_commands
     type(zoaplot_setting_manager)  :: curr_psm
     character(len=10024) :: cmdTOW
 
+    ! Fallback telemetry (see recordFallback / execFallbackReport): how often
+    ! each CMD-level word fell through the flip to the legacy CONTRO router.
+    integer, parameter :: MAX_FALLBACK = 2000
+    character(len=8) :: fallbackWords(MAX_FALLBACK)
+    integer          :: fallbackCounts(MAX_FALLBACK) = 0
+    integer          :: nFallback = 0
+    logical          :: fbLogChecked = .FALSE.
+    logical          :: fbLogOn = .FALSE.
+    character(len=256) :: fbLogFile = ''
+
     integer :: cmd_loop = 0
     integer, parameter :: VIE_LOOP = 1
     integer, parameter :: DRAW_LOOP = 2 ! While plot is being drawn
@@ -829,6 +839,11 @@ module codeV_commands
         zoaCmds(716)%cmd = 'MAE'
         zoaCmds(716)%execFunc => updateGeneralConstraint
 
+        ! Diagnostic: report which command words fell through to the legacy
+        ! router this session (drives data-driven retirement of NAMES/CMDER).
+        zoaCmds(717)%cmd = 'FALLBACK'
+        zoaCmds(717)%execFunc => execFallbackReport
+
 
     end subroutine
 
@@ -926,6 +941,81 @@ module codeV_commands
         handled = .FALSE.
         if (F1 /= 1) return          ! CMD level only
         handled = startCodeVLensUpdateCmd(WC)
+        ! A CMD-level word the new layer did NOT handle is going to the legacy
+        ! CONTRO/CMDER router -- record it so retirement can be data-driven.
+        if (.not. handled) call recordFallback(WC)
+    end subroutine
+
+    ! Fallback telemetry: tallies CMD-level command words that fell through to
+    ! the legacy router (a word never observed here over real use + the test
+    ! suite is a deletion candidate).  In-memory always; when the env var
+    ! ZOA_FALLBACK_LOG names a file, each word is also appended there so a
+    ! `meson test` run produces a corpus.
+    subroutine recordFallback(word)
+        character(len=*), intent(in) :: word
+        integer :: i, u, ios
+        character(len=8) :: w
+        logical :: found
+
+        w = adjustl(word)
+        if (w == ' ' .or. w == '?') return       ! blanks/queries are noise
+
+        found = .FALSE.
+        do i = 1, nFallback
+            if (fallbackWords(i) == w) then
+                fallbackCounts(i) = fallbackCounts(i) + 1
+                found = .TRUE.
+                exit
+            end if
+        end do
+        if (.not. found .and. nFallback < MAX_FALLBACK) then
+            nFallback = nFallback + 1
+            fallbackWords(nFallback)  = w
+            fallbackCounts(nFallback) = 1
+        end if
+
+        if (.not. fbLogChecked) then
+            call get_environment_variable('ZOA_FALLBACK_LOG', fbLogFile)
+            fbLogOn = (len_trim(fbLogFile) > 0)
+            fbLogChecked = .TRUE.
+        end if
+        if (fbLogOn) then
+            open(newunit=u, file=trim(fbLogFile), position='append', &
+                 action='write', iostat=ios)
+            if (ios == 0) then
+                write(u,'(A)') trim(w)
+                close(u)
+            end if
+        end if
+    end subroutine
+
+    ! FALLBACK command: report the legacy-fallback tally, most-hit first.
+    subroutine execFallbackReport(iptStr)
+        character(len=*) :: iptStr
+        integer :: i, j, order(MAX_FALLBACK), tmp
+
+        if (nFallback == 0) then
+            call zoa_emit("No legacy-fallback commands recorded this session.", "black")
+            return
+        end if
+
+        do i = 1, nFallback
+            order(i) = i
+        end do
+        ! simple selection sort by count descending (nFallback is small)
+        do i = 1, nFallback-1
+            do j = i+1, nFallback
+                if (fallbackCounts(order(j)) > fallbackCounts(order(i))) then
+                    tmp = order(i); order(i) = order(j); order(j) = tmp
+                end if
+            end do
+        end do
+
+        call zoa_emit("Legacy-fallback command tally (word: hits):", "black")
+        do i = 1, nFallback
+            call zoa_emit("  "//fallbackWords(order(i))//" : "// &
+                 & trim(int2str(fallbackCounts(order(i)))), "black")
+        end do
     end subroutine
      
     ! Would like to move these cmd_parser to command-utils, but there is a circulat
@@ -1519,7 +1609,13 @@ module codeV_commands
 
       subroutine kdpApiSilenceOff()
         use global_widgets, only: ioConfig
-        call ioConfig%restoreTextView()
+        ! Explicitly return to the default terminal, NOT restoreTextView():
+        ! the EOS/LNSEOS traces inside the silenced bracket redirect output
+        ! themselves, clobbering ioConfig's single-slot prev, so a restore
+        ! would land on the wrong view and leave the terminal stuck on the
+        ! hidden KDP dump.  Matches executeCodeVLensUpdateCommand, which ends
+        ! with setTextView(ID_TERMINAL_DEFAULT) for the same reason.
+        call ioConfig%setTextView(ID_TERMINAL_DEFAULT)
       end subroutine
       ! ----------------------------------------------------------------------
 

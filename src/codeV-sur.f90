@@ -268,6 +268,12 @@ module procedure execSUR
         integer :: numTokens
 
         call parse(iptStr, ' ', tokens, numTokens)
+        if (numTokens < 3) then
+            ! Missing value; tokens(3) would be uninitialized (parse leaves
+            ! unused slots stale), so guard before setSurfParamTyped.
+            call zoa_emit("RDY needs a surface and a value, e.g. 'RDY S2 100'.", "red")
+            return
+        end if
         if(isSurfCommand(trim(tokens(2)))) then
             surfNum = getSurfNumFromSurfCommand(trim(tokens(2)))
             ! Typed path; the refreshSurf resync (this surface's typed-store
@@ -435,8 +441,19 @@ module procedure execSUR
         use mod_kdp_api, only: kdp_lens_begin, kdp_chg, kdp_lens_cmd, &
                                kdp_lens_end, kdp_silent_begin, kdp_silent_end
         use type_utils, only: str2real8
+        use command_utils, only: isInputNumber
         integer, intent(in) :: surfNum
         character(len=*), intent(in) :: kdpCmd, valStr
+
+        ! Guard the value: str2real8 does an internal READ that aborts the
+        ! program on a blank/non-numeric string (the old executeCodeVLensUpdate-
+        ! Command text path degraded gracefully).  A user typo (e.g. "RDY S2"
+        ! with no value) must not crash.
+        if (.not. isInputNumber(trim(valStr))) then
+            call zoa_emit("Expected a numeric value for "//trim(kdpCmd)// &
+                & " -- e.g. 'RDY Sk 100'.", "red")
+            return
+        end if
 
         call kdp_silent_begin()
         call kdp_lens_begin()
