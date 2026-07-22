@@ -3592,11 +3592,25 @@ SUBROUTINE UPPER
    COMMON/FAST7/RA
    CHARACTER STRUC*140
    COMMON/JKSTRUC/STRUC
-   INTEGER I,J
+   INTEGER I,J,IQUOTE,IQC
+!  Uppercase the command word/qualifiers, but PROTECT quoted strings so a
+!  title/filename/label keeps its case (e.g. TIT 'OSDmirror' stays mixed).
+!  This is PRO2's only case fold; keeping quoted case means handlers can read
+!  the parsed command's own text instead of the raw INPUT buffer.
+   IQUOTE=0
    DO I=1,140
       J=ICHAR(STRUC(I:I))
-      IF(J.GE.97.AND.J.LE.122)&
-      &STRUC(I:I)=CHAR(J-32)
+      IF(IQUOTE.EQ.0.AND.(J.EQ.34.OR.J.EQ.39)) THEN
+         IQUOTE=1
+         IQC=J
+         CYCLE
+      END IF
+      IF(IQUOTE.EQ.1.AND.J.EQ.IQC) THEN
+         IQUOTE=0
+         CYCLE
+      END IF
+      IF(IQUOTE.EQ.1) CYCLE
+      IF(J.GE.97.AND.J.LE.122) STRUC(I:I)=CHAR(J-32)
    END DO
    RETURN
 END

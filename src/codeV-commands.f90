@@ -797,7 +797,7 @@ module codeV_commands
     ! The CMDER:426 hook remains as the safety net for commands that reach
     ! PROCES directly (kdp_exec, legacy-internal INPUT=).
     function dispatchCodeVSegment(seg) result(handled)
-        use DATMAI, only: F1, INPUT
+        use DATMAI, only: F1
         character(len=*), intent(in) :: seg
         logical :: handled
         character(len=140) :: segU
@@ -817,12 +817,8 @@ module codeV_commands
         if (numTokens < 1) return
         token = tokens(1)                       ! len-8 truncation on assignment
 
-        ! Mirror what PROCES would have set for a handler that reads the raw
-        ! command line: INPUT gets the ORIGINAL-case segment (so
-        ! parseTitleCommand and friends see the current command, and quoted
-        ! text keeps its case), and currentCommand gets the case-folded form
-        ! that PRO3 would have produced.
-        INPUT = seg
+        ! currentCommand is the case-folded form PRO3 would have set (quoted
+        ! strings kept their case in the fold above); handlers self-tokenize it.
         currentCommand = trim(segU)
         handled = startCodeVLensUpdateCmd(token)
         if (.not. handled) call recordFallback(token)

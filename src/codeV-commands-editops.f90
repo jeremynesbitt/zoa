@@ -416,11 +416,23 @@ contains
     end procedure newLens
 
     module procedure setLensTitle
-        use command_utils
-        ! parseTitleCommand() reads the raw INPUT buffer (case-preserved on
-        ! both the legacy and front-door paths -- the front door sets
-        ! INPUT = segment before dispatching for exactly this reason).
-        call executeCodeVLensUpdateCommand('LI '// parseTitleCommand())
+        ! Extract the quoted title from this command's own text (iptStr),
+        ! not the raw INPUT parse global.  Quoted-string case is preserved on
+        ! both dispatch paths now (the front door's fold and PRO2's UPPER both
+        ! protect quotes), so iptStr carries the title verbatim.
+        implicit none
+        character(len=80) :: restOfString, title
+        integer :: blankLoc, lQ, rQ
+
+        blankLoc = index(trim(iptStr), ' ', BACK=.FALSE.)
+        if (blankLoc == 0) return                 ! no argument
+        restOfString = iptStr(blankLoc+1:len_trim(iptStr))
+        lQ = index(restOfString, '''', BACK=.FALSE.)
+        rQ = index(restOfString, '''', BACK=.TRUE.)
+        if (lQ /= rQ .and. rQ > lQ) then
+            title = restOfString(lQ+1:rQ-1)
+            call executeCodeVLensUpdateCommand('LI '// trim(title))
+        end if
     end procedure setLensTitle
 
     module procedure processFileComment
