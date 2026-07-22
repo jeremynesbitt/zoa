@@ -1163,15 +1163,17 @@ SUBROUTINE INITKDP
    END DO
 9887 CALL CLOSE_FILE(16,1)
    !write(1,*) 'Got to line 1415'
-   INPUT='FIELDS RESET'
-   MULTICOM=.TRUE.
-   CALL PROCES
-   MULTICOM=.FALSE.
-   INPUT='RAYS RESET'
-   MULTICOM=.TRUE.
-   !write(1,*) 'Got to line 1422'
-   CALL PROCES
-   MULTICOM=.FALSE.
+!     Seed the default field and ray grids.  This was formerly done by the
+!     startup commands 'FIELDS RESET' / 'RAYS RESET', whose FIELDS/RAYS
+!     handlers (QRRYFL->RFRESET) were deleted with the legacy optimizer -- so
+!     they now trip "INVALID CMD LEVEL COMMAND" and, worse, leave FIELDX/RAYX
+!     unseeded for the surviving raytrace/LDM readers.  Call the still-present
+!     initializers (NEWFIELD/NEWRAY, KDP.f90) directly, replicating exactly
+!     what RFRESET did (clear the .DAT file, then re-seed the arrays).
+   call clear_file(trim(basePath)//'FIELDS.DAT')
+   CALL NEWFIELD
+   call clear_file(trim(basePath)//'RAYS.DAT')
+   CALL NEWRAY
 !
    !PRINT *, "Got to line 1361"
    !write(1,*) 'Got to line 1393'
