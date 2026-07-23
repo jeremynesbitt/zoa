@@ -1475,9 +1475,17 @@ module codeV_commands
       end subroutine
 
       subroutine kdpApiPostEos()
-        use global_widgets, only: curr_lens_data, sysConfig
+        use global_widgets, only: curr_lens_data, sysConfig, lens_editor_window
+        use lens_editor, only: rebuildLensEditorTable
+        use iso_c_binding, only: c_associated
         call curr_lens_data%update()
         call sysConfig%updateParameters()
+        ! Mirror CONTRO's post-EOS UI refresh: a typed kdp_api edit (RDY/CUY/THI,
+        ! the optimizer) commits via LENUP+LNSEOS without passing through CONTRO,
+        ! so the lens editor table must be rebuilt here or it goes stale.
+        if (c_associated(lens_editor_window)) then
+            call rebuildLensEditorTable()
+        end if
       end subroutine
 
       subroutine kdpApiSilenceOn()
