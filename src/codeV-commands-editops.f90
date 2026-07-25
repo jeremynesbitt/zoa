@@ -460,7 +460,14 @@ contains
         rQ = index(restOfString, '''', BACK=.TRUE.)
         if (lQ /= rQ .and. rQ > lQ) then
             title = restOfString(lQ+1:rQ-1)
-            call executeCodeVLensUpdateCommand('LI '// trim(title))
+            ! SLI sets LI=WS (with SST=1), so the title goes straight into the
+            ! string field -- and typed avoids PRO3 having to re-tokenize a
+            ! multi-word title out of the command text.
+            call kdp_silent_begin()
+            call kdp_lens_begin()
+            call kdp_lens_cmd('LI', ws=trim(title))
+            call kdp_lens_end()
+            call kdp_silent_end()
         end if
     end procedure setLensTitle
 
