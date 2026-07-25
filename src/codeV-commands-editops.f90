@@ -314,8 +314,8 @@ contains
                         call executeCodeVLensUpdateCommand('INSK, '//trim(int2str(i)), &
                         & exitLensUpdate=.TRUE., refreshAll=.TRUE.)
                         if (movePIM) then
-                            call executeCodeVLensUpdateCommand('CHG '//trim(int2str(pimSurf))//'; TSD; GO')
-                            call executeCodeVLensUpdateCommand('CHG '//trim(int2str(i))//'; PY, 0; GO')
+                            call executeCodeVLensUpdateCommand('CHG '//trim(int2str(pimSurf))//'; TSD')
+                            call executeCodeVLensUpdateCommand('CHG '//trim(int2str(i))//'; PY, 0')
                         end if
                     end do
                 else
@@ -329,8 +329,8 @@ contains
                     call executeCodeVLensUpdateCommand('INSK, '//trim(int2str(surfNum)), &
                     & exitLensUpdate=.TRUE., refreshAll=.TRUE.)
                     if (movePIM) then
-                        call executeCodeVLensUpdateCommand('CHG '//trim(int2str(surfNum - 1))//'; TSD; GO')
-                        call executeCodeVLensUpdateCommand('CHG '//trim(int2str(surfNum))//'; PY, 0; GO')
+                        call executeCodeVLensUpdateCommand('CHG '//trim(int2str(surfNum - 1))//'; TSD')
+                        call executeCodeVLensUpdateCommand('CHG '//trim(int2str(surfNum))//'; PY, 0')
                     end if
                 else
                     call zoa_emit("Error:  Incorrect surface number input "//trim(tokens(2)), "red")

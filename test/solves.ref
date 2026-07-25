@@ -4,6 +4,7 @@ All constraints removed
 
 Field Weights Command WTF     100     100     100 Not supported
 
+
 INVALID CMD LEVEL COMMAND
 ENTRANCE PUPIL
 DIA       9.9477
@@ -31,7 +32,6 @@ STO:    -37.530    1.50000               N-F2_SCH2000   100     100     100
 IMG:    INFINITY    0.00000                              100     100     100
 Deleting PIM
 
-INVALID CMD LEVEL COMMAND
 ENTRANCE PUPIL
 DIA       9.9477
 THI       6.7224
@@ -52,6 +52,7 @@ All constraints removed
 
 
 Field Weights Command WTF     100     100     100 Not supported
+
 Number of tokens is 2
 File name to save is SOLVETEST.zoa
 All constraints removed
@@ -59,6 +60,7 @@ All constraints removed
 
 
 Field Weights Command WTF     100     100     100 Not supported
+
 SOLVES
 
 SURF TYPE   PARAMETER       VALUE           SLV DATUM
@@ -74,6 +76,7 @@ All constraints removed
 
 
 Field Weights Command WTF     100     100     100 Not supported
+
 Number of tokens is 2
 File name to save is SOLVETEST.zoa
 All constraints removed
@@ -81,6 +84,7 @@ All constraints removed
 
 
 Field Weights Command WTF     100     100     100 Not supported
+
 SOLVES
 
 SURF TYPE   PARAMETER       VALUE           SLV DATUM
@@ -96,6 +100,7 @@ All constraints removed
 
 
 Field Weights Command WTF     100     100     100 Not supported
+
 Number of tokens is 2
 File name to save is SOLVETEST.zoa
 All constraints removed
@@ -103,6 +108,7 @@ All constraints removed
 
 
 Field Weights Command WTF     100     100     100 Not supported
+
 SOLVES
 
 SURF TYPE   PARAMETER       VALUE           SLV DATUM

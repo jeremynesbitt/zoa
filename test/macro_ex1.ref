@@ -3,6 +3,7 @@ All constraints removed
 
 
 Field Weights Command WTF     100     100     100 Not supported
+
 All constraints removed
 
 
@@ -47,8 +48,8 @@ ASPHERES
 # 2 K -2.29794
                                                           l
 Name  Role        Typ  Target              Value               diff
-SAS   Constraint  =    0.0000000000000000  -0.0142058640103768  -0.0142058640103768
-SPO   Operand          0.0000000000000000   0.0074612199288261   0.0074612199288261
+SAS   Constraint  =    0.0000000000000000  -0.0142058623717617  -0.0142058623717617
+SPO   Operand          0.0000000000000000   0.0074612190356860   0.0074612190356860
 iSpotCalcMethod is 1
 Plot Cmd is  FOB    0.0000000000000000          0.0000000000000000; SPOT RECT;RECT 20;SPD 1
 iSpotCalcMethod is 1
@@ -68,8 +69,8 @@ ASPHERES
 # 2 K -2.29936
                                                           l
 Name  Role        Typ  Target              Value               diff
-SAS   Constraint  =    0.0000000000000000  -0.0071029286437745  -0.0071029286437745
-SPO   Operand          0.0000000000000000   0.0035922016492491   0.0035922016492491
+SAS   Constraint  =    0.0000000000000000  -0.0071029311859152  -0.0071029311859152
+SPO   Operand          0.0000000000000000   0.0035922030330801   0.0035922030330801
                                                           l
 CYCLE NUMBER 3
    ERROR FUNCTION = 0.00001
@@ -83,8 +84,8 @@ ASPHERES
 # 2 K -2.29936
                                                           l
 Name  Role        Typ  Target              Value               diff
-SAS   Constraint  =    0.0000000000000000  -0.0071029286437745  -0.0071029286437745
-SPO   Operand          0.0000000000000000   0.0035922016492491   0.0035922016492491
+SAS   Constraint  =    0.0000000000000000  -0.0071029311859152  -0.0071029311859152
+SPO   Operand          0.0000000000000000   0.0035922030330801   0.0035922030330801
 AUT: done after 3 iterations, status: Required accuracy for solution obtained
 ENTRANCE PUPIL
 DIA       20.0000

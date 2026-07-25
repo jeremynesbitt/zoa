@@ -3,6 +3,7 @@ All constraints removed
 
 
 Field Weights Command WTF     100     100     100 Not supported
+
 AUT: no operand defined; minimizing spot size (SPO)
 
 AUT: variable thickness S3 raised to its lower limit 2.00000
@@ -2852,6 +2853,7 @@ All constraints removed
 
 
 Field Weights Command WTF     100     100     100 Not supported
+
 AUT: no variables are defined; nothing to optimize.
 Set at least one variable first (e.g. CCY S2 0, THC S3 0, KC S2 0), or use the lens editor's Set Variable menu.
 AUT: no variables are defined; nothing to optimize.
@@ -2862,6 +2864,7 @@ All constraints removed
 
 
 Field Weights Command WTF     100     100     100 Not supported
+
 About to add operand SPO
   #   NAME   ROLE         TYPE        TARGET   WEIGHT
   -   ----   ----------   ----   -----------   ------
@@ -2876,6 +2879,7 @@ All constraints removed
 
 
 Field Weights Command WTF     100     100     100 Not supported
+
 About to add operand SPO
   #   NAME   ROLE         TYPE        TARGET   WEIGHT
   -   ----   ----------   ----   -----------   ------
@@ -2891,6 +2895,7 @@ All constraints removed
 
 
 Field Weights Command WTF     100     100     100 Not supported
+
 MXT (max element thickness) = 14.00000
 AUT: no variables are defined; nothing to optimize.
 Set at least one variable first (e.g. CCY S2 0, THC S3 0, KC S2 0), or use the lens editor's Set Variable menu.
@@ -2903,6 +2908,7 @@ All constraints removed
 
 
 Field Weights Command WTF     100     100     100 Not supported
+
 No merit entries (operands or constraints) defined
 General (variable thicknesses): MXT 14.00000  MNT 2.00000  MNE 1.50000  MNA 0.10000  MAE 0.00250
 All constraints removed
@@ -2910,6 +2916,7 @@ All constraints removed
 
 
 Field Weights Command WTF     100     100     100 Not supported
+
 No merit entries (operands or constraints) defined
 General (variable thicknesses): MXT 12.00000  MNT 2.00000  MNE 2.00000  MNA 0.10000  MAE 0.00250
 All constraints removed
@@ -2917,6 +2924,7 @@ All constraints removed
 
 
 Field Weights Command WTF     100     100     100 Not supported
+
 AUT: no operand defined; minimizing spot size (SPO)
 
 iSpotCalcMethod is 1

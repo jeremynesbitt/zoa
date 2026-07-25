@@ -3,6 +3,7 @@ All constraints removed
 
 
 Field Weights Command WTF     100     100     100 Not supported
+
 AUTUI requires GUI
 FANS requires GUI
 EDI PREF requires GUI

@@ -453,7 +453,7 @@ contains
             case('PIM')
                 call zoa_emit("Deleting PIM", "blue")
                 surfNum = curr_lens_data%num_surfaces - 2
-                call executeCodeVLensUpdateCommand('CHG '//trim(int2str(surfNum))//'; TSD ;GO')
+                call executeCodeVLensUpdateCommand('CHG '//trim(int2str(surfNum))//'; TSD')
             case('SOL')
                 ! DEL SOL <verb> Sk : delete the solve of that class on surface Sk.
                 !   CUY -> CSDY (YZ curvature), CUX -> CSDX (XZ curvature),
@@ -532,7 +532,7 @@ contains
         integer :: surfNum
 
         surfNum = curr_lens_data%num_surfaces - 2
-        call executeCodeVLensUpdateCommand('CHG '//trim(int2str(surfNum))//'; PY, 0; GO')
+        call executeCodeVLensUpdateCommand('CHG '//trim(int2str(surfNum))//'; PY, 0')
     end procedure setParaxialImageSolve
 
     module function getSetGlassText(strInput) result(strOut)

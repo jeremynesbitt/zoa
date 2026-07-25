@@ -3,6 +3,7 @@ All constraints removed
 
 
 Field Weights Command WTF     100     100     100 Not supported
+
 TRACING        256 RAYS AT WAVELENGTH 1
  CAPFN RAY TRACING COMPLETED
  PERFORMING "CAPFN" CALCULATIONS...

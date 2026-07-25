@@ -430,7 +430,7 @@ contains
             if (isSurfCommand(trim(tokens(2)))) then
                 surfNum = getSurfNumFromSurfCommand(trim(tokens(2)))
                 if (isInputNumber(trim(tokens(3)))) then
-                    call executeCodeVLensUpdateCommand('CHG '//trim(int2str(surfNum))//'; CLAP '//trim(tokens(3))//';GO')
+                    call executeCodeVLensUpdateCommand('CHG '//trim(int2str(surfNum))//'; CLAP '//trim(tokens(3)))
                 else
                     call zoa_emit("Error: unable to intepret number for input argument "//trim(tokens(3)), "red")
                     return

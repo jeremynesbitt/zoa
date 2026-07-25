@@ -3,6 +3,7 @@ All constraints removed
 
 
 Field Weights Command WTF     100 Not supported
+
           RDY          THI     RMD          GLA          CCY     THC     GLC
 OBJ:    INFINITY    INFINITY                              100     100     100
 001:    50.00000    6.00000               N-SK16_SCH2000 100     100     100
@@ -226,6 +227,7 @@ All constraints removed
 
 
 Field Weights Command WTF     100 Not supported
+
 CURRENT LENS DATA LISTING
 OSDasdoublet
 THE CURRENT LIC IS BLANK
@@ -435,6 +437,7 @@ All constraints removed
 
 
 Field Weights Command WTF     100 Not supported
+
 All constraints removed
 
 
@@ -479,8 +482,8 @@ ASPHERES
 # 2 K 0.00000
                                                           l
 Name  Role        Typ  Target              Value               diff
-SAS   Constraint  =    0.0000000000000000  -5.7517061601383803  -5.7517061601383803
-SPO   Operand          0.0000000000000000   4.7335241454217698   4.7335241454217698
+SAS   Constraint  =    0.0000000000000000  -5.7517061584997915  -5.7517061584997915
+SPO   Operand          0.0000000000000000   4.7335241453855348   4.7335241453855348
 iSpotCalcMethod is 1
 Plot Cmd is  FOB    0.0000000000000000          0.0000000000000000; SPOT RECT;RECT 20;SPD 1
 iSpotCalcMethod is 1
@@ -500,8 +503,8 @@ ASPHERES
 # 2 K 0.00000
                                                           l
 Name  Role        Typ  Target              Value               diff
-SAS   Constraint  =    0.0000000000000000  -2.8758530757077780  -2.8758530757077780
-SPO   Operand          0.0000000000000000   4.9920006718784471   4.9920006718784471
+SAS   Constraint  =    0.0000000000000000  -2.8758530792498944  -2.8758530792498944
+SPO   Operand          0.0000000000000000   4.9920006760242748   4.9920006760242748
 iSpotCalcMethod is 1
 Plot Cmd is  FOB    0.0000000000000000          0.0000000000000000; SPOT RECT;RECT 20;SPD 1
 iSpotCalcMethod is 1
@@ -521,8 +524,8 @@ ASPHERES
 # 2 K 0.00000
                                                           l
 Name  Role        Typ  Target              Value               diff
-SAS   Constraint  =    0.0000000000000000  -1.4379265374924779  -1.4379265374924779
-SPO   Operand          0.0000000000000000   6.4421995069531697   6.4421995069531697
+SAS   Constraint  =    0.0000000000000000  -1.4379265396249463  -1.4379265396249463
+SPO   Operand          0.0000000000000000   6.4421995168698976   6.4421995168698976
 iSpotCalcMethod is 1
 Plot Cmd is  FOB    0.0000000000000000          0.0000000000000000; SPOT RECT;RECT 20;SPD 1
 iSpotCalcMethod is 1
@@ -542,8 +545,8 @@ ASPHERES
 # 2 K 0.00000
                                                           l
 Name  Role        Typ  Target              Value               diff
-SAS   Constraint  =    0.0000000000000000  -0.7189632723848262  -0.7189632723848262
-SPO   Operand          0.0000000000000000   4.7802665696877211   4.7802665696877211
+SAS   Constraint  =    0.0000000000000000  -0.7189632698124740  -0.7189632698124740
+SPO   Operand          0.0000000000000000   4.7802665656790975   4.7802665656790975
 iSpotCalcMethod is 1
 Plot Cmd is  FOB    0.0000000000000000          0.0000000000000000; SPOT RECT;RECT 20;SPD 1
 iSpotCalcMethod is 1
@@ -565,8 +568,8 @@ ASPHERES
 # 2 K 0.00000
                                                           l
 Name  Role        Typ  Target              Value               diff
-SAS   Constraint  =    0.0000000000000000  -0.6830151065294439  -0.6830151065294439
-SPO   Operand          0.0000000000000000   4.7248326312865991   4.7248326312865991
+SAS   Constraint  =    0.0000000000000000  -0.6830151063218511  -0.6830151063218511
+SPO   Operand          0.0000000000000000   4.7248326309697894   4.7248326309697894
 iSpotCalcMethod is 1
 Plot Cmd is  FOB    0.0000000000000000          0.0000000000000000; SPOT RECT;RECT 20;SPD 1
 iSpotCalcMethod is 1
@@ -590,8 +593,8 @@ ASPHERES
 # 2 K 0.00000
                                                           l
 Name  Role        Typ  Target              Value               diff
-SAS   Constraint  =    0.0000000000000000  -0.6796000303531834  -0.6796000303531834
-SPO   Operand          0.0000000000000000   4.7196259411167771   4.7196259411167771
+SAS   Constraint  =    0.0000000000000000  -0.6796000307902418  -0.6796000307902418
+SPO   Operand          0.0000000000000000   4.7196259417824784   4.7196259417824784
 iSpotCalcMethod is 1
 Plot Cmd is  FOB    0.0000000000000000          0.0000000000000000; SPOT RECT;RECT 20;SPD 1
 iSpotCalcMethod is 1
@@ -617,8 +620,8 @@ ASPHERES
 # 2 K 0.00000
                                                           l
 Name  Role        Typ  Target              Value               diff
-SAS   Constraint  =    0.0000000000000000  -0.6792602303356434  -0.6792602303356434
-SPO   Operand          0.0000000000000000   4.7191084275665958   4.7191084275665958
+SAS   Constraint  =    0.0000000000000000  -0.6792602307748467  -0.6792602307748467
+SPO   Operand          0.0000000000000000   4.7191084282354314   4.7191084282354314
 iSpotCalcMethod is 1
 Plot Cmd is  FOB    0.0000000000000000          0.0000000000000000; SPOT RECT;RECT 20;SPD 1
 iSpotCalcMethod is 1
@@ -644,8 +647,8 @@ ASPHERES
 # 2 K 0.00000
                                                           l
 Name  Role        Typ  Target              Value               diff
-SAS   Constraint  =    0.0000000000000000  -0.6789206023181159  -0.6789206023181159
-SPO   Operand          0.0000000000000000   4.7185912755718498   4.7185912755718498
+SAS   Constraint  =    0.0000000000000000  -0.6789206006594584  -0.6789206006594584
+SPO   Operand          0.0000000000000000   4.7185912730464494   4.7185912730464494
 iSpotCalcMethod is 1
 Plot Cmd is  FOB    0.0000000000000000          0.0000000000000000; SPOT RECT;RECT 20;SPD 1
 iSpotCalcMethod is 1
@@ -671,8 +674,8 @@ ASPHERES
 # 2 K 0.00000
                                                           l
 Name  Role        Typ  Target              Value               diff
-SAS   Constraint  =    0.0000000000000000  -0.6785811423005965  -0.6785811423005965
-SPO   Operand          0.0000000000000000   4.7180744788337394   4.7180744788337394
+SAS   Constraint  =    0.0000000000000000  -0.6785811403591293  -0.6785811403591293
+SPO   Operand          0.0000000000000000   4.7180744758783195   4.7180744758783195
 iSpotCalcMethod is 1
 Plot Cmd is  FOB    0.0000000000000000          0.0000000000000000; SPOT RECT;RECT 20;SPD 1
 iSpotCalcMethod is 1
@@ -698,8 +701,8 @@ ASPHERES
 # 2 K 0.00000
                                                           l
 Name  Role        Typ  Target              Value               diff
-SAS   Constraint  =    0.0000000000000000  -0.6782418502830835  -0.6782418502830835
-SPO   Operand          0.0000000000000000   4.7175580371463628   4.7175580371463628
+SAS   Constraint  =    0.0000000000000000  -0.6782418497889501  -0.6782418497889501
+SPO   Operand          0.0000000000000000   4.7175580363943084   4.7175580363943084
 iSpotCalcMethod is 1
 Plot Cmd is  FOB    0.0000000000000000          0.0000000000000000; SPOT RECT;RECT 20;SPD 1
 iSpotCalcMethod is 1
@@ -725,8 +728,8 @@ ASPHERES
 # 2 K 0.00000
                                                           l
 Name  Role        Typ  Target              Value               diff
-SAS   Constraint  =    0.0000000000000000  -0.6779027302655811  -0.6779027302655811
-SPO   Operand          0.0000000000000000   4.7170419563908075   4.7170419563908075
+SAS   Constraint  =    0.0000000000000000  -0.6779027288640570  -0.6779027288640570
+SPO   Operand          0.0000000000000000   4.7170419542581410   4.7170419542581410
 iSpotCalcMethod is 1
 Plot Cmd is  FOB    0.0000000000000000          0.0000000000000000; SPOT RECT;RECT 20;SPD 1
 iSpotCalcMethod is 1
@@ -752,8 +755,8 @@ ASPHERES
 # 2 K 0.00000
                                                           l
 Name  Role        Typ  Target              Value               diff
-SAS   Constraint  =    0.0000000000000000  -0.6775637782480852  -0.6775637782480852
-SPO   Operand          0.0000000000000000   4.7165262302727236   4.7165262302727236
+SAS   Constraint  =    0.0000000000000000  -0.6775637774996248  -0.6775637774996248
+SPO   Operand          0.0000000000000000   4.7165262291340273   4.7165262291340273
 iSpotCalcMethod is 1
 Plot Cmd is  FOB    0.0000000000000000          0.0000000000000000; SPOT RECT;RECT 20;SPD 1
 iSpotCalcMethod is 1
@@ -779,8 +782,8 @@ ASPHERES
 # 2 K 0.00000
                                                           l
 Name  Role        Typ  Target              Value               diff
-SAS   Constraint  =    0.0000000000000000  -0.6772249982306018  -0.6772249982306018
-SPO   Operand          0.0000000000000000   4.7160108646714818   4.7160108646714818
+SAS   Constraint  =    0.0000000000000000  -0.6772249956108743  -0.6772249956108743
+SPO   Operand          0.0000000000000000   4.7160108606866320   4.7160108606866320
 iSpotCalcMethod is 1
 Plot Cmd is  FOB    0.0000000000000000          0.0000000000000000; SPOT RECT;RECT 20;SPD 1
 iSpotCalcMethod is 1
@@ -808,8 +811,8 @@ ASPHERES
 # 2 K 0.00000
                                                           l
 Name  Role        Typ  Target              Value               diff
-SAS   Constraint  =    0.0000000000000000  -0.6771911342288534  -0.6771911342288534
-SPO   Operand          0.0000000000000000   4.7159593548374001   4.7159593548374001
+SAS   Constraint  =    0.0000000000000000  -0.6771911343610953  -0.6771911343610953
+SPO   Operand          0.0000000000000000   4.7159593550385477   4.7159593550385477
 iSpotCalcMethod is 1
 Plot Cmd is  FOB    0.0000000000000000          0.0000000000000000; SPOT RECT;RECT 20;SPD 1
 iSpotCalcMethod is 1
@@ -837,8 +840,8 @@ ASPHERES
 # 2 K 0.00000
                                                           l
 Name  Role        Typ  Target              Value               diff
-SAS   Constraint  =    0.0000000000000000  -0.6771572742271059  -0.6771572742271059
-SPO   Operand          0.0000000000000000   4.7159078520738920   4.7159078520738920
+SAS   Constraint  =    0.0000000000000000  -0.6771572748043737  -0.6771572748043737
+SPO   Operand          0.0000000000000000   4.7159078529519425   4.7159078529519425
 iSpotCalcMethod is 1
 Plot Cmd is  FOB    0.0000000000000000          0.0000000000000000; SPOT RECT;RECT 20;SPD 1
 iSpotCalcMethod is 1
@@ -866,8 +869,8 @@ ASPHERES
 # 2 K 0.00000
                                                           l
 Name  Role        Typ  Target              Value               diff
-SAS   Constraint  =    0.0000000000000000  -0.6771234182253577  -0.6771234182253577
-SPO   Operand          0.0000000000000000   4.7158563563805576   4.7158563563805576
+SAS   Constraint  =    0.0000000000000000  -0.6771234169406338  -0.6771234169406338
+SPO   Operand          0.0000000000000000   4.7158563544264798   4.7158563544264798
 iSpotCalcMethod is 1
 Plot Cmd is  FOB    0.0000000000000000          0.0000000000000000; SPOT RECT;RECT 20;SPD 1
 iSpotCalcMethod is 1
@@ -895,8 +898,8 @@ ASPHERES
 # 2 K 0.00000
                                                           l
 Name  Role        Typ  Target              Value               diff
-SAS   Constraint  =    0.0000000000000000  -0.6770895622236112  -0.6770895622236112
-SPO   Operand          0.0000000000000000   4.7158048616730674   4.7158048616730674
+SAS   Constraint  =    0.0000000000000000  -0.6770895607697880  -0.6770895607697880
+SPO   Operand          0.0000000000000000   4.7158048594618398   4.7158048594618398
 iSpotCalcMethod is 1
 Plot Cmd is  FOB    0.0000000000000000          0.0000000000000000; SPOT RECT;RECT 20;SPD 1
 iSpotCalcMethod is 1
@@ -926,8 +929,8 @@ ASPHERES
 # 2 K 0.00000
                                                           l
 Name  Role        Typ  Target              Value               diff
-SAS   Constraint  =    0.0000000000000000  -0.6770861742234358  -0.6770861742234358
-SPO   Operand          0.0000000000000000   4.7157997086062000   4.7157997086062000
+SAS   Constraint  =    0.0000000000000000  -0.6770861753219825  -0.6770861753219825
+SPO   Operand          0.0000000000000000   4.7157997102770643   4.7157997102770643
 iSpotCalcMethod is 1
 Plot Cmd is  FOB    0.0000000000000000          0.0000000000000000; SPOT RECT;RECT 20;SPD 1
 iSpotCalcMethod is 1
@@ -957,8 +960,8 @@ ASPHERES
 # 2 K 0.00000
                                                           l
 Name  Role        Typ  Target              Value               diff
-SAS   Constraint  =    0.0000000000000000  -0.6770827902232613  -0.6770827902232613
-SPO   Operand          0.0000000000000000   4.7157945616330883   4.7157945616330883
+SAS   Constraint  =    0.0000000000000000  -0.6770827898911070  -0.6770827898911070
+SPO   Operand          0.0000000000000000   4.7157945611278969   4.7157945611278969
 iSpotCalcMethod is 1
 Plot Cmd is  FOB    0.0000000000000000          0.0000000000000000; SPOT RECT;RECT 20;SPD 1
 iSpotCalcMethod is 1
@@ -988,8 +991,8 @@ ASPHERES
 # 2 K 0.00000
                                                           l
 Name  Role        Typ  Target              Value               diff
-SAS   Constraint  =    0.0000000000000000  -0.6770794062230868  -0.6770794062230868
-SPO   Operand          0.0000000000000000   4.7157894146698336   4.7157894146698336
+SAS   Constraint  =    0.0000000000000000  -0.6770794044771582  -0.6770794044771582
+SPO   Operand          0.0000000000000000   4.7157894120143276   4.7157894120143276
 iSpotCalcMethod is 1
 Plot Cmd is  FOB    0.0000000000000000          0.0000000000000000; SPOT RECT;RECT 20;SPD 1
 iSpotCalcMethod is 1
@@ -1019,8 +1022,8 @@ ASPHERES
 # 2 K 0.00000
                                                           l
 Name  Role        Typ  Target              Value               diff
-SAS   Constraint  =    0.0000000000000000  -0.6770760182229115  -0.6770760182229115
-SPO   Operand          0.0000000000000000   4.7157842616325549   4.7157842616325549
+SAS   Constraint  =    0.0000000000000000  -0.6770760190801359  -0.6770760190801359
+SPO   Operand          0.0000000000000000   4.7157842629363609   4.7157842629363609
 iSpotCalcMethod is 1
 Plot Cmd is  FOB    0.0000000000000000          0.0000000000000000; SPOT RECT;RECT 20;SPD 1
 iSpotCalcMethod is 1
@@ -1052,8 +1055,8 @@ ASPHERES
 # 2 K 0.00000
                                                           l
 Name  Role        Typ  Target              Value               diff
-SAS   Constraint  =    0.0000000000000000  -0.6770756822228935  -0.6770756822228935
-SPO   Operand          0.0000000000000000   4.7157837505880762   4.7157837505880762
+SAS   Constraint  =    0.0000000000000000  -0.6770756805421260  -0.6770756805421260
+SPO   Operand          0.0000000000000000   4.7157837480316847   4.7157837480316847
 iSpotCalcMethod is 1
 Plot Cmd is  FOB    0.0000000000000000          0.0000000000000000; SPOT RECT;RECT 20;SPD 1
 iSpotCalcMethod is 1
@@ -1085,8 +1088,8 @@ ASPHERES
 # 2 K 0.00000
                                                           l
 Name  Role        Typ  Target              Value               diff
-SAS   Constraint  =    0.0000000000000000  -0.6770753422228747  -0.6770753422228747
-SPO   Operand          0.0000000000000000   4.7157832334598293   4.7157832334598293
+SAS   Constraint  =    0.0000000000000000  -0.6770753420042880  -0.6770753420042880
+SPO   Operand          0.0000000000000000   4.7157832331273610   4.7157832331273610
 iSpotCalcMethod is 1
 Plot Cmd is  FOB    0.0000000000000000          0.0000000000000000; SPOT RECT;RECT 20;SPD 1
 iSpotCalcMethod is 1
@@ -1118,8 +1121,8 @@ ASPHERES
 # 2 K 0.00000
                                                           l
 Name  Role        Typ  Target              Value               diff
-SAS   Constraint  =    0.0000000000000000  -0.6770750022228593  -0.6770750022228593
-SPO   Operand          0.0000000000000000   4.7157827163316819   4.7157827163316819
+SAS   Constraint  =    0.0000000000000000  -0.6770750034666183  -0.6770750034666183
+SPO   Operand          0.0000000000000000   4.7157827182233962   4.7157827182233962
 iSpotCalcMethod is 1
 Plot Cmd is  FOB    0.0000000000000000          0.0000000000000000; SPOT RECT;RECT 20;SPD 1
 iSpotCalcMethod is 1
@@ -1151,8 +1154,8 @@ ASPHERES
 # 2 K 0.00000
                                                           l
 Name  Role        Typ  Target              Value               diff
-SAS   Constraint  =    0.0000000000000000  -0.6770746662228414  -0.6770746662228414
-SPO   Operand          0.0000000000000000   4.7157822052874954   4.7157822052874954
+SAS   Constraint  =    0.0000000000000000  -0.6770746649291172  -0.6770746649291172
+SPO   Operand          0.0000000000000000   4.7157822033197832   4.7157822033197832
 AUT: done after 26 iterations, status: More than max_iter iterations in slsqp
 CURRENT LENS DATA LISTING
 New Lens From Template
