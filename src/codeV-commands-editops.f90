@@ -1,4 +1,7 @@
 submodule (codeV_commands) mod_codev_editops
+use mod_kdp_api, only: kdp_silent_begin, kdp_silent_end, kdp_lens_begin, &
+                       kdp_lens_end, kdp_chg, kdp_lens_cmd
+use iso_fortran_env, only: real64
 implicit none
 contains
 
@@ -311,11 +314,22 @@ contains
                         movePIM = (i == curr_lens_data%num_surfaces - 1) .AND. &
                                 & ldm%isPIMSolveOnSurf(i - 1)
                         pimSurf = i - 1
-                        call executeCodeVLensUpdateCommand('INSK, '//trim(int2str(i)), &
-                        & exitLensUpdate=.TRUE., refreshAll=.TRUE.)
+                        call kdp_silent_begin()
+                        call kdp_lens_begin()
+                        call kdp_lens_cmd('INSK', w1=real(i, real64))
+                        call kdp_lens_end(refreshAll=.TRUE.)
+                        call kdp_silent_end()
                         if (movePIM) then
-                            call executeCodeVLensUpdateCommand('CHG '//trim(int2str(pimSurf))//'; TSD')
-                            call executeCodeVLensUpdateCommand('CHG '//trim(int2str(i))//'; PY, 0')
+                            call kdp_silent_begin()
+                            call kdp_lens_begin()
+                            call kdp_chg(pimSurf)
+                            call kdp_lens_cmd('TSD')
+                            call kdp_lens_end()
+                            call kdp_lens_begin()
+                            call kdp_chg(i)
+                            call kdp_lens_cmd('PY', w1=0.0d0)
+                            call kdp_lens_end()
+                            call kdp_silent_end()
                         end if
                     end do
                 else
@@ -326,11 +340,22 @@ contains
                 if (surfNum .NE. -1) then
                     movePIM = (surfNum == curr_lens_data%num_surfaces - 1) .AND. &
                             & ldm%isPIMSolveOnSurf(surfNum - 1)
-                    call executeCodeVLensUpdateCommand('INSK, '//trim(int2str(surfNum)), &
-                    & exitLensUpdate=.TRUE., refreshAll=.TRUE.)
+                    call kdp_silent_begin()
+                    call kdp_lens_begin()
+                    call kdp_lens_cmd('INSK', w1=real(surfNum, real64))
+                    call kdp_lens_end(refreshAll=.TRUE.)
+                    call kdp_silent_end()
                     if (movePIM) then
-                        call executeCodeVLensUpdateCommand('CHG '//trim(int2str(surfNum - 1))//'; TSD')
-                        call executeCodeVLensUpdateCommand('CHG '//trim(int2str(surfNum))//'; PY, 0')
+                        call kdp_silent_begin()
+                        call kdp_lens_begin()
+                        call kdp_chg(surfNum - 1)
+                        call kdp_lens_cmd('TSD')
+                        call kdp_lens_end()
+                        call kdp_lens_begin()
+                        call kdp_chg(surfNum)
+                        call kdp_lens_cmd('PY', w1=0.0d0)
+                        call kdp_lens_end()
+                        call kdp_silent_end()
                     end if
                 else
                     call zoa_emit("Error:  Incorrect surface number input "//trim(tokens(2)), "red")
@@ -354,12 +379,16 @@ contains
         end if
 
         select case (trim(tokens(2)))
-        case ('M')
-            call executeCodeVLensUpdateCommand("UNITS MM")
-        case ('C')
-            call executeCodeVLensUpdateCommand("UNITS CM")
-        case ('I')
-            call executeCodeVLensUpdateCommand("UNITS IN")
+        case ('M', 'C', 'I')
+            call kdp_silent_begin()
+            call kdp_lens_begin()
+            select case (trim(tokens(2)))
+            case ('M'); call kdp_lens_cmd('UNITS', wq='MM')
+            case ('C'); call kdp_lens_cmd('UNITS', wq='CM')
+            case ('I'); call kdp_lens_cmd('UNITS', wq='IN')
+            end select
+            call kdp_lens_end()
+            call kdp_silent_end()
         case default
             call zoa_emit("DIM takes only M(mm), C(cm), or I(inches) as input", "red")
         end select
