@@ -1,4 +1,6 @@
 submodule (codeV_commands) mod_codev_plots
+use mod_kdp_api, only: kdp_silent_begin, kdp_silent_end, kdp_lens_begin, &
+                       kdp_lens_end, kdp_chg, kdp_lens_cmd
 implicit none
 contains
 
@@ -421,7 +423,12 @@ contains
         select case (numTokens)
         case (2)
             if (isInputNumber(trim(tokens(2)))) then
-                call executeCodeVLensUpdateCommand('CLAP, '//trim(tokens(2))//", 0.0, 0.0, "//trim(tokens(2)))
+                call kdp_silent_begin()
+                call kdp_lens_begin()
+                call kdp_lens_cmd('CLAP', w1=str2real8(trim(tokens(2))), w2=0.0d0, &
+                &                 w3=0.0d0, w4=str2real8(trim(tokens(2))))
+                call kdp_lens_end()
+                call kdp_silent_end()
             else
                 call zoa_emit("Error: unable to intepret number for input argument "//trim(tokens(2)), "red")
                 return
@@ -430,7 +437,12 @@ contains
             if (isSurfCommand(trim(tokens(2)))) then
                 surfNum = getSurfNumFromSurfCommand(trim(tokens(2)))
                 if (isInputNumber(trim(tokens(3)))) then
-                    call executeCodeVLensUpdateCommand('CHG '//trim(int2str(surfNum))//'; CLAP '//trim(tokens(3)))
+                    call kdp_silent_begin()
+                    call kdp_lens_begin()
+                    call kdp_chg(surfNum)
+                    call kdp_lens_cmd('CLAP', w1=str2real8(trim(tokens(3))))
+                    call kdp_lens_end()
+                    call kdp_silent_end()
                 else
                     call zoa_emit("Error: unable to intepret number for input argument "//trim(tokens(3)), "red")
                     return

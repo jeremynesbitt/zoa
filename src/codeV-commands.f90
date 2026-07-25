@@ -1584,6 +1584,9 @@ module codeV_commands
         use mod_lens_data_manager
         use global_widgets, only: curr_lens_data
         use command_utils, only: isInputNumber
+        use mod_kdp_api, only: kdp_silent_begin, kdp_silent_end, kdp_lens_begin, &
+                               kdp_lens_end, kdp_chg, kdp_lens_cmd
+        use iso_fortran_env, only: real64
         implicit none
         character(len=*) :: iptCmd
         integer :: surfNum, ptrIdx
@@ -1605,8 +1608,12 @@ module codeV_commands
                 ! CIR sequence emitted by a saved lens would otherwise overwrite an
                 ! existing surface instead of adding one.  See setSurfacePointer.)
                 surfNum = curr_lens_data%num_surfaces-1
-                call executeCodeVLensUpdateCommand('CHG '//trim(int2str(surfNum))// &
-                &  "; INSK "//trim(int2str(surfNum)))
+                call kdp_silent_begin()
+                call kdp_lens_begin()
+                call kdp_chg(surfNum)
+                call kdp_lens_cmd('INSK', w1=real(surfNum, real64))
+                call kdp_lens_end()
+                call kdp_silent_end()
                 call ldm%setSurfacePointer(surfNum)
             else ! Move pointer to next surface
                 call ldm%incrementSurfacePointer()
