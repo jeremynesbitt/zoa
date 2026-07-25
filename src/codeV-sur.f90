@@ -512,7 +512,12 @@ module procedure execSUR
                     if (trim(kdpCmd) == 'LBL') then
                         surfNum = ldm%getSurfacePointer()
                         tokens(2) = removeQuotes(trim(tokens(2)))
-                        call executeCodeVLensUpdateCommand(kdpCmd//' '//trim(tokens(2)))
+                        ! SLABEL sets LBL(SURF)=WS at the current surface pointer.
+                        call kdp_silent_begin()
+                        call kdp_lens_begin()
+                        call kdp_lens_cmd('LBL', ws=trim(tokens(2)))
+                        call kdp_lens_end()
+                        call kdp_silent_end()
                         return
                     end if
 
@@ -539,8 +544,12 @@ module procedure execSUR
                 ! Special case
                 if (trim(kdpCmd) == 'LBL') then
                     tokens(3) = removeQuotes(trim(tokens(3)))
-                    call executeCodeVLensUpdateCommand('CHG '//trim(int2str(surfNum))// &
-                    & '; '//kdpCmd//' '//trim(tokens(3)))
+                    call kdp_silent_begin()
+                    call kdp_lens_begin()
+                    call kdp_chg(surfNum)
+                    call kdp_lens_cmd('LBL', ws=trim(tokens(3)))
+                    call kdp_lens_end()
+                    call kdp_silent_end()
                 end if
             end if
         end select
