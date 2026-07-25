@@ -1,4 +1,6 @@
 submodule (codeV_commands) mod_codev_lensops
+use mod_kdp_api, only: kdp_silent_begin, kdp_silent_end, kdp_lens_begin, &
+                       kdp_lens_end, kdp_chg, kdp_lens_cmd
 implicit none
 contains
 
@@ -24,7 +26,13 @@ contains
             surfNum = ldm%getSurfacePointer()
         end if
 
-        call executeCodeVLensUpdateCommand('CHG '//trim(int2str(surfNum))//'; ASTOP; REFS')
+        call kdp_silent_begin()
+        call kdp_lens_begin()
+        call kdp_chg(surfNum)
+        call kdp_lens_cmd('ASTOP')
+        call kdp_lens_cmd('REFS')
+        call kdp_lens_end()
+        call kdp_silent_end()
     end procedure execSTO
 
     module procedure execRestore
@@ -365,12 +373,17 @@ contains
             surfNum = getSurfNumFromSurfCommand(trim(tokens(2)))
             if (numTokens > 2) then
                 select case(trim(tokens(3)))
-                case ('REFL')
-                    call executeCodeVLensUpdateCommand('CHG '//trim(int2str(surfNum))//'; REFL')
-                case ('REFR')
-                    call executeCodeVLensUpdateCommand('CHG '//trim(int2str(surfNum))//'; AIR')
-                case ('TIR')
-                    call executeCodeVLensUpdateCommand('CHG '//trim(int2str(surfNum))//'; REFLTIRO')
+                case ('REFL', 'REFR', 'TIR')
+                    call kdp_silent_begin()
+                    call kdp_lens_begin()
+                    call kdp_chg(surfNum)
+                    select case(trim(tokens(3)))
+                    case ('REFL'); call kdp_lens_cmd('REFL')
+                    case ('REFR'); call kdp_lens_cmd('AIR')
+                    case ('TIR');  call kdp_lens_cmd('REFLTIRO')
+                    end select
+                    call kdp_lens_end()
+                    call kdp_silent_end()
                 end select
             else
                 call zoa_emit("No Surface Modifier Selected.  Please try again", "red")
@@ -453,7 +466,12 @@ contains
             case('PIM')
                 call zoa_emit("Deleting PIM", "blue")
                 surfNum = curr_lens_data%num_surfaces - 2
-                call executeCodeVLensUpdateCommand('CHG '//trim(int2str(surfNum))//'; TSD')
+                call kdp_silent_begin()
+                call kdp_lens_begin()
+                call kdp_chg(surfNum)
+                call kdp_lens_cmd('TSD')
+                call kdp_lens_end()
+                call kdp_silent_end()
             case('SOL')
                 ! DEL SOL <verb> Sk : delete the solve of that class on surface Sk.
                 !   CUY -> CSDY (YZ curvature), CUX -> CSDX (XZ curvature),
@@ -470,8 +488,12 @@ contains
                         if (delSlot /= -1) then
                             call zoa_emit("Deleting Solve", "blue")
                             surfNum = getSurfNumFromSurfCommand(trim(tokens(4)))
-                            call executeCodeVLensUpdateCommand('CHG '//trim(int2str(surfNum))// &
-                            & '; '//trim(solve_del_cmd(delSlot))//' ;GO')
+                            call kdp_silent_begin()
+                            call kdp_lens_begin()
+                            call kdp_chg(surfNum)
+                            call kdp_lens_cmd(trim(solve_del_cmd(delSlot)))
+                            call kdp_lens_end()
+                            call kdp_silent_end()
                         else
                             call zoa_emit("Unknown solve type.  Expect DEL SOL CUY|CUX|THI Sk", "red")
                         end if
@@ -532,7 +554,12 @@ contains
         integer :: surfNum
 
         surfNum = curr_lens_data%num_surfaces - 2
-        call executeCodeVLensUpdateCommand('CHG '//trim(int2str(surfNum))//'; PY, 0')
+        call kdp_silent_begin()
+        call kdp_lens_begin()
+        call kdp_chg(surfNum)
+        call kdp_lens_cmd('PY', w1=0.0d0)
+        call kdp_lens_end()
+        call kdp_silent_end()
     end procedure setParaxialImageSolve
 
     module function getSetGlassText(strInput) result(strOut)
