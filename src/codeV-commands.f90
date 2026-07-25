@@ -1508,80 +1508,10 @@ module codeV_commands
       end subroutine
       ! ----------------------------------------------------------------------
 
-      subroutine executeCodeVLensUpdateCommand(iptCmd, debugFlag, exitLensUpdate, refreshSurf, refreshAll)
-        use kdp_utils, only: inLensUpdateLevel
-        use global_widgets, only: ioConfig
-        use DATLEN, only: SURF
-        use mod_lens_data_manager, only: ldm
-
-        implicit none
-        character(len=*) :: iptCmd
-        logical, optional :: debugFlag, exitLensUpdate
-        ! refreshSurf: a surface whose geometry this command just changed in ALENS.
-        ! Its frozen copy in the typed store (ldm%surfaces(k)%s) is re-synced from
-        ! ALENS BELOW, before the finalizing EOS traces, so a PIM/PY solve resolves
-        ! against the new geometry instead of the stale frozen radius.
-        integer, optional :: refreshSurf
-        ! refreshAll: this command changed the surface COUNT/layout (e.g. INSK), so
-        ! the whole typed store must be rebuilt from ALENS before the EOS traces --
-        ! otherwise the finalizing trace (and any PIM re-solve) runs against a
-        ! stale-layout store.
-        logical, optional :: refreshAll
-        logical :: redirectFlag, inUpdate
-        integer :: savedSurf
-
-        if(present(debugFlag)) then
-            redirectFlag = .NOT.debugFlag
-        else
-            redirectFlag = .TRUE.
-        end if
-
-        ! Hide KDP Commands from user
-        if (redirectFlag) call ioConfig%setTextView(ID_TERMINAL_KDPDUMP)
-
-        ! Preserve the current-surface pointer across the update.  Some commands
-        ! issued here recompute the lens (e.g. STO -> REFS) which resets the global
-        ! SURF to 0; without this, a saved lens's bare "S/STO/CIR" build sequence
-        ! loses its place and overwrites a surface instead of adding one.
-        savedSurf = SURF
-
-        inUpdate = inLensUpdateLevel()
-        if (inUpdate) then
-            call PROCESKDP(iptCmd)
-        else
-            !call PROCESKDP('U L;'// iptCmd //';EOS')
-            ! Update - do not exit lens update level to better support stops
-            ! clear apertures, etc
-            call PROCESKDP('U L;'// iptCmd )
-        end if
-
-        ! Re-sync the typed store BEFORE the EOS below traces, so PIM/PY solves
-        ! resolve off the new geometry: a full rebuild for a topology change
-        ! (refreshAll), else just the one edited surface (refreshSurf).
-        if (present(refreshAll)) then
-            if (refreshAll) call ldm%load_surfaces_from_alens()
-        else if (present(refreshSurf)) then
-            call ldm%refresh_typed_surf_geom(refreshSurf)
-        end if
-
-        ! If the called asked to exit update, then exit.
-        ! If we were not in lens update level, then exit (return to prior state)
-        !eosCalled = .FALSE.
-        if(present(exitLensUpdate)) then
-            if(exitLensUpdate) CALL PROCESKDP('EOS')
-        !    if(exitLensUpdate.eqv..TRUE..OR.inUpdate.eqv..FALSE.) CALL PROCESKDP('EOS')
-        end if
-         if(inUpdate.eqv..FALSE.) CALL PROCESKDP('EOS')
-
-        ! Restore the surface pointer clobbered by any recompute above.
-        SURF = savedSurf
-        
-
-    
-
-
-        if (redirectFlag) call ioConfig%setTextView(ID_TERMINAL_DEFAULT)
-      end subroutine
+      ! executeCodeVLensUpdateCommand (the legacy 'U L; <text>; EOS' funnel that
+      ! re-parsed formatted command strings through PROCESKDP) has been retired:
+      ! every lens-update caller now drives mod_kdp_api's kdp_lens_* typed API
+      ! directly.  See project_kdp_api_flip.
 
       function getSurfNumFromSurfCommand(iptCmd) result(surfNum)
         use mod_lens_data_manager
