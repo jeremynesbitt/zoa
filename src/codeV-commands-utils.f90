@@ -141,16 +141,30 @@ contains
     end procedure isInputSurfaceParameter
 
     module procedure setPickup
-        use pickup_manager, only: pickup_j_from_cli, pickup_set_cmd
+        use pickup_manager, only: pickup_j_from_cli, PIKUP_KINDS
+        use mod_kdp_api, only: kdp_silent_begin, kdp_silent_end, kdp_lens_begin, &
+                               kdp_lens_end, kdp_chg, kdp_lens_cmd
+        use iso_fortran_env, only: real64
         integer :: jIdx
 
-        ! CLI param name -> pickup kind via the table (RDY, THI, GLA, K, A..I);
-        ! the manager builds the KDP PIKUP command (incl. the GLASS no-scale form).
+        ! CLI param name -> pickup kind via the table (RDY, THI, GLA, K, A..I).
         jIdx = pickup_j_from_cli(param1)
         if (jIdx == 0) return
 
-        call executeCodeVLensUpdateCommand("CHG "//trim(int2str(si))//";"// &
-        & trim(pickup_set_cmd(jIdx, sj, scale, offset)))
+        ! PIKUP <qual>, <src>[, <scale>, <offset>] driven typed: qual->WQ, source
+        ! surface->W1, scale/offset->W2/W3 (full real64, no real2str).  The GLASS
+        ! kind takes no scale/offset.
+        call kdp_silent_begin()
+        call kdp_lens_begin()
+        call kdp_chg(si)
+        if (trim(PIKUP_KINDS(jIdx)%qual) == 'GLASS') then
+            call kdp_lens_cmd('PIKUP', wq='GLASS', w1=real(sj, real64))
+        else
+            call kdp_lens_cmd('PIKUP', wq=trim(PIKUP_KINDS(jIdx)%qual), &
+            &                 w1=real(sj, real64), w2=scale, w3=offset)
+        end if
+        call kdp_lens_end()
+        call kdp_silent_end()
     end procedure setPickup
 
     module procedure parsePickupInput
