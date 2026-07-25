@@ -708,7 +708,7 @@ end function
 ! Was having some trouble with the setRefFieldKDP sub so wrote this one to figure out
 ! what is going on.  Only one should survive...
 subroutine setMaxField(self)
-  use type_utils, only: real2str
+  use mod_kdp_api, only: kdp_lens_begin, kdp_lens_cmd, kdp_lens_end
    use iso_fortran_env, only: real64
   implicit none
   class(sys_config) :: self
@@ -717,41 +717,27 @@ subroutine setMaxField(self)
 
   case (FIELD_OBJECT_HEIGHT)
     if (self%refFieldValue(2) /= 0) then
-      call processLensUpdateCommand("SCY "//trim(real2str(self%refFieldValue(2))))
+      call kdp_lens_begin()
+      call kdp_lens_cmd('SCY', w1=self%refFieldValue(2))
+      call kdp_lens_end()
     end if
 
   case (FIELD_OBJECT_ANGLE_DEG)
-    call processLensUpdateCommand("SCY FANG "//trim(real2str(self%refFieldValue(2))))
-  end select ! Reference Field  
+      call kdp_lens_begin()
+      call kdp_lens_cmd('SCY', w1=self%refFieldValue(2), wq='FANG')
+      call kdp_lens_end()
+  end select ! Reference Field
   
 
 end subroutine
 
 ! THis is a minicopy of updateSurfCommand in codeV-commands.  But to avoid circular 
 ! dependency I put it here for now
-subroutine processLensUpdateCommand(strCMD)
-  use DATMAI
-  
-  character(len=*) :: strCMD
-
-  logical :: boolResult
- 
-  boolResult = .FALSE.
-  !IF (F1.EQ.0.AND.F5.EQ.1) boolResult = .TRUE.
-  IF(F6.EQ.1.AND.F10.EQ.0.OR.F6.EQ.1.AND.F11.EQ.0) boolResult = .TRUE.
-
-  if (boolResult) then 
-    call PROCESKDP(strCMD)
-  else
-    call PROCESKDP("U L; "//strCMD//"; EOS")
-  end if
-
-end subroutine
 
 subroutine setRefFieldKDP(self)
   ! hopefully temporary interface to set KDP system
   ! vars based on ref field value and field type
-  use type_utils, only: real2str
+  use mod_kdp_api, only: kdp_lens_begin, kdp_lens_cmd, kdp_lens_end
   use mod_system, only: sys_set_pxim, sys_set_pyim, sys_set_rxim, sys_set_ryim, &
      & sys_set_scx, sys_set_scx_fang, sys_set_scy, sys_set_scy_fang
   use DATLEN
@@ -765,18 +751,19 @@ subroutine setRefFieldKDP(self)
     !SYSTEM(16) = self%refFieldValue(1)
     call sys_set_scx( self%refFieldValue(1))
     call sys_set_scy( self%refFieldValue(2))
-    
+
     ! TODO:  For symmetric fields the value is the same.  If I want to support
     ! asymmetric field settings need to change this
     if (self%refFieldValue(2) /= 0.0) then
-    call processLensUpdateCommand("SCY "//trim(real2str(self%refFieldValue(2))))
+    call kdp_lens_begin()
+    call kdp_lens_cmd('SCY', w1=self%refFieldValue(2))
+    call kdp_lens_end()
     end if
     if (self%refFieldValue(1) /= 0.0) then
-    call processLensUpdateCommand("SCX "//trim(real2str(self%refFieldValue(1))))
+    call kdp_lens_begin()
+    call kdp_lens_cmd('SCX', w1=self%refFieldValue(1))
+    call kdp_lens_end()
     end if
-
-    !call PROCESKDP("U L; SCY "//trim(real2str(self%refFieldValue(2)))//';EOS')
-    !call PROCESKDP("U L; SCX "//trim(real2str(self%refFieldValue(2)))//';EOS')
 
   case (FIELD_OBJECT_ANGLE_DEG)
 
@@ -784,10 +771,12 @@ subroutine setRefFieldKDP(self)
     call sys_set_scy_fang( self%refFieldValue(2))
 
 
-    call processLensUpdateCommand("SCY FANG "//trim(real2str(self%refFieldValue(2))))
-    call processLensUpdateCommand("SCX FANG "//trim(real2str(self%refFieldValue(1))))
-    !call PROCESKDP("U L; SCY FANG "//trim(real2str(self%refFieldValue(2)))//';EOS')
-    !call PROCESKDP("U L; SCX FANG "//trim(real2str(self%refFieldValue(2)))//';EOS')
+    call kdp_lens_begin()
+    call kdp_lens_cmd('SCY', w1=self%refFieldValue(2), wq='FANG')
+    call kdp_lens_end()
+    call kdp_lens_begin()
+    call kdp_lens_cmd('SCX', w1=self%refFieldValue(1), wq='FANG')
+    call kdp_lens_end()
 
   case (FIELD_PARAX_IMAGE_HEIGHT)
         call sys_set_pxim( self%refFieldValue(1))
