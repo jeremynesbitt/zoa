@@ -521,26 +521,29 @@ contains
         integer :: numTokens
         real(kind=real64) :: wvReal
         logical :: CVERROR
-        character(len=1024) :: outStr
-        character(len=1024) :: strWL
+        real(kind=real64) :: wv(5)
+        character(len=32)  :: wvStr
 
         call parse(trim(iptStr), ' ', tokens, numTokens)
         numWavelengths = numTokens-1
 
         if (numTokens <= 6) then
-            outStr = 'WV, '
+            wv = 0.0_real64
             do i=2,numTokens
                 call ATODCODEV(tokens(i)(1:23), wvReal, CVERROR)
-                write(strWL, '(D23.15)') wvReal/1000.0_long
-                outStr = trim(outStr)//' '//trim(strWL)
+                ! Preserve the exact wavelength the legacy WV text path produced
+                ! (D23.15 round-trip): this diffraction intermediate is
+                ! ill-conditioned to 1 ULP, so quantizing here keeps results
+                ! byte-identical while still eliminating the PROCESKDP dispatch.
+                write(wvStr, '(D23.15)') wvReal/1000.0_long
+                read(wvStr, *) wv(i-1)
                 call sysConfig%setSpectralWeights(i-1, 1.0D0)
             end do
-            if (numTokens < 6) then
-                do i=numTokens+1,6
-                    outStr = trim(outStr)//' 0.0'
-                end do
-            end if
-            call executeCodeVLensUpdateCommand(trim(outStr))
+            call kdp_silent_begin()
+            call kdp_lens_begin()
+            call kdp_lens_cmd('WV', w1=wv(1), w2=wv(2), w3=wv(3), w4=wv(4), w5=wv(5))
+            call kdp_lens_end()
+            call kdp_silent_end()
         end if
     end procedure setWavelength
 
