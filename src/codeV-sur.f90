@@ -566,7 +566,7 @@ module procedure execSUR
     subroutine tryCodeVSolve(iptStr, verb, handled)
         use iso_fortran_env, only: real64
         use command_utils, only: isInputNumber
-        use solve_manager, only: solve_kdp_from_codev, solve_kind_from_cmd, solve_set_cmd
+        use solve_manager, only: solve_kdp_from_codev, solve_kind_from_cmd, SOLVE_KINDS
         character(len=*), intent(in) :: iptStr, verb
         logical, intent(out) :: handled
         integer :: surfNum, numTokens, kidx
@@ -591,8 +591,18 @@ module procedure execSUR
         end if
 
         kidx = solve_kind_from_cmd(trim(kdpWord))
-        call executeCodeVLensUpdateCommand('CHG '//trim(int2str(surfNum))// &
-        & '; '//trim(solve_set_cmd(kidx, target)), refreshSurf=surfNum)
+        ! Typed solve: the kind word into WC, the target straight into W1 (no
+        ! real2str,4 quantization).  Aplanatic kinds (nparams==0) take no value.
+        call kdp_silent_begin()
+        call kdp_lens_begin()
+        call kdp_chg(surfNum)
+        if (SOLVE_KINDS(kidx)%nparams == 0) then
+            call kdp_lens_cmd(trim(SOLVE_KINDS(kidx)%kdp_cmd))
+        else
+            call kdp_lens_cmd(trim(SOLVE_KINDS(kidx)%kdp_cmd), w1=target)
+        end if
+        call kdp_lens_end(refreshSurf=surfNum)
+        call kdp_silent_end()
         handled = .TRUE.
     end subroutine
 
