@@ -345,14 +345,19 @@ contains
 
     module procedure execSetWavelengthIndex
         use strings, only: parse
+        use command_utils, only: isInputNumber
         implicit none
 
         character(len=80) :: tokens(40)
         integer :: numTokens
 
         call parse(trim(iptStr), ' ', tokens, numTokens)
-        if (numTokens == 2) then
-            call executeCodeVLensUpdateCommand('CW '//trim(tokens(2)))
+        if (numTokens == 2 .and. isInputNumber(trim(tokens(2)))) then
+            call kdp_silent_begin()
+            call kdp_lens_begin()
+            call kdp_lens_cmd('CW', w1=str2real8(trim(tokens(2))))
+            call kdp_lens_end()
+            call kdp_silent_end()
         else
             call zoa_emit("No Wavelength Index Input.  Please try again", "red")
             return
@@ -410,8 +415,13 @@ contains
             select case(trim(tokens(2)))
             case('MAG')
                 if (numTokens > 2) then
-                    call executeCodeVLensUpdateCommand('CHG 0;TH '// &
-                    real2str(curr_par_ray_trace%getObjectThicknessToSetParaxialMag(str2real8(trim(tokens(3))), curr_lens_data)))
+                    call kdp_silent_begin()
+                    call kdp_lens_begin()
+                    call kdp_chg(0)
+                    call kdp_lens_cmd('TH', w1=curr_par_ray_trace%getObjectThicknessToSetParaxialMag( &
+                    &                          str2real8(trim(tokens(3))), curr_lens_data))
+                    call kdp_lens_end()
+                    call kdp_silent_end()
                 else
                     call zoa_emit("No Mag Value specified.  Please try again", "red")
                 end if
@@ -430,7 +440,12 @@ contains
 
         if (numTokens == 2) then
             if (isInputNumber(tokens(2))) then
-                call executeCodeVLensUpdateCommand('CHG 0; REDSLV '//trim(tokens(2)), exitLensUpdate=.TRUE.)
+                call kdp_silent_begin()
+                call kdp_lens_begin()
+                call kdp_chg(0)
+                call kdp_lens_cmd('REDSLV', w1=str2real8(trim(tokens(2))))
+                call kdp_lens_end()
+                call kdp_silent_end()
             else
                 call zoa_emit("Error!  Unable to parse value "//trim(tokens(2))//" into number", "red")
             end if
@@ -539,7 +554,11 @@ contains
         call parse(iptStr, ' ', tokens, numTokens)
         if (numTokens == 2) then
             if (isInputNumber(tokens(2))) then
-                call executeCodeVLensUpdateCommand('SAY '//real2str(str2real8(trim(tokens(2)))/2.0))
+                call kdp_silent_begin()
+                call kdp_lens_begin()
+                call kdp_lens_cmd('SAY', w1=str2real8(trim(tokens(2)))/2.0d0)
+                call kdp_lens_end()
+                call kdp_silent_end()
             else
                 call zoa_emit("Error! Unable to parse EPD value "//trim(tokens(2))//" into a number", "red")
             end if
