@@ -1,4 +1,6 @@
 submodule (codeV_commands) mod_sur
+use mod_kdp_api, only: kdp_lens_begin, kdp_chg, kdp_lens_cmd, kdp_lens_end, &
+                       kdp_silent_begin, kdp_silent_end
 implicit none
 contains
 module procedure execSUR
@@ -310,7 +312,11 @@ module procedure execSUR
         end select
 
         call ldm%setSurfaceType(surfNum, 'ASP')
-        call executeCodeVLensUpdateCommand('CHG '//trim(int2str(surfNum)))
+        call kdp_silent_begin()
+        call kdp_lens_begin()
+        call kdp_chg(surfNum)
+        call kdp_lens_end()
+        call kdp_silent_end()
     end procedure
 
     module procedure execSphere
@@ -329,7 +335,11 @@ module procedure execSUR
         end if
         surfNum = getSurfNumFromSurfCommand(trim(tokens(2)))
         call ldm%setSurfaceType(surfNum, 'SPH')
-        call executeCodeVLensUpdateCommand('CHG '//trim(int2str(surfNum)), exitLensUpdate=.TRUE.)
+        call kdp_silent_begin()
+        call kdp_lens_begin()
+        call kdp_chg(surfNum)
+        call kdp_lens_end()
+        call kdp_silent_end()
     end procedure
 
     module procedure updateAsphereTerms
@@ -421,7 +431,11 @@ module procedure execSUR
             ! Mirror what the KDP CC handler does: mark asphere when K != 0
             if (val /= 0.0_real64) call set_surf_asphere_flag(s, .true.)
             call ldm%load_surfaces_from_alens()
-            call executeCodeVLensUpdateCommand('CHG '//trim(int2str(s)))
+            call kdp_silent_begin()
+            call kdp_lens_begin()
+            call kdp_chg(s)
+            call kdp_lens_end()
+            call kdp_silent_end()
         end subroutine
 
     end procedure
