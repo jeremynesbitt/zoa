@@ -651,6 +651,31 @@ contains
         end if
     end function getSetGlassText
 
+    ! Dispatch a glass command produced by getSetGlassText typed instead of
+    ! through PROCESKDP.  Two forms:
+    !   MODEL D<label>,<nd>,<vd>  (SGLASS: WQ=D<label>, W1=nd, W2=vd)
+    !   <CATALOG> <glassname>     (GLSCAT: WC=catalog word, WS=glass name;
+    !                              GLAK is one such catalog word)
+    ! Re-parsing the text (rather than passing full-precision nd/vd) keeps the
+    ! exact real2str values getSetGlassText already committed to, so output is
+    ! byte-identical while the legacy parser is bypassed.
+    module procedure applyGlassText
+        use strings, only: parse
+        implicit none
+        character(len=80) :: tk(40)
+        integer :: nt
+
+        call parse(trim(glassCmd), ' ,', tk, nt)
+        if (nt < 2) return
+        if (trim(tk(1)) == 'MODEL') then
+            if (nt < 4) return
+            call kdp_lens_cmd('MODEL', wq=trim(tk(2)), &
+            &                 w1=str2real8(trim(tk(3))), w2=str2real8(trim(tk(4))))
+        else
+            call kdp_lens_cmd(trim(tk(1)), ws=trim(tk(2)))
+        end if
+    end procedure applyGlassText
+
     module procedure execEDI
         use strings, only: parse
         use globals, only: HEADLESS_MODE

@@ -157,8 +157,12 @@ module procedure execSUR
 
         if(isSurfCommand(trim(tokens(2)))) then
             surfNum = getSurfNumFromSurfCommand(trim(tokens(2)))
-            call executeCodeVLensUpdateCommand('CHG '//trim(int2str(surfNum))// &
-            & '; '//trim(getSetGlassText(trim(tokens(3))))//';GO')        
+            call kdp_silent_begin()
+            call kdp_lens_begin()
+            call kdp_chg(surfNum)
+            call applyGlassText(trim(getSetGlassText(trim(tokens(3)))))
+            call kdp_lens_end()
+            call kdp_silent_end()
         else
             call zoa_emit("Surface not input correctly.  Should be SO or Sk where k is the surface of interest", "red")
             return

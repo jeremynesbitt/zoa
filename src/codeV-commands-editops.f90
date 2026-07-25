@@ -556,6 +556,8 @@ contains
 
     module procedure setSurfaceCodeVStyle
         use mod_lens_data_manager
+        use command_utils, only: isInputNumber
+        use global_widgets, only: curr_lens_data
         implicit none
 
         integer :: surfNum
@@ -564,25 +566,37 @@ contains
 
         call parse(trim(iptStr), ' ', tokens, numTokens)
 
-        select case(numTokens)
-        case (1)
+        if (numTokens == 1) then
             call zoa_emit("No info given besides surface identifier!  Please try again", "red")
-        case (2)
-            surfNum = getSurfNumFromSurfCommand(trim(tokens(1)))
-            call executeCodeVLensUpdateCommand('CHG '//trim(int2str(surfNum))//'; RD, ' // trim(tokens(2)))
-        case (3)
-            surfNum = getSurfNumFromSurfCommand(trim(tokens(1)))
-            call executeCodeVLensUpdateCommand('CHG '//trim(int2str(surfNum))//'; RD, ' // trim(tokens(2))//";TH, "//trim(tokens(3)))
-        case (4)
-            surfNum = getSurfNumFromSurfCommand(trim(tokens(1)))
+            return
+        end if
+        if (.not. isInputNumber(trim(tokens(2)))) then
+            call zoa_emit("Expect numeric radius, e.g. S3 -78", "red"); return
+        end if
+        if (numTokens >= 3 .and. .not. isInputNumber(trim(tokens(3)))) then
+            call zoa_emit("Expect numeric thickness, e.g. S3 -78 2.5", "red"); return
+        end if
+
+        surfNum = getSurfNumFromSurfCommand(trim(tokens(1)))
+        call kdp_silent_begin()
+        call kdp_lens_begin()
+        call kdp_chg(surfNum)
+        call kdp_lens_cmd('RD', w1=str2real8(trim(tokens(2))))
+        if (numTokens >= 3) call kdp_lens_cmd('TH', w1=str2real8(trim(tokens(3))))
+        if (numTokens == 4) then
             if (.not. isSpecialGlass(trim(tokens(4)))) then
-                call executeCodeVLensUpdateCommand('CHG '//trim(int2str(surfNum))//'; RD, ' // trim(tokens(2))//";TH, "// &
-                & trim(tokens(3))//'; '//trim(getSetGlassText(trim(tokens(4)))))
+                call applyGlassText(trim(getSetGlassText(trim(tokens(4)))))
             else
-                call executeCodeVLensUpdateCommand('CHG '//trim(int2str(surfNum))//'; RD, ' // trim(tokens(2))//";TH, "// &
-                & trim(tokens(3))//';' // trim(tokens(4)))
+                call kdp_lens_cmd(trim(tokens(4)))
             end if
-        end select
+        end if
+        call kdp_lens_end(refreshSurf=surfNum)
+        call kdp_silent_end()
+        ! During a .zoa load the surrounding lens level is already open, so the
+        ! transaction above is nested and does NOT fire the post-EOS refresh that
+        ! CONTRO runs after every parsed command.  Sync curr_lens_data here so the
+        ! next bare-S (getSurfNumFromSurfCommand) counts surfaces from fresh data.
+        call curr_lens_data%update()
     end procedure setSurfaceCodeVStyle
 
     module procedure scaleSystem

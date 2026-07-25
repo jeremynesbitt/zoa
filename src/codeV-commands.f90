@@ -151,6 +151,9 @@ module codeV_commands
    character(len=*) :: strInput
    character(len=1024) :: strOut
    end function getSetGlassText
+   module subroutine applyGlassText(glassCmd)
+   character(len=*) :: glassCmd
+   end subroutine applyGlassText
    module subroutine updateVarCodes(iptStr)
    character(len=*) :: iptStr
    end subroutine updateVarCodes
