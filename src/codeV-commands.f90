@@ -438,7 +438,12 @@ module codeV_commands
         zoaCmds(506)%cmd = "S"
         zoaCmds(506)%execFunc => setSurfaceCodeVStyle    
         zoaCmds(507)%cmd = "SO"
-        zoaCmds(507)%execFunc => setSurfaceCodeVStyle   
+        zoaCmds(507)%execFunc => setSurfaceCodeVStyle
+        ! S0 (digit-zero) is the object surface too -- it is what genSaveOutputText
+        ! writes ('S'//int2str(0)), so a saved/currlens.zoa reload must dispatch it
+        ! (isSurfCommand already treats 'S0' and 'SO' identically).
+        zoaCmds(719)%cmd = "S0"
+        zoaCmds(719)%execFunc => setSurfaceCodeVStyle
         zoaCmds(508)%cmd = 'WL'
         zoaCmds(508)%execFunc => setWavelength    
         zoaCmds(509)%cmd = 'STOP'

@@ -2865,7 +2865,6 @@ All constraints removed
 
 Field Weights Command WTF     100     100     100 Not supported
 
-About to add operand SPO
   #   NAME   ROLE         TYPE        TARGET   WEIGHT
   -   ----   ----------   ----   -----------   ------
   1   SPO    Operand                 0.00000   2.00000
@@ -2880,7 +2879,6 @@ All constraints removed
 
 Field Weights Command WTF     100     100     100 Not supported
 
-About to add operand SPO
   #   NAME   ROLE         TYPE        TARGET   WEIGHT
   -   ----   ----------   ----   -----------   ------
   1   SPO    Operand                 0.00000   2.00000
@@ -3318,13 +3316,11 @@ All constraints removed
 All constraints removed
 
 
-About to add operand SPO
   #   NAME   ROLE         TYPE        TARGET   WEIGHT
   -   ----   ----------   ----   -----------   ------
   1   SPO    Operand                 0.00000   1.00000
   2   EFL    Constraint   =         50.00000
 General (variable thicknesses): MXT 12.00000  MNT 2.00000  MNE 2.00000  MNA 0.10000  MAE 0.00250
-About to add operand SPO
   #   NAME   ROLE         TYPE        TARGET   WEIGHT
   -   ----   ----------   ----   -----------   ------
   1   SPO    Operand                 0.00000   1000.0000000

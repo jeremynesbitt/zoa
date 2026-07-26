@@ -343,7 +343,6 @@ contains
                 if (numTokens >= 3) then
                     if (isInputNumber(trim(tokens(3)))) w = str2real8(trim(tokens(3)))
                 end if
-                call LogTermDebug("About to add operand SPO")
                 if (cmd_loop == CON_UPDATE_LOOP) then
                     call addMeritEntry('SPO', ID_ROLE_OBJECTIVE, t, weight=w, idxToUpdate=idxConUpdate)
                 else
