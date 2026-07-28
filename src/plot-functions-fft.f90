@@ -103,7 +103,7 @@ module procedure pma_go
     USE GLOBALS
     use command_utils
     use zoa_output, only: zoa_emit
-    use global_widgets, only:  sysConfig, curr_opd
+    use global_widgets, only:  sysConfig, curr_opd, ioConfig
     use type_utils, only: int2str
     use plplot, PI => PL_PI
     use plplot_extra
@@ -114,6 +114,8 @@ module procedure pma_go
   integer :: xpts, ypts
   integer, parameter :: xdim=99, ydim=100
   integer :: lambda, fldIdx
+  integer :: objIdx
+  logical :: replot
 
   integer, parameter :: nlevel = 10
 
@@ -121,6 +123,10 @@ module procedure pma_go
   type(zoaPlotImg) :: zp3d
   type(multiplot) :: mplt
 
+
+  ! Create/find the tab up front so the wavefront-fit report can be routed to
+  ! this plot's Data tab (matches rmsfield_go).  No-op in headless.
+  call initializeGoPlot(psm, ID_PLOTTYPE_OPD, "Optical Path Difference", replot, objIdx)
 
   lambda = psm%getWavelengthSetting()
   fldIdx = psm%getFieldSetting()
@@ -133,9 +139,11 @@ module procedure pma_go
   & , ' ' , sysConfig%relativeFields(1, fldIdx)
   CALL PROCESKDP(trim(ffieldstr))
 
-  PRINT *, "Calling CAPFN"
+  ! Route the CAPFN/FITZERN wavefront-fit output into the Data tab.
+  if (.not. HEADLESS_MODE) call ioConfig%setTextViewFromPtr(getTabTextView(objIdx))
   call PROCESKDP('CAPFN, '//trim(int2str(xpts)))
   call PROCESKDP('FITZERN, '//trim(int2str(lambda)))
+  if (.not. HEADLESS_MODE) call ioConfig%setTextView(ID_TERMINAL_DEFAULT)
 
   if (HEADLESS_MODE) then
     canvas = c_null_ptr
@@ -153,7 +161,7 @@ module procedure pma_go
 
    call mplt%set(1,1,zp3d)
 
-   call finalizeGoPlot(mplt, psm, ID_PLOTTYPE_OPD, "Optical Path Difference")
+   call finalizeGoPlot_new(mplt, psm, replot, objIdx)
 
 
 
