@@ -74,6 +74,10 @@ subroutine zern_go(psm)
     COMMON/SOLU/X
 
 
+    ! Create/find the tab up front (sets objIdx) so the data tab can be routed,
+    ! matching the working rmsfield_go pattern.  No-op in headless.
+    call initializeGoPlot(psm, ID_PLOTTYPE_ZERN_VS_FIELD, "Zernike vs Field", replot, objIdx)
+
     numPoints = psm%getDensitySetting()
     call psm%getZernikeSetting_min_and_max(minZ, maxZ)
     numTermsToPlot = maxZ-minZ+1
@@ -139,41 +143,12 @@ subroutine zern_go(psm)
     call zernplot%addLegend(zLegend)
     call mplt%set(1,1,zernplot)
 
+    ! Route the coefficient table into this plot's Data tab, then restore.
+    call ioConfig%setTextViewFromPtr(getTabTextView(objIdx))
     call logDataVsField(xdat, ydat, zLegend)
+    call ioConfig%setTextView(ID_TERMINAL_DEFAULT)
 
-
-    ! Check for Mulitple Plots
-
-    pIdx = psm%plotNum
-
-    replot = .FALSE.
-    if (pIdx /= -1 ) then
-       replot = zoatabMgr%doesPlotExist_new(ID_PLOTTYPE_ZERN_VS_FIELD, objIdx, pIdx)
-    end if
-
-
-    !replot = zoatabMgr%doesPlotExist(ID_PLOTTYPE_ZERN_VS_FIELD, objIdx)
-    if (replot) then
-      call zoatabMgr%updateInputCommand(objIdx, inputCmd)
-      call zoatabMgr%updateGenericMultiPlotTab(objIdx, mplt)
-     else
-      pIdx = zoatabMgr%getNumberOfPlotsByCode(ID_PLOTTYPE_ZERN_VS_FIELD)
-     
-      psm%plotNum = pIdx+1 ! Noreplot so this is the next num
-
-      !TODO:  Fix this.  need to check if basecmd is multiple pieces or not
-      psm%baseCmd = trim(psm%baseCmd)//" P"//int2str(psm%plotNum)
-      tabName = "Zernike vs Field" 
-      if  (psm%plotNum > 1) then
-        tabName = trim(tabName)//" "//int2str(psm%plotNum)
-      end if  
-      objIdx = zoatabMgr%addGenericMultiPlotTab(ID_PLOTTYPE_ZERN_VS_FIELD, &
-      & trim(tabName)//c_null_char, mplt)
-
-      call zoaTabMgr%finalize_with_psm(objIdx, psm, trim(inputCmd))
-      call zoaTabMgr%finalizeNewPlotTab(objIdx)
-
-    end if
+    call finalizeGoPlot_new(mplt, psm, replot, objIdx)
 
 end subroutine
 
