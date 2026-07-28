@@ -96,10 +96,14 @@ module type_utils
           real(kind=real64) :: tstReal
           character(len=*) :: strIpt
           character(len=80) :: strB
-  
+          integer :: ios
+
           ! Converting directly to int crashes when there are a lot of significant digits,
-          ! so convert to real64 and then use internal Fortran funtion to convert to INT
-          read(strIpt, *) tstReal
+          ! so convert to real64 and then use internal Fortran funtion to convert to INT.
+          ! Guard empty/non-numeric input (iostat) so a bad token returns 0 rather than
+          ! aborting the program with an End-of-file runtime error.
+          read(strIpt, *, iostat=ios) tstReal
+          if (ios /= 0) tstReal = 0.0_real64
           intVal = INT(tstReal)
 
           ! write(strB, '(A4)') strIpt

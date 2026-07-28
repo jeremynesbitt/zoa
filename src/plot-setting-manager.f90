@@ -78,6 +78,7 @@ module plot_setting_manager
     procedure, public, pass(self) :: addZernikeSetting
     procedure, public, pass(self) :: updateZernikeSetting
     procedure, public, pass(self) :: getZernikeSetting_min_and_max
+    procedure, public, pass(self) :: getZernikeSetting_list
     procedure, public, pass(self) :: addGenericSetting
 
     ! Spot Diagram Settings
@@ -734,8 +735,60 @@ contains
 
       end subroutine
 
+      ! Parse the Zernike setting into an explicit list of term indices.
+      ! Supports both notations:
+      !   "5..9"        -> [5,6,7,8,9]   (inclusive range)
+      !   "9,16,25,36"  -> [9,16,25,36]  (explicit list; spaces also allowed)
+      ! Returns a 0-length array if the setting is missing/blank.  Out-of-range
+      ! terms (<=0) are dropped so a bad token can't index past the coeff array.
+      subroutine getZernikeSetting_list(self, zlist)
+        use strings, only: parse
+        class(zoaplot_setting_manager) :: self
+        integer, allocatable, intent(out) :: zlist(:)
+        integer :: locD, i, a, b, k, n
+        character(len=80) :: s
+        character(len=20) :: tokens(40)
+        integer :: numTokens
 
-      subroutine addDensitySetting(self, defaultVal, minVal, maxVal) 
+        do i=1,self%numSettings
+          if (self%ps(i)%ID == SETTING_ZERNIKE) then
+            s = trim(adjustl(self%ps(i)%defaultStr))
+            locD = index(s, '..')
+            if (locD > 0) then
+              a = str2int(s(1:locD-1))
+              b = str2int(s(locD+2:len_trim(s)))
+              if (b < a) then; k=a; a=b; b=k; end if
+              n = 0
+              if (a >= 1) n = b-a+1
+              if (n < 0) n = 0
+              allocate(zlist(n))
+              do k=1,n
+                zlist(k) = a+k-1
+              end do
+            else
+              call parse(s, ', ', tokens, numTokens)
+              n = 0
+              do k=1,numTokens
+                if (str2int(trim(tokens(k))) >= 1) n = n + 1
+              end do
+              allocate(zlist(n))
+              n = 0
+              do k=1,numTokens
+                if (str2int(trim(tokens(k))) >= 1) then
+                  n = n + 1
+                  zlist(n) = str2int(trim(tokens(k)))
+                end if
+              end do
+            end if
+            return
+          end if
+        end do
+
+        allocate(zlist(0))
+      end subroutine
+
+
+      subroutine addDensitySetting(self, defaultVal, minVal, maxVal)
 
         class(zoaplot_setting_manager), intent(inout) :: self
         integer:: val, defaultVal, minVal, maxVal

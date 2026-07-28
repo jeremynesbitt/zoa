@@ -332,8 +332,6 @@ PLOT: zoa_plot_2.png 1200x500
 PLOT: zoa_plot_3.png 1200x500
 Finished Updating Zernike
 Existing Zern Loop
-MinZ 4
-MaxZ 8
 TRACING        256 RAYS AT WAVELENGTH 1
  CAPFN RAY TRACING COMPLETED
  PERFORMING "CAPFN" CALCULATIONS...

@@ -52,9 +52,10 @@ subroutine zern_go(psm)
 
     character(len=23) :: ffieldstr
     character(len=1024) :: inputCmd
-    integer :: ii, objIdx, minZ, maxZ, lambda
+    integer :: ii, objIdx, minZ, maxZ, lambda, k, iz
     integer :: maxPlotZ = 9, numTermsToPlot
     integer :: numPoints = 10
+    integer, allocatable :: zlist(:)
     integer :: pIdx
     logical :: replot
     type(multiplot) :: mplt
@@ -79,32 +80,21 @@ subroutine zern_go(psm)
     call initializeGoPlot(psm, ID_PLOTTYPE_ZERN_VS_FIELD, "Zernike vs Field", replot, objIdx)
 
     numPoints = psm%getDensitySetting()
-    call psm%getZernikeSetting_min_and_max(minZ, maxZ)
-    numTermsToPlot = maxZ-minZ+1
-    !TODO:  Should support a rank one array to set Zernikes
-    ! Like this for just minZ and MaxZ
-    ! do i = 1,numTermsToPlot
-    !     zlist(i) = minZ-1+i
-    ! end do
-    ! doing this would allow for mor complex entrys by user, such as 4,9,15,25 
-
-    call LogTermFOR("MinZ "//trim(int2str(minZ)))
-    call LogTermFOR("MaxZ "//trim(int2str(maxZ)))
-
-    !minZ = 5
-    !maxZ = 9
-    !numTermsToPlot = 5    
-    
+    ! Terms to plot: supports "5..9" (range) and "9,16,25" (explicit list).
+    call psm%getZernikeSetting_list(zlist)
+    numTermsToPlot = size(zlist)
+    if (numTermsToPlot == 0) then
+      call zoa_emit("No valid Zernike terms specified (use e.g. 5..9 or 9,16)", "red")
+      return
+    end if
 
     lambda = psm%getWavelengthSetting()
     inputCmd = trim(psm%generatePlotCommand())
-    
-    !inputCmd = trim(psm%sp%getCommand())      
 
     ! Compute Values
     allocate(xdat(numPoints))
-    allocate(ydat(numPoints,maxZ-minZ+1))
-    allocate(zLegend(size(ydat,2)))
+    allocate(ydat(numPoints,numTermsToPlot))
+    allocate(zLegend(numTermsToPlot))
 
 
     do ii = 0, numPoints-1
@@ -117,7 +107,14 @@ subroutine zern_go(psm)
 
       !CALL PROCESKDP("SHO RMSOPD")
       xdat(ii+1) = REAL(xdat(ii+1)*sysConfig%refFieldValue(2))
-      ydat(ii+1,1:numTermsToPlot) = real(X(minZ:maxZ),4)
+      do k=1,numTermsToPlot
+        iz = zlist(k)
+        if (iz >= 1 .and. iz <= size(X)) then
+          ydat(ii+1,k) = real(X(iz),4)
+        else
+          ydat(ii+1,k) = 0.0
+        end if
+      end do
     end do
 
   
@@ -133,11 +130,11 @@ subroutine zern_go(psm)
     & xlabel=trim(sysConfig%getFieldText())//c_null_char, &
     & ylabel="Coefficient [waves]"//c_null_char, &
     & title='Zernike Coefficients vs Field'//c_null_char)
-    zLegend(1) = 'Z'//trim(int2str(minZ))
+    zLegend(1) = 'Z'//trim(int2str(zlist(1)))
     do ii=2,numTermsToPlot
       call zernplot%addXYPlot(xdat, ydat(:,ii))
       call zernplot%setDataColorCode(2+ii)
-      zLegend(ii) = 'Z'//trim(int2str(minZ+ii-1))
+      zLegend(ii) = 'Z'//trim(int2str(zlist(ii)))
     end do
 
     call zernplot%addLegend(zLegend)
