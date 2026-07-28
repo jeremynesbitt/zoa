@@ -157,10 +157,7 @@ module kdp_utils
   end subroutine
 
   subroutine logDataVsField(fldPoints, dataArray, colHeaders, extraRowName, singleSurface)
-    use global_widgets, only: curr_lens_data
-    use iso_fortran_env, only: real64
     use iso_c_binding, only: c_null_char
-    use type_utils, only: blankStr
     implicit none
 
     real, dimension(:) :: fldPoints
@@ -168,78 +165,70 @@ module kdp_utils
     character(len=*), dimension(:) :: colHeaders
     character(len=*), optional :: extraRowName
     integer, optional :: singleSurface
-    integer :: i, j, sStart, sEnd
+    integer :: i, j, c, sStart, sEnd, ncols, pos, tlen, lpad
+    integer, parameter :: PAD = 3
     character(len=1024) :: lineStr
-    character(len=230) :: entryStr
-    integer, allocatable :: blankArray(:,:)
+    character(len=32) :: entryStr
+    integer, allocatable :: colW(:)
 
-    allocate(blankArray(size(fldPoints)+1,size(dataArray,2)+1))
-    call spaceDataForTable(fldPoints, dataArray, 'Field', colHeaders, blankArray)
-    print *, "blankArray for first row is ", blankArray(1,:)
-    print *, "colHeaders is ", colHeaders
-
-
-    ! Print header
-    !lineStr = 'Field'//blankStr(blankArray(1,1))
-    lineStr = 'Field'//blankStr(blankArray(1,1)+5)//trim(colHeaders(1))
-    print *, "lineStry is ", trim(lineStr)
-    do i=2,size(colHeaders)
-      print *, "len of lineStr is ", len(trim(lineStr))
-      lineStr = trim(lineStr)//blankStr(blankArray(1,i)+5)//trim(colHeaders(i))
-        
-        !lineStr = trim(lineStr)//blankStr(10)//trim(colHeaders(i))
+    ! Column layout: column 1 is the field value ("Field" header), then one
+    ! column per data series.  Each column is wide enough for its header and
+    ! every formatted value (F12.5) plus padding.  Headers are centered over
+    ! their column; values are right-aligned within it.
+    ncols = size(colHeaders) + 1
+    allocate(colW(ncols))
+    colW(1) = len('Field')
+    do j=1,size(colHeaders)
+      colW(j+1) = len_trim(colHeaders(j))
     end do
+    do i=1,size(fldPoints)
+      write(entryStr, '(F12.5)') fldPoints(i)
+      colW(1) = max(colW(1), len_trim(adjustl(entryStr)))
+      do j=1,size(colHeaders)
+        write(entryStr, '(F12.5)') dataArray(i,j)
+        colW(j+1) = max(colW(j+1), len_trim(adjustl(entryStr)))
+      end do
+    end do
+    colW = colW + PAD
+
     call OUTKDP("Data vs Field Position")
-    
-    !print *, "len of lineStr is ", len(trim(lineStr))
-    !call updateTerminalLog(trim(lineStr), "black")
+
+    ! Header row -- each header centered in its column.
+    lineStr = ' '
+    pos = 1
+    tlen = len('Field'); lpad = (colW(1)-tlen)/2
+    lineStr(pos+lpad:pos+lpad+tlen-1) = 'Field'
+    pos = pos + colW(1)
+    do j=1,size(colHeaders)
+      tlen = len_trim(colHeaders(j)); lpad = (colW(j+1)-tlen)/2
+      lineStr(pos+lpad:pos+lpad+tlen-1) = trim(colHeaders(j))
+      pos = pos + colW(j+1)
+    end do
     call OUTKDP(trim(lineStr)//c_null_char)
-   ! print *, "after OUTKDP call"
-   ! print *, "len of blankstr(6) is ", len(blankStr(6))
-    print *, trim(lineStr)
+
     if (present(singleSurface)) then
-       ! PRINT *, "SingleSurface is ", singleSurface
-        sStart = singleSurface
-        sEnd = singleSurface
+      sStart = singleSurface
+      sEnd = singleSurface
     else
-        sStart = 1
-        sEnd = size(fldPoints)
-
+      sStart = 1
+      sEnd = size(fldPoints)
     end if
-    !PRINT *, "sStart is ", sStart
-    !PRINT *, "sEnd is ", sEnd
 
-
+    ! Data rows -- each value right-aligned in its column.
     do i=sStart,sEnd
-    !do i=0,curr_lens_data%num_surfaces   
-        write(entryStr, '(F12.5)') fldPoints(i)
-        lineStr = trim(adjustl(entryStr))
-        if (i == curr_lens_data%num_surfaces) then
-            if (present(extraRowName)) then
-                lineStr = extraRowName
-            else
-                lineStr = '   '
-            end if
-        end if
-            
-        do j=1,size(colHeaders)
-            write(entryStr, '(F12.5)') dataArray(i,j)
-            lineStr = trim(lineStr)//blankStr(blankArray(i+1,j))//trim(adjustl(entryStr))
-            ! if (i.EQ.6) then
-            !   PRINT *, "j is ", j
-            !   PRINT *, "blankArray is ", blankArray(i+1,j)
-            !   PRINT *, "len of blankStr is ", 
-            ! end if
-            ! if (dataArray(j,i) > 0.0) then
-            !   !lineStr = trim(lineStr)//'    '//trim(entryStr)
-            !   lineStr = trim(lineStr)//blankStr(6)//trim(entryStr)
-            ! else
-            !   lineStr = trim(lineStr)//'    '//' '//trim(entryStr)
-            ! end if
-        end do
-        call OUTKDP(trim(lineStr))
-        print *, trim(lineStr)
-        !PRINT *, "len of lineStr is ", len(trim(lineStr))
+      lineStr = ' '
+      pos = 1
+      write(entryStr, '(F12.5)') fldPoints(i)
+      entryStr = adjustl(entryStr); tlen = len_trim(entryStr)
+      lineStr(pos+colW(1)-tlen:pos+colW(1)-1) = trim(entryStr)
+      pos = pos + colW(1)
+      do j=1,size(colHeaders)
+        write(entryStr, '(F12.5)') dataArray(i,j)
+        entryStr = adjustl(entryStr); tlen = len_trim(entryStr)
+        lineStr(pos+colW(j+1)-tlen:pos+colW(j+1)-1) = trim(entryStr)
+        pos = pos + colW(j+1)
+      end do
+      call OUTKDP(trim(lineStr))
     end do
 
   end subroutine
