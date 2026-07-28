@@ -80,6 +80,11 @@ subroutine zern_go(psm)
     call initializeGoPlot(psm, ID_PLOTTYPE_ZERN_VS_FIELD, "Zernike vs Field", replot, objIdx)
 
     numPoints = psm%getDensitySetting()
+    ! A "vs field" sweep needs a real field extent.  For a single on-axis field
+    ! (no field height/angle -> refFieldValue == 0) every relative sample lands
+    ! on axis, so a density sweep just repeats the same row.  Collapse to one.
+    if (sysConfig%refFieldValue(2) == 0.0d0) numPoints = 1
+
     ! Terms to plot: supports "5..9" (range) and "9,16,25" (explicit list).
     call psm%getZernikeSetting_list(zlist)
     numTermsToPlot = size(zlist)
@@ -98,7 +103,11 @@ subroutine zern_go(psm)
 
 
     do ii = 0, numPoints-1
-      xdat(ii+1) = REAL(ii)/REAL(numPoints-1)
+      if (numPoints > 1) then
+        xdat(ii+1) = REAL(ii)/REAL(numPoints-1)
+      else
+        xdat(ii+1) = 0.0
+      end if
       write(ffieldstr, *) xdat(ii+1)
       CALL PROCESKDP("FOB "// ffieldstr)
       CALL PROCESKDP("CAPFN")
