@@ -493,4 +493,87 @@ contains
         end select
     end procedure adjustVieSettings
 
+    ! ZRN WAV [fi] [wj] [zk] [dN]
+    ! Fit the OPD error to Zernike polynomials (the same CAPFN + FITZERN path the
+    ! Zernike-vs-Field plot uses) for field i, wavelength j, zoom k, at an NxN
+    ! pupil density, and print a 36-row table (coefficient number, value in waves).
+    ! Defaults: f1, reference wavelength, zoom 1, N=64.  Only the WAV qualifier is
+    ! implemented for now; other qualifiers/fields/wavelengths come later.
+    module procedure execZRN
+        use strings, only: parse
+        use command_utils, only: isInputNumber
+        use global_widgets, only: sysConfig
+        use kdp_utils, only: OUTKDP
+        use iso_fortran_env, only: real64
+        implicit none
+
+        character(len=80) :: tokens(40)
+        integer :: numTokens, i
+        integer :: fieldIdx, wavIdx, zoomIdx, densN
+        character(len=200) :: fobStr
+        character(len=80)  :: lineStr
+        real(real64) :: X(1:96)
+        COMMON/SOLU/X
+
+        call parse(trim(iptStr), ' ', tokens, numTokens)
+
+        if (numTokens < 2 .or. trim(tokens(2)) /= 'WAV') then
+            call zoa_emit("ZRN: usage ZRN WAV [fi] [wj] [zk] [dN] "// &
+            &             "(only the WAV qualifier is supported for now)", "red")
+            return
+        end if
+
+        ! Defaults: field 1, reference wavelength, zoom 1, 64x64 pupil.
+        fieldIdx = 1
+        wavIdx   = sysConfig%getRefWavelengthIndex()
+        zoomIdx  = 1
+        densN    = 64
+
+        ! Prefixed args f<i> w<j> z<k> d<N> (the front door upper-cases the line).
+        do i=3,numTokens
+            if (.not. isInputNumber(trim(tokens(i)(2:)))) cycle
+            select case (tokens(i)(1:1))
+            case ('F'); fieldIdx = str2int(trim(tokens(i)(2:)))
+            case ('W'); wavIdx   = str2int(trim(tokens(i)(2:)))
+            case ('Z'); zoomIdx  = str2int(trim(tokens(i)(2:)))
+            case ('D'); densN    = str2int(trim(tokens(i)(2:)))
+            end select
+        end do
+
+        if (fieldIdx < 1 .or. fieldIdx > sysConfig%numFields) then
+            call zoa_emit("ZRN: field "//trim(int2str(fieldIdx))//" out of range (1.."// &
+            &             trim(int2str(sysConfig%numFields))//")", "red")
+            return
+        end if
+        if (wavIdx < 1 .or. wavIdx > sysConfig%numWavelengths) then
+            call zoa_emit("ZRN: wavelength "//trim(int2str(wavIdx))//" out of range (1.."// &
+            &             trim(int2str(sysConfig%numWavelengths))//")", "red")
+            return
+        end if
+        if (densN < 2) then
+            call zoa_emit("ZRN: pupil density N must be >= 2", "red")
+            return
+        end if
+
+        ! Select zoom, aim at the field, compute the wavefront on the NxN pupil
+        ! grid, and fit Zernikes at the requested wavelength.
+        call PROCESKDP("POS "//trim(int2str(zoomIdx)))
+        write(fobStr, *) "FOB ", sysConfig%relativeFields(2,fieldIdx), ' ', &
+        &                        sysConfig%relativeFields(1,fieldIdx)
+        call PROCESKDP(trim(fobStr))
+        call PROCESKDP("CAPFN, "//trim(int2str(densN)))
+        call PROCESKDP("FITZERN, "//trim(int2str(wavIdx)))
+
+        ! X(1:96) holds the fit coefficients (COMMON/SOLU/X, same as LISTZERN).
+        call OUTKDP("Zernike Coefficients (waves)  --  field "//trim(int2str(fieldIdx))// &
+        &           ", wavelength "//trim(int2str(wavIdx))//", zoom "//trim(int2str(zoomIdx))// &
+        &           ", pupil "//trim(int2str(densN))//"x"//trim(int2str(densN)))
+        call OUTKDP("   Coeff             Value")
+        do i=1,36
+            write(lineStr, '(4X,I3,4X,F18.8)') i, X(i)
+            call OUTKDP(trim(lineStr))
+        end do
+
+    end procedure execZRN
+
 end submodule mod_codev_plots

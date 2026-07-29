@@ -40,6 +40,9 @@ module codeV_commands
    module subroutine ZERN_TST(iptStr)
    character(len=*) :: iptStr
    end subroutine ZERN_TST
+   module subroutine execZRN(iptStr)
+   character(len=*) :: iptStr
+   end subroutine execZRN
    module subroutine execVie(iptStr)
    character(len=*) :: iptStr
    end subroutine execVie
@@ -363,7 +366,7 @@ module codeV_commands
 
 
     character(len=4), dimension(500) :: surfCmds
-    type(zoa_cmd), dimension(720) :: zoaCmds
+    type(zoa_cmd), dimension(740) :: zoaCmds
 
     type(zoaplot_setting_manager)  :: curr_psm
     character(len=10024) :: cmdTOW
@@ -444,6 +447,8 @@ module codeV_commands
         ! (isSurfCommand already treats 'S0' and 'SO' identically).
         zoaCmds(719)%cmd = "S0"
         zoaCmds(719)%execFunc => setSurfaceCodeVStyle
+        zoaCmds(720)%cmd = "ZRN"
+        zoaCmds(720)%execFunc => execZRN
         zoaCmds(508)%cmd = 'WL'
         zoaCmds(508)%execFunc => setWavelength    
         zoaCmds(509)%cmd = 'STOP'
