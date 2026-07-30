@@ -1033,13 +1033,21 @@ call initializeGoPlot(psm,ID_PLOTTYPE_RMSFIELD, "RMS vs Field", replot, objIdx)
  !call updateTerminalLog(INPUT, "blue")
 
  call psm%getRMSFieldSettings(iData, iLambda, numPoints)
-     
+
+! A "vs field" sweep needs a real field extent.  For a single on-axis field
+! (refFieldValue == 0) every relative sample lands on axis, so collapse the
+! density sweep to a single row instead of numPoints identical copies.
+if (sysConfig%refFieldValue(2) == 0.0d0) numPoints = 1
 
 allocate(x(numPoints))
 allocate(y(numPoints))
 
 do ii = 0, numPoints-1
- x(ii+1) = REAL(ii)/REAL(numPoints-1)
+ if (numPoints > 1) then
+   x(ii+1) = REAL(ii)/REAL(numPoints-1)
+ else
+   x(ii+1) = 0.0
+ end if
  write(ffieldstr, *) x(ii+1)
  CALL PROCESSILENT("FOB "// ffieldstr)
  select case(iData)
