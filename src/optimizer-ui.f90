@@ -349,8 +349,9 @@ module optimizer_ui
 
         store = buildConstraintTable()
         selection = gtk_multi_selection_new(store)
-              !selection = gtk_multi_selection_new(store)
-        call gtk_single_selection_set_autoselect(selection,TRUE)    
+        ! (was: gtk_single_selection_set_autoselect on a multi-selection -- a type
+        !  mismatch that only logged a GTK assertion.  The delete button is now
+        !  always enabled and guards against no selection, so it isn't needed.)
         cv = gtk_column_view_new(selection)
 
         call gtk_widget_set_name(cv, "Constraint"//c_null_char)
@@ -375,7 +376,7 @@ module optimizer_ui
           dbut = hl_gtk_button_new("Delete selected row"//c_null_char, &
                 & clicked=c_funloc(del_constraint_row), &
                 & data=cv, &
-                & tooltip="Delete the selected row"//c_null_char, sensitive=FALSE)
+                & tooltip="Delete the selected row"//c_null_char, sensitive=TRUE)
 
           call g_signal_connect(selection, 'selection-changed'//c_null_char, c_funloc(constraint_row_selected), dbut)                
     
@@ -518,7 +519,8 @@ module optimizer_ui
                 call gtk_list_item_set_child(listitem,dropDown)     
             case (ID_WIDGET_TYPE_ENTRY)
                 boxS = hl_gtk_box_new(horizontal=TRUE, spacing=0_c_int)
-                entryCB = hl_gtk_entry_new(4_c_int, editable=TRUE, activate=c_funloc(constraint_cell_changed), data=c_null_ptr)                                           
+                ! Max length 20 (was 4, too short for e.g. a 5-digit EFL target).
+                entryCB = hl_gtk_entry_new(20_c_int, editable=TRUE, activate=c_funloc(constraint_cell_changed), data=c_null_ptr)
                 !entryCB = hl_gtk_entry_new(10_c_int, editable=TRUE, activate=c_funloc(cell_changed), data=g_strdup('CIR'))                                           
                 call gtk_box_append(boxS, entryCB)
                 call gtk_list_item_set_child(listitem, boxS)  
@@ -699,14 +701,19 @@ module optimizer_ui
 
         subroutine del_constraint_row(but, gdata) bind(c)
             use type_utils, only: int2str
+            use zoa_output, only: zoa_emit
             type(c_ptr), value, intent(in) :: but, gdata
             integer(kind=c_int) :: currRow
 
             currRow = getRowFromColumnView(gdata)
 
-            print *, "currRow is ", currRow
+            ! getRowFromColumnView returns -1 when nothing is selected; do not
+            ! issue "DEL CON 0" (invalid) in that case.
+            if (currRow < 0) then
+                call zoa_emit("Select a constraint row first, then Delete selected row", "black")
+                return
+            end if
             call PROCESKDP('DEL CON '//trim(int2str(currRow+1)))
-            !call rebuildConstraintTable(gdata)
             call rebuildTable(gdata, buildConstraintTable(), setConstraintColumns)
 
         end subroutine
