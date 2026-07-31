@@ -52,6 +52,10 @@ module optimizer_ui
         type(c_ptr), value :: item
         real(c_double) :: constraint_item_get_contribution
       end function
+       subroutine set_contribution_total(t) bind(c)
+        import :: c_double
+        real(c_double), value :: t
+      end subroutine
       function constraint_item_get_target(item) bind(c)
         import :: c_ptr, c_double
         type(c_ptr), value :: item
@@ -314,7 +318,7 @@ module optimizer_ui
 
         ! Contribution = weight*(value-target)^2, this operand's share of the
         ! objective f = sum weight*(value-target)^2 (0 for constraint rows).
-        constraintColInfo(ID_CONSTRAINT_CONTRIB_COL)%colName = "Contribution"
+        constraintColInfo(ID_CONSTRAINT_CONTRIB_COL)%colName = "Contribution %"
         constraintColInfo(ID_CONSTRAINT_CONTRIB_COL)%colType = ID_WIDGET_TYPE_LABEL
         constraintColInfo(ID_CONSTRAINT_CONTRIB_COL)%dataType = ID_DATATYPE_DBL
         constraintColInfo(ID_CONSTRAINT_CONTRIB_COL)%getFunc_dbl => constraint_item_get_contribution
@@ -416,8 +420,21 @@ module optimizer_ui
 
         type(c_ptr) :: store
         integer :: numRows
+        real(c_double) :: contribTotal, v
 
         print *, "Num merit entries is ", nM
+
+        ! Total objective f = sum weight*(value-target)^2 over the operand rows,
+        ! so the Contribution column can be shown as each operand's % of f (the
+        ! per-row percentages then sum to 100).  Constraints don't contribute.
+        contribTotal = 0.0_c_double
+        do i=1,nM
+          if (meritInUse(i)%role == ID_ROLE_OBJECTIVE) then
+            v = meritInUse(i)%func()
+            contribTotal = contribTotal + meritInUse(i)%weight * (v - meritInUse(i)%targ)**2
+          end if
+        end do
+        call set_contribution_total(contribTotal)
 
         ! Set some minimum amount
         if (nM < 20) then
@@ -605,7 +622,8 @@ module optimizer_ui
 
                     case (ID_DATATYPE_DBL)
                         tmpDbl = constraintColInfo(ID_COL)%getFunc_dbl(item)
-                        write(colName, *) tmpDbl
+                        ! ~6 significant figures (was list-directed full precision).
+                        write(colName, '(G0.6)') tmpDbl
                         
                         !colName = real2str(constraintColInfo(ID_COL)%getFunc_dbl(item))
                 end select

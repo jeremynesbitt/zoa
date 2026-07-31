@@ -101,14 +101,21 @@ double constraint_item_get_weight(ConstraintItem *item)
    return item->weight;
 }
 
-// Weighted residual contribution to the objective merit function
-// f = sum  weight*(value - target)^2.  Only objective ("operand") rows
+// Total objective f = sum weight*(value-target)^2 over the operand rows, set
+// from Fortran (buildConstraintTable) before the table binds so the
+// contribution column can be shown as a percentage.
+static double g_contribution_total = 0.0;
+void set_contribution_total(double t) { g_contribution_total = t; }
+
+// This operand's PERCENT share of the objective merit function
+// f = sum weight*(value - target)^2.  Only objective ("operand") rows
 // contribute (role==ID_ROLE_OBJECTIVE==1); constraints / blank rows return 0.
+// The per-row percentages sum to 100.
 double constraint_item_get_contribution(ConstraintItem *item)
 {
-   if (item->role != 1) return 0.0;
+   if (item->role != 1 || g_contribution_total <= 0.0) return 0.0;
    double d = item->con - item->targ;
-   return item->weight * d * d;
+   return 100.0 * item->weight * d * d / g_contribution_total;
 }
 
 GListModel * append_blank_constraint(GListStore *store)
