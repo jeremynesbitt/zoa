@@ -47,6 +47,11 @@ module optimizer_ui
         type(c_ptr), value :: item
         real(c_double) :: constraint_item_get_value
       end function
+       function constraint_item_get_contribution(item) bind(c)
+        import :: c_ptr, c_double
+        type(c_ptr), value :: item
+        real(c_double) :: constraint_item_get_contribution
+      end function
       function constraint_item_get_target(item) bind(c)
         import :: c_ptr, c_double
         type(c_ptr), value :: item
@@ -123,8 +128,9 @@ module optimizer_ui
     integer, parameter :: ID_CONSTRAINT_TARGET_COL = 4
     integer, parameter :: ID_CONSTRAINT_WEIGHT_COL = 5
     integer, parameter :: ID_CONSTRAINT_VALUE_COL = 6
+    integer, parameter :: ID_CONSTRAINT_CONTRIB_COL = 7
 
-    type(uiTableColumnInfo) :: constraintColInfo(6)
+    type(uiTableColumnInfo) :: constraintColInfo(7)
 
     ! Guard: .TRUE. while bind_constraint_cb programmatically sets dropdown
     ! selections.  gtk fires 'notify::selected' on programmatic changes too,
@@ -305,6 +311,13 @@ module optimizer_ui
         constraintColInfo(ID_CONSTRAINT_VALUE_COL)%colType = ID_WIDGET_TYPE_LABEL
         constraintColInfo(ID_CONSTRAINT_VALUE_COL)%dataType = ID_DATATYPE_DBL
         constraintColInfo(ID_CONSTRAINT_VALUE_COL)%getFunc_dbl => constraint_item_get_value
+
+        ! Contribution = weight*(value-target)^2, this operand's share of the
+        ! objective f = sum weight*(value-target)^2 (0 for constraint rows).
+        constraintColInfo(ID_CONSTRAINT_CONTRIB_COL)%colName = "Contribution"
+        constraintColInfo(ID_CONSTRAINT_CONTRIB_COL)%colType = ID_WIDGET_TYPE_LABEL
+        constraintColInfo(ID_CONSTRAINT_CONTRIB_COL)%dataType = ID_DATATYPE_DBL
+        constraintColInfo(ID_CONSTRAINT_CONTRIB_COL)%getFunc_dbl => constraint_item_get_contribution
 
     end subroutine
 

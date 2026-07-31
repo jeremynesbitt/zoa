@@ -101,6 +101,16 @@ double constraint_item_get_weight(ConstraintItem *item)
    return item->weight;
 }
 
+// Weighted residual contribution to the objective merit function
+// f = sum  weight*(value - target)^2.  Only objective ("operand") rows
+// contribute (role==ID_ROLE_OBJECTIVE==1); constraints / blank rows return 0.
+double constraint_item_get_contribution(ConstraintItem *item)
+{
+   if (item->role != 1) return 0.0;
+   double d = item->con - item->targ;
+   return item->weight * d * d;
+}
+
 GListModel * append_blank_constraint(GListStore *store)
 {
    g_list_store_append(store, constraint_item_new(
