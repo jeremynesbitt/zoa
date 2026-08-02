@@ -6,6 +6,11 @@ contains
     ! ZOO n          -> set the number of configurations
     ! ZOO <p> Sk v.. -> define a per-config operand (p = THI/RDY/CUY/GLA/K), one value per config
     ! ZOO PIM        -> per-config paraxial image solve (re-applied on each switch)
+    !## cmd:      ZOO
+    !## syntax:   ZOO ... | ZOO PIM
+    !## category: Zoom / Multi-Configuration
+    !## desc:     Define zoom (multi-configuration) data.
+    !##
     module procedure execZOO
         use command_utils, only: isInputNumber
         use strings,       only: parse
@@ -51,6 +56,11 @@ contains
     end procedure execZOO
 
     ! POS n -> switch the active configuration to n
+    !## cmd:      POS
+    !## syntax:   POS n
+    !## category: Zoom / Multi-Configuration
+    !## desc:     Switch the active configuration (zoom position) to n.
+    !##
     module procedure execPOS
         use command_utils, only: isInputNumber
         use strings,       only: parse

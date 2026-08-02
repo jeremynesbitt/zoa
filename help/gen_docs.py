@@ -26,8 +26,14 @@ from collections import defaultdict
 
 SOURCE_FILES = [
     'src/codeV-commands.f90',
-    'src/codeV-sur.f90',
+    'src/codeV-commands-editops.f90',
+    'src/codeV-commands-lensops.f90',
+    'src/codeV-commands-plots.f90',
+    'src/codeV-commands-utils.f90',
+    'src/codeV-commands-zoom.f90',
+    'src/codeV-commands-undoredo.f90',
     'src/codeV-plot.f90',
+    'src/codeV-sur.f90',
 ]
 
 OUTPUT_MD = 'help/md/command_table.md'
@@ -36,9 +42,16 @@ OUTPUT_MD = 'help/md/command_table.md'
 CATEGORY_ORDER = [
     'File I/O',
     'System Parameters',
+    'Fields & Wavelengths',
     'Surface Parameters',
+    'Apertures',
     'Solves',
-    'System Management',
+    'Optimization',
+    'Analysis & Plots',
+    'Plot Settings',
+    'Zoom / Multi-Configuration',
+    'Editing',
+    'Utilities',
 ]
 
 KEY_PATTERN = re.compile(r'^(\w+)\s*:\s*(.*)')
@@ -133,6 +146,9 @@ def generate_markdown(commands):
         for cmd in sorted(by_category[cat], key=lambda x: x.get('cmd', '')):
             syntax = cmd.get('syntax', cmd.get('cmd', ''))
             desc = cmd.get('desc', '')
+            # Escape '|' so it doesn't split the two-column Markdown table.
+            syntax = syntax.replace('|', '\\|')
+            desc = desc.replace('|', '\\|')
             lines.append(f'| {syntax} | {desc} |')
         lines.append('')
 

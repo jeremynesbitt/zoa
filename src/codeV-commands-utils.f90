@@ -100,6 +100,11 @@ contains
         call PROCESKDP('U L')
     end procedure setLens
 
+    !## cmd:      FLY
+    !## syntax:   FLY Si..j
+    !## category: Editing
+    !## desc:     Flip (reverse) the given range of surfaces.
+    !##
     module procedure flipSurfaces
         use global_widgets, only: sysConfig
         use command_utils, only : isInputNumber
@@ -297,6 +302,11 @@ contains
         end if
     end procedure processZoaFileInput
 
+    !## cmd:      PRT
+    !## syntax:   PRT file
+    !## category: File I/O
+    !## desc:     Print the contents of a text file to the terminal.
+    !##
     module procedure printFile
         use zoa_file_handler
         use command_utils, only: isInputNumber
@@ -314,6 +324,16 @@ contains
         end if
     end procedure printFile
 
+    !## cmd:      CX
+    !## syntax:   CX
+    !## category: Analysis & Plots
+    !## desc:     Print chief-ray X data.
+    !##
+    !## cmd:      CY
+    !## syntax:   CY
+    !## category: Analysis & Plots
+    !## desc:     Print chief-ray Y data.
+    !##
     module procedure getRayData
         use DATLEN, only: RAYRAY
         use data_registers, only: setData
@@ -350,6 +370,11 @@ contains
         end if
     end procedure getRayData
 
+    !## cmd:      TERM
+    !## syntax:   TERM
+    !## category: Utilities
+    !## desc:     Reset terminal output to the default view.
+    !##
     module procedure execTERM
         use global_widgets, only: ioConfig
         use zoa_ui, only: ID_TERMINAL_DEFAULT
@@ -359,6 +384,11 @@ contains
         call zoa_emit("Terminal output redirected to default", "black")
     end procedure execTERM
 
+    !## cmd:      THO
+    !## syntax:   THO
+    !## category: Analysis & Plots
+    !## desc:     List the third-order (Seidel) aberration coefficients.
+    !##
     module procedure execTHO
         use global_widgets, only: sysConfig
         implicit none
@@ -372,6 +402,11 @@ contains
         call MMAB3_NEW(.TRUE., sysConfig%refWavelengthIndex, .TRUE.)
     end procedure execTHO
 
+    !## cmd:      RAYREF
+    !## syntax:   RAYREF
+    !## category: Analysis & Plots
+    !## desc:     Compute the per-field reference rays (R1..R5).
+    !##
     module procedure execRAYREF
         use mod_reference_rays, only: refRays, NUM_REF_RAYS
         use type_utils, only: real2str, int2str

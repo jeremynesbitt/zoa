@@ -1,6 +1,11 @@
 submodule (codeV_commands) mod_plot
 implicit none
 contains
+    !## cmd:      SETWV
+    !## syntax:   SETWV n
+    !## category: Plot Settings
+    !## desc:     Set the wavelength index for the active plot.
+    !##
     module procedure setPlotWavelength
         
         use command_utils, only: isInputNumber
@@ -24,6 +29,11 @@ contains
         
     end procedure
 
+    !## cmd:      SETDENS
+    !## syntax:   SETDENS n
+    !## category: Plot Settings
+    !## desc:     Set the sampling density for the active plot.
+    !##
     module procedure setPlotDensity
         
         use command_utils, only: isInputNumber
@@ -45,6 +55,11 @@ contains
         end if
         
     end procedure  
+    !## cmd:      SETZERNC
+    !## syntax:   SETZERNC 5..9 | 9,16,25
+    !## category: Plot Settings
+    !## desc:     Set which Zernike terms the Zernike plot shows (range or list).
+    !##
     module procedure setPlotZernikeCoefficients
         
         use command_utils, only: isInputNumber
@@ -70,6 +85,11 @@ contains
         
     end procedure 
 
+    !## cmd:      ZERN_TST
+    !## syntax:   ZERN_TST ; [SETZERNC ...] ; GO
+    !## category: Analysis & Plots
+    !## desc:     Zernike-coefficient-vs-field plot.
+    !##
     module procedure ZERN_TST
         !use ui_spot, only: spot_struct_settings, spot_settings
        ! use mod_plotopticalsystem
@@ -143,6 +163,11 @@ contains
         curr_psm = psm
     end procedure  
 
+    !## cmd:      PLTRMS
+    !## syntax:   PLTRMS
+    !## category: Analysis & Plots
+    !## desc:     RMS wavefront/spot vs field plot.
+    !##
     module procedure execRMSPlot
         implicit none
 
@@ -162,6 +187,11 @@ contains
 
     end procedure    
 
+    !## cmd:      PLOTTHO
+    !## syntax:   PLOTTHO
+    !## category: Analysis & Plots
+    !## desc:     Third-order (Seidel) aberration bar chart.
+    !##
     module procedure execSeidelBarChart
         implicit none
         logical :: boolResult
@@ -180,6 +210,11 @@ contains
 
     end procedure    
 
+    !## cmd:      PSF
+    !## syntax:   PSF
+    !## category: Analysis & Plots
+    !## desc:     Point-spread-function plot.
+    !##
     module procedure execPSF
         implicit none
         logical :: boolResult
@@ -198,6 +233,11 @@ contains
 
     end procedure       
     
+    !## cmd:      MTF
+    !## syntax:   MTF
+    !## category: Analysis & Plots
+    !## desc:     Modulation-transfer-function plot.
+    !##
     module procedure execMTF
         implicit none
         logical :: boolResult

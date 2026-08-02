@@ -43,6 +43,11 @@ module codeV_commands
    module subroutine execZRN(iptStr)
    character(len=*) :: iptStr
    end subroutine execZRN
+   !## cmd:      VIE
+   !## syntax:   VIE ; [settings] ; GO
+   !## category: Analysis & Plots
+   !## desc:     Draw the lens layout (2D/3D system view).
+   !##
    module subroutine execVie(iptStr)
    character(len=*) :: iptStr
    end subroutine execVie
@@ -881,6 +886,11 @@ module codeV_commands
     end subroutine
 
     ! FALLBACK command: report the legacy-fallback tally, most-hit first.
+    !## cmd:      FALLBACK
+    !## syntax:   FALLBACK
+    !## category: Utilities
+    !## desc:     Report the legacy-command fallback tally (retirement telemetry).
+    !##
     subroutine execFallbackReport(iptStr)
         character(len=*) :: iptStr
         integer :: i, j, order(MAX_FALLBACK), tmp
@@ -1055,6 +1065,11 @@ module codeV_commands
 
     end function
 
+    !## cmd:      XOFF
+    !## syntax:   XOFF X
+    !## category: Analysis & Plots
+    !## desc:     Set the chief-ray X offset for the wavefront calculation.
+    !##
     subroutine execXOFF(iptStr)
         use command_utils, only: isInputNumber
 
@@ -1079,6 +1094,11 @@ module codeV_commands
 
     end subroutine
 
+    !## cmd:      YOFF
+    !## syntax:   YOFF X
+    !## category: Analysis & Plots
+    !## desc:     Set the chief-ray Y offset for the wavefront calculation.
+    !##
     subroutine execYOFF(iptStr)
         use command_utils, only: isInputNumber
 
@@ -1103,6 +1123,11 @@ module codeV_commands
 
     end subroutine
 
+    !## cmd:      FRZ
+    !## syntax:   FRZ
+    !## category: Optimization
+    !## desc:     Freeze all variables (clear optimization variable codes).
+    !##
     subroutine execFreeze(iptStr)
         
         use optim_types, only: optim
@@ -1137,6 +1162,11 @@ module codeV_commands
     ! For normal operation a table will be output with the results
     ! If in VIE level it will save the rays intersection coordinates for use with plooting
     ! Format RSI fi..k wi..k relApeX relApeY
+    !## cmd:      RSI
+    !## syntax:   RSI fi..k wi..k relApX relApY
+    !## category: Analysis & Plots
+    !## desc:     Trace a single ray and report ray-intercept / OPD data.
+    !##
     subroutine execRSI(iptStr)
         use global_widgets, only: sysConfig, curr_lens_data
         use command_utils, only : isInputNumber
@@ -1266,6 +1296,11 @@ module codeV_commands
 
     end subroutine
 
+    !## cmd:      FIO
+    !## syntax:   FIO
+    !## category: File I/O
+    !## desc:     Open the file input/output dialog.
+    !##
     subroutine execFIO(iptStr)
 
         use global_widgets, only: curr_par_ray_trace, curr_lens_data, sysConfig
@@ -1305,6 +1340,11 @@ module codeV_commands
 
     end subroutine
 
+    !## cmd:      IND
+    !## syntax:   IND
+    !## category: System Parameters
+    !## desc:     List the refractive indices of each surface at each wavelength.
+    !##
     subroutine printRefractiveIndices(iptStr)
 
         use global_widgets, only: curr_par_ray_trace, curr_lens_data, sysConfig

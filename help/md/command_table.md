@@ -7,39 +7,174 @@ Most original KDP commands still work — see the original manual.
 
 | Parameter | Description |
 | --------- | ----------- |
-| RES filename | Restores a lens system from filename.zoa in the Projects folder. Use RES macro:filename to load a file from the Macros folder. Subdirectories are supported: RES macro:Bentley/Bentley3p1 Both forward and backward slashes are accepted. |
-| SAV [filename] | Saves the current lens system to filename.zoa in the Projects folder. If filename is omitted, saves as currlens.zoa in the temp folder. The .zoa extension is added automatically if not provided. |
+| FIO | Open the file input/output dialog. |
+| PRT file | Print the contents of a text file to the terminal. |
+| RES file | Restore (load) a lens from a .zoa file (RES macro:file loads from a macro). |
+| RESAUTO | Restore the most recently auto-saved lens. |
+| SAV file | Save the current lens to a .zoa file. |
+| SAVESESS file | Save the current session (lens plus settings) to a file. |
+| ZOA2CV file | Export the current lens to a CODE V sequence (.seq) file. |
+| ZOA2ZMX file | Export the current lens to a Zemax (.zmx) file. |
 
 ## System Parameters
 
 | Parameter | Description |
 | --------- | ----------- |
-| DIM K | Sets the lens system units. K can be M (millimetres), C (centimetres), or I (inches). |
-| EPD X | Sets the entrance pupil diameter to X lens units. |
-| TIT 'titletext' | Sets the title of the lens system to titletext. Enclose the title in single quotes if it contains spaces. |
+| DIM M\|C\|I | Set the lens units: M (mm), C (cm), or I (inches). |
+| EPD X | Set the entrance pupil diameter to X. |
+| IND | List the refractive indices of each surface at each wavelength. |
+| TIT 'text' | Set the lens title. |
+
+## Fields & Wavelengths
+
+| Parameter | Description |
+| --------- | ----------- |
+| REF n | Set the reference (control) wavelength to index n. |
+| WL w1 [w2 ...] | Set the system wavelengths (nm); up to 5 values. |
+| WTF s1 [s2 ...] | Set the field weights. |
+| WTW s1 [s2 ...] | Set the spectral (wavelength) weights. |
+| XAN a1 [a2 ...] | Set the X field angles (degrees). |
+| XOB h1 [h2 ...] | Set the X object heights. |
+| YAN a1 [a2 ...] | Set the Y field angles (degrees). |
+| YIM h1 [h2 ...] | Set the Y paraxial image heights (field specification). |
+| YOB h1 [h2 ...] | Set the Y object heights. |
 
 ## Surface Parameters
 
 | Parameter | Description |
 | --------- | ----------- |
-| CUY Sk X | Sets the curvature (1/radius) on surface Sk to X. Sk can be S0 (object), S1..SN (surface by number), or Si (current surface). Use CUY Sk UMY X to set a paraxial marginal ray angle solve. |
+| ASP Sk | Make surface Sk an asphere. |
+| CUX Sk <qual> j | Sets an XZ (X-toric) curvature solve on surface Sk.  Qualifiers: AMX (aplanatic marginal, KDP APX), ACX (aplanatic chief, APCX), IMX j (angle of incidence, PIX), ICX j (PICX), UMX j (ray slope, PUX), UCX j (PUCX). |
+| CUY Sk X  \|  CUY Sk <qual> j | Sets the YZ curvature (1/radius) on surface Sk to X. Sk can be S0 (object), S1..SN (surface by number), or Si (current surface). A solve qualifier sets a curvature solve instead: AMY (aplanatic marginal, KDP APY), ACY (aplanatic chief, APCY), IMY j (angle of incidence, PIY), ICY j (PICY), UMY j (ray slope, PUY), UCY j (PUCY). |
 | GLA Sk name | Sets the glass at surface Sk to the named material. Searches through available glass catalogs for the name. Use a numeric nd,vd pair (e.g. 1.5,50) to specify a model glass. |
+| I Sk c1 c2 ... | Set the aspheric (4th..) coefficients of surface Sk. |
+| INS Sk \| INS Si..j | Insert one or more new surfaces before surface k (or over the range i..j). |
+| K Sk X | Set the conic constant of surface Sk to X. |
 | RDY Sk X | Sets the radius of surface Sk to X. Sk can be S0 (object), S1..SN (surface by number), or Si (current surface). X is the new radius value in current lens units. |
-| RMD Sk TYPE | Sets the ray mode (surface type) of surface Sk. TYPE can be REFL (mirror), REFR (refracting, default), or TIR (total internal reflection surface). |
-| STO [Sk] | Sets surface Sk as the aperture stop. Sk can be S0 (object), S1..SN, or Si (current surface). If Sk is omitted, uses the current surface pointer. |
-| THI Sk X | Sets the thickness on surface Sk to X. Sk can be S0 (object), S1..SN (surface by number), or Si (current surface). X is the new thickness value in current lens units. |
+| RMD Sk REFL\|REFR\|TIR | Set the surface Sk mode: reflector, refractor (air), or TIR reflector. |
+| S [rd th glass] | Advance to / add the next surface (optionally set radius, thickness, glass). |
+| SI [rd th glass] | Select the image surface. |
+| SLB Sk 'label' | Set a text label on surface Sk. |
+| SO [rd th glass] | Select the object surface (S0). |
+| SPH Sk | Make surface Sk spherical (remove asphere terms). |
+| STO Sk | Make surface Sk the aperture stop. |
+| STOP Sk | Make surface Sk the aperture stop (alias of STO). |
+| THI Sk X  \|  THI Sk <qual> j | Sets the thickness on surface Sk to X. Sk can be S0 (object), S1..SN (surface by number), or Si (current surface). X is the new thickness value in current lens units. A solve qualifier sets a thickness solve instead: HMY j (paraxial marginal height, KDP PY), HCY j (chief height, PCY), HMX/HCX for XZ. |
+
+## Apertures
+
+| Parameter | Description |
+| --------- | ----------- |
+| CIR [Sk] r | Set a circular clear aperture of radius r on surface Sk (CIR EDG for an edge aperture). |
+| ETH Sk X | Set the edge thickness aperture used by the MNE/MAE general constraints. |
 
 ## Solves
 
 | Parameter | Description |
 | --------- | ----------- |
-| PIM | Adds a paraxial image solve on the surface before the image surface. Automatically adjusts that surface's thickness to place the paraxial focus at the image plane. |
-| RED X | Adds a thickness solve on the object surface (S0) to set a paraxial reduction (magnification) factor of X. |
+| RED f | Set an object-thickness reduction solve for paraxial magnification f. |
 
-## System Management
+## Optimization
 
 | Parameter | Description |
 | --------- | ----------- |
-| DEL PIM / DEL SOL CUY Sk / DEL CON id | Deletes a system element. DEL PIM removes the paraxial image solve. DEL SOL CUY Sk removes the curvature solve on surface Sk. DEL CON id removes the optimization constraint with the given ID number. |
-| INS Sk | Inserts a new surface before surface Sk. Use range notation (Si..k) to insert multiple surfaces at once. |
+| AUT ; <constraints/operands> ; GO | Run local optimization; define operands and constraints inside the loop. |
+| AUTUI | Open the optimizer setup window (merit operands, constraints, variables). |
+| CCY Sk n \| CCY Si..j n | Set the YZ-curvature variable code on surface(s). |
+| CHA n ; <value> | Change entry n inside the current UPD loop. |
+| DCON n | Delete constraint/operand number n. |
+| EFL = v \| EFL v [w] | Effective focal length merit entry (constraint with =, or operand with target v, weight w). |
+| FRZ | Freeze all variables (clear optimization variable codes). |
+| GLC Sk n | Set the glass variable code on surface(s). |
+| IMC = v \| IMC v [w] | Image-clearance / distance merit entry. |
+| IMP X | Set the optimizer improvement goal. |
+| KC Sk n | Set the conic-constant variable code on surface(s). |
+| LCON | List the current merit operands and constraints. |
+| MAE X | Set the minimum edge air spacing (general constraint). |
+| MNA X | Set the minimum axial air spacing (general constraint). |
+| MNE X | Set the minimum element edge thickness (general constraint). |
+| MNT X | Set the minimum element center thickness (general constraint). |
+| MXT X | Set the maximum element center thickness (general constraint, inside AUT). |
+| PTB = v \| PTB v [w] | Petzval-blur merit entry. |
+| SAS = v \| SAS v [w] | Sagittal-astigmatism merit entry. |
+| SET <option> ... | Set a system option (e.g. SET CAP, SET VIG). |
+| SPO v [w] | RMS spot-size operand (weighted objective term). |
+| TAR ; ... ; GO | Enter the optimization target loop (set operand targets/weights). |
+| TAS = v \| TAS v [w] | Tangential-astigmatism merit entry. |
+| TCO = v \| TCO v [w] | Transverse-color merit entry. |
+| THC Sk n \| THC Si..j n | Set the thickness variable code on surface(s). |
+| TOW ; ... ; GO | Enter the tolerancing/operand-weighting loop. |
+| UPD CON | Enter an update loop to edit a data set (e.g. UPD CON for constraints). |
+
+## Analysis & Plots
+
+| Parameter | Description |
+| --------- | ----------- |
+| BES | Find the best-focus image thickness (minimum RMS). |
+| CX | Print chief-ray X data. |
+| CY | Print chief-ray Y data. |
+| EVA name | Evaluate a merit operand by name and print its value. |
+| FAN | Ray-fan plot (used within a plot loop). |
+| FIE | Astigmatic field-curvature and distortion plot. |
+| MTF | Modulation-transfer-function plot. |
+| PLOTTHO | Third-order (Seidel) aberration bar chart. |
+| PLTRMS | RMS wavefront/spot vs field plot. |
+| PMA | Optical-path-difference (wavefront map) plot. |
+| PSF | Point-spread-function plot. |
+| RAYREF | Compute the per-field reference rays (R1..R5). |
+| RIM | Ray-aberration (rim-ray fan) plot. |
+| RSI fi..k wi..k relApX relApY | Trace a single ray and report ray-intercept / OPD data. |
+| THO | List the third-order (Seidel) aberration coefficients. |
+| VIE ; [settings] ; GO | Draw the lens layout (2D/3D system view). |
+| XOFF X | Set the chief-ray X offset for the wavefront calculation. |
+| YOFF X | Set the chief-ray Y offset for the wavefront calculation. |
+| ZERN_TST ; [SETZERNC ...] ; GO | Zernike-coefficient-vs-field plot. |
+| ZRN WAV [fi] [wj] [zk] [dN] | Fit the OPD error to Zernike polynomials and print a 36-term coefficient table. |
+
+## Plot Settings
+
+| Parameter | Description |
+| --------- | ----------- |
+| AZI a | Set the azimuth angle of the 3D lens view. |
+| DRAWSF Sk | Set the last surface drawn in the lens view. |
+| DRAWSI Sk | Set the first surface drawn in the lens view. |
+| ELEV a | Set the elevation angle of the 3D lens view. |
+| IFR x | Set the frequency interval for the MTF plot. |
+| MFR x | Set the maximum frequency for the MTF plot. |
+| NBR ELE Si..j | Set the surface range for the lens drawing. |
+| NUMRAYS n | Set the number of rays drawn in the lens view. |
+| ORIENT ... | Set the orientation (elevation/azimuth) of the lens view. |
+| RMSDATA WAVE\|SPOT | Choose the data type for the RMS-vs-field plot. |
+| SETDENS n | Set the sampling density for the active plot. |
+| SETWV n | Set the wavelength index for the active plot. |
+| SETZERNC 5..9 \| 9,16,25 | Set which Zernike terms the Zernike plot shows (range or list). |
+| SSI x | Set the scale of the active plot. |
+
+## Zoom / Multi-Configuration
+
+| Parameter | Description |
+| --------- | ----------- |
+| POS n | Switch the active configuration (zoom position) to n. |
+| ZOO ... \| ZOO PIM | Define zoom (multi-configuration) data. |
+
+## Editing
+
+| Parameter | Description |
+| --------- | ----------- |
+| DEL PIM \| DEL SOL <verb> Sk \| DEL CON n \| DEL VIG | Delete user-defined system data: PIM/thickness solves, angle/curvature solves (DEL SOL CUY\|CUX\|THI Sk), a constraint (DEL CON n), or vignetting. |
+| FLY Si..j | Flip (reverse) the given range of surfaces. |
+| REDO | Redo the last undone lens change. |
+| SCA EFL X | Scale the system (e.g. SCA EFL 50 scales to an EFL of 50). |
+| UNDO | Undo the last lens change. |
+
+## Utilities
+
+| Parameter | Description |
+| --------- | ----------- |
+| ! text | Comment line (ignored); used in .zoa files. |
+| CLI | Check/refresh the clear apertures. |
+| EDI PREF | Open an editor (EDI PREF opens preferences). |
+| FALLBACK | Report the legacy-command fallback tally (retirement telemetry). |
+| SUR | Surface data command. |
+| TERM | Reset terminal output to the default view. |
 

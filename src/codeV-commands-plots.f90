@@ -17,6 +17,11 @@ contains
         f = REG(9)
     end function adjustImageFocus
 
+    !## cmd:      BES
+    !## syntax:   BES
+    !## category: Analysis & Plots
+    !## desc:     Find the best-focus image thickness (minimum RMS).
+    !##
     module procedure findBestFocus
         use global_widgets, only: curr_par_ray_trace, sysConfig
         use command_utils, only : isInputNumber
@@ -41,6 +46,11 @@ contains
         call PROCESKDP('THI SI '//real2str(newThi))
     end procedure findBestFocus
 
+    !## cmd:      FAN
+    !## syntax:   FAN
+    !## category: Analysis & Plots
+    !## desc:     Ray-fan plot (used within a plot loop).
+    !##
     module procedure execFAN
         use command_utils, only : isInputNumber
         use global_widgets, only: sysConfig
@@ -156,6 +166,11 @@ contains
         end if
     end function initiatePlotLoop
 
+    !## cmd:      SSI
+    !## syntax:   SSI x
+    !## category: Plot Settings
+    !## desc:     Set the scale of the active plot.
+    !##
     module procedure setPlotScale
         use command_utils
 
@@ -178,6 +193,11 @@ contains
         end if
     end procedure setPlotScale
 
+    !## cmd:      MFR
+    !## syntax:   MFR x
+    !## category: Plot Settings
+    !## desc:     Set the maximum frequency for the MTF plot.
+    !##
     module procedure updateMaxFrequency
         use command_utils
 
@@ -200,6 +220,11 @@ contains
         end if
     end procedure updateMaxFrequency
 
+    !## cmd:      IFR
+    !## syntax:   IFR x
+    !## category: Plot Settings
+    !## desc:     Set the frequency interval for the MTF plot.
+    !##
     module procedure updateFrequencyInterval
         use command_utils
 
@@ -222,6 +247,11 @@ contains
         end if
     end procedure updateFrequencyInterval
 
+    !## cmd:      RIM
+    !## syntax:   RIM
+    !## category: Analysis & Plots
+    !## desc:     Ray-aberration (rim-ray fan) plot.
+    !##
     module procedure execRayAberrationPlot
         implicit none
 
@@ -239,6 +269,11 @@ contains
         end if
     end procedure execRayAberrationPlot
 
+    !## cmd:      PMA
+    !## syntax:   PMA
+    !## category: Analysis & Plots
+    !## desc:     Optical-path-difference (wavefront map) plot.
+    !##
     module procedure execPMAPlot
         implicit none
 
@@ -256,6 +291,11 @@ contains
         end if
     end procedure execPMAPlot
 
+    !## cmd:      FIE
+    !## syntax:   FIE
+    !## category: Analysis & Plots
+    !## desc:     Astigmatic field-curvature and distortion plot.
+    !##
     module procedure execAstigFieldCurvDistPlot
         implicit none
 
@@ -271,6 +311,11 @@ contains
         end if
     end procedure execAstigFieldCurvDistPlot
 
+    !## cmd:      TOW
+    !## syntax:   TOW ; ... ; GO
+    !## category: Optimization
+    !## desc:     Enter the tolerancing/operand-weighting loop.
+    !##
     module procedure execTOW
         implicit none
 
@@ -293,6 +338,11 @@ contains
         end if
     end procedure execTOW
 
+    !## cmd:      AUT
+    !## syntax:   AUT ; <constraints/operands> ; GO
+    !## category: Optimization
+    !## desc:     Run local optimization; define operands and constraints inside the loop.
+    !##
     module procedure execAUT
         use optim_types, only: optim
 
@@ -304,6 +354,11 @@ contains
         end if
     end procedure execAUT
 
+    !## cmd:      TAR
+    !## syntax:   TAR ; ... ; GO
+    !## category: Optimization
+    !## desc:     Enter the optimization target loop (set operand targets/weights).
+    !##
     module procedure execTAR
         implicit none
 
@@ -314,6 +369,11 @@ contains
         end if
     end procedure execTAR
 
+    !## cmd:      SPO
+    !## syntax:   SPO v [w]
+    !## category: Optimization
+    !## desc:     RMS spot-size operand (weighted objective term).
+    !##
     module procedure execSPO
         use command_utils, only : isInputNumber
         use optim_types
@@ -379,6 +439,11 @@ contains
         cmd_loop = SPO_LOOP
     end procedure execSPO_old
 
+    !## cmd:      CIR
+    !## syntax:   CIR [Sk] r
+    !## category: Apertures
+    !## desc:     Set a circular clear aperture of radius r on surface Sk (CIR EDG for an edge aperture).
+    !##
     module procedure execCIR
         use command_utils, only : isInputNumber
         use type_utils, only: str2real8
@@ -456,6 +521,36 @@ contains
     ! NUMRAYS/DRAWSI/DRAWSF/ELEV/AZI/ORIENT all dispatch here.  The keyword
     ! selects which lens-draw setting on curr_psm to update.  Only meaningful
     ! inside a VIE ; ... ; GO loop (where curr_psm is the lens-draw psm).
+    !## cmd:      AZI
+    !## syntax:   AZI a
+    !## category: Plot Settings
+    !## desc:     Set the azimuth angle of the 3D lens view.
+    !##
+    !## cmd:      DRAWSF
+    !## syntax:   DRAWSF Sk
+    !## category: Plot Settings
+    !## desc:     Set the last surface drawn in the lens view.
+    !##
+    !## cmd:      DRAWSI
+    !## syntax:   DRAWSI Sk
+    !## category: Plot Settings
+    !## desc:     Set the first surface drawn in the lens view.
+    !##
+    !## cmd:      ELEV
+    !## syntax:   ELEV a
+    !## category: Plot Settings
+    !## desc:     Set the elevation angle of the 3D lens view.
+    !##
+    !## cmd:      NUMRAYS
+    !## syntax:   NUMRAYS n
+    !## category: Plot Settings
+    !## desc:     Set the number of rays drawn in the lens view.
+    !##
+    !## cmd:      ORIENT
+    !## syntax:   ORIENT ...
+    !## category: Plot Settings
+    !## desc:     Set the orientation (elevation/azimuth) of the lens view.
+    !##
     module procedure adjustVieSettings
         use type_utils, only: str2int, str2real8
         use plot_setting_manager, only: orientId
@@ -499,6 +594,11 @@ contains
     ! pupil density, and print a 36-row table (coefficient number, value in waves).
     ! Defaults: f1, reference wavelength, zoom 1, N=64.  Only the WAV qualifier is
     ! implemented for now; other qualifiers/fields/wavelengths come later.
+    !## cmd:      ZRN
+    !## syntax:   ZRN WAV [fi] [wj] [zk] [dN]
+    !## category: Analysis & Plots
+    !## desc:     Fit the OPD error to Zernike polynomials and print a 36-term coefficient table.
+    !##
     module procedure execZRN
         use strings, only: parse
         use command_utils, only: isInputNumber

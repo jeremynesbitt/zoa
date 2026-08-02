@@ -4,6 +4,16 @@ use mod_kdp_api, only: kdp_silent_begin, kdp_silent_end, kdp_lens_begin, &
 implicit none
 contains
 
+    !## cmd:      STO
+    !## syntax:   STO Sk
+    !## category: Surface Parameters
+    !## desc:     Make surface Sk the aperture stop.
+    !##
+    !## cmd:      STOP
+    !## syntax:   STOP Sk
+    !## category: Surface Parameters
+    !## desc:     Make surface Sk the aperture stop (alias of STO).
+    !##
     module procedure execSTO
         use mod_lens_data_manager, only: ldm
 
@@ -35,6 +45,11 @@ contains
         call kdp_silent_end()
     end procedure execSTO
 
+    !## cmd:      RES
+    !## syntax:   RES file
+    !## category: File I/O
+    !## desc:     Restore (load) a lens from a .zoa file (RES macro:file loads from a macro).
+    !##
     module procedure execRestore
         implicit none
 
@@ -95,6 +110,11 @@ contains
         end if
     end procedure execRestore_old
 
+    !## cmd:      ZOA2CV
+    !## syntax:   ZOA2CV file
+    !## category: File I/O
+    !## desc:     Export the current lens to a CODE V sequence (.seq) file.
+    !##
     module procedure exportLensToCodeV
         use zoa_file_handler
         use zoa_ui_callbacks, only: query_save_file
@@ -151,6 +171,11 @@ contains
         end if
     end procedure exportLensToCodeV
 
+    !## cmd:      ZOA2ZMX
+    !## syntax:   ZOA2ZMX file
+    !## category: File I/O
+    !## desc:     Export the current lens to a Zemax (.zmx) file.
+    !##
     module procedure exportLensToZemax
         use zoa_file_handler, only: open_file_to_sav_lens, getCodeVDir
         use global_widgets, only: sysConfig
@@ -268,6 +293,11 @@ contains
         call zoa_emit("Saved Zemax file "//trim(fName), "black")
     end procedure exportLensToZemax
 
+    !## cmd:      SAV
+    !## syntax:   SAV file
+    !## category: File I/O
+    !## desc:     Save the current lens to a .zoa file.
+    !##
     module procedure execSAV
         use global_widgets, only: sysConfig, curr_lens_data
         use zoa_file_handler, only: open_file_to_sav_lens, getTempDirectory, getCurrentLensFileName
@@ -312,6 +342,11 @@ contains
         end if
     end procedure execSAV
 
+    !## cmd:      SAVESESS
+    !## syntax:   SAVESESS file
+    !## category: File I/O
+    !## desc:     Save the current session (lens plus settings) to a file.
+    !##
     module procedure execSaveSessionToFile
         use zoa_ui_callbacks, only: notify_write_tab_state
         use global_widgets, only: sysConfig, curr_lens_data
@@ -343,6 +378,11 @@ contains
         end if
     end procedure execSaveSessionToFile
 
+    !## cmd:      REF
+    !## syntax:   REF n
+    !## category: Fields & Wavelengths
+    !## desc:     Set the reference (control) wavelength to index n.
+    !##
     module procedure execSetWavelengthIndex
         use strings, only: parse
         use command_utils, only: isInputNumber
@@ -364,6 +404,11 @@ contains
         end if
     end procedure execSetWavelengthIndex
 
+    !## cmd:      RMD
+    !## syntax:   RMD Sk REFL|REFR|TIR
+    !## category: Surface Parameters
+    !## desc:     Set the surface Sk mode: reflector, refractor (air), or TIR reflector.
+    !##
     module procedure execRMD
         use strings, only: parse
         implicit none
@@ -429,6 +474,11 @@ contains
         end if
     end procedure execSetCodeVCmd
 
+    !## cmd:      RED
+    !## syntax:   RED f
+    !## category: Solves
+    !## desc:     Set an object-thickness reduction solve for paraxial magnification f.
+    !##
     module procedure setMagSolve
         use command_utils, only: isInputNumber
         implicit none
@@ -455,11 +505,11 @@ contains
     end procedure setMagSolve
 
     !## cmd:      DEL
-    !## syntax:   DEL VIG | APE SA | PIM
-    !## category: General
-    !## desc:     Allows for deleting user defined parameters of the system, such as 
-    !##           Vignetting, Apertures, and Solves 
-    !##           
+    !## syntax:   DEL PIM | DEL SOL <verb> Sk | DEL CON n | DEL VIG
+    !## category: Editing
+    !## desc:     Delete user-defined system data: PIM/thickness solves, angle/curvature
+    !##           solves (DEL SOL CUY|CUX|THI Sk), a constraint (DEL CON n), or vignetting.
+    !##
     !##    
     module procedure deleteStuff
         use command_utils, only: isInputNumber
@@ -540,6 +590,11 @@ contains
         end if
     end procedure deleteStuff
 
+    !## cmd:      EPD
+    !## syntax:   EPD X
+    !## category: System Parameters
+    !## desc:     Set the entrance pupil diameter to X.
+    !##
     module procedure setEPD
         ! Self-tokenizing (parse the raw line) rather than reading the DATMAI
         ! parse globals via getInputNumber -- so this handler works when
@@ -676,6 +731,11 @@ contains
         end if
     end procedure applyGlassText
 
+    !## cmd:      EDI
+    !## syntax:   EDI PREF
+    !## category: Utilities
+    !## desc:     Open an editor (EDI PREF opens preferences).
+    !##
     module procedure execEDI
         use strings, only: parse
         use globals, only: HEADLESS_MODE
@@ -710,6 +770,11 @@ contains
         end select
     end procedure execEDI
 
+    !## cmd:      RESAUTO
+    !## syntax:   RESAUTO
+    !## category: File I/O
+    !## desc:     Restore the most recently auto-saved lens.
+    !##
     module procedure execRESAUTO
         use zoa_file_handler, only: getTempDirectory, getCurrentLensFileName, process_zoa_file
         use undo_manager, only: undo_reset_baseline

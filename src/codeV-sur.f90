@@ -3,6 +3,11 @@ use mod_kdp_api, only: kdp_lens_begin, kdp_chg, kdp_lens_cmd, kdp_lens_end, &
                        kdp_silent_begin, kdp_silent_end
 implicit none
 contains
+!## cmd:      SUR
+!## syntax:   SUR
+!## category: Utilities
+!## desc:     Surface data command.
+!##
 module procedure execSUR
     ! for now support SUR SA only
     ! New code - add abstraction of row titles and new columns of RMD GLA CCY THC GLC
@@ -294,6 +299,11 @@ module procedure execSUR
        
     end procedure
 
+    !## cmd:      ASP
+    !## syntax:   ASP Sk
+    !## category: Surface Parameters
+    !## desc:     Make surface Sk an asphere.
+    !##
     module procedure execAsphere
         use strings, only: parse
         use mod_lens_data_manager
@@ -323,6 +333,11 @@ module procedure execSUR
         call kdp_silent_end()
     end procedure
 
+    !## cmd:      SPH
+    !## syntax:   SPH Sk
+    !## category: Surface Parameters
+    !## desc:     Make surface Sk spherical (remove asphere terms).
+    !##
     module procedure execSphere
         use strings, only: parse
         use mod_lens_data_manager
@@ -346,6 +361,11 @@ module procedure execSUR
         call kdp_silent_end()
     end procedure
 
+    !## cmd:      I
+    !## syntax:   I Sk c1 c2 ...
+    !## category: Surface Parameters
+    !## desc:     Set the aspheric (4th..) coefficients of surface Sk.
+    !##
     module procedure updateAsphereTerms
         use strings
         use DATLEN, only: ALENS
@@ -387,6 +407,11 @@ module procedure execSUR
     ! K Sk Val - update on lens Sk
     ! K Val - update current lens (eg when loading from file)
     ! K Sk - return val on current lens (not currently implemented) 
+    !## cmd:      K
+    !## syntax:   K Sk X
+    !## category: Surface Parameters
+    !## desc:     Set the conic constant of surface Sk to X.
+    !##
     module procedure updateConicConstant
         use command_utils, only: isInputNumber
         use strings, only: parse
@@ -444,6 +469,11 @@ module procedure execSUR
 
     end procedure
 
+    !## cmd:      SLB
+    !## syntax:   SLB Sk 'label'
+    !## category: Surface Parameters
+    !## desc:     Set a text label on surface Sk.
+    !##
     module procedure updateSurfaceLabel
         call execTranslatedSurfCmd(iptStr, 'LBL')    
     end procedure

@@ -5,6 +5,26 @@ use iso_fortran_env, only: real64
 implicit none
 contains
 
+    !## cmd:      CCY
+    !## syntax:   CCY Sk n | CCY Si..j n
+    !## category: Optimization
+    !## desc:     Set the YZ-curvature variable code on surface(s).
+    !##
+    !## cmd:      GLC
+    !## syntax:   GLC Sk n
+    !## category: Optimization
+    !## desc:     Set the glass variable code on surface(s).
+    !##
+    !## cmd:      KC
+    !## syntax:   KC Sk n
+    !## category: Optimization
+    !## desc:     Set the conic-constant variable code on surface(s).
+    !##
+    !## cmd:      THC
+    !## syntax:   THC Sk n | THC Si..j n
+    !## category: Optimization
+    !## desc:     Set the thickness variable code on surface(s).
+    !##
     module procedure updateVarCodes
         use command_utils, only : isInputNumber
         use mod_lens_data_manager
@@ -61,6 +81,36 @@ contains
     !   NAME v [w]                       -> objective term, target v, weight w
     !                                       (default 1); minimized as
     !                                       w*(value-v)**2
+    !## cmd:      EFL
+    !## syntax:   EFL = v | EFL v [w]
+    !## category: Optimization
+    !## desc:     Effective focal length merit entry (constraint with =, or operand with target v, weight w).
+    !##
+    !## cmd:      IMC
+    !## syntax:   IMC = v | IMC v [w]
+    !## category: Optimization
+    !## desc:     Image-clearance / distance merit entry.
+    !##
+    !## cmd:      PTB
+    !## syntax:   PTB = v | PTB v [w]
+    !## category: Optimization
+    !## desc:     Petzval-blur merit entry.
+    !##
+    !## cmd:      SAS
+    !## syntax:   SAS = v | SAS v [w]
+    !## category: Optimization
+    !## desc:     Sagittal-astigmatism merit entry.
+    !##
+    !## cmd:      TAS
+    !## syntax:   TAS = v | TAS v [w]
+    !## category: Optimization
+    !## desc:     Tangential-astigmatism merit entry.
+    !##
+    !## cmd:      TCO
+    !## syntax:   TCO = v | TCO v [w]
+    !## category: Optimization
+    !## desc:     Transverse-color merit entry.
+    !##
     module procedure updateConstraint
         use command_utils, only : isInputNumber
         use mod_lens_data_manager
@@ -118,6 +168,11 @@ contains
         end if
     end procedure updateConstraint
 
+    !## cmd:      NBR
+    !## syntax:   NBR ELE Si..j
+    !## category: Plot Settings
+    !## desc:     Set the surface range for the lens drawing.
+    !##
     module procedure execNBR
         implicit none
 
@@ -153,6 +208,31 @@ contains
     ! General-constraint settings (MXT/MNT/MNE/MNA/MAE): global limits applied
     ! automatically to every VARIABLE thickness at AUT;GO.  Inside the AUT/TAR
     ! loop:  "MXT 14.0" sets, bare "MXT" prints the current value.
+    !## cmd:      MAE
+    !## syntax:   MAE X
+    !## category: Optimization
+    !## desc:     Set the minimum edge air spacing (general constraint).
+    !##
+    !## cmd:      MNA
+    !## syntax:   MNA X
+    !## category: Optimization
+    !## desc:     Set the minimum axial air spacing (general constraint).
+    !##
+    !## cmd:      MNE
+    !## syntax:   MNE X
+    !## category: Optimization
+    !## desc:     Set the minimum element edge thickness (general constraint).
+    !##
+    !## cmd:      MNT
+    !## syntax:   MNT X
+    !## category: Optimization
+    !## desc:     Set the minimum element center thickness (general constraint).
+    !##
+    !## cmd:      MXT
+    !## syntax:   MXT X
+    !## category: Optimization
+    !## desc:     Set the maximum element center thickness (general constraint, inside AUT).
+    !##
     module procedure updateGeneralConstraint
         use command_utils, only : isInputNumber
         use optim_types, only: optim
@@ -217,6 +297,11 @@ contains
     ! height (max of the two surfaces' semi-diameters: explicit CIR EDG if
     ! set, else the ray-traced auto extent).  Also the verification vehicle
     ! for the optimizer's MNE/MAE general constraints.
+    !## cmd:      ETH
+    !## syntax:   ETH Sk X
+    !## category: Apertures
+    !## desc:     Set the edge thickness aperture used by the MNE/MAE general constraints.
+    !##
     module procedure execETH
         use global_widgets, only: curr_lens_data
         use kdp_data_types, only: check_clear_apertures
@@ -257,6 +342,11 @@ contains
         end do
     end procedure execETH
 
+    !## cmd:      CLI
+    !## syntax:   CLI
+    !## category: Utilities
+    !## desc:     Check/refresh the clear apertures.
+    !##
     module procedure execCLI
         use global_widgets, only: curr_lens_data
         use command_utils, only: isInputNumber
@@ -288,6 +378,11 @@ contains
         end do
     end procedure execCLI
 
+    !## cmd:      INS
+    !## syntax:   INS Sk | INS Si..j
+    !## category: Surface Parameters
+    !## desc:     Insert one or more new surfaces before surface k (or over the range i..j).
+    !##
     module procedure insertSurf
         use command_utils, only: isInputNumber
         use mod_lens_data_manager, only: ldm
@@ -364,6 +459,11 @@ contains
         end if
     end procedure insertSurf
 
+    !## cmd:      DIM
+    !## syntax:   DIM M|C|I
+    !## category: System Parameters
+    !## desc:     Set the lens units: M (mm), C (cm), or I (inches).
+    !##
     module procedure setDim
         ! Self-tokenizing (parse the raw line) rather than reading the DATMAI
         ! qualifier global via getQualWord -- so this works when the front door
@@ -444,6 +544,11 @@ contains
         call undo_reset_baseline()
     end procedure newLens
 
+    !## cmd:      TIT
+    !## syntax:   TIT 'text'
+    !## category: System Parameters
+    !## desc:     Set the lens title.
+    !##
     module procedure setLensTitle
         ! Extract the quoted title from this command's own text (iptStr),
         ! not the raw INPUT parse global.  Quoted-string case is preserved on
@@ -471,13 +576,28 @@ contains
         end if
     end procedure setLensTitle
 
+    !## cmd:      !
+    !## syntax:   ! text
+    !## category: Utilities
+    !## desc:     Comment line (ignored); used in .zoa files.
+    !##
     module procedure processFileComment
     end procedure processFileComment
 
+    !## cmd:      WTF
+    !## syntax:   WTF s1 [s2 ...]
+    !## category: Fields & Wavelengths
+    !## desc:     Set the field weights.
+    !##
     module procedure setFieldWeights
         call zoa_emit("Field Weights Command "//trim(iptStr)//" Not supported", "black")
     end procedure setFieldWeights
 
+    !## cmd:      WTW
+    !## syntax:   WTW s1 [s2 ...]
+    !## category: Fields & Wavelengths
+    !## desc:     Set the spectral (wavelength) weights.
+    !##
     module procedure setWavelengthWeights
         use global_widgets, only: sysConfig
         implicit none
@@ -492,6 +612,31 @@ contains
         end do
     end procedure setWavelengthWeights
 
+    !## cmd:      XAN
+    !## syntax:   XAN a1 [a2 ...]
+    !## category: Fields & Wavelengths
+    !## desc:     Set the X field angles (degrees).
+    !##
+    !## cmd:      XOB
+    !## syntax:   XOB h1 [h2 ...]
+    !## category: Fields & Wavelengths
+    !## desc:     Set the X object heights.
+    !##
+    !## cmd:      YAN
+    !## syntax:   YAN a1 [a2 ...]
+    !## category: Fields & Wavelengths
+    !## desc:     Set the Y field angles (degrees).
+    !##
+    !## cmd:      YIM
+    !## syntax:   YIM h1 [h2 ...]
+    !## category: Fields & Wavelengths
+    !## desc:     Set the Y paraxial image heights (field specification).
+    !##
+    !## cmd:      YOB
+    !## syntax:   YOB h1 [h2 ...]
+    !## category: Fields & Wavelengths
+    !## desc:     Set the Y object heights.
+    !##
     module procedure setField
         use kdp_utils, only: inLensUpdateLevel
         use global_widgets, only: sysConfig
@@ -519,6 +664,11 @@ contains
         call sysConfig%setAbsoluteFields(absFields, FLD_COL)
     end procedure setField
 
+    !## cmd:      WL
+    !## syntax:   WL w1 [w2 ...]
+    !## category: Fields & Wavelengths
+    !## desc:     Set the system wavelengths (nm); up to 5 values.
+    !##
     module procedure setWavelength
         use global_widgets, only: sysConfig
         implicit none
@@ -554,6 +704,21 @@ contains
         end if
     end procedure setWavelength
 
+    !## cmd:      S
+    !## syntax:   S [rd th glass]
+    !## category: Surface Parameters
+    !## desc:     Advance to / add the next surface (optionally set radius, thickness, glass).
+    !##
+    !## cmd:      SI
+    !## syntax:   SI [rd th glass]
+    !## category: Surface Parameters
+    !## desc:     Select the image surface.
+    !##
+    !## cmd:      SO
+    !## syntax:   SO [rd th glass]
+    !## category: Surface Parameters
+    !## desc:     Select the object surface (S0).
+    !##
     module procedure setSurfaceCodeVStyle
         use mod_lens_data_manager
         use command_utils, only: isInputNumber
@@ -599,6 +764,11 @@ contains
         call curr_lens_data%update()
     end procedure setSurfaceCodeVStyle
 
+    !## cmd:      SCA
+    !## syntax:   SCA EFL X
+    !## category: Editing
+    !## desc:     Scale the system (e.g. SCA EFL 50 scales to an EFL of 50).
+    !##
     module procedure scaleSystem
         use command_utils, only : isInputNumber
         implicit none
@@ -639,6 +809,11 @@ contains
         print *, "Max Frequency is ", maxFreq
     end function getDefaultMaxFrequency
 
+    !## cmd:      IMP
+    !## syntax:   IMP X
+    !## category: Optimization
+    !## desc:     Set the optimizer improvement goal.
+    !##
     module procedure updateOptimImprovementGoal
         use command_utils
         use optim_types, only: optim
@@ -655,6 +830,11 @@ contains
         end if
     end procedure updateOptimImprovementGoal
 
+    !## cmd:      RMSDATA
+    !## syntax:   RMSDATA WAVE|SPOT
+    !## category: Plot Settings
+    !## desc:     Choose the data type for the RMS-vs-field plot.
+    !##
     module procedure updateRMSPlotType
         use command_utils
         implicit none
@@ -677,6 +857,11 @@ contains
         end if
     end procedure updateRMSPlotType
 
+    !## cmd:      AUTUI
+    !## syntax:   AUTUI
+    !## category: Optimization
+    !## desc:     Open the optimizer setup window (merit operands, constraints, variables).
+    !##
     module procedure aut_ui
         use iso_c_binding, only: c_associated
         use optimizer_ui
@@ -691,6 +876,11 @@ contains
         end if
     end procedure aut_ui
 
+    !## cmd:      UPD
+    !## syntax:   UPD CON
+    !## category: Optimization
+    !## desc:     Enter an update loop to edit a data set (e.g. UPD CON for constraints).
+    !##
     module procedure updateDatabase
         character(len=80) :: tokens(40)
         integer :: numTokens
@@ -706,6 +896,11 @@ contains
         end if
     end procedure updateDatabase
 
+    !## cmd:      CHA
+    !## syntax:   CHA n ; <value>
+    !## category: Optimization
+    !## desc:     Change entry n inside the current UPD loop.
+    !##
     module procedure changeDatabase
         use optim_types
         use command_utils, only: isInputNumber
@@ -726,6 +921,11 @@ contains
         end if
     end procedure changeDatabase
 
+    !## cmd:      EVA
+    !## syntax:   EVA name
+    !## category: Analysis & Plots
+    !## desc:     Evaluate a merit operand by name and print its value.
+    !##
     module procedure evaluateCmd
         real(kind=long) :: result
         result = evalfunc(iptStr(4:len_trim(iptStr)), .TRUE.)
@@ -744,6 +944,11 @@ contains
     ! List the whole merit function: objective terms and constraints, with
     ! their role.  The # is the entry's position in the unified list (the
     ! index UPD CON; CHA n edits).
+    !## cmd:      LCON
+    !## syntax:   LCON
+    !## category: Optimization
+    !## desc:     List the current merit operands and constraints.
+    !##
     module procedure listConstraints
         use optim_types, only: nM, meritInUse
         use type_utils, only: real2str
@@ -794,6 +999,11 @@ contains
         &  '  MNA '//trim(real2str(optim%mna))//'  MAE '//trim(real2str(optim%mae)))
     end subroutine
 
+    !## cmd:      DCON
+    !## syntax:   DCON n
+    !## category: Optimization
+    !## desc:     Delete constraint/operand number n.
+    !##
     module procedure deleteConstraints
         use optim_types, only: optim
         use kdp_utils, only: OUTKDP
@@ -811,6 +1021,11 @@ contains
         end if
     end procedure deleteConstraints
 
+    !## cmd:      SET
+    !## syntax:   SET <option> ...
+    !## category: Optimization
+    !## desc:     Set a system option (e.g. SET CAP, SET VIG).
+    !##
     module procedure execSET
         use mod_lens_data_manager, only: ldm
         use global_widgets, only: sysConfig
