@@ -156,9 +156,14 @@ def generate_markdown(commands):
 
 
 if __name__ == '__main__':
+    # Anchor all paths to the repo root (parent of help/) so the script works
+    # whether invoked as `python3 help/gen_docs.py` from the root or as
+    # `python3 ./gen_docs.py` from help/ (how genHelpFiles.sh runs it).
+    REPO_ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+
     all_commands = []
     for src in SOURCE_FILES:
-        found = parse_source_file(src)
+        found = parse_source_file(os.path.join(REPO_ROOT, src))
         all_commands.extend(found)
         print(f'  {src}: {len(found)} command(s)')
 
@@ -168,6 +173,6 @@ if __name__ == '__main__':
         print('No commands found — command_table.md not modified.')
     else:
         md = generate_markdown(all_commands)
-        with open(OUTPUT_MD, 'w', encoding='utf-8') as f:
+        with open(os.path.join(REPO_ROOT, OUTPUT_MD), 'w', encoding='utf-8') as f:
             f.write(md)
         print(f'Written: {OUTPUT_MD}')
