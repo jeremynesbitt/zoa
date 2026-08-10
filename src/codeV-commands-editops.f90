@@ -344,7 +344,7 @@ contains
 
     !## cmd:      CLI
     !## syntax:   CLI
-    !## category: Utilities
+    !## category: Apertures
     !## desc:     Check/refresh the clear apertures.
     !##
     module procedure execCLI
@@ -766,7 +766,7 @@ contains
 
     !## cmd:      SCA
     !## syntax:   SCA EFL X
-    !## category: Editing
+    !## category: Lens System Commands
     !## desc:     Scale the system (e.g. SCA EFL 50 scales to an EFL of 50).
     !##
     module procedure scaleSystem
@@ -923,7 +923,7 @@ contains
 
     !## cmd:      EVA
     !## syntax:   EVA name
-    !## category: Analysis & Plots
+    !## category: Analysis
     !## desc:     Evaluate a merit operand by name and print its value.
     !##
     module procedure evaluateCmd
@@ -1023,7 +1023,7 @@ contains
 
     !## cmd:      SET
     !## syntax:   SET <option> ...
-    !## category: Optimization
+    !## category: Utilities
     !## desc:     Set a system option (e.g. SET CAP, SET VIG).
     !##
     module procedure execSET

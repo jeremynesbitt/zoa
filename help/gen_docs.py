@@ -45,12 +45,12 @@ CATEGORY_ORDER = [
     'Fields & Wavelengths',
     'Surface Parameters',
     'Apertures',
-    'Solves',
+    'Lens System Commands',
     'Optimization',
-    'Analysis & Plots',
+    'Analysis',
+    'Plotting',
     'Plot Settings',
     'Zoom / Multi-Configuration',
-    'Editing',
     'Utilities',
 ]
 
@@ -77,7 +77,7 @@ def parse_source_file(filepath):
 
                 if content.strip() == '':
                     # Bare !## → explicit end-of-block
-                    if current is not None and 'cmd' in current:
+                    if current is not None and ('cmd' in current or 'section' in current):
                         commands.append(_finalize(current))
                     current = None
                     last_key = None
@@ -99,13 +99,13 @@ def parse_source_file(filepath):
 
             else:
                 # Non-!## line — implicitly ends the block
-                if current is not None and 'cmd' in current:
+                if current is not None and ('cmd' in current or 'section' in current):
                     commands.append(_finalize(current))
                 current = None
                 last_key = None
 
     # Handle block that runs to end of file
-    if current is not None and 'cmd' in current:
+    if current is not None and ('cmd' in current or 'section' in current):
         commands.append(_finalize(current))
 
     return commands
@@ -123,12 +123,24 @@ def _category_sort_key(cat):
         return len(CATEGORY_ORDER)  # unknown categories go at the end
 
 
-def generate_markdown(commands):
-    """Return the full command_table.md content as a string."""
+def generate_markdown(blocks):
+    """Return the full command_table.md content as a string.
+
+    `blocks` mixes command blocks (have a 'cmd') and section-note blocks (have a
+    'section' + 'note', no 'cmd').  A section note is rendered as intro text under
+    that section's header, above the table.  Add one anywhere the script scans:
+
+        !## section:  Zoom / Multi-Configuration
+        !## note:     Free text shown above the Zoom table (continuation lines ok).
+        !##
+    """
     by_category = defaultdict(list)
-    for cmd in commands:
-        cat = cmd.get('category', 'Other')
-        by_category[cat].append(cmd)
+    notes = {}   # category -> intro text
+    for b in blocks:
+        if 'section' in b:
+            notes[b['section']] = b.get('note', '')
+        elif 'cmd' in b:
+            by_category[b.get('category', 'Other')].append(b)
 
     lines = [
         '# Command Reference',
@@ -141,6 +153,9 @@ def generate_markdown(commands):
     for cat in sorted(by_category.keys(), key=_category_sort_key):
         lines.append(f'## {cat}')
         lines.append('')
+        if notes.get(cat):
+            lines.append(notes[cat])
+            lines.append('')
         lines.append('| Parameter | Description |')
         lines.append('| --------- | ----------- |')
         for cmd in sorted(by_category[cat], key=lambda x: x.get('cmd', '')):

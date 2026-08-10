@@ -302,7 +302,7 @@ module procedure execSUR
     !## cmd:      ASP
     !## syntax:   ASP Sk
     !## category: Surface Parameters
-    !## desc:     Make surface Sk an asphere.
+    !## desc:     Make surface Sk an asphere type.  If in lens editor mode or when loading a lens will operate on the current surface
     !##
     module procedure execAsphere
         use strings, only: parse
@@ -336,7 +336,7 @@ module procedure execSUR
     !## cmd:      SPH
     !## syntax:   SPH Sk
     !## category: Surface Parameters
-    !## desc:     Make surface Sk spherical (remove asphere terms).
+    !## desc:     Make surface Sk spherical type.  If in lens edit mode, will set the current surface to spherical type
     !##
     module procedure execSphere
         use strings, only: parse
@@ -364,7 +364,7 @@ module procedure execSUR
     !## cmd:      I
     !## syntax:   I Sk c1 c2 ...
     !## category: Surface Parameters
-    !## desc:     Set the aspheric (4th..) coefficients of surface Sk.
+    !## desc:     Set the aspheric (4th..) coefficients of surface Sk.  $z = \dfrac{c r^2}{1+\sqrt{1-(1+k)c^2 r^2}}$.
     !##
     module procedure updateAsphereTerms
         use strings

@@ -19,7 +19,7 @@ contains
 
     !## cmd:      BES
     !## syntax:   BES
-    !## category: Analysis & Plots
+    !## category: Lens System Commands
     !## desc:     Find the best-focus image thickness (minimum RMS).
     !##
     module procedure findBestFocus
@@ -48,7 +48,7 @@ contains
 
     !## cmd:      FAN
     !## syntax:   FAN
-    !## category: Analysis & Plots
+    !## category: Plotting
     !## desc:     Ray-fan plot (used within a plot loop).
     !##
     module procedure execFAN
@@ -249,7 +249,7 @@ contains
 
     !## cmd:      RIM
     !## syntax:   RIM
-    !## category: Analysis & Plots
+    !## category: Plotting
     !## desc:     Ray-aberration (rim-ray fan) plot.
     !##
     module procedure execRayAberrationPlot
@@ -271,7 +271,7 @@ contains
 
     !## cmd:      PMA
     !## syntax:   PMA
-    !## category: Analysis & Plots
+    !## category: Plotting
     !## desc:     Optical-path-difference (wavefront map) plot.
     !##
     module procedure execPMAPlot
@@ -293,7 +293,7 @@ contains
 
     !## cmd:      FIE
     !## syntax:   FIE
-    !## category: Analysis & Plots
+    !## category: Plotting
     !## desc:     Astigmatic field-curvature and distortion plot.
     !##
     module procedure execAstigFieldCurvDistPlot
@@ -596,7 +596,7 @@ contains
     ! implemented for now; other qualifiers/fields/wavelengths come later.
     !## cmd:      ZRN
     !## syntax:   ZRN WAV [fi] [wj] [zk] [dN]
-    !## category: Analysis & Plots
+    !## category: Analysis
     !## desc:     Fit the OPD error to Zernike polynomials and print a 36-term coefficient table.
     !##
     module procedure execZRN

@@ -102,7 +102,7 @@ contains
 
     !## cmd:      FLY
     !## syntax:   FLY Si..j
-    !## category: Editing
+    !## category: Lens System Commands
     !## desc:     Flip (reverse) the given range of surfaces.
     !##
     module procedure flipSurfaces
@@ -326,12 +326,12 @@ contains
 
     !## cmd:      CX
     !## syntax:   CX
-    !## category: Analysis & Plots
+    !## category: Analysis
     !## desc:     Print chief-ray X data.
     !##
     !## cmd:      CY
     !## syntax:   CY
-    !## category: Analysis & Plots
+    !## category: Analysis
     !## desc:     Print chief-ray Y data.
     !##
     module procedure getRayData
@@ -386,7 +386,7 @@ contains
 
     !## cmd:      THO
     !## syntax:   THO
-    !## category: Analysis & Plots
+    !## category: Analysis
     !## desc:     List the third-order (Seidel) aberration coefficients.
     !##
     module procedure execTHO
@@ -404,7 +404,7 @@ contains
 
     !## cmd:      RAYREF
     !## syntax:   RAYREF
-    !## category: Analysis & Plots
+    !## category: Analysis
     !## desc:     Compute the per-field reference rays (R1..R5).
     !##
     module procedure execRAYREF

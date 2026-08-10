@@ -2,6 +2,11 @@ submodule (codeV_commands) mod_codev_zoom
 implicit none
 contains
 
+    !## section:  Zoom / Multi-Configuration
+    !## note:     There is minimal zoom support right now: it stores the commands
+    !##           that differentiate a configuration from the base config.
+    !##
+
     ! ZOO            -> list the zoom table
     ! ZOO n          -> set the number of configurations
     ! ZOO <p> Sk v.. -> define a per-config operand (p = THI/RDY/CUY/GLA/K), one value per config

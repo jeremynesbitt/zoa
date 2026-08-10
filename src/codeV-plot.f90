@@ -87,7 +87,7 @@ contains
 
     !## cmd:      ZERN_TST
     !## syntax:   ZERN_TST ; [SETZERNC ...] ; GO
-    !## category: Analysis & Plots
+    !## category: Plotting
     !## desc:     Zernike-coefficient-vs-field plot.
     !##
     module procedure ZERN_TST
@@ -165,7 +165,7 @@ contains
 
     !## cmd:      PLTRMS
     !## syntax:   PLTRMS
-    !## category: Analysis & Plots
+    !## category: Plotting
     !## desc:     RMS wavefront/spot vs field plot.
     !##
     module procedure execRMSPlot
@@ -189,7 +189,7 @@ contains
 
     !## cmd:      PLOTTHO
     !## syntax:   PLOTTHO
-    !## category: Analysis & Plots
+    !## category: Plotting
     !## desc:     Third-order (Seidel) aberration bar chart.
     !##
     module procedure execSeidelBarChart
@@ -212,7 +212,7 @@ contains
 
     !## cmd:      PSF
     !## syntax:   PSF
-    !## category: Analysis & Plots
+    !## category: Plotting
     !## desc:     Point-spread-function plot.
     !##
     module procedure execPSF
@@ -235,7 +235,7 @@ contains
     
     !## cmd:      MTF
     !## syntax:   MTF
-    !## category: Analysis & Plots
+    !## category: Plotting
     !## desc:     Modulation-transfer-function plot.
     !##
     module procedure execMTF

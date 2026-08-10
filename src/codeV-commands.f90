@@ -45,7 +45,7 @@ module codeV_commands
    end subroutine execZRN
    !## cmd:      VIE
    !## syntax:   VIE ; [settings] ; GO
-   !## category: Analysis & Plots
+   !## category: Plotting
    !## desc:     Draw the lens layout (2D/3D system view).
    !##
    module subroutine execVie(iptStr)
@@ -1067,7 +1067,7 @@ module codeV_commands
 
     !## cmd:      XOFF
     !## syntax:   XOFF X
-    !## category: Analysis & Plots
+    !## category: Analysis
     !## desc:     Set the chief-ray X offset for the wavefront calculation.
     !##
     subroutine execXOFF(iptStr)
@@ -1096,7 +1096,7 @@ module codeV_commands
 
     !## cmd:      YOFF
     !## syntax:   YOFF X
-    !## category: Analysis & Plots
+    !## category: Analysis
     !## desc:     Set the chief-ray Y offset for the wavefront calculation.
     !##
     subroutine execYOFF(iptStr)
@@ -1164,7 +1164,7 @@ module codeV_commands
     ! Format RSI fi..k wi..k relApeX relApeY
     !## cmd:      RSI
     !## syntax:   RSI fi..k wi..k relApX relApY
-    !## category: Analysis & Plots
+    !## category: Analysis
     !## desc:     Trace a single ray and report ray-intercept / OPD data.
     !##
     subroutine execRSI(iptStr)
@@ -1298,8 +1298,8 @@ module codeV_commands
 
     !## cmd:      FIO
     !## syntax:   FIO
-    !## category: File I/O
-    !## desc:     Open the file input/output dialog.
+    !## category: Analysis
+    !## desc:     Print the results of the first-order (paraxial) ray trace.
     !##
     subroutine execFIO(iptStr)
 

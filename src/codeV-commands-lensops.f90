@@ -476,7 +476,7 @@ contains
 
     !## cmd:      RED
     !## syntax:   RED f
-    !## category: Solves
+    !## category: Lens System Commands
     !## desc:     Set an object-thickness reduction solve for paraxial magnification f.
     !##
     module procedure setMagSolve
@@ -506,7 +506,7 @@ contains
 
     !## cmd:      DEL
     !## syntax:   DEL PIM | DEL SOL <verb> Sk | DEL CON n | DEL VIG
-    !## category: Editing
+    !## category: Lens System Commands
     !## desc:     Delete user-defined system data: PIM/thickness solves, angle/curvature
     !##           solves (DEL SOL CUY|CUX|THI Sk), a constraint (DEL CON n), or vignetting.
     !##

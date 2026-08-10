@@ -5,7 +5,7 @@ contains
     ! UNDO: restore the previous lens snapshot.
     !## cmd:      UNDO
     !## syntax:   UNDO
-    !## category: Editing
+    !## category: Lens System Commands
     !## desc:     Undo the last lens change.
     !##
     module procedure execUndo
@@ -16,7 +16,7 @@ contains
     ! REDO: re-apply the next lens snapshot (after one or more UNDOs).
     !## cmd:      REDO
     !## syntax:   REDO
-    !## category: Editing
+    !## category: Lens System Commands
     !## desc:     Redo the last undone lens change.
     !##
     module procedure execRedo
