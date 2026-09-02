@@ -56,13 +56,25 @@ class ZoaKernel(Kernel):
             os.path.join(project_root, 'build', 'zoa_server'),
             os.path.join(project_root, 'builddir', 'zoa_server'),
         ]
+
+        # Installed-app locations, so the kernel works against the released
+        # package (not just a source build). macOS bundles zoa_server in
+        # Zoa.app/Contents/MacOS; also honor a user-local /Applications.
+        home = os.path.expanduser('~')
+        candidates += [
+            '/Applications/Zoa.app/Contents/MacOS/zoa_server',
+            os.path.join(home, 'Applications', 'Zoa.app',
+                         'Contents', 'MacOS', 'zoa_server'),
+        ]
+
         for path in candidates:
             if os.path.isfile(path):
                 return path
 
         raise FileNotFoundError(
             'Cannot find zoa_server executable. '
-            'Set ZOA_SERVER environment variable or build with meson.'
+            'Set the ZOA_SERVER environment variable, install Zoa.app, '
+            'or build with meson.'
         )
 
     def _find_free_port(self):
