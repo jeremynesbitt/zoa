@@ -14,4 +14,4 @@ pandoc ./md/index.md            $PANDOC_OPTS -o ./html/index.html
 pandoc ./md/command_table.md    $PANDOC_OPTS -o ./html/command_table.html
 pandoc ./md/constraints_table.md $PANDOC_OPTS -o ./html/constraints_table.html
 
-sed -i -e 's/command_table.md/command_table.html/g' ./html/index.html
+sed -i '' -e 's/command_table.md/command_table.html/g' ./html/index.html

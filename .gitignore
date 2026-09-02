@@ -25,6 +25,9 @@ src/plplot_extra_ndef.fold
 CLAUDE.md
 *.bak
 
+# stray BSD `sed -i -e` backup artifact (see help/genHelpFiles.sh)
+help/html/*.html-e
+
 # Byproducts written to CWD when running the test suite (CAPFNOUT/CAPGRID/DXF/WAMAP)
 /CAPFNOUT.DAT
 /CAPFNOUT.BIN

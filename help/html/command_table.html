@@ -165,12 +165,13 @@
       margin: 0 0.8em 0.2em -1.6em;
       vertical-align: middle;
     }
-    .display.math{display: block; text-align: center; margin: 0.5rem auto;}
   </style>
 </head>
 <body>
-<p>Here is a list of new commands and their syntax. Most of the original
-KDP commands still work, see here for original manual</p>
+<h1 id="command-reference">Command Reference</h1>
+<p>Commands listed here are the new-style Zoa commands. Most original
+KDP commands still work — see the original manual.</p>
+<h2 id="file-io">File I/O</h2>
 <table>
 <thead>
 <tr>
@@ -180,75 +181,622 @@ KDP commands still work, see here for original manual</p>
 </thead>
 <tbody>
 <tr>
-<td>SAV filename</td>
-<td>Save current lens system with filename.zoa in Projects folder</td>
+<td>PRT file</td>
+<td>Print the contents of a text file to the terminal.</td>
 </tr>
 <tr>
-<td>RES filename</td>
-<td>Restore filename.zoa from Projects folder</td>
+<td>RES file</td>
+<td>Restore (load) a lens from a .zoa file (RES macro:file loads from a
+macro).</td>
 </tr>
 <tr>
-<td>RMD Sk TYPE</td>
-<td>Sets surface Sk to TYPE. Type can be REFL - mirror REFR -
-default</td>
+<td>RESAUTO</td>
+<td>Restore the most recently auto-saved lens.</td>
 </tr>
 <tr>
-<td></td>
-<td>TIR - total internal reflection surface</td>
+<td>SAV file</td>
+<td>Save the current lens to a .zoa file.</td>
 </tr>
 <tr>
-<td>VIE</td>
-<td>Launch viewing window (for now use UI to adjust parameters)</td>
+<td>SAVESESS file</td>
+<td>Save the current session (lens plus settings) to a file.</td>
 </tr>
 <tr>
-<td>STO Sk</td>
-<td>Set Sk as the stop surface (can also do this in the EDIT ui)</td>
+<td>ZOA2CV file</td>
+<td>Export the current lens to a CODE V sequence (.seq) file.</td>
 </tr>
 <tr>
-<td>TIT 'tittxt'</td>
-<td>Set the title of the lens system to be tittxt</td>
+<td>ZOA2ZMX file</td>
+<td>Export the current lens to a Zemax (.zmx) file.</td>
 </tr>
+</tbody>
+</table>
+<h2 id="system-parameters">System Parameters</h2>
+<table>
+<thead>
 <tr>
-<td>DIM K</td>
-<td>Set the lens units to be K. K can be M (mm), C (cm), or I (in)</td>
+<th>Parameter</th>
+<th>Description</th>
 </tr>
+</thead>
+<tbody>
 <tr>
-<td>RDY Sk X</td>
-<td>Set the radius of surface Sk to X</td>
-</tr>
-<tr>
-<td>INS Sk</td>
-<td>Inserts a surface at surface Sk</td>
-</tr>
-<tr>
-<td>GLA Sk nam</td>
-<td>Sets the glass at Surface Sk to name. Search through each glass
-cat</td>
-</tr>
-<tr>
-<td>PIM</td>
-<td>Set a paraxial image solve on the surface before the image
-surface</td>
+<td>DIM M|C|I</td>
+<td>Set the lens units: M (mm), C (cm), or I (inches).</td>
 </tr>
 <tr>
 <td>EPD X</td>
-<td>Sets the entrance pupil diameter to X lens units</td>
+<td>Set the entrance pupil diameter to X.</td>
 </tr>
 <tr>
-<td>CUY Sk X</td>
-<td>Sets the curvaute on surface Sk to X</td>
+<td>IND</td>
+<td>List the refractive indices of each surface at each wavelength.</td>
 </tr>
 <tr>
-<td>DEL Sk</td>
-<td>Deletes Surface Sk</td>
+<td>TIT 'text'</td>
+<td>Set the lens title.</td>
+</tr>
+</tbody>
+</table>
+<h2 id="fields--wavelengths">Fields &amp; Wavelengths</h2>
+<table>
+<thead>
+<tr>
+<th>Parameter</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>REF n</td>
+<td>Set the reference (control) wavelength to index n.</td>
 </tr>
 <tr>
-<td>RED X</td>
-<td>Adds a thickness solve on the object surface to set a parxial</td>
+<td>WL w1 [w2 ...]</td>
+<td>Set the system wavelengths (nm); up to 5 values.</td>
 </tr>
 <tr>
-<td></td>
-<td>reduction factor of X</td>
+<td>WTF s1 [s2 ...]</td>
+<td>Set the field weights.</td>
+</tr>
+<tr>
+<td>WTW s1 [s2 ...]</td>
+<td>Set the spectral (wavelength) weights.</td>
+</tr>
+<tr>
+<td>XAN a1 [a2 ...]</td>
+<td>Set the X field angles (degrees).</td>
+</tr>
+<tr>
+<td>XOB h1 [h2 ...]</td>
+<td>Set the X object heights.</td>
+</tr>
+<tr>
+<td>YAN a1 [a2 ...]</td>
+<td>Set the Y field angles (degrees).</td>
+</tr>
+<tr>
+<td>YIM h1 [h2 ...]</td>
+<td>Set the Y paraxial image heights (field specification).</td>
+</tr>
+<tr>
+<td>YOB h1 [h2 ...]</td>
+<td>Set the Y object heights.</td>
+</tr>
+</tbody>
+</table>
+<h2 id="surface-parameters">Surface Parameters</h2>
+<table>
+<thead>
+<tr>
+<th>Parameter</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>ASP Sk</td>
+<td>Make surface Sk an asphere type. If in lens editor mode or when
+loading a lens will operate on the current surface</td>
+</tr>
+<tr>
+<td>CUX Sk <qual> j</td>
+<td>Sets an XZ (X-toric) curvature solve on surface Sk. Qualifiers: AMX
+(aplanatic marginal, KDP APX), ACX (aplanatic chief, APCX), IMX j (angle
+of incidence, PIX), ICX j (PICX), UMX j (ray slope, PUX), UCX j
+(PUCX).</td>
+</tr>
+<tr>
+<td>CUY Sk X | CUY Sk <qual> j</td>
+<td>Sets the YZ curvature (1/radius) on surface Sk to X. Sk can be S0
+(object), S1..SN (surface by number), or Si (current surface). A solve
+qualifier sets a curvature solve instead: AMY (aplanatic marginal, KDP
+APY), ACY (aplanatic chief, APCY), IMY j (angle of incidence, PIY), ICY
+j (PICY), UMY j (ray slope, PUY), UCY j (PUCY).</td>
+</tr>
+<tr>
+<td>GLA Sk name</td>
+<td>Sets the glass at surface Sk to the named material. Searches through
+available glass catalogs for the name. Use a numeric nd,vd pair (e.g.
+1.5,50) to specify a model glass.</td>
+</tr>
+<tr>
+<td>I Sk c1 c2 ...</td>
+<td>Set the aspheric (4th..) coefficients of surface Sk.
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>z</mi><mo>=</mo><mfrac displaystyle="true"><mrow><mi>c</mi><msup><mi>r</mi><mn>2</mn></msup></mrow><mrow><mn>1</mn><mo>+</mo><msqrt><mrow><mn>1</mn><mo>−</mo><mrow><mo stretchy="true" form="prefix">(</mo><mn>1</mn><mo>+</mo><mi>k</mi><mo stretchy="true" form="postfix">)</mo></mrow><msup><mi>c</mi><mn>2</mn></msup><msup><mi>r</mi><mn>2</mn></msup></mrow></msqrt></mrow></mfrac></mrow><annotation encoding="application/x-tex">z = \dfrac{c r^2}{1+\sqrt{1-(1+k)c^2 r^2}}</annotation></semantics></math>.</td>
+</tr>
+<tr>
+<td>INS Sk | INS Si..j</td>
+<td>Insert one or more new surfaces before surface k (or over the range
+i..j).</td>
+</tr>
+<tr>
+<td>K Sk X</td>
+<td>Set the conic constant of surface Sk to X.</td>
+</tr>
+<tr>
+<td>RDY Sk X</td>
+<td>Sets the radius of surface Sk to X. Sk can be S0 (object), S1..SN
+(surface by number), or Si (current surface). X is the new radius value
+in current lens units.</td>
+</tr>
+<tr>
+<td>RMD Sk REFL|REFR|TIR</td>
+<td>Set the surface Sk mode: reflector, refractor (air), or TIR
+reflector.</td>
+</tr>
+<tr>
+<td>S [rd th glass]</td>
+<td>Advance to / add the next surface (optionally set radius, thickness,
+glass).</td>
+</tr>
+<tr>
+<td>SI [rd th glass]</td>
+<td>Select the image surface.</td>
+</tr>
+<tr>
+<td>SLB Sk 'label'</td>
+<td>Set a text label on surface Sk.</td>
+</tr>
+<tr>
+<td>SO [rd th glass]</td>
+<td>Select the object surface (S0).</td>
+</tr>
+<tr>
+<td>SPH Sk</td>
+<td>Make surface Sk spherical type. If in lens edit mode, will set the
+current surface to spherical type</td>
+</tr>
+<tr>
+<td>STO Sk</td>
+<td>Make surface Sk the aperture stop.</td>
+</tr>
+<tr>
+<td>STOP Sk</td>
+<td>Make surface Sk the aperture stop (alias of STO).</td>
+</tr>
+<tr>
+<td>THI Sk X | THI Sk <qual> j</td>
+<td>Sets the thickness on surface Sk to X. Sk can be S0 (object), S1..SN
+(surface by number), or Si (current surface). X is the new thickness
+value in current lens units. A solve qualifier sets a thickness solve
+instead: HMY j (paraxial marginal height, KDP PY), HCY j (chief height,
+PCY), HMX/HCX for XZ.</td>
+</tr>
+</tbody>
+</table>
+<h2 id="apertures">Apertures</h2>
+<table>
+<thead>
+<tr>
+<th>Parameter</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>CIR [Sk] r</td>
+<td>Set a circular clear aperture of radius r on surface Sk (CIR EDG for
+an edge aperture).</td>
+</tr>
+<tr>
+<td>CLI</td>
+<td>Check/refresh the clear apertures.</td>
+</tr>
+<tr>
+<td>ETH Sk X</td>
+<td>Set the edge thickness aperture used by the MNE/MAE general
+constraints.</td>
+</tr>
+</tbody>
+</table>
+<h2 id="lens-system-commands">Lens System Commands</h2>
+<table>
+<thead>
+<tr>
+<th>Parameter</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>BES</td>
+<td>Find the best-focus image thickness (minimum RMS).</td>
+</tr>
+<tr>
+<td>DEL PIM | DEL SOL <verb> Sk | DEL CON n | DEL VIG</td>
+<td>Delete user-defined system data: PIM/thickness solves,
+angle/curvature solves (DEL SOL CUY|CUX|THI Sk), a constraint (DEL CON
+n), or vignetting.</td>
+</tr>
+<tr>
+<td>FLY Si..j</td>
+<td>Flip (reverse) the given range of surfaces.</td>
+</tr>
+<tr>
+<td>RED f</td>
+<td>Set an object-thickness reduction solve for paraxial magnification
+f.</td>
+</tr>
+<tr>
+<td>REDO</td>
+<td>Redo the last undone lens change.</td>
+</tr>
+<tr>
+<td>SCA EFL X</td>
+<td>Scale the system (e.g. SCA EFL 50 scales to an EFL of 50).</td>
+</tr>
+<tr>
+<td>UNDO</td>
+<td>Undo the last lens change.</td>
+</tr>
+</tbody>
+</table>
+<h2 id="optimization">Optimization</h2>
+<table>
+<thead>
+<tr>
+<th>Parameter</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>AUT ; &lt;constraints/operands&gt; ; GO</td>
+<td>Run local optimization; define operands and constraints inside the
+loop.</td>
+</tr>
+<tr>
+<td>AUTUI</td>
+<td>Open the optimizer setup window (merit operands, constraints,
+variables).</td>
+</tr>
+<tr>
+<td>CCY Sk n | CCY Si..j n</td>
+<td>Set the YZ-curvature variable code on surface(s).</td>
+</tr>
+<tr>
+<td>CHA n ; <value></td>
+<td>Change entry n inside the current UPD loop.</td>
+</tr>
+<tr>
+<td>DCON n</td>
+<td>Delete constraint/operand number n.</td>
+</tr>
+<tr>
+<td>EFL = v | EFL v [w]</td>
+<td>Effective focal length merit entry (constraint with =, or operand
+with target v, weight w).</td>
+</tr>
+<tr>
+<td>FRZ</td>
+<td>Freeze all variables (clear optimization variable codes).</td>
+</tr>
+<tr>
+<td>GLC Sk n</td>
+<td>Set the glass variable code on surface(s).</td>
+</tr>
+<tr>
+<td>IMC = v | IMC v [w]</td>
+<td>Image-clearance / distance merit entry.</td>
+</tr>
+<tr>
+<td>IMP X</td>
+<td>Set the optimizer improvement goal.</td>
+</tr>
+<tr>
+<td>KC Sk n</td>
+<td>Set the conic-constant variable code on surface(s).</td>
+</tr>
+<tr>
+<td>LCON</td>
+<td>List the current merit operands and constraints.</td>
+</tr>
+<tr>
+<td>MAE X</td>
+<td>Set the minimum edge air spacing (general constraint).</td>
+</tr>
+<tr>
+<td>MNA X</td>
+<td>Set the minimum axial air spacing (general constraint).</td>
+</tr>
+<tr>
+<td>MNE X</td>
+<td>Set the minimum element edge thickness (general constraint).</td>
+</tr>
+<tr>
+<td>MNT X</td>
+<td>Set the minimum element center thickness (general constraint).</td>
+</tr>
+<tr>
+<td>MXT X</td>
+<td>Set the maximum element center thickness (general constraint, inside
+AUT).</td>
+</tr>
+<tr>
+<td>PTB = v | PTB v [w]</td>
+<td>Petzval-blur merit entry.</td>
+</tr>
+<tr>
+<td>SAS = v | SAS v [w]</td>
+<td>Sagittal-astigmatism merit entry.</td>
+</tr>
+<tr>
+<td>SPO v [w]</td>
+<td>RMS spot-size operand (weighted objective term).</td>
+</tr>
+<tr>
+<td>TAR ; ... ; GO</td>
+<td>Enter the optimization target loop (set operand
+targets/weights).</td>
+</tr>
+<tr>
+<td>TAS = v | TAS v [w]</td>
+<td>Tangential-astigmatism merit entry.</td>
+</tr>
+<tr>
+<td>TCO = v | TCO v [w]</td>
+<td>Transverse-color merit entry.</td>
+</tr>
+<tr>
+<td>THC Sk n | THC Si..j n</td>
+<td>Set the thickness variable code on surface(s).</td>
+</tr>
+<tr>
+<td>TOW ; ... ; GO</td>
+<td>Enter the tolerancing/operand-weighting loop.</td>
+</tr>
+<tr>
+<td>UPD CON</td>
+<td>Enter an update loop to edit a data set (e.g. UPD CON for
+constraints).</td>
+</tr>
+</tbody>
+</table>
+<h2 id="analysis">Analysis</h2>
+<table>
+<thead>
+<tr>
+<th>Parameter</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>CX</td>
+<td>Print chief-ray X data.</td>
+</tr>
+<tr>
+<td>CY</td>
+<td>Print chief-ray Y data.</td>
+</tr>
+<tr>
+<td>EVA name</td>
+<td>Evaluate a merit operand by name and print its value.</td>
+</tr>
+<tr>
+<td>FIO</td>
+<td>Print the results of the first-order (paraxial) ray trace.</td>
+</tr>
+<tr>
+<td>RAYREF</td>
+<td>Compute the per-field reference rays (R1..R5).</td>
+</tr>
+<tr>
+<td>RSI fi..k wi..k relApX relApY</td>
+<td>Trace a single ray and report ray-intercept / OPD data.</td>
+</tr>
+<tr>
+<td>THO</td>
+<td>List the third-order (Seidel) aberration coefficients.</td>
+</tr>
+<tr>
+<td>XOFF X</td>
+<td>Set the chief-ray X offset for the wavefront calculation.</td>
+</tr>
+<tr>
+<td>YOFF X</td>
+<td>Set the chief-ray Y offset for the wavefront calculation.</td>
+</tr>
+<tr>
+<td>ZRN WAV [fi] [wj] [zk] [dN]</td>
+<td>Fit the OPD error to Zernike polynomials and print a 36-term
+coefficient table.</td>
+</tr>
+</tbody>
+</table>
+<h2 id="plotting">Plotting</h2>
+<table>
+<thead>
+<tr>
+<th>Parameter</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>FAN</td>
+<td>Ray-fan plot (used within a plot loop).</td>
+</tr>
+<tr>
+<td>FIE</td>
+<td>Astigmatic field-curvature and distortion plot.</td>
+</tr>
+<tr>
+<td>MTF</td>
+<td>Modulation-transfer-function plot.</td>
+</tr>
+<tr>
+<td>PLOTTHO</td>
+<td>Third-order (Seidel) aberration bar chart.</td>
+</tr>
+<tr>
+<td>PLTRMS</td>
+<td>RMS wavefront/spot vs field plot.</td>
+</tr>
+<tr>
+<td>PMA</td>
+<td>Optical-path-difference (wavefront map) plot.</td>
+</tr>
+<tr>
+<td>PSF</td>
+<td>Point-spread-function plot.</td>
+</tr>
+<tr>
+<td>RIM</td>
+<td>Ray-aberration (rim-ray fan) plot.</td>
+</tr>
+<tr>
+<td>VIE ; [settings] ; GO</td>
+<td>Draw the lens layout (2D/3D system view).</td>
+</tr>
+<tr>
+<td>ZERN_TST ; [SETZERNC ...] ; GO</td>
+<td>Zernike-coefficient-vs-field plot.</td>
+</tr>
+</tbody>
+</table>
+<h2 id="plot-settings">Plot Settings</h2>
+<table>
+<thead>
+<tr>
+<th>Parameter</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>AZI a</td>
+<td>Set the azimuth angle of the 3D lens view.</td>
+</tr>
+<tr>
+<td>DRAWSF Sk</td>
+<td>Set the last surface drawn in the lens view.</td>
+</tr>
+<tr>
+<td>DRAWSI Sk</td>
+<td>Set the first surface drawn in the lens view.</td>
+</tr>
+<tr>
+<td>ELEV a</td>
+<td>Set the elevation angle of the 3D lens view.</td>
+</tr>
+<tr>
+<td>IFR x</td>
+<td>Set the frequency interval for the MTF plot.</td>
+</tr>
+<tr>
+<td>MFR x</td>
+<td>Set the maximum frequency for the MTF plot.</td>
+</tr>
+<tr>
+<td>NBR ELE Si..j</td>
+<td>Set the surface range for the lens drawing.</td>
+</tr>
+<tr>
+<td>NUMRAYS n</td>
+<td>Set the number of rays drawn in the lens view.</td>
+</tr>
+<tr>
+<td>ORIENT ...</td>
+<td>Set the orientation (elevation/azimuth) of the lens view.</td>
+</tr>
+<tr>
+<td>RMSDATA WAVE|SPOT</td>
+<td>Choose the data type for the RMS-vs-field plot.</td>
+</tr>
+<tr>
+<td>SETDENS n</td>
+<td>Set the sampling density for the active plot.</td>
+</tr>
+<tr>
+<td>SETWV n</td>
+<td>Set the wavelength index for the active plot.</td>
+</tr>
+<tr>
+<td>SETZERNC 5..9 | 9,16,25</td>
+<td>Set which Zernike terms the Zernike plot shows (range or list).</td>
+</tr>
+<tr>
+<td>SSI x</td>
+<td>Set the scale of the active plot.</td>
+</tr>
+</tbody>
+</table>
+<h2 id="zoom--multi-configuration">Zoom / Multi-Configuration</h2>
+<p>There is minimal zoom support right now: it stores the commands that
+differentiate a configuration from the base config.</p>
+<table>
+<thead>
+<tr>
+<th>Parameter</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>POS n</td>
+<td>Switch the active configuration (zoom position) to n.</td>
+</tr>
+<tr>
+<td>ZOO ... | ZOO PIM</td>
+<td>Define zoom (multi-configuration) data.</td>
+</tr>
+</tbody>
+</table>
+<h2 id="utilities">Utilities</h2>
+<table>
+<thead>
+<tr>
+<th>Parameter</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>! text</td>
+<td>Comment line (ignored); used in .zoa files.</td>
+</tr>
+<tr>
+<td>EDI PREF</td>
+<td>Open an editor (EDI PREF opens preferences).</td>
+</tr>
+<tr>
+<td>FALLBACK</td>
+<td>Report the legacy-command fallback tally (retirement
+telemetry).</td>
+</tr>
+<tr>
+<td>SET <option> ...</td>
+<td>Set a system option (e.g. SET CAP, SET VIG).</td>
+</tr>
+<tr>
+<td>SUR</td>
+<td>Surface data command.</td>
+</tr>
+<tr>
+<td>TERM</td>
+<td>Reset terminal output to the default view.</td>
 </tr>
 </tbody>
 </table>
