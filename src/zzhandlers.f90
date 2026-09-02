@@ -88,7 +88,7 @@ contains
 
 
     ! linkButton = gtk_link_button_new( &
-    ! &"https://github.com/jnez137/zoa/blob/main/Library/Manuals/Manual.pdf" &
+    ! &"https://github.com/jeremynesbitt/zoa/blob/main/Library/Manuals/Manual.pdf" &
     ! & //c_null_char)
     ! call g_signal_connect(linkButton, 'activate-link', c_funloc(open_url), linkButton)
 
@@ -584,7 +584,7 @@ subroutine populateSplashWindow(splashWin)
     call gtk_text_buffer_get_end_iter(splashBuff, c_loc(endIter))
 
     !call gtk_text_buffer_set_text(splashBuff, "Zoa Optical Analysis" &
-    !& //c_new_line//c_new_line//c_new_line//"https://github.com/jnez137/zoa" &
+    !& //c_new_line//c_new_line//c_new_line//"https://github.com/jeremynesbitt/zoa" &
     !& //c_new_line//c_null_char,-1)
 
     !call gtk_about_dialog_set_website(dialog, &
@@ -595,9 +595,9 @@ subroutine populateSplashWindow(splashWin)
 
     ! A clickable URL link:
     linkButton = gtk_link_button_new( &
-                          &"https://github.com/jnez137/zoa"//c_null_char)
+                          &"https://github.com/jeremynesbitt/zoa"//c_null_char)
     call g_signal_connect(linkButton, 'activate-link', c_funloc(open_url), linkButton)
-    !uriResult = g_app_info_launch_default_for_uri("https://github.com/jnez137/zoa"//c_null_char, c_null_ptr, c_null_ptr)
+    !uriResult = g_app_info_launch_default_for_uri("https://github.com/jeremynesbitt/zoa"//c_null_char, c_null_ptr, c_null_ptr)
     call gtk_box_append(box3, view)
     call gtk_box_append(box3, linkbutton)
 
