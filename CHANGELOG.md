@@ -6,11 +6,9 @@ beta (0.x) software under active development.
 ## 0.1.9 (beta)
 
 The first Zoa release in over a year — and by far the largest. Roughly **600
-commits** since 0.1.7 (Aug 2024), spanning a near-complete modernization of the
-command language, the optimizer, the analysis tools, and the build/installer
-pipeline on both macOS and Windows.
+commits** since 0.1.7 (Aug 2024), spanning a modernization of the command language, the optimizer, and analysis tools, along with some under the hood improvements to the macOS and Windows building process.
 
-> Zoa remains **beta** software under active development. Please back up your
+> Zoa remains EXTREMELY **beta** software under active development. Please back up your
 > work and report issues at https://github.com/jeremynesbitt/zoa/issues.
 
 ### Highlights
@@ -20,19 +18,13 @@ pipeline on both macOS and Windows.
   that's fixed, along with the AUTUI crash.
 - A modern **CODE V–style command language** dispatched ahead of the legacy KDP
   parser — dozens of new commands, faster and with real error reporting.
-- **Multi-configuration (zoom)**, **undo/redo**, **per-field reference rays and
-  vignetting**, typed **clear + edge apertures**, and a typed **solve manager**.
-- Much-improved **lens-drawing (VIE)** and analysis plots, with data tables you
-  can read alongside every plot.
-- **Windows** builds and installer, and a **notarized, signed macOS installer**.
+- **Multi-configuration (zoom)**, **undo/redo**, and some infrastructure changes to better support different surface types in the future.
+- Many improvements in **lens-drawing (VIE)** and analysis plots, with data tables tabs for most plots to view the raw data.
+
 
 ### Optimizer
 
-- Fixed the frozen-lens bug: curvature and thickness variables now drive the
-  merit function correctly. This is the big one — optimization previously never
-  converged properly.
-- **Unified merit model**: operands and constraints share one table, each row
-  carrying a Role and a Weight. The AUTUI window shows Role, Weight, Value, and
+- **Unified merit model**: operands and constraints share one table in a new UI (AUTUI), each row carrying a type and a Weight. The AUTUI window shows type, Weight, Value, and
   a **Contribution %** column so you can see each term's share of the objective.
 - New general constraints: **MXT / MNT** (max/min thickness), **MNE** (min edge
   thickness), **MNA / MAE** (aperture/edge bounds), applied at `AUT ; … ; GO`.
@@ -44,15 +36,8 @@ pipeline on both macOS and Windows.
 
 ### Command language & CLI
 
-- A CODE V–style front door dispatches registered commands before the legacy
-  parser, so new commands are faster, report real errors, and no longer hit the
-  old 140-character input limit.
-- Notable new/expanded commands: **ZRN** (OPD→Zernike fit table), **RAYREF**
-  (reference-ray report), **ZOO / POS** (zoom), **SET** (clear-aperture and
-  other system settings), **THO / PLOTTHO** (third-order aberrations),
-  **RESAUTO**, **SLB** (save surface labels), **IND** (refractive indices),
-  **ETH** (edge thickness), **ASP / SPH** (surface type), **CUY / CUX / THI**
-  solves, and coupled **VIE ORIENT**.
+- A CODE V–style minimal command list is supported before the legacy parser.  Long term goal is to eliminate the old parser to better support new features.
+
 
 ### Analysis & plotting
 
@@ -100,6 +85,10 @@ pipeline on both macOS and Windows.
 - See "Known limitations" for the current status of these bridges in the
   packaged app.
 
+### Interface with other Lens Design Programs
+-Can import Code V and Zemax files
+-Exporting to Code V and Zemax still unsupported
+
 ### Platform & installer
 
 - **Windows**: gfortran and Intel compiler builds, plus an MSI / winget
@@ -126,3 +115,4 @@ pipeline on both macOS and Windows.
 - The **Jupyter / MATLAB bridges** require separate client-side setup and have
   not been fully verified against the notarized/packaged build.
 - Zoa is beta; expect rough edges.
+- Documentation is TERRIBLE.  There is some minimal help files, but woefully insufficient.  
