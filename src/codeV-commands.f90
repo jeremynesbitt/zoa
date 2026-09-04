@@ -348,7 +348,8 @@ module codeV_commands
    end subroutine execPOS
    ! VIE lens-drawing setting commands (NUMRAYS/DRAWSI/DRAWSF/ELEV/AZI/ORIENT).
    ! All route here; the keyword selects which curr_psm setting to update.
-   module subroutine adjustVieSettings(iptStr)
+   ! recursive: the ORIENT case re-dispatches its trailing pairs through itself.
+   recursive module subroutine adjustVieSettings(iptStr)
     character(len=*) :: iptStr
    end subroutine adjustVieSettings
     end interface
