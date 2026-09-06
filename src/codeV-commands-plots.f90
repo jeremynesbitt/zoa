@@ -568,10 +568,15 @@ contains
         select case (trim(tokens(1)))
         case ('NUMRAYS')
             call curr_psm%updateSetting(ID_LENSDRAW_NUM_FIELD_RAYS, str2int(trim(tokens(2))))
+        ! Clamp the drawn surface range to the CURRENT lens.  A stored plot
+        ! command (replot, or a restored .zin) can carry a range from a larger
+        ! lens -- e.g. "DRAWSF 61" replayed after a macro's LEN NEW left three
+        ! surfaces -- which made the drawing code walk off the end of the lens
+        ! and emit "SURFACE NUMBER ... IS BEYOND LEGAL RANGE" once per ray.
         case ('DRAWSI')
-            call curr_psm%updateSetting(ID_LENS_FIRSTSURFACE, str2int(trim(tokens(2))))
+            call curr_psm%updateSetting(ID_LENS_FIRSTSURFACE, clampToLens(str2int(trim(tokens(2)))))
         case ('DRAWSF')
-            call curr_psm%updateSetting(ID_LENS_LASTSURFACE, str2int(trim(tokens(2))))
+            call curr_psm%updateSetting(ID_LENS_LASTSURFACE, clampToLens(str2int(trim(tokens(2)))))
         case ('ELEV')
             call curr_psm%updateSetting(ID_LENSDRAW_ELEVATION, real(str2real8(trim(tokens(2))), real64))
         case ('AZI')
@@ -586,6 +591,20 @@ contains
                 call adjustVieSettings(trim(tokens(k))//" "//trim(tokens(k+1)))
             end do
         end select
+
+    contains
+
+        ! Restrict a surface index to [0, last surface of the current lens].
+        integer function clampToLens(s) result(sc)
+            use mod_lens_data_manager, only: ldm
+            integer, intent(in) :: s
+            integer :: lastS
+            lastS = ldm%getLastSurf()
+            sc = s
+            if (sc < 0) sc = 0
+            if (lastS >= 0 .and. sc > lastS) sc = lastS
+        end function clampToLens
+
     end procedure adjustVieSettings
 
     ! ZRN WAV [fi] [wj] [zk] [dN]

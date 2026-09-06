@@ -31,6 +31,9 @@ module codeV_commands
     module subroutine setPlotWavelength(iptStr)
    character(len=*) :: iptStr
    end subroutine setPlotWavelength
+   module subroutine setPlotFieldPoint(iptStr)
+   character(len=*) :: iptStr
+   end subroutine setPlotFieldPoint
    module subroutine setPlotDensity(iptStr)
    character(len=*) :: iptStr
    end subroutine setPlotDensity
@@ -514,7 +517,9 @@ module codeV_commands
         zoaCmds(525)%cmd = 'ZERN_TST'
         zoaCmds(525)%execFunc => ZERN_TST     
         zoaCmds(526)%cmd = 'SETWV'
-        zoaCmds(526)%execFunc => setPlotWavelength 
+        zoaCmds(526)%execFunc => setPlotWavelength
+        zoaCmds(722)%cmd = 'SETFLD'
+        zoaCmds(722)%execFunc => setPlotFieldPoint
         zoaCmds(527)%cmd = 'SETDENS'
         zoaCmds(527)%execFunc => setPlotDensity     
         zoaCmds(528)%cmd = 'SETZERNC'

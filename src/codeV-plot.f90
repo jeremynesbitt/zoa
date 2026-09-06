@@ -1,6 +1,42 @@
 submodule (codeV_commands) mod_plot
 implicit none
 contains
+    !## cmd:      SETFLD
+    !## syntax:   SETFLD n
+    !## category: Plot Settings
+    !## desc:     Set the field point for the active plot (MTF, PSF, OPD).
+    !##
+    ! addFieldSetting (plot-setting-manager) has always emitted "SETFLD n" into
+    ! the plot command, but no command was ever registered for it: every replot
+    ! of an MTF/PSF/OPD plot answered "INVALID CMD LEVEL COMMAND", and changing
+    ! the field point in those plots' settings did nothing.
+    module procedure setPlotFieldPoint
+
+        use command_utils, only: isInputNumber
+        use plot_setting_manager, only: SETTING_FIELD
+        use global_widgets, only: sysConfig
+
+        implicit none
+
+        character(len=80) :: tokens(40)
+        integer :: numTokens, fld
+
+        call parse(trim(iptStr), ' ', tokens, numTokens)
+
+        if (numTokens == 2) then
+            if (isInputNumber(tokens(2))) then
+                ! Clamp to the current lens: a stored command (replot, or a
+                ! restored .zin) can name a field the new lens does not have.
+                fld = str2int(trim(tokens(2)))
+                if (fld < 1) fld = 1
+                if (fld > sysConfig%numFields) fld = sysConfig%numFields
+                call curr_psm%updateSetting(SETTING_FIELD, fld)
+                call LogTermFOR("Finished Updating Field Point")
+            end if
+        end if
+
+    end procedure
+
     !## cmd:      SETWV
     !## syntax:   SETWV n
     !## category: Plot Settings

@@ -796,6 +796,10 @@ contains
         real :: FREQ1, FREQ2, maxFreq
         logical :: ERROR
         ERROR = .FALSE.
+        ! Always define the result: the error path used to return with maxFreq
+        ! never assigned, so a failed CUTTOFF produced a garbage/zero maximum
+        ! frequency that was then baked into the plot command as "MFR 0.00000".
+        maxFreq = 0.0
         call CUTTOFF(FREQ1, FREQ2, ERROR)
         if (ERROR) then
             call zoa_emit('ERROR IN OBJECT/IMAGE SPACE FREQUENCY RELATIONSHIP', "red")
