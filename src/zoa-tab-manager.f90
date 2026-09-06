@@ -971,14 +971,25 @@ subroutine restorePlotTab(self, plotType, title, plotCommand, psm, mplt, dataTex
   use iso_c_binding, only: c_null_char, c_int
   use plot_setting_manager, only: zoaplot_setting_manager
   use gtk_sup, only: c_f_string_copy
+  use gtk_draw_hl, only: hl_gtk_drawing_area_new
   implicit none
   class(zoatabManager) :: self
   integer, intent(in) :: plotType
   character(len=*), intent(in) :: title, plotCommand, dataText
   type(zoaplot_setting_manager) :: psm
   type(multiplot) :: mplt
-  integer :: objIdx
+  integer :: objIdx, w, h
   type(c_ptr) :: buffer
+
+  ! A multiplot loaded from a .zin has no drawing area (c_null_ptr).  A new
+  ! tab's canvas is also null until updateGenericMultiPlot adopts the
+  ! multiplot's area (the "loose canvas" fallback every *_go routine relies
+  ! on), and mp_draw dereferences that area's cairo context -- so give the
+  ! restored multiplot a real hl_gtk drawing area first, exactly as a *_go
+  ! does, at the size the plot was originally rendered at.
+  w = mplt%width;  if (w <= 0) w = 1200
+  h = mplt%height; if (h <= 0) h = 500
+  mplt%area = hl_gtk_drawing_area_new(size=[w, h], has_alpha=FALSE)
 
   objIdx = self%addMultiPlotTab(plotType, trim(title)//c_null_char)
   call self%updateInputCommand(objIdx, plotCommand)

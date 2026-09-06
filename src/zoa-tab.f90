@@ -755,10 +755,12 @@ end subroutine
 
 subroutine updateGenericMultiPlot(self, mplt)
   use g
+  use cairo, only: cairo_image_surface_get_width, cairo_image_surface_get_height
   class(zoaplottab) :: self
   type(multiplot) :: mplt
   class(zoaplot), pointer :: p
   integer :: i, j
+  type(c_ptr) :: isurface
 
   ! Persist a deep copy of the caller's transient mplt so the tab retains its
   ! plot data (needed for .zin serialization and to avoid re-deriving plots
@@ -798,6 +800,19 @@ else
 end if
 
 self%mplt%area = self%canvas
+
+! Record the canvas's real size in the persisted copy: the *_go routines size
+! their drawing areas individually (700x500, 1200x800, ...) while
+! multiplot%width/height keep their defaults, and a .zin restore must recreate
+! the canvas at the size the plot was actually rendered at.
+if (c_associated(self%canvas)) then
+  isurface = g_object_get_data(self%canvas, "backing-surface")
+  if (c_associated(isurface)) then
+    self%mplt%width  = cairo_image_surface_get_width(isurface)
+    self%mplt%height = cairo_image_surface_get_height(isurface)
+  end if
+end if
+
 call self%mplt%draw()
 
 end subroutine
