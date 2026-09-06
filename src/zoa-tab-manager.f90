@@ -49,7 +49,11 @@ type  zoatabManager
    procedure :: updateInputCommand
    procedure :: findTabIndex
    procedure :: closeAllTabs
+   procedure, public :: closeAllTabsSilent
    procedure :: finalize_with_psm
+   procedure, public :: saveTabsToZin
+   procedure, public :: restoreTabsFromZin
+   procedure, public :: restorePlotTab
 
    !Support for KDP (now only VIE) plot
    procedure :: addKDPPlotTab
@@ -666,6 +670,10 @@ end function
 
     !call gtk_notebook_remove_page(self%notebook, tabIndex)
     if (allocated(self%tabInfo(tabInfoIndex)%tabObj)) then
+       select type (t => self%tabInfo(tabInfoIndex)%tabObj)
+       class is (zoaplottab)
+         if (t%hasMplt) call t%mplt%clear()
+       end select
        DEALLOCATE(self%tabInfo(tabInfoIndex)%tabObj)
        ! If this is the last tab then reduce counter.  
        if (tabInfoIndex == self%tabNum) self%tabNum = self%tabNum - 1
@@ -742,6 +750,24 @@ end function
 
   end subroutine
 
+  ! Same removal loop as closeAllTabs, but without the modal YES/NO dialog --
+  ! used when closing tabs programmatically (eg before restoring from a .zin
+  ! companion file) where prompting the user makes no sense.
+  subroutine closeAllTabsSilent(self)
+    implicit none
+    class(zoatabManager) :: self
+    integer :: i
+
+    if (self%tabNum.EQ.0) return
+
+    do i=1,self%tabNum
+      call gtk_notebook_set_current_page(self%notebook, 1)
+      call self%removePlotTab(1,i) ! This is dangerous to assume both indexes are the same.  TODO:  Need to look into this.
+    end do
+    self%tabNum = 0
+
+  end subroutine
+
 subroutine finalize_with_psm(self, objIdx, psm, inputCmd)
   use iso_c_binding, only: c_null_char
   use type_utils, only: int2str
@@ -798,8 +824,181 @@ subroutine registerPlotSettingManager(tabMgr, objIdx, psm)
   type(zoaplot_setting_manager) :: psm
 
   tabMgr%tabInfo(objIdx)%tabObj%psm = psm
-  
+
 end subroutine
+
+! Writes every open tab to the .zin companion file (unit already opened
+! access='stream' by the caller). One record per tab with an allocated
+! tabObj: recordKind, ID_PLOTTYPE, title, plotCommand, psm, then -- for
+! DATA records only -- the Data-tab text and the persisted multiplot.
+subroutine saveTabsToZin(self, unit)
+  use iso_fortran_env, only: int32
+  use mod_zin_io, only: zin_write_header, zin_write_str, ZIN_KIND_DATA, ZIN_KIND_REPLAY
+  use gtk_sup, only: c_f_string_copy
+  implicit none
+  class(zoatabManager) :: self
+  integer, intent(in) :: unit
+  integer :: i, n, recordKind
+  type(gtktextiter), target :: iterStart, iterEnd
+  type(c_ptr) :: buffer
+  character(len=65536) :: dataText
+
+  n = 0
+  do i=1,self%tabNum
+    if (allocated(self%tabInfo(i)%tabObj)) n = n + 1
+  end do
+
+  call zin_write_header(unit, n)
+
+  do i=1,self%tabNum
+    if (.not. allocated(self%tabInfo(i)%tabObj)) cycle
+
+    recordKind = ZIN_KIND_REPLAY
+    select type (t => self%tabInfo(i)%tabObj)
+    class is (zoaplottab)
+      if (t%hasMplt) recordKind = ZIN_KIND_DATA
+    end select
+
+    write(unit) int(recordKind, int32)
+    write(unit) int(self%tabInfo(i)%tabObj%ID_PLOTTYPE, int32)
+    call zin_write_str(unit, trim(self%getTabTitle(i)))
+    call zin_write_str(unit, trim(self%tabInfo(i)%tabObj%plotCommand))
+    call self%tabInfo(i)%tabObj%psm%saveToBinary(unit)
+
+    if (recordKind == ZIN_KIND_DATA) then
+      dataText = ' '
+      select type (t => self%tabInfo(i)%tabObj)
+      class is (zoaplotdatatab)
+        if (c_associated(t%textView)) then
+          buffer = gtk_text_view_get_buffer(t%textView)
+          if (c_associated(buffer)) then
+            call gtk_text_buffer_get_start_iter(buffer, c_loc(iterStart))
+            call gtk_text_buffer_get_end_iter(buffer, c_loc(iterEnd))
+            call c_f_string_copy(gtk_text_buffer_get_text(buffer, &
+            & c_loc(iterStart), c_loc(iterEnd), FALSE), dataText)
+          end if
+        end if
+      end select
+      call zin_write_str(unit, trim(dataText))
+
+      select type (t => self%tabInfo(i)%tabObj)
+      class is (zoaplottab)
+        call t%mplt%saveToBinary(unit)
+      end select
+    end if
+  end do
+
+end subroutine saveTabsToZin
+
+! Reads the .zin companion file written by saveTabsToZin and recreates each
+! tab. REPLAY records are recreated by re-running the plot command (the
+! normal live-plot path rebuilds the tab); DATA records are recreated via
+! restorePlotTab, which persists the deep-copied multiplot the same way a
+! freshly-drawn plot does.
+subroutine restoreTabsFromZin(self, unit)
+  use iso_fortran_env, only: int32
+  use mod_zin_io, only: zin_read_header, zin_read_str, ZIN_KIND_DATA, ZIN_KIND_REPLAY
+  use plot_setting_manager, only: zoaplot_setting_manager
+  use zoa_output, only: zoa_emit
+  implicit none
+  class(zoatabManager) :: self
+  integer, intent(in) :: unit
+  integer :: n, i, ios
+  integer(int32) :: recordKind32, plotType32
+  logical :: ok
+  character(len=1040) :: title, plotCommand
+  character(len=65536) :: dataText
+  type(zoaplot_setting_manager) :: psm
+  type(multiplot) :: mplt
+
+  call zin_read_header(unit, n, ok)
+  if (.not. ok) return
+
+  do i = 1, n
+    read(unit, iostat=ios) recordKind32
+    if (ios /= 0) then
+      call zoa_emit("ZIN: zin file truncated/corrupt, stopping plot restore", "red")
+      return
+    end if
+    read(unit, iostat=ios) plotType32
+    if (ios /= 0) then
+      call zoa_emit("ZIN: zin file truncated/corrupt, stopping plot restore", "red")
+      return
+    end if
+    call zin_read_str(unit, title, ios)
+    if (ios /= 0) then
+      call zoa_emit("ZIN: zin file truncated/corrupt, stopping plot restore", "red")
+      return
+    end if
+    call zin_read_str(unit, plotCommand, ios)
+    if (ios /= 0) then
+      call zoa_emit("ZIN: zin file truncated/corrupt, stopping plot restore", "red")
+      return
+    end if
+    call psm%loadFromBinary(unit, ios)
+    if (ios /= 0) then
+      call zoa_emit("ZIN: zin file truncated/corrupt, stopping plot restore", "red")
+      return
+    end if
+
+    if (int(recordKind32) == ZIN_KIND_REPLAY) then
+      call PROCESKDP(trim(plotCommand))
+    else if (int(recordKind32) == ZIN_KIND_DATA) then
+      call zin_read_str(unit, dataText, ios)
+      if (ios /= 0) then
+        call zoa_emit("ZIN: zin file truncated/corrupt, stopping plot restore", "red")
+        return
+      end if
+      call mplt%loadFromBinary(unit, ios)
+      if (ios /= 0) then
+        call zoa_emit("ZIN: zin file truncated/corrupt, stopping plot restore", "red")
+        return
+      end if
+      call self%restorePlotTab(int(plotType32), trim(title), trim(plotCommand), psm, mplt, dataText)
+      call mplt%clear()
+    end if
+  end do
+
+end subroutine restoreTabsFromZin
+
+! Composes addMultiPlotTab / updateInputCommand / updateGenericMultiPlotTab /
+! finalize_with_psm / finalizeNewPlotTab in the same order initializeGoPlot +
+! finalizeGoPlot_new use for a brand-new plot (see plot-functions.f90), then
+! (for a DATA record) fills in the Data-tab text. psm%plotNum is restored
+! verbatim from the file, so doesPlotExist_new/getLowestAvailablePlotNum
+! naturally avoid P<n> collisions with the restored plot.
+subroutine restorePlotTab(self, plotType, title, plotCommand, psm, mplt, dataText)
+  use iso_c_binding, only: c_null_char, c_int
+  use plot_setting_manager, only: zoaplot_setting_manager
+  use gtk_sup, only: c_f_string_copy
+  implicit none
+  class(zoatabManager) :: self
+  integer, intent(in) :: plotType
+  character(len=*), intent(in) :: title, plotCommand, dataText
+  type(zoaplot_setting_manager) :: psm
+  type(multiplot) :: mplt
+  integer :: objIdx
+  type(c_ptr) :: buffer
+
+  objIdx = self%addMultiPlotTab(plotType, trim(title)//c_null_char)
+  call self%updateInputCommand(objIdx, plotCommand)
+  call self%updateGenericMultiPlotTab(objIdx, mplt)
+  call self%finalize_with_psm(objIdx, psm)
+  call self%finalizeNewPlotTab(objIdx)
+
+  if (len_trim(dataText) > 0) then
+    select type (t => self%tabInfo(objIdx)%tabObj)
+    class is (zoaplotdatatab)
+      if (c_associated(t%textView)) then
+        buffer = gtk_text_view_get_buffer(t%textView)
+        if (c_associated(buffer)) then
+          call gtk_text_buffer_set_text(buffer, trim(dataText)//c_null_char, -1_c_int)
+        end if
+      end if
+    end select
+  end if
+
+end subroutine restorePlotTab
 
 
 subroutine genSaveOutputText(self, fID)

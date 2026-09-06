@@ -1183,6 +1183,7 @@ subroutine initializeGoPlot(psm, plot_code, plotName, replot, objIdx)
     ! In headless mode render directly to PNG via plplot; skip GTK tab machinery
     if (HEADLESS_MODE) then
       call mplt%draw()
+      call mplt%clear()
       return
     end if
 
@@ -1191,6 +1192,7 @@ subroutine initializeGoPlot(psm, plot_code, plotName, replot, objIdx)
       call zoaTabMgr%finalize_with_psm(objIdx, psm)
       call zoaTabMgr%finalizeNewPlotTab(objIdx)
     end if
+    call mplt%clear()
 
   end subroutine
 

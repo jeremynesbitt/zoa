@@ -497,7 +497,8 @@ type, extends(zoatab) ::  zoaplottab
   type(c_ptr) :: canvas
   integer(c_int)  :: width = 1*1000 !1000
   integer(c_int)  ::  height = 1*700 !700
-  type(zoaplot) :: zPlot ! Should this be in a derived type instead?
+  type(multiplot) :: mplt
+  logical :: hasMplt = .false.
   logical :: useToolbar
 
   contains
@@ -756,23 +757,48 @@ subroutine updateGenericMultiPlot(self, mplt)
   use g
   class(zoaplottab) :: self
   type(multiplot) :: mplt
+  class(zoaplot), pointer :: p
+  integer :: i, j
+
+  ! Persist a deep copy of the caller's transient mplt so the tab retains its
+  ! plot data (needed for .zin serialization and to avoid re-deriving plots
+  ! from scratch). Free the previous copy first.
+  if (self%hasMplt) call self%mplt%clear()
+
+  call self%mplt%initialize(self%canvas, mplt%m_rows, mplt%m_cols)
+
+  self%mplt%m_title = mplt%m_title
+  self%mplt%m_hasTitle = mplt%m_hasTitle
+  self%mplt%width = mplt%width
+  self%mplt%height = mplt%height
+  self%mplt%hasBottomPanel = mplt%hasBottomPanel
+  self%mplt%bottomPanelBigLabel = mplt%bottomPanelBigLabel
+  self%mplt%bottomPanelLittleLabel = mplt%bottomPanelLittleLabel
+  self%mplt%bottomPanelLegend = mplt%bottomPanelLegend
+
+  do j = 1, mplt%m_cols
+    do i = 1, mplt%m_rows
+      p => mplt%get(i,j)
+      if (associated(p)) call self%mplt%set(i,j,p)
+    end do
+  end do
+
+  self%hasMplt = .true.
 
   !Currently zoatab does not save the mplt object (seems bad) so setting the canvas here as the object
   !needs to be added to the ui window
-  !will need to keep mplt in zoatab to manipulate plot in the future?
   if (c_associated(self%canvas)) then
 
     mplt%area = self%canvas
-    
+
 else
   print *, "Multiplot update canvas ptr is loose"
    self%canvas = mplt%area
-   
+
 end if
 
-call mplt%draw()
- !self%canvas = mplt%area
- !call mplt%draw()
+self%mplt%area = self%canvas
+call self%mplt%draw()
 
 end subroutine
 
