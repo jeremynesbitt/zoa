@@ -322,6 +322,7 @@ contains
         zoa_set_write_tab_state_callback, &
         zoa_set_query_existing_plot_callback, &
         zoa_set_query_save_file_callback, &
+        zoa_set_save_zin_callback, zoa_set_load_zin_callback, &
         zoa_set_replot_flush_callback
 
     implicit none
@@ -538,11 +539,16 @@ contains
     call zoa_set_write_tab_state_callback(gui_write_tab_state)
     call zoa_set_query_existing_plot_callback(gui_query_existing_plot)
     call zoa_set_query_save_file_callback(gui_query_save_file)
+    call zoa_set_save_zin_callback(gui_save_zin)
+    call zoa_set_load_zin_callback(gui_load_zin)
 
     ! INIT KDP
     CALL INITKDP
     call applyGlassCatalogDirFromPrefs()
     call refreshLensDataStruct()
+    ! INITKDP just reloaded the auto-saved lens; bring back the plots that were
+    ! saved alongside it (the window is presented and the tab manager is live).
+    call gui_restore_startup_plots()
 
     PRINT *, "DONE WITH INITKDP!"
 
@@ -1133,6 +1139,57 @@ end subroutine
   subroutine gui_write_tab_state(fID)
     integer, intent(in) :: fID
     call zoatabMgr%genSaveOutputText(fID)
+  end subroutine
+
+  ! ---- .zin companion plot file (registered in activate) --------------------
+  ! Core code reaches these only through zoa_ui_callbacks, so it never needs GTK.
+
+  subroutine gui_save_zin(path)
+    use zoa_file_handler, only: doesFileExist, delete_file, getFileNameFromPath
+    use zoa_output, only: zoa_emit
+    character(len=*), intent(in) :: path
+    integer :: u, ios
+    ! With no plots open, a stale .zin beside the lens would resurrect old plots
+    ! on the next load: remove it rather than write an empty file.
+    if (zoatabMgr%tabNum == 0) then
+      if (doesFileExist(trim(path))) call delete_file(trim(path))
+      return
+    end if
+    open(newunit=u, file=trim(path), access='stream', form='unformatted', &
+         status='replace', action='write', iostat=ios)
+    if (ios /= 0) then
+      call zoa_emit("Could not write plot file "//trim(getFileNameFromPath(path)), "red")
+      return
+    end if
+    call zoatabMgr%saveTabsToZin(u)
+    close(u)
+  end subroutine
+
+  subroutine gui_load_zin(path)
+    use zoa_file_handler, only: getFileNameFromPath
+    use zoa_output, only: zoa_emit
+    character(len=*), intent(in) :: path
+    integer :: u, ios
+    open(newunit=u, file=trim(path), access='stream', form='unformatted', &
+         status='old', action='read', iostat=ios)
+    if (ios /= 0) then
+      call zoa_emit("Could not read plot file "//trim(getFileNameFromPath(path)), "red")
+      return
+    end if
+    ! The .zin is authoritative for this lens: start from an empty notebook.
+    call zoatabMgr%closeAllTabsSilent()
+    call zoatabMgr%restoreTabsFromZin(u)
+    close(u)
+  end subroutine
+
+  ! Startup: restore the plots saved with the auto-saved lens INITKDP reloads
+  ! (Temp/currlens.zoa -> Temp/currlens.zin).  Nothing to do if none exists.
+  subroutine gui_restore_startup_plots()
+    use zoa_file_handler, only: getTempDirectory, getCurrentLensFileName, &
+                                zinPathFromZoa, doesFileExist
+    character(len=2048) :: zinPath
+    zinPath = zinPathFromZoa(trim(getTempDirectory())//getCurrentLensFileName())
+    if (doesFileExist(trim(zinPath))) call gui_load_zin(trim(zinPath))
   end subroutine
 
   subroutine gui_query_existing_plot(plot_code, plot_num, psm, found)
