@@ -56,6 +56,7 @@ module zoa_macro_ui
   end subroutine
 
   subroutine macrorun_click(widget, gdata) bind(c)
+    use zoa_ui_callbacks, only: notify_replot_flush
     type(c_ptr), value, intent(in) :: widget, gdata
 
     integer, pointer :: fdata
@@ -85,6 +86,12 @@ module zoa_macro_ui
           if (gtk_check_button_get_active(macrorun).EQ.TRUE) THEN
               !CALL PROCESKDP(svalue)
               call PROCESKDP('RES zoa_macro:'//trim(svalue))
+              ! A macro almost always changes the lens, so drain the deferred
+              ! replot: open plots refresh and an undo snapshot is recorded.
+              ! This is the same finalization the command line performs after
+              ! every command (name_enter -> gui_replot_flush); without it a
+              ! macro run from this window left every open plot stale.
+              call notify_replot_flush()
               !call PROCESKDP('MREFRESH')
           else if (gtk_check_button_get_active(macrolist).EQ.TRUE) THEN
                CALL PROCESKDP('MFL '//svalue)

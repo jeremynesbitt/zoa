@@ -255,6 +255,7 @@ contains
         integer :: locStr, locDot, i
         character(len=1024) :: fileName
         character(len=1) :: fileSep
+        logical :: savedMacroFlag
 
         fileSep = getFileSep()
 
@@ -278,7 +279,12 @@ contains
                     ! A lens-defining macro starts with LEN NEW (the Bentley
                     ! macros do), and that command performs the shared
                     ! newlens.zoa reset + undo-baseline itself.
+                    ! Flag the macro so that LEN NEW prompts to discard open
+                    ! plots (save/restore, so a macro calling a macro nests).
+                    savedMacroFlag = in_macro_load
+                    in_macro_load = .TRUE.
                     call process_zoa_file(trim(fileName))
+                    in_macro_load = savedMacroFlag
                 end if
             end if
         else

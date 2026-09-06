@@ -537,7 +537,25 @@ contains
 
     module procedure newLens
         use undo_manager, only: undo_reset_baseline
+        use zoa_ui_callbacks, only: notify_close_all_tabs
+        use zoa_file_handler, only: zoa_file_depth
         implicit none
+
+        ! A new lens invalidates every open plot, so offer to discard them --
+        ! the same prompt CV2PRG/ZMX2PRG show.  Automatically a no-op headless
+        ! (the callback is unregistered) and when no plots are open
+        ! (closeAllTabs returns immediately).
+        !
+        ! Only for a LEN NEW the user actually drove: typed at the prompt
+        ! (zoa_file_depth == 0) or run from a macro.  A LEN NEW that is just the
+        ! first line of a .zoa lens file being restored is structural -- that
+        ! path manages tabs itself (closing them and restoring from the .zin
+        ! companion), and prompting there would fire on every RES.
+        if (zoa_file_depth == 0 .or. in_macro_load) then
+            call notify_close_all_tabs("You are about to open a new " //&
+            &"lens system.  This will invalidate all plots.   " //&
+            &"Press yes to close them.")
+        end if
 
         call resetToNewLensTemplate()
         ! A new lens replaces the system: reset undo history with it as baseline.

@@ -400,6 +400,12 @@ module codeV_commands
     type(zoaplot_setting_manager)  :: curr_psm
     character(len=10024) :: cmdTOW
 
+    ! .TRUE. while a macro (RES macro:...) is being executed.  A LEN NEW inside
+    ! a macro is a deliberate user action and prompts to discard open plots; a
+    ! LEN NEW that is merely the first line of a .zoa lens file being restored
+    ! is structural and must not prompt.  See newLens.
+    logical :: in_macro_load = .FALSE.
+
     ! Fallback telemetry (see recordFallback / execFallbackReport): how often
     ! each CMD-level word fell through the flip to the legacy CONTRO router.
     integer, parameter :: MAX_FALLBACK = 2000
