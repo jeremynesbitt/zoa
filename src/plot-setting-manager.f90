@@ -12,6 +12,7 @@ module plot_setting_manager
     use zoa_ui
     use kdp_data_types, only: idText
     use type_utils
+    use mod_zin_io
     implicit none
 
     !TODO:  move all this to zoa_ui 
@@ -101,6 +102,9 @@ module plot_setting_manager
     procedure, public, pass(self) :: getRMSFieldSettings
 
     procedure, public, pass(self) :: updateSetting, addPowerOfTwoImageSetting, getPowerOfTwoImageSetting
+
+    procedure, public, pass(self) :: saveToBinary => psm_save_binary
+    procedure, public, pass(self) :: loadFromBinary => psm_load_binary
 
     end type
 
@@ -1012,6 +1016,111 @@ contains
 
     end function
 
+    ! -----------------------------------------------------------------
+    ! .zin binary serialization (WP1 -- pure data, no GTK).
+    ! -----------------------------------------------------------------
 
+    subroutine psm_save_binary(self, unit)
+      use iso_fortran_env, only: int32
+      class(zoaplot_setting_manager), intent(in) :: self
+      integer, intent(in) :: unit
+      integer :: i, k, nSet, nCoupled
+
+      write(unit) int(self%numSettings, int32)
+      call zin_write_str(unit, self%baseCmd)
+      write(unit) int(self%plotNum, int32)
+
+      do i = 1, self%numSettings
+        write(unit) int(self%ps(i)%ID, int32)
+        write(unit) int(self%ps(i)%uitype, int32)
+        write(unit) self%ps(i)%min
+        write(unit) self%ps(i)%max
+        write(unit) self%ps(i)%default
+        call zin_write_str(unit, self%ps(i)%prefix)
+        call zin_write_str(unit, self%ps(i)%label)
+        call zin_write_str(unit, self%ps(i)%defaultStr)
+        call zin_write_str(unit, self%ps(i)%cmd)
+        call zin_write_str(unit, self%ps(i)%fullCmd)
+        write(unit) int(self%ps(i)%ownerID, int32)
+
+        if (allocated(self%ps(i)%set)) then
+          nSet = size(self%ps(i)%set)
+        else
+          nSet = 0
+        end if
+        write(unit) int(nSet, int32)
+        do k = 1, nSet
+          write(unit) int(self%ps(i)%set(k)%ID, int32)
+          call zin_write_str(unit, self%ps(i)%set(k)%text)
+        end do
+
+        if (allocated(self%ps(i)%coupledIDs)) then
+          nCoupled = size(self%ps(i)%coupledIDs)
+        else
+          nCoupled = 0
+        end if
+        write(unit) int(nCoupled, int32)
+        do k = 1, nCoupled
+          write(unit) int(self%ps(i)%coupledIDs(k), int32)
+        end do
+      end do
+    end subroutine psm_save_binary
+
+    subroutine psm_load_binary(self, unit, ios)
+      use iso_fortran_env, only: int32
+      class(zoaplot_setting_manager), intent(inout) :: self
+      integer, intent(in) :: unit
+      integer, intent(out) :: ios
+      integer(int32) :: n32
+      integer :: i, k, nSet, nCoupled
+
+      ios = 0
+
+      read(unit, iostat=ios) n32; if (ios /= 0) return
+      self%numSettings = int(n32)
+      call zin_read_str(unit, self%baseCmd, ios); if (ios /= 0) return
+      read(unit, iostat=ios) n32; if (ios /= 0) return
+      self%plotNum = int(n32)
+
+      do i = 1, self%numSettings
+        read(unit, iostat=ios) n32; if (ios /= 0) return
+        self%ps(i)%ID = int(n32)
+        read(unit, iostat=ios) n32; if (ios /= 0) return
+        self%ps(i)%uitype = int(n32)
+        read(unit, iostat=ios) self%ps(i)%min; if (ios /= 0) return
+        read(unit, iostat=ios) self%ps(i)%max; if (ios /= 0) return
+        read(unit, iostat=ios) self%ps(i)%default; if (ios /= 0) return
+        call zin_read_str(unit, self%ps(i)%prefix, ios); if (ios /= 0) return
+        call zin_read_str(unit, self%ps(i)%label, ios); if (ios /= 0) return
+        call zin_read_str(unit, self%ps(i)%defaultStr, ios); if (ios /= 0) return
+        call zin_read_str(unit, self%ps(i)%cmd, ios); if (ios /= 0) return
+        call zin_read_str(unit, self%ps(i)%fullCmd, ios); if (ios /= 0) return
+        read(unit, iostat=ios) n32; if (ios /= 0) return
+        self%ps(i)%ownerID = int(n32)
+
+        if (allocated(self%ps(i)%set)) deallocate(self%ps(i)%set)
+        read(unit, iostat=ios) n32; if (ios /= 0) return
+        nSet = int(n32)
+        if (nSet > 0) then
+          allocate(self%ps(i)%set(nSet))
+          do k = 1, nSet
+            read(unit, iostat=ios) n32; if (ios /= 0) return
+            self%ps(i)%set(k)%ID = int(n32)
+            call zin_read_str(unit, self%ps(i)%set(k)%text, ios); if (ios /= 0) return
+          end do
+        end if
+
+        if (allocated(self%ps(i)%coupledIDs)) deallocate(self%ps(i)%coupledIDs)
+        read(unit, iostat=ios) n32; if (ios /= 0) return
+        nCoupled = int(n32)
+        if (nCoupled > 0) then
+          allocate(self%ps(i)%coupledIDs(nCoupled))
+          do k = 1, nCoupled
+            read(unit, iostat=ios) n32; if (ios /= 0) return
+            self%ps(i)%coupledIDs(k) = int(n32)
+          end do
+        end if
+      end do
+    end subroutine psm_load_binary
 
 end module

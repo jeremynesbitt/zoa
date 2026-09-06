@@ -676,4 +676,376 @@ contains
 
     end procedure execZRN
 
+    ! Diagnostic self-check for the .zin binary serializers.  Builds small
+    ! synthetic zoaplot / zoaPlot3d / multiplot / zoaplot_setting_manager
+    ! objects, round-trips them through a temp .zin file, and compares every
+    ! field for an exact match.  Headless-safe: no GTK calls anywhere in this
+    ! path.  Test hook only -- not a user-facing command.
+    module procedure execZINTEST
+        use kdp_utils, only: OUTKDP
+        use zoa_plot, only: zoaplot, zoaPlot3d, multiplot, POS_UPPER_RIGHT
+        use plplot, only: pl_test_flt
+        use plot_setting_manager, only: zoaplot_setting_manager, plot_setting
+        use mod_zin_io, only: zin_write_header, zin_read_header
+        use zoa_file_handler, only: getTempDirectory, delete_file
+        use, intrinsic :: iso_c_binding, only: c_null_ptr
+        implicit none
+
+        type(zoaplot) :: p1
+        type(zoaPlot3d) :: p3
+        type(multiplot) :: mplt, mpltL
+        type(zoaplot_setting_manager) :: psm, psmL
+        class(zoaplot), pointer :: pp1L
+        class(zoaplot), pointer :: pp3Lbase
+
+        real :: x(5), y(5), x2(5), y2(5)
+        real :: gx(4), gy(4), gz(16)
+        character(len=30) :: legendArr(1)
+        character(len=200) :: fname
+        integer :: unit, ios, i, numTabsOut
+        logical :: ok
+        integer :: failCount
+
+        failCount = 0
+
+        x  = [1.0, 2.0, 3.0, 4.0, 5.0]
+        y  = [1.0, 4.0, 9.0, 16.0, 25.0]
+        x2 = [1.0, 2.0, 3.0, 4.0, 5.0]
+        y2 = [5.0, 4.0, 3.0, 2.0, 1.0]
+
+        call p1%initialize(c_null_ptr, x, y, xlabel="X Axis", ylabel="Y Axis", title="ZINTEST Plot")
+        call p1%addXYPlot(x2, y2)
+        legendArr(1) = "Series A"
+        call p1%addLegend(legendArr)
+        call p1%addText("hello zintest", POS_UPPER_RIGHT)
+        call p1%setYScale(2.5_pl_test_flt)
+        call p1%setXScale(1.5_pl_test_flt)
+        call p1%addScaleBar(POS_UPPER_RIGHT)
+
+        gx = [1.0, 2.0, 3.0, 4.0]
+        gy = [1.0, 2.0, 3.0, 4.0]
+        gz = [(real(i), i = 1, 16)]
+        call p3%init3d(c_null_ptr, gx, gy, gz, 4, 4, xlabel="gx", ylabel="gy", title="ZINTEST 3D")
+
+        call mplt%initialize(c_null_ptr, 1, 2)
+        call mplt%addBottomPanel("Big Label", "Little Label", "Legend Text")
+        mplt%m_title = "ZINTEST Multiplot"
+        call mplt%set(1, 1, p1)
+        call mplt%set(1, 2, p3)
+
+        call psm%initialize("ZINTEST P1")
+        call psm%addLensDrawSettings()
+
+        fname = trim(getTempDirectory())//'zintest.zin'
+
+        open(newunit=unit, file=trim(fname), access='stream', form='unformatted', &
+             status='replace', iostat=ios)
+        if (ios /= 0) then
+            call OUTKDP("ZINTEST: FAIL cannot open temp file for write")
+            return
+        end if
+        call zin_write_header(unit, 1)
+        call psm%saveToBinary(unit)
+        call mplt%saveToBinary(unit)
+        close(unit)
+
+        open(newunit=unit, file=trim(fname), access='stream', form='unformatted', &
+             status='old', iostat=ios)
+        if (ios /= 0) then
+            call OUTKDP("ZINTEST: FAIL cannot reopen temp file for read")
+            return
+        end if
+
+        call zin_read_header(unit, numTabsOut, ok)
+        if (.not. ok) then
+            call OUTKDP("ZINTEST: FAIL header not ok")
+            failCount = failCount + 1
+        else
+            call ckI("header.numTabs", 1, numTabsOut)
+        end if
+
+        call psmL%loadFromBinary(unit, ios)
+        if (ios /= 0) then
+            call OUTKDP("ZINTEST: FAIL psm load ios")
+            failCount = failCount + 1
+        end if
+
+        call mpltL%loadFromBinary(unit, ios)
+        if (ios /= 0) then
+            call OUTKDP("ZINTEST: FAIL mplt load ios")
+            failCount = failCount + 1
+        end if
+
+        close(unit)
+        call delete_file(trim(fname))
+
+        ! ---- compare zoaplot_setting_manager ----
+        call ckI("psm.numSettings", psm%numSettings, psmL%numSettings)
+        call ckS("psm.baseCmd", psm%baseCmd, psmL%baseCmd)
+        call ckI("psm.plotNum", psm%plotNum, psmL%plotNum)
+        if (psm%numSettings == psmL%numSettings) then
+            do i = 1, psm%numSettings
+                call ckPlotSetting(i, psm%ps(i), psmL%ps(i))
+            end do
+        end if
+
+        ! ---- compare multiplot scalars ----
+        call ckI("mplt.m_rows", mplt%m_rows, mpltL%m_rows)
+        call ckI("mplt.m_cols", mplt%m_cols, mpltL%m_cols)
+        call ckS("mplt.m_title", mplt%m_title, mpltL%m_title)
+        call ckL("mplt.m_hasTitle", mplt%m_hasTitle, mpltL%m_hasTitle)
+        call ckI("mplt.width", mplt%width, mpltL%width)
+        call ckI("mplt.height", mplt%height, mpltL%height)
+        call ckL("mplt.hasBottomPanel", mplt%hasBottomPanel, mpltL%hasBottomPanel)
+        call ckS("mplt.bottomPanelBigLabel", mplt%bottomPanelBigLabel, mpltL%bottomPanelBigLabel)
+        call ckS("mplt.bottomPanelLittleLabel", mplt%bottomPanelLittleLabel, mpltL%bottomPanelLittleLabel)
+        call ckS("mplt.bottomPanelLegend", mplt%bottomPanelLegend, mpltL%bottomPanelLegend)
+
+        ! ---- compare cell (1,1): basic zoaplot ----
+        pp1L => mpltL%get(1, 1)
+        if (.not. associated(pp1L)) then
+            call OUTKDP("ZINTEST: FAIL mplt cell(1,1) not associated")
+            failCount = failCount + 1
+        else
+            call ckZoaplotBase("p1", p1, pp1L)
+        end if
+
+        ! ---- compare cell (1,2): zoaPlot3d ----
+        pp3Lbase => mpltL%get(1, 2)
+        if (.not. associated(pp3Lbase)) then
+            call OUTKDP("ZINTEST: FAIL mplt cell(1,2) not associated")
+            failCount = failCount + 1
+        else
+            select type (pp3Lbase)
+            type is (zoaPlot3d)
+                call ckZoaplotBase("p3", p3%zoaplot, pp3Lbase%zoaplot)
+                call ckI("p3.numSeries(3d)", p3%numSeries, pp3Lbase%numSeries)
+                if (p3%numSeries == pp3Lbase%numSeries) then
+                    do i = 1, p3%numSeries
+                        call ckPlotdata3d(i, p3%plotdatalist3d(i), pp3Lbase%plotdatalist3d(i))
+                    end do
+                end if
+            class default
+                call OUTKDP("ZINTEST: FAIL mplt cell(1,2) wrong dynamic type")
+                failCount = failCount + 1
+            end select
+        end if
+
+        if (failCount == 0) then
+            call OUTKDP("ZINTEST: PASS")
+            call OUTKDP("ZINTEST: stats psm.numSettings="//trim(int2str(psm%numSettings))// &
+            &           " p1.numSeries="//trim(int2str(p1%numSeries))// &
+            &           " p3.numSeries="//trim(int2str(p3%numSeries)))
+        else
+            call OUTKDP("ZINTEST: "//trim(int2str(failCount))//" FAILURE(S)")
+        end if
+
+    contains
+
+        subroutine ckI(name, a, b)
+            character(len=*), intent(in) :: name
+            integer, intent(in) :: a, b
+            if (a /= b) then
+                call OUTKDP("ZINTEST: FAIL "//trim(name))
+                failCount = failCount + 1
+            end if
+        end subroutine ckI
+
+        subroutine ckL(name, a, b)
+            character(len=*), intent(in) :: name
+            logical, intent(in) :: a, b
+            if (a .neqv. b) then
+                call OUTKDP("ZINTEST: FAIL "//trim(name))
+                failCount = failCount + 1
+            end if
+        end subroutine ckL
+
+        subroutine ckS(name, a, b)
+            character(len=*), intent(in) :: name, a, b
+            if (trim(a) /= trim(b)) then
+                call OUTKDP("ZINTEST: FAIL "//trim(name))
+                failCount = failCount + 1
+            end if
+        end subroutine ckS
+
+        subroutine ckR(name, a, b)
+            character(len=*), intent(in) :: name
+            real, intent(in) :: a, b
+            if (a /= b) then
+                call OUTKDP("ZINTEST: FAIL "//trim(name))
+                failCount = failCount + 1
+            end if
+        end subroutine ckR
+
+        subroutine ckR8(name, a, b)
+            character(len=*), intent(in) :: name
+            real(pl_test_flt), intent(in) :: a, b
+            if (a /= b) then
+                call OUTKDP("ZINTEST: FAIL "//trim(name))
+                failCount = failCount + 1
+            end if
+        end subroutine ckR8
+
+        subroutine ckRArr(name, a, b)
+            character(len=*), intent(in) :: name
+            real, intent(in) :: a(:), b(:)
+            if (size(a) /= size(b)) then
+                call OUTKDP("ZINTEST: FAIL "//trim(name)//" size")
+                failCount = failCount + 1
+            else if (any(a /= b)) then
+                call OUTKDP("ZINTEST: FAIL "//trim(name)//" values")
+                failCount = failCount + 1
+            end if
+        end subroutine ckRArr
+
+        subroutine ckR8Arr(name, a, b)
+            character(len=*), intent(in) :: name
+            real(pl_test_flt), intent(in) :: a(:), b(:)
+            if (size(a) /= size(b)) then
+                call OUTKDP("ZINTEST: FAIL "//trim(name)//" size")
+                failCount = failCount + 1
+            else if (any(a /= b)) then
+                call OUTKDP("ZINTEST: FAIL "//trim(name)//" values")
+                failCount = failCount + 1
+            end if
+        end subroutine ckR8Arr
+
+        subroutine ckZoaplotBase(tag, a, b)
+            character(len=*), intent(in) :: tag
+            class(zoaplot), intent(in) :: a, b
+            integer :: k
+
+            if (allocated(a%x) .neqv. allocated(b%x)) then
+                call OUTKDP("ZINTEST: FAIL "//trim(tag)//".x allocated mismatch")
+                failCount = failCount + 1
+            else if (allocated(a%x)) then
+                call ckRArr(trim(tag)//".x", a%x, b%x)
+            end if
+
+            if (allocated(a%y) .neqv. allocated(b%y)) then
+                call OUTKDP("ZINTEST: FAIL "//trim(tag)//".y allocated mismatch")
+                failCount = failCount + 1
+            else if (allocated(a%y)) then
+                call ckRArr(trim(tag)//".y", a%y, b%y)
+            end if
+
+            call ckS(trim(tag)//".title", a%title, b%title)
+            call ckS(trim(tag)//".xlabel", a%xlabel, b%xlabel)
+            call ckS(trim(tag)//".ylabel", a%ylabel, b%ylabel)
+            call ckS(trim(tag)//".labelFontColor", a%labelFontColor, b%labelFontColor)
+            call ckS(trim(tag)//".xPlotCode", a%xPlotCode, b%xPlotCode)
+            call ckS(trim(tag)//".yPlotCode", a%yPlotCode, b%yPlotCode)
+            call ckL(trim(tag)//".useGridLines", a%useGridLines, b%useGridLines)
+            call ckI(trim(tag)//".dataColorCode", a%dataColorCode, b%dataColorCode)
+            call ckI(trim(tag)//".numSeries", a%numSeries, b%numSeries)
+
+            if (a%numSeries == b%numSeries) then
+                do k = 1, a%numSeries
+                    if (allocated(a%plotdatalist(k)%x) .neqv. allocated(b%plotdatalist(k)%x)) then
+                        call OUTKDP("ZINTEST: FAIL "//trim(tag)//".plotdatalist.x allocated mismatch")
+                        failCount = failCount + 1
+                    else if (allocated(a%plotdatalist(k)%x)) then
+                        call ckRArr(trim(tag)//".plotdatalist.x", a%plotdatalist(k)%x, b%plotdatalist(k)%x)
+                        call ckRArr(trim(tag)//".plotdatalist.y", a%plotdatalist(k)%y, b%plotdatalist(k)%y)
+                    end if
+                    call ckI(trim(tag)//".plotdatalist.dataColorCode", &
+                    &        a%plotdatalist(k)%dataColorCode, b%plotdatalist(k)%dataColorCode)
+                    call ckI(trim(tag)//".plotdatalist.lineStyleCode", &
+                    &        a%plotdatalist(k)%lineStyleCode, b%plotdatalist(k)%lineStyleCode)
+                end do
+            end if
+
+            call ckL(trim(tag)//".useLegend", a%useLegend, b%useLegend)
+            call ckI(trim(tag)//".numLegendNames", a%numLegendNames, b%numLegendNames)
+            if (a%numLegendNames == b%numLegendNames) then
+                do k = 1, a%numLegendNames
+                    call ckS(trim(tag)//".legendNames", a%legendNames(k), b%legendNames(k))
+                end do
+            end if
+
+            call ckL(trim(tag)//".addTextToPlot", a%addTextToPlot, b%addTextToPlot)
+            call ckI(trim(tag)//".numTextLabels", a%numTextLabels, b%numTextLabels)
+            if (a%numTextLabels == b%numTextLabels) then
+                do k = 1, a%numTextLabels
+                    call ckS(trim(tag)//".textLabels", a%textLabels(k), b%textLabels(k))
+                    call ckI(trim(tag)//".textLabelPositions", a%textLabelPositions(k), b%textLabelPositions(k))
+                end do
+            end if
+
+            call ckL(trim(tag)//".manualYScale", a%manualYScale, b%manualYScale)
+            call ckR8(trim(tag)//".yScale", a%yScale, b%yScale)
+            call ckL(trim(tag)//".manualXScale", a%manualXScale, b%manualXScale)
+            call ckR8(trim(tag)//".xScale", a%xScale, b%xScale)
+
+            call ckS(trim(tag)//".xPlotCodes", a%xPlotCodes, b%xPlotCodes)
+            call ckS(trim(tag)//".yPlotcodes", a%yPlotcodes, b%yPlotcodes)
+
+            call ckL(trim(tag)//".drawScale", a%drawScale, b%drawScale)
+            call ckR(trim(tag)//".scaleRatio", a%scaleRatio, b%scaleRatio)
+            call ckI(trim(tag)//".scalePos", a%scalePos, b%scalePos)
+        end subroutine ckZoaplotBase
+
+        subroutine ckPlotdata3d(idx, a, b)
+            use zoa_plot, only: plotdata3d
+            integer, intent(in) :: idx
+            type(plotdata3d), intent(in) :: a, b
+            character(len=40) :: tag
+
+            write(tag, '(A,I0,A)') "p3.plotdatalist3d(", idx, ")"
+            call ckR8Arr(trim(tag)//".x", a%x, b%x)
+            call ckR8Arr(trim(tag)//".y", a%y, b%y)
+            call ckR8Arr(trim(tag)//".z", a%z, b%z)
+            call ckI(trim(tag)//".dataColorCode", a%dataColorCode, b%dataColorCode)
+            call ckI(trim(tag)//".lineStyleCode", a%lineStyleCode, b%lineStyleCode)
+            call ckI(trim(tag)//".xpts", a%xpts, b%xpts)
+            call ckI(trim(tag)//".ypts", a%ypts, b%ypts)
+        end subroutine ckPlotdata3d
+
+        subroutine ckPlotSetting(idx, a, b)
+            integer, intent(in) :: idx
+            type(plot_setting), intent(in) :: a, b
+            character(len=40) :: tag
+            integer :: k
+
+            write(tag, '(A,I0,A)') "psm.ps(", idx, ")"
+            call ckI(trim(tag)//".ID", a%ID, b%ID)
+            call ckI(trim(tag)//".uitype", a%uitype, b%uitype)
+            call ckR(trim(tag)//".min", a%min, b%min)
+            call ckR(trim(tag)//".max", a%max, b%max)
+            call ckR(trim(tag)//".default", a%default, b%default)
+            call ckS(trim(tag)//".prefix", a%prefix, b%prefix)
+            call ckS(trim(tag)//".label", a%label, b%label)
+            call ckS(trim(tag)//".defaultStr", a%defaultStr, b%defaultStr)
+            call ckS(trim(tag)//".cmd", a%cmd, b%cmd)
+            call ckS(trim(tag)//".fullCmd", a%fullCmd, b%fullCmd)
+            call ckI(trim(tag)//".ownerID", a%ownerID, b%ownerID)
+
+            if (allocated(a%set) .neqv. allocated(b%set)) then
+                call OUTKDP("ZINTEST: FAIL "//trim(tag)//".set allocated mismatch")
+                failCount = failCount + 1
+            else if (allocated(a%set)) then
+                call ckI(trim(tag)//".set.size", size(a%set), size(b%set))
+                if (size(a%set) == size(b%set)) then
+                    do k = 1, size(a%set)
+                        call ckI(trim(tag)//".set.ID", a%set(k)%ID, b%set(k)%ID)
+                        call ckS(trim(tag)//".set.text", a%set(k)%text, b%set(k)%text)
+                    end do
+                end if
+            end if
+
+            if (allocated(a%coupledIDs) .neqv. allocated(b%coupledIDs)) then
+                call OUTKDP("ZINTEST: FAIL "//trim(tag)//".coupledIDs allocated mismatch")
+                failCount = failCount + 1
+            else if (allocated(a%coupledIDs)) then
+                call ckI(trim(tag)//".coupledIDs.size", size(a%coupledIDs), size(b%coupledIDs))
+                if (size(a%coupledIDs) == size(b%coupledIDs)) then
+                    do k = 1, size(a%coupledIDs)
+                        call ckI(trim(tag)//".coupledIDs", a%coupledIDs(k), b%coupledIDs(k))
+                    end do
+                end if
+            end if
+        end subroutine ckPlotSetting
+
+    end procedure execZINTEST
+
 end submodule mod_codev_plots

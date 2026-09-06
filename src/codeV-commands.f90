@@ -357,7 +357,12 @@ module codeV_commands
    module subroutine loadLensFromZoaPath(fullPath)
     character(len=*), intent(in) :: fullPath
    end subroutine loadLensFromZoaPath
+   ! Diagnostic self-check for the .zin binary serializers (mod_zin_io /
+   ! zoaplot / multiplot / zoaplot_setting_manager). Test hook, not
+   ! user-facing -- no !## docblock.
+   module subroutine execZINTEST(iptStr)
     character(len=*) :: iptStr
+   end subroutine execZINTEST
     end interface
 
 
@@ -461,6 +466,8 @@ module codeV_commands
         zoaCmds(719)%execFunc => setSurfaceCodeVStyle
         zoaCmds(720)%cmd = "ZRN"
         zoaCmds(720)%execFunc => execZRN
+        zoaCmds(721)%cmd = "ZINTEST"
+        zoaCmds(721)%execFunc => execZINTEST
         zoaCmds(508)%cmd = 'WL'
         zoaCmds(508)%execFunc => setWavelength    
         zoaCmds(509)%cmd = 'STOP'

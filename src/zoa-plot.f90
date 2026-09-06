@@ -8,7 +8,8 @@ module zoa_plot
   use zoa_ui
   use collections
   use GLOBALS
-   use iso_fortran_env, only: real64
+  use mod_zin_io
+   use iso_fortran_env, only: real64, int32, real32
   use, intrinsic :: iso_c_binding, only: c_ptr, c_char, c_int, c_float, c_null_char
 
   !use handlers
@@ -20,7 +21,7 @@ module zoa_plot
   use cairo, only: cairo_get_target, cairo_image_surface_get_height, &
      & cairo_image_surface_get_width
 
-   use iso_fortran_env, only: real64
+   use iso_fortran_env, only: real64, int32, real32
  implicit none
 
  ! Private type to keep track of plot data
@@ -70,29 +71,29 @@ type :: zoaplot
   integer :: numSeries = 0
   type(plotdata2d), dimension(9) :: plotdatalist
 
-  logical :: useLegend
+  logical :: useLegend = .false.
   ! AFAIK have to make character array a a fixed size
   character(len=30)  :: legendNames(16)
-  integer :: numLegendNames
+  integer :: numLegendNames = 0
 
   ! In case user wants to add text to plot
-  logical :: addTextToPlot
-  integer :: numTextLabels
+  logical :: addTextToPlot = .false.
+  integer :: numTextLabels = 0
   character(len=1024), dimension(16) :: textLabels
   integer, dimension(16) :: textLabelPositions
 
   ! Scale related
-  logical :: manualYScale
-  real(kind=pl_test_flt) ::  yScale 
-  logical :: manualXScale
-  real(kind=pl_test_flt) ::  xScale     
+  logical :: manualYScale = .false.
+  real(kind=pl_test_flt) ::  yScale = 0
+  logical :: manualXScale = .false.
+  real(kind=pl_test_flt) ::  xScale = 0
 
   ! PLPLOT codes for plotting
   character(len=15) :: xPlotCodes, yPlotcodes
 
-  logical :: drawScale
-  real :: scaleRatio
-  integer :: scalePos
+  logical :: drawScale = .false.
+  real :: scaleRatio = 0.0
+  integer :: scalePos = 0
 
 
 
@@ -117,6 +118,8 @@ contains
   procedure :: setYScale, setXScale
   procedure :: removeGrids, removeLabels
   procedure :: addScaleBar, drawScaleBar
+  procedure, public, pass(self) :: savePlotToBinary => zp_save_binary
+  procedure, public, pass(self) :: loadPlotFromBinary => zp_load_binary
 
 end type
 
@@ -125,6 +128,8 @@ type(plotdata3d), dimension(9) :: plotdatalist3d
 contains
 procedure, public ::  init3d => plot3d_initialize
 procedure, public :: drawPlot => drawPlot_plot3d
+procedure, public, pass(self) :: savePlotToBinary => zp3d_save_binary
+procedure, public, pass(self) :: loadPlotFromBinary => zp3d_load_binary
 
 end type
 
@@ -134,6 +139,8 @@ type(plotdata3d), dimension(9) :: plotdatalist3d
 contains
 procedure, public ::  init3d => plotImg_initialize
 procedure, public :: drawPlot => drawPlot_plotImg
+procedure, public, pass(self) :: savePlotToBinary => zpimg_save_binary
+procedure, public, pass(self) :: loadPlotFromBinary => zpimg_load_binary
 
 end type
 
@@ -193,6 +200,9 @@ type :: multiplot
       procedure, public :: draw => mp_draw
       procedure, public :: get => mp_get
       procedure, public :: set => mp_set
+      procedure, public :: clear => mp_clear
+      procedure, public, pass(self) :: saveToBinary => mp_save_binary
+      procedure, public, pass(self) :: loadFromBinary => mp_load_binary
 
       procedure :: addBottomPanel
 
@@ -262,7 +272,7 @@ contains
 
   function mp_get(self,i,j) result(plotter)
       ! Arguments
-   use iso_fortran_env, only: real64
+   use iso_fortran_env, only: real64, int32, real32
       implicit none
 
       class(multiplot), intent(in) :: self
@@ -1419,7 +1429,7 @@ end subroutine
 
   subroutine a2mnmx(f, nx, ny, fmin, fmax, xdim)
     use plplot
-   use iso_fortran_env, only: real64
+   use iso_fortran_env, only: real64, int32, real32
     implicit none
 
     integer   i, j, nx, ny, xdim
@@ -1621,7 +1631,7 @@ end subroutine cmap1_init
   end subroutine
 
   subroutine drawBottomRightLegend(self, strLegend)
-   use iso_fortran_env, only: real64
+   use iso_fortran_env, only: real64, int32, real32
     implicit none
     class(zoaplot) :: self
     character(len=*) :: strLegend
@@ -1685,7 +1695,7 @@ end subroutine cmap1_init
  end subroutine
 
   subroutine drawBottomRightLegend_new(self)
-   use iso_fortran_env, only: real64
+   use iso_fortran_env, only: real64, int32, real32
     implicit none
     class(zoaplot) :: self
 
@@ -1752,7 +1762,7 @@ end subroutine cmap1_init
 
   subroutine drawLegend(self)
 
-   use iso_fortran_env, only: real64
+   use iso_fortran_env, only: real64, int32, real32
     implicit none
     
     ! This is from example 4 - use as template to get legend working
@@ -1867,7 +1877,7 @@ end subroutine cmap1_init
 
   subroutine drawLegend_bottomPanel(self)
 
-   use iso_fortran_env, only: real64
+   use iso_fortran_env, only: real64, int32, real32
     implicit none
     
     ! This is from example 4 - use as template to get legend working
@@ -1930,7 +1940,7 @@ end subroutine cmap1_init
 
   subroutine addXYPlot(self, X, Y)
 
-   use iso_fortran_env, only: real64
+   use iso_fortran_env, only: real64, int32, real32
       implicit none
       class(zoaplot), intent(inout) :: self
       real, dimension(:), intent(in) :: X,Y
@@ -1941,7 +1951,7 @@ end subroutine cmap1_init
 end subroutine
 
 subroutine checkBackingSurface(self)
-   use iso_fortran_env, only: real64
+   use iso_fortran_env, only: real64, int32, real32
   implicit none
   class(zoaplot) :: self
   type(c_ptr) :: isurface
@@ -1966,7 +1976,7 @@ subroutine checkBackingSurface(self)
 end subroutine
 
 subroutine updatePlotData(self, x, y, seriesNum)
-   use iso_fortran_env, only: real64
+   use iso_fortran_env, only: real64, int32, real32
   implicit none
   class(zoaplot) :: self
   real :: x(:), y(:)
@@ -2296,5 +2306,399 @@ end subroutine
       call pllsty(1)
       call plline(x, y)
   end subroutine barChartBox
+
+  ! ---------------------------------------------------------------------
+  ! .zin binary serialization (WP1 -- pure data, no GTK).
+  ! ---------------------------------------------------------------------
+
+  subroutine zp_save_binary(self, unit)
+    class(zoaplot), intent(in) :: self
+    integer, intent(in) :: unit
+    integer(int32) :: n32
+    integer :: i
+
+    if (allocated(self%x)) then
+      n32 = int(size(self%x), int32)
+    else
+      n32 = 0_int32
+    end if
+    write(unit) n32
+    if (n32 > 0) write(unit) self%x
+
+    if (allocated(self%y)) then
+      n32 = int(size(self%y), int32)
+    else
+      n32 = 0_int32
+    end if
+    write(unit) n32
+    if (n32 > 0) write(unit) self%y
+
+    call zin_write_str(unit, self%title)
+    call zin_write_str(unit, self%xlabel)
+    call zin_write_str(unit, self%ylabel)
+    call zin_write_str(unit, self%labelFontColor)
+    call zin_write_str(unit, self%xPlotCode)
+    call zin_write_str(unit, self%yPlotCode)
+    call zin_write_logical(unit, self%useGridLines)
+    write(unit) int(self%dataColorCode, int32)
+    write(unit) int(self%numSeries, int32)
+
+    do i = 1, self%numSeries
+      if (allocated(self%plotdatalist(i)%x)) then
+        n32 = int(size(self%plotdatalist(i)%x), int32)
+      else
+        n32 = 0_int32
+      end if
+      write(unit) n32
+      if (n32 > 0) then
+        write(unit) self%plotdatalist(i)%x
+        write(unit) self%plotdatalist(i)%y
+      end if
+      write(unit) int(self%plotdatalist(i)%dataColorCode, int32)
+      write(unit) int(self%plotdatalist(i)%lineStyleCode, int32)
+    end do
+
+    call zin_write_logical(unit, self%useLegend)
+    write(unit) int(self%numLegendNames, int32)
+    do i = 1, self%numLegendNames
+      call zin_write_str(unit, self%legendNames(i))
+    end do
+
+    call zin_write_logical(unit, self%addTextToPlot)
+    write(unit) int(self%numTextLabels, int32)
+    do i = 1, self%numTextLabels
+      call zin_write_str(unit, self%textLabels(i))
+      write(unit) int(self%textLabelPositions(i), int32)
+    end do
+
+    call zin_write_logical(unit, self%manualYScale)
+    write(unit) self%yScale
+    call zin_write_logical(unit, self%manualXScale)
+    write(unit) self%xScale
+
+    call zin_write_str(unit, self%xPlotCodes)
+    call zin_write_str(unit, self%yPlotcodes)
+
+    call zin_write_logical(unit, self%drawScale)
+    write(unit) self%scaleRatio
+    write(unit) int(self%scalePos, int32)
+  end subroutine zp_save_binary
+
+  subroutine zp_load_binary(self, unit, ios)
+    class(zoaplot), intent(inout) :: self
+    integer, intent(in) :: unit
+    integer, intent(out) :: ios
+    integer(int32) :: n32
+    integer :: i, n
+
+    ios = 0
+
+    if (allocated(self%x)) deallocate(self%x)
+    if (allocated(self%y)) deallocate(self%y)
+
+    read(unit, iostat=ios) n32; if (ios /= 0) return
+    n = int(n32)
+    if (n > 0) then
+      allocate(self%x(n))
+      read(unit, iostat=ios) self%x; if (ios /= 0) return
+    end if
+
+    read(unit, iostat=ios) n32; if (ios /= 0) return
+    n = int(n32)
+    if (n > 0) then
+      allocate(self%y(n))
+      read(unit, iostat=ios) self%y; if (ios /= 0) return
+    end if
+
+    call zin_read_str(unit, self%title, ios); if (ios /= 0) return
+    call zin_read_str(unit, self%xlabel, ios); if (ios /= 0) return
+    call zin_read_str(unit, self%ylabel, ios); if (ios /= 0) return
+    call zin_read_str(unit, self%labelFontColor, ios); if (ios /= 0) return
+    call zin_read_str(unit, self%xPlotCode, ios); if (ios /= 0) return
+    call zin_read_str(unit, self%yPlotCode, ios); if (ios /= 0) return
+    call zin_read_logical(unit, self%useGridLines, ios); if (ios /= 0) return
+    read(unit, iostat=ios) n32; if (ios /= 0) return
+    self%dataColorCode = int(n32)
+    read(unit, iostat=ios) n32; if (ios /= 0) return
+    self%numSeries = int(n32)
+
+    do i = 1, self%numSeries
+      read(unit, iostat=ios) n32; if (ios /= 0) return
+      n = int(n32)
+      if (allocated(self%plotdatalist(i)%x)) deallocate(self%plotdatalist(i)%x)
+      if (allocated(self%plotdatalist(i)%y)) deallocate(self%plotdatalist(i)%y)
+      if (n > 0) then
+        allocate(self%plotdatalist(i)%x(n))
+        allocate(self%plotdatalist(i)%y(n))
+        read(unit, iostat=ios) self%plotdatalist(i)%x; if (ios /= 0) return
+        read(unit, iostat=ios) self%plotdatalist(i)%y; if (ios /= 0) return
+      end if
+      read(unit, iostat=ios) n32; if (ios /= 0) return
+      self%plotdatalist(i)%dataColorCode = int(n32)
+      read(unit, iostat=ios) n32; if (ios /= 0) return
+      self%plotdatalist(i)%lineStyleCode = int(n32)
+    end do
+
+    call zin_read_logical(unit, self%useLegend, ios); if (ios /= 0) return
+    read(unit, iostat=ios) n32; if (ios /= 0) return
+    self%numLegendNames = int(n32)
+    do i = 1, self%numLegendNames
+      call zin_read_str(unit, self%legendNames(i), ios); if (ios /= 0) return
+    end do
+
+    call zin_read_logical(unit, self%addTextToPlot, ios); if (ios /= 0) return
+    read(unit, iostat=ios) n32; if (ios /= 0) return
+    self%numTextLabels = int(n32)
+    do i = 1, self%numTextLabels
+      call zin_read_str(unit, self%textLabels(i), ios); if (ios /= 0) return
+      read(unit, iostat=ios) n32; if (ios /= 0) return
+      self%textLabelPositions(i) = int(n32)
+    end do
+
+    call zin_read_logical(unit, self%manualYScale, ios); if (ios /= 0) return
+    read(unit, iostat=ios) self%yScale; if (ios /= 0) return
+    call zin_read_logical(unit, self%manualXScale, ios); if (ios /= 0) return
+    read(unit, iostat=ios) self%xScale; if (ios /= 0) return
+
+    call zin_read_str(unit, self%xPlotCodes, ios); if (ios /= 0) return
+    call zin_read_str(unit, self%yPlotcodes, ios); if (ios /= 0) return
+
+    call zin_read_logical(unit, self%drawScale, ios); if (ios /= 0) return
+    read(unit, iostat=ios) self%scaleRatio; if (ios /= 0) return
+    read(unit, iostat=ios) n32; if (ios /= 0) return
+    self%scalePos = int(n32)
+  end subroutine zp_load_binary
+
+  ! plotdata3d%x/y are axis-coordinate arrays (length xpts or ypts) while %z
+  ! is the xpts*ypts sample grid -- they are NOT the same length in general,
+  ! so each gets its own int32 count rather than sharing one.
+  subroutine zp3d_save_binary(self, unit)
+    class(zoaPlot3d), intent(in) :: self
+    integer, intent(in) :: unit
+
+    call self%zoaplot%savePlotToBinary(unit)
+    call zin_write_plotdata3d_list(unit, self%plotdatalist3d, self%numSeries)
+  end subroutine zp3d_save_binary
+
+  subroutine zp3d_load_binary(self, unit, ios)
+    class(zoaPlot3d), intent(inout) :: self
+    integer, intent(in) :: unit
+    integer, intent(out) :: ios
+
+    call self%zoaplot%loadPlotFromBinary(unit, ios)
+    if (ios /= 0) return
+    call zin_read_plotdata3d_list(unit, self%plotdatalist3d, self%numSeries, ios)
+  end subroutine zp3d_load_binary
+
+  subroutine zpimg_save_binary(self, unit)
+    class(zoaPlotImg), intent(in) :: self
+    integer, intent(in) :: unit
+
+    call self%zoaplot%savePlotToBinary(unit)
+    call zin_write_plotdata3d_list(unit, self%plotdatalist3d, self%numSeries)
+  end subroutine zpimg_save_binary
+
+  subroutine zpimg_load_binary(self, unit, ios)
+    class(zoaPlotImg), intent(inout) :: self
+    integer, intent(in) :: unit
+    integer, intent(out) :: ios
+
+    call self%zoaplot%loadPlotFromBinary(unit, ios)
+    if (ios /= 0) return
+    call zin_read_plotdata3d_list(unit, self%plotdatalist3d, self%numSeries, ios)
+  end subroutine zpimg_load_binary
+
+  ! Shared helper for zoaPlot3d/zoaPlotImg: writes plotdatalist3d(1:numSeries).
+  ! Per entry: int32 nxy (size of x, == size of y), x, y; int32 nz (size of
+  ! z), z; dataColorCode, lineStyleCode, xpts, ypts.
+  subroutine zin_write_plotdata3d_list(unit, list, numSeries)
+    integer, intent(in) :: unit
+    type(plotdata3d), intent(in) :: list(:)
+    integer, intent(in) :: numSeries
+    integer(int32) :: nxy, nz
+    integer :: i
+
+    do i = 1, numSeries
+      if (allocated(list(i)%x)) then
+        nxy = int(size(list(i)%x), int32)
+      else
+        nxy = 0_int32
+      end if
+      write(unit) nxy
+      if (nxy > 0) then
+        write(unit) list(i)%x
+        write(unit) list(i)%y
+      end if
+
+      if (allocated(list(i)%z)) then
+        nz = int(size(list(i)%z), int32)
+      else
+        nz = 0_int32
+      end if
+      write(unit) nz
+      if (nz > 0) write(unit) list(i)%z
+
+      write(unit) int(list(i)%dataColorCode, int32)
+      write(unit) int(list(i)%lineStyleCode, int32)
+      write(unit) int(list(i)%xpts, int32)
+      write(unit) int(list(i)%ypts, int32)
+    end do
+  end subroutine zin_write_plotdata3d_list
+
+  subroutine zin_read_plotdata3d_list(unit, list, numSeries, ios)
+    integer, intent(in) :: unit
+    type(plotdata3d), intent(inout) :: list(:)
+    integer, intent(in) :: numSeries
+    integer, intent(out) :: ios
+    integer(int32) :: n32
+    integer :: i, n
+
+    ios = 0
+    do i = 1, numSeries
+      if (allocated(list(i)%x)) deallocate(list(i)%x)
+      if (allocated(list(i)%y)) deallocate(list(i)%y)
+      if (allocated(list(i)%z)) deallocate(list(i)%z)
+
+      read(unit, iostat=ios) n32; if (ios /= 0) return
+      n = int(n32)
+      if (n > 0) then
+        allocate(list(i)%x(n))
+        allocate(list(i)%y(n))
+        read(unit, iostat=ios) list(i)%x; if (ios /= 0) return
+        read(unit, iostat=ios) list(i)%y; if (ios /= 0) return
+      end if
+
+      read(unit, iostat=ios) n32; if (ios /= 0) return
+      n = int(n32)
+      if (n > 0) then
+        allocate(list(i)%z(n))
+        read(unit, iostat=ios) list(i)%z; if (ios /= 0) return
+      end if
+
+      read(unit, iostat=ios) n32; if (ios /= 0) return
+      list(i)%dataColorCode = int(n32)
+      read(unit, iostat=ios) n32; if (ios /= 0) return
+      list(i)%lineStyleCode = int(n32)
+      read(unit, iostat=ios) n32; if (ios /= 0) return
+      list(i)%xpts = int(n32)
+      read(unit, iostat=ios) n32; if (ios /= 0) return
+      list(i)%ypts = int(n32)
+    end do
+  end subroutine zin_read_plotdata3d_list
+
+  subroutine mp_clear(self)
+    class(multiplot), intent(inout) :: self
+
+    call self%m_plots%clear()
+    self%m_rows = 0
+    self%m_cols = 0
+  end subroutine mp_clear
+
+  subroutine mp_save_binary(self, unit)
+    class(multiplot), intent(in) :: self
+    integer, intent(in) :: unit
+    integer :: i, j
+    class(zoaplot), pointer :: plotter
+
+    write(unit) int(self%m_rows, int32)
+    write(unit) int(self%m_cols, int32)
+    call zin_write_str(unit, self%m_title)
+    call zin_write_logical(unit, self%m_hasTitle)
+    write(unit) int(self%width, int32)
+    write(unit) int(self%height, int32)
+    call zin_write_logical(unit, self%hasBottomPanel)
+    call zin_write_str(unit, self%bottomPanelBigLabel)
+    call zin_write_str(unit, self%bottomPanelLittleLabel)
+    call zin_write_str(unit, self%bottomPanelLegend)
+
+    do j = 1, self%m_cols
+      do i = 1, self%m_rows
+        plotter => self%get(i, j)
+        if (.not. associated(plotter)) then
+          write(unit) 0_int32
+          cycle
+        end if
+        select type (plotter)
+        type is (zoaPlot3d)
+          write(unit) ZIN_PLOT_3D
+        type is (zoaPlotImg)
+          write(unit) ZIN_PLOT_IMG
+        type is (barchart)
+          write(unit) ZIN_PLOT_BAR
+        class default
+          write(unit) ZIN_PLOT_BASIC
+        end select
+        call plotter%savePlotToBinary(unit)
+      end do
+    end do
+  end subroutine mp_save_binary
+
+  subroutine mp_load_binary(self, unit, ios)
+    class(multiplot), intent(inout) :: self
+    integer, intent(in) :: unit
+    integer, intent(out) :: ios
+    integer(int32) :: n32, tag
+    integer :: i, j, rows, cols
+    class(zoaplot), allocatable :: p
+    character(len=100) :: tTitle
+    logical :: tHasTitle, tHasBottomPanel
+    integer :: tWidth, tHeight
+    character(len=80)  :: tBigLabel
+    character(len=160) :: tLittleLabel
+    character(len=80)  :: tLegend
+
+    ios = 0
+
+    ! Read all header scalars into locals FIRST -- self%initialize (mp_init)
+    ! resets hasBottomPanel (and rebuilds m_plots), so it must run before
+    ! any of these are written into self.
+    read(unit, iostat=ios) n32; if (ios /= 0) return
+    rows = int(n32)
+    read(unit, iostat=ios) n32; if (ios /= 0) return
+    cols = int(n32)
+    call zin_read_str(unit, tTitle, ios); if (ios /= 0) return
+    call zin_read_logical(unit, tHasTitle, ios); if (ios /= 0) return
+    read(unit, iostat=ios) n32; if (ios /= 0) return
+    tWidth = int(n32)
+    read(unit, iostat=ios) n32; if (ios /= 0) return
+    tHeight = int(n32)
+    call zin_read_logical(unit, tHasBottomPanel, ios); if (ios /= 0) return
+    call zin_read_str(unit, tBigLabel, ios); if (ios /= 0) return
+    call zin_read_str(unit, tLittleLabel, ios); if (ios /= 0) return
+    call zin_read_str(unit, tLegend, ios); if (ios /= 0) return
+
+    call self%initialize(c_null_ptr, rows, cols)
+
+    self%m_title = tTitle
+    self%m_hasTitle = tHasTitle
+    self%width = tWidth
+    self%height = tHeight
+    self%hasBottomPanel = tHasBottomPanel
+    self%bottomPanelBigLabel = tBigLabel
+    self%bottomPanelLittleLabel = tLittleLabel
+    self%bottomPanelLegend = tLegend
+
+    do j = 1, cols
+      do i = 1, rows
+        read(unit, iostat=ios) tag; if (ios /= 0) return
+        if (tag == 0_int32) cycle
+        if (allocated(p)) deallocate(p)
+        select case (int(tag))
+        case (ZIN_PLOT_3D)
+          allocate(zoaPlot3d :: p)
+        case (ZIN_PLOT_IMG)
+          allocate(zoaPlotImg :: p)
+        case (ZIN_PLOT_BAR)
+          allocate(barchart :: p)
+        case default
+          allocate(zoaplot :: p)
+        end select
+        call p%loadPlotFromBinary(unit, ios)
+        if (ios /= 0) return
+        call self%set(i, j, p)
+        deallocate(p)
+      end do
+    end do
+  end subroutine mp_load_binary
 
 end module zoa_plot

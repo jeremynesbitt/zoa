@@ -1,0 +1,10 @@
+All constraints removed
+
+
+
+
+
+
+Field Weights Command WTF     100     100     100 Not supported
+ZINTEST: PASS
+ZINTEST: stats psm.numSettings=10 p1.numSeries=2 p3.numSeries=1
