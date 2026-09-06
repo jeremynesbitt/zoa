@@ -691,8 +691,15 @@ contains
                 strOut = 'GLAK '//trim(strInput)
             end if
         else
-            ! Plain glass name: if starts with N, also try N-xxx variant
-            if (strInput(1:1) == 'N' .and. &
+            ! Plain glass name.  A legacy Schott name (SK16, F2, BK7, ...) that has
+            ! a modern N- equivalent resolves to that SCH2000 entry -- the
+            ! long-standing behavior (SK16 -> N-SK16_SCH2000) -- rather than to
+            ! the first catalog in search order, which is the obsolete SCHOTT table.
+            if (gdb%isNameInCatalog('SCH2000', catalogIdx) .and. &
+                gdb%isGlassInCatalog('N-'//trim(strInput), catalogIdx)) then
+                strOut = 'SCH2000 N-'//trim(strInput)
+            ! Otherwise, if it starts with N, also try the N-xxx spelling
+            else if (strInput(1:1) == 'N' .and. &
                 .not. gdb%isGlassInAnyCatalog(trim(strInput)) .and. &
                 gdb%isGlassInAnyCatalog('N-'//trim(strInput(2:)))) then
                 altGlassName = 'N-'//trim(strInput(2:))
@@ -776,9 +783,7 @@ contains
     !## desc:     Restore the most recently auto-saved lens.
     !##
     module procedure execRESAUTO
-        use zoa_file_handler, only: getTempDirectory, getCurrentLensFileName, process_zoa_file
-        use undo_manager, only: undo_reset_baseline
-        use mod_lens_data_manager, only: ldm
+        use zoa_file_handler, only: getTempDirectory, getCurrentLensFileName
         implicit none
         character(len=1024) :: fullPath
 
@@ -787,13 +792,9 @@ contains
         ! test output (full path still goes to the terminal via print).
         print *, "Restoring from: "//trim(fullPath)
         call zoa_emit("Restoring from: "//trim(getCurrentLensFileName()), "black")
-        ! The lens is being replaced: same shared newlens.zoa reset + finalize
-        ! as RES (processZoaFileInput), so session restore clears the same
-        ! state the same way as every other lens-load path.
-        call resetToNewLensTemplate()
-        call process_zoa_file(trim(fullPath))
-        call ldm%load_surfaces_from_alens()
-        call undo_reset_baseline()
+        ! Same shared lens-load sequence as RES, so session restore clears the
+        ! same state the same way as every other lens-load path.
+        call loadLensFromZoaPath(trim(fullPath))
     end procedure execRESAUTO
 
 end submodule mod_codev_lensops

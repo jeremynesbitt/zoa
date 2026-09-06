@@ -352,6 +352,12 @@ module codeV_commands
    recursive module subroutine adjustVieSettings(iptStr)
     character(len=*) :: iptStr
    end subroutine adjustVieSettings
+   ! Shared lens-restore sequence (reset if needed + load + typed-store rebuild +
+   ! undo baseline) used by RES, RESAUTO and File > Open.
+   module subroutine loadLensFromZoaPath(fullPath)
+    character(len=*), intent(in) :: fullPath
+   end subroutine loadLensFromZoaPath
+    character(len=*) :: iptStr
     end interface
 
 

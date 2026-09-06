@@ -2,8 +2,10 @@ All constraints removed
 
 
 
-Field Weights Command WTF     100     100     100 Not supported
 
+
+
+Field Weights Command WTF     100     100     100 Not supported
 All constraints removed
 
 
@@ -19,7 +21,7 @@ CYCLE NUMBER 0
    ERROR FUNCTION = 0.00024
           RDY          THI     RMD          GLA          CCY     THC     GLC
 OBJ:    INFINITY    INFINITY                              100     100     100
-STO:    INFINITY    6.00000               BK7_SCHOTT     100     100     100
+STO:    INFINITY    6.00000               N-BK7_SCH2000  100     100     100
 002:    -10.000    19.34984                              100     100     100
 IMG:    INFINITY    0.00000                              100     100     100
 ___
@@ -40,7 +42,7 @@ CYCLE NUMBER 1
    ERROR FUNCTION = 0.00006
           RDY          THI     RMD          GLA          CCY     THC     GLC
 OBJ:    INFINITY    INFINITY                              100     100     100
-STO:    INFINITY    6.00000               BK7_SCHOTT     100     100     100
+STO:    INFINITY    6.00000               N-BK7_SCH2000  100     100     100
 002:    -10.000    19.34984                              100     100     100
 IMG:    INFINITY    0.00000                              100     100     100
 ___
@@ -61,7 +63,7 @@ CYCLE NUMBER 2
    ERROR FUNCTION = 0.00001
           RDY          THI     RMD          GLA          CCY     THC     GLC
 OBJ:    INFINITY    INFINITY                              100     100     100
-STO:    INFINITY    6.00000               BK7_SCHOTT     100     100     100
+STO:    INFINITY    6.00000               N-BK7_SCH2000  100     100     100
 002:    -10.000    19.34984                              100     100     100
 IMG:    INFINITY    0.00000                              100     100     100
 ___
@@ -76,7 +78,7 @@ CYCLE NUMBER 3
    ERROR FUNCTION = 0.00001
           RDY          THI     RMD          GLA          CCY     THC     GLC
 OBJ:    INFINITY    INFINITY                              100     100     100
-STO:    INFINITY    6.00000               BK7_SCHOTT     100     100     100
+STO:    INFINITY    6.00000               N-BK7_SCH2000  100     100     100
 002:    -10.000    19.34984                              100     100     100
 IMG:    INFINITY    0.00000                              100     100     100
 ___

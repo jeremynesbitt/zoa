@@ -2,8 +2,10 @@ All constraints removed
 
 
 
-Field Weights Command WTF     100     100     100 Not supported
 
+
+
+Field Weights Command WTF     100     100     100 Not supported
 
 ENTRANCE PUPIL
 DIA       9.9477
@@ -50,8 +52,10 @@ All constraints removed
 
 
 
-Field Weights Command WTF     100     100     100 Not supported
 
+
+
+Field Weights Command WTF     100     100     100 Not supported
 Number of tokens is 2
 File name to save is SOLVETEST.zoa
 All constraints removed
@@ -74,8 +78,10 @@ All constraints removed
 
 
 
-Field Weights Command WTF     100     100     100 Not supported
 
+
+
+Field Weights Command WTF     100     100     100 Not supported
 Number of tokens is 2
 File name to save is SOLVETEST.zoa
 All constraints removed
@@ -88,18 +94,20 @@ SOLVES
 
 SURF TYPE   PARAMETER       VALUE           SLV DATUM
   2  APY       CV         0.45326E-01      0.0000
-  6  PY        TH         -575.28          0.0000
+  6  PY        TH         -575.27          0.0000
 Deleting Solve
 SOLVES
 
 SURF TYPE   PARAMETER       VALUE           SLV DATUM
-  6  PY        TH         -575.28          0.0000
+  6  PY        TH         -575.27          0.0000
 All constraints removed
 
 
 
-Field Weights Command WTF     100     100     100 Not supported
 
+
+
+Field Weights Command WTF     100     100     100 Not supported
 Number of tokens is 2
 File name to save is SOLVETEST.zoa
 All constraints removed

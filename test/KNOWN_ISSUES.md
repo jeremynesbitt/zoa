@@ -473,3 +473,50 @@ Follow-ups:
   (F6) fallback is not yet counted.
 - MULTICOM is now vestigial (PRO3 always initializes all 20 instruction slots
   after the NUMCOM=20 fix); it can be removed in a later parser cleanup.
+
+---
+
+## Golden refs regenerated after the first clean rebuild in months (2026-09-06)
+
+**What happened.** Editing `src/meson.build` (for the `.zin` feature) made ninja
+regenerate every compile command, i.e. the first full rebuild of `buildHB` in a
+long time. 24 of 37 tests then failed. The *same* 24 fail, with identical output,
+from a clean build of HEAD, a clean build of the Jul-25 commit that generated
+those refs (`b2a29de`), and a clean release build. So the refs had been produced
+by builds whose object files did not correspond to a clean compile of their own
+sources. **The mechanism was not identified** (the old build directories were
+cleaned during the investigation and cannot be inspected). Ruled out, each
+verified directly: Application Support fixtures/catalogs, the pkg installer, the
+compiler (same gfortran 14.2.0), build flags, environment variables, and the
+`.zin` work itself.
+
+**Concrete behavior differences vs the old refs (all root-caused):**
+1. `osdtriplet.zoa` said `YAN 0 0 0`, yet the old binary loaded a 0/7/10 field
+   (stale-state artifact). *Fixed:* the fixture now defines `YAN 0 7 10` (repo
+   `Library/Projects/osdtriplet.zoa` and `~/Library/Application Support/Zoa/Projects/`).
+2. Bare legacy Schott names: the old binary resolved `SK16`/`F2` (S-line) to the
+   SCH2000 `N-` entries but `BK7` (via `GLA`) to `BK7_SCHOTT`. *Policy chosen:*
+   any bare legacy name with an `N-` equivalent resolves to the SCH2000 entry
+   (`getSetGlassText`). `asph_modifiers` label changed `BK7` -> `N-BK7_SCH2000`
+   (index identical, 1.51680).
+3. `RES` on a file that starts with `LEN NEW` ran the `newlens.zoa` template twice.
+   *Fixed:* `loadLensFromZoaPath` pre-resets only when the file does not start
+   with `LEN NEW` (shared by `RES` and `RESAUTO`).
+4. The old binary loaded only wavelength 1 of the file's five (`WL` line); the
+   current build loads all five. Polychromatic OPD/spot/wavefront numbers,
+   per-wavelength `CAPFN` trace messages, and the plot PNGs changed accordingly.
+   Current behavior is faithful to the file.
+5. `Field Weights Command WTF ... Not supported` now prints two blank lines later
+   (cosmetic).
+
+**Regenerated:** the 24 text refs plus `asph_modifiers` and `zin_roundtrip`, and
+the 7 PNG baselines (`vie_settings`, `vie_orient`, `plots_geom`, `plots_wave`,
+`plots_seidel`, `apertures_bes`, `plot_modifiers`).
+
+**Still open / to pick up during testing:**
+- Why incremental builds behaved differently from clean builds. If tests ever
+  pass incrementally but fail from a fresh build dir, that is this issue again;
+  build from a fresh directory before trusting `meson test`, and consider a
+  clean-build check before tagging a release.
+- Tests still depend on `~/Library/Application Support/Zoa` (Projects/,
+  Macros/newlens.zoa, LIBGLA); hermetic in-repo fixtures would remove that.

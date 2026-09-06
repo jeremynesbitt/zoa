@@ -2,8 +2,10 @@ All constraints removed
 
 
 
-Field Weights Command WTF     100     100     100 Not supported
 
+
+
+Field Weights Command WTF     100     100     100 Not supported
 
 
 
@@ -20,16 +22,18 @@ SURF      X              Y              Z             XANG           YANG
   1    0.00000        3.48196       0.409732        0.00000       -5.18635
   2    0.00000        3.20413        0.00000        0.00000       -9.23909
   3    0.00000        2.73856      -0.100049        0.00000       -3.75060
-  4    0.00000        2.61758       0.245453        0.00000       0.612994
-  5    0.00000        2.66921       0.709281E-01    0.00000      -0.788230
+  4    0.00000        2.61758       0.245453        0.00000       0.612995
+  5    0.00000        2.66921       0.709281E-01    0.00000      -0.788229
   6    0.00000        2.62354      -0.109864        0.00000       -4.27618
   7    0.00000      -0.264548        0.00000        0.00000       -4.27618
 All constraints removed
 
 
 
-Field Weights Command WTF     100     100     100 Not supported
 
+
+
+Field Weights Command WTF     100     100     100 Not supported
 GLOBAL RAY TRACING HAS BEEN SHUT OFF IN PREPARATION
 FOR RAY PLOTTING
 
@@ -58,8 +62,10 @@ All constraints removed
 
 
 
-Field Weights Command WTF     100     100     100 Not supported
 
+
+
+Field Weights Command WTF     100     100     100 Not supported
 
 
 
@@ -79,14 +85,16 @@ SURF      X              Y              Z             XANG           YANG
   3    0.00000        2.73856      -0.100049        0.00000       -3.52274
   4    0.00000        2.62486       0.246833        0.00000        1.00620
   5   0.100000        2.70963       0.731938E-01  -0.437180E-01  -0.563628
-  6   0.974727E-01    2.67704      -0.114550      -0.182512       -3.97155
-  7  -0.255807E-01  -0.493447E-02    0.00000      -0.182512       -3.97155
+  6   0.974727E-01    2.67704      -0.114550      -0.182512       -3.97154
+  7  -0.255807E-01  -0.493445E-02    0.00000      -0.182512       -3.97154
 All constraints removed
 
 
 
-Field Weights Command WTF     100     100     100 Not supported
 
+
+
+Field Weights Command WTF     100     100     100 Not supported
 GLOBAL RAY TRACING HAS BEEN SHUT OFF IN PREPARATION
 FOR RAY PLOTTING
 
@@ -116,8 +124,10 @@ All constraints removed
 
 
 
-Field Weights Command WTF     100     100     100 Not supported
 
+
+
+Field Weights Command WTF     100     100     100 Not supported
 SURFACE PIVAXIS DATA
 
 SURF     PIVAXIS DEFINITION

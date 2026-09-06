@@ -290,17 +290,50 @@ contains
                 if (present(printOnly)) then
                     call process_zoa_file(trim(fileName), printOnly=.TRUE.)
                 else
-                    ! Same shared reset as the macro: branch above.
-                    call resetToNewLensTemplate()
-                    call process_zoa_file(trim(fileName))
-                    call ldm%load_surfaces_from_alens()
-                    ! A user load replaces the lens: reset the undo history with
-                    ! this loaded lens as the new baseline.
-                    call undo_reset_baseline()
+                    call loadLensFromZoaPath(trim(fileName))
                 end if
             end if
         end if
     end procedure processZoaFileInput
+
+    ! Shared lens-restore sequence for every user-facing .zoa load (RES, RESAUTO,
+    ! File > Open).  fullPath is the already-resolved path to the file.
+    module procedure loadLensFromZoaPath
+        use zoa_file_handler, only: process_zoa_file
+        use mod_lens_data_manager, only: ldm
+        use undo_manager, only: undo_reset_baseline
+        implicit none
+        ! Saved .zoa files begin with LEN NEW, which performs the newlens.zoa
+        ! reset itself.  Only pre-reset a file that does not, so the template
+        ! (DCON ALL / DEL VIG / DEL APE SA ...) runs exactly once per load.
+        if (.not. zoaFileStartsWithLenNew(fullPath)) call resetToNewLensTemplate()
+        call process_zoa_file(trim(fullPath))
+        call ldm%load_surfaces_from_alens()
+        ! A user load replaces the lens: reset the undo history with it as baseline.
+        call undo_reset_baseline()
+    end procedure loadLensFromZoaPath
+
+    ! True when the first non-blank, non-comment line of a .zoa file is LEN NEW.
+    logical function zoaFileStartsWithLenNew(path) result(res)
+        use strings, only: uppercase
+        implicit none
+        character(len=*), intent(in) :: path
+        character(len=256) :: line
+        integer :: fID, ios
+        res = .false.
+        open(newunit=fID, file=trim(path), status='old', action='read', iostat=ios)
+        if (ios /= 0) return
+        do
+            read(fID, '(A)', iostat=ios) line
+            if (ios /= 0) exit
+            line = adjustl(line)
+            if (len_trim(line) == 0) cycle
+            if (line(1:1) == '!') cycle
+            res = (uppercase(line(1:7)) == 'LEN NEW')
+            exit
+        end do
+        close(fID)
+    end function zoaFileStartsWithLenNew
 
     !## cmd:      PRT
     !## syntax:   PRT file
