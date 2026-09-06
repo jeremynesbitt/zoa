@@ -196,7 +196,7 @@ module zoa_file_handler
 
         end function
 
-        function open_file_to_sav_lens(fName, dirName, overwriteFlag) result(fID)
+        function open_file_to_sav_lens(fName, dirName, overwriteFlag, fullPathOut) result(fID)
           use gtk_hl_dialog
           use iso_c_binding, only:  c_null_char
           use GLOBALS, only: HEADLESS_MODE
@@ -204,12 +204,14 @@ module zoa_file_handler
           character(len=*) :: fName
           character(len=*), optional :: dirName
           logical, optional :: overwriteFlag
+          character(len=*), intent(out), optional :: fullPathOut
 
           integer :: fID, stat, resp
           character(len=80), dimension(2) :: msg
           character(len=2048) :: fullPath
 
           fID = 1111
+          if (present(fullPathOut)) fullPathOut = ''
           ! This is to be stored in the savresDir
           if (present(dirName)) then
             if (dirName(len_trim(dirName):len_trim(dirName)) == getFileSep()) then
@@ -221,6 +223,8 @@ module zoa_file_handler
             fullPath = trim(getSaveDirectory())//fName
           end if
 
+          if (present(fullPathOut)) fullPathOut = trim(fullPath)
+
           ! PRINT (not LogTermFOR): absolute paths must stay out of captured
           ! test output; unit 6 is suppressed in the test runner.
           print *, 'Full Path is '//trim(fullPath)
@@ -231,7 +235,7 @@ module zoa_file_handler
               open(unit=fID, iostat=stat, file=trim(fullPath), &
               & status='old', action="write")
               if (stat /= 0) fID=0 ! Error
-              return 
+              return
             end if
               
             ! Ask user if they want to overwrite.  In headless mode default to
@@ -264,6 +268,41 @@ module zoa_file_handler
           if (stat /= 0) fID=0 ! Error
           
 
+        end function
+
+        ! Companion .zin path for a .zoa lens path (or vice versa): same
+        ! directory/basename, extension swapped. If zoaPath has no extension
+        ! (no '.' after the last path separator), the extension is appended.
+        function zinPathFromZoa(zoaPath) result(zinPath)
+          implicit none
+          character(len=*), intent(in) :: zoaPath
+          character(len=2048) :: zinPath
+          integer :: dotLoc, sepLoc
+
+          dotLoc = index(zoaPath, '.', BACK=.TRUE.)
+          sepLoc = index(zoaPath, getFileSep(), BACK=.TRUE.)
+
+          if (dotLoc > sepLoc) then
+            zinPath = zoaPath(1:dotLoc)//'zin'
+          else
+            zinPath = trim(zoaPath)//'.zin'
+          end if
+        end function
+
+        function zoaPathFromZin(zinPath) result(zoaPath)
+          implicit none
+          character(len=*), intent(in) :: zinPath
+          character(len=2048) :: zoaPath
+          integer :: dotLoc, sepLoc
+
+          dotLoc = index(zinPath, '.', BACK=.TRUE.)
+          sepLoc = index(zinPath, getFileSep(), BACK=.TRUE.)
+
+          if (dotLoc > sepLoc) then
+            zoaPath = zinPath(1:dotLoc)//'zoa'
+          else
+            zoaPath = trim(zinPath)//'.zoa'
+          end if
         end function
 
         subroutine delete_file(fName)

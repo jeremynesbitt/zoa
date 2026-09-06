@@ -49,6 +49,7 @@ contains
     !## syntax:   RES file
     !## category: File I/O
     !## desc:     Restore (load) a lens from a .zoa file (RES macro:file loads from a macro).
+    !## desc:     A companion .zin plot file with the same name is loaded too, if present.
     !##
     module procedure execRestore
         implicit none
@@ -296,40 +297,78 @@ contains
     !## cmd:      SAV
     !## syntax:   SAV file
     !## category: File I/O
-    !## desc:     Save the current lens to a .zoa file.
+    !## desc:     Save the current lens to a .zoa file. A companion .zin
+    !## desc:     plot file (same name, .zin extension) is written too when
+    !## desc:     any plots are open.
     !##
     module procedure execSAV
-        use global_widgets, only: sysConfig, curr_lens_data
-        use zoa_file_handler, only: open_file_to_sav_lens, getTempDirectory, getCurrentLensFileName
-        use optim_types, only: optim
-        use zoom_manager, only: zoom_genSaveOutputText
-        use mod_lens_data_manager
+        use zoa_file_handler, only: getTempDirectory, getCurrentLensFileName
         implicit none
 
         character(len=256) :: fName
-        character(len=1024) :: dirName
         character(len=80) :: tokens(40)
-        integer :: numTokens, locDot, fID
+        integer :: numTokens, locDot
 
-        dirName = ''
         call parse(trim(iptStr), ' ', tokens, numTokens)
 
         call LogTermFOR("Number of tokens is "//int2str(numTokens))
         select case(numTokens)
         case (1)
             fName = getCurrentLensFileName()
-            ! Emit only the filename; absolute paths must stay out of captured
-            ! test output (full path still goes to the terminal via print).
-            print *, "File name to save is "//trim(getTempDirectory())//trim(fName)
-            call zoa_emit("File name to save is "//trim(fName), "black")
-            fID = open_file_to_sav_lens(fName, dirName=getTempDirectory(), overwriteFlag=.TRUE.)
+            call saveLensSystem(trim(fName), dirName=getTempDirectory(), overwrite=.TRUE.)
         case (2)
             fName = trim(tokens(2))
             locDot = index(fName, '.')
             if (locDot == 0) fName = trim(fName)//'.zoa'
-            call zoa_emit("File name to save is "//trim(fName), "black")
-            fID = open_file_to_sav_lens(fName)
+            call saveLensSystem(trim(fName))
         end select
+    end procedure execSAV
+
+    !## cmd:      (internal) saveLensSystem
+    !## desc:     Reusable lens-save entry point used by SAV and (future)
+    !## desc:     timed autosave. Writes the .zoa lens text and notifies the
+    !## desc:     GUI to save the companion .zin plot file alongside it.
+    module procedure saveLensSystem
+        use global_widgets, only: sysConfig
+        use zoa_file_handler, only: open_file_to_sav_lens, zinPathFromZoa
+        use optim_types, only: optim
+        use zoom_manager, only: zoom_genSaveOutputText
+        use zoa_ui_callbacks, only: notify_save_zin
+        use mod_lens_data_manager
+        implicit none
+
+        integer :: fID
+        logical :: doForceOverwrite, beQuiet
+        character(len=2048) :: fullPath
+
+        doForceOverwrite = .FALSE.
+        if (present(overwrite)) doForceOverwrite = overwrite
+        beQuiet = .FALSE.
+        if (present(quiet)) beQuiet = quiet
+
+        if (.not. beQuiet) then
+            if (present(dirName)) then
+                ! PRINT (not LogTermFOR): absolute paths must stay out of
+                ! captured test output; unit 6 is suppressed in the test runner.
+                print *, "File name to save is "//trim(dirName)//trim(fName)
+            end if
+            call zoa_emit("File name to save is "//trim(fName), "black")
+        end if
+
+        if (present(dirName)) then
+            if (doForceOverwrite) then
+                fID = open_file_to_sav_lens(fName, dirName=dirName, overwriteFlag=.TRUE., &
+                                             fullPathOut=fullPath)
+            else
+                fID = open_file_to_sav_lens(fName, dirName=dirName, fullPathOut=fullPath)
+            end if
+        else
+            if (doForceOverwrite) then
+                fID = open_file_to_sav_lens(fName, overwriteFlag=.TRUE., fullPathOut=fullPath)
+            else
+                fID = open_file_to_sav_lens(fName, fullPathOut=fullPath)
+            end if
+        end if
 
         if (fID /= 0) then
             call sysConfig%genSaveOutputText(fID)
@@ -337,10 +376,11 @@ contains
             call optim%genSaveOutputText(fID)
             call zoom_genSaveOutputText(fID)
             close(fID)
+            call notify_save_zin(zinPathFromZoa(trim(fullPath)))
         else
             call LogTermFOR("Error!  fiD is "//int2str(fID))
         end if
-    end procedure execSAV
+    end procedure saveLensSystem
 
     !## cmd:      SAVESESS
     !## syntax:   SAVESESS file
@@ -781,6 +821,7 @@ contains
     !## syntax:   RESAUTO
     !## category: File I/O
     !## desc:     Restore the most recently auto-saved lens.
+    !## desc:     A companion .zin plot file with the same name is loaded too, if present.
     !##
     module procedure execRESAUTO
         use zoa_file_handler, only: getTempDirectory, getCurrentLensFileName

@@ -299,10 +299,12 @@ contains
     ! Shared lens-restore sequence for every user-facing .zoa load (RES, RESAUTO,
     ! File > Open).  fullPath is the already-resolved path to the file.
     module procedure loadLensFromZoaPath
-        use zoa_file_handler, only: process_zoa_file
+        use zoa_file_handler, only: process_zoa_file, doesFileExist, zinPathFromZoa
         use mod_lens_data_manager, only: ldm
         use undo_manager, only: undo_reset_baseline
+        use zoa_ui_callbacks, only: notify_load_zin
         implicit none
+        character(len=2048) :: zinPath
         ! Saved .zoa files begin with LEN NEW, which performs the newlens.zoa
         ! reset itself.  Only pre-reset a file that does not, so the template
         ! (DCON ALL / DEL VIG / DEL APE SA ...) runs exactly once per load.
@@ -311,6 +313,10 @@ contains
         call ldm%load_surfaces_from_alens()
         ! A user load replaces the lens: reset the undo history with it as baseline.
         call undo_reset_baseline()
+        ! If a companion .zin plot file exists alongside the lens, tell the GUI
+        ! to load it (no-op in headless mode / when no hook is registered).
+        zinPath = zinPathFromZoa(trim(fullPath))
+        if (doesFileExist(trim(zinPath))) call notify_load_zin(trim(zinPath))
     end procedure loadLensFromZoaPath
 
     ! True when the first non-blank, non-comment line of a .zoa file is LEN NEW.

@@ -133,6 +133,15 @@ module codeV_commands
    module subroutine execSAV(iptStr)
    character(len=*) :: iptStr
    end subroutine execSAV
+   ! Reusable lens-save entry point (also the future timed-autosave hook):
+   ! writes the .zoa lens text and notifies the GUI to save the companion
+   ! .zin plot file. Keep this free of any command-line parsing.
+   module subroutine saveLensSystem(fName, dirName, overwrite, quiet)
+    character(len=*), intent(in) :: fName
+    character(len=*), intent(in), optional :: dirName
+    logical, intent(in), optional :: overwrite
+    logical, intent(in), optional :: quiet
+   end subroutine saveLensSystem
    module subroutine execSaveSessionToFile(iptStr)
    character(len=*) :: iptStr
    end subroutine execSaveSessionToFile
@@ -1706,6 +1715,17 @@ module codeV_commands
 
     !   end subroutine
 
-    
+
 
 end module
+
+! External shim so GUI code can invoke the shared lens-restore sequence
+! without `use codeV_commands`, which would create a module dependency cycle
+! (codev_commands -> lens_editor -> handlers -> zoamenubar). Same convention
+! as KDP_EXEC/PROCESKDP: implicit interface, no use needed by the caller.
+subroutine LOAD_ZOA_FILE(fullPath)
+  use codeV_commands, only: loadLensFromZoaPath
+  implicit none
+  character(len=*), intent(in) :: fullPath
+  call loadLensFromZoaPath(fullPath)
+end subroutine

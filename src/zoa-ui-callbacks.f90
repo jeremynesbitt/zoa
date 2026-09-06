@@ -31,6 +31,8 @@ module zoa_ui_callbacks
   public :: notify_write_tab_state, zoa_set_write_tab_state_callback
   public :: query_existing_plot, zoa_set_query_existing_plot_callback
   public :: query_save_file, zoa_set_query_save_file_callback
+  public :: notify_save_zin, zoa_set_save_zin_callback
+  public :: notify_load_zin, zoa_set_load_zin_callback
 
   ! Abstract interfaces so procedure pointers have explicit types
   abstract interface
@@ -74,6 +76,14 @@ module zoa_ui_callbacks
       character(len=*), intent(in)    :: default_dir, filter, title
       logical, intent(out) :: selected
     end subroutine
+
+    subroutine save_zin_iface(path)
+      character(len=*), intent(in) :: path
+    end subroutine
+
+    subroutine load_zin_iface(path)
+      character(len=*), intent(in) :: path
+    end subroutine
   end interface
 
   procedure(replot_iface),              pointer :: replot_cb             => null()
@@ -86,6 +96,8 @@ module zoa_ui_callbacks
   procedure(write_tab_state_iface),     pointer :: write_tab_state_cb    => null()
   procedure(query_existing_plot_iface), pointer :: query_existing_plot_cb => null()
   procedure(query_save_file_iface),     pointer :: query_save_file_cb    => null()
+  procedure(save_zin_iface),            pointer :: save_zin_cb           => null()
+  procedure(load_zin_iface),            pointer :: load_zin_cb           => null()
   ! Flush any deferred replot NOW. Used by GUI callbacks (e.g. the lens editor)
   ! that modify the lens but do not go through name_enter, which is the only other
   ! place a deferred replot is drained. Safe to call only at a top-level GUI
@@ -153,6 +165,16 @@ contains
   subroutine zoa_set_query_save_file_callback(cb)
     procedure(query_save_file_iface) :: cb
     query_save_file_cb => cb
+  end subroutine
+
+  subroutine zoa_set_save_zin_callback(cb)
+    procedure(save_zin_iface) :: cb
+    save_zin_cb => cb
+  end subroutine
+
+  subroutine zoa_set_load_zin_callback(cb)
+    procedure(load_zin_iface) :: cb
+    load_zin_cb => cb
   end subroutine
 
   ! --- notify/query routines called by core code ---
@@ -229,6 +251,18 @@ contains
     else
       selected = .FALSE.
     end if
+  end subroutine
+
+  ! notify_save_zin: no-op in headless mode (or if GUI has no plots-file hook registered)
+  subroutine notify_save_zin(path)
+    character(len=*), intent(in) :: path
+    if (associated(save_zin_cb)) call save_zin_cb(path)
+  end subroutine
+
+  ! notify_load_zin: no-op in headless mode (or if GUI has no plots-file hook registered)
+  subroutine notify_load_zin(path)
+    character(len=*), intent(in) :: path
+    if (associated(load_zin_cb)) call load_zin_cb(path)
   end subroutine
 
 end module zoa_ui_callbacks

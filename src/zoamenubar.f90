@@ -474,10 +474,6 @@ contains
     character(len=500) :: cdir
     logical :: fileSelected
 
-    integer :: n, ios
-    character(len=256) :: line
-
-
     fileSelected = ui_open_file(win, fileName, cdir, trim(getProjectDir()), "*.zoa", "Zoa File")
 
     if (fileSelected) then
@@ -485,30 +481,17 @@ contains
      PRINT *, "fileName is ", trim(fileName)
      PRINT *, "fileDirectory is is ", trim(cdir)
 
+     ! Shared lens-restore sequence (reset-if-needed + load + typed-store
+     ! rebuild + undo baseline) -- same path RES/RESAUTO use. Called via the
+     ! external LOAD_ZOA_FILE shim (implicit interface, no `use codeV_commands`)
+     ! to avoid a module dependency cycle: codev_commands -> lens_editor ->
+     ! handlers -> zoamenubar.
+     call LOAD_ZOA_FILE(trim(fileName))
 
-     ! Open File and Proces (TODO move this somewhere else)
-     open(unit=99, file=trim(fileName), iostat=ios)
-     if ( ios /= 0 ) stop "Error opening file "
- 
-     n = 0
- 
-     do
-         read(99, '(A)', iostat=ios) line
-         if (ios /= 0) then 
-           call LogtermFOR("End of file?")
-           return
-         else
-           PRINT *, "LINE IS "
-           call LogTermFOR("LINE IS "//trim(line))
-           call PROCESKDP(trim(line))
-         end if
-         n = n + 1
-     end do      
-     
     end if
 
 
-  end subroutine  
+  end subroutine
 
 
   subroutine save_zoa(act, avalue, win) bind(c)
