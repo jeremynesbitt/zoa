@@ -442,12 +442,6 @@ All constraints removed
 
 
 AUT: no operand defined; minimizing spot size (SPO)
-iSpotCalcMethod is 1
-Plot Cmd is  FOB    0.0000000000000000          0.0000000000000000; SPOT RECT;RECT 20;SPD 1
-iSpotCalcMethod is 1
-Plot Cmd is  FOB    0.0000000000000000          0.0000000000000000; SPOT RECT;RECT 20;SPD 1
-iSpotCalcMethod is 1
-Plot Cmd is  FOB    0.0000000000000000          0.0000000000000000; SPOT RECT;RECT 20;SPD 1
                                                           l
 CYCLE NUMBER 0
    ERROR FUNCTION = 25.64891
@@ -463,12 +457,6 @@ ASPHERES
 Name  Role        Typ  Target              Value               diff
 SAS   Constraint  =    0.0000000000000000 -11.5034123169995866 -11.5034123169995866
 SPO   Operand          0.0000000000000000   6.7173122498024203   6.7173122498024203
-iSpotCalcMethod is 1
-Plot Cmd is  FOB    0.0000000000000000          0.0000000000000000; SPOT RECT;RECT 20;SPD 1
-iSpotCalcMethod is 1
-Plot Cmd is  FOB    0.0000000000000000          0.0000000000000000; SPOT RECT;RECT 20;SPD 1
-iSpotCalcMethod is 1
-Plot Cmd is  FOB    0.0000000000000000          0.0000000000000000; SPOT RECT;RECT 20;SPD 1
                                                           l
 CYCLE NUMBER 1
    ERROR FUNCTION = 25.76572
@@ -484,12 +472,6 @@ ASPHERES
 Name  Role        Typ  Target              Value               diff
 SAS   Constraint  =    0.0000000000000000  -5.7517061584997915  -5.7517061584997915
 SPO   Operand          0.0000000000000000   4.7335241453855348   4.7335241453855348
-iSpotCalcMethod is 1
-Plot Cmd is  FOB    0.0000000000000000          0.0000000000000000; SPOT RECT;RECT 20;SPD 1
-iSpotCalcMethod is 1
-Plot Cmd is  FOB    0.0000000000000000          0.0000000000000000; SPOT RECT;RECT 20;SPD 1
-iSpotCalcMethod is 1
-Plot Cmd is  FOB    0.0000000000000000          0.0000000000000000; SPOT RECT;RECT 20;SPD 1
                                                           l
 CYCLE NUMBER 2
    ERROR FUNCTION = 26.99042
@@ -505,12 +487,6 @@ ASPHERES
 Name  Role        Typ  Target              Value               diff
 SAS   Constraint  =    0.0000000000000000  -2.8758530792498944  -2.8758530792498944
 SPO   Operand          0.0000000000000000   4.9920006760242748   4.9920006760242748
-iSpotCalcMethod is 1
-Plot Cmd is  FOB    0.0000000000000000          0.0000000000000000; SPOT RECT;RECT 20;SPD 1
-iSpotCalcMethod is 1
-Plot Cmd is  FOB    0.0000000000000000          0.0000000000000000; SPOT RECT;RECT 20;SPD 1
-iSpotCalcMethod is 1
-Plot Cmd is  FOB    0.0000000000000000          0.0000000000000000; SPOT RECT;RECT 20;SPD 1
                                                           l
 CYCLE NUMBER 3
    ERROR FUNCTION = 21.66743
@@ -526,12 +502,6 @@ ASPHERES
 Name  Role        Typ  Target              Value               diff
 SAS   Constraint  =    0.0000000000000000  -1.4379265396249463  -1.4379265396249463
 SPO   Operand          0.0000000000000000   6.4421995168698976   6.4421995168698976
-iSpotCalcMethod is 1
-Plot Cmd is  FOB    0.0000000000000000          0.0000000000000000; SPOT RECT;RECT 20;SPD 1
-iSpotCalcMethod is 1
-Plot Cmd is  FOB    0.0000000000000000          0.0000000000000000; SPOT RECT;RECT 20;SPD 1
-iSpotCalcMethod is 1
-Plot Cmd is  FOB    0.0000000000000000          0.0000000000000000; SPOT RECT;RECT 20;SPD 1
                                                           l
 CYCLE NUMBER 4
    ERROR FUNCTION = 9.79666
@@ -547,14 +517,6 @@ ASPHERES
 Name  Role        Typ  Target              Value               diff
 SAS   Constraint  =    0.0000000000000000  -0.7189632698124740  -0.7189632698124740
 SPO   Operand          0.0000000000000000   4.7802665656790975   4.7802665656790975
-iSpotCalcMethod is 1
-Plot Cmd is  FOB    0.0000000000000000          0.0000000000000000; SPOT RECT;RECT 20;SPD 1
-iSpotCalcMethod is 1
-Plot Cmd is  FOB    0.0000000000000000          0.0000000000000000; SPOT RECT;RECT 20;SPD 1
-iSpotCalcMethod is 1
-Plot Cmd is  FOB    0.0000000000000000          0.0000000000000000; SPOT RECT;RECT 20;SPD 1
-iSpotCalcMethod is 1
-Plot Cmd is  FOB    0.0000000000000000          0.0000000000000000; SPOT RECT;RECT 20;SPD 1
                                                           l
 CYCLE NUMBER 5
    ERROR FUNCTION = 9.46700
@@ -570,16 +532,6 @@ ASPHERES
 Name  Role        Typ  Target              Value               diff
 SAS   Constraint  =    0.0000000000000000  -0.6830151063218511  -0.6830151063218511
 SPO   Operand          0.0000000000000000   4.7248326309697894   4.7248326309697894
-iSpotCalcMethod is 1
-Plot Cmd is  FOB    0.0000000000000000          0.0000000000000000; SPOT RECT;RECT 20;SPD 1
-iSpotCalcMethod is 1
-Plot Cmd is  FOB    0.0000000000000000          0.0000000000000000; SPOT RECT;RECT 20;SPD 1
-iSpotCalcMethod is 1
-Plot Cmd is  FOB    0.0000000000000000          0.0000000000000000; SPOT RECT;RECT 20;SPD 1
-iSpotCalcMethod is 1
-Plot Cmd is  FOB    0.0000000000000000          0.0000000000000000; SPOT RECT;RECT 20;SPD 1
-iSpotCalcMethod is 1
-Plot Cmd is  FOB    0.0000000000000000          0.0000000000000000; SPOT RECT;RECT 20;SPD 1
                                                           l
 CYCLE NUMBER 6
    ERROR FUNCTION = 9.43630
@@ -595,18 +547,6 @@ ASPHERES
 Name  Role        Typ  Target              Value               diff
 SAS   Constraint  =    0.0000000000000000  -0.6796000307902418  -0.6796000307902418
 SPO   Operand          0.0000000000000000   4.7196259417824784   4.7196259417824784
-iSpotCalcMethod is 1
-Plot Cmd is  FOB    0.0000000000000000          0.0000000000000000; SPOT RECT;RECT 20;SPD 1
-iSpotCalcMethod is 1
-Plot Cmd is  FOB    0.0000000000000000          0.0000000000000000; SPOT RECT;RECT 20;SPD 1
-iSpotCalcMethod is 1
-Plot Cmd is  FOB    0.0000000000000000          0.0000000000000000; SPOT RECT;RECT 20;SPD 1
-iSpotCalcMethod is 1
-Plot Cmd is  FOB    0.0000000000000000          0.0000000000000000; SPOT RECT;RECT 20;SPD 1
-iSpotCalcMethod is 1
-Plot Cmd is  FOB    0.0000000000000000          0.0000000000000000; SPOT RECT;RECT 20;SPD 1
-iSpotCalcMethod is 1
-Plot Cmd is  FOB    0.0000000000000000          0.0000000000000000; SPOT RECT;RECT 20;SPD 1
                                                           l
 CYCLE NUMBER 7
    ERROR FUNCTION = 9.43325
@@ -622,18 +562,6 @@ ASPHERES
 Name  Role        Typ  Target              Value               diff
 SAS   Constraint  =    0.0000000000000000  -0.6792602307748467  -0.6792602307748467
 SPO   Operand          0.0000000000000000   4.7191084282354314   4.7191084282354314
-iSpotCalcMethod is 1
-Plot Cmd is  FOB    0.0000000000000000          0.0000000000000000; SPOT RECT;RECT 20;SPD 1
-iSpotCalcMethod is 1
-Plot Cmd is  FOB    0.0000000000000000          0.0000000000000000; SPOT RECT;RECT 20;SPD 1
-iSpotCalcMethod is 1
-Plot Cmd is  FOB    0.0000000000000000          0.0000000000000000; SPOT RECT;RECT 20;SPD 1
-iSpotCalcMethod is 1
-Plot Cmd is  FOB    0.0000000000000000          0.0000000000000000; SPOT RECT;RECT 20;SPD 1
-iSpotCalcMethod is 1
-Plot Cmd is  FOB    0.0000000000000000          0.0000000000000000; SPOT RECT;RECT 20;SPD 1
-iSpotCalcMethod is 1
-Plot Cmd is  FOB    0.0000000000000000          0.0000000000000000; SPOT RECT;RECT 20;SPD 1
                                                           l
 CYCLE NUMBER 8
    ERROR FUNCTION = 9.43020
@@ -649,18 +577,6 @@ ASPHERES
 Name  Role        Typ  Target              Value               diff
 SAS   Constraint  =    0.0000000000000000  -0.6789206006594584  -0.6789206006594584
 SPO   Operand          0.0000000000000000   4.7185912730464494   4.7185912730464494
-iSpotCalcMethod is 1
-Plot Cmd is  FOB    0.0000000000000000          0.0000000000000000; SPOT RECT;RECT 20;SPD 1
-iSpotCalcMethod is 1
-Plot Cmd is  FOB    0.0000000000000000          0.0000000000000000; SPOT RECT;RECT 20;SPD 1
-iSpotCalcMethod is 1
-Plot Cmd is  FOB    0.0000000000000000          0.0000000000000000; SPOT RECT;RECT 20;SPD 1
-iSpotCalcMethod is 1
-Plot Cmd is  FOB    0.0000000000000000          0.0000000000000000; SPOT RECT;RECT 20;SPD 1
-iSpotCalcMethod is 1
-Plot Cmd is  FOB    0.0000000000000000          0.0000000000000000; SPOT RECT;RECT 20;SPD 1
-iSpotCalcMethod is 1
-Plot Cmd is  FOB    0.0000000000000000          0.0000000000000000; SPOT RECT;RECT 20;SPD 1
                                                           l
 CYCLE NUMBER 9
    ERROR FUNCTION = 9.42716
@@ -676,18 +592,6 @@ ASPHERES
 Name  Role        Typ  Target              Value               diff
 SAS   Constraint  =    0.0000000000000000  -0.6785811403591293  -0.6785811403591293
 SPO   Operand          0.0000000000000000   4.7180744758783195   4.7180744758783195
-iSpotCalcMethod is 1
-Plot Cmd is  FOB    0.0000000000000000          0.0000000000000000; SPOT RECT;RECT 20;SPD 1
-iSpotCalcMethod is 1
-Plot Cmd is  FOB    0.0000000000000000          0.0000000000000000; SPOT RECT;RECT 20;SPD 1
-iSpotCalcMethod is 1
-Plot Cmd is  FOB    0.0000000000000000          0.0000000000000000; SPOT RECT;RECT 20;SPD 1
-iSpotCalcMethod is 1
-Plot Cmd is  FOB    0.0000000000000000          0.0000000000000000; SPOT RECT;RECT 20;SPD 1
-iSpotCalcMethod is 1
-Plot Cmd is  FOB    0.0000000000000000          0.0000000000000000; SPOT RECT;RECT 20;SPD 1
-iSpotCalcMethod is 1
-Plot Cmd is  FOB    0.0000000000000000          0.0000000000000000; SPOT RECT;RECT 20;SPD 1
                                                           l
 CYCLE NUMBER 10
    ERROR FUNCTION = 9.42411
@@ -703,18 +607,6 @@ ASPHERES
 Name  Role        Typ  Target              Value               diff
 SAS   Constraint  =    0.0000000000000000  -0.6782418497889501  -0.6782418497889501
 SPO   Operand          0.0000000000000000   4.7175580363943084   4.7175580363943084
-iSpotCalcMethod is 1
-Plot Cmd is  FOB    0.0000000000000000          0.0000000000000000; SPOT RECT;RECT 20;SPD 1
-iSpotCalcMethod is 1
-Plot Cmd is  FOB    0.0000000000000000          0.0000000000000000; SPOT RECT;RECT 20;SPD 1
-iSpotCalcMethod is 1
-Plot Cmd is  FOB    0.0000000000000000          0.0000000000000000; SPOT RECT;RECT 20;SPD 1
-iSpotCalcMethod is 1
-Plot Cmd is  FOB    0.0000000000000000          0.0000000000000000; SPOT RECT;RECT 20;SPD 1
-iSpotCalcMethod is 1
-Plot Cmd is  FOB    0.0000000000000000          0.0000000000000000; SPOT RECT;RECT 20;SPD 1
-iSpotCalcMethod is 1
-Plot Cmd is  FOB    0.0000000000000000          0.0000000000000000; SPOT RECT;RECT 20;SPD 1
                                                           l
 CYCLE NUMBER 11
    ERROR FUNCTION = 9.42107
@@ -730,18 +622,6 @@ ASPHERES
 Name  Role        Typ  Target              Value               diff
 SAS   Constraint  =    0.0000000000000000  -0.6779027288640570  -0.6779027288640570
 SPO   Operand          0.0000000000000000   4.7170419542581410   4.7170419542581410
-iSpotCalcMethod is 1
-Plot Cmd is  FOB    0.0000000000000000          0.0000000000000000; SPOT RECT;RECT 20;SPD 1
-iSpotCalcMethod is 1
-Plot Cmd is  FOB    0.0000000000000000          0.0000000000000000; SPOT RECT;RECT 20;SPD 1
-iSpotCalcMethod is 1
-Plot Cmd is  FOB    0.0000000000000000          0.0000000000000000; SPOT RECT;RECT 20;SPD 1
-iSpotCalcMethod is 1
-Plot Cmd is  FOB    0.0000000000000000          0.0000000000000000; SPOT RECT;RECT 20;SPD 1
-iSpotCalcMethod is 1
-Plot Cmd is  FOB    0.0000000000000000          0.0000000000000000; SPOT RECT;RECT 20;SPD 1
-iSpotCalcMethod is 1
-Plot Cmd is  FOB    0.0000000000000000          0.0000000000000000; SPOT RECT;RECT 20;SPD 1
                                                           l
 CYCLE NUMBER 12
    ERROR FUNCTION = 9.41804
@@ -757,18 +637,6 @@ ASPHERES
 Name  Role        Typ  Target              Value               diff
 SAS   Constraint  =    0.0000000000000000  -0.6775637774996248  -0.6775637774996248
 SPO   Operand          0.0000000000000000   4.7165262291340273   4.7165262291340273
-iSpotCalcMethod is 1
-Plot Cmd is  FOB    0.0000000000000000          0.0000000000000000; SPOT RECT;RECT 20;SPD 1
-iSpotCalcMethod is 1
-Plot Cmd is  FOB    0.0000000000000000          0.0000000000000000; SPOT RECT;RECT 20;SPD 1
-iSpotCalcMethod is 1
-Plot Cmd is  FOB    0.0000000000000000          0.0000000000000000; SPOT RECT;RECT 20;SPD 1
-iSpotCalcMethod is 1
-Plot Cmd is  FOB    0.0000000000000000          0.0000000000000000; SPOT RECT;RECT 20;SPD 1
-iSpotCalcMethod is 1
-Plot Cmd is  FOB    0.0000000000000000          0.0000000000000000; SPOT RECT;RECT 20;SPD 1
-iSpotCalcMethod is 1
-Plot Cmd is  FOB    0.0000000000000000          0.0000000000000000; SPOT RECT;RECT 20;SPD 1
                                                           l
 CYCLE NUMBER 13
    ERROR FUNCTION = 9.41500
@@ -784,20 +652,6 @@ ASPHERES
 Name  Role        Typ  Target              Value               diff
 SAS   Constraint  =    0.0000000000000000  -0.6772249956108743  -0.6772249956108743
 SPO   Operand          0.0000000000000000   4.7160108606866320   4.7160108606866320
-iSpotCalcMethod is 1
-Plot Cmd is  FOB    0.0000000000000000          0.0000000000000000; SPOT RECT;RECT 20;SPD 1
-iSpotCalcMethod is 1
-Plot Cmd is  FOB    0.0000000000000000          0.0000000000000000; SPOT RECT;RECT 20;SPD 1
-iSpotCalcMethod is 1
-Plot Cmd is  FOB    0.0000000000000000          0.0000000000000000; SPOT RECT;RECT 20;SPD 1
-iSpotCalcMethod is 1
-Plot Cmd is  FOB    0.0000000000000000          0.0000000000000000; SPOT RECT;RECT 20;SPD 1
-iSpotCalcMethod is 1
-Plot Cmd is  FOB    0.0000000000000000          0.0000000000000000; SPOT RECT;RECT 20;SPD 1
-iSpotCalcMethod is 1
-Plot Cmd is  FOB    0.0000000000000000          0.0000000000000000; SPOT RECT;RECT 20;SPD 1
-iSpotCalcMethod is 1
-Plot Cmd is  FOB    0.0000000000000000          0.0000000000000000; SPOT RECT;RECT 20;SPD 1
                                                           l
 CYCLE NUMBER 14
    ERROR FUNCTION = 9.41470
@@ -813,20 +667,6 @@ ASPHERES
 Name  Role        Typ  Target              Value               diff
 SAS   Constraint  =    0.0000000000000000  -0.6771911343610953  -0.6771911343610953
 SPO   Operand          0.0000000000000000   4.7159593550385477   4.7159593550385477
-iSpotCalcMethod is 1
-Plot Cmd is  FOB    0.0000000000000000          0.0000000000000000; SPOT RECT;RECT 20;SPD 1
-iSpotCalcMethod is 1
-Plot Cmd is  FOB    0.0000000000000000          0.0000000000000000; SPOT RECT;RECT 20;SPD 1
-iSpotCalcMethod is 1
-Plot Cmd is  FOB    0.0000000000000000          0.0000000000000000; SPOT RECT;RECT 20;SPD 1
-iSpotCalcMethod is 1
-Plot Cmd is  FOB    0.0000000000000000          0.0000000000000000; SPOT RECT;RECT 20;SPD 1
-iSpotCalcMethod is 1
-Plot Cmd is  FOB    0.0000000000000000          0.0000000000000000; SPOT RECT;RECT 20;SPD 1
-iSpotCalcMethod is 1
-Plot Cmd is  FOB    0.0000000000000000          0.0000000000000000; SPOT RECT;RECT 20;SPD 1
-iSpotCalcMethod is 1
-Plot Cmd is  FOB    0.0000000000000000          0.0000000000000000; SPOT RECT;RECT 20;SPD 1
                                                           l
 CYCLE NUMBER 15
    ERROR FUNCTION = 9.41440
@@ -842,20 +682,6 @@ ASPHERES
 Name  Role        Typ  Target              Value               diff
 SAS   Constraint  =    0.0000000000000000  -0.6771572748043737  -0.6771572748043737
 SPO   Operand          0.0000000000000000   4.7159078529519425   4.7159078529519425
-iSpotCalcMethod is 1
-Plot Cmd is  FOB    0.0000000000000000          0.0000000000000000; SPOT RECT;RECT 20;SPD 1
-iSpotCalcMethod is 1
-Plot Cmd is  FOB    0.0000000000000000          0.0000000000000000; SPOT RECT;RECT 20;SPD 1
-iSpotCalcMethod is 1
-Plot Cmd is  FOB    0.0000000000000000          0.0000000000000000; SPOT RECT;RECT 20;SPD 1
-iSpotCalcMethod is 1
-Plot Cmd is  FOB    0.0000000000000000          0.0000000000000000; SPOT RECT;RECT 20;SPD 1
-iSpotCalcMethod is 1
-Plot Cmd is  FOB    0.0000000000000000          0.0000000000000000; SPOT RECT;RECT 20;SPD 1
-iSpotCalcMethod is 1
-Plot Cmd is  FOB    0.0000000000000000          0.0000000000000000; SPOT RECT;RECT 20;SPD 1
-iSpotCalcMethod is 1
-Plot Cmd is  FOB    0.0000000000000000          0.0000000000000000; SPOT RECT;RECT 20;SPD 1
                                                           l
 CYCLE NUMBER 16
    ERROR FUNCTION = 9.41409
@@ -871,20 +697,6 @@ ASPHERES
 Name  Role        Typ  Target              Value               diff
 SAS   Constraint  =    0.0000000000000000  -0.6771234169406338  -0.6771234169406338
 SPO   Operand          0.0000000000000000   4.7158563544264798   4.7158563544264798
-iSpotCalcMethod is 1
-Plot Cmd is  FOB    0.0000000000000000          0.0000000000000000; SPOT RECT;RECT 20;SPD 1
-iSpotCalcMethod is 1
-Plot Cmd is  FOB    0.0000000000000000          0.0000000000000000; SPOT RECT;RECT 20;SPD 1
-iSpotCalcMethod is 1
-Plot Cmd is  FOB    0.0000000000000000          0.0000000000000000; SPOT RECT;RECT 20;SPD 1
-iSpotCalcMethod is 1
-Plot Cmd is  FOB    0.0000000000000000          0.0000000000000000; SPOT RECT;RECT 20;SPD 1
-iSpotCalcMethod is 1
-Plot Cmd is  FOB    0.0000000000000000          0.0000000000000000; SPOT RECT;RECT 20;SPD 1
-iSpotCalcMethod is 1
-Plot Cmd is  FOB    0.0000000000000000          0.0000000000000000; SPOT RECT;RECT 20;SPD 1
-iSpotCalcMethod is 1
-Plot Cmd is  FOB    0.0000000000000000          0.0000000000000000; SPOT RECT;RECT 20;SPD 1
                                                           l
 CYCLE NUMBER 17
    ERROR FUNCTION = 9.41379
@@ -900,22 +712,6 @@ ASPHERES
 Name  Role        Typ  Target              Value               diff
 SAS   Constraint  =    0.0000000000000000  -0.6770895607697880  -0.6770895607697880
 SPO   Operand          0.0000000000000000   4.7158048594618398   4.7158048594618398
-iSpotCalcMethod is 1
-Plot Cmd is  FOB    0.0000000000000000          0.0000000000000000; SPOT RECT;RECT 20;SPD 1
-iSpotCalcMethod is 1
-Plot Cmd is  FOB    0.0000000000000000          0.0000000000000000; SPOT RECT;RECT 20;SPD 1
-iSpotCalcMethod is 1
-Plot Cmd is  FOB    0.0000000000000000          0.0000000000000000; SPOT RECT;RECT 20;SPD 1
-iSpotCalcMethod is 1
-Plot Cmd is  FOB    0.0000000000000000          0.0000000000000000; SPOT RECT;RECT 20;SPD 1
-iSpotCalcMethod is 1
-Plot Cmd is  FOB    0.0000000000000000          0.0000000000000000; SPOT RECT;RECT 20;SPD 1
-iSpotCalcMethod is 1
-Plot Cmd is  FOB    0.0000000000000000          0.0000000000000000; SPOT RECT;RECT 20;SPD 1
-iSpotCalcMethod is 1
-Plot Cmd is  FOB    0.0000000000000000          0.0000000000000000; SPOT RECT;RECT 20;SPD 1
-iSpotCalcMethod is 1
-Plot Cmd is  FOB    0.0000000000000000          0.0000000000000000; SPOT RECT;RECT 20;SPD 1
                                                           l
 CYCLE NUMBER 18
    ERROR FUNCTION = 9.41376
@@ -931,22 +727,6 @@ ASPHERES
 Name  Role        Typ  Target              Value               diff
 SAS   Constraint  =    0.0000000000000000  -0.6770861753219825  -0.6770861753219825
 SPO   Operand          0.0000000000000000   4.7157997102770643   4.7157997102770643
-iSpotCalcMethod is 1
-Plot Cmd is  FOB    0.0000000000000000          0.0000000000000000; SPOT RECT;RECT 20;SPD 1
-iSpotCalcMethod is 1
-Plot Cmd is  FOB    0.0000000000000000          0.0000000000000000; SPOT RECT;RECT 20;SPD 1
-iSpotCalcMethod is 1
-Plot Cmd is  FOB    0.0000000000000000          0.0000000000000000; SPOT RECT;RECT 20;SPD 1
-iSpotCalcMethod is 1
-Plot Cmd is  FOB    0.0000000000000000          0.0000000000000000; SPOT RECT;RECT 20;SPD 1
-iSpotCalcMethod is 1
-Plot Cmd is  FOB    0.0000000000000000          0.0000000000000000; SPOT RECT;RECT 20;SPD 1
-iSpotCalcMethod is 1
-Plot Cmd is  FOB    0.0000000000000000          0.0000000000000000; SPOT RECT;RECT 20;SPD 1
-iSpotCalcMethod is 1
-Plot Cmd is  FOB    0.0000000000000000          0.0000000000000000; SPOT RECT;RECT 20;SPD 1
-iSpotCalcMethod is 1
-Plot Cmd is  FOB    0.0000000000000000          0.0000000000000000; SPOT RECT;RECT 20;SPD 1
                                                           l
 CYCLE NUMBER 19
    ERROR FUNCTION = 9.41373
@@ -962,22 +742,6 @@ ASPHERES
 Name  Role        Typ  Target              Value               diff
 SAS   Constraint  =    0.0000000000000000  -0.6770827898911070  -0.6770827898911070
 SPO   Operand          0.0000000000000000   4.7157945611278969   4.7157945611278969
-iSpotCalcMethod is 1
-Plot Cmd is  FOB    0.0000000000000000          0.0000000000000000; SPOT RECT;RECT 20;SPD 1
-iSpotCalcMethod is 1
-Plot Cmd is  FOB    0.0000000000000000          0.0000000000000000; SPOT RECT;RECT 20;SPD 1
-iSpotCalcMethod is 1
-Plot Cmd is  FOB    0.0000000000000000          0.0000000000000000; SPOT RECT;RECT 20;SPD 1
-iSpotCalcMethod is 1
-Plot Cmd is  FOB    0.0000000000000000          0.0000000000000000; SPOT RECT;RECT 20;SPD 1
-iSpotCalcMethod is 1
-Plot Cmd is  FOB    0.0000000000000000          0.0000000000000000; SPOT RECT;RECT 20;SPD 1
-iSpotCalcMethod is 1
-Plot Cmd is  FOB    0.0000000000000000          0.0000000000000000; SPOT RECT;RECT 20;SPD 1
-iSpotCalcMethod is 1
-Plot Cmd is  FOB    0.0000000000000000          0.0000000000000000; SPOT RECT;RECT 20;SPD 1
-iSpotCalcMethod is 1
-Plot Cmd is  FOB    0.0000000000000000          0.0000000000000000; SPOT RECT;RECT 20;SPD 1
                                                           l
 CYCLE NUMBER 20
    ERROR FUNCTION = 9.41370
@@ -993,22 +757,6 @@ ASPHERES
 Name  Role        Typ  Target              Value               diff
 SAS   Constraint  =    0.0000000000000000  -0.6770794044771582  -0.6770794044771582
 SPO   Operand          0.0000000000000000   4.7157894120143276   4.7157894120143276
-iSpotCalcMethod is 1
-Plot Cmd is  FOB    0.0000000000000000          0.0000000000000000; SPOT RECT;RECT 20;SPD 1
-iSpotCalcMethod is 1
-Plot Cmd is  FOB    0.0000000000000000          0.0000000000000000; SPOT RECT;RECT 20;SPD 1
-iSpotCalcMethod is 1
-Plot Cmd is  FOB    0.0000000000000000          0.0000000000000000; SPOT RECT;RECT 20;SPD 1
-iSpotCalcMethod is 1
-Plot Cmd is  FOB    0.0000000000000000          0.0000000000000000; SPOT RECT;RECT 20;SPD 1
-iSpotCalcMethod is 1
-Plot Cmd is  FOB    0.0000000000000000          0.0000000000000000; SPOT RECT;RECT 20;SPD 1
-iSpotCalcMethod is 1
-Plot Cmd is  FOB    0.0000000000000000          0.0000000000000000; SPOT RECT;RECT 20;SPD 1
-iSpotCalcMethod is 1
-Plot Cmd is  FOB    0.0000000000000000          0.0000000000000000; SPOT RECT;RECT 20;SPD 1
-iSpotCalcMethod is 1
-Plot Cmd is  FOB    0.0000000000000000          0.0000000000000000; SPOT RECT;RECT 20;SPD 1
                                                           l
 CYCLE NUMBER 21
    ERROR FUNCTION = 9.41367
@@ -1024,24 +772,6 @@ ASPHERES
 Name  Role        Typ  Target              Value               diff
 SAS   Constraint  =    0.0000000000000000  -0.6770760190801359  -0.6770760190801359
 SPO   Operand          0.0000000000000000   4.7157842629363609   4.7157842629363609
-iSpotCalcMethod is 1
-Plot Cmd is  FOB    0.0000000000000000          0.0000000000000000; SPOT RECT;RECT 20;SPD 1
-iSpotCalcMethod is 1
-Plot Cmd is  FOB    0.0000000000000000          0.0000000000000000; SPOT RECT;RECT 20;SPD 1
-iSpotCalcMethod is 1
-Plot Cmd is  FOB    0.0000000000000000          0.0000000000000000; SPOT RECT;RECT 20;SPD 1
-iSpotCalcMethod is 1
-Plot Cmd is  FOB    0.0000000000000000          0.0000000000000000; SPOT RECT;RECT 20;SPD 1
-iSpotCalcMethod is 1
-Plot Cmd is  FOB    0.0000000000000000          0.0000000000000000; SPOT RECT;RECT 20;SPD 1
-iSpotCalcMethod is 1
-Plot Cmd is  FOB    0.0000000000000000          0.0000000000000000; SPOT RECT;RECT 20;SPD 1
-iSpotCalcMethod is 1
-Plot Cmd is  FOB    0.0000000000000000          0.0000000000000000; SPOT RECT;RECT 20;SPD 1
-iSpotCalcMethod is 1
-Plot Cmd is  FOB    0.0000000000000000          0.0000000000000000; SPOT RECT;RECT 20;SPD 1
-iSpotCalcMethod is 1
-Plot Cmd is  FOB    0.0000000000000000          0.0000000000000000; SPOT RECT;RECT 20;SPD 1
                                                           l
 CYCLE NUMBER 22
    ERROR FUNCTION = 9.41367
@@ -1057,24 +787,6 @@ ASPHERES
 Name  Role        Typ  Target              Value               diff
 SAS   Constraint  =    0.0000000000000000  -0.6770756805421260  -0.6770756805421260
 SPO   Operand          0.0000000000000000   4.7157837480316847   4.7157837480316847
-iSpotCalcMethod is 1
-Plot Cmd is  FOB    0.0000000000000000          0.0000000000000000; SPOT RECT;RECT 20;SPD 1
-iSpotCalcMethod is 1
-Plot Cmd is  FOB    0.0000000000000000          0.0000000000000000; SPOT RECT;RECT 20;SPD 1
-iSpotCalcMethod is 1
-Plot Cmd is  FOB    0.0000000000000000          0.0000000000000000; SPOT RECT;RECT 20;SPD 1
-iSpotCalcMethod is 1
-Plot Cmd is  FOB    0.0000000000000000          0.0000000000000000; SPOT RECT;RECT 20;SPD 1
-iSpotCalcMethod is 1
-Plot Cmd is  FOB    0.0000000000000000          0.0000000000000000; SPOT RECT;RECT 20;SPD 1
-iSpotCalcMethod is 1
-Plot Cmd is  FOB    0.0000000000000000          0.0000000000000000; SPOT RECT;RECT 20;SPD 1
-iSpotCalcMethod is 1
-Plot Cmd is  FOB    0.0000000000000000          0.0000000000000000; SPOT RECT;RECT 20;SPD 1
-iSpotCalcMethod is 1
-Plot Cmd is  FOB    0.0000000000000000          0.0000000000000000; SPOT RECT;RECT 20;SPD 1
-iSpotCalcMethod is 1
-Plot Cmd is  FOB    0.0000000000000000          0.0000000000000000; SPOT RECT;RECT 20;SPD 1
                                                           l
 CYCLE NUMBER 23
    ERROR FUNCTION = 9.41366
@@ -1090,24 +802,6 @@ ASPHERES
 Name  Role        Typ  Target              Value               diff
 SAS   Constraint  =    0.0000000000000000  -0.6770753420042880  -0.6770753420042880
 SPO   Operand          0.0000000000000000   4.7157832331273610   4.7157832331273610
-iSpotCalcMethod is 1
-Plot Cmd is  FOB    0.0000000000000000          0.0000000000000000; SPOT RECT;RECT 20;SPD 1
-iSpotCalcMethod is 1
-Plot Cmd is  FOB    0.0000000000000000          0.0000000000000000; SPOT RECT;RECT 20;SPD 1
-iSpotCalcMethod is 1
-Plot Cmd is  FOB    0.0000000000000000          0.0000000000000000; SPOT RECT;RECT 20;SPD 1
-iSpotCalcMethod is 1
-Plot Cmd is  FOB    0.0000000000000000          0.0000000000000000; SPOT RECT;RECT 20;SPD 1
-iSpotCalcMethod is 1
-Plot Cmd is  FOB    0.0000000000000000          0.0000000000000000; SPOT RECT;RECT 20;SPD 1
-iSpotCalcMethod is 1
-Plot Cmd is  FOB    0.0000000000000000          0.0000000000000000; SPOT RECT;RECT 20;SPD 1
-iSpotCalcMethod is 1
-Plot Cmd is  FOB    0.0000000000000000          0.0000000000000000; SPOT RECT;RECT 20;SPD 1
-iSpotCalcMethod is 1
-Plot Cmd is  FOB    0.0000000000000000          0.0000000000000000; SPOT RECT;RECT 20;SPD 1
-iSpotCalcMethod is 1
-Plot Cmd is  FOB    0.0000000000000000          0.0000000000000000; SPOT RECT;RECT 20;SPD 1
                                                           l
 CYCLE NUMBER 24
    ERROR FUNCTION = 9.41366
@@ -1123,24 +817,6 @@ ASPHERES
 Name  Role        Typ  Target              Value               diff
 SAS   Constraint  =    0.0000000000000000  -0.6770750034666183  -0.6770750034666183
 SPO   Operand          0.0000000000000000   4.7157827182233962   4.7157827182233962
-iSpotCalcMethod is 1
-Plot Cmd is  FOB    0.0000000000000000          0.0000000000000000; SPOT RECT;RECT 20;SPD 1
-iSpotCalcMethod is 1
-Plot Cmd is  FOB    0.0000000000000000          0.0000000000000000; SPOT RECT;RECT 20;SPD 1
-iSpotCalcMethod is 1
-Plot Cmd is  FOB    0.0000000000000000          0.0000000000000000; SPOT RECT;RECT 20;SPD 1
-iSpotCalcMethod is 1
-Plot Cmd is  FOB    0.0000000000000000          0.0000000000000000; SPOT RECT;RECT 20;SPD 1
-iSpotCalcMethod is 1
-Plot Cmd is  FOB    0.0000000000000000          0.0000000000000000; SPOT RECT;RECT 20;SPD 1
-iSpotCalcMethod is 1
-Plot Cmd is  FOB    0.0000000000000000          0.0000000000000000; SPOT RECT;RECT 20;SPD 1
-iSpotCalcMethod is 1
-Plot Cmd is  FOB    0.0000000000000000          0.0000000000000000; SPOT RECT;RECT 20;SPD 1
-iSpotCalcMethod is 1
-Plot Cmd is  FOB    0.0000000000000000          0.0000000000000000; SPOT RECT;RECT 20;SPD 1
-iSpotCalcMethod is 1
-Plot Cmd is  FOB    0.0000000000000000          0.0000000000000000; SPOT RECT;RECT 20;SPD 1
                                                           l
 CYCLE NUMBER 25
    ERROR FUNCTION = 9.41366

@@ -20,7 +20,6 @@ function getKDPSpotPlotCommand(iField, iLambda, iSpotCalcMethod, nGrid, nRand, n
     & sysConfig%relativeFields(2,iField) &
     & , ' ' , sysConfig%relativeFields(1,iField)
 
-    call LogTermFOR("iSpotCalcMethod is "//int2str(iSpotCalcMethod))
     select case (iSpotCalcMethod)
     case (ID_SPOT_RAND)
       charTrace = "SPOT RAND;RANNUM "//trim(int2str(nRand))
@@ -37,9 +36,12 @@ function getKDPSpotPlotCommand(iField, iLambda, iSpotCalcMethod, nGrid, nRand, n
       charTrace = "SPOT RING;RINGS "//int2str(nRing)
     end select
 
+    ! NOTE: no tracing here.  This builder is shared by the plot path and the
+    ! optimizer's SPO evaluation (optim-types-callbacks getSPO), and it runs as
+    ! the argument to PROCESSILENT -- i.e. before that call's silencing applies
+    ! -- so anything emitted here leaks into the terminal once per merit-function
+    ! evaluation during an optimization.
     plotCmd = trim(charFLD)//'; '//trim(charTrace)//";SPD "//trim(int2str(iLambda))
-    call LogTermFOR("Plot Cmd is "//trim(plotCmd))
-    PRINT *, "Plot command is ", trim(plotCMD)
 end function
 
 end module plot_command_utils

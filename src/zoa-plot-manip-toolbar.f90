@@ -380,7 +380,6 @@ subroutine lensDrawDragEnd(gesture, n_press, x, y, gdata) bind(c)
     boolResult = updateTabPlotCommand(tabIdx, ID_LENSDRAW_AUTOSCALE_VALUE, &
     & 1.2*getTabPlotCommandValue(tabIdx, ID_LENSDRAW_AUTOSCALE_VALUE))
     call PROCESKDP(getTabPlotCommand(tabIdx))
-    call LogTermFOR("New Plot Cmd is "//getTabPlotCommand(tabIdx))
 
 
     !ld_settings%autoScale = ID_LENSDRAW_MANUALSCALE
@@ -403,7 +402,6 @@ subroutine lensDrawDragEnd(gesture, n_press, x, y, gdata) bind(c)
     boolResult = updateTabPlotCommand(tabIdx, ID_LENSDRAW_AUTOSCALE_VALUE, &
     & 0.8d0*getTabPlotCommandValue(tabIdx, ID_LENSDRAW_AUTOSCALE_VALUE))
     call PROCESKDP(getTabPlotCommand(tabIdx))
-    call LogTermFOR("New Plot Cmd is "//getTabPlotCommand(tabIdx))
 
     !ld_settings%autoScale = ID_LENSDRAW_MANUALSCALE
     ! Hard code a 20% change
