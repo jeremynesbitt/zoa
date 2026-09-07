@@ -707,6 +707,7 @@ contains
         use plot_setting_manager, only: zoaplot_setting_manager, plot_setting
         use mod_zin_io, only: zin_write_header, zin_read_header
         use zoa_file_handler, only: getTempDirectory, delete_file
+        use iso_c_binding, only: c_associated
         use, intrinsic :: iso_c_binding, only: c_null_ptr
         implicit none
 
@@ -827,6 +828,16 @@ contains
             failCount = failCount + 1
         else
             call ckZoaplotBase("p1", p1, pp1L)
+            ! Regression guard: a deserialized plot must carry a NULL drawing
+            ! area.  It is never serialized (it is a live GTK handle) and the
+            ! owning multiplot assigns the real one before drawing; if it comes
+            ! back as garbage, drawPlot's g_object_get_data(self%area, ...)
+            ! segfaults on the first cell -- which crashed Zoa on startup while
+            ! restoring plots from a .zin.
+            if (c_associated(pp1L%area)) then
+                call OUTKDP("ZINTEST: FAIL loaded plot has non-null area")
+                failCount = failCount + 1
+            end if
         end if
 
         ! ---- compare cell (1,2): zoaPlot3d ----

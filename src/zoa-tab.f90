@@ -801,15 +801,18 @@ end if
 
 self%mplt%area = self%canvas
 
-! Record the canvas's real size in the persisted copy: the *_go routines size
-! their drawing areas individually (700x500, 1200x800, ...) while
-! multiplot%width/height keep their defaults, and a .zin restore must recreate
-! the canvas at the size the plot was actually rendered at.
-if (c_associated(self%canvas)) then
-  isurface = g_object_get_data(self%canvas, "backing-surface")
-  if (c_associated(isurface)) then
-    self%mplt%width  = cairo_image_surface_get_width(isurface)
-    self%mplt%height = cairo_image_surface_get_height(isurface)
+! Record a sensible size in the persisted copy so a .zin restore can recreate
+! the canvas.  A plot that set its own size wins (spo_go uses 400 x 400*nFields);
+! only fall back to the canvas's real backing-surface size for the plots that
+! leave multiplot%width/height at the mp_init defaults while sizing their
+! drawing area directly (700x500, 1200x800, ...).
+if (self%mplt%width == MP_DEFAULT_WIDTH .and. self%mplt%height == MP_DEFAULT_HEIGHT) then
+  if (c_associated(self%canvas)) then
+    isurface = g_object_get_data(self%canvas, "backing-surface")
+    if (c_associated(isurface)) then
+      self%mplt%width  = cairo_image_surface_get_width(isurface)
+      self%mplt%height = cairo_image_surface_get_height(isurface)
+    end if
   end if
 end if
 

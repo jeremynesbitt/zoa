@@ -50,6 +50,12 @@ module zoa_plot
  integer, parameter :: POS_UPPER_RIGHT = 1
  integer, parameter :: POS_LOWER_RIGHT = 9
 
+ ! Default multiplot canvas size.  A *_go routine that wants a different size
+ ! assigns multiplot%width/height explicitly; code that needs to tell "the plot
+ ! chose a size" from "the plot left the default" compares against these.
+ integer, parameter :: MP_DEFAULT_WIDTH  = 1200
+ integer, parameter :: MP_DEFAULT_HEIGHT = 500
+
 
 ! For each plot type:  eg barchart, linechart, 3d surface, shades
 ! Have a datatype that contains the data to plot and any unique settings
@@ -57,7 +63,10 @@ module zoa_plot
 
 type :: zoaplot
 
-  type(c_ptr) :: area
+  ! MUST default to null: a plot deserialized from a .zin never goes through
+  ! zp_init, and drawPlot calls g_object_get_data(self%area, ...) whenever
+  ! c_associated(self%area) -- an uninitialized handle there segfaults.
+  type(c_ptr) :: area = c_null_ptr
 
   real, allocatable ::  x(:), y(:)
   character(len=100) :: title = 'untitled'
@@ -178,7 +187,7 @@ type :: multiplot
       logical :: m_hasTitle = .false.
       type(c_ptr) :: area = c_null_ptr
       type(c_ptr) :: cc = c_null_ptr
-      integer :: width = 1200, height = 500
+      integer :: width = MP_DEFAULT_WIDTH, height = MP_DEFAULT_HEIGHT
 
 
       ! Bottom Panel Vars
@@ -2392,6 +2401,12 @@ end subroutine
     integer :: i, n
 
     ios = 0
+
+    ! The GTK drawing area is not serialized (it is a live handle).  Clear it
+    ! explicitly so a loaded plot never carries a stale or uninitialized
+    ! pointer into drawPlot's backing-surface lookup.  The owning multiplot
+    ! assigns the real area before drawing.
+    self%area = c_null_ptr
 
     if (allocated(self%x)) deallocate(self%x)
     if (allocated(self%y)) deallocate(self%y)
