@@ -308,9 +308,29 @@ contains
         use zoa_file_handler, only: process_zoa_file, doesFileExist, zinPathFromZoa
         use mod_lens_data_manager, only: ldm
         use undo_manager, only: undo_reset_baseline
-        use zoa_ui_callbacks, only: notify_load_zin
+        use zoa_ui_callbacks, only: notify_load_zin, notify_close_all_tabs
         implicit none
         character(len=2048) :: zinPath
+        logical :: hasZin
+
+        zinPath = zinPathFromZoa(trim(fullPath))
+        hasZin  = doesFileExist(trim(zinPath))
+
+        ! Loading a different lens invalidates every open plot, so offer to
+        ! discard them -- the same prompt LEN NEW and CV2PRG/ZMX2PRG show.  Ask
+        ! BEFORE the lens is replaced, so the plots on screen still match the
+        ! lens being discarded.  Automatically a no-op headless (callback
+        ! unregistered) and when no plots are open.
+        !
+        ! Skipped when the lens has a .zin companion: that path replaces the
+        ! plots wholesale below (closes all, then restores the saved set), so
+        ! asking whether to keep the old lens's plots would be meaningless.
+        if (.not. hasZin) then
+            call notify_close_all_tabs("You are about to open a new " //&
+            &"lens system.  This will invalidate all plots.   " //&
+            &"Press yes to close them.")
+        end if
+
         ! Saved .zoa files begin with LEN NEW, which performs the newlens.zoa
         ! reset itself.  Only pre-reset a file that does not, so the template
         ! (DCON ALL / DEL VIG / DEL APE SA ...) runs exactly once per load.
@@ -321,8 +341,7 @@ contains
         call undo_reset_baseline()
         ! If a companion .zin plot file exists alongside the lens, tell the GUI
         ! to load it (no-op in headless mode / when no hook is registered).
-        zinPath = zinPathFromZoa(trim(fullPath))
-        if (doesFileExist(trim(zinPath))) call notify_load_zin(trim(zinPath))
+        if (hasZin) call notify_load_zin(trim(zinPath))
     end procedure loadLensFromZoaPath
 
     ! True when the first non-blank, non-comment line of a .zoa file is LEN NEW.
