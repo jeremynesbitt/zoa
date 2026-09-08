@@ -1056,8 +1056,11 @@ do ii = 0, numPoints-1
     CALL PROCESSILENT("SHO RMSOPD")
     y(ii+1) = 1000.0*REG(9)
  case(ID_RMS_DATA_SPOT)
-  CALL PROCESKDP("SPD")
-  CALL PROCESKDP("SHO RMS")
+  ! PROCESSILENT, matching the wavefront branch above: a bare PROCESKDP here
+  ! dumped the full KDP spot-diagram report (aperture assignment, ray-trace
+  ! progress, SPOT DIAGRAM SUMMARY) into the terminal once per field point.
+  CALL PROCESSILENT("SPD")
+  CALL PROCESSILENT("SHO RMS")
   y(ii+1) = REG(9)
  end select
 
@@ -1076,7 +1079,15 @@ else
   call ioConfig%setTextViewFromPtr(getTabTextView(objIdx))
 end if
 
-call log2DData(real(x,8),real(y,8), xHeader='Field', yHeader='RMS[mWaves]')
+! Header must follow the selected data type, like the plot's own y label below:
+! wavefront error is in milliwaves, spot size in the current lens units.
+select case (iData)
+case(ID_RMS_DATA_SPOT)
+  call log2DData(real(x,8), real(y,8), xHeader='Field', &
+  & yHeader='RMS['//trim(sysConfig%getLensUnitsText())//']')
+case default
+  call log2DData(real(x,8), real(y,8), xHeader='Field', yHeader='RMS[mWaves]')
+end select
 
 if (.not. HEADLESS_MODE) call ioConfig%setTextView(ID_TERMINAL_DEFAULT)
 

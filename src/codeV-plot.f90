@@ -1,6 +1,16 @@
 submodule (codeV_commands) mod_plot
 implicit none
 contains
+    !## cmd:      NUMPTS
+    !## syntax:   NUMPTS n
+    !## category: Plot Settings
+    !## desc:     Set the number of field samples for a vs-field plot.
+    !##
+    !## cmd:      ASTFLD
+    !## syntax:   ASTFLD X | Y
+    !## category: Plot Settings
+    !## desc:     Select the field direction for the astigmatism plot.
+    !##
     !## cmd:      TRAC
     !## syntax:   TRAC RECT | RAND | RING
     !## category: Plot Settings

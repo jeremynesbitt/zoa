@@ -539,6 +539,10 @@ module codeV_commands
         zoaCmds(723)%execFunc => setPlotSettingGeneric
         zoaCmds(724)%cmd = 'RECTDENS'
         zoaCmds(724)%execFunc => setPlotSettingGeneric
+        zoaCmds(726)%cmd = 'NUMPTS'
+        zoaCmds(726)%execFunc => setPlotSettingGeneric
+        zoaCmds(727)%cmd = 'ASTFLD'
+        zoaCmds(727)%execFunc => setPlotSettingGeneric
         zoaCmds(527)%cmd = 'SETDENS'
         zoaCmds(527)%execFunc => setPlotDensity     
         zoaCmds(528)%cmd = 'SETZERNC'
