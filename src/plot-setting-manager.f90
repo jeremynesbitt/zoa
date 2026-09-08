@@ -102,6 +102,7 @@ module plot_setting_manager
     procedure, public, pass(self) :: getRMSFieldSettings
 
     procedure, public, pass(self) :: updateSetting, addPowerOfTwoImageSetting, getPowerOfTwoImageSetting
+    procedure, public, pass(self) :: applySettingCommand
 
     procedure, public, pass(self) :: saveToBinary => psm_save_binary
     procedure, public, pass(self) :: loadFromBinary => psm_load_binary
@@ -804,6 +805,52 @@ contains
         & "SETDENS", "SETDENS "//trim(int2str(defaultVal)), UITYPE_SPINBUTTON)
       
       end subroutine  
+
+      ! Apply "<KEYWORD> <value>" to whichever setting owns KEYWORD.
+      !
+      ! Every plot setting already carries the command keyword it emits (ps%cmd),
+      ! so a single lookup here serves any setting rather than needing a
+      ! bespoke zoaCmds handler per keyword -- the omission of which is what
+      ! made SETFLD/TRAC/RECTDENS/NRD answer "INVALID CMD LEVEL COMMAND" and
+      ! silently do nothing.
+      !
+      ! Accepts either form a combo setting can appear in: the option text
+      ! ("TRAC RECT", as first generated) or its numeric id ("TRAC 2.00000",
+      ! as rewritten by updateSetting once the value is changed).
+      subroutine applySettingCommand(self, keyword, valueStr, found)
+        use command_utils, only: isInputNumber
+        use strings, only: uppercase
+        use type_utils, only: str2real8
+        class(zoaplot_setting_manager), intent(inout) :: self
+        character(len=*), intent(in) :: keyword, valueStr
+        logical, intent(out) :: found
+        integer :: i, k
+
+        found = .FALSE.
+        do i = 1, self%numSettings
+          if (uppercase(trim(self%ps(i)%cmd)) /= uppercase(trim(keyword))) cycle
+          found = .TRUE.
+
+          if (isInputNumber(trim(valueStr))) then
+            call self%updateSetting(self%ps(i)%ID, str2real8(trim(valueStr)))
+            return
+          end if
+
+          ! Non-numeric: match the text against this setting's combo options.
+          if (allocated(self%ps(i)%set)) then
+            do k = 1, size(self%ps(i)%set)
+              if (uppercase(trim(self%ps(i)%set(k)%text)) == uppercase(trim(valueStr))) then
+                call self%updateSetting(self%ps(i)%ID, real(self%ps(i)%set(k)%ID, kind(1.0d0)))
+                return
+              end if
+            end do
+          end if
+
+          ! Otherwise keep it as text (settings whose value really is a string).
+          call self%updateSetting(self%ps(i)%ID, trim(valueStr))
+          return
+        end do
+      end subroutine applySettingCommand
 
       function getSettingValueByCode(self, setting_code) result(val)
         use global_widgets, only: sysConfig

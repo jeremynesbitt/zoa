@@ -1,6 +1,41 @@
 submodule (codeV_commands) mod_plot
 implicit none
 contains
+    !## cmd:      TRAC
+    !## syntax:   TRAC RECT | RAND | RING
+    !## category: Plot Settings
+    !## desc:     Set the spot-diagram ray-trace pattern for the active plot.
+    !##
+    !## cmd:      RECTDENS
+    !## syntax:   RECTDENS n
+    !## category: Plot Settings
+    !## desc:     Set the spot-diagram rectangular grid density for the active plot.
+    !##
+    ! Generic handler for plot settings whose keyword needs no bespoke logic.
+    ! The active plot's setting manager already knows which setting owns the
+    ! keyword, so one handler serves them all -- register any new setting
+    ! keyword here rather than writing another near-identical routine.
+    module procedure setPlotSettingGeneric
+
+        use strings, only: parse
+
+        implicit none
+
+        character(len=80) :: tokens(40)
+        integer :: numTokens
+        logical :: found
+
+        call parse(trim(iptStr), ' ', tokens, numTokens)
+
+        if (numTokens == 2) then
+            call curr_psm%applySettingCommand(trim(tokens(1)), trim(tokens(2)), found)
+            if (.not. found) then
+                call zoa_emit(trim(tokens(1))//" is not a setting of the active plot", "red")
+            end if
+        end if
+
+    end procedure
+
     !## cmd:      SETFLD
     !## syntax:   SETFLD n
     !## category: Plot Settings

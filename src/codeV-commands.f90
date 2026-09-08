@@ -34,6 +34,9 @@ module codeV_commands
    module subroutine setPlotFieldPoint(iptStr)
    character(len=*) :: iptStr
    end subroutine setPlotFieldPoint
+   module subroutine setPlotSettingGeneric(iptStr)
+   character(len=*) :: iptStr
+   end subroutine setPlotSettingGeneric
    module subroutine setPlotDensity(iptStr)
    character(len=*) :: iptStr
    end subroutine setPlotDensity
@@ -526,6 +529,16 @@ module codeV_commands
         zoaCmds(526)%execFunc => setPlotWavelength
         zoaCmds(722)%cmd = 'SETFLD'
         zoaCmds(722)%execFunc => setPlotFieldPoint
+        ! Plot-setting keywords handled generically via the active plot's
+        ! setting manager (see setPlotSettingGeneric).
+        ! Before adding one, check it is NOT in the legacy NAMES.f90 table:
+        ! the front door dispatches zoaCmds ahead of the legacy parser, so
+        ! reusing a legacy word hijacks it.  NRD belongs to the legacy parser
+        ! (NAMES.f90 WCC(1613), CMDER/WAVSPOT2) and must NOT be listed here.
+        zoaCmds(723)%cmd = 'TRAC'
+        zoaCmds(723)%execFunc => setPlotSettingGeneric
+        zoaCmds(724)%cmd = 'RECTDENS'
+        zoaCmds(724)%execFunc => setPlotSettingGeneric
         zoaCmds(527)%cmd = 'SETDENS'
         zoaCmds(527)%execFunc => setPlotDensity     
         zoaCmds(528)%cmd = 'SETZERNC'
