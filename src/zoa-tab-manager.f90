@@ -659,6 +659,15 @@ end function
     class(zoatabManager) :: self
     integer, intent(in) :: tabIndex, tabInfoIndex
 
+    ! A tab slot can legitimately be EMPTY.  Closing a single tab (see
+    ! ui-utilities) deallocates that tabObj without compacting tabInfo or
+    ! lowering tabNum, so the 1..tabNum sweeps in closeAllTabs /
+    ! closeAllTabsSilent can land on a gap.  Dereferencing %tabObj%notebook
+    ! there reads an unallocated polymorphic component and segfaults -- which
+    ! is what crashed Zoa when answering "yes" to the close-plots prompt.
+    if (tabInfoIndex < 1 .or. tabInfoIndex > size(self%tabInfo)) return
+    if (.not. allocated(self%tabInfo(tabInfoIndex)%tabObj)) return
+
     ! To account for tab being detached, use tabObj Notebook
       call gtk_notebook_remove_page(self%tabInfo(tabInfoIndex)%tabObj%notebook, tabIndex)
    
