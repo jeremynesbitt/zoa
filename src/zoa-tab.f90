@@ -361,6 +361,7 @@ function build(self) result(expander)
 
   do i=1, maxRow
     ! Label
+    call gtk_widget_set_halign(self%settingobj_get(i,0), GTK_ALIGN_START)
     call gtk_grid_attach(self%table, self%settingobj_get(i,0), 0_c_int, i-1, 1_c_int, 1_c_int)
     ! Widget
     call gtk_grid_attach(self%table, self%settingobj_get(i,1), 1_c_int, i-1, 1_c_int, 1_c_int)
@@ -371,6 +372,7 @@ function build(self) result(expander)
 
   do i=maxRow+1,self%numSettings
     ! Label
+    call gtk_widget_set_halign(self%settingobj_get(i,0), GTK_ALIGN_START)
     call gtk_grid_attach(self%table, self%settingobj_get(i,0), 2_c_int, i-maxRow-1, 1_c_int, 1_c_int)
     ! Widget
     call gtk_grid_attach(self%table, self%settingobj_get(i,1), 3_c_int, i-maxRow-1, 1_c_int, 1_c_int)
