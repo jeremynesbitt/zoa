@@ -520,3 +520,45 @@ the 7 PNG baselines (`vie_settings`, `vie_orient`, `plots_geom`, `plots_wave`,
   clean-build check before tagging a release.
 - Tests still depend on `~/Library/Application Support/Zoa` (Projects/,
   Macros/newlens.zoa, LIBGLA); hermetic in-repo fixtures would remove that.
+
+---
+
+## Plot tab bookkeeping: `tabInfo` is never compacted (2026-09-07)
+
+`zoatabManager%tabInfo(99)` is a fixed array of tab slots and `tabNum` is
+effectively a **high-water mark, not a count**. Closing a single plot
+(`ui-utilities.f90`, the tab close button) calls `removePlotTab`, which
+deallocates that slot's `tabObj` but does not compact the array; `tabNum` is
+only decremented when the slot happens to be the last one. So after closing any
+plot other than the last, `tabInfo` contains a **gap** while `tabNum` still
+counts it.
+
+Every `do i = 1, tabNum` sweep must therefore tolerate empty slots.
+`rePlotIfNeeded` and `saveTabsToZin` already test `allocated(...%tabObj)`.
+
+**Fixed 2026-09-07 (commit 0192e48):** `removePlotTab` dereferenced
+`tabInfo(idx)%tabObj%notebook` *before* its own `allocated()` check, so the
+`1..tabNum` sweeps in `closeAllTabs` / `closeAllTabsSilent` segfaulted on a
+gap. It now returns early for an out-of-range index or an empty slot. This was
+latent for a long time but became easy to hit once `LEN NEW` and `RES` began
+offering to close plots, and once the `.zin` restore started calling
+`closeAllTabsSilent`.
+
+**Still open — worth doing when this area is next touched:**
+
+1. **The caller can still crash one level up.** `ui-utilities.f90:53` passes
+   `zoatabMgr%tabInfo(objIdx)%tabObj%tabNum` as an *argument* to
+   `removePlotTab`, so a failed `getTabIdxByID` lookup dereferences a bad slot
+   before the guarded routine is even entered. Resolve `objIdx` and check it
+   before building the argument.
+2. **No compaction / no real count.** The root design smell — the source
+   carries a `TODO: This is dangerous to assume both indexes are the same`
+   comment at both `closeAllTabs` sweeps, which pass the notebook page index
+   and the `tabInfo` index as if they were interchangeable. They are only
+   equal while no tab has ever been closed or detached. Options: compact
+   `tabInfo` on removal (and fix up every stored `objIdx`), or keep the sparse
+   array but replace `tabNum` with an explicit occupied-slot count plus a
+   helper that iterates only live slots.
+3. Closing a tab does not clear stale entries in the global
+   `uiSettingCommands` table (`updateInputCommand` writes into it), so those
+   can outlive the tab they describe.
