@@ -99,7 +99,7 @@ contains
 
     type(c_ptr) :: menu_lens, section1_lens
     type(c_ptr) :: menu_paraxial, act_firstorder, menu_item_firstorder
-    type(c_ptr) :: menu_imagEval, menu_wavefront
+    type(c_ptr) :: menu_imagEval, menu_wavefront, menu_optimization
 
     type(c_ptr) :: menu_macro
     type(c_ptr) :: menu_edit, menu_diff
@@ -132,7 +132,9 @@ contains
     character(len=100), target :: psfCmd = "PSF;GO"    
     character(len=100), target :: mtfCmd = "MTF;GO"        
 
-    character(len=100), target :: fioCmd = "FIO"        
+    character(len=100), target :: fioCmd = "FIO"
+
+    character(len=100), target :: autuiCmd = "AUTUI"
 
 
 
@@ -149,6 +151,7 @@ contains
     menu_imagEval = g_menu_new()
     menu_diff = g_menu_new()
     menu_wavefront = g_menu_new()
+    menu_optimization = g_menu_new()
     menu_Window = g_menu_new()
 
     call g_menu_append_submenu (menubar, "File"//c_null_char, menu)
@@ -296,6 +299,11 @@ contains
     & "MTFPlot", mtfCmd, win)            
 
     call g_menu_append_submenu (menubar, "Image Evaluation"//c_null_char, menu_imagEval)
+
+    ! Optimization
+    call g_menu_append_submenu (menubar, "Optimization"//c_null_char, menu_optimization)
+    call addCommandMenuItem(menu_optimization, "Optimization UI", &
+    & "OptimizationUI", autuiCmd, win)
 
     call g_menu_append_submenu(menubar, "Window"//c_null_char, menu_Window)
 
