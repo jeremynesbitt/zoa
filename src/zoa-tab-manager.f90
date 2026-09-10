@@ -818,7 +818,16 @@ subroutine finalize_with_psm(self, objIdx, psm, inputCmd)
     ! & psm%ps(i)%set, c_funloc(callback_combo_listID), self%tabInfo(objIdx)%tabObj%box1)
     
 
-  end select 
+  end select
+
+  ! Each branch above adds exactly one label, so the setting just added is the
+  ! last one.  Advertise the CLI command that changes it (ps%cmd may carry a
+  ! trailing space, eg "NUMPTS ").
+  if (len_trim(psm%ps(i)%cmd) > 0) then
+    call self%tabInfo(objIdx)%tabObj%settings%setLastLabelTooltip( &
+    & "Command: "//trim(psm%ps(i)%cmd))
+  end if
+
   end do
 
   call registerPlotSettingManager(self, objIdx, psm)

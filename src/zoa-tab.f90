@@ -31,6 +31,7 @@ contains
 
    procedure, public, pass(self) :: addSpinBox
    procedure, public, pass(self) :: addListTable
+   procedure, public, pass(self) :: setLastLabelTooltip
 
 
 
@@ -136,6 +137,20 @@ subroutine addListTable(self, inlist)
 
 end subroutine
 
+
+! Attach a tooltip to the most recently added setting label.  Called right
+! after a setting is added (see finalize_with_psm) so the label can advertise
+! the CLI command that changes it, which is otherwise only discoverable by
+! reading the source or the command reference.
+subroutine setLastLabelTooltip(self, tipText)
+  class(zoa_settings_obj) :: self
+  character(len=*), intent(in) :: tipText
+
+  if (self%numSettings < 1) return
+  call gtk_widget_set_tooltip_text(self%settingobj_get(self%numSettings, 0), &
+  & trim(tipText)//c_null_char)
+
+end subroutine
 
 subroutine addSpinBox(self, labelText, spinButton, callbackFunc, callbackData, SETTING_CODE)
   implicit none
@@ -1330,6 +1345,22 @@ subroutine finishTab(self, page)
   self%tabNum = gtk_notebook_append_page(self%notebook, page, self%tab_label)
   call gtk_notebook_set_current_page(self%notebook, self%tabNum)
   call gtk_widget_set_name(self%box1, trim(self%plotCommand)//c_null_char)
+
+  ! Tooltip on the settings expander: the command that generates this plot
+  ! (the first word of the stored plot command, eg "VIE P1 ; ... ; GO" -> VIE).
+  if (c_associated(self%expander)) then
+    block
+      character(len=len(self%plotCommand)) :: cmdWord
+      integer :: sp
+      cmdWord = adjustl(self%plotCommand)
+      sp = index(trim(cmdWord), ' ')
+      if (sp > 1) cmdWord = cmdWord(1:sp-1)
+      if (len_trim(cmdWord) > 0) then
+        call gtk_widget_set_tooltip_text(self%expander, &
+        & "Plot command: "//trim(cmdWord)//c_null_char)
+      end if
+    end block
+  end if
 
   ! THis is to fix the tab length to label + close button vs extending across the entire window
   call gtk_widget_set_halign(gtk_widget_get_parent(self%tab_label), GTK_ALIGN_START)
