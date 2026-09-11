@@ -6,8 +6,6 @@ All constraints removed
 
 
 Field Weights Command WTF     100     100     100 Not supported
-Finished Updating Wv
-Finished Updating Density
 TRANSVERSE ABERRATION TABLE : UNITS = MILLIMETERS
 RAY FAN TRACED IS A  "YFAN"
 FRACTIONAL FAN OFFSET =    0.00000     (RELATIVE TO FULL APERTURE)
@@ -1257,7 +1255,6 @@ PLOT: zoa_plot_2.png 1200x500
      8.88889        648.67584
     10.00000        784.37115
 PLOT: zoa_plot_3.png 1200x500
-Finished Updating Zernike
 Existing Zern Loop
 TEMPORARY CIRCULAR CLEAR APERTURE =   3.912
  HAS BEEN ASSIGNED TO THE REFERENCE SURFACE

@@ -76,7 +76,6 @@ contains
                 if (fld < 1) fld = 1
                 if (fld > sysConfig%numFields) fld = sysConfig%numFields
                 call curr_psm%updateSetting(SETTING_FIELD, fld)
-                call LogTermFOR("Finished Updating Field Point")
             end if
         end if
 
@@ -101,10 +100,7 @@ contains
         !TODO:  Add error checking (min and max wavelength within range)
         if (numTokens  == 2) then
             if (isInputNumber(tokens(2))) then
-                print *, "about to call psm update wv setting new ", trim(tokens(2))
                 call curr_psm%updateWavelengthSetting(str2int(trim(tokens(2))))
-                !call curr_psm%updateWavelengthSetting(str2int(tokens(2)))
-                call LogTermFOR("Finished Updating Wv")
             end if
         end if
         
@@ -130,8 +126,6 @@ contains
         if (numTokens  == 2) then
             if (isInputNumber(tokens(2))) then
                 call curr_psm%updateDensitySetting(str2int(tokens(2)))
-                !call curr_psm%updateWavelengthSetting(str2int(tokens(2)))
-                call LogTermFOR("Finished Updating Density")
             end if
         end if
         
@@ -151,16 +145,12 @@ contains
         character(len=80) :: tokens(40)
         integer :: numTokens
 
-        call parse(trim(iptStr), ' ', tokens, numTokens) 
+        call parse(trim(iptStr), ' ', tokens, numTokens)
 
-        print *, "numTokens is ", numTokens
-       
         !TODO:  Add error checking (min and max wavelength within range)
         if (numTokens  == 2) then
             if (.NOT.isInputNumber(tokens(2))) then
                 call curr_psm%updateZernikeSetting(trim(tokens(2)))
-                !call curr_psm%updateWavelengthSetting(str2int(tokens(2)))
-                call LogTermFOR("Finished Updating Zernike")
             end if
         end if
         
