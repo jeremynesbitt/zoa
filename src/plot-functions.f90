@@ -642,7 +642,12 @@ subroutine ast_go(psm)
      end select
 
      ! Need to compute this to get the FC plot I want
-     CALL PROCESKDP('AST'//trim(ftext)//int2str(numPts))
+     ! PROCESSILENT for AST/FLDCV/DIST: each command prints its full table
+     ! (ASTIGMATISM TABLE, field-curvature and distortion tables) which
+     ! flooded the console on every settings change and replot.  The plot
+     ! data comes from the COMMON arrays the commands fill (ABSSS/FIFI), read
+     ! by getFieldCalcResult, so nothing depends on the printed output.
+     CALL PROCESSILENT('AST'//trim(ftext)//int2str(numPts))
      call getFieldCalcResult(DDTA, X2FC, FLDAN, numPts, 1)
 
      if (.not. HEADLESS_MODE) then
@@ -663,7 +668,7 @@ subroutine ast_go(psm)
   ! TODO:  Copy or mod the base function to
   ! compute FLDCV and output the way I want it
   !CALL FLDCRV(2,DWORD1,DWORD2,ERROR)
-  CALL PROCESKDP('FLDCV'//trim(ftext)//int2str(numPts))
+  CALL PROCESSILENT('FLDCV'//trim(ftext)//int2str(numPts))
   call getFieldCalcResult(x1FC, x2FC, yFC, numPtsFC, 3)
 
 
@@ -675,7 +680,7 @@ subroutine ast_go(psm)
    call lin3%setDataColorCode(PL_PLOT_BLUE)
    call lin3%setLineStyleCode(4)
 
-CALL PROCESKDP('DIST'//trim(ftext)//int2str(numPts))
+CALL PROCESSILENT('DIST'//trim(ftext)//int2str(numPts))
 
  call getFieldCalcResult(xDist, x2FC, yDist, numPtsDist, 2)
 
