@@ -1089,7 +1089,7 @@ SUBROUTINE CONTRO
       IF(WC.EQ.'FISHDIST') OHFUN=.TRUE.
       IF(WC.EQ.'XFOC    ') OHFUN=.TRUE.
       IF(WC.EQ.'YFOC    ') OHFUN=.TRUE.
-      IF(WC.EQ.'AST     ') OHFUN=.TRUE.
+      IF(WC.EQ.'ASTK    ') OHFUN=.TRUE.
       IF(WC.EQ.'SA3     ') OHFUN=.TRUE.
       IF(WC.EQ.'XSA3    ') OHFUN=.TRUE.
       IF(WC.EQ.'CMA3    ') OHFUN=.TRUE.
@@ -1776,7 +1776,7 @@ SUBROUTINE CONTRO
       IF(WC.EQ.'FISHDIST') OHFUN=.TRUE.
       IF(WC.EQ.'XFOC    ') OHFUN=.TRUE.
       IF(WC.EQ.'YFOC    ') OHFUN=.TRUE.
-      IF(WC.EQ.'AST     ') OHFUN=.TRUE.
+      IF(WC.EQ.'ASTK    ') OHFUN=.TRUE.
       IF(WC.EQ.'SA3     ') OHFUN=.TRUE.
       IF(WC.EQ.'XSA3    ') OHFUN=.TRUE.
       IF(WC.EQ.'CMA3    ') OHFUN=.TRUE.
@@ -2474,7 +2474,7 @@ SUBROUTINE CONTRO
       IF(WC.EQ.'FISHDIST') OHFUN=.TRUE.
       IF(WC.EQ.'XFOC    ') OHFUN=.TRUE.
       IF(WC.EQ.'YFOC    ') OHFUN=.TRUE.
-      IF(WC.EQ.'AST     ') OHFUN=.TRUE.
+      IF(WC.EQ.'ASTK    ') OHFUN=.TRUE.
       IF(WC.EQ.'SA3     ') OHFUN=.TRUE.
       IF(WC.EQ.'XSA3    ') OHFUN=.TRUE.
       IF(WC.EQ.'CMA3    ') OHFUN=.TRUE.

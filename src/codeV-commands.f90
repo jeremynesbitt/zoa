@@ -543,6 +543,13 @@ module codeV_commands
         zoaCmds(726)%execFunc => setPlotSettingGeneric
         zoaCmds(727)%cmd = 'ASTFLD'
         zoaCmds(727)%execFunc => setPlotSettingGeneric
+        ! FIE plot x-axis scales.  AST was the legacy astigmatism-table word;
+        ! that command is now ASTK (NAMES.f90 / CMDER / raytra9) so AST could
+        ! take this meaning.
+        zoaCmds(728)%cmd = 'AST'
+        zoaCmds(728)%execFunc => setPlotSettingGeneric
+        zoaCmds(729)%cmd = 'DST'
+        zoaCmds(729)%execFunc => setPlotSettingGeneric
         zoaCmds(527)%cmd = 'SETDENS'
         zoaCmds(527)%execFunc => setPlotDensity     
         zoaCmds(528)%cmd = 'SETZERNC'

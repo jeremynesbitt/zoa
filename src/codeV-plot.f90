@@ -1,6 +1,17 @@
 submodule (codeV_commands) mod_plot
 implicit none
 contains
+    !## cmd:      AST
+    !## syntax:   AST x
+    !## category: Plot Settings
+    !## desc:     FIE plot: field-curvature x-axis spans -x..+x (0 = autoscale).
+    !##           The legacy astigmatism-table command is now ASTK.
+    !##
+    !## cmd:      DST
+    !## syntax:   DST x
+    !## category: Plot Settings
+    !## desc:     FIE plot: distortion x-axis spans -x%..+x% (0 = autoscale).
+    !##
     !## cmd:      NUMPTS
     !## syntax:   NUMPTS n
     !## category: Plot Settings

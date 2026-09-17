@@ -19,6 +19,10 @@ module plot_setting_manager
     integer, parameter :: SETTING_WAVELENGTH = 1750
     integer, parameter :: SETTING_FIELD = 2
     integer, parameter :: SETTING_DENSITY = 1751
+    ! FIE plot: manual x-axis half-width for the field-curvature and distortion
+    ! panels (0 = autoscale).
+    integer, parameter :: SETTING_AST_MAX = 1752
+    integer, parameter :: SETTING_DST_MAX = 1753
     integer, parameter :: SETTING_ZERNIKE = 4
 
 
@@ -488,18 +492,30 @@ contains
       & "Number of Points", real(10.0),1.0,50.0, &
       & "NUMPTS ", "NUMPTS "//int2str(10), UITYPE_SPINBUTTON)
 
+      ! Manual x-axis scale for the two panels; 0 keeps the autoscale.  The
+      ! value is the half-width: AST .01 plots field curvature over -.01..+.01.
+      self%numSettings = self%numSettings + 1
+      call self%ps(self%numSettings)%initialize(SETTING_AST_MAX, &
+      & "Max Astigmatism (0 for autoscale)", 0.0, 0.0, 1.0e6, &
+      & "AST", "AST 0", UITYPE_SPINBUTTON)
 
+      self%numSettings = self%numSettings + 1
+      call self%ps(self%numSettings)%initialize(SETTING_DST_MAX, &
+      & "Max Distortion in % (0 for autoscale)", 0.0, 0.0, 1.0e6, &
+      & "DST", "DST 0", UITYPE_SPINBUTTON)
 
     end subroutine
 
-    subroutine getAstigSettings(self, idxFieldXY, numPts)
+    subroutine getAstigSettings(self, idxFieldXY, numPts, astMax, dstMax)
 
       class (zoaplot_setting_manager) :: self
       integer, intent(inout) :: idxFieldXY, numPts
+      real, intent(out) :: astMax, dstMax
 
       idxFieldXY = INT(self%getSettingValueByCode(ID_AST_FIELDXY))
       numPts = INT(self%getSettingValueByCode(ID_NUMPOINTS))
-      
+      astMax = self%getSettingValueByCode(SETTING_AST_MAX)
+      dstMax = self%getSettingValueByCode(SETTING_DST_MAX)
 
     end subroutine
 

@@ -616,6 +616,7 @@ subroutine ast_go(psm)
 
     integer :: numPts, numPtsDist, numPtsFC, idxFieldXY
     integer :: objIdx, numPlots, j
+    real :: astMax, dstMax
     logical :: replot, lsa
 
      REAL:: DDTA(0:50), xDist(0:50), yDist(0:50), x1FC(0:50), x2FC(0:50), yFC(0:50)
@@ -626,7 +627,7 @@ subroutine ast_go(psm)
 
      lsa = .FALSE.
 
-     call psm%getAstigSettings(idxFieldXY, numPts)
+     call psm%getAstigSettings(idxFieldXY, numPts, astMax, dstMax)
 
      if (.not. HEADLESS_MODE) then
        call initializeGoPlot(psm,ID_PLOTTYPE_AST, "Field Curv / Dist", replot, objIdx)
@@ -647,7 +648,7 @@ subroutine ast_go(psm)
      ! flooded the console on every settings change and replot.  The plot
      ! data comes from the COMMON arrays the commands fill (ABSSS/FIFI), read
      ! by getFieldCalcResult, so nothing depends on the printed output.
-     CALL PROCESSILENT('AST'//trim(ftext)//int2str(numPts))
+     CALL PROCESSILENT('ASTK'//trim(ftext)//int2str(numPts))
      call getFieldCalcResult(DDTA, X2FC, FLDAN, numPts, 1)
 
      if (.not. HEADLESS_MODE) then
@@ -697,6 +698,11 @@ CALL PROCESSILENT('DIST'//trim(ftext)//int2str(numPts))
   end if
 
 
+
+  ! Manual x-axis scale (AST / DST settings); 0 leaves the autoscale.
+  ! setXScale takes the half-width: AST .01 -> field curvature over -.01..+.01.
+  if (astMax /= 0.0) call lin3%setXScale(real(astMax, pl_test_flt))
+  if (dstMax /= 0.0) call lin2%setXScale(real(dstMax, pl_test_flt))
 
   if (lsa) call mplt%set(1,1,lin1)
   call mplt%set(1,numPlots-1,lin3)

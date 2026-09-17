@@ -453,7 +453,7 @@ appends every CMD-level word that fell through to the legacy router; the
 just the suite).  The 54 load-bearing words:
 
 ```
-ASPH AST CAOB CAPFN CFG COATING CV2PRG DIST DUMOUT EOS FIELDS FIR FLDCV FOB
+ASPH ASTK CAOB CAPFN CFG COATING CV2PRG DIST DUMOUT EOS FIELDS FIR FLDCV FOB
 FOOTBLOK GET GLOBAL GRT LEN LENS LI LIC LIS MAB3 NRD OCDX OCDY PIKK PLOT PRSPR
 PRXYZ PSFK RAY RAYS RECT RIN RIN2 RTGLBL SAX SAY SC SETCLAP SHO SLV SPD SPOT
 SPTWT SURTYPE TAD TASPH TR U UPDATE WRITE XFAN YFAN
@@ -562,3 +562,18 @@ offering to close plots, and once the `.zin` restore started calling
 3. Closing a tab does not clear stale entries in the global
    `uiSettingCommands` table (`updateInputCommand` writes into it), so those
    can outlive the tab they describe.
+
+---
+
+## Legacy `AST` renamed to `ASTK` (2026-09-17)
+
+The legacy KDP astigmatism-table command (`NAMES.f90 WCC(1487)`, dispatched in
+`CMDER.f90` / `raytra9.f90`, flagged as an operand function in `UTILITY5.f90`)
+is now **`ASTK`**. `AST` was freed so the FIE plot could use it as a setting
+keyword (`FIE ; AST .01 ; DST .001 ; GO` -- manual x-axis half-widths for the
+field-curvature and distortion panels, 0 = autoscale).
+
+Only the command *word* changed: `ast_go` now runs `ASTK`, and the `WQ='AST'`
+qualifier checks in `UTILITY6.f90` are a separate namespace and were left
+alone. No test script, macro, or golden ref used `AST` as a command. Any user
+macro that typed `AST n` for the table must now use `ASTK n`.
