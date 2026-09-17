@@ -920,20 +920,23 @@ end subroutine
 
       end if
 
-  ! Micromanage tick intervals if the user selected manual scale
-      if (self%manualYScale) then 
-        !call plsyax(7, 0)
+  ! Tick intervals.  A manually scaled axis gets PLplot's automatic "nice"
+  ! ticks (interval 0): it picks round intervals and a count that fits the
+  ! axis.  The fixed xmax/3 spacing below is kept only for the autoscaled
+  ! case -- applied to a small user-chosen X range (eg FIE ; AST .01) it gave
+  ! seven non-round labels (-0.010, -0.007, -0.003, ...) that needed full
+  ! precision and ran together unreadably.
+      if (self%manualYScale) then
         call plbox(trim(self%xPlotCodes), 0.0_pl_test_flt, 0, trim(self%yPlotCodes), self%yScale/5.0_pl_test_flt, 0)
+      else if (self%manualXScale) then
+        call plbox(trim(self%xPlotCodes), 0.0_pl_test_flt, 0, trim(self%yPlotCodes), 0.0_pl_test_flt, 1)
       else
-        print *, "xmax = ", xmax
-        print *, "xmin = ", xmin
         if (abs(xmax) > abs(xmin)) then
         call plbox(trim(self%xPlotCodes), xmax/3.0, 1, trim(self%yPlotCodes), 0.0_pl_test_flt, 1 )
-        else 
-          print *, "uxe xmin for tick spacing"
+        else
           call plbox(trim(self%xPlotCodes), xmin/3.0, 1, trim(self%yPlotCodes), 0.0_pl_test_flt, 1 )
         end if
-      end if        
+      end if
 
   call plcol0(getLabelFontCode(self))
 
