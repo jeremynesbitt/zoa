@@ -1,6 +1,18 @@
 submodule (codeV_commands) mod_plot
 implicit none
 contains
+    !## cmd:      PLO
+    !## syntax:   PLO SUR | BAR
+    !## category: Plot Settings
+    !## desc:     PMA plot type: SUR = OPD surface map (default), BAR = bar chart
+    !##           of the Fringe Zernike coefficients fitted to the wavefront.
+    !##
+    !## cmd:      ZFR
+    !## syntax:   ZFR n
+    !## category: Plot Settings
+    !## desc:     PMA: number of Zernike terms shown in the BAR chart and Data
+    !##           tab, 1-37 (default 37). The fit itself is always 37 terms.
+    !##
     !## cmd:      AST
     !## syntax:   AST x
     !## category: Plot Settings

@@ -109,59 +109,108 @@ module procedure pma_go
     use plplot_extra
     use iso_c_binding, only: c_ptr, c_null_ptr
 
+  use plot_setting_manager, only: ID_PMA_BAR
+  use kdp_utils, only: OUTKDP, log2DData
+  use iso_fortran_env, only: real64
+
   character(len=1024) :: ffieldstr
+  character(len=256) :: lineStr
 
   integer :: xpts, ypts
   integer, parameter :: xdim=99, ydim=100
   integer :: lambda, fldIdx
-  integer :: objIdx
+  integer :: objIdx, plotType, nZern, i
   logical :: replot
 
   integer, parameter :: nlevel = 10
 
   type(c_ptr) :: canvas
   type(zoaPlotImg) :: zp3d
+  type(barchart) :: zbar
   type(multiplot) :: mplt
+  real, allocatable :: termIdx(:), termVal(:)
+
+  ! Zernike fit coefficients from the last FITZERN (COMMON/SOLU/X, same store
+  ! LISTZERN and the ZRN command read).
+  real(real64) :: X(1:96)
+  COMMON/SOLU/X
 
 
-  ! Create/find the tab up front so the wavefront-fit report can be routed to
-  ! this plot's Data tab (matches rmsfield_go).  No-op in headless.
+  ! Create/find the tab up front so the Data tab can be written (matches
+  ! rmsfield_go).  No-op in headless.
   call initializeGoPlot(psm, ID_PLOTTYPE_OPD, "Optical Path Difference", replot, objIdx)
 
   lambda = psm%getWavelengthSetting()
   fldIdx = psm%getFieldSetting()
   xpts = psm%getDensitySetting()
   ypts = xpts
+  call psm%getPMASettings(plotType, nZern)
 
-
-  PRINT *, "fldIdx is ", fldIdx
   WRITE(ffieldstr, *) "FOB ", sysConfig%relativeFields(2,fldIdx) &
   & , ' ' , sysConfig%relativeFields(1, fldIdx)
   CALL PROCESKDP(trim(ffieldstr))
 
-  ! Route the CAPFN/FITZERN wavefront-fit output into the Data tab.
-  if (.not. HEADLESS_MODE) call ioConfig%setTextViewFromPtr(getTabTextView(objIdx))
-  call PROCESKDP('CAPFN, '//trim(int2str(xpts)))
-  call PROCESKDP('FITZERN, '//trim(int2str(lambda)))
-  if (.not. HEADLESS_MODE) call ioConfig%setTextView(ID_TERMINAL_DEFAULT)
+  ! Compute silently: CAPFN fills curr_opd (the map) and FITZERN fills the
+  ! Zernike coefficients.  Their printed reports used to be dumped into the
+  ! Data tab; it now gets structured data for the selected plot type instead.
+  call PROCESSILENT('CAPFN, '//trim(int2str(xpts)))
+  call PROCESSILENT('FITZERN, '//trim(int2str(lambda)))
 
   if (HEADLESS_MODE) then
     canvas = c_null_ptr
   else
     canvas = hl_gtk_drawing_area_new(size=[600,600], &
     & has_alpha=FALSE)
+    call ioConfig%setTextViewFromPtr(getTabTextView(objIdx))
   end if
 
   call mplt%initialize(canvas, 1,1)
-  PRINT *, "size of X is ", size(curr_opd%X)
-   call zp3d%init3d(c_null_ptr, real(curr_opd%X),real(curr_opd%Y), &
-   & real(curr_opd%Z), xpts, ypts, &
-   & xlabel='X'//c_null_char, ylabel='Y'//c_null_char, &
-   & title='Optical Path Difference'//c_null_char)
 
-   call mplt%set(1,1,zp3d)
+  if (plotType == ID_PMA_BAR) then
+    ! Zernike bar chart: the first nZern Fringe coefficients of the fit.
+    allocate(termIdx(nZern), termVal(nZern))
+    do i = 1, nZern
+      termIdx(i) = real(i)
+      termVal(i) = real(X(i))
+    end do
+    call zbar%initialize(c_null_ptr, termIdx, termVal, &
+    & xlabel='Zernike Term'//c_null_char, &
+    & ylabel='Coefficient [waves]'//c_null_char, &
+    & title='Fringe Zernike Coefficients'//c_null_char)
+    call mplt%set(1,1,zbar)
 
-   call finalizeGoPlot_new(mplt, psm, replot, objIdx)
+    ! Data tab: the coefficient list for this field point.
+    call OUTKDP('Fringe Zernike coefficients, field '//trim(int2str(fldIdx))// &
+    &           ', wavelength '//trim(int2str(lambda)))
+    write(lineStr, '(A)') '   Term    Coefficient [waves]'
+    call OUTKDP(trim(lineStr))
+    do i = 1, nZern
+      write(lineStr, '(4X,I3,4X,F18.8)') i, X(i)
+      call OUTKDP(trim(lineStr))
+    end do
+  else
+    ! Surface map (default).
+    call zp3d%init3d(c_null_ptr, real(curr_opd%X),real(curr_opd%Y), &
+    & real(curr_opd%Z), xpts, ypts, &
+    & xlabel='X'//c_null_char, ylabel='Y'//c_null_char, &
+    & title='Optical Path Difference'//c_null_char)
+    call mplt%set(1,1,zp3d)
+
+    ! Data tab: the map as (pupil X, pupil Y, OPD) points.
+    call OUTKDP('Optical path difference map, field '//trim(int2str(fldIdx))// &
+    &           ', wavelength '//trim(int2str(lambda))//', '// &
+    &           trim(int2str(curr_opd%numPts))//' points')
+    write(lineStr, '(A)') '        Pupil X          Pupil Y       OPD [waves]'
+    call OUTKDP(trim(lineStr))
+    do i = 1, curr_opd%numPts
+      write(lineStr, '(3F16.8)') curr_opd%X(i), curr_opd%Y(i), curr_opd%Z(i)
+      call OUTKDP(trim(lineStr))
+    end do
+  end if
+
+  if (.not. HEADLESS_MODE) call ioConfig%setTextView(ID_TERMINAL_DEFAULT)
+
+  call finalizeGoPlot_new(mplt, psm, replot, objIdx)
 
 
 

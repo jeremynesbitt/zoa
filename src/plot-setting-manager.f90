@@ -23,6 +23,14 @@ module plot_setting_manager
     ! panels (0 = autoscale).
     integer, parameter :: SETTING_AST_MAX = 1752
     integer, parameter :: SETTING_DST_MAX = 1753
+    ! PMA (OPD) plot: plot type (surface map or Zernike bar chart) and how many
+    ! Zernike terms to show.  FITZERN always fits 37 Fringe terms; ZFR selects
+    ! how many of them are displayed.
+    integer, parameter :: SETTING_PMA_PLOTTYPE = 1754
+    integer, parameter :: SETTING_PMA_NZERN    = 1755
+    integer, parameter :: ID_PMA_SUR = 1756
+    integer, parameter :: ID_PMA_BAR = 1757
+    integer, parameter :: PMA_MAX_ZERN = 37
     integer, parameter :: SETTING_ZERNIKE = 4
 
 
@@ -100,6 +108,8 @@ module plot_setting_manager
 
     procedure, public, pass(self) :: addAstigSettings
     procedure, public, pass(self) :: getAstigSettings
+    procedure, public, pass(self) :: addPMASettings
+    procedure, public, pass(self) :: getPMASettings
 
     !RMS Settings
     procedure, public, pass(self) :: addRMSFieldSettings
@@ -519,6 +529,45 @@ contains
 
     end subroutine
 
+    ! PMA (OPD) plot: plot type and Zernike term count.  The option labels
+    ! carry the command code in parentheses so "PLO SUR" / "PLO BAR" resolve
+    ! through applySettingCommand while the dropdown stays readable.
+    subroutine addPMASettings(self)
+
+      class (zoaplot_setting_manager) :: self
+      type(idText) :: set(2)
+
+      set(1)%text = "Surface Map (SUR)"
+      set(1)%id = ID_PMA_SUR
+
+      set(2)%text = "Zernike Bar Chart (BAR)"
+      set(2)%id = ID_PMA_BAR
+
+      self%numSettings = self%numSettings + 1
+      call self%ps(self%numSettings)%initialize(SETTING_PMA_PLOTTYPE, &
+      & "Plot Type", real(ID_PMA_SUR), 0.0, 0.0, &
+      & "PLO", "PLO SUR", UITYPE_COMBO, set=set)
+
+      self%numSettings = self%numSettings + 1
+      call self%ps(self%numSettings)%initialize(SETTING_PMA_NZERN, &
+      & "Number of Zernikes to Fit (default 37)", real(PMA_MAX_ZERN), 1.0, real(PMA_MAX_ZERN), &
+      & "ZFR", "ZFR "//int2str(PMA_MAX_ZERN), UITYPE_SPINBUTTON)
+
+    end subroutine
+
+    subroutine getPMASettings(self, plotType, nZern)
+
+      class (zoaplot_setting_manager) :: self
+      integer, intent(out) :: plotType, nZern
+
+      plotType = INT(self%getSettingValueByCode(SETTING_PMA_PLOTTYPE))
+      nZern    = INT(self%getSettingValueByCode(SETTING_PMA_NZERN))
+      ! FITZERN always fits PMA_MAX_ZERN terms; keep the display count in range.
+      if (nZern < 1) nZern = 1
+      if (nZern > PMA_MAX_ZERN) nZern = PMA_MAX_ZERN
+
+    end subroutine
+
     subroutine addRMSFieldSettings(self)
 
       class (zoaplot_setting_manager) :: self
@@ -852,10 +901,14 @@ contains
             return
           end if
 
-          ! Non-numeric: match the text against this setting's combo options.
+          ! Non-numeric: match the text against this setting's combo options --
+          ! either the full option text, or a short code the option carries in
+          ! trailing parentheses, eg "Surface Map (SUR)" matches SUR.  That lets
+          ! a dropdown show a readable label while the command uses the code.
           if (allocated(self%ps(i)%set)) then
             do k = 1, size(self%ps(i)%set)
-              if (uppercase(trim(self%ps(i)%set(k)%text)) == uppercase(trim(valueStr))) then
+              if (uppercase(trim(self%ps(i)%set(k)%text)) == uppercase(trim(valueStr)) .or. &
+                  uppercase(trim(parenCode(self%ps(i)%set(k)%text))) == uppercase(trim(valueStr))) then
                 call self%updateSetting(self%ps(i)%ID, real(self%ps(i)%set(k)%ID, kind(1.0d0)))
                 return
               end if
@@ -866,6 +919,20 @@ contains
           call self%updateSetting(self%ps(i)%ID, trim(valueStr))
           return
         end do
+
+      contains
+
+        ! The code inside a trailing "(...)" of an option label, or blank.
+        function parenCode(label) result(code)
+          character(len=*), intent(in) :: label
+          character(len=len(label)) :: code
+          integer :: lp, rp
+          code = ' '
+          rp = index(label, ')', BACK=.TRUE.)
+          lp = index(label, '(', BACK=.TRUE.)
+          if (lp > 0 .and. rp > lp + 1) code = label(lp+1:rp-1)
+        end function parenCode
+
       end subroutine applySettingCommand
 
       function getSettingValueByCode(self, setting_code) result(val)

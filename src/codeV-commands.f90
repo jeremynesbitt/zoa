@@ -550,6 +550,11 @@ module codeV_commands
         zoaCmds(728)%execFunc => setPlotSettingGeneric
         zoaCmds(729)%cmd = 'DST'
         zoaCmds(729)%execFunc => setPlotSettingGeneric
+        ! PMA (OPD) plot: plot type and Zernike term count.
+        zoaCmds(730)%cmd = 'PLO'
+        zoaCmds(730)%execFunc => setPlotSettingGeneric
+        zoaCmds(731)%cmd = 'ZFR'
+        zoaCmds(731)%execFunc => setPlotSettingGeneric
         zoaCmds(527)%cmd = 'SETDENS'
         zoaCmds(527)%execFunc => setPlotDensity     
         zoaCmds(528)%cmd = 'SETZERNC'
