@@ -109,10 +109,13 @@ subroutine zern_go(psm)
         xdat(ii+1) = 0.0
       end if
       write(ffieldstr, *) xdat(ii+1)
-      CALL PROCESKDP("FOB "// ffieldstr)
-      CALL PROCESKDP("CAPFN")
+      ! Silent, like every other plot routine: this loop runs once per field,
+      ! and with bare PROCESKDP each pass dumped the full CAPFN/FITZERN report
+      ! into the console -- including whenever this tab was replotted.
+      CALL PROCESSILENT("FOB "// ffieldstr)
+      CALL PROCESSILENT("CAPFN")
       write(ffieldstr, *) lambda
-      CALL PROCESKDP("FITZERN, "//ffieldstr)
+      CALL PROCESSILENT("FITZERN, "//ffieldstr)
 
       !CALL PROCESKDP("SHO RMSOPD")
       xdat(ii+1) = REAL(xdat(ii+1)*sysConfig%refFieldValue(2))

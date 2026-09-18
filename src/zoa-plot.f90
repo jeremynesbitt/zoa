@@ -829,7 +829,12 @@ subroutine bc_drawPlot(self)
 
           call getAxesLimits(self, xmin, xmax, ymin, ymax)
           call plwind(xmin, xmax, ymin, ymax)
-     if (c_associated(self%area)) then        
+          ! Plain decimal tick labels (same as drawPlot): without this PLplot
+          ! switches small ranges to scientific notation and hangs an easily
+          ! missed "(x10^-2)" factor in the corner.
+          call plsyax(7, 0)
+          call plsxax(7, 0)
+     if (c_associated(self%area)) then
       isurface = g_object_get_data(self%area, "backing-surface")
   ! Create the backing surface
 
@@ -845,7 +850,10 @@ subroutine bc_drawPlot(self)
       end if
     end if
           call self%buildPlotCode()
-          call plbox(trim(self%xPlotCode),0.0_pl_test_flt, 0, trim(self%yPlotCode), max(ymax,abs(ymin)), 0 ) 
+          ! Auto-tick the y axis: the previous interval of max(|ymax|,|ymin|)
+          ! labelled only 0 and one extreme, leaving the other end of an
+          ! asymmetric range (eg -0.02..+0.01) unlabelled.
+          call plbox(trim(self%xPlotCode),0.0_pl_test_flt, 0, trim(self%yPlotCode), 0.0_pl_test_flt, 0 )
           !call plbox(trim(self%xPlotCode),0.0_pl_test_flt, 0, trim(self%yPlotCode), 0.0_pl_test_flt, 0 ) 
           
           !call plbox( 'bcgnt', 0.0_pl_test_flt, 0, 'bcgntv', 0.0_pl_test_flt, 0 )
