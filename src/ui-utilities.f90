@@ -39,15 +39,8 @@
  type(c_ptr) :: nbook
 
 
- if (c_associated(gdata)) then
-   call LogTermDebug("Pointer defind!")
-   call c_f_string(gdata, fstring)
-  !call c_f_pointer(cptr, fstring)
-  call LogTermDebug("Check that string is "//trim(fstring))   
-  else 
-   call LogTermDebug("Pointer not defind!")
-  end if
- call LogTermDebug("Tab key is "//trim(fstring))
+ fstring = ''
+ if (c_associated(gdata)) call c_f_string(gdata, fstring)
 
  objIdx = zoatabMgr%getTabIdxByID(trim(fstring))
  call zoatabMgr%removePlotTab(zoatabMgr%tabInfo(objIdx)%tabObj%tabNum, objIdx)
@@ -368,15 +361,8 @@ subroutine dock_Window(act, param, parent_notebook) bind(c)
   call gtk_notebook_remove_page(parent_notebook, pageNum)
 
   cptr = g_object_get_data(child, 'tab-id'//c_null_char)
-  if (c_associated(cptr)) then
-    call LogTermDebug("Pointer defind!")
-    call c_f_string(cptr, fstring)
-   !call c_f_pointer(cptr, fstring)
-   call LogTermDebug("Check that string is "//trim(fstring))   
-   else 
-    call LogTermDebug("Pointer not defind!")
-   end if
-  call LogTermDebug("Tab ID is "//trim(fstring))
+  fstring = ''
+  if (c_associated(cptr)) call c_f_string(cptr, fstring)
 
   tabNum = zoatabMgr%getTabIdxByID(trim(fstring))
 

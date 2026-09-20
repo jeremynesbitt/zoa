@@ -703,15 +703,8 @@ subroutine moveTabMain(parent_notebook, child, pageNum, gdata) bind(c)
   character(len=80) :: fstring
 
   cptr = g_object_get_data(child, 'tab-id'//c_null_char)
-  if (c_associated(cptr)) then
-    call LogTermDebug("Pointer defind!")
-    call c_f_string(cptr, fstring)
-   !call c_f_pointer(cptr, fstring)
-   call LogTermDebug("Check that string is "//trim(fstring))   
-   else 
-    call LogTermDebug("Pointer not defind!")
-   end if
-  call LogTermDebug("Tab ID is "//trim(fstring))
+  fstring = ''
+  if (c_associated(cptr)) call c_f_string(cptr, fstring)
 
   tabNum = zoatabMgr%getTabIdxByID(trim(fstring))
 
