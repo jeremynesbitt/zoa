@@ -55,6 +55,7 @@ subroutine zern_go(psm)
     integer :: ii, objIdx, minZ, maxZ, lambda, k, iz
     integer :: maxPlotZ = 9, numTermsToPlot
     integer :: numPoints = 10
+    integer :: pupilGrid
     integer, allocatable :: zlist(:)
     integer :: pIdx
     logical :: replot
@@ -79,7 +80,11 @@ subroutine zern_go(psm)
     ! matching the working rmsfield_go pattern.  No-op in headless.
     call initializeGoPlot(psm, ID_PLOTTYPE_ZERN_VS_FIELD, "Zernike vs Field", replot, objIdx)
 
-    numPoints = psm%getDensitySetting()
+    ! Field points across the sweep, and the pupil grid for each CAPFN.  Kept
+    ! separate: the grid must be passed explicitly, or CAPFN reuses whatever
+    ! the last caller left in KDP's CAPDEF global.
+    numPoints = INT(psm%getSettingValueByCode(ID_NUMPOINTS))
+    pupilGrid = psm%getDensitySetting()
     ! A "vs field" sweep needs a real field extent.  For a single on-axis field
     ! (no field height/angle -> refFieldValue == 0) every relative sample lands
     ! on axis, so a density sweep just repeats the same row.  Collapse to one.
@@ -113,7 +118,7 @@ subroutine zern_go(psm)
       ! and with bare PROCESKDP each pass dumped the full CAPFN/FITZERN report
       ! into the console -- including whenever this tab was replotted.
       CALL PROCESSILENT("FOB "// ffieldstr)
-      CALL PROCESSILENT("CAPFN")
+      CALL PROCESSILENT("CAPFN, "//trim(int2str(pupilGrid)))
       write(ffieldstr, *) lambda
       CALL PROCESSILENT("FITZERN, "//ffieldstr)
 
@@ -1066,7 +1071,10 @@ do ii = 0, numPoints-1
  select case(iData)
 
  case(ID_RMS_DATA_WAVE)
-    CALL PROCESSILENT("CAPFN SILENT")
+    ! Explicit grid (KDP's default 16): a bare CAPFN inherits the last caller's
+    ! CAPDEF global, so this plot's numbers would change with whatever grid
+    ! another plot had used.
+    CALL PROCESSILENT("CAPFN SILENT, 16")
     CALL PROCESSILENT("SHO RMSOPD")
     y(ii+1) = 1000.0*REG(9)
  case(ID_RMS_DATA_SPOT)

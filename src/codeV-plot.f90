@@ -209,7 +209,13 @@ contains
 
         ! Set up settings
         call psm%addWavelengthSetting()
-        call psm%addDensitySetting(10, 8, 21)
+        ! Field points across the sweep (NUMPTS) and the pupil grid handed to
+        ! CAPFN (SETDENS).  These used to be conflated: one "Density" setting
+        ! was read as the field count while CAPFN ran bare and silently
+        ! inherited whatever grid the previous CAPFN caller (eg PMA at 64) had
+        ! left in KDP's CAPDEF global.
+        call psm%addNumPointsSetting(10, 8, 21)
+        call psm%addDensitySetting(32, 16, 512)
         call psm%addZernikeSetting("5..9")
 
         curr_psm = psm

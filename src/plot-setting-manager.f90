@@ -110,6 +110,7 @@ module plot_setting_manager
     procedure, public, pass(self) :: getAstigSettings
     procedure, public, pass(self) :: addPMASettings
     procedure, public, pass(self) :: getPMASettings
+    procedure, public, pass(self) :: addNumPointsSetting
 
     !RMS Settings
     procedure, public, pass(self) :: addRMSFieldSettings
@@ -552,6 +553,21 @@ contains
       call self%ps(self%numSettings)%initialize(SETTING_PMA_NZERN, &
       & "Number of Zernikes to Fit (default 37)", real(PMA_MAX_ZERN), 1.0, real(PMA_MAX_ZERN), &
       & "ZFR", "ZFR "//int2str(PMA_MAX_ZERN), UITYPE_SPINBUTTON)
+
+    end subroutine
+
+    ! "Number of Points" across the field (NUMPTS), as used by the vs-field
+    ! plots.  Distinct from addDensitySetting (SETDENS), which is the pupil
+    ! grid handed to CAPFN.
+    subroutine addNumPointsSetting(self, defaultVal, minVal, maxVal)
+
+      class (zoaplot_setting_manager) :: self
+      integer, intent(in) :: defaultVal, minVal, maxVal
+
+      self%numSettings = self%numSettings + 1
+      call self%ps(self%numSettings)%initialize(ID_NUMPOINTS, &
+      & "Number of Points", real(defaultVal), real(minVal), real(maxVal), &
+      & "NUMPTS ", "NUMPTS "//int2str(defaultVal), UITYPE_SPINBUTTON)
 
     end subroutine
 

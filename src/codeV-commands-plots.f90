@@ -13,7 +13,9 @@ contains
         double precision :: f
 
         call PROCESKDP('THI SI '//real2str(x))
-        call PROCESKDP('FOB 0; CAPFN; SHO RMSOPD')
+        ! Explicit grid (KDP's default 16) so the focus search is independent of
+        ! whatever CAPFN grid a plot last left in KDP's CAPDEF global.
+        call PROCESKDP('FOB 0; CAPFN, 16; SHO RMSOPD')
         f = REG(9)
     end function adjustImageFocus
 

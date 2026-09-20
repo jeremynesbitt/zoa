@@ -17,7 +17,7 @@ module procedure psf_go
 
 character(len=1024) :: ffieldstr
 
-integer :: xpts, ypts
+integer :: xpts, ypts, pupilGrid
 integer, parameter :: xdim=99, ydim=100
 integer :: lambda, fldIdx
 integer :: ii,jj,zz
@@ -43,6 +43,15 @@ PRINT *, "fldIdx is ", fldIdx
 WRITE(ffieldstr, *) "FOB ", sysConfig%relativeFields(2,fldIdx) &
 & , ' ' , sysConfig%relativeFields(1, fldIdx)
 CALL PROCESKDP(trim(ffieldstr))
+
+! Set this plot's own pupil grid, exactly as mtf_go does.  doPSF sizes its
+! transform from the NRD/TGR globals, which without this were simply whatever
+! the previous plot's CAPFN last left (a PSF after a 64-grid PMA came out at
+! 64), and the Density setting execPSF adds was never applied at all.  CAPFN
+! (not just NRD) so that NRD and the transform size TGR are set consistently.
+pupilGrid = psm%getDensitySetting()
+call PROCESSILENT('NRD, '//trim(int2str(pupilGrid)))
+call PROCESSILENT('CAPFN, '//trim(int2str(pupilGrid)))
 
 if (HEADLESS_MODE) then
   canvas = c_null_ptr
