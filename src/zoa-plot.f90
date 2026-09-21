@@ -1175,6 +1175,7 @@ end subroutine
     integer, parameter :: nlevel = 10
     real(kind=pl_test_flt)   :: zmin, zmax, step, clevel(nlevel)
     real(kind=pl_test_flt) :: xmin, xmax, ymin, ymax
+    real(kind=pl_test_flt) :: xImgMin, xImgMax, yImgMin, yImgMax
     real(c_double) :: alt=90._c_double, az=00._c_double
 
 
@@ -1210,6 +1211,36 @@ end subroutine
     do i=1,ypts
         yg(i) = ymin + (ymax-ymin)*(i-1._pl_test_flt)/(ypts-1._pl_test_flt)
     enddo
+
+    ! The x/y arrays hold the sample (pixel-centre) coordinates, so their
+    ! min/max are the centres of the outermost pixels.  plimage's xmin/xmax
+    ! are NOT the image edges: pixel ix is filled over
+    ! [xmin+ix*dx, xmin+(ix+1)*dx] with dx=(xmax-xmin)/(nx-1) (plimage.c), so
+    ! the last column/row spill past xmax/ymax and the window clipped them.
+    ! A symmetric pupil therefore rendered with a 12-pixel chord on its left
+    ! edge and a 20-pixel chord on its right (and likewise bottom/top), the
+    ! whole map shifted half a pixel.  Map explicitly: image corners run from
+    ! the first centre minus half a pitch to the LAST centre minus half a
+    ! pitch, and the window extends one further half pitch so all n
+    ! columns/rows land inside it.
+    if (xpts > 1) then
+      step = (xmax - xmin) / (xpts - 1._pl_test_flt)
+    else
+      step = 1.0_pl_test_flt
+    end if
+    xImgMin = xmin - 0.5_pl_test_flt*step
+    xImgMax = xmax - 0.5_pl_test_flt*step
+    xmin = xImgMin
+    xmax = xmax + 0.5_pl_test_flt*step
+    if (ypts > 1) then
+      step = (ymax - ymin) / (ypts - 1._pl_test_flt)
+    else
+      step = 1.0_pl_test_flt
+    end if
+    yImgMin = ymin - 0.5_pl_test_flt*step
+    yImgMax = ymax - 0.5_pl_test_flt*step
+    ymin = yImgMin
+    ymax = ymax + 0.5_pl_test_flt*step
 
     
 
@@ -1254,14 +1285,18 @@ end subroutine
       do j=1,nl
         clev(j) = lzmin + (lzmax-lzmin)/(nl-1._pl_test_flt)*(j-1._pl_test_flt)
     enddo                
-      call plenv0(xmin, xmax, ymin, ymax, 2, 0)
+      ! Square, isotropic box without plenv0: plenv0 advances the page, which
+      ! on the headless pngcairo device pushed the image onto a second page
+      ! that was never written (the PMA/ZERN_TST golden PNGs were blank).
+      call plvasp(1.0_pl_test_flt)
+      call plwind(xmin, xmax, ymin, ymax)
       call plcol0(15)
+      call plbox('bcnst'//c_null_char, 0.0_pl_test_flt, 0, 'bcnstv'//c_null_char, 0.0_pl_test_flt, 0)
       call pllab( trim(self%xlabel)//c_null_char, trim(self%ylabel)//c_null_char, trim(self%title)//c_null_char)
 
       call plimage(reshape(self%plotDataList3d(i)%z, [xpts, ypts]), &
-      & xmin, xmax, ymin, ymax, zmin, zmax, &
-      & xmin, xmax, ymin, ymax)          
-      !& -1._pl_test_flt, 1._pl_test_flt, -1._pl_test_flt, 1._pl_test_flt)  
+      & xImgMin, xImgMax, yImgMin, yImgMax, zmin, zmax, &
+      & xImgMin, xImgMax, yImgMin, yImgMax)
       
       call plcol0(2)        
 
