@@ -1651,7 +1651,6 @@ SUBROUTINE OPDLOD
    OPEN(UNIT=64,ACCESS='DIRECT',FILE=trim(LIBSPO)//'OPDDAT.DAT',&
    &FORM='UNFORMATTED',RECL=rec64,STATUS='UNKNOWN')
    KK=1
-   PRINT *, "ITOT is ", ITOT
    DO IIP=2,ITOT
 !     LOAD DSPOT(*) WITH DSPOTT(*,ID)
       ID=IIP-1
@@ -1692,11 +1691,6 @@ SUBROUTINE OPDLOD
    curr_opd%numx = INT(sqrt(real(curr_opd%numPts)))
    curr_opd%numy = INT(sqrt(real(curr_opd%numPts)))
 
-   PRINT *, "OPDLOD numPts is ", curr_opd%numPts
-   PRINT *, "IWIW is ", IWIW
-
-
-
    DO IIP=2,ITOT
 !     LOAD DSPOT(*) WITH DSPOTT(*,ID)
       ID=IIP-1
@@ -1713,8 +1707,10 @@ SUBROUTINE OPDLOD
          DWW3=DSPOT(4)/(TWOPII)
          DWW4=DSPOT(12)
 
-         curr_opd%X(KK) = DWW1
-         curr_opd%Y(KK) = DWW2
+         ! DWW1 is the Y and DWW2 the X reference-surface coordinate (see the
+         ! header comment); the map's columns were swapped here.
+         curr_opd%X(KK) = DWW2
+         curr_opd%Y(KK) = DWW1
          curr_opd%Z(KK) = DWW3
 
 !
