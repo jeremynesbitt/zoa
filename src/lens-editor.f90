@@ -560,9 +560,12 @@ function buildLensEditTable() result(store)
     use DATLEN
     character(len=40), dimension(curr_lens_data%num_surfaces) :: surfName_array
     integer :: i
-    do i=1,curr_lens_data%num_surfaces-1
+    ! All num_surfaces entries (LBL is 0-based: LBL(0) is the object surface).
+    ! This used to stop one short, leaving the last (image) surface's name
+    ! unassigned -- fine while the fresh array happened to be zeroed, garbage
+    ! once the table was rebuilt after an edit.
+    do i=1,curr_lens_data%num_surfaces
       surfName_array(i) = LBL(i-1)(1:40)
-
     end do
 
 
@@ -1936,26 +1939,30 @@ end subroutine
 
       swin = gtk_scrolled_window_new()
       call gtk_scrolled_window_set_child(swin, cv)
-      call gtk_scrolled_window_set_min_content_height(swin, 300_c_int) !TODO:  Fix this properly 
+      call gtk_scrolled_window_set_min_content_height(swin, 300_c_int)
+      ! The table takes any extra height; the buttons below must not
+      ! (hl_gtk_box_pack expands by default, which made the gaps between the
+      ! buttons grow when the window was enlarged while the table stayed put).
+      call gtk_widget_set_vexpand(swin, TRUE)
       call gtk_box_append(boxNew, swin)
 
-    ! Delete selected row
+      ! Insert row above selection
       ibut = hl_gtk_button_new("Insert row"//c_null_char, &
       & clicked=c_funloc(ins_row), &
       & tooltip="Insert new row above"//c_null_char, sensitive=FALSE)
 
-      call hl_gtk_box_pack(boxNew, ibut)
+      call hl_gtk_box_pack(boxNew, ibut, expand=FALSE)
 
       ! Delete selected row
       dbut = hl_gtk_button_new("Delete selected row"//c_null_char, &
             & clicked=c_funloc(del_row), &
             & tooltip="Delete the selected row"//c_null_char, sensitive=FALSE)
 
-      call hl_gtk_box_pack(boxNew, dbut)
+      call hl_gtk_box_pack(boxNew, dbut, expand=FALSE)
 
       ! Also a quit button
       qbut = hl_gtk_button_new("Quit"//c_null_char, clicked=c_funloc(lens_editor_destroy), data=lens_editor_window)
-      call hl_gtk_box_pack(boxNew,qbut)
+      call hl_gtk_box_pack(boxNew, qbut, expand=FALSE)
 
 
   end function
