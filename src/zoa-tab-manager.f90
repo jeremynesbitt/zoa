@@ -852,14 +852,16 @@ end subroutine
 subroutine saveTabsToZin(self, unit)
   use iso_fortran_env, only: int32
   use mod_zin_io, only: zin_write_header, zin_write_str, ZIN_KIND_DATA, ZIN_KIND_REPLAY
-  use gtk_sup, only: c_f_string_copy
+  use gtk_sup, only: c_f_string_copy_alloc
   implicit none
   class(zoatabManager) :: self
   integer, intent(in) :: unit
   integer :: i, n, recordKind
   type(gtktextiter), target :: iterStart, iterEnd
   type(c_ptr) :: buffer
-  character(len=65536) :: dataText
+  ! Deferred length: a dense PMA pupil map is a few hundred KB of table, so
+  ! any fixed buffer silently cuts the restored Data tab off mid-number.
+  character(len=:), allocatable :: dataText
 
   n = 0
   do i=1,self%tabNum
@@ -892,12 +894,14 @@ subroutine saveTabsToZin(self, unit)
           if (c_associated(buffer)) then
             call gtk_text_buffer_get_start_iter(buffer, c_loc(iterStart))
             call gtk_text_buffer_get_end_iter(buffer, c_loc(iterEnd))
-            call c_f_string_copy(gtk_text_buffer_get_text(buffer, &
+            call c_f_string_copy_alloc(gtk_text_buffer_get_text(buffer, &
             & c_loc(iterStart), c_loc(iterEnd), FALSE), dataText)
           end if
         end if
       end select
-      call zin_write_str(unit, trim(dataText))
+      ! len_trim, not trim: trim() on a several-hundred-KB deferred-length
+      ! string is the same content, but keep the write itself cheap.
+      call zin_write_str(unit, dataText(1:len_trim(dataText)))
 
       select type (t => self%tabInfo(i)%tabObj)
       class is (zoaplottab)
@@ -915,7 +919,8 @@ end subroutine saveTabsToZin
 ! freshly-drawn plot does.
 subroutine restoreTabsFromZin(self, unit)
   use iso_fortran_env, only: int32
-  use mod_zin_io, only: zin_read_header, zin_read_str, ZIN_KIND_DATA, ZIN_KIND_REPLAY
+  use mod_zin_io, only: zin_read_header, zin_read_str, zin_read_str_alloc, &
+  &                     ZIN_KIND_DATA, ZIN_KIND_REPLAY
   use plot_setting_manager, only: zoaplot_setting_manager
   use zoa_output, only: zoa_emit
   implicit none
@@ -925,7 +930,7 @@ subroutine restoreTabsFromZin(self, unit)
   integer(int32) :: recordKind32, plotType32
   logical :: ok
   character(len=1040) :: title, plotCommand
-  character(len=65536) :: dataText
+  character(len=:), allocatable :: dataText
   type(zoaplot_setting_manager) :: psm
   type(multiplot) :: mplt
 
@@ -962,7 +967,7 @@ subroutine restoreTabsFromZin(self, unit)
     if (int(recordKind32) == ZIN_KIND_REPLAY) then
       call PROCESKDP(trim(plotCommand))
     else if (int(recordKind32) == ZIN_KIND_DATA) then
-      call zin_read_str(unit, dataText, ios)
+      call zin_read_str_alloc(unit, dataText, ios)
       if (ios /= 0) then
         call zoa_emit("ZIN: zin file truncated/corrupt, stopping plot restore", "red")
         return

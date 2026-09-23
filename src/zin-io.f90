@@ -23,7 +23,7 @@ module mod_zin_io
   integer(int32), parameter, public :: ZIN_PLOT_IMG   = 3
   integer(int32), parameter, public :: ZIN_PLOT_BAR   = 4
 
-  public :: zin_write_str, zin_read_str
+  public :: zin_write_str, zin_read_str, zin_read_str_alloc
   public :: zin_write_logical, zin_read_logical
   public :: zin_write_header, zin_read_header
 
@@ -69,6 +69,26 @@ contains
     end if
     deallocate(buf)
   end subroutine zin_read_str
+
+  ! As zin_read_str, but allocates s to the stored length so nothing is
+  ! truncated. Use this for records with no sane fixed bound -- notably the
+  ! Data-tab text, which for a dense pupil map runs to hundreds of KB.
+  subroutine zin_read_str_alloc(unit, s, ios)
+    integer, intent(in) :: unit
+    character(len=:), allocatable, intent(out) :: s
+    integer, intent(out) :: ios
+    integer(int32) :: n
+
+    s = ''
+    read(unit, iostat=ios) n
+    if (ios /= 0) return
+    if (n <= 0) return
+
+    deallocate(s)
+    allocate(character(len=n) :: s)
+    read(unit, iostat=ios) s
+    if (ios /= 0) s = ''
+  end subroutine zin_read_str_alloc
 
   subroutine zin_write_logical(unit, l)
     integer, intent(in) :: unit

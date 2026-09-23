@@ -708,7 +708,8 @@ contains
         use zoa_plot, only: zoaplot, zoaPlot3d, multiplot, POS_UPPER_RIGHT
         use plplot, only: pl_test_flt
         use plot_setting_manager, only: zoaplot_setting_manager, plot_setting
-        use mod_zin_io, only: zin_write_header, zin_read_header
+        use mod_zin_io, only: zin_write_header, zin_read_header, &
+        &                     zin_write_str, zin_read_str_alloc
         use zoa_file_handler, only: getTempDirectory, delete_file
         use iso_c_binding, only: c_associated
         use, intrinsic :: iso_c_binding, only: c_null_ptr
@@ -728,8 +729,16 @@ contains
         integer :: unit, ios, i, numTabsOut
         logical :: ok
         integer :: failCount
+        integer, parameter :: BIGLEN = 200000
+        character(len=:), allocatable :: bigText, bigTextL
 
         failCount = 0
+
+        ! Non-uniform so a truncated or short read cannot accidentally match.
+        allocate(character(len=BIGLEN) :: bigText)
+        do i = 1, BIGLEN
+            bigText(i:i) = achar(33 + mod(i, 90))
+        end do
 
         x  = [1.0, 2.0, 3.0, 4.0, 5.0]
         y  = [1.0, 4.0, 9.0, 16.0, 25.0]
@@ -770,6 +779,10 @@ contains
         call zin_write_header(unit, 1)
         call psm%saveToBinary(unit)
         call mplt%saveToBinary(unit)
+        ! A Data-tab table (a dense PMA pupil map is ~200 KB) must survive
+        ! whole: fixed-size buffers used to cut the restored tab off
+        ! mid-number at 65536 characters.
+        call zin_write_str(unit, bigText)
         close(unit)
 
         open(newunit=unit, file=trim(fname), access='stream', form='unformatted', &
@@ -797,6 +810,20 @@ contains
         if (ios /= 0) then
             call OUTKDP("ZINTEST: FAIL mplt load ios")
             failCount = failCount + 1
+        end if
+
+        call zin_read_str_alloc(unit, bigTextL, ios)
+        if (ios /= 0) then
+            call OUTKDP("ZINTEST: FAIL long string load ios")
+            failCount = failCount + 1
+        else
+            call ckI("longString.len", len(bigText), len(bigTextL))
+            if (len(bigText) == len(bigTextL)) then
+                if (bigText /= bigTextL) then
+                    call OUTKDP("ZINTEST: FAIL longString content mismatch")
+                    failCount = failCount + 1
+                end if
+            end if
         end if
 
         close(unit)
