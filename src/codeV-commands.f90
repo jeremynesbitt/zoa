@@ -1419,22 +1419,8 @@ module codeV_commands
 
         !class(zoa_cmd) :: self
         character(len=*) :: iptStr
-        character(len=80) :: tokens(40)
-        character(len=3), dimension(4) :: colHeaders
-        real(kind=long), dimension(4,curr_lens_data%num_surfaces):: dataArray
         integer :: i,j
         character(len=1024) :: outStr
-
-        print *, "Size of dataArray is ", size(dataArray,1)
-        dataArray(1,:) = curr_par_ray_trace%marginal_ray_height
-        dataArray(2,:) = curr_par_ray_trace%marginal_ray_angle        
-        dataArray(3,:) = curr_par_ray_trace%chief_ray_height
-        dataArray(4,:) = curr_par_ray_trace%chief_ray_angle
-
-        colHeaders(1) = "HMY"
-        colHeaders(2) = "UMY"
-        colHeaders(3) = "HCY"
-        colHeaders(4) = "UCY"
 
         call OUTKDP('   '//trim(sysConfig%lensTitle))
         call OUTKDP('REFRACTIVE INDICES')
@@ -1447,7 +1433,10 @@ module codeV_commands
             if (ldm%isGlassSurf(i)) then
                 outStr = blankStr(3)//ldm%getGlassName(i)
                 do j=1,sysConfig%numWavelengths
-                    outStr=trim(outStr)//blankStr(5)//real2str(ldm%getSurfIndex(i,j))
+                    ! 6 decimals to match what the glass catalogs quote; the
+                    ! stored index is real64, so the default F9.5 was rounding
+                    ! away a digit the data actually has.
+                    outStr=trim(outStr)//blankStr(5)//real2str(ldm%getSurfIndex(i,j), 6)
                 end do
                 call outKDP(trim(outStr))
             end if
