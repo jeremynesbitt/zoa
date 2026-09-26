@@ -33,3 +33,24 @@ VIE ; GO
 FAN
 ! ---- TFMOTION reports current focus-motion settings ----
 TFMOTION
+! ---- PLTRMS spot sampling is pinned to its own Density setting ----
+! Kept last so it does not renumber the plots above.  The spot branch drives
+! SPD, whose sampling lives in mutable KDP globals.  These two runs bracket a
+! global change: the RMS numbers must come out identical, and the trailing SPD
+! must still report the default 861-ray ring pattern (i.e. PLTRMS restored the
+! globals it borrowed).
+PLTRMS
+RMSDATA SPOT
+NUMPTS 3
+SETDENS 16
+GO
+SPOT RECT
+RECT 30
+PLTRMS P2
+RMSDATA SPOT
+NUMPTS 3
+SETDENS 16
+GO
+SPOT RING
+FOB 0
+SPD

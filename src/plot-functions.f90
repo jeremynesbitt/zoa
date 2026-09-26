@@ -1023,6 +1023,7 @@ subroutine rmsfield_go(psm)
   use global_widgets, only:  sysConfig, curr_ray_fan_data, ioConfig
   use kdp_utils, only: log2DData
   use type_utils, only: int2str
+  use DATSP1, only: SPDTYPE, NRECT
   use plplot, PI => PL_PI
   use plplot_extra
   use iso_c_binding, only: c_ptr, c_null_ptr
@@ -1034,7 +1035,7 @@ IMPLICIT NONE
 character(len=23) :: ffieldstr
 integer :: ii, objIdx, iData, iLambda
 logical :: replot
-integer :: numPoints
+integer :: numPoints, pupilGrid, savedSpdType, savedNRect
 type(zoaplot) :: xyscat
 type(c_ptr) :: canvas
 
@@ -1051,6 +1052,20 @@ call initializeGoPlot(psm,ID_PLOTTYPE_RMSFIELD, "RMS vs Field", replot, objIdx)
  !call updateTerminalLog(INPUT, "blue")
 
  call psm%getRMSFieldSettings(iData, iLambda, numPoints)
+ pupilGrid = psm%getDensitySetting()
+
+! The spot branch drives SPD, whose sampling comes from mutable KDP globals
+! (SPDTYPE/NRECT/ring pattern).  Left alone, this plot's numbers depended on
+! whatever a previous command had set -- e.g. an earlier "SPOT RECT; RECT 30"
+! moved the on-axis RMS from 0.01224 to 0.00890 on the same lens.  Pin it to
+! the plot's own Density setting here and put the globals back afterwards, so
+! neither this plot nor any later spot diagram is at the mercy of the other.
+if (iData == ID_RMS_DATA_SPOT) then
+  savedSpdType = SPDTYPE
+  savedNRect   = NRECT
+  SPDTYPE = 1          ! rectangular grid
+  NRECT   = pupilGrid
+end if
 
 ! A "vs field" sweep needs a real field extent.  For a single on-axis field
 ! (refFieldValue == 0) every relative sample lands on axis, so collapse the
@@ -1071,10 +1086,10 @@ do ii = 0, numPoints-1
  select case(iData)
 
  case(ID_RMS_DATA_WAVE)
-    ! Explicit grid (KDP's default 16): a bare CAPFN inherits the last caller's
-    ! CAPDEF global, so this plot's numbers would change with whatever grid
-    ! another plot had used.
-    CALL PROCESSILENT("CAPFN SILENT, 16")
+    ! Explicit grid (default 16, KDP's own): a bare CAPFN inherits the last
+    ! caller's CAPDEF global, so this plot's numbers would change with
+    ! whatever grid another plot had used.
+    CALL PROCESSILENT("CAPFN SILENT, "//trim(int2str(pupilGrid)))
     CALL PROCESSILENT("SHO RMSOPD")
     y(ii+1) = 1000.0*REG(9)
  case(ID_RMS_DATA_SPOT)
@@ -1090,6 +1105,11 @@ do ii = 0, numPoints-1
  x(ii+1) = x(ii+1)*sysConfig%refFieldValue(2)
 
 end do
+
+if (iData == ID_RMS_DATA_SPOT) then
+  SPDTYPE = savedSpdType
+  NRECT   = savedNRect
+end if
 
 
 

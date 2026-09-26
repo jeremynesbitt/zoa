@@ -601,9 +601,14 @@ contains
       & "RMSDATA ", "RMSDATA WAVE", UITYPE_COMBO, set=set)
 
       self%numSettings = self%numSettings + 1
-      call self%ps(self%numSettings)%initialize(ID_NUMPOINTS, & 
+      call self%ps(self%numSettings)%initialize(ID_NUMPOINTS, &
       & "Number of Points", real(10.0),1.0,50.0, &
       & "NUMPTS ", "NUMPTS "//int2str(10), UITYPE_SPINBUTTON)
+
+      ! Pupil sampling used at each field point: an NxN grid.  16 is KDP's
+      ! own default CAPFN grid, so the wavefront numbers are unchanged from
+      ! when this was hard-coded.
+      call self%addDensitySetting(16, 4, 128)
 
       call self%addWavelengthSetting()
 

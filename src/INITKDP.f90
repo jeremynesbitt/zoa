@@ -484,8 +484,11 @@ SUBROUTINE INITKDP
    RINGRAD(5)=1.0D0
    RINGPNT(0)=1
    RINGPNT(1)=80
+!     RINGPNT(2) used to be skipped entirely (and RINGPNT(4) assigned twice),
+!     so the rho=0.4 ring was traced with zero rays and the default spot
+!     diagram came out at 701 rays instead of 861.
+   RINGPNT(2)=160
    RINGPNT(3)=100
-   RINGPNT(4)=160
    RINGPNT(4)=200
    RINGPNT(5)=320
    RINGANG(0)=0.0D0
