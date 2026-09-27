@@ -124,6 +124,13 @@ integer, parameter :: ID_128x128 = 1630
 integer, parameter :: ID_256x256 = 1631
 integer, parameter :: ID_512x512 = 1632
 
+! Reference sphere centre (PLTRMS "Reference" setting / the legacy RSPH
+! command).  refLocFromID() in plot_setting_manager maps these to the REFLOC
+! values the legacy code uses (1 = chief, 3 = no tilt, 4 = tilt and focus).
+integer, parameter :: ID_RSPH_CHIEF  = 1633
+integer, parameter :: ID_RSPH_NOTILT = 1634
+integer, parameter :: ID_RSPH_BEST   = 1635
+
 !integer :: active_plot = -1
 
 ! C               0 = WHITE

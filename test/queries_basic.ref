@@ -143,10 +143,10 @@ CURRENT SETTING IS "I"
 "ON", "YES", "NO", "OFF" AND "OFFSET" ARE THE ONLY
 VALID QUALIFIERS USED WITH "GRID"
 RE-ENTER COMMAND
-SPOT DIAGRAM REFERENCE SPHERE CENTER REMOVES TILT
-SPOT DIAGRAM REFERENCE SPHERE CENTER REMOVES TILT
-CURRENT REF. SPHERE X-DISPLACEMENT =    0.000000000
-CURRENT REF. SPHERE Y-DISPLACEMENT =    0.000000000
+Reference sphere centre will remove tilt
+Reference sphere centre removes tilt (NOTILT)
+  X displacement = 0.00000
+  Y displacement = 0.00000
 Error:  Can only set constraint in AUT loop!
 Error! cmd did not update register
 0.00000

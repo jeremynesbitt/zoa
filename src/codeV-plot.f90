@@ -44,6 +44,96 @@ contains
     !## category: Plot Settings
     !## desc:     Set the spot-diagram rectangular grid density for the active plot.
     !##
+    !## cmd:      RSPH
+    !## syntax:   RSPH [CHIEF | NOTILT | BEST]
+    !## category: Plot Settings
+    !## desc:     Reference sphere centre for wavefront calculations.
+    !##           Inside a plot (e.g. PLTRMS) it sets that plot's own
+    !##           Reference setting, applied only while the plot computes.
+    !##           At the top level it sets the global default, as the legacy
+    !##           KDP command did.  With no qualifier it reports the current
+    !##           global setting.
+    !##
+    ! RSPH is context-aware: within a plot loop it is a per-plot setting (the
+    ! plot brackets REFLOC around its own calculation and restores it), and at
+    ! the top level it sets the legacy global directly.  It is registered as a
+    ! zoaCmd, so the front door reaches this handler before the legacy
+    ! NAMES/CMDER route -- the global branch below replicates what
+    ! WAVSPOT4's RSPH did, rather than trying to feed the legacy parse globals.
+    module procedure setReferenceSphere
+
+        use strings, only: parse
+        use DATLEN, only: REFLOC
+        use DATSPD, only: DLLX, DLLY, DLLZ
+        use plot_setting_manager, only: SETTING_RSPH
+
+        implicit none
+
+        character(len=80) :: tokens(40)
+        integer :: numTokens, newRefLoc
+        logical :: found
+
+        call parse(trim(iptStr), ' ', tokens, numTokens)
+
+        ! Bare RSPH, or the legacy query form "RSPH ?": report the current
+        ! global setting, with the reference-sphere displacements the legacy
+        ! command showed for the non-chief cases.
+        if (numTokens < 2 .or. trim(tokens(2)) == '?') then
+            select case (REFLOC)
+            case (3)
+                call zoa_emit("Reference sphere centre removes tilt (NOTILT)", "black")
+                call zoa_emit("  X displacement = "//trim(real2str(DLLX)), "black")
+                call zoa_emit("  Y displacement = "//trim(real2str(DLLY)), "black")
+            case (4)
+                call zoa_emit("Reference sphere centre removes tilt and focus (BEST)", "black")
+                call zoa_emit("  X displacement = "//trim(real2str(DLLX)), "black")
+                call zoa_emit("  Y displacement = "//trim(real2str(DLLY)), "black")
+                call zoa_emit("  Z displacement = "//trim(real2str(DLLZ)), "black")
+            case default
+                call zoa_emit("Reference sphere centre lies on the chief ray (CHIEF)", "black")
+            end select
+            return
+        end if
+
+        ! Inside a plot: hand it to the active plot's setting manager.
+        if (cmd_loop /= 0) then
+            call curr_psm%applySettingCommand(trim(tokens(1)), trim(tokens(2)), found)
+            if (found) return
+            ! Plot has no Reference setting -- fall through and treat it as the
+            ! global command, so RSPH still does something predictable.
+        end if
+
+        newRefLoc = -1
+        select case (trim(tokens(2)))
+        case ('CHIEF')
+            newRefLoc = 1
+        case ('NOTILT')
+            newRefLoc = 3
+        case ('BEST')
+            newRefLoc = 4
+        end select
+
+        if (newRefLoc < 0) then
+            call zoa_emit("RSPH takes CHIEF, NOTILT or BEST", "red")
+            return
+        end if
+
+        REFLOC = newRefLoc
+        DLLX = 0.0D0
+        DLLY = 0.0D0
+        DLLZ = 0.0D0
+
+        select case (newRefLoc)
+        case (3)
+            call zoa_emit("Reference sphere centre will remove tilt", "black")
+        case (4)
+            call zoa_emit("Reference sphere centre will remove tilt and focus", "black")
+        case default
+            call zoa_emit("Reference sphere centre will lie on the chief ray", "black")
+        end select
+
+    end procedure
+
     ! Generic handler for plot settings whose keyword needs no bespoke logic.
     ! The active plot's setting manager already knows which setting owns the
     ! keyword, so one handler serves them all -- register any new setting

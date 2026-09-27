@@ -1037,6 +1037,7 @@ subroutine rmsfield_go(psm)
   use kdp_utils, only: log2DData
   use type_utils, only: int2str
   use DATSP1, only: SPDTYPE, NRECT
+  use DATLEN, only: REFLOC
   use plplot, PI => PL_PI
   use plplot_extra
   use iso_c_binding, only: c_ptr, c_null_ptr
@@ -1048,7 +1049,7 @@ IMPLICIT NONE
 character(len=23) :: ffieldstr
 integer :: ii, objIdx, iData, iLambda
 logical :: replot
-integer :: numPoints, pupilGrid, savedSpdType, savedNRect
+integer :: numPoints, pupilGrid, savedSpdType, savedNRect, savedRefLoc
 type(zoaplot) :: xyscat
 type(c_ptr) :: canvas
 
@@ -1066,6 +1067,15 @@ call initializeGoPlot(psm,ID_PLOTTYPE_RMSFIELD, "RMS vs Field", replot, objIdx)
 
  call psm%getRMSFieldSettings(iData, iLambda, numPoints)
  pupilGrid = psm%getDensitySetting()
+
+! Reference sphere centre (the legacy RSPH global).  REFLOC is read inside
+! CAPFN -- COMPAP/WAVESLP1 rewrite the stored OPD in place -- so it has to be
+! set before the loop, not after.  Bracket it: every other CAPFN consumer
+! (ZERN_TST, PMA, PSF, diffraction MTF) reads the same global, and the state
+! is fully reversible, so restoring it afterwards keeps this plot's choice
+! from following the user around.
+savedRefLoc = REFLOC
+REFLOC = psm%getRSPHSetting()
 
 ! The spot branch drives SPD, whose sampling comes from mutable KDP globals
 ! (SPDTYPE/NRECT/ring pattern).  Left alone, this plot's numbers depended on
@@ -1123,6 +1133,7 @@ if (iData == ID_RMS_DATA_SPOT) then
   SPDTYPE = savedSpdType
   NRECT   = savedNRect
 end if
+REFLOC = savedRefLoc
 
 
 

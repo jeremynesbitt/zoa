@@ -31,6 +31,9 @@ module plot_setting_manager
     integer, parameter :: ID_PMA_SUR = 1756
     integer, parameter :: ID_PMA_BAR = 1757
     integer, parameter :: PMA_MAX_ZERN = 37
+    ! PLTRMS: reference sphere centre -- the legacy RSPH global (REFLOC).
+    ! The option ids themselves live in zoa-ui.f90 with the other ID_* values.
+    integer, parameter :: SETTING_RSPH = 1758
     integer, parameter :: SETTING_ZERNIKE = 4
 
 
@@ -115,6 +118,7 @@ module plot_setting_manager
     !RMS Settings
     procedure, public, pass(self) :: addRMSFieldSettings
     procedure, public, pass(self) :: getRMSFieldSettings
+    procedure, public, pass(self) :: getRSPHSetting
 
     procedure, public, pass(self) :: updateSetting, addPowerOfTwoImageSetting, getPowerOfTwoImageSetting
     procedure, public, pass(self) :: applySettingCommand
@@ -587,7 +591,7 @@ contains
     subroutine addRMSFieldSettings(self)
 
       class (zoaplot_setting_manager) :: self
-      type(idText) :: set(2)
+      type(idText) :: set(2), set3(3)
    
       set(1)%text = "Spot Size"
       set(1)%id = ID_RMS_DATA_SPOT
@@ -610,6 +614,21 @@ contains
       ! when this was hard-coded.
       call self%addDensitySetting(16, 4, 128)
 
+      ! Reference sphere centre (the legacy RSPH global).  Only meaningful for
+      ! the wavefront data type -- spot size is measured from ray positions and
+      ! is unaffected -- but shown for both.
+      set3(1)%text = "Chief Ray (CHIEF)"
+      set3(1)%id   = ID_RSPH_CHIEF
+      set3(2)%text = "No Tilt (NOTILT)"
+      set3(2)%id   = ID_RSPH_NOTILT
+      set3(3)%text = "Best Focus (BEST)"
+      set3(3)%id   = ID_RSPH_BEST
+
+      self%numSettings = self%numSettings + 1
+      call self%ps(self%numSettings)%initialize(SETTING_RSPH, &
+      & "Reference", real(ID_RSPH_CHIEF),0.0,0.0, &
+      & "RSPH ", "RSPH CHIEF", UITYPE_COMBO, set=set3)
+
       call self%addWavelengthSetting()
 
 
@@ -619,12 +638,36 @@ contains
 
       class (zoaplot_setting_manager) :: self
       integer, intent(inout) :: iData, iLambda, numPoints
-   
+
       iData = self%getSettingValueByCode(ID_RMS_DATA_TYPE)
       iLambda = self%getSettingValueByCode(SETTING_WAVELENGTH)
       numPoints = self%getSettingValueByCode(ID_NUMPOINTS)
-    
-    end subroutine    
+
+    end subroutine
+
+    ! REFLOC value for this plot's Reference setting; defaults to the chief
+    ! ray for a psm that has no such setting.
+    function getRSPHSetting(self) result(refLocVal)
+      class (zoaplot_setting_manager) :: self
+      integer :: refLocVal
+
+      refLocVal = refLocFromID(INT(self%getSettingValueByCode(SETTING_RSPH)))
+    end function
+
+    ! Option id -> the REFLOC code the legacy wavefront routines expect.
+    function refLocFromID(idVal) result(refLocVal)
+      integer, intent(in) :: idVal
+      integer :: refLocVal
+
+      select case (idVal)
+      case (ID_RSPH_NOTILT)
+        refLocVal = 3
+      case (ID_RSPH_BEST)
+        refLocVal = 4
+      case default
+        refLocVal = 1   ! chief ray
+      end select
+    end function
 
     
     subroutine initializeStr(self, ID_SETTING, label, default, cmd, ID_UITYPE)

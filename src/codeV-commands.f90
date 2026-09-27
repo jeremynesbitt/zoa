@@ -37,6 +37,9 @@ module codeV_commands
    module subroutine setPlotSettingGeneric(iptStr)
    character(len=*) :: iptStr
    end subroutine setPlotSettingGeneric
+   module subroutine setReferenceSphere(iptStr)
+   character(len=*) :: iptStr
+   end subroutine setReferenceSphere
    module subroutine setPlotDensity(iptStr)
    character(len=*) :: iptStr
    end subroutine setPlotDensity
@@ -555,6 +558,12 @@ module codeV_commands
         zoaCmds(730)%execFunc => setPlotSettingGeneric
         zoaCmds(731)%cmd = 'ZFR'
         zoaCmds(731)%execFunc => setPlotSettingGeneric
+        ! RSPH exists in NAMES.f90 (WCC(643)), so registering it here hijacks
+        ! the legacy command by design: setReferenceSphere reproduces the
+        ! legacy global behaviour at top level and acts as a plot setting
+        ! inside a plot loop.
+        zoaCmds(732)%cmd = 'RSPH'
+        zoaCmds(732)%execFunc => setReferenceSphere
         zoaCmds(527)%cmd = 'SETDENS'
         zoaCmds(527)%execFunc => setPlotDensity     
         zoaCmds(528)%cmd = 'SETZERNC'

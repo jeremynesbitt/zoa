@@ -1823,3 +1823,22 @@ AT WAVELENGTH # = 10, # RAYS SUCCEDED =          0
 FOCUS SHIFT FOR BEST RMS SPOT DIAMETER   = -0.9528601765E-02
 FOCUS SHIFT FOR BEST RMS SPOT LENGTH (X) = -0.9528601765E-02
 FOCUS SHIFT FOR BEST RMS SPOT LENGTH (Y) = -0.9528601765E-02
+     Field       RMS[mWaves]
+     0.00000        206.17056
+     5.00000        305.60864
+    10.00000        557.85150
+PLOT: zoa_plot_8.png 1200x500
+Existing Zern Loop
+Data vs Field Position
+   Field       Z1        Z2        Z3         Z4 
+    0.00000   0.19265   0.00000    0.00000   0.25773
+   10.00000   0.69192   0.00000   -0.30983   0.67753
+Reference sphere centre lies on the chief ray (CHIEF)
+Reference sphere centre will remove tilt and focus
+Existing Zern Loop
+Data vs Field Position
+   Field       Z1        Z2        Z3        Z4 
+    0.00000   0.20972   0.00000   0.00000   0.21901
+   10.00000   0.20389   0.00000   0.23777   0.21928
+RSPH takes CHIEF, NOTILT or BEST
+Reference sphere centre will lie on the chief ray
