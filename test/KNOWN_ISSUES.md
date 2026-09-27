@@ -616,3 +616,85 @@ string and `X(5)` each pass -- that separates "the FOB never landed" from "the
 fit never refreshed". Note the table is now logged headlessly too (c746c85),
 so the golden refs in `plots_wave.ref` / `plot_modifiers.ref` record the
 correct per-field variation to diff against.
+
+---
+
+## RSPH BEST can be worse than NOTILT on polychromatic systems (2026-09-27)
+
+`RSPH BEST` (remove tilt **and** focus) sometimes reports a *higher* RMS OPD
+than `RSPH NOTILT` (remove tilt only), which should be impossible -- removing
+an extra least-squares term cannot increase the residual. Investigated, cause
+established, **not fixed**: the fix changes a legacy metric's numbers.
+
+### The anomaly is purely polychromatic
+
+Same lens (`osdtriplet`), same field, same pupil grid:
+
+| configuration | NOTILT | BEST |
+|---|---|---|
+| 5 wavelengths (as shipped) | 0.2933 | **0.3056** <- worse |
+| spectral weights `100 0 0 0 0` (monochromatic) | 0.2400 | 0.0727 |
+| 5 wavelengths **all set to 0.58756** | 0.2400 | 0.0727 |
+
+The third row is decisive: identical ray count, identical weighting, identical
+code path, only lambda no longer varies -- and the anomaly disappears. So it is
+not the energy weighting and not the multi-wavelength bookkeeping.
+
+### Mechanism: the fit and the metric use different domains
+
+`WAVESLP1` (`src/WAVSPOT1.f90:1994`) converts each ray's OPD from radians to
+**physical length** with that ray's own wavelength:
+
+```fortran
+DWW3 = ((DSPOTT(33,IIP)/(TWOPII)))*WV
+```
+
+then least-squares fits piston/tilt/focus once across all rays of all
+wavelengths (`:1744`, `:1751`) and subtracts that single achromatic term set
+from every ray. Minimizing in length is physically honest -- a reference sphere
+is one surface and cannot shift per colour.
+
+`CAPFIX` reports RMS in **waves**: per wavelength (`src/PLOTCAD4.f90:721`,
+`DSPOT(4)/TWOPII`, gated on `DSPOT(16)`), each an unweighted sample standard
+deviation, combined as `sqrt(sum w_i RMS_i^2/lam_i^2 / sum w_i/lam_i^2)`
+(`:1030`).
+
+Minimizing `sum (OPD_len)^2` does not minimize `sum (OPD_len/lambda)^2` when
+lambda varies: blue rays count for more in the reported metric than in the fit.
+For a single wavelength the two domains differ by a constant, so the ordering
+is guaranteed -- exactly the pattern in the table.
+
+### Two smaller findings
+
+1. **Removing piston cannot affect RMSOPD.** `RMSOP` is a variance about the
+   mean, so the `X(1)` subtraction is a no-op for this number; BEST differs
+   from NOTILT only by the focus term. (Piston still matters for Z1 and P-V.)
+2. **The fit is energy-weighted (`DWW4 = DSPOTT(12)`), the RMS is unweighted.**
+   A real inconsistency, but second-order: the all-equal-lambda test above holds
+   it fixed and the anomaly still vanishes.
+
+### Proposed fix (not applied)
+
+Keep the shift achromatic but choose its magnitude to minimize what is actually
+reported: scale both the data and the design-matrix rows by `1/WV` when
+accumulating -- equivalently, weight each ray by `1/lambda^2`. The model stays
+`OPD_len = sum x_i Z_i` with one achromatic defocus; the residual is measured in
+waves. About four lines across the two accumulation blocks
+(`src/WAVSPOT1.f90:1744` and `:2023`).
+
+Monochromatic systems are unaffected by construction, so `LithoKotaro` and every
+single-wavelength golden ref would stay byte-identical; only polychromatic
+BEST/NOTILT numbers move. Being a change to a legacy metric's values, it wants
+an explicit decision and a release-note mention.
+
+### Reproducing
+
+```
+RES osdtriplet
+FOB 0.5
+RSPH NOTILT ; CAPFN SILENT, 16 ; SHO RMSOPD
+RSPH BEST   ; CAPFN SILENT, 16 ; SHO RMSOPD
+```
+
+Then repeat after `U L ; WV 0.58756 0.58756 0.58756 0.58756 0.58756 ; EOS` to
+see the ordering come right.
