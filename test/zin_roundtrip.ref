@@ -6,5 +6,11 @@ All constraints removed
 
 
 Field Weights Command WTF     100     100     100 Not supported
+Plot supports at most 9 curves; extra series ignored
+Plot supports at most 9 curves; extra series ignored
+Plot supports at most 9 curves; extra series ignored
+Plot supports at most 9 curves; extra series ignored
+Plot supports at most 9 curves; extra series ignored
+Plot supports at most 9 curves; extra series ignored
 ZINTEST: PASS
 ZINTEST: stats psm.numSettings=10 p1.numSeries=2 p3.numSeries=1

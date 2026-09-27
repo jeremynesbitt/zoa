@@ -97,6 +97,16 @@ subroutine zern_go(psm)
       call zoa_emit("No valid Zernike terms specified (use e.g. 5..9 or 9,16)", "red")
       return
     end if
+    ! A plot holds at most MAX_PLOT_SERIES curves.  Asking for more used to
+    ! run off the end of zoaplot%plotdatalist and abort the program with a
+    ! Fortran bounds error, so keep the first few and say so.
+    if (numTermsToPlot > MAX_PLOT_SERIES) then
+      call zoa_emit("Zernike vs Field plots at most "//trim(int2str(MAX_PLOT_SERIES))// &
+      & " terms; showing the first "//trim(int2str(MAX_PLOT_SERIES))//" of "// &
+      & trim(int2str(numTermsToPlot))//" requested", "red")
+      zlist = zlist(1:MAX_PLOT_SERIES)
+      numTermsToPlot = MAX_PLOT_SERIES
+    end if
 
     lambda = psm%getWavelengthSetting()
     inputCmd = trim(psm%generatePlotCommand())

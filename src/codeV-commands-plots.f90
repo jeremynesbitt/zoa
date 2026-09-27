@@ -705,7 +705,7 @@ contains
     ! path.  Test hook only -- not a user-facing command.
     module procedure execZINTEST
         use kdp_utils, only: OUTKDP
-        use zoa_plot, only: zoaplot, zoaPlot3d, multiplot, POS_UPPER_RIGHT
+        use zoa_plot, only: zoaplot, zoaPlot3d, multiplot, POS_UPPER_RIGHT, MAX_PLOT_SERIES
         use plplot, only: pl_test_flt
         use plot_setting_manager, only: zoaplot_setting_manager, plot_setting
         use mod_zin_io, only: zin_write_header, zin_read_header, &
@@ -753,6 +753,19 @@ contains
         call p1%setYScale(2.5_pl_test_flt)
         call p1%setXScale(1.5_pl_test_flt)
         call p1%addScaleBar(POS_UPPER_RIGHT)
+
+        ! Series capacity: plotdatalist is fixed size, and overrunning it used
+        ! to abort the program (ZERN_TST with 10+ terms).  Adding past the cap
+        ! must be refused, not fatal, and must not corrupt numSeries.
+        block
+            type(zoaplot) :: pcap
+            integer :: s
+            call pcap%initialize(c_null_ptr, x, y, xlabel="X", ylabel="Y", title="cap")
+            do s = 1, MAX_PLOT_SERIES + 5
+                call pcap%addXYPlot(x2, y2)
+            end do
+            call ckI("seriesCap.numSeries", MAX_PLOT_SERIES, pcap%numSeries)
+        end block
 
         gx = [1.0, 2.0, 3.0, 4.0]
         gy = [1.0, 2.0, 3.0, 4.0]

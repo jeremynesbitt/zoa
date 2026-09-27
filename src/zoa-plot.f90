@@ -50,6 +50,10 @@ module zoa_plot
  integer, parameter :: POS_UPPER_RIGHT = 1
  integer, parameter :: POS_LOWER_RIGHT = 9
 
+ ! Curves a single plot can hold (plotdatalist / plotdatalist3d are fixed
+ ! size).  Callers that build a variable number of series must clamp to this.
+ integer, parameter :: MAX_PLOT_SERIES = 9
+
  ! Default multiplot canvas size.  A *_go routine that wants a different size
  ! assigns multiplot%width/height explicitly; code that needs to tell "the plot
  ! chose a size" from "the plot left the default" compares against these.
@@ -78,7 +82,7 @@ type :: zoaplot
   !character(len=20)  :: labelDataColor = "BLACK"
   integer :: dataColorCode = 0 !  See PL_PLOT paramaters for decoding
   integer :: numSeries = 0
-  type(plotdata2d), dimension(9) :: plotdatalist
+  type(plotdata2d), dimension(MAX_PLOT_SERIES) :: plotdatalist
 
   logical :: useLegend = .false.
   ! AFAIK have to make character array a a fixed size
@@ -133,7 +137,7 @@ contains
 end type
 
 type, extends(zoaplot) :: zoaPlot3d
-type(plotdata3d), dimension(9) :: plotdatalist3d
+type(plotdata3d), dimension(MAX_PLOT_SERIES) :: plotdatalist3d
 contains
 procedure, public ::  init3d => plot3d_initialize
 procedure, public :: drawPlot => drawPlot_plot3d
@@ -144,7 +148,7 @@ end type
 
 
 type, extends(zoaplot) :: zoaPlotImg
-type(plotdata3d), dimension(9) :: plotdatalist3d
+type(plotdata3d), dimension(MAX_PLOT_SERIES) :: plotdatalist3d
 contains
 procedure, public ::  init3d => plotImg_initialize
 procedure, public :: drawPlot => drawPlot_plotImg
@@ -1996,9 +2000,21 @@ end subroutine cmap1_init
   subroutine addXYPlot(self, X, Y)
 
    use iso_fortran_env, only: real64, int32, real32
+   use type_utils, only: int2str
       implicit none
       class(zoaplot), intent(inout) :: self
       real, dimension(:), intent(in) :: X,Y
+
+      ! Hard capacity: plotdatalist is a fixed-size array, and overrunning it
+      ! used to abort the program ("Index '10' ... above upper bound of 9").
+      ! Refuse the extra series instead; callers that can generate an unbounded
+      ! number of curves should clamp before they get here so they can say
+      ! something more specific to the user.
+      if (self%numSeries >= MAX_PLOT_SERIES) then
+        call LogTermFOR("Plot supports at most "//trim(int2str(MAX_PLOT_SERIES))// &
+        & " curves; extra series ignored")
+        return
+      end if
 
       self%numSeries = self%numSeries + 1
       call self%plotdatalist(self%numSeries)%initialize(X,Y)
