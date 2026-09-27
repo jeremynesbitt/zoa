@@ -577,3 +577,42 @@ Only the command *word* changed: `ast_go` now runs `ASTK`, and the `WQ='AST'`
 qualifier checks in `UTILITY6.f90` are a separate namespace and were left
 alone. No test script, macro, or golden ref used `AST` as a command. Any user
 macro that typed `AST n` for the table must now use `ASTK n`.
+
+---
+
+## ZERN_TST flat across field -- seen once, not reproducible (2026-09-26)
+
+Reported from the GUI with `LithoKotaro.seq`: the Zernike vs Field plot showed
+**identical coefficients at every field point** (flat lines, and every Data-tab
+row the same). Neither the reporter nor a headless repro could trigger it
+again, so it is recorded here rather than fixed.
+
+**The fingerprint, if it recurs.** The constant row was the fit at *relative
+field 0.7* -- LithoKotaro's defined field #2 (object height 27.35462 =
+0.7 x 39.07803). The reported row was
+`Z5=-0.00532 Z8=-0.00801 Z9=0.00632 Z11=-0.01960`; a headless run of the same
+settings gives that exact row at 27.35462 (`-0.00532 / -0.00799 / 0.00627 /
+-0.01966`, the last decimals differing only by pupil density). So the loop was
+either re-fitting one defined field every pass, or `COMMON/SOLU/X` was never
+refreshed after something else left it at field 2.
+
+**Ruled out** (each tested, not merely reasoned about):
+
+- The computation. Headless, `ZERN_TST; NUMPTS 21; SETZERNC 5..11; GO` varies
+  correctly, and `LISTZERN` after the loop matches a hand-run max-field fit.
+- Command deferral -- `PROCESSILENT` is synchronous.
+- Poisoning by another plot: `PMA; GO`, `PMA; SETFLD 2; GO` and `PLTRMS; GO`
+  beforehand all leave `ZERN_TST` correct.
+- A replot -- running `ZERN_TST` twice is correct both times.
+- An open lens-update level swallowing the loop's `FOB` (errors are invisible
+  under `PROCESSILENT`): that zeroes only the first row.
+
+Untested combination, and the leading suspicion: the reporter also had a Field
+Curv / Dist tab open, and `ast_go` drives the legacy `ASTK/FLDCV/DIST` path,
+which manipulates field state directly.
+
+**Next step if it returns:** instrument `zern_go`'s loop to emit the `FOB`
+string and `X(5)` each pass -- that separates "the FOB never landed" from "the
+fit never refreshed". Note the table is now logged headlessly too (c746c85),
+so the golden refs in `plots_wave.ref` / `plot_modifiers.ref` record the
+correct per-field variation to diff against.
