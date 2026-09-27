@@ -134,7 +134,17 @@ subroutine zern_go(psm)
       end do
     end do
 
-  
+    do k=1,numTermsToPlot
+      zLegend(k) = 'Z'//trim(int2str(zlist(k)))
+    end do
+
+    ! Log the table in BOTH modes, like rmsfield_go: this routine used to
+    ! return before logging when headless, which left the coefficient table
+    ! -- the actual content of this plot -- with no test coverage at all.
+    if (.not. HEADLESS_MODE) call ioConfig%setTextViewFromPtr(getTabTextView(objIdx))
+    call logDataVsField(xdat, ydat, zLegend)
+    if (.not. HEADLESS_MODE) call ioConfig%setTextView(ID_TERMINAL_DEFAULT)
+
     if (HEADLESS_MODE) return
 
     ! Prep PLot
@@ -147,20 +157,13 @@ subroutine zern_go(psm)
     & xlabel=trim(sysConfig%getFieldText())//c_null_char, &
     & ylabel="Coefficient [waves]"//c_null_char, &
     & title='Zernike Coefficients vs Field'//c_null_char)
-    zLegend(1) = 'Z'//trim(int2str(zlist(1)))
     do ii=2,numTermsToPlot
       call zernplot%addXYPlot(xdat, ydat(:,ii))
       call zernplot%setDataColorCode(2+ii)
-      zLegend(ii) = 'Z'//trim(int2str(zlist(ii)))
     end do
 
     call zernplot%addLegend(zLegend)
     call mplt%set(1,1,zernplot)
-
-    ! Route the coefficient table into this plot's Data tab, then restore.
-    call ioConfig%setTextViewFromPtr(getTabTextView(objIdx))
-    call logDataVsField(xdat, ydat, zLegend)
-    call ioConfig%setTextView(ID_TERMINAL_DEFAULT)
 
     call finalizeGoPlot_new(mplt, psm, replot, objIdx)
 
