@@ -38,6 +38,7 @@ module paraxial_ray_trace_test
             COMMON/CSLVRS/SLV1,SLV2
     
             real(kind=real64) :: marPos1, marAng0
+            real(kind=real64) :: marPos1X, marAng0X
 
             logical :: newWay = .TRUE.
     
@@ -385,7 +386,13 @@ module paraxial_ray_trace_test
            CALL REPORT_ERROR_AND_FAIL('OBJECT DISTANCE IS ZERO-PARAXIAL RAY TRACE HALTED', 1)
                             RETURN
                             END IF
-                    PXTRAX(2,0)=(SYS13)/surf_thickness(0)
+    !       XZ marginal ray, computed the same way as the YZ one (see
+    !       computeMarginalRayPositionX).  The XZ trace used to launch straight
+    !       from sys_sax(), so on a finite-conjugate system the two planes
+    !       disagreed.  Computed here, right before use, because the solves
+    !       resolved in between change what it depends on.
+                    call computeMarginalRayPositionX(marPos1X, marAng0X)
+                    PXTRAX(2,0)=marAng0X
     !
     !       PIX(0) =PUX(0)
                             PXTRAX(3,0)=PXTRAX(2,0)
@@ -435,7 +442,7 @@ module paraxial_ray_trace_test
             IF(surf_has_pickups(COMI)) CALL PIKRES ! existence derived from PIKUP flags (pickup_manager)
     !
     !       PX(1) IS EQUAL TO THE SPECIFIED SAX VALUE IN SYS13
-                            PXTRAX(1,1)=(SYS13)
+                            PXTRAX(1,1)=surf_thickness(0)*marAng0X
     !
     
     !       PUX(1) =-CV(1)*PX(1)*((N'-N)/N')+(N/N')*PUX(0)
@@ -643,7 +650,13 @@ module paraxial_ray_trace_test
                             PXTRAX(1,0)=0.0D0
     !
     !       PUX(0)=SAX/TH(0)
-                    PXTRAX(2,0)=(SYS13)/surf_thickness(0)
+    !       XZ marginal ray, computed the same way as the YZ one (see
+    !       computeMarginalRayPositionX).  The XZ trace used to launch straight
+    !       from sys_sax(), so on a finite-conjugate system the two planes
+    !       disagreed.  Computed here, right before use, because the solves
+    !       resolved in between change what it depends on.
+                    call computeMarginalRayPositionX(marPos1X, marAng0X)
+                    PXTRAX(2,0)=marAng0X
     !
     !       PIX(0) =PUX(0)
                             PXTRAX(3,0)=PXTRAX(2,0)
@@ -681,7 +694,7 @@ module paraxial_ray_trace_test
             IF(surf_has_pickups(COMI)) CALL PIKRES ! existence derived from PIKUP flags (pickup_manager)
     !
     !       PX(1) IS EQUAL TO THE SPECIFIED SAX VALUE IN SYS13
-                            PXTRAX(1,1)=(SYS13)
+                            PXTRAX(1,1)=surf_thickness(0)*marAng0X
     !
     !       PUX(1) =-CV(1)*PX(1)*((N'-N)/N')+(N/N')*PUX(0)
     !       CHECK FOR Y-TORIC. IF FOUND SET CURV=surf_toric_curvature(-)
@@ -1008,7 +1021,13 @@ module paraxial_ray_trace_test
                             PXTRAX(1,0)=0.0D0
     !
     !       PUX(0)=SAX/TH(0)
-                    PXTRAX(2,0)=(SYS13)/surf_thickness(0)
+    !       XZ marginal ray, computed the same way as the YZ one (see
+    !       computeMarginalRayPositionX).  The XZ trace used to launch straight
+    !       from sys_sax(), so on a finite-conjugate system the two planes
+    !       disagreed.  Computed here, right before use, because the solves
+    !       resolved in between change what it depends on.
+                    call computeMarginalRayPositionX(marPos1X, marAng0X)
+                    PXTRAX(2,0)=marAng0X
     !
     !       PIX(0) =PUX(0)
                             PXTRAX(3,0)=PXTRAX(2,0)
@@ -1049,7 +1068,7 @@ module paraxial_ray_trace_test
             IF(surf_has_pickups(COMI)) CALL PIKRES ! existence derived from PIKUP flags (pickup_manager)
     !
     !       PX(1) IS EQUAL TO THE SPECIFIED SAX VALUE IN SYS13
-                            PXTRAX(1,1)=(SYS13)
+                            PXTRAX(1,1)=surf_thickness(0)*marAng0X
     !
     !       PUX(1) =-CV(1)*PX(1)*((N'-N)/N')+(N/N')*PUX(0)
     !       CHECK FOR Y-TORIC. IF FOUND SET CURV=surf_toric_curvature(-)

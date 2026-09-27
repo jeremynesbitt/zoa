@@ -193,7 +193,41 @@ contains
                         pos1 =(sys_say())
                         ang0 =(sys_say())/curr_lens_data%thicknesses(1)
                 end if
-        
+
+
+        end subroutine
+
+        ! XZ-plane counterpart of computeMarginalRayPosition.  The XZ trace used
+        ! to launch straight from sys_sax() (marginal height at surface 1) while
+        ! the YZ trace went through the routine above, so on a finite-conjugate
+        ! system the two planes disagreed: importing LithoKotaro left PX(1) at
+        ! the raw 506.6 semi-aperture while PY(1) solved to 7.58.  Any
+        ! rotationally symmetric lens must trace the same in both planes.
+        subroutine computeMarginalRayPositionX(pos1, ang0)
+                use ISO_FORTRAN_ENV, only: real64
+                use kdp_data_types
+                use global_widgets, only: curr_lens_data, curr_par_ray_trace, sysConfig
+                use mod_system, only: sys_sax
+
+                implicit none
+                real(kind=real64) :: pos1, ang0
+                real(kind=real64) :: Lo, thetao, nao
+
+                if(sysConfig%isFocalSystem()) THEN
+                        Lo = curr_lens_data%thicknesses(1)+curr_par_ray_trace%ENPUPPOS
+                        if (sysConfig%currApertureID == APER_ENTR_PUPIL_DIAMETER) then
+                            thetao = ATAN(sys_sax()/(Lo))
+                        else
+                            thetao = ATAN(curr_par_ray_trace%EPD/Lo)
+                        end if
+
+                        nao = sin(thetao)
+                        pos1 = tan(thetao)*curr_lens_data%thicknesses(1)
+                        ang0 = nao
+                else
+                        pos1 =(sys_sax())
+                        ang0 =(sys_sax())/curr_lens_data%thicknesses(1)
+                end if
 
         end subroutine
 
