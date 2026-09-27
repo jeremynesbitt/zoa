@@ -2142,53 +2142,21 @@ SUBROUTINE LNSEOS1
       IF(PXTRAY(6,NEWOBJ).LT.0.0D0) RMAGY=-1.0D10
    END IF
 !     PARAXIAL DEFAULT PUPIL DATA
-!     NOW THE ENTRANCE AND EXIT PUPIL POSITIONS
-   IF(DABS(PXTRAY(6,1)).EQ.0.0) THEN
-      ENPOSY=-(surf_thickness(0))
-   ELSE
-      !ENPOSY=(-PXTRAY(5,1)/PXTRAY(6,1))
-      ! JN:  The entrance pupil position was not being
-      ! calculated per standard convention for infinite
-      ! object distance.  The chief ray angle that was
-      ! being used was the angle after surface 1, not
-      ! the angle at the object plane. Updated this to
-      ! use the angle at the object plane (0 index)
-      ENPOSY=(-PXTRAY(5,1)/PXTRAY(6,0))
-   END IF
-   IF(DABS(PXTRAX(6,1)).EQ.0.0D0) THEN
-      ENPOSX=-(surf_thickness(0))
-   ELSE
-      !ENPOSX=(-PXTRAX(5,1)/PXTRAX(6,1))
-      ENPOSX=(-PXTRAX(5,1)/PXTRAX(6,0))
-   END IF
-   ENPUX=0.0D0
-   ENPUY=0.0D0
-   ENPUZ=(ENPOSX+ENPOSY)/2.0D0
-!     NOW THE EXIT PUPIL POSITIONS
-   IF(DABS(PXTRAY(6,INT(sys_last_surf()))).EQ.0.0D0) THEN
-      EXPOSY=surf_thickness(0)
-   ELSE
-      EXPOSY=(-PXTRAY(5,INT(sys_last_surf()))/PXTRAY(6,INT(sys_last_surf())))
-   END IF
-   IF(DABS(PXTRAX(6,INT(sys_last_surf()))).EQ.0.0D0) THEN
-      EXPOSX=surf_thickness(0)
-   ELSE
-      EXPOSX=(-PXTRAX(5,INT(sys_last_surf()))/PXTRAX(6,INT(sys_last_surf())))
-   END IF
-   EXPUX=0.0D0
-   EXPUY=0.0D0
-   EXPUZ=(EXPOSX+EXPOSY)/2.0D0
-!     NOW THE ENTRANCE AND EXIT PUPIL DIAMETERS
-   ENDIAX=2.0D0*DABS(PXTRAX(1,1)+(ENPUZ*PXTRAX(2,0)))
-   ENDIAY=2.0D0*DABS(PXTRAY(1,1)+(ENPUZ*PXTRAY(2,0)))
-   EXDIAX=2.0D0*DABS(PXTRAX(1,INT(sys_last_surf()))+(EXPUZ *PXTRAX(2,INT(sys_last_surf()))))
-   EXDIAY=2.0D0*DABS(PXTRAY(1,INT(sys_last_surf()))+(EXPUZ *PXTRAY(2,INT(sys_last_surf()))))
+   CALL PUPCALC
 
    !JN:  Now that we have the entrance and exit pupils, call
    ! RATRA one more time such that we can properly trace
    ! the marginal ray for finite conjugate systems
    call curr_par_ray_trace%calculateFirstOrderParameters(curr_lens_data)
    CALL PRTRA
+
+   ! ... and now that the marginal ray is right, the pupil data has to be
+   ! recomputed from it.  The PUPCALC above ran on the PREVIOUS trace, so
+   ! without this the pupil positions and diameters were one iteration stale:
+   ! after importing LithoKotaro, FIR reported an entrance pupil diameter of
+   ! 5291.07 (and F/0.1247) where a second EOS settled it at 995.23 (F/0.6632).
+   CALL PUPCALC
+   call curr_par_ray_trace%calculateFirstOrderParameters(curr_lens_data)
 !
 !     NOW SET THE INR FOR PHASE SURFACE RAY TRACES
 !     THE INR IS THE LARGER OF THE ABSOLUTE VALUE OF THE
@@ -2309,6 +2277,62 @@ SUBROUTINE LNSEOS1
    ! sized at lens-load time; guard inside check_clear_apertures covers staleness.
    call check_clear_apertures(curr_lens_data, ldm%surfaces)
 call sysConfig%updateParameters()
+
+   RETURN
+END
+! Paraxial default pupil data: entrance/exit pupil positions and diameters,
+! derived from the current paraxial ray trace.  Factored out of LNSEOS1 so it
+! can be run again after the trace is refined -- see the two CALL PUPCALC
+! sites there.
+SUBROUTINE PUPCALC
+   use DATLEN
+   use mod_surface, only: surf_thickness
+   use mod_system, only: sys_last_surf
+   use iso_fortran_env, only: real64
+   IMPLICIT NONE
+
+!     NOW THE ENTRANCE AND EXIT PUPIL POSITIONS
+   IF(DABS(PXTRAY(6,1)).EQ.0.0) THEN
+      ENPOSY=-(surf_thickness(0))
+   ELSE
+      !ENPOSY=(-PXTRAY(5,1)/PXTRAY(6,1))
+      ! JN:  The entrance pupil position was not being
+      ! calculated per standard convention for infinite
+      ! object distance.  The chief ray angle that was
+      ! being used was the angle after surface 1, not
+      ! the angle at the object plane. Updated this to
+      ! use the angle at the object plane (0 index)
+      ENPOSY=(-PXTRAY(5,1)/PXTRAY(6,0))
+   END IF
+   IF(DABS(PXTRAX(6,1)).EQ.0.0D0) THEN
+      ENPOSX=-(surf_thickness(0))
+   ELSE
+      !ENPOSX=(-PXTRAX(5,1)/PXTRAX(6,1))
+      ENPOSX=(-PXTRAX(5,1)/PXTRAX(6,0))
+   END IF
+   ENPUX=0.0D0
+   ENPUY=0.0D0
+   ENPUZ=(ENPOSX+ENPOSY)/2.0D0
+!     NOW THE EXIT PUPIL POSITIONS
+   IF(DABS(PXTRAY(6,INT(sys_last_surf()))).EQ.0.0D0) THEN
+      EXPOSY=surf_thickness(0)
+   ELSE
+      EXPOSY=(-PXTRAY(5,INT(sys_last_surf()))/PXTRAY(6,INT(sys_last_surf())))
+   END IF
+   IF(DABS(PXTRAX(6,INT(sys_last_surf()))).EQ.0.0D0) THEN
+      EXPOSX=surf_thickness(0)
+   ELSE
+      EXPOSX=(-PXTRAX(5,INT(sys_last_surf()))/PXTRAX(6,INT(sys_last_surf())))
+   END IF
+   EXPUX=0.0D0
+   EXPUY=0.0D0
+   EXPUZ=(EXPOSX+EXPOSY)/2.0D0
+!     NOW THE ENTRANCE AND EXIT PUPIL DIAMETERS
+   ENDIAX=2.0D0*DABS(PXTRAX(1,1)+(ENPUZ*PXTRAX(2,0)))
+   ENDIAY=2.0D0*DABS(PXTRAY(1,1)+(ENPUZ*PXTRAY(2,0)))
+   EXDIAX=2.0D0*DABS(PXTRAX(1,INT(sys_last_surf()))+(EXPUZ *PXTRAX(2,INT(sys_last_surf()))))
+   EXDIAY=2.0D0*DABS(PXTRAY(1,INT(sys_last_surf()))+(EXPUZ *PXTRAY(2,INT(sys_last_surf()))))
+
 
    RETURN
 END

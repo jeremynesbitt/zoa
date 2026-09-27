@@ -33,7 +33,7 @@ module paraxial_ray_trace_test
     !       SUBROUTINE. THE COLOR CONTRIBUTIONS FOR THE YZ PLANE
     !       ARE CALCULATED WITH A CALL TO CCOL(1) AND XZ BY CCOL(2).
     !
-            INTEGER JK,L,ITYP,SLV1,SLV2,COMI, SF
+            INTEGER JK,L,ITYP,SLV1,SLV2,COMI, SF, ITERX
     !
             COMMON/CSLVRS/SLV1,SLV2
     
@@ -355,6 +355,14 @@ module paraxial_ray_trace_test
     !       OTHERWISE, USE THE USER PROVIDED VALUE OF sys_x1_scx()
     !
     !                       RAY
+    !       Iterate the XZ chief-ray targeting to convergence.  One secant step
+    !       was not enough: on finite conjugates the surface-0 thickness solve
+    !       resolves between the probe and the final trace, so the single step
+    !       left the chief ray off the stop centre and successive EOS passes
+    !       walked it further out (osdtriplet at RED -0.5: PCX at the stop went
+    !       0.1197 -> 0.1500 -> 0.1866, where PCY sits at 1e-16).
+                DO ITERX = 1, 20
+                    CON=sys_x1_scx()
                     DO 6000 JK=1,2
                     IF(JK.EQ.1) CON=CON+0.0D0
                     IF(JK.EQ.2) CON=CON+0.1D0
@@ -635,6 +643,10 @@ module paraxial_ray_trace_test
                             ELSE
             call sys_set_x1_scx(((-0.1D0*TMP17A)/(TMP17B-TMP17A))+sys_x1_scx())
                             END IF
+    !       TMP17A is the chief-ray height at the stop for the current
+    !       sys_x1_scx(); once it is at the centre the target is solved.
+                    IF(DABS(TMP17A).LE.1.0D-13) EXIT
+                END DO
     !
     !       NOW TRACE FROM THE OBJECT SURFACE TO THE ASTOP SURFACE
     !       USING THIS VALUE OF sys_x1_scx()
