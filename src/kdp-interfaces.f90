@@ -367,8 +367,12 @@ subroutine FIR
     call zoa_emit("AT USED CONJUGATES", "blue")
 
     call zoa_emit("RED       "//trim(real2str(-1*curr_par_ray_trace%t_mag,4)),"blue")
-    call zoa_emit("FNO       "//trim(real2str(curr_par_ray_trace%imageDistance/ &
-    & curr_par_ray_trace%EXPUPDIA,4)),"blue")
+    ! Working F-number: 1/(2 n' u') from the image-space marginal ray slope,
+    ! which is what FNUM holds.  This used to be imageDistance/EXPUPDIA, and
+    ! imageDistance is the last surface's thickness -- zero whenever the image
+    ! plane sits on the final surface, so the line read 0.0000 for any such
+    ! lens (e.g. LithoKotaro) regardless of its actual aperture.
+    call zoa_emit("FNO       "//trim(real2str(curr_par_ray_trace%FNUM,4)),"blue")
     call zoa_emit("OBJ DIS   "//trim(real2str(curr_par_ray_trace%objectDistance,4)),"blue")
     call zoa_emit("TT        "//trim(real2str(curr_par_ray_trace%TT,4)),"blue")
     call zoa_emit("IMG DIS   "//trim(real2str(curr_par_ray_trace%imageDistance,4)),"blue")
