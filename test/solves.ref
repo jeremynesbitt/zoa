@@ -8,16 +8,16 @@ All constraints removed
 Field Weights Command WTF     100     100     100 Not supported
 
 ENTRANCE PUPIL
-DIA       9.9477
+DIA       10.0000
 THI       6.7224
 INFINITE CONJUGATES
 EFL       50.0107
 BFL       38.5152
 FFL       -44.5831
-FNO       5.0273
+FNO       5.0011
 AT USED CONJUGATES
 RED       -0.5000
-FNO       1.3932
+FNO       1.3860
 OBJ DIS   -55.4383
 TT        -25.3285
 IMG DIS   13.5098
@@ -34,16 +34,16 @@ IMG:    INFINITY    0.00000                              100     100     100
 Deleting PIM
 
 ENTRANCE PUPIL
-DIA       9.9477
+DIA       10.0000
 THI       6.7224
 INFINITE CONJUGATES
 EFL       50.0107
 BFL       38.5152
 FFL       -44.5831
-FNO       5.0273
+FNO       5.0011
 AT USED CONJUGATES
 RED       -0.5000
-FNO       1.3932
+FNO       1.3860
 OBJ DIS   -55.4383
 TT        -25.3285
 IMG DIS   13.5098

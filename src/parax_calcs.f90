@@ -186,9 +186,18 @@ contains
                             thetao = ATAN(curr_par_ray_trace%EPD/Lo)
                         end if
 
-                        nao = sin(thetao)      
-                        pos1 = tan(thetao)*curr_lens_data%thicknesses(1)       
-                        ang0 = nao     
+                        ! Paraxial slope, i.e. tan(theta) -- NOT sin(theta).
+                        ! The marginal ray is defined by the semi-aperture at the
+                        ! entrance pupil, so its slope from the axial object
+                        ! point is (semi-aperture / object-to-pupil distance),
+                        ! which is exactly tan(thetao).  Launching it with
+                        ! sin(thetao) instead made every height downstream short
+                        ! by a factor cos(thetao): LithoKotaro, defined at
+                        ! EPD 1013.2, reported an entrance pupil diameter of
+                        ! 995.2305 = 1013.2 * cos(10.805 deg).
+                        nao = sin(thetao)
+                        pos1 = tan(thetao)*curr_lens_data%thicknesses(1)
+                        ang0 = tan(thetao)
                 else
                         pos1 =(sys_say())
                         ang0 =(sys_say())/curr_lens_data%thicknesses(1)
@@ -221,9 +230,10 @@ contains
                             thetao = ATAN(curr_par_ray_trace%EPD/Lo)
                         end if
 
+                        ! Paraxial slope, tan not sin -- see the YZ routine.
                         nao = sin(thetao)
                         pos1 = tan(thetao)*curr_lens_data%thicknesses(1)
-                        ang0 = nao
+                        ang0 = tan(thetao)
                 else
                         pos1 =(sys_sax())
                         ang0 =(sys_sax())/curr_lens_data%thicknesses(1)
