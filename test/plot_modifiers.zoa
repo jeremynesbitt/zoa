@@ -77,3 +77,10 @@ SETZERNC 1..4
 GO
 RSPH BOGUS
 RSPH CHIEF
+! ---- AIRY: Airy disk overlay on the spot diagram ----
+! Kept last so it does not renumber the plots above.  Radius is
+! 1.22*lambda*F/#: for osdtriplet that is 1.22 * 0.58756um * F/5.0011 =
+! 0.003585 mm, which the Data tab reports.
+SPO P4
+AIRY ON
+GO

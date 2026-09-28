@@ -34,6 +34,8 @@ module plot_setting_manager
     ! PLTRMS: reference sphere centre -- the legacy RSPH global (REFLOC).
     ! The option ids themselves live in zoa-ui.f90 with the other ID_* values.
     integer, parameter :: SETTING_RSPH = 1758
+    ! Spot diagram: overlay the Airy disk
+    integer, parameter :: SETTING_AIRY = 1759
     integer, parameter :: SETTING_ZERNIKE = 4
 
 
@@ -119,6 +121,7 @@ module plot_setting_manager
     procedure, public, pass(self) :: addRMSFieldSettings
     procedure, public, pass(self) :: getRMSFieldSettings
     procedure, public, pass(self) :: getRSPHSetting
+    procedure, public, pass(self) :: getAirySetting
 
     procedure, public, pass(self) :: updateSetting, addPowerOfTwoImageSetting, getPowerOfTwoImageSetting
     procedure, public, pass(self) :: applySettingCommand
@@ -305,6 +308,7 @@ contains
     subroutine addSpotDiagramSettings(self)
       
       class (zoaplot_setting_manager) :: self
+      type(idText) :: airySet(2)
 
      
 
@@ -329,7 +333,18 @@ contains
       call self%ps(self%numSettings)%initialize(ID_SPOT_RING_NUMRINGS, & 
       & "Number of Rings (ring only)", real(20),1.0,real(50), &
       & "NUMRAYS", "NUMRAYS "//trim(int2str(20)), UITYPE_SPINBUTTON)      
-      
+
+      ! Airy disk overlay, off by default.
+      airySet(1)%text = "No (OFF)"
+      airySet(1)%id   = ID_AIRY_OFF
+      airySet(2)%text = "Yes (ON)"
+      airySet(2)%id   = ID_AIRY_ON
+
+      self%numSettings = self%numSettings + 1
+      call self%ps(self%numSettings)%initialize(SETTING_AIRY, &
+      & "Draw Airy Radius", real(ID_AIRY_OFF),0.0,0.0, &
+      & "AIRY ", "AIRY OFF", UITYPE_COMBO, set=airySet)
+
     end subroutine
 
     subroutine addGenericSetting(self, ID_CODE, label, default, min, max, baseCmd, fullCmd, UI_TYPE)
@@ -644,6 +659,14 @@ contains
       numPoints = self%getSettingValueByCode(ID_NUMPOINTS)
 
     end subroutine
+
+    ! .true. when the spot diagram should overlay the Airy disk.
+    function getAirySetting(self) result(drawAiry)
+      class (zoaplot_setting_manager) :: self
+      logical :: drawAiry
+
+      drawAiry = (INT(self%getSettingValueByCode(SETTING_AIRY)) == ID_AIRY_ON)
+    end function
 
     ! REFLOC value for this plot's Reference setting; defaults to the chief
     ! ray for a psm that has no such setting.

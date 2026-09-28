@@ -397,11 +397,12 @@ subroutine spo_go(psm)
     USE GLOBALS
     use command_utils
     use zoa_output, only: zoa_emit
-    use global_widgets, only:  sysConfig, ioConfig
+    use global_widgets, only:  sysConfig, ioConfig, curr_par_ray_trace
     use zoa_ui
     use kdp_utils, only: OUTKDP, logDataVsField
     use type_utils, only: int2str, str2int
     use plot_setting_manager
+    use kdp_data_types, only: LENS_UNITS_INCHES, LENS_UNITS_CM, LENS_UNITS_M
     use DATMAI
     use DATSPD
     use DATLEN
@@ -424,6 +425,10 @@ subroutine spo_go(psm)
     real(kind=real64), allocatable :: xSpot(:), ySpot(:)
     real(kind=real64) :: yAvg
     real :: plotScale
+    logical :: drawAiry
+    integer, parameter :: AIRY_NPTS = 181
+    real :: airyX(AIRY_NPTS), airyY(AIRY_NPTS), airyRadius, wlLensUnits, theta
+    real :: spotExtent, airyScale
     ! TODO:  Distable field here
     call psm%getSpotDiagramSettings(iField, iLambda, iMethod, nRect, nRand, nRing, plotScale)
 
@@ -453,6 +458,39 @@ subroutine spo_go(psm)
     mplt%height = 400*sysConfig%numFields
     mplt%width = 400
 
+    ! Airy disk radius = 1.22 * lambda * F/#, in lens units.  sysConfig returns
+    ! the wavelength in micrometres, so convert it to whatever the lens is
+    ! dimensioned in; the F-number is the working (image-space) one.
+    drawAiry = psm%getAirySetting()
+    airyRadius = 0.0
+    if (drawAiry) then
+      select case (sysConfig%currLensUnitsID)
+      case (LENS_UNITS_INCHES)
+        wlLensUnits = real(sysConfig%getWavelength(iLambda)*3.93700787402d-5)
+      case (LENS_UNITS_CM)
+        wlLensUnits = real(sysConfig%getWavelength(iLambda)*1.0d-4)
+      case (LENS_UNITS_M)
+        wlLensUnits = real(sysConfig%getWavelength(iLambda)*1.0d-6)
+      case default   ! mm
+        wlLensUnits = real(sysConfig%getWavelength(iLambda)*1.0d-3)
+      end select
+      airyRadius = 1.22*wlLensUnits*real(curr_par_ray_trace%FNUM)
+      if (airyRadius > 0.0) then
+        do j=1,AIRY_NPTS
+          theta = real(TWOPII)*real(j-1)/real(AIRY_NPTS-1)
+          airyX(j) = airyRadius*cos(theta)
+          airyY(j) = airyRadius*sin(theta)
+        end do
+        call OUTKDP("Airy radius = "//trim(real2str(airyRadius,6))//" "// &
+        & trim(sysConfig%lensUnits(sysConfig%currLensUnitsID)%text)// &
+        & "   (1.22 * "//trim(real2str(sysConfig%getWavelength(iLambda),5))// &
+        & "um * F/"//trim(real2str(curr_par_ray_trace%FNUM,4))//")")
+      else
+        call zoa_emit("Airy radius is not computable for this system", "red")
+        drawAiry = .FALSE.
+      end if
+    end if
+
     do i=1,sysConfig%numFields
       call PROCESKDP(trim(getKDPSpotPlotCommand(i, iLambda, iMethod, nRect, nRand, nRing)))
       if(allocated(xSpot)) deallocate(xSpot)
@@ -463,6 +501,7 @@ subroutine spo_go(psm)
       !Subtract Avg
       yAvg = (sum(ySpot)/size(ySpot))
       ySpot = ySpot - yAvg
+      spotExtent = real(max(maxval(abs(xSpot)), maxval(abs(ySpot))))
                                   
 
     ! TODO:  remove dependency on canvas here after checking it doesn't break anything.
@@ -482,6 +521,15 @@ subroutine spo_go(psm)
     call xyscat(i)%removeGrids()
     call xyscat(i)%removeLabels()
 
+    ! Airy disk overlay (AIRY ON): a black circle of radius 1.22*lambda*F/#,
+    ! drawn on every field point.  F/# is the working (image-space) F-number,
+    ! since that is the cone that sets the diffraction limit.
+    if (drawAiry .and. airyRadius > 0.0) then
+      call xyscat(i)%addXYPlot(airyX, airyY)
+      call xyscat(i)%setDataColorCode(PL_PLOT_BLACK)
+      call xyscat(i)%setLineStyleCode(1)
+    end if
+
     if (i==1) call xyscat(i)%addScaleBar(POS_LOWER_RIGHT)      
 
     if (allWL) then
@@ -493,10 +541,22 @@ subroutine spo_go(psm)
         ! Subtract relative to first wavelength.  Should probably be relative to
         ! ref wavelength; revisit this after testing
         ySpot = ySpot - yAvg
+        spotExtent = max(spotExtent, &
+        & real(max(maxval(abs(xSpot)), maxval(abs(ySpot)))))
         call xyscat(i)%addXYPlot(real(xSpot), real(ySpot))
         call xyscat(i)%setDataColorCode(sysConfig%wavelengthColorCodes(j))
         call xyscat(i)%setLineStyleCode(-1)
       end do
+    end if
+
+    ! The Airy disk is only a circle if the two axes share a scale, and the
+    ! spot diagram otherwise autoscales X and Y independently.  Square the
+    ! window around the data (and the disk, so it cannot be clipped) when the
+    ! overlay is on and the user has not set an explicit scale.
+    if (drawAiry .and. airyRadius > 0.0 .and. plotScale == 0) then
+      airyScale = max(spotExtent, airyRadius)*1.05
+      call xyscat(i)%setYScale(real(airyScale,8))
+      call xyscat(i)%setXScale(real(airyScale,8))
     end if
 
     call mplt%set(sysConfig%numFields-i+1,1,xyscat(i))

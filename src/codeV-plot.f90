@@ -39,6 +39,14 @@ contains
     !## category: Plot Settings
     !## desc:     Set the spot-diagram ray-trace pattern for the active plot.
     !##
+    !## cmd:      AIRY
+    !## syntax:   AIRY ON | OFF
+    !## category: Plot Settings
+    !## desc:     Spot diagram: overlay the Airy disk on every field point.
+    !##           Draws a black circle of radius 1.22*lambda*F/#, using the
+    !##           working (image-space) F-number.  Off by default.  While it
+    !##           is on the plot is scaled squarely so the disk is a circle.
+    !##
     !## cmd:      RECTDENS
     !## syntax:   RECTDENS n
     !## category: Plot Settings

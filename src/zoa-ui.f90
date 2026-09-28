@@ -131,6 +131,10 @@ integer, parameter :: ID_RSPH_CHIEF  = 1633
 integer, parameter :: ID_RSPH_NOTILT = 1634
 integer, parameter :: ID_RSPH_BEST   = 1635
 
+! Spot diagram: draw the Airy disk (radius 1.22*lambda*F/#) over the rays.
+integer, parameter :: ID_AIRY_OFF = 1636
+integer, parameter :: ID_AIRY_ON  = 1637
+
 !integer :: active_plot = -1
 
 ! C               0 = WHITE

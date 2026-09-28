@@ -564,6 +564,8 @@ module codeV_commands
         ! inside a plot loop.
         zoaCmds(732)%cmd = 'RSPH'
         zoaCmds(732)%execFunc => setReferenceSphere
+        zoaCmds(733)%cmd = 'AIRY'
+        zoaCmds(733)%execFunc => setPlotSettingGeneric
         zoaCmds(527)%cmd = 'SETDENS'
         zoaCmds(527)%execFunc => setPlotDensity     
         zoaCmds(528)%cmd = 'SETZERNC'
