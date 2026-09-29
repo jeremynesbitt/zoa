@@ -630,7 +630,7 @@ contains
       ! Pupil sampling used at each field point: an NxN grid.  16 is KDP's
       ! own default CAPFN grid, so the wavefront numbers are unchanged from
       ! when this was hard-coded.
-      call self%addDensitySetting(16, 4, 128)
+      call self%addDensitySetting(16, 16, 128)
 
       ! Reference sphere centre (the legacy RSPH global).  Only meaningful for
       ! the wavefront data type -- spot size is measured from ray positions and
@@ -968,17 +968,40 @@ contains
       end subroutine
 
 
+      ! Pupil sampling density, as a dropdown of NxN powers of two between
+      ! minVal and maxVal.  It used to be a spin button over the whole range,
+      ! which let the user ask for a density the ray trace cannot use -- typing
+      ! 35 just produced an error.  The option ids ARE the N values, so the
+      ! command form is unchanged (SETDENS 32 selects 32x32) and getDensitySetting
+      ! reads the value directly.
       subroutine addDensitySetting(self, defaultVal, minVal, maxVal)
 
         class(zoaplot_setting_manager), intent(inout) :: self
-        integer:: val, defaultVal, minVal, maxVal
+        integer:: defaultVal, minVal, maxVal
+        type(idText) :: set(12)
+        integer :: n, nOpts, defOpt
 
-        val = defaultVal
+        nOpts = 0
+        defOpt = 1
+        n = 1
+        do while (n <= maxVal .and. nOpts < size(set))
+          if (n >= minVal) then
+            nOpts = nOpts + 1
+            set(nOpts)%id   = n
+            set(nOpts)%text = trim(int2str(n))//"x"//trim(int2str(n))
+            ! Snap the default to the nearest option at or below it, so a
+            ! caller's non-power-of-two default still lands on a real option.
+            if (n <= defaultVal) defOpt = nOpts
+          end if
+          n = n*2
+        end do
+
         self%numSettings = self%numSettings + 1
-        call self%ps(self%numSettings)%initialize(SETTING_DENSITY, & 
-        & "Density", real(val),real(minVal),real(maxVal), &
-        & "SETDENS", "SETDENS "//trim(int2str(defaultVal)), UITYPE_SPINBUTTON)
-      
+        call self%ps(self%numSettings)%initialize(SETTING_DENSITY, &
+        & "Density (NxN)", real(set(defOpt)%id),0.0,0.0, &
+        & "SETDENS", "SETDENS "//trim(int2str(set(defOpt)%id)), UITYPE_COMBO, &
+        & set=set(1:nOpts))
+
       end subroutine  
 
       ! Apply "<KEYWORD> <value>" to whichever setting owns KEYWORD.
@@ -1199,41 +1222,51 @@ contains
 
       end subroutine
 
+      ! Set the density.  Goes through updateSetting so the stored VALUE moves
+      ! with the command text -- it used to rewrite fullCmd only, which worked
+      ! solely because getDensitySetting re-parsed that string.
       subroutine updateDensitySetting(self, newVal)
-        use global_widgets, only: sysConfig
-
+        use zoa_output, only: zoa_emit
         class(zoaplot_setting_manager) :: self
         integer :: newVal
-        integer :: i
+        integer :: i, k, chosen
 
-        !TODO:  Add error checking
+        ! Snap to an available NxN option: the ray trace only works on the
+        ! listed grids, so an off-grid request (SETDENS 35) is rounded down to
+        ! the nearest one rather than silently sampling on a grid that gives
+        ! nonsense.  Says so, since it is not what was typed.
+        chosen = newVal
         do i=1,self%numSettings
           if (self%ps(i)%ID == SETTING_DENSITY) then
-            self%ps(i)%fullCmd = trim("SETDENS "//int2str(newVal))
+            if (allocated(self%ps(i)%set)) then
+              chosen = self%ps(i)%set(1)%ID
+              do k=1,size(self%ps(i)%set)
+                if (self%ps(i)%set(k)%ID <= newVal) chosen = self%ps(i)%set(k)%ID
+              end do
+            end if
+            exit
           end if
         end do
+
+        if (chosen /= newVal) then
+          call zoa_emit("Density "//trim(int2str(newVal))//" is not available; using "// &
+          & trim(int2str(chosen))//"x"//trim(int2str(chosen)), "red")
+        end if
+
+        call self%updateSetting(SETTING_DENSITY, chosen)
 
       end subroutine 
 
       
+      ! N for the NxN pupil grid.  Reads the stored value rather than
+      ! re-parsing fullCmd: the value arrives from the dropdown as a real, so
+      ! the command text can read "SETDENS 32.00000", which str2int does not
+      ! survive.
       function getDensitySetting(self) result(denVal)
-        use global_widgets, only: sysConfig
-        use strings
-
         class(zoaplot_setting_manager) :: self
         integer :: denVal
-        integer :: i
-        character(len=80) :: tokens(40)
-        integer :: numTokens
 
-        !TODO:  Add error checking
-        do i=1,self%numSettings
-          if (self%ps(i)%ID == SETTING_DENSITY) then
-            print *, "density cmd is ", self%ps(i)%fullCmd
-            call parse(trim(self%ps(i)%fullCmd), ' ', tokens, numTokens) 
-            denVal = str2int(tokens(2))
-          end if
-        end do
+        denVal = INT(self%getSettingValueByCode(SETTING_DENSITY))
 
       end function      
 

@@ -4163,3 +4163,14 @@ FOCUS SHIFT FOR BEST RMS SPOT DIAMETER   = -0.1134943992
 FOCUS SHIFT FOR BEST RMS SPOT LENGTH (X) = -0.2005643769
 FOCUS SHIFT FOR BEST RMS SPOT LENGTH (Y) = -0.2642442146E-01
 PLOT: zoa_plot_14.png 400x1200
+     Field       RMS[mWaves]
+     0.00000        189.85635
+     5.00000        317.64066
+    10.00000        769.48669
+PLOT: zoa_plot_15.png 1200x500
+Density 35 is not available; using 32x32
+     Field       RMS[mWaves]
+     0.00000        191.14030
+     5.00000        318.90442
+    10.00000        772.79041
+PLOT: zoa_plot_16.png 1200x500

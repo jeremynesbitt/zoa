@@ -291,13 +291,19 @@ contains
 
         character(len=80) :: tokens(40)
         integer :: numTokens
+        logical :: found
 
         call parse(trim(iptStr), ' ', tokens, numTokens) 
        
-        !TODO:  Add error checking (min and max wavelength within range)
         if (numTokens  == 2) then
             if (isInputNumber(tokens(2))) then
                 call curr_psm%updateDensitySetting(str2int(tokens(2)))
+            else
+                ! Option text, e.g. "SETDENS 64x64" -- the density dropdown's
+                ! own labels, so a stored/typed command in either form works.
+                call curr_psm%applySettingCommand('SETDENS', trim(tokens(2)), found)
+                if (.not. found) call zoa_emit("SETDENS: "//trim(tokens(2))// &
+                & " is not a density option", "red")
             end if
         end if
         

@@ -114,3 +114,16 @@ GO
 SPO P8
 SETFLD 102.00000
 GO
+! ---- SETDENS is a power-of-two dropdown ----
+! Kept last so it does not renumber the plots above.  The command form is
+! unchanged (SETDENS 64), the dropdown's own label works too (64x64), and an
+! off-grid request snaps down to a real option rather than sampling on a grid
+! the ray trace cannot use.
+PLTRMS P9
+NUMPTS 3
+SETDENS 64x64
+GO
+PLTRMS P10
+NUMPTS 3
+SETDENS 35
+GO
