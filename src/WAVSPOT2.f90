@@ -3094,6 +3094,11 @@ SUBROUTINE SPD_SET_DEFAULTS
    IMPLICIT NONE
    INTEGER :: I
    INTEGER, PARAMETER :: NUM_RINGS = 4
+!     Stagger each ring by half of its own angular step, so the rays do not
+!     line up on radial spokes across rings (ring 1 lands on 30/90/150...,
+!     ring 2 on 15/45/75..., and so on).  Set to .FALSE. for the aligned
+!     pattern, where every ring starts at 0 degrees.
+   LOGICAL, PARAMETER :: STAGGER_RINGS = .TRUE.
 
    NRECT=10
    RNUMBR=2000
@@ -3107,7 +3112,12 @@ SUBROUTINE SPD_SET_DEFAULTS
    DO I=1,NUM_RINGS
       RINGRAD(I)=DBLE(I)/DBLE(NUM_RINGS)
       RINGPNT(I)=6*I
-      RINGANG(I)=0.0D0
+      IF(STAGGER_RINGS) THEN
+!        Half of this ring's step: 360/RINGPNT(I)/2 = 180/RINGPNT(I).
+         RINGANG(I)=180.0D0/DBLE(RINGPNT(I))
+      ELSE
+         RINGANG(I)=0.0D0
+      END IF
    END DO
 
    RETURN
