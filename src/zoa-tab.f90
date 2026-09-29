@@ -780,6 +780,7 @@ subroutine updateGenericMultiPlot(self, mplt)
   class(zoaplot), pointer :: p
   integer :: i, j
   type(c_ptr) :: isurface
+  logical :: swapCanvas
 
   ! Persist a deep copy of the caller's transient mplt so the tab retains its
   ! plot data (needed for .zin serialization and to avoid re-deriving plots
@@ -810,7 +811,29 @@ subroutine updateGenericMultiPlot(self, mplt)
   !needs to be added to the ui window
   if (c_associated(self%canvas)) then
 
-    mplt%area = self%canvas
+    ! Normally the tab keeps its own drawing area across replots.  But a plot
+    ! whose size depends on its settings (the spot diagram is 400 x 400*panels,
+    ! and the Field Point selection changes the panel count) arrives with a
+    ! correctly sized area of its own, and the tab's is the wrong shape.  A
+    ! size request on the existing widget is not enough -- GTK re-lays out
+    ! later, so the extra panels had nowhere to go -- so swap the widget in.
+    swapCanvas = .FALSE.
+    if (c_associated(mplt%area) .and. .not. c_associated(mplt%area, self%canvas)) then
+      isurface = g_object_get_data(self%canvas, "backing-surface")
+      if (c_associated(isurface)) then
+        if (cairo_image_surface_get_width(isurface)  /= self%mplt%width .or. &
+        &   cairo_image_surface_get_height(isurface) /= self%mplt%height) swapCanvas = .TRUE.
+      end if
+    end if
+
+    if (swapCanvas) then
+      call gtk_box_remove(self%box1, self%canvas)
+      call gtk_box_append(self%box1, mplt%area)
+      call gtk_widget_set_halign(mplt%area, GTK_ALIGN_START)
+      self%canvas = mplt%area
+    else
+      mplt%area = self%canvas
+    end if
 
 else
   print *, "Multiplot update canvas ptr is loose"
