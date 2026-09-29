@@ -319,7 +319,8 @@ subroutine setKDPCallback(self, idx, tabIndex)
    select type (tmpTab=>self%tabInfo(idx)%tabObj)
    type is (zoaplottab)
    call gtk_drawing_area_set_draw_func(tmpTab%canvas, &
-   & c_funloc(ROUTEDRAWING), c_loc(ptr), c_null_funptr) 
+   & c_funloc(ROUTEDRAWING), c_loc(ptr), c_null_funptr)
+   tmpTab%usesKdpDraw = .TRUE.
 end select
 
 end subroutine
@@ -856,7 +857,7 @@ end subroutine
 ! layout is not.
 subroutine exportActivePlotPng(self, fileName, ok)
   use cairo, only: cairo_surface_write_to_png, cairo_image_surface_get_width, &
-  &                cairo_image_surface_get_height
+  &                cairo_image_surface_get_height, cairo_surface_destroy
   use gtk_sup, only: c_f_string
   use g, only: g_object_get_data
   use zoa_output, only: zoa_emit
@@ -865,12 +866,16 @@ subroutine exportActivePlotPng(self, fileName, ok)
   class(zoatabManager) :: self
   character(len=*), intent(in) :: fileName
   logical, intent(out) :: ok
+  ! A KDP tab's surface is created here rather than fetched, so it has to be
+  ! released again once written.
+  logical :: ownSurface
   integer :: objIdx, status
   integer(kind=c_int) :: currPageIndex
   type(c_ptr) :: currPage, cptr, isurface
   character(len=100) :: tabTitle
 
   ok = .FALSE.
+  ownSurface = .FALSE.
   if (.not. c_associated(self%notebook)) then
     call zoa_emit("EXPORTPNG requires the GUI", "red")
     return
@@ -908,8 +913,16 @@ subroutine exportActivePlotPng(self, fileName, ok)
     end if
     isurface = g_object_get_data(t%canvas, "backing-surface"//c_null_char)
     if (.not. c_associated(isurface)) then
-      call zoa_emit("Active tab has no drawing surface yet", "red")
-      return
+      ! A KDP-drawn tab (VIE) paints straight onto the context GTK hands its
+      ! draw func, so there is no surface to copy -- re-render it into one.
+      if (t%usesKdpDraw) then
+        call renderKdpTabToSurface(t, objIdx, isurface)
+        ownSurface = c_associated(isurface)
+      end if
+      if (.not. c_associated(isurface)) then
+        call zoa_emit("Active tab has no drawing surface yet", "red")
+        return
+      end if
     end if
     status = INT(cairo_surface_write_to_png(isurface, trim(fileName)//c_null_char))
     if (status == 0) then
@@ -920,11 +933,48 @@ subroutine exportActivePlotPng(self, fileName, ok)
     else
       call zoa_emit("Could not write "//trim(fileName), "red")
     end if
+    if (ownSurface) call cairo_surface_destroy(isurface)
   class default
     call zoa_emit("Active tab has no plot to export", "red")
   end select
 
 end subroutine exportActivePlotPng
+
+! Re-render a KDP-drawn tab (VIE) into a standalone image surface, the way its
+! draw callback would paint the widget.  The caller owns the returned surface.
+subroutine renderKdpTabToSurface(t, tabIdx, isurface)
+  use cairo, only: cairo_image_surface_create, cairo_create, cairo_destroy, &
+  &                cairo_set_source_rgb, cairo_paint, cairo_surface_destroy
+  use kdp_draw, only: DRAWOPTICALSYSTEM
+  implicit none
+  class(zoaplottab), intent(in) :: t
+  integer, intent(in) :: tabIdx
+  type(c_ptr), intent(out) :: isurface
+  type(c_ptr) :: cr
+  integer(kind=c_int) :: w, h
+  ! DRAWOPTICALSYSTEM reads its plot selector through this pointer, so hand it
+  ! the same value setKDPCallback wired into the live draw func.
+  integer(kind=c_int), target :: drawSelector
+
+  isurface = c_null_ptr
+  w = gtk_widget_get_width(t%canvas)
+  h = gtk_widget_get_height(t%canvas)
+  ! Not realized yet (or hidden): fall back to the tab's own nominal size.
+  if (w <= 0) w = t%width
+  if (h <= 0) h = t%height
+  if (w <= 0 .or. h <= 0) return
+
+  isurface = cairo_image_surface_create(CAIRO_FORMAT_RGB24, w, h)
+  cr = cairo_create(isurface)
+  ! RGB24 starts zeroed, i.e. black, and the KDP routines draw in black
+  ! without painting a background of their own.
+  call cairo_set_source_rgb(cr, 1d0, 1d0, 1d0)
+  call cairo_paint(cr)
+  drawSelector = tabIdx
+  call DRAWOPTICALSYSTEM(t%canvas, cr, w, h, c_loc(drawSelector))
+  call cairo_destroy(cr)
+
+end subroutine renderKdpTabToSurface
 
 subroutine saveTabsToZin(self, unit)
   use iso_fortran_env, only: int32

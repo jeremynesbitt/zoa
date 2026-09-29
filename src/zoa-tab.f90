@@ -516,6 +516,10 @@ type, extends(zoatab) ::  zoaplottab
   integer(c_int)  ::  height = 1*700 !700
   type(multiplot) :: mplt
   logical :: hasMplt = .false.
+  ! Set for tabs drawn imperatively by the legacy KDP routines (VIE) rather
+  ! than from a multiplot.  Those never build a backing image surface, so
+  ! anything that wants their pixels has to re-render them.
+  logical :: usesKdpDraw = .false.
   logical :: useToolbar
 
   contains
