@@ -635,18 +635,29 @@ end subroutine
   end subroutine  
 
   subroutine attachTabTst(notebook)
-    use gtk_sup
     type(c_ptr) :: notebook
+
+    ! An event controller belongs to exactly one widget -- add_controller takes
+    ! ownership of it.  Sharing a single drop target between the notebook and
+    ! the window made the second call fail its
+    ! 'gtk_event_controller_get_widget (controller) == NULL' assertion, so the
+    ! window ended up with no drop target at all.  Give each its own.
+    call addTabDropTarget(notebook)
+    call addTabDropTarget(my_window)
+
+  end subroutine
+
+  subroutine addTabDropTarget(widget)
+    use gtk_sup
+    type(c_ptr) :: widget
     type(c_ptr) :: dropTarget
 
     dropTarget = gtk_drop_target_new(gtk_widget_get_type(), GDK_ACTION_COPY)
     call g_signal_connect(dropTarget, "drop", c_funloc(on_drop), dropTarget)
     call g_signal_connect(dropTarget, "motion", c_funloc(on_motion), dropTarget)
-    call g_signal_connect(dropTarget, "enter", c_funloc(on_motion), dropTarget)    
+    call g_signal_connect(dropTarget, "enter", c_funloc(on_motion), dropTarget)
 
-    call gtk_widget_add_controller(notebook, dropTarget)
-    call gtk_widget_add_controller(my_window, dropTarget)
-
+    call gtk_widget_add_controller(widget, dropTarget)
 
   end subroutine
 
