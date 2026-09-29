@@ -334,12 +334,12 @@ contains
         
     end procedure 
 
-    !## cmd:      ZERN_TST
-    !## syntax:   ZERN_TST ; [SETZERNC ...] ; GO
+    !## cmd:      ZRNFLD
+    !## syntax:   ZRNFLD ; [SETZERNC ...] ; GO
     !## category: Plotting
     !## desc:     Zernike-coefficient-vs-field plot.
     !##
-    module procedure ZERN_TST
+    module procedure ZRNFLD
         !use ui_spot, only: spot_struct_settings, spot_settings
        ! use mod_plotopticalsystem
 

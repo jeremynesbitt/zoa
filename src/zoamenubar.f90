@@ -125,7 +125,7 @@ contains
     character(len=100), target :: drawCmd = "VIE; GO"
     character(len=100), target :: seidelCmd = "PLOTTHO; GO"
     character(len=100), target :: macroCmd = "MACROUI"
-    character(len=100), target :: zernFldCmd = "ZERN_TST; GO"
+    character(len=100), target :: zernFldCmd = "ZRNFLD; GO"
     character(len=100), target :: opdPltCmd = "PMA; GO"    
     
     character(len=100), target :: fanCmd = "RIM;GO"    

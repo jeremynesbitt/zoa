@@ -49,9 +49,9 @@ module codeV_commands
    module subroutine setPlotZernikeCoefficients(iptStr)
    character(len=*) :: iptStr
    end subroutine setPlotZernikeCoefficients
-   module subroutine ZERN_TST(iptStr)
+   module subroutine ZRNFLD(iptStr)
    character(len=*) :: iptStr
-   end subroutine ZERN_TST
+   end subroutine ZRNFLD
    module subroutine execZRN(iptStr)
    character(len=*) :: iptStr
    end subroutine execZRN
@@ -529,8 +529,8 @@ module codeV_commands
         zoaCmds(523)%execFunc => findBestFocus     
         zoaCmds(524)%cmd = 'SPO'
         zoaCmds(524)%execFunc => execSPO   
-        zoaCmds(525)%cmd = 'ZERN_TST'
-        zoaCmds(525)%execFunc => ZERN_TST     
+        zoaCmds(525)%cmd = 'ZRNFLD'
+        zoaCmds(525)%execFunc => ZRNFLD     
         zoaCmds(526)%cmd = 'SETWV'
         zoaCmds(526)%execFunc => setPlotWavelength
         zoaCmds(722)%cmd = 'SETFLD'

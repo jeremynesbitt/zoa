@@ -1146,7 +1146,7 @@ call initializeGoPlot(psm,ID_PLOTTYPE_RMSFIELD, "RMS vs Field", replot, objIdx)
 ! Reference sphere centre (the legacy RSPH global).  REFLOC is read inside
 ! CAPFN -- COMPAP/WAVESLP1 rewrite the stored OPD in place -- so it has to be
 ! set before the loop, not after.  Bracket it: every other CAPFN consumer
-! (ZERN_TST, PMA, PSF, diffraction MTF) reads the same global, and the state
+! (ZRNFLD, PMA, PSF, diffraction MTF) reads the same global, and the state
 ! is fully reversible, so restoring it afterwards keeps this plot's choice
 ! from following the user around.
 savedRefLoc = REFLOC

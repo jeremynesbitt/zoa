@@ -755,7 +755,7 @@ contains
         call p1%addScaleBar(POS_UPPER_RIGHT)
 
         ! Series capacity: plotdatalist is fixed size, and overrunning it used
-        ! to abort the program (ZERN_TST with 10+ terms).  Adding past the cap
+        ! to abort the program (ZRNFLD with 10+ terms).  Adding past the cap
         ! must be refused, not fatal, and must not corrupt numSeries.
         block
             type(zoaplot) :: pcap

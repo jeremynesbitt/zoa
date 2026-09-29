@@ -26,7 +26,7 @@ It remains in the test script for its text output only.
 
 | Command | Behaviour | Affected test script |
 |---------|-----------|---------------------|
-| `ZERN_TST;GO` | Computes Zernike coefficients; `zern_go` returns before plotting when `HEADLESS_MODE` is true (the GTK drawing-area path is not yet bridged to plplot). No PNG is produced and no segfault occurs. | plots_wave.zoa |
+| `ZRNFLD;GO` | Computes Zernike coefficients; `zern_go` returns before plotting when `HEADLESS_MODE` is true (the GTK drawing-area path is not yet bridged to plplot). No PNG is produced and no segfault occurs. | plots_wave.zoa |
 
 ---
 
@@ -580,7 +580,7 @@ macro that typed `AST n` for the table must now use `ASTK n`.
 
 ---
 
-## ZERN_TST flat across field -- seen once, not reproducible (2026-09-26)
+## ZRNFLD flat across field -- seen once, not reproducible (2026-09-26)
 
 Reported from the GUI with `LithoKotaro.seq`: the Zernike vs Field plot showed
 **identical coefficients at every field point** (flat lines, and every Data-tab
@@ -598,12 +598,12 @@ refreshed after something else left it at field 2.
 
 **Ruled out** (each tested, not merely reasoned about):
 
-- The computation. Headless, `ZERN_TST; NUMPTS 21; SETZERNC 5..11; GO` varies
+- The computation. Headless, `ZRNFLD; NUMPTS 21; SETZERNC 5..11; GO` varies
   correctly, and `LISTZERN` after the loop matches a hand-run max-field fit.
 - Command deferral -- `PROCESSILENT` is synchronous.
 - Poisoning by another plot: `PMA; GO`, `PMA; SETFLD 2; GO` and `PLTRMS; GO`
-  beforehand all leave `ZERN_TST` correct.
-- A replot -- running `ZERN_TST` twice is correct both times.
+  beforehand all leave `ZRNFLD` correct.
+- A replot -- running `ZRNFLD` twice is correct both times.
 - An open lens-update level swallowing the loop's `FOB` (errors are invisible
   under `PROCESSILENT`): that zeroes only the first row.
 

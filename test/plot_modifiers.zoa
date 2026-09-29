@@ -14,8 +14,8 @@ GO
 PLTRMS
 RMSDATA WAVE
 GO
-! ---- ZERN_TST + SETZERNC + GO ----
-ZERN_TST
+! ---- ZRNFLD + SETZERNC + GO ----
+ZRNFLD
 SETZERNC 4..8
 GO
 ! ---- SPDSSI + SPO + GO ----
@@ -56,22 +56,22 @@ FOB 0
 SPD
 ! ---- RSPH: per-plot Reference setting, and the legacy global ----
 ! As a plot setting it must change this plot's wavefront numbers and then be
-! restored: the ZERN_TST that follows reads the same REFLOC global and must
+! restored: the ZRNFLD that follows reads the same REFLOC global and must
 ! come back with tilt/focus intact (Z3/Z4 non-zero).  Bare RSPH then reports
 ! CHIEF, and at top level RSPH must still set the global the legacy way --
-! the ZERN_TST after it has Z3/Z4 driven to ~0.
+! the ZRNFLD after it has Z3/Z4 driven to ~0.
 PLTRMS P3
 RMSDATA WAVE
 NUMPTS 3
 RSPH BEST
 GO
-ZERN_TST
+ZRNFLD
 NUMPTS 2
 SETZERNC 1..4
 GO
 RSPH
 RSPH BEST
-ZERN_TST P2
+ZRNFLD P2
 NUMPTS 2
 SETZERNC 1..4
 GO

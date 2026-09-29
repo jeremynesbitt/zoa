@@ -1294,7 +1294,7 @@ end subroutine
     enddo                
       ! Square, isotropic box without plenv0: plenv0 advances the page, which
       ! on the headless pngcairo device pushed the image onto a second page
-      ! that was never written (the PMA/ZERN_TST golden PNGs were blank).
+      ! that was never written (the PMA/ZRNFLD golden PNGs were blank).
       call plvasp(1.0_pl_test_flt)
       call plwind(xmin, xmax, ymin, ymax)
       call plcol0(15)
