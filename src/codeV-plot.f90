@@ -223,17 +223,31 @@ contains
 
         character(len=80) :: tokens(40)
         integer :: numTokens, fld
+        logical :: found
 
         call parse(trim(iptStr), ' ', tokens, numTokens)
 
         if (numTokens == 2) then
             if (isInputNumber(tokens(2))) then
-                ! Clamp to the current lens: a stored command (replot, or a
-                ! restored .zin) can name a field the new lens does not have.
                 fld = str2int(trim(tokens(2)))
-                if (fld < 1) fld = 1
-                if (fld > sysConfig%numFields) fld = sysConfig%numFields
+                ! ALL is a legitimate value that deliberately sits outside the
+                ! field range, so it must not be clamped -- doing so turned
+                ! "show every field" into "show the last field".  Everything
+                ! else is clamped to the current lens, because a stored command
+                ! (replot, or a restored .zin) can name a field it no longer has.
+                if (fld /= ID_SETTING_FIELD_ALL) then
+                    if (fld < 1) fld = 1
+                    if (fld > sysConfig%numFields) fld = sysConfig%numFields
+                end if
                 call curr_psm%updateSetting(SETTING_FIELD, fld)
+            else
+                ! Non-numeric, e.g. "SETFLD ALL": let the setting manager match
+                ! it against the dropdown's options.  This used to fall through
+                ! and do nothing, so ALL worked only while the setting still
+                ! held its initial value.
+                call curr_psm%applySettingCommand('SETFLD', trim(tokens(2)), found)
+                if (.not. found) call zoa_emit("SETFLD: "//trim(tokens(2))// &
+                & " is not a field option", "red")
             end if
         end if
 

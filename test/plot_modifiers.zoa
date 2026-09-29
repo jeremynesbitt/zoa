@@ -104,3 +104,13 @@ GO
 SPO P7
 SETFLD ALL
 GO
+! ---- SETFLD round trip on one tab (the GUI's own path) ----
+! Kept last so it does not renumber the plots above.  The dropdown emits its
+! value as a real, so ALL arrives as "SETFLD 102.00000"; that must give the
+! stacked 400x1200 plot again, not stay at the single field's 400x400.
+SPO P8
+SETFLD 1
+GO
+SPO P8
+SETFLD 102.00000
+GO

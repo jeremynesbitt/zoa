@@ -775,8 +775,6 @@ subroutine updateGenericMultiPlot(self, mplt)
   use cairo, only: cairo_image_surface_get_width, cairo_image_surface_get_height, &
   &                cairo_image_surface_create, cairo_surface_reference, &
   &                cairo_surface_destroy
-  use zoa_output, only: zoa_emit
-  use type_utils, only: int2str, bool2str
   class(zoaplottab) :: self
   type(multiplot) :: mplt
   class(zoaplot), pointer :: p
@@ -834,12 +832,6 @@ subroutine updateGenericMultiPlot(self, mplt)
     if (c_associated(mplt%area) .and. .not. c_associated(mplt%area, self%canvas)) then
       if (curW /= self%mplt%width .or. curH /= self%mplt%height) swapCanvas = .TRUE.
     end if
-
-    ! TEMPORARY diagnostic (remove once the resize is confirmed working)
-    call zoa_emit("[canvas] want "//trim(int2str(self%mplt%width))//"x"// &
-    & trim(int2str(self%mplt%height))//"  have "// &
-    & trim(int2str(curW))//"x"//trim(int2str(curH))// &
-    & "  swap="//trim(bool2str(swapCanvas)), "black")
 
     if (swapCanvas) then
       call gtk_box_remove(self%box1, self%canvas)
