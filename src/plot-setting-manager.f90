@@ -737,7 +737,6 @@ contains
 
         lambda = sysConfig%refWavelengthIndex
         self%numSettings = self%numSettings + 1
-        PRINT *, "numWavelengths is ", real(sysConfig%numWavelengths)
         call self%ps(self%numSettings)%initialize(SETTING_WAVELENGTH, & 
         & "Wavelength", real(lambda),1.0,real(sysConfig%numWavelengths), &
         & "SETWV", "SETWV "//trim(int2str(lambda)), UITYPE_SPINBUTTON)
@@ -758,7 +757,6 @@ contains
           if (self%ps(i)%ID == SETTING_WAVELENGTH) then
             !call LogTermFOR("Found setting and changing to " //int2str(newIdx))
             self%ps(i)%default = real(newIdx)
-            print *, "About to call int2str in update wv setting"
             self%ps(i)%fullCmd = trim("SETWV "//int2str(newIdx))
           end if
         end do

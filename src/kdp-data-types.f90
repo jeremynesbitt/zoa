@@ -593,7 +593,6 @@ subroutine setTextView(self, idTextView)
 
   integer :: idTextView
 
-  call logger%logTextWithInt("setTextView id=", idTextView)
 
   ! TODO:  Add error checking here
   self%prev_textView = self%textView

@@ -60,6 +60,13 @@ subroutine hl_gtk_combo_box_listid_new(cbox, set, ID_SETTING)
 
   combo_list_store = gtk_list_store_newv(ncols, c_loc(coltypes))
 
+  ! g_value_init requires a zeroed GValue.  These are ordinary locals, so on a
+  ! later call the stack can still hold a previously initialized one, and GLib
+  ! then warns 'cannot initialize GValue with type gint, the value has already
+  ! been initialized as gint' and skips the init.
+  call clear_gvalue(vali)
+  call clear_gvalue(valt)
+
   val = c_loc(vali)
   val = g_value_init(val, G_TYPE_INT)
   val = c_loc(valt)
@@ -81,7 +88,6 @@ subroutine hl_gtk_combo_box_listid_new(cbox, set, ID_SETTING)
     call gtk_list_store_set_value(combo_list_store, c_loc(iter), 1_c_int, &
          & c_loc(valt))
 
-    print *, "String Array Value is ", trim(set(i)%text)
       !print *, trim(akeys(i)), ": ", trim(avals(i))
   end do
 
@@ -147,7 +153,6 @@ subroutine hl_gtk_combo_box_list2_new(cbox, refsArray, valsArray, ID_SETTING)
     call gtk_list_store_set_value(combo_list_store, c_loc(iter), 1_c_int, &
          & c_loc(valt))
 
-    print *, "String Array Value is ", trim(valsArray(i))
       !print *, trim(akeys(i)), ": ", trim(avals(i))
   end do
 
@@ -242,7 +247,6 @@ function hl_zoa_combo_get_list2id_by_text(renderer, selectedText) result(ivalue)
   model = g_object_get_data(renderer, "model"//c_null_char)
   boolResult = gtk_tree_model_get_iter_first(model, c_loc(tree_iter))
 
-  PRINT *, "targetValue is ", selectedText
 
   do while(boolResult.EQ.1)
     sval = c_loc(sresult)
@@ -287,7 +291,6 @@ subroutine hl_zoa_combo_set_selected_by_list2_id(widget, targetValue)
   model = gtk_combo_box_get_model(widget)
   boolResult = gtk_tree_model_get_iter_first(model, c_loc(tree_iter))
 
-  PRINT *, "targetValue is ", targetValue
 
   do while(boolResult.EQ.1)
     ival = c_loc(iresult)
@@ -503,7 +506,6 @@ subroutine hl_gtk_combo_set_by_text(view, row, colno, targetText, ID_SETTING)
 
   boolResult = gtk_tree_model_get_iter_first(model, c_loc(citer))
 
-  PRINT *, "targetValue is ", targetText
 
   do while(boolResult.EQ.1)
     sval = c_loc(sresult)
@@ -793,7 +795,6 @@ subroutine getRowAndColFromCallback(widget, path, row, col)
   end do
   allocate(irow(n+1))
   read(fpath, *) irow
-  PRINT *, "Selected Row is ", irow
 
   ! Only return the first row if multiple are selected
   row = irow(1)

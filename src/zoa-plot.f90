@@ -27,7 +27,9 @@ module zoa_plot
  ! Private type to keep track of plot data
  type :: plotdata2d
    real, allocatable ::  x(:), y(:)
-   integer :: dataColorCode, lineStyleCode
+   ! Defaults matter: an unset series must not hand PLplot a line style it
+   ! rejects ("pllsty: Invalid line style").  1 is solid.
+   integer :: dataColorCode = PL_PLOT_RED, lineStyleCode = 1
 
  contains
    procedure, public :: initialize => plotdata2d_init
@@ -36,7 +38,9 @@ module zoa_plot
 
  type :: plotdata3d
    real(kind=pl_test_flt), allocatable :: x(:), y(:), z(:)
-   integer :: dataColorCode, lineStyleCode
+   ! Defaults matter: an unset series must not hand PLplot a line style it
+   ! rejects ("pllsty: Invalid line style").  1 is solid.
+   integer :: dataColorCode = PL_PLOT_RED, lineStyleCode = 1
    integer :: xpts, ypts
 
    contains
@@ -86,7 +90,7 @@ type :: zoaplot
 
   logical :: useLegend = .false.
   ! AFAIK have to make character array a a fixed size
-  character(len=30)  :: legendNames(16)
+  character(len=30)  :: legendNames(16) = ''
   integer :: numLegendNames = 0
 
   ! In case user wants to add text to plot
@@ -357,7 +361,6 @@ contains
       !      & bbval = (/ 255, 0, 0, 0, 255, 255, 255, 0, 0, 0, 127, 255, 255,&
       !      & 127, 85, 170/)
    
-      PRINT *, "Starting mp_plot routine"
 
       ! Initialize plplot color map (shared by both modes)
       call plscmap0((/255, 0, 255, &
@@ -378,12 +381,10 @@ contains
         if (plsetopt_rc .ne. 0) stop "plsetopt error"
       else
         ! GUI: render to extcairo on GTK backing surface
-        PRINT *, "DRAWING AREA PTR IS ", LOC(self%area)
 
         isurface = c_null_ptr
         if (c_associated(self%area)) then
           isurface = g_object_get_data(self%area, "backing-surface")
-          PRINT *, "isurface in mp_draw is ", LOC(isurface)
 
           if (.not. c_associated(isurface)) then
             call LogTermFOR("Loose pointer in mp_draw")
@@ -397,7 +398,6 @@ contains
           end if
         end if
 
-        PRINT *, "self%area is now", LOC(self%area)
 
         cc = hl_gtk_drawing_area_cairo_new(self%area)
         cs = cairo_get_target(cc)
@@ -695,7 +695,6 @@ end subroutine
 
     allocate(self%x(arraysize))
     allocate(self%y(arraysize))
-    PRINT *, "ARRAY SIZE IS ", arraysize
 
 
     self%area = area
@@ -848,9 +847,7 @@ subroutine bc_drawPlot(self)
   !isurface = cairo_image_surface_create(CAIRO_FORMAT_RGB24, 1200, 500)
   !isurface = cairo_surface_reference(isurface)   ! Prevent accidental deletion
   !call g_object_set_data(self%area, "backing-surface", isurface)
-      PRINT *, "isurface in mp_draw is ", LOC(isurface)
       if (.not. c_associated(isurface)) then
-         PRINT *, "mp_draw :: Backing surface is NULL"
         isurface = cairo_image_surface_create(CAIRO_FORMAT_RGB24, 1200, 500)
         isurface = cairo_surface_reference(isurface)   ! Prevent accidental deletion
         call g_object_set_data(self%area, "backing-surface", isurface)
@@ -1027,7 +1024,9 @@ end subroutine
     call plpsty(0)
     ! PL PLOT Line Style
     if (self%plotdatalist(i)%lineStyleCode > -1) THEN
-    call pllsty(self%plotdatalist(i)%lineStyleCode)
+    ! Clamp: PLplot accepts 1..8 and aborts the whole draw otherwise.  A
+    ! negative code means "scatter" and is handled by the else branch.
+    call pllsty(max(1, min(8, self%plotdatalist(i)%lineStyleCode)))
     call plline(self%plotdatalist(i)%x, &
     &           self%plotdatalist(i)%y)
   else ! Scatter Plot
@@ -1203,7 +1202,6 @@ end subroutine
 
     !allocate(zg(xpts,ypts))
 
-    PRINT *, "drawPlot_plot3d started"
     zmin = minval( self%plotdatalist3d(1)%z )
     zmax = maxval( self%plotdatalist3d(1)%z )
 
@@ -1262,7 +1260,6 @@ end subroutine
     call cmap1_init(0)
     call plwind(xmin, xmax, ymin, ymax)
 
-    PRINT *, "About to check backing surface"
 
     call self%checkBackingSurface()
 
@@ -1270,7 +1267,6 @@ end subroutine
     call plcol0(15)
     !call pllab( trim(self%xlabel)//c_null_char, trim(self%ylabel)//c_null_char, trim(self%title)//c_null_char)
 
-    PRINT *, "About to plot series"
     !call pllightsource(1._pl_test_flt, 1._pl_test_flt, 1._pl_test_flt)
     !call pladv(0)
     !call plclear()
@@ -1311,7 +1307,6 @@ end subroutine
 
 
 
-    PRINT *, "About to check legend status"
     if (self%useLegend) call self%drawLegend()      
 
 
@@ -1527,7 +1522,6 @@ end subroutine a2mnmx
 
     class(*), pointer :: item
 
-    PRINT *, "drawPlot_plot3d started"
     zmin = minval( self%plotdatalist3d(1)%z )
     zmax = maxval( self%plotdatalist3d(1)%z )
 
@@ -1570,7 +1564,6 @@ end subroutine a2mnmx
     !call getAxesLimits(self, xmin, xmax, ymin, ymax)
     call plwind(xmin, xmax, ymin, ymax)
 
-    PRINT *, "About to check backing surface"
 
     call self%checkBackingSurface()
 
@@ -1578,7 +1571,6 @@ end subroutine a2mnmx
     call plcol0(getLabelFontCode(self))
     !call pllab( trim(self%xlabel)//c_null_char, trim(self%ylabel)//c_null_char, trim(self%title)//c_null_char)
 
-    PRINT *, "About to plot series"
     call pllightsource(1._pl_test_flt, 1._pl_test_flt, 1._pl_test_flt)
     call pladv(0)
     call plclear()
@@ -1616,7 +1608,6 @@ end subroutine a2mnmx
 
 
 
-    PRINT *, "About to check legend status"
     if (self%useLegend) call self%drawLegend()      
 
 
@@ -1686,8 +1677,6 @@ end subroutine cmap1_init
 
     self%numLegendNames = size(legendNames)
 
-    PRINT *, "LegendNames is ", self%legendNames
-    PRINT *, "Size of Legend Names is ", size(legendNames)
 
 
   end subroutine
@@ -1739,7 +1728,6 @@ end subroutine cmap1_init
 
    call plscol0a( 15, 32, 32, 32, 0.70_pl_test_flt )
 
-   PRINT *, "Before pllegend called"
    ! See doc here:  There are ALOT of arguments and easy to mess up and not get what you want
    ! http://plplot.org/docbook-manual/plplot-html-5.15.0/pllegend.html
    call pllegend( legend_width, legend_height, &
@@ -1783,7 +1771,6 @@ end subroutine cmap1_init
       !   Draw a legend
       !   First legend entry.
     PRINT *, "before legend vars defined"
-    PRINT *, "numLegendNames is ", self%numLegendNames
     do i=1,nlegend
 
       opt_array(i)   = PL_LEGEND_LINE !PL_LEGEND_SYMBOL
@@ -1794,7 +1781,6 @@ end subroutine cmap1_init
       line_widths(i) = 1 
       symbols(i) = '-'
       text(i) = trim(self%legendNames(i))//c_null_char
-      print *, "Text(i) is "//trim(text(i))
       box_scales(i) = 0.1
       symbol_colors(i)  = PL_PLOT_RED !self%plotDataList(i)%dataColorCode
       symbol_scales(i)  = 1.0
@@ -1804,7 +1790,6 @@ end subroutine cmap1_init
 
    call plscol0a( 15, 32, 32, 32, 0.70_pl_test_flt )
 
-    PRINT *, "Before pllegend called"
     ! See doc here:  There are ALOT of arguments and easy to mess up and not get what you want
     ! http://plplot.org/docbook-manual/plplot-html-5.15.0/pllegend.html
     ! TODO:  Need to scale text scale, text spacing and x/y offset based on # of legend entries.
@@ -1924,15 +1909,6 @@ end subroutine cmap1_init
 
 
 
-           PRINT *, "legend_width is ", legend_width
-           PRINT *, "legend_height is ", legend_height
-           PRINT *, "Legend Symbol is ", symbols(1:nlegend)
-           PRINT *, "OPT is ",  PL_LEGEND_BACKGROUND + PL_LEGEND_BOUNDING_BOX
-           PRINT *, "POS is ", PL_POSITION_VIEWPORT
-           PRINT *, "nlegend is ", nlegend
-           PRINT *, "LIne Style is ", line_styles(1:nlegend)
-           PRINT *, "symbol_scales is ", symbol_scales(1:nlegend)
-           PRINT *, "symbol_numbers is ", symbol_numbers(1:nlegend)
 
 
   end subroutine
@@ -2033,11 +2009,9 @@ subroutine checkBackingSurface(self)
   isurface = c_null_ptr
   if (c_associated(self%area)) then
     isurface = g_object_get_data(self%area, "backing-surface")
-    PRINT *, "self%area is ", LOC(self%area)
 
   !PRINT *, "isurface in mp_draw is ", LOC(isurface)
   if (.not. c_associated(isurface)) then
-     PRINT *, "Backing surface is NULL.  Create one"
      ! TODO:  Should not have hard coded size right here
      call LogTermFOR("Loose pointer in check backing surface") 
     isurface = cairo_image_surface_create(CAIRO_FORMAT_RGB24, 1200, 500)

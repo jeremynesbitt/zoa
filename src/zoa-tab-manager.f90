@@ -791,7 +791,6 @@ subroutine finalize_with_psm(self, objIdx, psm, inputCmd)
   type(zoaplot_setting_manager) :: psm
 
 
-  PRINT *, "creating plot setting elements"
 
   if(present(inputCmd)) self%tabInfo(objIdx)%tabObj%plotCommand = inputCmd
 

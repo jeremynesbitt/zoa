@@ -194,7 +194,6 @@ SUBROUTINE CONTRO
 
    !PRINT *, "CONTRO ROUTINE STARTED! "
    !call LogTermFOR("INPUT IS "//trim(INPUT))
-   PRINT *, "INPUT IS ", trim(INPUT)
    !call sleep(3)
    !WRITE(OUTLYNE,*)  "CONTROL INPUT IS ", WC(1:8)
    !CALL SHOWIT(19)

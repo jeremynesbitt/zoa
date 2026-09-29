@@ -584,7 +584,6 @@ subroutine spo_go(psm)
 
     !call ioConfig%setTextView(ID_TERMINAL_DEFAULT)
     call ioConfig%restoreTextView()
-    print *, "After textView back to default"
 
     call finalizeGoPlot_new(mplt, psm, replot, objIdx)
 

@@ -847,7 +847,6 @@ subroutine updateGenericMultiPlot(self, mplt)
     end if
 
 else
-  print *, "Multiplot update canvas ptr is loose"
    self%canvas = mplt%area
 
 end if
@@ -1346,7 +1345,6 @@ end function
 
 
   integer :: location
-   PRINT *, "FINALIZING WINDOW in ZOATAB"
 
    !call self%buildSettings()
    self%expander = self%settings%build()

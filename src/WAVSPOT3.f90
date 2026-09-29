@@ -100,7 +100,6 @@ SUBROUTINE SPOT
 !               J=50 N AT SPDSURF
 !               J=51 COSI AT SPDSURF
 !
-   print *, "Beginning of SPOT NRD is ", NRD
    REFERR=.FALSE.
 !       WAS A FOB ISSUED
    IF(WC.EQ.'ISPD'.OR.WC.EQ.'ISPDA') THEN
@@ -3077,17 +3076,13 @@ SUBROUTINE SPOT1(TPT)
 !     CALCULATE CENTROID LOCATIONS
    IF(sys_mode().EQ.1.0D0.OR.sys_mode().EQ.2.0D0) THEN
 !     FOCAL SYSTEMS
-      PRINT *, "DEBUG, FOCAL SYSTEM"
       CENTX=SPA
       CENTY=SPC
    ELSE
 !     AFOCAL SYSTEMS
-      PRINT *, "DEBUG, AFOCAL SYSTEM"
       CENTX=AFSPB
       CENTY=AFSPD
    END IF
-   PRINT *, "DEBUG:  CENTX ", CENTX
-   PRINT *, "DEBUG:  CENTY ", CENTY
 
 !     GET RID OF REDICULOIUSLY SMALL VALUES
    IF(DABS(CENTX).LT.1.0D-10) CENTX=0.0D0
@@ -3196,10 +3191,6 @@ SUBROUTINE SPOT1(TPT)
          RSSY=2.0D0*(DSQRT(AMSSY/W))
          RSS=(RSSX+RSSY)/2.0D0
       END IF
-      PRINT *, "DEBUG:  MSSX ", MSSX
-      PRINT *, "DEBUG:  MSSY ", MSSY
-      PRINT *, "DEBUG:  AMSSX ", AMSSX
-      PRINT *, "DEBUG:  AMSSY ", AMSSY
 
 
 !     RESET SP VARS FOR CENT
@@ -3329,7 +3320,6 @@ SUBROUTINE SPOT1(TPT)
       IF(sys_units().EQ.3.0) UN='MILLIMETERS'
       IF(sys_units().EQ.4.0) UN='METERS'
 
-      PRINT *, "DEBUG:  sys_mode() is ", sys_mode()
 
       IF(sys_mode().EQ.1.0D0.OR.sys_mode().EQ.2.0D0) THEN
          RMSX=2.0D0*(DSQRT(MSSX/W))
@@ -3348,7 +3338,6 @@ SUBROUTINE SPOT1(TPT)
       ! JN:  Changed RMS calc to be RSS of X and Y value instead of
       ! average.
       RMS = DSQRT(RMSX*RMSX+RMSY*RMSY)
-      PRINT *, "DEBUG:  RMS Calc is ", RMS
       REG(40)=REG(9)
       REG(11)=RMSY
       REG(10)=RMSX
