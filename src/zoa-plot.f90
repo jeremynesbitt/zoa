@@ -1706,9 +1706,13 @@ end subroutine cmap1_init
 
     nlegend = self%numLegendNames
 
+    ! Nothing to draw.  pllegend indexes the arrays below regardless, so a
+    ! zero-length legend had it reading past them -- which is what produced
+    ! "pllsty: Invalid line style" on plots restored from a .zin.
+    if (nlegend < 1) return
+
            !   Draw a legend
       !   First legend entry.
-    PRINT *, "before legend vars defined"
     do i=1,nlegend
 
       opt_array(i)   = PL_LEGEND_LINE !PL_LEGEND_SYMBOL
@@ -1720,6 +1724,12 @@ end subroutine cmap1_init
       symbols(i) = '-'
       text(i) = strLegend//c_null_char
       box_scales(i) = 0.1
+      ! Declared and passed to pllegend, but never set -- pllegend reads them
+      ! while laying the legend out, so leaving them as stack garbage is not
+      ! safe even for line-only entries.
+      box_colors(i) = self%plotDataList(i)%dataColorCode
+      box_patterns(i) = 0
+      box_line_widths(i) = 1.0
       symbol_colors(i)  = PL_PLOT_RED !self%plotDataList(i)%dataColorCode
       symbol_scales(i)  = 1.0
       symbol_numbers(i) = 2            
@@ -1768,9 +1778,13 @@ end subroutine cmap1_init
 
     nlegend = self%numLegendNames
 
+    ! Nothing to draw.  pllegend indexes the arrays below regardless, so a
+    ! zero-length legend had it reading past them -- which is what produced
+    ! "pllsty: Invalid line style" on plots restored from a .zin.
+    if (nlegend < 1) return
+
       !   Draw a legend
       !   First legend entry.
-    PRINT *, "before legend vars defined"
     do i=1,nlegend
 
       opt_array(i)   = PL_LEGEND_LINE !PL_LEGEND_SYMBOL
@@ -1782,6 +1796,12 @@ end subroutine cmap1_init
       symbols(i) = '-'
       text(i) = trim(self%legendNames(i))//c_null_char
       box_scales(i) = 0.1
+      ! Declared and passed to pllegend, but never set -- pllegend reads them
+      ! while laying the legend out, so leaving them as stack garbage is not
+      ! safe even for line-only entries.
+      box_colors(i) = self%plotDataList(i)%dataColorCode
+      box_patterns(i) = 0
+      box_line_widths(i) = 1.0
       symbol_colors(i)  = PL_PLOT_RED !self%plotDataList(i)%dataColorCode
       symbol_scales(i)  = 1.0
       symbol_numbers(i) = 2            
@@ -1834,6 +1854,11 @@ end subroutine cmap1_init
 
     nlegend = self%numLegendNames
 
+    ! Nothing to draw.  pllegend indexes the arrays below regardless, so a
+    ! zero-length legend had it reading past them -- which is what produced
+    ! "pllsty: Invalid line style" on plots restored from a .zin.
+    if (nlegend < 1) return
+
       !   Draw a legend
       !   First legend entry.
     do i=1,self%numLegendNames
@@ -1847,6 +1872,12 @@ end subroutine cmap1_init
       symbols(i) = '-'
       text(i) = trim(self%legendNames(i))//c_null_char
       box_scales(i) = 0.1
+      ! Declared and passed to pllegend, but never set -- pllegend reads them
+      ! while laying the legend out, so leaving them as stack garbage is not
+      ! safe even for line-only entries.
+      box_colors(i) = self%plotDataList(i)%dataColorCode
+      box_patterns(i) = 0
+      box_line_widths(i) = 1.0
       symbol_colors(i)  = self%plotDataList(i)%dataColorCode
       symbol_scales(i)  = 1.0
       symbol_numbers(i) = 2            
@@ -1940,6 +1971,11 @@ end subroutine cmap1_init
 
     nlegend = self%numLegendNames
 
+    ! Nothing to draw.  pllegend indexes the arrays below regardless, so a
+    ! zero-length legend had it reading past them -- which is what produced
+    ! "pllsty: Invalid line style" on plots restored from a .zin.
+    if (nlegend < 1) return
+
       !   Draw a legend
       !   First legend entry.
     do i=1,self%numLegendNames
@@ -1953,6 +1989,12 @@ end subroutine cmap1_init
       symbols(i) = '-'
       text(i) = trim(self%legendNames(i))//c_null_char
       box_scales(i) = 0.1
+      ! Declared and passed to pllegend, but never set -- pllegend reads them
+      ! while laying the legend out, so leaving them as stack garbage is not
+      ! safe even for line-only entries.
+      box_colors(i) = self%plotDataList(i)%dataColorCode
+      box_patterns(i) = 0
+      box_line_widths(i) = 1.0
       symbol_colors(i)  = self%plotDataList(i)%dataColorCode
       symbol_scales(i)  = 1.0
       symbol_numbers(i) = 2            

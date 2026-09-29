@@ -132,6 +132,11 @@ subroutine hl_gtk_combo_box_list2_new(cbox, refsArray, valsArray, ID_SETTING)
 
   combo_list_store = gtk_list_store_newv(ncols, c_loc(coltypes))
 
+  ! g_value_init requires a zeroed GValue; these are ordinary locals, so a
+  ! later call can find a previously initialized one still on the stack.
+  call clear_gvalue(vali)
+  call clear_gvalue(valt)
+
   val = c_loc(vali)
   val = g_value_init(val, G_TYPE_INT)
   val = c_loc(valt)
@@ -409,6 +414,10 @@ subroutine hl_gtk_listn_attach_combo_box_model(view, colno, valsArray, refsArray
     model = gtk_list_store_newv(ncols, c_loc(coltypes))
     icol = 0
 
+    ! See the note above: zero these before g_value_init.
+    call clear_gvalue(vali)
+    call clear_gvalue(valt)
+
     val = c_loc(vali)
     val = g_value_init(val, G_TYPE_INT)
     val = c_loc(valt)
@@ -432,11 +441,11 @@ subroutine hl_gtk_listn_attach_combo_box_model(view, colno, valsArray, refsArray
     end do
 
     ! Attach it to the renderer.
+    call clear_gvalue(modelv)
     pmodel = c_loc(modelv)
     pmodel = g_value_init(pmodel, gtk_tree_model_get_type())
     call g_value_set_object(pmodel, model)
     call g_object_set_property(renderer, "model"//c_null_char, pmodel)
-    PRINT *, "model set is ", loc(model)
     ! Experiental code!!
     call g_object_set_data(renderer, "model"//c_null_char, model)
   !  call g_object_set_property(renderer, "model"//c_null_char, model)
@@ -444,6 +453,7 @@ subroutine hl_gtk_listn_attach_combo_box_model(view, colno, valsArray, refsArray
 
 
     ! Tell the renderer that the text is in column 1
+    call clear_gvalue(columnv)
     pcolumn = c_loc(columnv)
     pcolumn = g_value_init(pcolumn, G_TYPE_INT)
     call g_value_set_int(pcolumn, 1)
@@ -498,6 +508,7 @@ subroutine hl_gtk_combo_set_by_text(view, row, colno, targetText, ID_SETTING)
   call g_list_free(rlist)
 
   ! Find the model for the combobox
+  call clear_gvalue(modelv)
   pmodel = c_loc(modelv)
   pmodel = g_value_init(pmodel, gtk_tree_model_get_type())
 
@@ -579,6 +590,7 @@ subroutine hl_gtk_listn_combo_set_by_list_id(view, row, colno, targetValue)
   call g_list_free(rlist)
 
   ! Find the model for the combobox
+  call clear_gvalue(modelv)
   pmodel = c_loc(modelv)
   pmodel = g_value_init(pmodel, gtk_tree_model_get_type())
 
@@ -593,6 +605,7 @@ do while(boolResult.EQ.1)
   ivalue = g_value_get_int(ival)
 if (ivalue.EQ.targetValue) then
 
+     call clear_gvalue(stringv)
      pstring = c_loc(stringv)
      pstring = g_value_init(pstring, G_TYPE_STRING)
      call g_value_unset(pstring)
@@ -644,10 +657,10 @@ subroutine set_listn_column_color(view, col, colorTxt)
     !
     !
      !rstring = "orange"
+    call clear_gvalue(svalue)
     val_ptr = c_loc(svalue)
     val_ptr = g_value_init(val_ptr, G_TYPE_STRING)
 
-    PRINT *, "Updating column with color ", colorTxt
     call g_value_set_string(val_ptr, trim(colorTxt)//c_null_char)
     call g_object_set_property(renderer, "background"//c_null_char, val_ptr)
     !

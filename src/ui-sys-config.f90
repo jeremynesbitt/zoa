@@ -379,6 +379,7 @@ end subroutine
     character(len=50)  :: choice
 
         ! Find the model for the combobox
+    call clear_gvalue(modelv)
     pmodel = c_loc(modelv)
     pmodel = g_value_init(pmodel, gtk_tree_model_get_type())
     call g_object_get_property(renderer, "model"//c_null_char, pmodel)
@@ -451,6 +452,7 @@ end subroutine
 
 
     ! Find the model for the combobox
+    call clear_gvalue(modelv)
     pmodel = c_loc(modelv)
     pmodel = g_value_init(pmodel, gtk_tree_model_get_type())
     call g_object_get_property(renderer, "model"//c_null_char, pmodel)
@@ -524,6 +526,7 @@ end subroutine
 
 
     ! Find the model for the combobox
+    call clear_gvalue(modelv)
     pmodel = c_loc(modelv)
     pmodel = g_value_init(pmodel, gtk_tree_model_get_type())
     call g_object_get_property(renderer, "model"//c_null_char, pmodel)
