@@ -858,14 +858,18 @@ end subroutine
 subroutine exportActivePlotPng(self, fileName, ok)
   use cairo, only: cairo_surface_write_to_png, cairo_image_surface_get_width, &
   &                cairo_image_surface_get_height
+  use gtk_sup, only: c_f_string
+  use g, only: g_object_get_data
   use zoa_output, only: zoa_emit
   use type_utils, only: int2str
   implicit none
   class(zoatabManager) :: self
   character(len=*), intent(in) :: fileName
   logical, intent(out) :: ok
-  integer :: pageIdx, i, status
-  type(c_ptr) :: isurface
+  integer :: objIdx, status
+  integer(kind=c_int) :: currPageIndex
+  type(c_ptr) :: currPage, cptr, isurface
+  character(len=100) :: tabTitle
 
   ok = .FALSE.
   if (.not. c_associated(self%notebook)) then
@@ -873,30 +877,53 @@ subroutine exportActivePlotPng(self, fileName, ok)
     return
   end if
 
-  pageIdx = INT(gtk_notebook_get_current_page(self%notebook)) + 1
+  ! Identify the active tab the same way close_zoaTab does: each notebook page
+  ! carries its title as "tab-id".  The tab object's own tabNum is the page
+  ! index it was created at and goes stale once tabs are closed or detached.
+  currPageIndex = gtk_notebook_get_current_page(self%notebook)
+  currPage = gtk_notebook_get_nth_page(self%notebook, currPageIndex)
+  if (.not. c_associated(currPage)) then
+    call zoa_emit("No active plot tab", "red")
+    return
+  end if
 
-  do i = 1, self%tabNum
-    if (.not. allocated(self%tabInfo(i)%tabObj)) cycle
-    if (self%tabInfo(i)%tabObj%tabNum /= pageIdx) cycle
-    select type (t => self%tabInfo(i)%tabObj)
-    class is (zoaplottab)
-      if (.not. c_associated(t%canvas)) exit
-      isurface = g_object_get_data(t%canvas, "backing-surface")
-      if (.not. c_associated(isurface)) exit
-      status = INT(cairo_surface_write_to_png(isurface, trim(fileName)//c_null_char))
-      if (status == 0) then
-        ok = .TRUE.
-        call zoa_emit("Wrote "//trim(fileName)//" ("// &
-        & trim(int2str(cairo_image_surface_get_width(isurface)))//"x"// &
-        & trim(int2str(cairo_image_surface_get_height(isurface)))//")", "black")
-      else
-        call zoa_emit("Could not write "//trim(fileName), "red")
-      end if
+  tabTitle = ''
+  cptr = g_object_get_data(currPage, "tab-id"//c_null_char)
+  if (c_associated(cptr)) call c_f_string(cptr, tabTitle)
+
+  objIdx = self%getTabIdxByID(trim(tabTitle))
+  if (objIdx == -1) then
+    call zoa_emit("Could not identify the active tab", "red")
+    return
+  end if
+  if (.not. allocated(self%tabInfo(objIdx)%tabObj)) then
+    call zoa_emit("Active tab has no plot to export", "red")
+    return
+  end if
+
+  select type (t => self%tabInfo(objIdx)%tabObj)
+  class is (zoaplottab)
+    if (.not. c_associated(t%canvas)) then
+      call zoa_emit("Active tab has no plot to export", "red")
       return
-    end select
-  end do
-
-  if (.not. ok) call zoa_emit("Active tab has no plot to export", "red")
+    end if
+    isurface = g_object_get_data(t%canvas, "backing-surface"//c_null_char)
+    if (.not. c_associated(isurface)) then
+      call zoa_emit("Active tab has no drawing surface yet", "red")
+      return
+    end if
+    status = INT(cairo_surface_write_to_png(isurface, trim(fileName)//c_null_char))
+    if (status == 0) then
+      ok = .TRUE.
+      call zoa_emit("Wrote "//trim(fileName)//" ("// &
+      & trim(int2str(INT(cairo_image_surface_get_width(isurface))))//"x"// &
+      & trim(int2str(INT(cairo_image_surface_get_height(isurface))))//")", "black")
+    else
+      call zoa_emit("Could not write "//trim(fileName), "red")
+    end if
+  class default
+    call zoa_emit("Active tab has no plot to export", "red")
+  end select
 
 end subroutine exportActivePlotPng
 

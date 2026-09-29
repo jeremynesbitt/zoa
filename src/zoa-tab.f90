@@ -760,7 +760,7 @@ subroutine createGenericMultiPlot(self, mplt)
     print*, "error:  new plot :: Backing surface is NULL.  Adding one"
      isurface = cairo_image_surface_create(CAIRO_FORMAT_RGB24, 700, 500)
      isurface = cairo_surface_reference(isurface)   ! Prevent accidental deletion
-     call g_object_set_data(self%canvas, "backing-surface", isurface)
+     call g_object_set_data(self%canvas, "backing-surface"//c_null_char, isurface)
      mplt%area = self%canvas
 
   end if  
@@ -819,7 +819,7 @@ subroutine updateGenericMultiPlot(self, mplt)
     ! later, so the extra panels had nowhere to go -- so swap the widget in.
     swapCanvas = .FALSE.
     if (c_associated(mplt%area) .and. .not. c_associated(mplt%area, self%canvas)) then
-      isurface = g_object_get_data(self%canvas, "backing-surface")
+      isurface = g_object_get_data(self%canvas, "backing-surface"//c_null_char)
       if (c_associated(isurface)) then
         if (cairo_image_surface_get_width(isurface)  /= self%mplt%width .or. &
         &   cairo_image_surface_get_height(isurface) /= self%mplt%height) swapCanvas = .TRUE.
@@ -854,7 +854,7 @@ self%mplt%area = self%canvas
 ! drawing area directly (700x500, 1200x800, ...).
 if (self%mplt%width == MP_DEFAULT_WIDTH .and. self%mplt%height == MP_DEFAULT_HEIGHT) then
   if (c_associated(self%canvas)) then
-    isurface = g_object_get_data(self%canvas, "backing-surface")
+    isurface = g_object_get_data(self%canvas, "backing-surface"//c_null_char)
     if (c_associated(isurface)) then
       self%mplt%width  = cairo_image_surface_get_width(isurface)
       self%mplt%height = cairo_image_surface_get_height(isurface)
@@ -870,7 +870,7 @@ end if
 ! overwrites the requested size with the widget's current allocation, which
 ! GTK has not updated yet at this point.
 if (c_associated(self%canvas) .and. self%mplt%width > 0 .and. self%mplt%height > 0) then
-  isurface = g_object_get_data(self%canvas, "backing-surface")
+  isurface = g_object_get_data(self%canvas, "backing-surface"//c_null_char)
   if (.not. c_associated(isurface) .or. &
   &   cairo_image_surface_get_width(isurface)  /= self%mplt%width .or. &
   &   cairo_image_surface_get_height(isurface) /= self%mplt%height) then
@@ -881,7 +881,7 @@ if (c_associated(self%canvas) .and. self%mplt%width > 0 .and. self%mplt%height >
     isurface = cairo_image_surface_create(CAIRO_FORMAT_RGB24, &
     &                                     self%mplt%width, self%mplt%height)
     isurface = cairo_surface_reference(isurface)   ! Prevent accidental deletion
-    call g_object_set_data(self%canvas, "backing-surface", isurface)
+    call g_object_set_data(self%canvas, "backing-surface"//c_null_char, isurface)
   end if
 end if
 
