@@ -1706,9 +1706,8 @@ end subroutine cmap1_init
 
     nlegend = self%numLegendNames
 
-    ! Nothing to draw.  pllegend indexes the arrays below regardless, so a
-    ! zero-length legend had it reading past them -- which is what produced
-    ! "pllsty: Invalid line style" on plots restored from a .zin.
+    ! Nothing to draw, and pllegend indexes the arrays below regardless of
+    ! nlegend, so calling it with none would read past them.
     if (nlegend < 1) return
 
            !   Draw a legend
@@ -1744,7 +1743,7 @@ end subroutine cmap1_init
    PL_LEGEND_BACKGROUND + PL_LEGEND_BOUNDING_BOX, & 
           PL_POSITION_VIEWPORT, &
           .15_pl_test_flt, 0.8_pl_test_flt, 0.05_pl_test_flt, 0, & ! x offset, y offset, plot width (includes width of symbols), bg col
-          0, 0, 1, nlegend, &
+          0, 1, 1, nlegend, & ! bb_color, bb_style (must be 1..8), nrow, ncolumn
           opt_array, &
           1.0_pl_test_flt, .70_pl_test_flt, 2.0_pl_test_flt, &
           1.0_pl_test_flt, text_colors, text, &
@@ -1778,9 +1777,8 @@ end subroutine cmap1_init
 
     nlegend = self%numLegendNames
 
-    ! Nothing to draw.  pllegend indexes the arrays below regardless, so a
-    ! zero-length legend had it reading past them -- which is what produced
-    ! "pllsty: Invalid line style" on plots restored from a .zin.
+    ! Nothing to draw, and pllegend indexes the arrays below regardless of
+    ! nlegend, so calling it with none would read past them.
     if (nlegend < 1) return
 
       !   Draw a legend
@@ -1854,9 +1852,8 @@ end subroutine cmap1_init
 
     nlegend = self%numLegendNames
 
-    ! Nothing to draw.  pllegend indexes the arrays below regardless, so a
-    ! zero-length legend had it reading past them -- which is what produced
-    ! "pllsty: Invalid line style" on plots restored from a .zin.
+    ! Nothing to draw, and pllegend indexes the arrays below regardless of
+    ! nlegend, so calling it with none would read past them.
     if (nlegend < 1) return
 
       !   Draw a legend
@@ -1930,7 +1927,7 @@ end subroutine cmap1_init
            PL_LEGEND_BACKGROUND + PL_LEGEND_BOUNDING_BOX, & 
            PL_POSITION_OUTSIDE + PL_POSITION_BOTTOM, &
            0.0_pl_test_flt, +0.25_pl_test_flt, -0.05_pl_test_flt, 0, &
-           0, 0, 1, nlegend, &
+           0, 1, 1, nlegend, & ! bb_color, bb_style (must be 1..8), nrow, ncolumn
            opt_array, &
            1.0_pl_test_flt, 1.0_pl_test_flt, 2.0_pl_test_flt, &
            1.0_pl_test_flt, text_colors(1:nlegend), text(1:nlegend), &
@@ -1971,9 +1968,8 @@ end subroutine cmap1_init
 
     nlegend = self%numLegendNames
 
-    ! Nothing to draw.  pllegend indexes the arrays below regardless, so a
-    ! zero-length legend had it reading past them -- which is what produced
-    ! "pllsty: Invalid line style" on plots restored from a .zin.
+    ! Nothing to draw, and pllegend indexes the arrays below regardless of
+    ! nlegend, so calling it with none would read past them.
     if (nlegend < 1) return
 
       !   Draw a legend
@@ -2008,7 +2004,7 @@ end subroutine cmap1_init
            PL_LEGEND_BACKGROUND + PL_LEGEND_BOUNDING_BOX, & 
            PL_POSITION_OUTSIDE + PL_POSITION_BOTTOM, &
            0.0_pl_test_flt, +0.25_pl_test_flt, -0.05_pl_test_flt, 0, &
-           0, 0, 1, nlegend, &
+           0, 1, 1, nlegend, & ! bb_color, bb_style (must be 1..8), nrow, ncolumn
            opt_array, &
            1.0_pl_test_flt, 1.0_pl_test_flt, 2.0_pl_test_flt, &
            1.0_pl_test_flt, text_colors(1:nlegend), text(1:nlegend), &

@@ -207,6 +207,10 @@ function hl_zoa_combo_get_selected_list2_id (widget) result(ivalue)
   !PRINT *, "tree_iter is ", tree_iter
 
   model = gtk_combo_box_get_model(widget)
+  ! gtk_tree_model_get_value initializes the GValue itself: it must arrive
+  ! zeroed and be unset after use, or the next call finds it already typed
+  ! ("cannot initialize GValue ... already been initialized as ...").
+  call clear_gvalue(result)
   val = c_loc(result)
   call gtk_tree_model_get_value(model, c_loc(tree_iter), 1_c_int, val)
 
@@ -214,15 +218,18 @@ function hl_zoa_combo_get_selected_list2_id (widget) result(ivalue)
 
   cstr = g_value_get_string(val)
   call convert_c_string(cstr, choice)
+  call g_value_unset(val)
 
 !        cstr = g_value_get_string(val)
 !          call convert_c_string(cstr, svalue)
   PRINT *, "CHOICE is ", choice
 
   ! Get ING
+  call clear_gvalue(iresult)
   ival = c_loc(iresult)
   call gtk_tree_model_get_value(model, c_loc(tree_iter), 0_c_int, ival)
   ivalue = g_value_get_int(ival)
+  call g_value_unset(ival)
 
   PRINT *, "Integer Index is ", ivalue
 
@@ -254,23 +261,26 @@ function hl_zoa_combo_get_list2id_by_text(renderer, selectedText) result(ivalue)
 
 
   do while(boolResult.EQ.1)
+    call clear_gvalue(sresult)
     sval = c_loc(sresult)
     call gtk_tree_model_get_value(model, c_loc(tree_iter), 1_c_int, sval)
 
     cstr = g_value_get_string(sval)
     call convert_c_string(cstr, choice)   
 
-    PRINT *, "Choice is ", choice
-
   if (selectedText.EQ.choice) then
      PRINT *, "Found correct combo entry!"
+     call clear_gvalue(iresult)
      ival = c_loc(iresult)
      call gtk_tree_model_get_value(model, c_loc(tree_iter), 0_c_int, ival)
      ivalue = g_value_get_int(ival)      
+     call g_value_unset(ival)
+     call g_value_unset(sval)
      return
     
   else
 
+    call g_value_unset(sval)
     boolResult = gtk_tree_model_iter_next(model, c_loc(tree_iter))
     if (boolResult.EQ.0) then
       PRINT *, "Reached end of model and no suitable matches found"
@@ -298,9 +308,14 @@ subroutine hl_zoa_combo_set_selected_by_list2_id(widget, targetValue)
 
 
   do while(boolResult.EQ.1)
+    ! gtk_tree_model_get_value initializes the GValue itself: it must arrive
+    ! zeroed and be unset after use, or the next call finds it already typed
+    ! ("cannot initialize GValue ... already been initialized as ...").
+    call clear_gvalue(iresult)
     ival = c_loc(iresult)
     call gtk_tree_model_get_value(model, c_loc(tree_iter), 0_c_int, ival)
     ivalue = g_value_get_int(ival)
+    call g_value_unset(ival)
   if (ivalue.EQ.targetValue) then
     ! PRINT *, "Found correct combo entry to display!"
     call gtk_combo_box_set_active_iter(widget, c_loc(tree_iter))
@@ -365,6 +380,10 @@ subroutine combo_setting_callback (widget, gdata) bind(c)
   !PRINT *, "tree_iter is ", tree_iter
 
   model = gtk_combo_box_get_model(widget)
+  ! gtk_tree_model_get_value initializes the GValue itself: it must arrive
+  ! zeroed and be unset after use, or the next call finds it already typed
+  ! ("cannot initialize GValue ... already been initialized as ...").
+  call clear_gvalue(result)
   val = c_loc(result)
   call gtk_tree_model_get_value(model, c_loc(tree_iter), 1_c_int, val)
 
@@ -372,15 +391,18 @@ subroutine combo_setting_callback (widget, gdata) bind(c)
 
   cstr = g_value_get_string(val)
   call convert_c_string(cstr, choice)
+  call g_value_unset(val)
 
 !        cstr = g_value_get_string(val)
 !          call convert_c_string(cstr, svalue)
   PRINT *, "CHOICE is ", choice
 
   ! Get ING
+  call clear_gvalue(iresult)
   ival = c_loc(iresult)
   call gtk_tree_model_get_value(model, c_loc(tree_iter), 0_c_int, ival)
   ivalue = g_value_get_int(ival)
+  call g_value_unset(ival)
 
 
 end subroutine combo_setting_callback
@@ -519,23 +541,28 @@ subroutine hl_gtk_combo_set_by_text(view, row, colno, targetText, ID_SETTING)
 
 
   do while(boolResult.EQ.1)
+    ! gtk_tree_model_get_value initializes the GValue itself: it must arrive
+    ! zeroed and be unset after use, or the next call finds it already typed
+    ! ("cannot initialize GValue ... already been initialized as ...").
+    call clear_gvalue(sresult)
     sval = c_loc(sresult)
     call gtk_tree_model_get_value(model, c_loc(citer), 1_c_int, sval)
 
     cstr = g_value_get_string(sval)
     call convert_c_string(cstr, choice)   
 
-    PRINT *, "Choice is ", choice
-
   if (targetText.EQ.choice) then
      PRINT *, "Found correct combo entry!"
+     call clear_gvalue(iresult)
      ival = c_loc(iresult)
      call gtk_tree_model_get_value(model, c_loc(citer), 0_c_int, ival)
      ivalue = g_value_get_int(ival)      
+     call g_value_unset(ival)
      PRINT *, "ivalue is ", ivalue
      ID_SETTING = ivalue
 
      call gtk_list_store_set_value(store, c_loc(viter), colno, sval)
+     call g_value_unset(sval)
 
 
 
@@ -543,6 +570,7 @@ subroutine hl_gtk_combo_set_by_text(view, row, colno, targetText, ID_SETTING)
     
   else
 
+    call g_value_unset(sval)
     boolResult = gtk_tree_model_iter_next(model, c_loc(citer))
     if (boolResult.EQ.0) then
       PRINT *, "Reached end of model and no suitable matches found"

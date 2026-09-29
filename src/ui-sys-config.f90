@@ -387,18 +387,25 @@ end subroutine
 
      !valid = gtk_tree_model_iter_nth_child(store, c_loc(iter), C_NULL_PTR, row)
 
+    ! gtk_tree_model_get_value initializes the GValue itself: it must arrive
+    ! zeroed and be unset after use, or the next call finds it already typed
+    ! ("cannot initialize GValue ... already been initialized as ...").
+    call clear_gvalue(result)
     val = c_loc(result)
     call gtk_tree_model_get_value(model, c_loc(iter), 1_c_int, val)
 
   
   cstr = g_value_get_string(val)
   call convert_c_string(cstr, choice)
+  call g_value_unset(val)
 
  
   ! Get ING
+  call clear_gvalue(iresult)
   ival = c_loc(iresult)
   call gtk_tree_model_get_value(model, c_loc(iter), 0_c_int, ival)
   ivalue = g_value_get_int(ival)
+  call g_value_unset(ival)
 
   end function
 
@@ -460,19 +467,26 @@ end subroutine
 
      !valid = gtk_tree_model_iter_nth_child(store, c_loc(iter), C_NULL_PTR, row)
 
+    ! gtk_tree_model_get_value initializes the GValue itself: it must arrive
+    ! zeroed and be unset after use, or the next call finds it already typed
+    ! ("cannot initialize GValue ... already been initialized as ...").
+    call clear_gvalue(result)
     val = c_loc(result)
     call gtk_tree_model_get_value(model, c_loc(iter), 1_c_int, val)
 
 
   cstr = g_value_get_string(val)
   call convert_c_string(cstr, choice)
+  call g_value_unset(val)
 
   PRINT *, "CHOICE is ", choice
 
   ! Get ING
+  call clear_gvalue(iresult)
   ival = c_loc(iresult)
   call gtk_tree_model_get_value(model, c_loc(iter), 0_c_int, ival)
   ivalue = g_value_get_int(ival)
+  call g_value_unset(ival)
 
   PRINT *, "Integer Index is ", ivalue
 
@@ -534,19 +548,26 @@ end subroutine
 
      !valid = gtk_tree_model_iter_nth_child(store, c_loc(iter), C_NULL_PTR, row)
 
+    ! gtk_tree_model_get_value initializes the GValue itself: it must arrive
+    ! zeroed and be unset after use, or the next call finds it already typed
+    ! ("cannot initialize GValue ... already been initialized as ...").
+    call clear_gvalue(result)
     val = c_loc(result)
     call gtk_tree_model_get_value(model, c_loc(iter), 1_c_int, val)
 
 
   cstr = g_value_get_string(val)
   call convert_c_string(cstr, choice)
+  call g_value_unset(val)
 
   PRINT *, "CHOICE is ", choice
 
   ! Get ING
+  call clear_gvalue(iresult)
   ival = c_loc(iresult)
   call gtk_tree_model_get_value(model, c_loc(iter), 0_c_int, ival)
   ivalue = g_value_get_int(ival)
+  call g_value_unset(ival)
 
   PRINT *, "Integer Index is ", ivalue
 
