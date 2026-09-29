@@ -831,6 +831,10 @@ subroutine updateGenericMultiPlot(self, mplt)
       call gtk_box_append(self%box1, mplt%area)
       call gtk_widget_set_halign(mplt%area, GTK_ALIGN_START)
       self%canvas = mplt%area
+      ! Tell the enclosing scrolled window its content changed height, or it
+      ! keeps the old viewport and shows only the top panel.
+      call gtk_widget_queue_resize(self%canvas)
+      call gtk_widget_queue_resize(self%box1)
     else
       mplt%area = self%canvas
     end if
@@ -871,6 +875,8 @@ if (c_associated(self%canvas) .and. self%mplt%width > 0 .and. self%mplt%height >
   &   cairo_image_surface_get_width(isurface)  /= self%mplt%width .or. &
   &   cairo_image_surface_get_height(isurface) /= self%mplt%height) then
     call gtk_widget_set_size_request(self%canvas, self%mplt%width, self%mplt%height)
+    call gtk_widget_queue_resize(self%canvas)
+    if (c_associated(self%box1)) call gtk_widget_queue_resize(self%box1)
     if (c_associated(isurface)) call cairo_surface_destroy(isurface)
     isurface = cairo_image_surface_create(CAIRO_FORMAT_RGB24, &
     &                                     self%mplt%width, self%mplt%height)

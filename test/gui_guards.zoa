@@ -21,3 +21,6 @@ VIEOVER ?
 VIEOVER
 ! ---- inline comment: file handler strips it; no command executed ----
 ! this line is a comment and produces no output
+! ---- EXPORTPNG: GUI-only, and argument checked ----
+EXPORTPNG /tmp/should_not_be_written.png
+EXPORTPNG

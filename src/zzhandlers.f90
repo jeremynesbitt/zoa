@@ -323,6 +323,7 @@ contains
         zoa_set_query_existing_plot_callback, &
         zoa_set_query_save_file_callback, &
         zoa_set_save_zin_callback, zoa_set_load_zin_callback, &
+        zoa_set_export_png_callback, &
         zoa_set_replot_flush_callback
 
     implicit none
@@ -540,6 +541,7 @@ contains
     call zoa_set_query_existing_plot_callback(gui_query_existing_plot)
     call zoa_set_query_save_file_callback(gui_query_save_file)
     call zoa_set_save_zin_callback(gui_save_zin)
+    call zoa_set_export_png_callback(gui_export_png)
     call zoa_set_load_zin_callback(gui_load_zin)
 
     ! INIT KDP
@@ -1136,6 +1138,12 @@ end subroutine
 
   ! ---- .zin companion plot file (registered in activate) --------------------
   ! Core code reaches these only through zoa_ui_callbacks, so it never needs GTK.
+
+  subroutine gui_export_png(path)
+    character(len=*), intent(in) :: path
+    logical :: ok
+    call zoatabMgr%exportActivePlotPng(trim(path), ok)
+  end subroutine
 
   subroutine gui_save_zin(path)
     use zoa_file_handler, only: doesFileExist, delete_file, getFileNameFromPath

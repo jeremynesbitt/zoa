@@ -14,3 +14,5 @@ Error:  This cmd must be entered after MTF and before GO to update value
 CHA Error: Not in update loop
 Error:  Can only set constraint in AUT loop!
 "VIEOVER" SETS VIE OVERLAY "ON" FOR THE NEXT "VIE"
+EXPORTPNG requires the GUI
+Error! Expecting 'EXPORTPNG file.png'

@@ -33,6 +33,7 @@ module zoa_ui_callbacks
   public :: query_save_file, zoa_set_query_save_file_callback
   public :: notify_save_zin, zoa_set_save_zin_callback
   public :: notify_load_zin, zoa_set_load_zin_callback
+  public :: notify_export_png, zoa_set_export_png_callback
 
   ! Abstract interfaces so procedure pointers have explicit types
   abstract interface
@@ -81,6 +82,10 @@ module zoa_ui_callbacks
       character(len=*), intent(in) :: path
     end subroutine
 
+    subroutine export_png_iface(path)
+      character(len=*), intent(in) :: path
+    end subroutine
+
     subroutine load_zin_iface(path)
       character(len=*), intent(in) :: path
     end subroutine
@@ -98,6 +103,7 @@ module zoa_ui_callbacks
   procedure(query_save_file_iface),     pointer :: query_save_file_cb    => null()
   procedure(save_zin_iface),            pointer :: save_zin_cb           => null()
   procedure(load_zin_iface),            pointer :: load_zin_cb           => null()
+  procedure(export_png_iface),          pointer :: export_png_cb         => null()
   ! Flush any deferred replot NOW. Used by GUI callbacks (e.g. the lens editor)
   ! that modify the lens but do not go through name_enter, which is the only other
   ! place a deferred replot is drained. Safe to call only at a top-level GUI
@@ -170,6 +176,11 @@ contains
   subroutine zoa_set_save_zin_callback(cb)
     procedure(save_zin_iface) :: cb
     save_zin_cb => cb
+  end subroutine
+
+  subroutine zoa_set_export_png_callback(cb)
+    procedure(export_png_iface) :: cb
+    export_png_cb => cb
   end subroutine
 
   subroutine zoa_set_load_zin_callback(cb)
@@ -257,6 +268,17 @@ contains
   subroutine notify_save_zin(path)
     character(len=*), intent(in) :: path
     if (associated(save_zin_cb)) call save_zin_cb(path)
+  end subroutine
+
+  ! notify_export_png: no-op in headless mode (there is no GTK surface to write)
+  subroutine notify_export_png(path)
+    use zoa_output, only: zoa_emit
+    character(len=*), intent(in) :: path
+    if (associated(export_png_cb)) then
+      call export_png_cb(path)
+    else
+      call zoa_emit("EXPORTPNG requires the GUI", "red")
+    end if
   end subroutine
 
   ! notify_load_zin: no-op in headless mode (or if GUI has no plots-file hook registered)

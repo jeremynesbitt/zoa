@@ -149,6 +149,34 @@ contains
 
     end procedure
 
+    !## cmd:      EXPORTPNG
+    !## syntax:   EXPORTPNG file.png
+    !## category: Plotting
+    !## desc:     Write the plot on the active tab to a PNG, straight from the
+    !##           surface it is drawn on -- i.e. exactly what is on screen, at
+    !##           the size the window is using.  GUI only.
+    !##
+    module procedure execExportPng
+
+        use strings, only: parse
+        use zoa_ui_callbacks, only: notify_export_png
+
+        implicit none
+
+        character(len=256) :: tokens(40)
+        integer :: numTokens
+
+        call parse(trim(iptStr), ' ', tokens, numTokens)
+
+        if (numTokens /= 2) then
+            call zoa_emit("Error! Expecting 'EXPORTPNG file.png'", "red")
+            return
+        end if
+
+        call notify_export_png(trim(tokens(2)))
+
+    end procedure
+
     ! Generic handler for plot settings whose keyword needs no bespoke logic.
     ! The active plot's setting manager already knows which setting owns the
     ! keyword, so one handler serves them all -- register any new setting

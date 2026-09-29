@@ -54,6 +54,7 @@ type  zoatabManager
    procedure, public :: saveTabsToZin
    procedure, public :: restoreTabsFromZin
    procedure, public :: restorePlotTab
+  procedure, public :: exportActivePlotPng
 
    !Support for KDP (now only VIE) plot
    procedure :: addKDPPlotTab
@@ -849,6 +850,56 @@ end subroutine
 ! access='stream' by the caller). One record per tab with an allocated
 ! tabObj: recordKind, ID_PLOTTYPE, title, plotCommand, psm, then -- for
 ! DATA records only -- the Data-tab text and the persisted multiplot.
+! Writes the plot shown on the active tab to a PNG, straight from the cairo
+! surface the tab draws into -- i.e. exactly what is on screen, at the size the
+! widget is actually using.  That makes it an export feature and a diagnostic:
+! if the file shows panels the window does not, the drawing is fine and the
+! layout is not.
+subroutine exportActivePlotPng(self, fileName, ok)
+  use cairo, only: cairo_surface_write_to_png, cairo_image_surface_get_width, &
+  &                cairo_image_surface_get_height
+  use zoa_output, only: zoa_emit
+  use type_utils, only: int2str
+  implicit none
+  class(zoatabManager) :: self
+  character(len=*), intent(in) :: fileName
+  logical, intent(out) :: ok
+  integer :: pageIdx, i, status
+  type(c_ptr) :: isurface
+
+  ok = .FALSE.
+  if (.not. c_associated(self%notebook)) then
+    call zoa_emit("EXPORTPNG requires the GUI", "red")
+    return
+  end if
+
+  pageIdx = INT(gtk_notebook_get_current_page(self%notebook)) + 1
+
+  do i = 1, self%tabNum
+    if (.not. allocated(self%tabInfo(i)%tabObj)) cycle
+    if (self%tabInfo(i)%tabObj%tabNum /= pageIdx) cycle
+    select type (t => self%tabInfo(i)%tabObj)
+    class is (zoaplottab)
+      if (.not. c_associated(t%canvas)) exit
+      isurface = g_object_get_data(t%canvas, "backing-surface")
+      if (.not. c_associated(isurface)) exit
+      status = INT(cairo_surface_write_to_png(isurface, trim(fileName)//c_null_char))
+      if (status == 0) then
+        ok = .TRUE.
+        call zoa_emit("Wrote "//trim(fileName)//" ("// &
+        & trim(int2str(cairo_image_surface_get_width(isurface)))//"x"// &
+        & trim(int2str(cairo_image_surface_get_height(isurface)))//")", "black")
+      else
+        call zoa_emit("Could not write "//trim(fileName), "red")
+      end if
+      return
+    end select
+  end do
+
+  if (.not. ok) call zoa_emit("Active tab has no plot to export", "red")
+
+end subroutine exportActivePlotPng
+
 subroutine saveTabsToZin(self, unit)
   use iso_fortran_env, only: int32
   use mod_zin_io, only: zin_write_header, zin_write_str, ZIN_KIND_DATA, ZIN_KIND_REPLAY

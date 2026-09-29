@@ -40,6 +40,9 @@ module codeV_commands
    module subroutine setReferenceSphere(iptStr)
    character(len=*) :: iptStr
    end subroutine setReferenceSphere
+   module subroutine execExportPng(iptStr)
+   character(len=*) :: iptStr
+   end subroutine execExportPng
    module subroutine setPlotDensity(iptStr)
    character(len=*) :: iptStr
    end subroutine setPlotDensity
@@ -568,6 +571,8 @@ module codeV_commands
         zoaCmds(733)%execFunc => setPlotSettingGeneric
         zoaCmds(734)%cmd = 'NUMRINGS'
         zoaCmds(734)%execFunc => setPlotSettingGeneric
+        zoaCmds(735)%cmd = 'EXPORTPNG'
+        zoaCmds(735)%execFunc => execExportPng
         zoaCmds(527)%cmd = 'SETDENS'
         zoaCmds(527)%execFunc => setPlotDensity     
         zoaCmds(528)%cmd = 'SETZERNC'
