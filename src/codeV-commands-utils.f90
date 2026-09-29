@@ -47,7 +47,6 @@ contains
             cmd_loop = 0
         end if
         if (cmd_loop == SPO_LOOP) then
-            call LogTermFOR("Existing SPO Loop")
             call spo_go(curr_psm)
             cmd_loop = 0
         end if
@@ -72,7 +71,6 @@ contains
             cmd_loop = 0
         end if
         if (cmd_loop == ZERN_LOOP) then
-            call LogTermFOR("Existing Zern Loop")
             call zern_go(curr_psm)
             cmd_loop = 0
         end if

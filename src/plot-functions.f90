@@ -419,7 +419,7 @@ subroutine spo_go(psm)
     type(zoaplot_setting_manager) :: psm
 
     integer :: iField, iLambda, iMethod, nRect, nRand, nRing
-    integer :: objIdx, i, j
+    integer :: objIdx, i, j, iPanel, nPanels
     logical :: replot, allWL
 
     real(kind=real64), allocatable :: xSpot(:), ySpot(:)
@@ -452,10 +452,17 @@ subroutine spo_go(psm)
       & has_alpha=FALSE)
     end if
 
+    ! Field Point selects one field or, with ALL, every field stacked.
+    if (iField == ID_SETTING_FIELD_ALL) then
+      nPanels = sysConfig%numFields
+    else
+      nPanels = 1
+    end if
+
     ! Todo:  change initialization to sepcify size, and then don't need to
     ! call gtk_drawing_area
-    call mplt%initialize(canvas, sysConfig%numFields,1)
-    mplt%height = 400*sysConfig%numFields
+    call mplt%initialize(canvas, nPanels,1)
+    mplt%height = 400*nPanels
     mplt%width = 400
 
     ! Airy disk radius = 1.22 * lambda * F/#, in lens units.  sysConfig returns
@@ -491,7 +498,12 @@ subroutine spo_go(psm)
       end if
     end if
 
-    do i=1,sysConfig%numFields
+    do iPanel=1,nPanels
+      if (iField == ID_SETTING_FIELD_ALL) then
+        i = iPanel
+      else
+        i = iField
+      end if
       call PROCESKDP(trim(getKDPSpotPlotCommand(i, iLambda, iMethod, nRect, nRand, nRing)))
       if(allocated(xSpot)) deallocate(xSpot)
       if(allocated(ySpot)) deallocate(ySpot)
@@ -530,7 +542,7 @@ subroutine spo_go(psm)
       call xyscat(i)%setLineStyleCode(1)
     end if
 
-    if (i==1) call xyscat(i)%addScaleBar(POS_LOWER_RIGHT)      
+    if (iPanel==1) call xyscat(i)%addScaleBar(POS_LOWER_RIGHT)      
 
     if (allWL) then
       do j=2,sysConfig%numWavelengths
@@ -559,7 +571,7 @@ subroutine spo_go(psm)
       call xyscat(i)%setXScale(real(airyScale,8))
     end if
 
-    call mplt%set(sysConfig%numFields-i+1,1,xyscat(i))
+    call mplt%set(nPanels-iPanel+1,1,xyscat(i))
 
     
 

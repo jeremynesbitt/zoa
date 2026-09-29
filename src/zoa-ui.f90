@@ -201,6 +201,9 @@ integer, parameter :: tabIds(*) = [1001,1002,1003,1004,1005,1006,1007,1008,1009,
 
 integer, parameter :: ID_SETTING_WAVELENGTH_COMBO = 5001
 integer, parameter :: ID_SETTING_WAVELENGTH_ALL = 101
+! Field Point dropdown: option id meaning "every field", alongside the plain
+! field indices 1..N.
+integer, parameter :: ID_SETTING_FIELD_ALL = 102
 
 integer, parameter :: wlIndices(*) = [1,2,3,4,5,6,7,8,9,10,ID_SETTING_WAVELENGTH_ALL]
 

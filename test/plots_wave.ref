@@ -4105,7 +4105,6 @@ Optical path difference map, field 1, wavelength 1, 4096 points
       0.00000000      0.00000000      0.00000000
       0.00000000      0.00000000      0.00000000
 PLOT: zoa_plot_1.png 1200x500
-Existing Zern Loop
 Data vs Field Position
    Field       Z5         Z6         Z7         Z8         Z9 
     0.00000   -0.00000   -0.00000   -0.00000   -0.00000    0.04423

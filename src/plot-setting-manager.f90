@@ -312,7 +312,7 @@ contains
 
      
 
-      call self%addFieldSetting()
+      call self%addFieldSetting(allowAll=.TRUE.)
       call self%addWavelengthComboSetting()
       call self%addSpotCalculationSetting()
       call self%addScaleSetting()
@@ -828,21 +828,41 @@ contains
 
 
 
-      subroutine addFieldSetting(self) 
+      ! Field Point setting.  allowAll adds an "All" entry and makes it a
+      ! dropdown -- for plots that can show every field at once (the spot
+      ! diagram) rather than one at a time.
+      subroutine addFieldSetting(self, allowAll)
         use global_widgets, only: sysConfig
 
-        class(zoaplot_setting_manager), intent(inout) :: self
-        integer:: val
-        integer :: fldPoint
+        class(zoaplot_setting_manager) :: self
+        logical, optional, intent(in) :: allowAll
+        type(idText), dimension(sysConfig%numFields+1) :: set
+        integer :: fldPoint, i
+        logical :: withAll
 
-        fldPoint = 1 ! Default to first field
-        self%numSettings = self%numSettings + 1
-        call self%ps(self%numSettings)%initialize(SETTING_FIELD, & 
-        & "Field Point", real(fldPoint),1.0,real(sysConfig%numFields), &
-        & "SETFLD", "SETFLD "//trim(int2str(fldPoint)), UITYPE_SPINBUTTON)
+        withAll = .FALSE.
+        if (present(allowAll)) withAll = allowAll
 
+        if (withAll) then
+          do i=1,sysConfig%numFields
+            set(i)%text = int2str(i)
+            set(i)%id   = i
+          end do
+          set(sysConfig%numFields+1)%text = 'All'
+          set(sysConfig%numFields+1)%id   = ID_SETTING_FIELD_ALL
 
-      
+          self%numSettings = self%numSettings + 1
+          call self%ps(self%numSettings)%initialize(SETTING_FIELD, &
+          & "Field Point", real(ID_SETTING_FIELD_ALL),0.0,0.0, &
+          & "SETFLD", "SETFLD ALL", UITYPE_COMBO, set=set)
+        else
+          fldPoint = 1 ! Default to first field
+          self%numSettings = self%numSettings + 1
+          call self%ps(self%numSettings)%initialize(SETTING_FIELD, &
+          & "Field Point", real(fldPoint),1.0,real(sysConfig%numFields), &
+          & "SETFLD", "SETFLD "//trim(int2str(fldPoint)), UITYPE_SPINBUTTON)
+        end if
+
       end subroutine
 
       subroutine addZernikeSetting(self, defVal) 

@@ -94,3 +94,13 @@ TRAC RING
 NUMRINGS 5
 GO
 RING
+! ---- SETFLD on the spot diagram: one field, or ALL ----
+! Kept last so it does not renumber the plots above.  SETFLD 3 must trace only
+! field 3 (one 400x400 panel, matching the last field of an ALL run); SETFLD
+! ALL restores the stacked panel per field.
+SPO P6
+SETFLD 3
+GO
+SPO P7
+SETFLD ALL
+GO
