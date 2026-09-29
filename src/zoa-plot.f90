@@ -384,7 +384,7 @@ contains
 
         isurface = c_null_ptr
         if (c_associated(self%area)) then
-          isurface = g_object_get_data(self%area, "backing-surface")
+          isurface = g_object_get_data(self%area, "backing-surface"//c_null_char)
 
           if (.not. c_associated(isurface)) then
             call LogTermFOR("Loose pointer in mp_draw")
@@ -394,7 +394,7 @@ contains
             isurface = cairo_image_surface_create(CAIRO_FORMAT_RGB24, &
             &                                    self%width, self%height)
             isurface = cairo_surface_reference(isurface)
-            call g_object_set_data(self%area, "backing-surface", isurface)
+            call g_object_set_data(self%area, "backing-surface"//c_null_char, isurface)
           end if
         end if
 
@@ -841,16 +841,16 @@ subroutine bc_drawPlot(self)
           call plsyax(7, 0)
           call plsxax(7, 0)
      if (c_associated(self%area)) then
-      isurface = g_object_get_data(self%area, "backing-surface")
+      isurface = g_object_get_data(self%area, "backing-surface"//c_null_char)
   ! Create the backing surface
 
   !isurface = cairo_image_surface_create(CAIRO_FORMAT_RGB24, 1200, 500)
   !isurface = cairo_surface_reference(isurface)   ! Prevent accidental deletion
-  !call g_object_set_data(self%area, "backing-surface", isurface)
+  !call g_object_set_data(self%area, "backing-surface"//c_null_char, isurface)
       if (.not. c_associated(isurface)) then
         isurface = cairo_image_surface_create(CAIRO_FORMAT_RGB24, 1200, 500)
         isurface = cairo_surface_reference(isurface)   ! Prevent accidental deletion
-        call g_object_set_data(self%area, "backing-surface", isurface)
+        call g_object_set_data(self%area, "backing-surface"//c_null_char, isurface)
       end if
     end if
           call self%buildPlotCode()
@@ -922,12 +922,12 @@ end subroutine
 
       isurface = c_null_ptr
       if (c_associated(self%area)) then
-        isurface = g_object_get_data(self%area, "backing-surface")
+        isurface = g_object_get_data(self%area, "backing-surface"//c_null_char)
       if (.not. c_associated(isurface)) then
          call LogTermDebug("Loose pointer in drawPlot") 
         isurface = cairo_image_surface_create(CAIRO_FORMAT_RGB24, 1200, 500)
         isurface = cairo_surface_reference(isurface)   ! Prevent accidental deletion
-        call g_object_set_data(self%area, "backing-surface", isurface)
+        call g_object_set_data(self%area, "backing-surface"//c_null_char, isurface)
       end if
 
       end if
@@ -2046,7 +2046,7 @@ subroutine checkBackingSurface(self)
 
   isurface = c_null_ptr
   if (c_associated(self%area)) then
-    isurface = g_object_get_data(self%area, "backing-surface")
+    isurface = g_object_get_data(self%area, "backing-surface"//c_null_char)
 
   !PRINT *, "isurface in mp_draw is ", LOC(isurface)
   if (.not. c_associated(isurface)) then
@@ -2054,7 +2054,7 @@ subroutine checkBackingSurface(self)
      call LogTermFOR("Loose pointer in check backing surface") 
     isurface = cairo_image_surface_create(CAIRO_FORMAT_RGB24, 1200, 500)
     isurface = cairo_surface_reference(isurface)   ! Prevent accidental deletion
-    call g_object_set_data(self%area, "backing-surface", isurface)
+    call g_object_set_data(self%area, "backing-surface"//c_null_char, isurface)
   end if
 
   end if   

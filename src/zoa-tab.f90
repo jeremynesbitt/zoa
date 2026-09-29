@@ -759,15 +759,20 @@ subroutine createGenericMultiPlot(self, mplt)
   type(multiplot) :: mplt
   type(c_ptr) ::  isurface
 
-  isurface = g_object_get_data(mplt%area, "backing-surface")
+  ! The multiplot draws on this tab's canvas.  This used to happen only inside
+  ! the branch below, which fired every time because the lookup misspelled the
+  ! key; now that the lookup can succeed, do it unconditionally.
+  mplt%area = self%canvas
+
+  ! Our canvases come from plain gtk_drawing_area_new, so gtk_draw_hl never
+  ! attaches the backing surface it expects to find in
+  ! hl_gtk_drawing_area_cairo_new -- we own that key here.
+  isurface = g_object_get_data(mplt%area, "backing-surface"//c_null_char)
   if (.not. c_associated(isurface)) then
-    print*, "error:  new plot :: Backing surface is NULL.  Adding one"
      isurface = cairo_image_surface_create(CAIRO_FORMAT_RGB24, 700, 500)
      isurface = cairo_surface_reference(isurface)   ! Prevent accidental deletion
      call g_object_set_data(self%canvas, "backing-surface"//c_null_char, isurface)
-     mplt%area = self%canvas
-
-  end if  
+  end if
 
   call mplt%draw()
   
