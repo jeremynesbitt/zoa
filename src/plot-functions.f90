@@ -444,19 +444,22 @@ subroutine spo_go(psm)
       call ioConfig%setTextViewFromPtr(getTabTextView(objIdx))
     end if
 
-    ! Prep PLot
-    if (HEADLESS_MODE) then
-      canvas = c_null_ptr
-    else
-      canvas = hl_gtk_drawing_area_new(size=[400,400*sysConfig%numFields], &
-      & has_alpha=FALSE)
-    end if
-
-    ! Field Point selects one field or, with ALL, every field stacked.
+    ! Field Point selects one field or, with ALL, every field stacked.  Decide
+    ! this before sizing the canvas: the drawing area has to match the panel
+    ! count or the plot is drawn into the wrong aspect ratio (a single field in
+    ! a 3-field-tall area came out stretched into an ellipse).
     if (iField == ID_SETTING_FIELD_ALL) then
       nPanels = sysConfig%numFields
     else
       nPanels = 1
+    end if
+
+    ! Prep PLot
+    if (HEADLESS_MODE) then
+      canvas = c_null_ptr
+    else
+      canvas = hl_gtk_drawing_area_new(size=[400,400*nPanels], &
+      & has_alpha=FALSE)
     end if
 
     ! Todo:  change initialization to sepcify size, and then don't need to

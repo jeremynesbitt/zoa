@@ -772,7 +772,9 @@ end subroutine
 
 subroutine updateGenericMultiPlot(self, mplt)
   use g
-  use cairo, only: cairo_image_surface_get_width, cairo_image_surface_get_height
+  use cairo, only: cairo_image_surface_get_width, cairo_image_surface_get_height, &
+  &                cairo_image_surface_create, cairo_surface_reference, &
+  &                cairo_surface_destroy
   class(zoaplottab) :: self
   type(multiplot) :: mplt
   class(zoaplot), pointer :: p
@@ -830,6 +832,27 @@ if (self%mplt%width == MP_DEFAULT_WIDTH .and. self%mplt%height == MP_DEFAULT_HEI
       self%mplt%width  = cairo_image_surface_get_width(isurface)
       self%mplt%height = cairo_image_surface_get_height(isurface)
     end if
+  end if
+end if
+
+! A replot may want a different canvas size than the tab already has -- the
+! spot diagram's Field Point setting switches between one panel and one per
+! field.  The tab keeps its drawing area across replots, so resize it (and its
+! backing surface) to match, or the multiplot is drawn into the old aspect
+! ratio.  gtk-fortran's hl_gtk_drawing_area_resize cannot be used here: it
+! overwrites the requested size with the widget's current allocation, which
+! GTK has not updated yet at this point.
+if (c_associated(self%canvas) .and. self%mplt%width > 0 .and. self%mplt%height > 0) then
+  isurface = g_object_get_data(self%canvas, "backing-surface")
+  if (.not. c_associated(isurface) .or. &
+  &   cairo_image_surface_get_width(isurface)  /= self%mplt%width .or. &
+  &   cairo_image_surface_get_height(isurface) /= self%mplt%height) then
+    call gtk_widget_set_size_request(self%canvas, self%mplt%width, self%mplt%height)
+    if (c_associated(isurface)) call cairo_surface_destroy(isurface)
+    isurface = cairo_image_surface_create(CAIRO_FORMAT_RGB24, &
+    &                                     self%mplt%width, self%mplt%height)
+    isurface = cairo_surface_reference(isurface)   ! Prevent accidental deletion
+    call g_object_set_data(self%canvas, "backing-surface", isurface)
   end if
 end if
 

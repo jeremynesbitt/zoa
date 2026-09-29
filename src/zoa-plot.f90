@@ -387,8 +387,11 @@ contains
 
           if (.not. c_associated(isurface)) then
             call LogTermFOR("Loose pointer in mp_draw")
-            PRINT *, "mp_draw :: Backing surface is NULL"
-            isurface = cairo_image_surface_create(CAIRO_FORMAT_RGB24, 1200, 500)
+            ! At this multiplot's own size, not a fixed 1200x500: a plot that
+            ! sizes its own canvas (the spot diagram is 400 x 400*nPanels) was
+            ! otherwise given a surface of the wrong shape and drawn stretched.
+            isurface = cairo_image_surface_create(CAIRO_FORMAT_RGB24, &
+            &                                    self%width, self%height)
             isurface = cairo_surface_reference(isurface)
             call g_object_set_data(self%area, "backing-surface", isurface)
           end if
