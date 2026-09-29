@@ -158,24 +158,32 @@ contains
     !##
     module procedure execExportPng
 
-        use strings, only: parse
         use zoa_ui_callbacks, only: notify_export_png
 
         implicit none
 
-        character(len=256) :: tokens(40)
-        integer :: numTokens
+        character(len=140) :: raw
+        integer :: iSpace
 
-        ! Parse the ORIGINAL-case form: the front door case-folds the command
-        ! it hands handlers, which would turn /tmp/all.png into /TMP/ALL.PNG.
-        call parse(trim(currentCommandRaw), ' ', tokens, numTokens)
+        ! Use the ORIGINAL-case form: the front door case-folds the command it
+        ! hands handlers, which would turn /tmp/all.png into /TMP/ALL.PNG.
+        raw = trim(adjustl(currentCommandRaw))
+        iSpace = index(trim(raw), ' ')
 
-        if (numTokens /= 2) then
+        ! Everything after the keyword is the path, taken whole rather than
+        ! tokenized -- a chooser on macOS readily hands back a directory with
+        ! a space in it ("Mobile Documents"), which splitting would reject.
+        if (iSpace == 0) then
             call zoa_emit("Error! Expecting 'EXPORTPNG file.png'", "red")
             return
         end if
 
-        call notify_export_png(trim(tokens(2)))
+        if (len_trim(raw(iSpace+1:)) == 0) then
+            call zoa_emit("Error! Expecting 'EXPORTPNG file.png'", "red")
+            return
+        end if
+
+        call notify_export_png(trim(adjustl(raw(iSpace+1:))))
 
     end procedure
 

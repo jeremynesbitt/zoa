@@ -159,6 +159,8 @@ contains
     & "NewLens", newLensCmd, win)    
     call addFuncMenuItem(menu, "Open .zoa File", "OpenZoa", c_funloc(open_zoa), win)
     call addFuncMenuItem(menu, "Save .zoa File", "SaveZoa", c_funloc(save_zoa), win)
+    call addFuncMenuItem(menu, "Export Current Plot to PNG", "ExportPlotPng", &
+    & c_funloc(export_plot_png), win)
 
     call g_menu_append_submenu (menu, "Import"//c_null_char, menu_import)
     call addFuncMenuItem(menu, "Preferences", "Preferences", c_funloc(zoa_preferencesUI), win)
@@ -531,6 +533,44 @@ contains
     end if
 
   end subroutine 
+
+  ! File > Export Current Plot to PNG.  Picks a destination, then hands the
+  ! work to the EXPORTPNG command so the menu and the CLI take the same path
+  ! (and the command shows up in the terminal log like any other).
+  subroutine export_plot_png(act, avalue, win) bind(c)
+    use zoa_file_handler, only: getProjectDir
+    use ui_dialogs
+    use zoa_output, only: zoa_emit
+    use strings, only: lowercase
+    type(c_ptr), value, intent(in) :: act, avalue, win
+    character(len=500) :: fileName
+    character(len=500) :: cdir
+    logical :: fileSelected
+    integer :: n
+
+    fileSelected = ui_new_file(win, fileName, cdir, trim(getProjectDir()), &
+    & "*.png", "PNG Image")
+    if (.not. fileSelected) return
+
+    ! The chooser's filter does not force the suffix, and a name typed without
+    ! one would otherwise write a PNG that nothing recognises as an image.
+    n = len_trim(fileName)
+    if (n < 4) then
+      fileName = trim(fileName)//".png"
+    else if (lowercase(fileName(n-3:n)) /= ".png") then
+      fileName = trim(fileName)//".png"
+    end if
+
+    ! PROCESKDP's input buffer is 140 characters, so a path long enough to
+    ! overflow it would be silently truncated and written to the wrong place.
+    if (len_trim(fileName) + 11 > 140) then
+      call zoa_emit("Path is too long to export (limit is 129 characters)", "red")
+      return
+    end if
+
+    call PROCESKDP('EXPORTPNG '//trim(fileName))
+
+  end subroutine
 
   subroutine zoa_preferencesUI(act, param, gdata) bind(c)
     use ui_preferences
