@@ -84,3 +84,13 @@ RSPH CHIEF
 SPO P4
 AIRY ON
 GO
+! ---- SPO with ring tracing: the unified ring pattern ----
+! Kept last so it does not renumber the plots above.  One pattern for the
+! whole program (SPD_SET_RING_PATTERN): evenly spaced radii with six more
+! rays per ring, so 5 rings trace 1 + 6 + 12 + 18 + 24 = 61 rays, and RING
+! reports the radii/counts/offsets.
+SPO P5
+TRAC RING
+NUMRINGS 5
+GO
+RING

@@ -26,12 +26,13 @@ function getKDPSpotPlotCommand(iField, iLambda, iSpotCalcMethod, nGrid, nRand, n
     case (ID_SPOT_RECT)
       charTrace = "SPOT RECT;RECT "//trim(int2str(nGrid))
     case (ID_SPOT_RING)
-      ! This is a bit of a hack. Redistribute ring number and rays per ring
-      ! using KDP vars. This should probably be moved to this type eventually.
-      do i=1,nRing
-            RINGRAD(i) = (REAL(i)/nRing)*1D0
-            RINGPNT(i) = INT(RINGRAD(i)*360)
-      end do
+      ! One ring pattern for the whole program: evenly spaced radii with six
+      ! more rays per successive ring (SPD_SET_RING_PATTERN, WAVSPOT2), the
+      ! same rule the startup/SPDRESET defaults use.  This used to build its
+      ! own radii with an INT(rho*360) ray count -- ~3780 rays at 20 rings,
+      ! and it never set the angular offsets, so it silently inherited
+      ! whatever stagger the global pattern happened to hold.
+      call SPD_SET_RING_PATTERN(nRing)
 
       charTrace = "SPOT RING;RINGS "//int2str(nRing)
     end select

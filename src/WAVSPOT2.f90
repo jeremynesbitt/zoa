@@ -3092,18 +3092,40 @@ SUBROUTINE SPD_SET_DEFAULTS
    use DATSP1
    use iso_fortran_env, only: real64
    IMPLICIT NONE
-   INTEGER :: I
    INTEGER, PARAMETER :: NUM_RINGS = 4
-!     Stagger each ring by half of its own angular step, so the rays do not
-!     line up on radial spokes across rings (ring 1 lands on 30/90/150...,
-!     ring 2 on 15/45/75..., and so on).  Set to .FALSE. for the aligned
-!     pattern, where every ring starts at 0 degrees.
-   LOGICAL, PARAMETER :: STAGGER_RINGS = .TRUE.
 
    NRECT=10
    RNUMBR=2000
 !     RING GRID IS DEFAULT
    SPDTYPE=2
+
+   CALL SPD_SET_RING_PATTERN(NUM_RINGS)
+
+   RETURN
+END
+! Builds the ring sampling pattern for NUM_RINGS rings: evenly spaced radii
+! -- linspace(0, pupil edge, NUM_RINGS) -- with six more rays on each
+! successive ring, so 1 + 6 + 12 + 18 + 24 = 61 rays at the default 4 rings.
+!
+! Single source of truth for the pattern: used for the startup/SPDRESET
+! defaults and by the spot diagram plot (plot_command_utils), which used to
+! roll its own radii and an INT(rho*360) ray count.
+!
+! RINGANG is a per-ring angular OFFSET; the tracer already spreads RINGPNT(J)
+! rays uniformly over 360 degrees (WAVSPOT3: RRANG = RINGANG +
+! (K-1)*2pi/RINGPNT).  Each ring is offset by half of its own step so the rays
+! do not line up on radial spokes across rings -- ring 1 lands on
+! 30/90/150..., ring 2 on 15/45/75....  Set STAGGER_RINGS to .FALSE. for the
+! aligned pattern, where every ring starts at 0 degrees.
+SUBROUTINE SPD_SET_RING_PATTERN(NUM_RINGS)
+   use DATSP1
+   use iso_fortran_env, only: real64
+   IMPLICIT NONE
+   INTEGER, INTENT(IN) :: NUM_RINGS
+   INTEGER :: I
+   LOGICAL, PARAMETER :: STAGGER_RINGS = .TRUE.
+
+   IF(NUM_RINGS.LT.1) RETURN
 
    RINGTOT=DBLE(NUM_RINGS)
    RINGRAD(0)=0.0D0

@@ -47,6 +47,13 @@ contains
     !##           working (image-space) F-number.  Off by default.  While it
     !##           is on the plot is scaled squarely so the disk is a circle.
     !##
+    !## cmd:      NUMRINGS
+    !## syntax:   NUMRINGS n
+    !## category: Plot Settings
+    !## desc:     Spot diagram: number of rings when the tracing method is
+    !##           RING, 1-50 (default 20).  The pattern is evenly spaced radii
+    !##           with six more rays on each successive ring.
+    !##
     !## cmd:      RECTDENS
     !## syntax:   RECTDENS n
     !## category: Plot Settings

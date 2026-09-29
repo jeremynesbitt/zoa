@@ -330,9 +330,12 @@ contains
       & "NUMRAYS", "NUMRAYS "//trim(int2str(2000)), UITYPE_SPINBUTTON)
 
       self%numSettings = self%numSettings + 1
-      call self%ps(self%numSettings)%initialize(ID_SPOT_RING_NUMRINGS, & 
+      ! NUMRINGS, not NUMRAYS: this shared the random-ray setting's keyword, so
+      ! the two collided and the ring count could not be set at all -- every
+      ! NUMRAYS matched the random-ray setting first and the rings stayed at 20.
+      call self%ps(self%numSettings)%initialize(ID_SPOT_RING_NUMRINGS, &
       & "Number of Rings (ring only)", real(20),1.0,real(50), &
-      & "NUMRAYS", "NUMRAYS "//trim(int2str(20)), UITYPE_SPINBUTTON)      
+      & "NUMRINGS", "NUMRINGS "//trim(int2str(20)), UITYPE_SPINBUTTON)
 
       ! Airy disk overlay, off by default.
       airySet(1)%text = "No (OFF)"
