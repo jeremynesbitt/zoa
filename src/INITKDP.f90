@@ -469,35 +469,8 @@ SUBROUTINE INITKDP
    PIXAR1=3
    PIXAR2=3
 !
-!     DEFAULT VALUES FOR SPOT DIAGRAMS
-   NRECT=10
-   RINGTOT=5
-   RNUMBR=2000
-!     RING GRID IS DEFAULT
-   SPDTYPE=2
-!
-   RINGRAD(0)=0.0D0
-   RINGRAD(1)=0.2D0
-   RINGRAD(2)=0.4D0
-   RINGRAD(3)=0.707D0
-   RINGRAD(4)=0.866D0
-   RINGRAD(5)=1.0D0
-   RINGPNT(0)=1
-   RINGPNT(1)=80
-!     RINGPNT(2) used to be skipped entirely (and RINGPNT(4) assigned twice),
-!     so the rho=0.4 ring was traced with zero rays and the default spot
-!     diagram came out at 701 rays instead of 861.  Ray count now rises with
-!     ring radius (80/100/160/200/320), as the rest of the pattern intends.
-   RINGPNT(2)=100
-   RINGPNT(3)=160
-   RINGPNT(4)=200
-   RINGPNT(5)=320
-   RINGANG(0)=0.0D0
-   RINGANG(1)=0.0D0
-   RINGANG(2)=0.0D0
-   RINGANG(3)=0.0D0
-   RINGANG(4)=0.0D0
-   RINGANG(5)=0.0D0
+!     DEFAULT VALUES FOR SPOT DIAGRAMS (shared with the SPDRESET command)
+   CALL SPD_SET_DEFAULTS
 !     DEFAULT VALUES FOR SPOT DIAGRAMS FOR OPTIM
    OPNRECT=10
    OPRINGTOT=4

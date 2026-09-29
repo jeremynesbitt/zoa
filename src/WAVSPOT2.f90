@@ -3078,6 +3078,40 @@ SUBROUTINE DSPREDSQ(MMM)
 END
 ! SUB SPOTSET.FOR
 
+! Default spot-diagram sampling.  Single source of truth: called from INITKDP
+! at startup and from the SPDRESET command, which used to carry their own
+! (and differing) copies of these values.
+!
+! The pattern is the centre ray plus NUM_RINGS rings at evenly spaced radii
+! (linspace(0, pupil edge, NUM_RINGS)), with 6 more rays on each successive
+! ring -- 1 + 6 + 12 + 18 + 24 = 61 rays by default.  RINGANG is a per-ring
+! angular OFFSET; the tracer already spreads RINGPNT(J) points uniformly over
+! 360 degrees (WAVSPOT3: RRANG = RINGANG + (K-1)*2pi/RINGPNT), so leaving the
+! offsets at zero gives ring 1 its rays at 0/60/120/180/240/300 degrees.
+SUBROUTINE SPD_SET_DEFAULTS
+   use DATSP1
+   use iso_fortran_env, only: real64
+   IMPLICIT NONE
+   INTEGER :: I
+   INTEGER, PARAMETER :: NUM_RINGS = 4
+
+   NRECT=10
+   RNUMBR=2000
+!     RING GRID IS DEFAULT
+   SPDTYPE=2
+
+   RINGTOT=DBLE(NUM_RINGS)
+   RINGRAD(0)=0.0D0
+   RINGPNT(0)=1
+   RINGANG(0)=0.0D0
+   DO I=1,NUM_RINGS
+      RINGRAD(I)=DBLE(I)/DBLE(NUM_RINGS)
+      RINGPNT(I)=6*I
+      RINGANG(I)=0.0D0
+   END DO
+
+   RETURN
+END
 SUBROUTINE SPOTSET
 !
    use DATSP1
@@ -3110,25 +3144,7 @@ SUBROUTINE SPOTSET
 !       INPUT OK
 !
 !     DEFAULT VALUES FOR SPOT DIAGRAMS
-         NRECT=10
-         RINGTOT=4
-         RNUMBR=200
-         SPDTYPE=2
-         RINGRAD(0)=0.0D0
-         RINGRAD(1)=0.4D0
-         RINGRAD(2)=0.7D0
-         RINGRAD(3)=0.866D0
-         RINGRAD(4)=1.0D0
-         RINGPNT(0)=1
-         RINGPNT(1)=8
-         RINGPNT(2)=8
-         RINGPNT(3)=8
-         RINGPNT(4)=8
-         RINGANG(0)=0.0D0
-         RINGANG(1)=0.0D0
-         RINGANG(2)=0.0D0
-         RINGANG(3)=0.0D0
-         RINGANG(4)=0.0D0
+         CALL SPD_SET_DEFAULTS
          RETURN
 !
       END IF
