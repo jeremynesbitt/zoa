@@ -3124,12 +3124,6 @@ SUBROUTINE SPD_SET_RING_PATTERN(NUM_RINGS)
    INTEGER, INTENT(IN) :: NUM_RINGS
    INTEGER :: I
    LOGICAL, PARAMETER :: STAGGER_RINGS = .TRUE.
-!     Outermost ring, as a fraction of the pupil radius.  Held just inside the
-!     rim: the last fraction of a percent of the pupil is where ray aberration
-!     runs away (transverse error goes as the wavefront SLOPE), so a ring at
-!     exactly 1.0 draws a large loop that dominates the plot and the RMS spot
-!     while representing an infinitesimally thin annulus.
-   real(real64), PARAMETER :: MAX_RING_RADIUS = 0.98D0
 
    IF(NUM_RINGS.LT.1) RETURN
 
@@ -3138,7 +3132,16 @@ SUBROUTINE SPD_SET_RING_PATTERN(NUM_RINGS)
    RINGPNT(0)=1
    RINGANG(0)=0.0D0
    DO I=1,NUM_RINGS
-      RINGRAD(I)=MAX_RING_RADIUS*DBLE(I)/DBLE(NUM_RINGS)
+!        Zone-centre sampling: ring I sits at the area centroid of its annulus,
+!        (I-0.5)/N, rather than on the annulus edge I/N.  The outermost ring is
+!        then at 1 - 1/(2N): it approaches the rim as the density rises but
+!        never lands on it.  That matters because transverse ray error goes as
+!        the wavefront SLOPE, which runs away in the last fraction of a percent
+!        of the pupil -- a ring at exactly 1.0 draws a large loop that dominates
+!        the plot and the RMS spot while representing an infinitesimally thin
+!        annulus.  Unlike a fixed cap, this stays unbiased: each ring represents
+!        its annulus at the right radius, so the estimate converges as N grows.
+         RINGRAD(I)=(DBLE(I)-0.5D0)/DBLE(NUM_RINGS)
       RINGPNT(I)=6*I
       IF(STAGGER_RINGS) THEN
 !        Half of this ring's step: 360/RINGPNT(I)/2 = 180/RINGPNT(I).
