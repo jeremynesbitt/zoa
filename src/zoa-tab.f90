@@ -775,12 +775,15 @@ subroutine updateGenericMultiPlot(self, mplt)
   use cairo, only: cairo_image_surface_get_width, cairo_image_surface_get_height, &
   &                cairo_image_surface_create, cairo_surface_reference, &
   &                cairo_surface_destroy
+  use zoa_output, only: zoa_emit
+  use type_utils, only: int2str, bool2str
   class(zoaplottab) :: self
   type(multiplot) :: mplt
   class(zoaplot), pointer :: p
   integer :: i, j
   type(c_ptr) :: isurface
   logical :: swapCanvas
+  integer :: curW, curH
 
   ! Persist a deep copy of the caller's transient mplt so the tab retains its
   ! plot data (needed for .zin serialization and to avoid re-deriving plots
@@ -818,13 +821,25 @@ subroutine updateGenericMultiPlot(self, mplt)
     ! size request on the existing widget is not enough -- GTK re-lays out
     ! later, so the extra panels had nowhere to go -- so swap the widget in.
     swapCanvas = .FALSE.
-    if (c_associated(mplt%area) .and. .not. c_associated(mplt%area, self%canvas)) then
-      isurface = g_object_get_data(self%canvas, "backing-surface"//c_null_char)
-      if (c_associated(isurface)) then
-        if (cairo_image_surface_get_width(isurface)  /= self%mplt%width .or. &
-        &   cairo_image_surface_get_height(isurface) /= self%mplt%height) swapCanvas = .TRUE.
-      end if
+    curW = -1
+    curH = -1
+    isurface = g_object_get_data(self%canvas, "backing-surface"//c_null_char)
+    if (c_associated(isurface)) then
+      curW = INT(cairo_image_surface_get_width(isurface))
+      curH = INT(cairo_image_surface_get_height(isurface))
     end if
+    ! Swap whenever the incoming plot brought its own, differently sized area.
+    ! (A null backing surface counts as a mismatch: it means we cannot tell,
+    ! and the incoming area is the one sized for this plot.)
+    if (c_associated(mplt%area) .and. .not. c_associated(mplt%area, self%canvas)) then
+      if (curW /= self%mplt%width .or. curH /= self%mplt%height) swapCanvas = .TRUE.
+    end if
+
+    ! TEMPORARY diagnostic (remove once the resize is confirmed working)
+    call zoa_emit("[canvas] want "//trim(int2str(self%mplt%width))//"x"// &
+    & trim(int2str(self%mplt%height))//"  have "// &
+    & trim(int2str(curW))//"x"//trim(int2str(curH))// &
+    & "  swap="//trim(bool2str(swapCanvas)), "black")
 
     if (swapCanvas) then
       call gtk_box_remove(self%box1, self%canvas)

@@ -919,6 +919,7 @@ module codeV_commands
         ! currentCommand is the case-folded form PRO3 would have set (quoted
         ! strings kept their case in the fold above); handlers self-tokenize it.
         currentCommand = trim(segU)
+        currentCommandRaw = trim(adjustl(seg))
         handled = startCodeVLensUpdateCmd(token)
         if (.not. handled) call recordFallback(token)
     end function

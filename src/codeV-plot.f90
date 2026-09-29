@@ -166,7 +166,9 @@ contains
         character(len=256) :: tokens(40)
         integer :: numTokens
 
-        call parse(trim(iptStr), ' ', tokens, numTokens)
+        ! Parse the ORIGINAL-case form: the front door case-folds the command
+        ! it hands handlers, which would turn /tmp/all.png into /TMP/ALL.PNG.
+        call parse(trim(currentCommandRaw), ' ', tokens, numTokens)
 
         if (numTokens /= 2) then
             call zoa_emit("Error! Expecting 'EXPORTPNG file.png'", "red")
