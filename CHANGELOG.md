@@ -3,6 +3,90 @@
 All notable changes to Zoa are recorded here, newest first. Zoa is currently
 beta (0.x) software under active development.
 
+## 0.1.10 (beta)
+
+A focused follow-up to 0.1.9, about **70 commits**. Two themes: **your open
+plots now survive closing the program**, via a new `.zin` companion file, and a
+long list of smaller plotting improvements and fixes.
+
+> Zoa remains **beta** software under active development. Please back up your
+> work and report issues at https://github.com/jeremynesbitt/zoa/issues.
+
+### Plot state that survives a restart (`.zin`)
+
+- Saving a lens now also writes a **`.zin` companion file** beside the `.zoa`
+  (the analog of Zemax's `.ZDA`). It captures every open plot tab — its
+  settings, the command that made it, the plotted numbers, and the Data-tab
+  table — and `RES` brings them all back, drawn from the stored data.
+- **Plots come back at startup**, restored from the auto-saved lens Zoa already
+  reloads, and on `RESAUTO`. The lens drawing (VIE) is restored by replaying its
+  command.
+- Loading a lens or starting a new one now **offers to discard open plots**
+  rather than leaving stale windows behind, and File → Open behaves like `RES`.
+- Fixed a **memory leak**: a plot's data arrays are now freed when its tab
+  closes or replots, where previously every plot leaked.
+
+### Plotting
+
+- **Export a plot as a PNG**: File → *Export Current Plot to PNG*, or the
+  `EXPORTPNG <file>` command. Works for the lens drawing as well as the
+  analysis plots.
+- **Spot diagram**
+  - The ring pattern now has **one definition** for the whole program (it was
+    duplicated, with different values, in two places). The default is 5 rings
+    tracing 1 + 6 + 12 + 18 + 24 rays, at evenly spaced radii, each ring
+    staggered by half its own angular step and sampled at zone centres — which
+    removes the artificial ring that used to show up at the pupil edge.
+    `NUMRINGS` sets the count.
+  - **`AIRY ON`** overlays the Airy disk (radius 1.22·λ·F/#) on every field.
+  - **Field Point** is now a dropdown listing the actual fields plus *All*, and
+    a single field draws one correctly proportioned panel.
+- **RMS vs Field (`PLTRMS`)**
+  - **Reference** (`RSPH`: Chief / No Tilt / Best Focus) is now a per-plot
+    setting, bracketed so it no longer leaks into other plots through the
+    global it reads.
+  - Pupil sampling is pinned to the plot's own **Density** setting, which is now
+    a **16/32/64/128 dropdown** instead of a spin button that errored on any
+    value that was not a power of two.
+- **PMA / image plots** draw every row and column of the grid — the surface map
+  was losing its outer edge, making it visibly asymmetric.
+- The **Zernike vs Field** command is renamed **`ZRNFLD`** (was the temporary
+  `ZERN_TST`).
+- Plot settings carry **tooltips naming the CLI command** behind them, and
+  labels are left-justified.
+- New **Optimization menu** with the optimization UI.
+- Readable tick labels on manually scaled axes; `FIE` gained `AST`/`DST` x-axis
+  scales (the legacy `AST` command is now `ASTK`).
+
+### First-order data
+
+- **Entrance pupil diameter is correct again.** A system specified with a
+  1013.2 mm entrance pupil was reported by `FIR` as 5291.07. The paraxial
+  marginal ray was using the *sine* of the aperture angle where the slope is a
+  *tangent*; the XZ chief ray is now iterated like the YZ one, and pupil data is
+  refreshed after the retrace.
+- `FIR` reports a real **working F-number at used conjugates** instead of the
+  infinite-conjugate value.
+- `IND` prints refractive indices to **6 decimals** rather than truncating.
+
+### Fixes
+
+- The OPD map stored pupil **X and Y swapped** (`DSPOT`).
+- The **Data tab** no longer cuts off at 65536 characters, so a dense pupil map
+  shows all of its rows.
+- The **lens editor** table now grows with the window (the button gaps used to
+  absorb the space), and the last surface's name no longer picks up garbage
+  characters after an edit.
+- Asking a plot for **more than 9 curves** no longer crashes; the extra curves
+  are dropped with a message.
+- Fixed crashes when **closing all plots** with an empty tab slot, and when
+  **restoring plots at startup** before the drawing area was ready.
+- Replotting after a lens change no longer spews errors, and a numbered plot
+  command no longer appends a second `P<n>`.
+- Quieter and cleaner: roughly **60 debug prints** removed, along with the
+  GLib `GValue` criticals, the `pllsty: Invalid line style` abort, and a
+  duplicate drag-and-drop controller — all three appeared on every startup.
+
 ## 0.1.9 (beta)
 
 The first Zoa release in over a year — and by far the largest. Roughly **600
