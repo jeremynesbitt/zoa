@@ -53,7 +53,7 @@ module mod_surface_interaction
    implicit none
    private
 
-   public :: surface_optics, hit_state, hit_supported, hit_and_interact, interact_surface
+   public :: surface_optics, hit_state, hit_supported, hit_unsupported_reason, hit_and_interact, interact_surface
 
    ! Engine-only status of hit_and_interact (legacy has no such concept).
    integer, parameter, public :: HIT_OK = 0
@@ -134,24 +134,45 @@ contains
       type(surface_optics), intent(in) :: opt
       real(real64), intent(in) :: wvn
 
-      hit_supported = .false.
-      if (.not. allocated(geom)) return
-      if (.not. opt%typed_valid) return
-      if (opt%special_type /= 0) return
+      hit_supported = len_trim(hit_unsupported_reason(geom, opt, wvn)) == 0
+   end function hit_supported
+
+   ! Why hit_and_interact would decline this surface ('' when it would not).
+   pure function hit_unsupported_reason(geom, opt, wvn) result(why)
+      class(surface_type), allocatable, intent(in) :: geom
+      type(surface_optics), intent(in) :: opt
+      real(real64), intent(in) :: wvn
+      character(len=48) :: why
+
+      why = ''
+      if (.not. allocated(geom)) then
+         why = 'no typed surface object'
+      else if (.not. opt%typed_valid) then
+         why = 'typed surface store out of date'
+      else if (opt%special_type /= 0) then
+         why = 'special surface type'
       ! Legacy HITSUR's typed path never reads the toric flag, so it intersects
       ! a toric surface as a rotationally symmetric one -- a known bug.  The
       ! engine declines toric surfaces rather than reproduce it, until there is
       ! a toric surface_type; those lenses keep using the legacy tracer.
-      if (opt%toric_flag /= 0) return
-      if (opt%array_parity /= 0) return
-      if (opt%paraxial == 1) return
-      if (opt%diffraction_flag == 1) return
-      if (opt%glass_class /= GLASS_ORDINARY) return
-      if (opt%ray_error /= 0.0_real64) return
-      if (opt%clap_dim4 == 13.0_real64) return
-      if (int(wvn) < 1 .or. int(wvn) > 10) return
-      hit_supported = .true.
-   end function hit_supported
+      else if (opt%toric_flag /= 0) then
+         why = 'toric'
+      else if (opt%array_parity /= 0) then
+         why = 'lens array'
+      else if (opt%paraxial == 1) then
+         why = 'paraxial surface'
+      else if (opt%diffraction_flag == 1) then
+         why = 'diffraction grating'
+      else if (opt%glass_class /= GLASS_ORDINARY) then
+         why = 'PERFECT or IDEAL glass'
+      else if (opt%ray_error /= 0.0_real64) then
+         why = 'ray error surface'
+      else if (opt%clap_dim4 == 13.0_real64) then
+         why = 'legacy HOE flag in the clear aperture'
+      else if (int(wvn) < 1 .or. int(wvn) > 10) then
+         why = 'wavelength slot out of range'
+      end if
+   end function hit_unsupported_reason
 
    ! ------------------------------------------------------------------------
    ! Port of HITSUR for an ordinary surface (the typed-surface block), with the

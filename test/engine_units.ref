@@ -824,7 +824,7 @@ TRNSF2: cases 160, not bit-identical 0
 BAKONE: cases 20, not bit-identical 0
 FORONEL: cases 20, not bit-identical 0
 CACHEK: cases 280917, mismatches 0
-HITSUR: cases 0, skipped 8, mismatches 0
+HITSUR: cases 5616, skipped 0, mismatches 0
 AIM SETUP: reference surface 3, clap type 0, multi clap 0, aplanatic F, flip X F, flip Y F, orient F, clap decentered or tilted F, surface 1 curved T, surface 1 conic F, ray aiming T, last surface thickness F
 AIMTARGET: cases 137390, mismatches 0
 GETZEE1: cases 1800, mismatches 0

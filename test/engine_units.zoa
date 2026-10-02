@@ -464,8 +464,11 @@ ENGINETEST BRIEF
 !            the chief ray of such a lens cannot be traced, and the grating and
 !            paraxial commands make EOS print ray-failure messages; those two
 !            gates are covered by the synthetic pass instead
-!   case 33  stale typed-surface array (INS without a resync): the typed-path
-!            guard fails, every surface is skipped
+!   case 33  INS without an explicit resync of the typed-surface array: every
+!            trace (here FOB's chief ray) resyncs a store whose surface count
+!            no longer matches the lens, so nothing is skipped.  (Before that
+!            resync the guard failed and every surface was skipped; the stale
+!            gate itself stays covered by the synthetic pass)
 !   case 34  toric flag with special type 0 (YTORIC + RDTOR): HITSUR's typed path
 !            never reads the toric flag, so the surface is intersected as the
 !            rotationally symmetric sphere; both sides do the same

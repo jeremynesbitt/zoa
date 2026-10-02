@@ -314,6 +314,7 @@ END
 SUBROUTINE LNSEOS1
    use global_widgets
    use kdp_data_types, only: check_clear_apertures
+   use mod_ray_trace_builder, only: ensure_typed_store_current
    use mod_lens_data_manager, only: ldm
    use paraxial_ray_trace_test, only: PRTRA_NEW
    USE GLOBALS
@@ -2273,8 +2274,12 @@ SUBROUTINE LNSEOS1
       GO TO 999
    END IF
    ! Update the NEW data structures.
-   ! Fill each surface's clap%auto_* with ray-traced extents. surfaces(:) was
-   ! sized at lens-load time; guard inside check_clear_apertures covers staleness.
+   ! Fill each surface's clap%auto_* with ray-traced extents.  The surface
+   ! count may have changed since LNSEOS checked the typed store (a lens built
+   ! one S command at a time), so resync it first: the rays traced here must
+   ! see every surface, and the store must not be rebuilt while
+   ! check_clear_apertures holds it as an argument.
+   call ensure_typed_store_current()
    call check_clear_apertures(curr_lens_data, ldm%surfaces)
 call sysConfig%updateParameters()
 

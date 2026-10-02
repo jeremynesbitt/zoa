@@ -1243,6 +1243,8 @@ END
 SUBROUTINE RAYTRA
    use real_ray_trace, only: real_ray_trace_core
    use mod_ray_trace_router, only: route_legacy_trace
+   use mod_ray_trace_builder, only: ensure_typed_store_current
+   call ensure_typed_store_current()
    ! the global-free engine handles the ray when it can (see the router)
    if (route_legacy_trace(.false.)) return
    call real_ray_trace_core(.false.)
@@ -1676,6 +1678,8 @@ end subroutine compute_aim_target
 SUBROUTINE RAYTRA2
    use real_ray_trace, only: real_ray_trace_core
    use mod_ray_trace_router, only: route_legacy_trace
+   use mod_ray_trace_builder, only: ensure_typed_store_current
+   call ensure_typed_store_current()
    ! the global-free engine handles the ray when it can (see the router)
    if (route_legacy_trace(.true.)) return
    call real_ray_trace_core(.true.)

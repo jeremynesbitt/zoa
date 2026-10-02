@@ -2357,7 +2357,7 @@ contains
         use zoa_output, only: zoa_emit
         implicit none
         character(len=80) :: tokens(40)
-        character(len=200) :: lines(3)
+        character(len=200) :: lines(20)
         integer :: numTokens, nl, k
         character(len=5), parameter :: names(0:2) = ['OFF  ', 'ON   ', 'CHECK']
 

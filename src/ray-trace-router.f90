@@ -40,6 +40,11 @@ module mod_ray_trace_router
    integer, public :: rt_decl_output = 0     ! declined: GRASET / DXFSET
    integer, public :: rt_decl_wave = 0       ! declined: WW3/WVN not a plain slot
    integer, public :: rt_decl_lens = 0       ! declined: build_trace_context
+   ! ... broken down by build_trace_context's reason (surface numbers folded
+   ! to '#'), so RAYENGINE shows what keeps rays on the legacy tracer
+   integer, parameter :: MAX_REASONS = 16
+   character(len=120) :: rt_reason(MAX_REASONS) = ''
+   integer :: rt_reason_n(MAX_REASONS) = 0
    character(len=200), public :: rt_first_mismatch = ''
 
 contains
@@ -51,13 +56,38 @@ contains
       rt_decl_output = 0
       rt_decl_wave = 0
       rt_decl_lens = 0
+      rt_reason = ''
+      rt_reason_n = 0
       rt_first_mismatch = ''
    end subroutine router_reset
+
+   ! Tally one lens decline under its reason.
+   subroutine count_reason(reason)
+      character(len=*), intent(in) :: reason
+      character(len=120) :: key
+      integer :: k
+      key = reason
+      do k = 1, len_trim(key)
+         if (key(k:k) >= '0' .and. key(k:k) <= '9') key(k:k) = '#'
+      end do
+      do k = 1, MAX_REASONS
+         if (rt_reason(k) == key) then
+            rt_reason_n(k) = rt_reason_n(k) + 1
+            return
+         end if
+         if (len_trim(rt_reason(k)) == 0) then
+            rt_reason(k) = key
+            rt_reason_n(k) = 1
+            return
+         end if
+      end do
+   end subroutine count_reason
 
    subroutine router_report(lines, n)
       use type_utils, only: int2str
       character(len=*), intent(out) :: lines(:)
       integer, intent(out) :: n
+      integer :: k
       n = 3
       lines(1) = 'legacy RAYTRA/RAYTRA2 calls: engine '//trim(int2str(rt_engine))// &
                  ', checked '//trim(int2str(rt_checked))// &
@@ -71,6 +101,11 @@ contains
       else
          n = 2
       end if
+      do k = 1, MAX_REASONS
+         if (rt_reason_n(k) == 0 .or. n >= size(lines)) exit
+         n = n + 1
+         lines(n) = '  lens '//trim(int2str(rt_reason_n(k)))//': '//trim(rt_reason(k))
+      end do
    end subroutine router_report
 
    ! Called first by RAYTRA (for_opt = .false.) and RAYTRA2 (.true.).
@@ -109,6 +144,7 @@ contains
       call build_trace_context(ctx, check_apertures=(CACOCH == 1), ana_aim=ANAAIM)
       if (.not. ctx%supported) then
          rt_decl_lens = rt_decl_lens + 1
+         call count_reason(ctx%reason)
          return
       end if
 

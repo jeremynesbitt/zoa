@@ -14,6 +14,7 @@ module mod_ray_trace_builder
    private
 
    public :: build_trace_context, placement_of, apertures_of, optics_of, aim_settings_of
+   public :: ensure_typed_store_current
 
    ! Which tracer the analyses that have an engine path (CAPFN's COMPAP) use.
    ! RAYENGINE sets it.  CHECK runs the legacy loop and the engine loop on
@@ -45,7 +46,7 @@ contains
       use mod_system, only: sys_ray_aiming, sys_telecentric, sys_scx, sys_scy, &
                             sys_screen, sys_wavelength
       use mod_surface_placement, only: pivot_normal_needed
-      use mod_surface_interaction, only: hit_supported
+      use mod_surface_interaction, only: hit_supported, hit_unsupported_reason
       use mod_surface, only: surf_clap_type, surf_coat_type, surf_cobs_ape_type, &
                              surf_cobs_era_type
       use type_utils, only: int2str
@@ -167,7 +168,8 @@ contains
       end do
       do s = ctx%obj + 1, ctx%img
          if (.not. hit_supported(ctx%surf(s)%geom, ctx%surf(s)%optics, 1.0_real64)) then
-            ctx%reason = 'surface '//trim(int2str(s))//' has a type the engine does not support'
+            ctx%reason = 'surface '//trim(int2str(s))//': '// &
+               trim(hit_unsupported_reason(ctx%surf(s)%geom, ctx%surf(s)%optics, 1.0_real64))
             return
          end if
       end do
@@ -338,6 +340,24 @@ contains
       a%surf1_curvature = surf_curvature(1)
       a%surf1_conic = surf_conic(1)
    end function aim_settings_of
+
+   ! Rebuild the typed surface store if the lens's surface count no longer
+   ! matches it.  Called at the start of every RAYTRA/RAYTRA2 trace.  The
+   ! store can lag the lens mid-update: LNSEOS checks it on entry, but the
+   ! surface count of a lens being built a surface at a time (S commands) can
+   ! change later in the same pass, before LNSEOS1 traces the clear-aperture
+   ! rays.  With a short store legacy HITSUR quietly fell back to its older
+   ! intersection code and the engine declined the lens; now every trace sees
+   ! the lens as it is.  Same-topology edits keep their existing per-surface
+   ! refresh paths (see LNSEOS).
+   subroutine ensure_typed_store_current()
+      use mod_lens_data_manager, only: ldm
+      if (.not. allocated(ldm%surfaces)) then
+         call ldm%load_surfaces_from_alens()
+      else if (ubound(ldm%surfaces, 1) /= ldm%getLastSurf()) then
+         call ldm%load_surfaces_from_alens()
+      end if
+   end subroutine ensure_typed_store_current
 
    subroutine macfal_state_save()
       use DATLEN, only: REFEXT
