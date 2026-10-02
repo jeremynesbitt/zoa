@@ -110,7 +110,7 @@ module mod_surface_type
   ! Abstract interfaces for the deferred procedures.
   ! These appear AFTER surface_type so that 'import :: surface_type' resolves.
   abstract interface
-    subroutine intersect_iface(self, ray, tol)
+    pure subroutine intersect_iface(self, ray, tol)
       import :: surface_type, surf_ray_data, real64
       class(surface_type), intent(in)    :: self
       type(surf_ray_data), intent(inout) :: ray
@@ -119,7 +119,7 @@ module mod_surface_type
     ! Full surface interaction: intersection + whatever the surface does
     ! (refraction, reflection, diffraction, etc.).  This is the generic
     ! interface that HITSUR dispatches to; it replaces both HITASP and INTERACK.
-    subroutine real_trace_iface(self, ray, tol)
+    pure subroutine real_trace_iface(self, ray, tol)
       import :: surface_type, surf_ray_data, real64
       class(surface_type), intent(in)    :: self
       type(surf_ray_data), intent(inout) :: ray
@@ -128,7 +128,7 @@ module mod_surface_type
     ! Paraxial refraction at a surface (surface refraction only; transfer is
     ! handled by the caller).  n_in and n_out are provided explicitly so the
     ! method works both with ALENS-backed data and self%n_pre/n_post.
-    subroutine paraxial_iface(self, h_in, u_in, n_in, n_out, h_out, u_out)
+    pure subroutine paraxial_iface(self, h_in, u_in, n_in, n_out, h_out, u_out)
       import :: surface_type, real64
       class(surface_type), intent(in)  :: self
       real(real64), intent(in)  :: h_in, u_in, n_in, n_out
@@ -138,7 +138,7 @@ module mod_surface_type
     ! rho = sqrt(x^2+y^2), positive toward +z for positive curvature.  Used by
     ! edge-thickness calculations (ETH, optimizer general constraints); shares
     ! its kernels with the ray-intersection code so the two cannot drift.
-    function sag_iface(self, rho2) result(z)
+    pure function sag_iface(self, rho2) result(z)
       import :: surface_type, real64
       class(surface_type), intent(in) :: self
       real(real64), intent(in) :: rho2
@@ -242,7 +242,7 @@ contains
 
   ! Evaluate conic surface sag and its derivative with respect to rho^2.
   ! sag(rho^2) = cv * rho^2 / (1 + sqrt(1 - (K+1) * cv^2 * rho^2))
-  subroutine compute_conic_sag(cv, conic, rho2, sag, dsag_drho2)
+  pure subroutine compute_conic_sag(cv, conic, rho2, sag, dsag_drho2)
     real(real64), intent(in)  :: cv, conic, rho2
     real(real64), intent(out) :: sag, dsag_drho2
     real(real64) :: q
@@ -253,7 +253,7 @@ contains
   end subroutine
 
   ! Newton-Raphson intersection with a conic surface.
-  subroutine intersect_conic(cv, conic, ray, tol)
+  pure subroutine intersect_conic(cv, conic, ray, tol)
     real(real64),        intent(in)    :: cv, conic
     type(surf_ray_data), intent(inout) :: ray
     real(real64),        intent(in)    :: tol
@@ -297,7 +297,7 @@ contains
   ! Even-asphere polynomial terms and their derivative with respect to rho^2.
   ! coeffs(1:9)=A4,A6,A8,A10,A12,A14,A16,A18,A20;  coeffs(10)=A2 (plano term).
   ! Shared by ray intersection and the sag() methods so they cannot drift.
-  subroutine compute_asphere_poly(coeffs, rho2, poly, dpoly_drho2)
+  pure subroutine compute_asphere_poly(coeffs, rho2, poly, dpoly_drho2)
     real(real64), intent(in)  :: coeffs(10), rho2
     real(real64), intent(out) :: poly, dpoly_drho2
     real(real64) :: rho4, rho6, rho8, rho10
@@ -318,7 +318,7 @@ contains
 
   ! Newton-Raphson intersection with an even asphere.
   ! coeffs(1:9)=A4,A6,A8,A10,A12,A14,A16,A18,A20;  coeffs(10)=A2 (plano term)
-  subroutine intersect_asphere(cv, conic, coeffs, ray, tol)
+  pure subroutine intersect_asphere(cv, conic, coeffs, ray, tol)
     real(real64),        intent(in)    :: cv, conic, coeffs(10)
     type(surf_ray_data), intent(inout) :: ray
     real(real64),        intent(in)    :: tol
@@ -363,7 +363,7 @@ contains
   ! direction as propagation), matching the HITASP/INTERACK convention where
   ! cos_i = d · n̂ > 0 for a forward-going ray.
   ! Flags TIR by negating n_out.
-  subroutine apply_snell(ray)
+  pure subroutine apply_snell(ray)
     type(surf_ray_data), intent(inout) :: ray
     real(real64) :: mu, cos_i, cos_t, disc
     mu    = ray%n_in / ray%n_out
@@ -381,7 +381,7 @@ contains
   end subroutine apply_snell
 
   ! Standard paraxial refraction: n'u' = nu - y(n'-n)c
-  subroutine paraxial_refract(cv, h_in, u_in, n_in, n_out, h_out, u_out)
+  pure subroutine paraxial_refract(cv, h_in, u_in, n_in, n_out, h_out, u_out)
     real(real64), intent(in)  :: cv, h_in, u_in, n_in, n_out
     real(real64), intent(out) :: h_out, u_out
     h_out = h_in
@@ -392,14 +392,14 @@ contains
   ! sphere_surface methods
   ! ---------------------------------------------------------------------------
 
-  subroutine sphere_intersect(self, ray, tol)
+  pure subroutine sphere_intersect(self, ray, tol)
     class(sphere_surface), intent(in)    :: self
     type(surf_ray_data),   intent(inout) :: ray
     real(real64),          intent(in)    :: tol
     call intersect_conic(self%cv, self%conic, ray, tol)
   end subroutine
 
-  subroutine sphere_real_trace(self, ray, tol)
+  pure subroutine sphere_real_trace(self, ray, tol)
     class(sphere_surface), intent(in)    :: self
     type(surf_ray_data),   intent(inout) :: ray
     real(real64),          intent(in)    :: tol
@@ -407,7 +407,7 @@ contains
     call apply_snell(ray)
   end subroutine
 
-  subroutine sphere_paraxial(self, h_in, u_in, n_in, n_out, h_out, u_out)
+  pure subroutine sphere_paraxial(self, h_in, u_in, n_in, n_out, h_out, u_out)
     class(sphere_surface), intent(in) :: self
     real(real64), intent(in)  :: h_in, u_in, n_in, n_out
     real(real64), intent(out) :: h_out, u_out
@@ -415,7 +415,7 @@ contains
   end subroutine
 
   ! Conic sag at radial height rho = sqrt(rho2).
-  function sphere_sag(self, rho2) result(z)
+  pure function sphere_sag(self, rho2) result(z)
     class(sphere_surface), intent(in) :: self
     real(real64), intent(in) :: rho2
     real(real64) :: z
@@ -427,7 +427,7 @@ contains
   ! asphere_surface methods
   ! ---------------------------------------------------------------------------
 
-  subroutine asphere_intersect(self, ray, tol)
+  pure subroutine asphere_intersect(self, ray, tol)
     class(asphere_surface), intent(in)    :: self
     type(surf_ray_data),    intent(inout) :: ray
     real(real64),           intent(in)    :: tol
@@ -435,7 +435,7 @@ contains
     call intersect_asphere(self%cv, self%conic, self%data(2:11), ray, tol)
   end subroutine
 
-  subroutine asphere_real_trace(self, ray, tol)
+  pure subroutine asphere_real_trace(self, ray, tol)
     class(asphere_surface), intent(in)    :: self
     type(surf_ray_data),    intent(inout) :: ray
     real(real64),           intent(in)    :: tol
@@ -443,7 +443,7 @@ contains
     call apply_snell(ray)
   end subroutine
 
-  subroutine asphere_paraxial(self, h_in, u_in, n_in, n_out, h_out, u_out)
+  pure subroutine asphere_paraxial(self, h_in, u_in, n_in, n_out, h_out, u_out)
     class(asphere_surface), intent(in) :: self
     real(real64), intent(in)  :: h_in, u_in, n_in, n_out
     real(real64), intent(out) :: h_out, u_out
@@ -455,7 +455,7 @@ contains
 
   ! Full even-asphere sag: conic base + polynomial terms (A2, A4..A20), the
   ! same expression the ray intersection solves against.
-  function asphere_sag(self, rho2) result(z)
+  pure function asphere_sag(self, rho2) result(z)
     class(asphere_surface), intent(in) :: self
     real(real64), intent(in) :: rho2
     real(real64) :: z

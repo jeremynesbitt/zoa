@@ -846,6 +846,9 @@ contains
         real(real64) :: sLS, sAIMTOL, sX0, sY0, sXT(200), sYT(200)
         logical :: sMSG, sNOCOBS
 
+        ! ---- HITSUR test tallies ----
+        integer :: hs_cases, hs_skip, hs_bad, hs_c4, hs_c20, hs_dum, hs_refl, hs_rv, hs_surfs, hs_gates
+
         call parse(trim(iptStr), ' ', tokens, numTokens)
         brief = .false.
         do i = 2, numTokens
@@ -966,6 +969,9 @@ contains
         l_spd1 = sSPD1; l_spd2 = sSPD2; l_ls = sLS; AIMTOL = sAIMTOL; MSG = sMSG
         l_nocobs = sNOCOBS; X0 = sX0; Y0 = sY0; NP = sNP; XT(1:200) = sXT; YT(1:200) = sYT
 
+        ! ---- HITSUR vs hit_and_interact ----
+        call run_hitsur()
+
         ! restore
         R_X = sRX; R_Y = sRY; R_Z = sRZ; R_L = sRL; R_M = sRM; R_N = sRN
         R_I = sRI; R_TX = sTX; R_TY = sTY; R_TZ = sTZ
@@ -1013,7 +1019,17 @@ contains
                 ', blocked by clap ', cc_blk6, ', blocked by cobs ', cc_blk7, ', synthetic cases ', cc_ipoly
             call zoa_emit(trim(line), "black")
         end if
+        write(line, '(A,I0,A,I0,A,I0)') 'HITSUR: cases ', hs_cases, ', skipped ', hs_skip, &
+            ', mismatches ', hs_bad
+        call zoa_emit(trim(line), "black")
+        if (.not. brief) then
+            write(line, '(A,I0,A,I0,A,I0,A,I0,A,I0,A,I0,A,I0)') 'HITSUR DETAIL: surfaces compared ', hs_surfs, &
+                ', code 4 ', hs_c4, ', code 20 ', hs_c20, ', dummy ', hs_dum, ', reflection ', hs_refl, &
+                ', reversed ', hs_rv, ', gate checks ', hs_gates
+            call zoa_emit(trim(line), "black")
+        end if
         if (cc_bad > 0 .and. len_trim(failName) == 0) failName = 'CACHEK'
+        if (hs_bad > 0 .and. len_trim(failName) == 0) failName = 'HITSUR'
         if (len_trim(failName) == 0) then
             call zoa_emit('ENGINETEST: PASS', "black")
         else
@@ -1261,6 +1277,270 @@ contains
             IPOLYX(1:200, sf, 1:4) = keep%ipoly_x
             IPOLYY(1:200, sf, 1:4) = keep%ipoly_y
         end subroutine restore_surface
+
+        ! ----------------------------------------------------------------
+        ! HITSUR (legacy) against hit_and_interact (port), surface by surface.
+        ! For every surface NEWOBJ+1..NEWIMG that the port supports, a fixed set
+        ! of incoming rays (given in that surface's frame, as TRNSF2 leaves them)
+        ! is run through both from identical sentinel state, for several
+        ! wavelength slots, several RV/RVSTART/REVSTR combinations, both signs of
+        ! the starting z, and (on surface NEWOBJ+1) two aim points.  Every value
+        ! either side leaves behind must agree bit for bit.  Unsupported surfaces
+        ! are counted as skipped (the port must also decline them untouched).
+        ! ----------------------------------------------------------------
+        subroutine run_hitsur()
+            use DATLEN, only: PHASE, DUM, INTERS, SEC, OLDL, OLDM, OLDN, LN, MN, NN, &
+                              COSI, COSIP, RV, RVSTART, REVSTR, WVN, SURTOL, &
+                              R_XAIM, R_YAIM, R_ZAIM, R_L0, R_M0, R_N0, HOE_DO_IT
+            use mod_ray_trace_builder, only: build_trace_context
+            use mod_ray_trace_engine, only: trace_context, trace_surface
+            use mod_surface_interaction, only: hit_state, hit_and_interact, hit_supported, &
+                                               surface_optics, HIT_UNSUPPORTED, GLASS_PERFECT, &
+                                               GLASS_IDEAL
+            integer, parameter :: NRH = 26
+            logical :: l_tir
+            common /RIT/ l_tir
+            type(trace_context) :: ctx
+            type(hit_state) :: st0, stl, stp, sv
+            real(real64) :: hx(NRH), hy(NRH), hl(NRH), hm(NRH), hs(NRH)
+            real(real64) :: aimx(2), aimy(2), aimz(2), z0, wv, hn
+            logical :: svDUM(0:499), svMSG, wl_ok(3), c_revs(4), c_rv0(4), c_rvs(4), sv_revstr
+            real(real64) :: svXAIM, svYAIM, svZAIM, svWVN
+            integer :: i, iw, ist, iz, ir, ia, naim, status, igate, gsurf
+            logical :: ok
+            type(surface_optics) :: go
+            type(trace_surface) :: nosurf
+            real(real64) :: gwv
+
+            hs_cases = 0; hs_skip = 0; hs_bad = 0; hs_c4 = 0; hs_c20 = 0
+            hs_dum = 0; hs_refl = 0; hs_rv = 0; hs_surfs = 0; hs_gates = 0
+
+            ! x, y, l, m and the sign of n (+1 forward, -1 backward) of the rays
+            hx = [0.0d0, 0.1d0, 0.0d0, 2.0d0, -3.0d0, 1.0d0, 5.0d0, 0.0d0, 8.0d0, 0.0d0, 0.0d0, &
+                  0.0d0, 0.0d0, 1.0d0, -2.0d0, 0.0d0, 0.0d0, 0.5d0, 3.0d0, 0.0d0, 0.0d0, 2.0d0, &
+                  -1.0d0, 0.0d0, 0.001d0, 12.0d0]
+            hy = [0.0d0, 0.0d0, 0.1d0, 1.0d0, 2.0d0, -4.0d0, 0.0d0, 5.0d0, -6.0d0, 0.0d0, 0.0d0, &
+                  0.0d0, 0.0d0, 1.0d0, 0.0d0, 3.0d0, 0.0d0, 0.5d0, -3.0d0, 0.0d0, 0.0d0, 2.0d0, &
+                  4.0d0, 0.0d0, 0.001d0, 12.0d0]
+            hl = [0.0d0, 0.0d0, 0.01d0, -0.1d0, 0.1d0, 0.2d0, 0.0d0, 0.0d0, -0.3d0, 0.5d0, 0.0d0, &
+                  0.7d0, 0.0d0, 0.7d0, -0.85d0, 0.3d0, 0.6d0, 0.2d0, 0.3d0, 0.95d0, -0.95d0, 0.99d0, &
+                  0.1d0, 0.0d0, 1.0d-4, 0.05d0]
+            hm = [0.0d0, 0.01d0, 0.0d0, 0.05d0, -0.2d0, 0.1d0, 0.0d0, 0.0d0, 0.3d0, 0.0d0, 0.5d0, &
+                  0.0d0, 0.8d0, 0.5d0, 0.2d0, -0.9d0, 0.6d0, 0.1d0, 0.1d0, 0.1d0, -0.1d0, 0.0d0, &
+                  0.97d0, -0.9d0, 1.0d-4, 0.05d0]
+            hs = 1.0d0
+            hs(18) = -1.0d0; hs(19) = -1.0d0
+            aimx = [0.4d0, -1.5d0]; aimy = [-0.3d0, 2.0d0]; aimz = [0.05d0, 0.12d0]
+            ! REVSTR, RV, RVSTART combinations
+            c_revs = [.false., .true., .false., .true.]
+            c_rv0 = [.false., .true., .true., .false.]
+            c_rvs = [.false., .true., .false., .true.]
+
+            call build_trace_context(ctx)
+            if (.not. allocated(ctx%surf)) then
+                hs_skip = NEWIMG - NEWOBJ
+                return
+            end if
+
+            ! save every legacy global we touch
+            call get_globals(sv)
+            svDUM = DUM; svMSG = MSG; svXAIM = R_XAIM; svYAIM = R_YAIM; svZAIM = R_ZAIM
+            svWVN = WVN; sv_revstr = REVSTR
+            MSG = .false.
+
+            ! wavelength slots whose index is defined (nonzero) on every surface
+            do iw = 1, 3
+                wl_ok(iw) = .true.
+                do i = NEWOBJ, NEWIMG
+                    if (ctx%surf(i)%optics%index(iw) == 0.0_real64) wl_ok(iw) = .false.
+                end do
+            end do
+
+            do i = NEWOBJ + 1, NEWIMG
+                if (.not. hit_supported(ctx%surf(i)%geom, ctx%surf(i)%optics, 1.0_real64)) then
+                    ! out of scope: the port must decline without touching anything
+                    stp = sv
+                    stp%x = 1.5_real64
+                    call hit_and_interact(ctx%surf(i)%geom, ctx%surf(i)%optics, ctx%surf(i-1)%optics, &
+                                          i, NEWOBJ, NEWIMG, 1.0_real64, SURTOL, .false., &
+                                          0.0_real64, 0.0_real64, 0.0_real64, stp, status)
+                    ok = status == HIT_UNSUPPORTED .and. stp%x == 1.5_real64
+                    hs_skip = hs_skip + 1
+                    if (.not. ok) hs_bad = hs_bad + 1
+                    cycle
+                end if
+                hs_surfs = hs_surfs + 1
+                naim = 1
+                if (i == NEWOBJ + 1) naim = 2
+                do iw = 1, 3
+                    if (.not. wl_ok(iw)) cycle
+                    wv = real(iw, real64)
+                    do ist = 1, 4
+                        do iz = 1, 2
+                            do ir = 1, NRH
+                                do ia = 1, naim
+                                    hn = hs(ir)*sqrt(1.0_real64 - hl(ir)**2 - hm(ir)**2)
+                                    z0 = -2.0_real64
+                                    if (iz == 2) z0 = 2.0_real64
+                                    if (hs(ir) < 0.0_real64) z0 = -z0
+                                    hs_cases = hs_cases + 1
+
+                                    ! incoming state with sentinels in everything the
+                                    ! legacy routines might leave alone
+                                    st0 = hit_state()
+                                    st0%x = hx(ir); st0%y = hy(ir); st0%z = z0
+                                    st0%l = hl(ir); st0%m = hm(ir); st0%n = hn
+                                    st0%ln = -31.0_real64; st0%mn = -32.0_real64; st0%nn = -33.0_real64
+                                    st0%cosi = -41.0_real64; st0%cosip = -42.0_real64
+                                    st0%l0 = -51.0_real64; st0%m0 = -52.0_real64; st0%n0 = -53.0_real64
+                                    st0%oldl = -61.0_real64; st0%oldm = -62.0_real64; st0%oldn = -63.0_real64
+                                    st0%phase = -71.0_real64
+                                    st0%rv = c_rv0(ist); st0%rvstart = c_rvs(ist)
+                                    st0%tir = .true.
+                                    st0%dum = (mod(hs_cases, 2) == 0)
+                                    st0%inters = 77; st0%sec = 78; st0%stopp = -7
+                                    st0%raycod = -3
+                                    st0%spdcd1 = -5; st0%spdcd2 = -5
+                                    st0%hoe_do_it = -9
+
+                                    ! legacy
+                                    R_I = i
+                                    call put_globals(st0)
+                                    WVN = wv; REVSTR = c_revs(ist)
+                                    R_XAIM = aimx(ia); R_YAIM = aimy(ia); R_ZAIM = aimz(ia)
+                                    call HITSUR
+                                    call get_globals(stl)
+
+                                    ! port, from the same state
+                                    stp = st0
+                                    call hit_and_interact(ctx%surf(i)%geom, ctx%surf(i)%optics, &
+                                                          ctx%surf(i-1)%optics, i, NEWOBJ, NEWIMG, wv, &
+                                                          SURTOL, c_revs(ist), aimx(ia), aimy(ia), &
+                                                          aimz(ia), stp, status)
+                                    if (status /= 0 .or. .not. same_state(stl, stp)) hs_bad = hs_bad + 1
+                                    if (stl%raycod(1) == 4) hs_c4 = hs_c4 + 1
+                                    if (stl%raycod(1) == 20) hs_c20 = hs_c20 + 1
+                                    if (stl%raycod(1) == 0 .and. stl%dum) hs_dum = hs_dum + 1
+                                    if (ctx%surf(i)%optics%index(iw)*ctx%surf(i-1)%optics%index(iw) < 0.0_real64) &
+                                        hs_refl = hs_refl + 1
+                                    if (stl%raycod(1) == 0 .and. stl%rv) hs_rv = hs_rv + 1
+                                end do
+                            end do
+                        end do
+                    end do
+                end do
+            end do
+
+            ! Synthetic gate pass: take the first supported surface and break one
+            ! condition at a time on a copy; the port must decline each one and
+            ! leave its state alone.
+            gsurf = -1
+            do i = NEWOBJ + 1, NEWIMG
+                if (hit_supported(ctx%surf(i)%geom, ctx%surf(i)%optics, 1.0_real64)) then
+                    gsurf = i
+                    exit
+                end if
+            end do
+            if (gsurf > 0) then
+                do igate = 1, 12
+                    go = ctx%surf(gsurf)%optics
+                    gwv = 1.0_real64
+                    select case (igate)
+                    case (1);  go%special_type = 12
+                    case (2);  go%array_parity = 1
+                    case (3);  go%paraxial = 1
+                    case (4);  go%diffraction_flag = 1
+                    case (5);  go%glass_class = GLASS_PERFECT
+                    case (6);  go%glass_class = GLASS_IDEAL
+                    case (7);  go%ray_error = 0.5_real64
+                    case (8);  go%clap_dim4 = 13.0_real64
+                    case (9);  go%typed_valid = .false.
+                    case (10); gwv = 0.0_real64
+                    case (11); gwv = 11.0_real64
+                    case (12); continue
+                    end select
+                    stp = sv
+                    stp%x = 1.5_real64
+                    if (igate == 12) then
+                        call hit_and_interact(nosurf%geom, go, ctx%surf(gsurf-1)%optics, gsurf, NEWOBJ, &
+                                              NEWIMG, gwv, SURTOL, .false., 0.0_real64, 0.0_real64, &
+                                              0.0_real64, stp, status)
+                    else
+                        call hit_and_interact(ctx%surf(gsurf)%geom, go, ctx%surf(gsurf-1)%optics, gsurf, &
+                                              NEWOBJ, NEWIMG, gwv, SURTOL, .false., 0.0_real64, &
+                                              0.0_real64, 0.0_real64, stp, status)
+                    end if
+                    hs_gates = hs_gates + 1
+                    if (status /= HIT_UNSUPPORTED .or. stp%x /= 1.5_real64) hs_bad = hs_bad + 1
+                end do
+            end if
+
+            ! restore
+            call put_globals(sv)
+            DUM = svDUM; MSG = svMSG; R_XAIM = svXAIM; R_YAIM = svYAIM; R_ZAIM = svZAIM
+            WVN = svWVN; REVSTR = sv_revstr
+        end subroutine run_hitsur
+
+        ! Load the legacy globals described by hit_state into st (DUM(R_I) from the
+        ! current R_I).
+        subroutine get_globals(st)
+            use DATLEN, only: PHASE, DUM, INTERS, SEC, OLDL, OLDM, OLDN, LN, MN, NN, &
+                              COSI, COSIP, RV, RVSTART, R_L0, R_M0, R_N0, HOE_DO_IT
+            use mod_surface_interaction, only: hit_state
+            type(hit_state), intent(out) :: st
+            logical :: l_tir
+            common /RIT/ l_tir
+            st%x = R_X; st%y = R_Y; st%z = R_Z; st%l = R_L; st%m = R_M; st%n = R_N
+            st%ln = LN; st%mn = MN; st%nn = NN; st%cosi = COSI; st%cosip = COSIP
+            st%l0 = R_L0; st%m0 = R_M0; st%n0 = R_N0
+            st%oldl = OLDL; st%oldm = OLDM; st%oldn = OLDN
+            st%phase = PHASE; st%rv = RV; st%rvstart = RVSTART; st%tir = l_tir
+            st%dum = DUM(R_I)
+            st%inters = INTERS; st%sec = SEC; st%stopp = STOPP; st%raycod = RAYCOD
+            st%spdcd1 = l_spd1; st%spdcd2 = l_spd2; st%hoe_do_it = HOE_DO_IT
+        end subroutine get_globals
+
+        ! Write st into the legacy globals (DUM(R_I) for the current R_I; callers
+        ! set R_I first when it matters, so put_globals(st0) is followed by R_I = i
+        ! and the DUM sentinel is stored below).
+        subroutine put_globals(st)
+            use DATLEN, only: PHASE, DUM, INTERS, SEC, OLDL, OLDM, OLDN, LN, MN, NN, &
+                              COSI, COSIP, RV, RVSTART, R_L0, R_M0, R_N0, HOE_DO_IT
+            use mod_surface_interaction, only: hit_state
+            type(hit_state), intent(in) :: st
+            logical :: l_tir
+            common /RIT/ l_tir
+            R_X = st%x; R_Y = st%y; R_Z = st%z; R_L = st%l; R_M = st%m; R_N = st%n
+            LN = st%ln; MN = st%mn; NN = st%nn; COSI = st%cosi; COSIP = st%cosip
+            R_L0 = st%l0; R_M0 = st%m0; R_N0 = st%n0
+            OLDL = st%oldl; OLDM = st%oldm; OLDN = st%oldn
+            PHASE = st%phase; RV = st%rv; RVSTART = st%rvstart; l_tir = st%tir
+            DUM(R_I) = st%dum
+            INTERS = st%inters; SEC = st%sec; STOPP = st%stopp; RAYCOD = st%raycod
+            l_spd1 = st%spdcd1; l_spd2 = st%spdcd2; HOE_DO_IT = st%hoe_do_it
+        end subroutine put_globals
+
+        logical function same_state(a, b)
+            use mod_surface_interaction, only: hit_state
+            type(hit_state), intent(in) :: a, b
+            same_state = same_r(a%x, b%x) .and. same_r(a%y, b%y) .and. same_r(a%z, b%z) .and. &
+                         same_r(a%l, b%l) .and. same_r(a%m, b%m) .and. same_r(a%n, b%n) .and. &
+                         same_r(a%ln, b%ln) .and. same_r(a%mn, b%mn) .and. same_r(a%nn, b%nn) .and. &
+                         same_r(a%cosi, b%cosi) .and. same_r(a%cosip, b%cosip) .and. &
+                         same_r(a%l0, b%l0) .and. same_r(a%m0, b%m0) .and. same_r(a%n0, b%n0) .and. &
+                         same_r(a%oldl, b%oldl) .and. same_r(a%oldm, b%oldm) .and. same_r(a%oldn, b%oldn) .and. &
+                         same_r(a%phase, b%phase) .and. &
+                         (a%rv .eqv. b%rv) .and. (a%rvstart .eqv. b%rvstart) .and. &
+                         (a%tir .eqv. b%tir) .and. (a%dum .eqv. b%dum) .and. &
+                         a%inters == b%inters .and. a%sec == b%sec .and. a%stopp == b%stopp .and. &
+                         all(a%raycod == b%raycod) .and. a%spdcd1 == b%spdcd1 .and. &
+                         a%spdcd2 == b%spdcd2 .and. a%hoe_do_it == b%hoe_do_it
+        end function same_state
+
+        logical function same_r(p, q)
+            real(real64), intent(in) :: p, q
+            same_r = transfer(p, 0_int64) == transfer(q, 0_int64)
+        end function same_r
     end procedure execENGINETEST
 
 end submodule mod_codev_utils

@@ -426,3 +426,134 @@ MULTCOBS 2 -0.6 0.1 0
 EOS
 FOB 0.7
 ENGINETEST BRIEF
+
+! ----------------------------------------------------------------------------
+! HITSUR / hit_and_interact cases (26-35).  The "HITSUR: cases N, skipped K,
+! mismatches M" line of EVERY ENGINETEST (cases 1-25 included: the osdtriplet is
+! the plain refracting-sphere case) runs, for each surface NEWOBJ+1..NEWIMG that
+! the port supports, 26 fixed incoming rays (near-axis, off-axis, steep rays that
+! cause TIR at glass->air surfaces, near-grazing, backward-travelling rays) in
+! that surface's frame x two signs of the starting z x wavelength slots 1-3 x four
+! REVSTR/RV/RVSTART combinations x (on surface NEWOBJ+1) two distinct aim points,
+! through legacy HITSUR and the port from identical sentinel state, and requires
+! every value either leaves behind (ray, normal, COSI/COSIP, R_L0.., PHASE, TIR,
+! RV, RVSTART, DUM, INTERS/SEC/OLDL.., STOPP, RAYCOD, SPDCD, HOE_DO_IT) to be
+! identical bit for bit.  Unsupported surfaces are counted as "skipped" and the
+! port must decline them without touching its state.  Beyond the fixture lenses,
+! a synthetic pass declines each gate condition (special type, array parity,
+! paraxial, grating, PERFECT, IDEAL, ray error, clap decenter 13, stale or
+! missing typed surface, wavelength slot out of range) on a copy of the data.
+!
+!   case 26  even asphere surfaces (CV2PRG LithoKotaro.seq): the asphere_surface
+!            intersect, refraction at many glass/air interfaces, 61 surfaces
+!   case 27  mirror (negative index after the surface): the reflection branch
+!            (SIGNNU < 0, reflection mode 0), sign flip of the index
+!   case 28  reflection mode 1 (RMD S1 TIR = REFLTIRO): the "TIRTESTER > 1"
+!            test.  TIRTESTER = SINI*SNINDX with SNINDX = +-1 and SINI <= 1, so
+!            the legacy test is never true and RAYCOD 20 can never occur; the
+!            port reproduces that (the case documents it: code 20 count is 0)
+!   case 29  tilted mirror (STILT on the mirror surface; tilts are applied by
+!            TRNSF2, not by HITSUR, so the in-frame results are unchanged)
+!   case 30  dummy surface (INS + GLA with the same glass as the previous
+!            surface: all 10 indices equal and DUMMMY true): the DUM = .TRUE.
+!            path that skips the deflection but still does COSI/RV bookkeeping
+!   case 31  mirror followed by negative thicknesses (reversed rays: RV true and
+!            the TESTLEN / SNINDX / REVSTR / RVSTART combinations)
+!   case 32  gated surfaces: CLAP x-decenter 13 (S2), RAYERROR (S3), IDEAL (S5)
+!            and PERFECT (S6) are skipped.  No FOB, no grating, no PARAX here:
+!            the chief ray of such a lens cannot be traced, and the grating and
+!            paraxial commands make EOS print ray-failure messages; those two
+!            gates are covered by the synthetic pass instead
+!   case 33  stale typed-surface array (INS without a resync): the typed-path
+!            guard fails, every surface is skipped
+!   case 34  toric flag with special type 0 (YTORIC + RDTOR): HITSUR's typed path
+!            never reads the toric flag, so the surface is intersected as the
+!            rotationally symmetric sphere; both sides do the same
+! TIR (RAYCOD 4) at glass->air surfaces occurs in every refractive case (see the
+! DETAIL line of a non-BRIEF ENGINETEST).
+! ----------------------------------------------------------------------------
+
+! case 26
+CV2PRG LithoKotaro.seq
+FOB 0.7
+ENGINETEST BRIEF
+
+! case 27
+LEN NEW
+EPD 20
+TIT 'OSDmirror'
+RDY S1 -100
+RMD S1 REFL
+PIM
+FOB 0
+ENGINETEST BRIEF
+
+! case 28
+LEN NEW
+EPD 20
+TIT 'OSDmirror'
+RDY S1 -100
+RMD S1 TIR
+PIM
+FOB 0
+ENGINETEST BRIEF
+
+! case 29
+LEN NEW
+EPD 20
+TIT 'OSDmirror'
+RDY S1 -100
+RMD S1 REFL
+PIM
+STILT 1 3 0 0
+FOB 0
+ENGINETEST BRIEF
+
+! case 30
+RES osdtriplet
+INS S6
+GLA S6 SK16
+FOB 0.7
+ENGINETEST BRIEF
+
+! case 31
+RES osdtriplet
+U L
+CHG 5
+REFL
+THI -4
+CHG 6
+THI -4
+EOS
+FOB 0.7
+ENGINETEST BRIEF
+
+! case 32
+RES osdtriplet
+U L
+CHG 2
+CLAP 3 0 13
+CHG 3
+RAYERROR 2
+CHG 5
+IDEAL 50
+CHG 6
+PERFECT
+EOS
+ENGINETEST BRIEF
+
+! case 33
+RES osdtriplet
+INS S4
+FOB 0.7
+ENGINETEST BRIEF
+
+! case 34
+RES osdtriplet
+U L
+CHG 3
+YTORIC
+RDTOR 20
+EOS
+FOB 0.7
+ENGINETEST BRIEF

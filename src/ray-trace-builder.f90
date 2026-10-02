@@ -13,7 +13,7 @@ module mod_ray_trace_builder
    implicit none
    private
 
-   public :: build_trace_context, placement_of, apertures_of
+   public :: build_trace_context, placement_of, apertures_of, optics_of
 
 contains
 
@@ -48,11 +48,16 @@ contains
 
       allocate(ctx%surf(ctx%obj:ctx%img))
       do s = ctx%obj, ctx%img
-         if (allocated(ldm%surfaces(s)%s)) then
-            allocate(ctx%surf(s)%geom, source=ldm%surfaces(s)%s)
+         ! (the typed array can be stale -- shorter than the lens -- right after a
+         ! structural edit; legacy HITSUR guards the same way)
+         if (s >= lbound(ldm%surfaces, 1) .and. s <= ubound(ldm%surfaces, 1)) then
+            if (allocated(ldm%surfaces(s)%s)) then
+               allocate(ctx%surf(s)%geom, source=ldm%surfaces(s)%s)
+            end if
          end if
          ctx%surf(s)%place = placement_of(s)
          ctx%surf(s)%aper = apertures_of(s)
+         ctx%surf(s)%optics = optics_of(s)
          do w = 1, 10
             ctx%surf(s)%n_after(w) = ldm%getSurfIndex(s, w)
          end do
@@ -145,5 +150,50 @@ contains
          a%multi_cobs(1:3, k) = MULTCOBS(k, 1:3, s)
       end do
    end function apertures_of
+
+
+   ! Fill a surface_optics for surface s from the legacy accessors and arrays:
+   ! everything HITSUR / INTERACK read about that surface (see
+   ! surface-interaction.f90).
+   function optics_of(s) result(o)
+      use DATLEN, only: DUMMMY, GLANAM
+      use mod_lens_data_manager, only: ldm
+      use mod_surface, only: surf_refractive_index, surf_special_type, &
+         surf_array_parity, surf_paraxial_val, surf_diffraction_flag, &
+         surf_reflection_mode, surf_dummy_val, surf_ray_error, surf_thickness, &
+         surf_clap_dim, surf_toric_flag
+      use mod_surface_interaction, only: surface_optics, GLASS_ORDINARY, &
+         GLASS_PERFECT, GLASS_IDEAL
+      integer, intent(in) :: s
+      type(surface_optics) :: o
+      integer :: w
+
+      do w = 1, 10
+         o%index(w) = surf_refractive_index(s, w)
+      end do
+      o%special_type = surf_special_type(s)
+      o%toric_flag = surf_toric_flag(s)
+      o%array_parity = surf_array_parity(s)
+      o%paraxial = surf_paraxial_val(s)
+      o%diffraction_flag = surf_diffraction_flag(s)
+      o%reflection_mode = surf_reflection_mode(s)
+      o%dummy_val = surf_dummy_val(s)
+      o%dummy_ok = DUMMMY(s)
+      o%glass_class = GLASS_ORDINARY
+      if (GLANAM(s, 2) == 'PERFECT      ') o%glass_class = GLASS_PERFECT
+      if (GLANAM(s, 2) == 'IDEAL        ') o%glass_class = GLASS_IDEAL
+      o%ray_error = surf_ray_error(s)
+      o%thickness = surf_thickness(s)
+      o%clap_dim4 = surf_clap_dim(s, 4)
+
+      ! HITSUR's guard for the typed-surface path
+      o%typed_valid = .false.
+      if (allocated(ldm%surfaces)) then
+         if (ubound(ldm%surfaces, 1) == ldm%getLastSurf() .and. &
+             s >= lbound(ldm%surfaces, 1) .and. s <= ubound(ldm%surfaces, 1)) then
+            o%typed_valid = allocated(ldm%surfaces(s)%s)
+         end if
+      end if
+   end function optics_of
 
 end module mod_ray_trace_builder
