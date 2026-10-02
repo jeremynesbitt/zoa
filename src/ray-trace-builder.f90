@@ -15,6 +15,12 @@ module mod_ray_trace_builder
 
    public :: build_trace_context, placement_of, apertures_of, optics_of, aim_settings_of
 
+   ! Which tracer the analyses that have an engine path (CAPFN's COMPAP) use.
+   ! RAYENGINE sets it.  CHECK runs the legacy loop and the engine loop on
+   ! the same grid and compares what they store, entry for entry.
+   integer, parameter, public :: ENGINE_OFF = 0, ENGINE_ON = 1, ENGINE_CHECK = 2
+   integer, public :: ray_engine_mode = ENGINE_ON
+
 contains
 
    ! check_apertures: run the clear-aperture/obscuration pass (legacy CACOCH=1).

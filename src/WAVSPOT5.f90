@@ -1816,205 +1816,7 @@ SUBROUTINE COMPAP(REFERR,TPT)
 !       IWL COUNTS THROUGH THE 10 WAVELENGTH NUMBERS
    I=1
    IJK=0
-   DO IWL=1,10
-      IF(IWL.GE.1.AND.IWL.LE.5) SPT=sys_wl_weight(IWL)
-      IF(IWL.GE.6.AND.IWL.LE.10) SPT=sys_wl_weight(IWL)
-      IF(SPT.GT.0.0D0) THEN
-!     ONLY TRACE RAYS FOR NON-ZERO SPECTRAL WEIGHTS
-!       TRACE RAYS AT THAT WAVELENGTH
-!       W1 IS EVEN
-         NSTART=0
-         NSTOP=INT(DABS(W1))-1
-!
-         IF(SPT.NE.0.0D0) THEN
-            IF(TPT.EQ.1) THEN
-               IF(F28.EQ.0.AND.F31.EQ.0) THEN
-                  IF(PERFECT) THEN
-                     IF(MSGSPD) WRITE(OUTLYNE,201)IWIW,IWL
-                     IF(MSGSPD) CALL SHOWIT(0)
-                  ELSE
-                     IF(MSGSPD) WRITE(OUTLYNE,200)IWIW,IWL
-                     IF(MSGSPD) CALL SHOWIT(0)
-                  END IF
-               END IF
-            END IF
-            IJK=IJK+1
-            IF(IWL.LE.5) IWLIJK(IJK)=sys_wavelength(IWL)
-            IF(IWL.GT.5) IWLIJK(IJK)=sys_wavelength(IWL)
-         END IF
-200      FORMAT('TRACING ',I10,' RAYS AT WAVELENGTH ',I1)
-201      FORMAT('TRACING ',I10,' "PERFECT" RAYS AT WAVELENGTH ',I1)
-         DELFOB=2.0D0/DBLE(W1)
-         DO IY=NSTART,NSTOP
-            DO IX=NSTART,NSTOP
-               I=I+1
-!
-!       THE CALL TO RAYTRA2 HAS INPUTS:
-!               QUALIFIER
-               WWQ='CAOB'
-!       WW1 IS Y THE RELATIVE APERTURE HT OF THE RAY
-!               WW1
-               DDEELL=1.0D0
-               IF(WC.EQ.'PSFK') DDEELL=0.9999D0
-               IF(WC.EQ.'PUPIL') DDEELL=0.9999D0
-               WW1=(-1.0+(DELFOB/2.0D0))+(DBLE(IY)*DELFOB)
-               WW2=(-1.0+(DELFOB/2.0D0))+(DBLE(IX)*DELFOB)
-               WW1=WW1*ADJUSTW1
-               WW2=WW2*ADJUSTW2
-               WW3=IWL
-               WVN=IWL
-!               CACOCH IS SET TO 1 FOR SPOT DIAGRAMS
-               CACOCH = 1
-               SPDTRA=.TRUE.
-               MSG = .FALSE.
-               STOPP=0
-!
-! THE NEWOBJ,NEWREF AND NEWIMG ARE SET BY FOB
-!       TRACE RAY AND RETURN
-               DSPOT(1)=0.0D0
-               DSPOT(2)=0.0D0
-               DSPOT(3)=0.0D0
-               DSPOT(4)=0.0D0
-               DSPOT(5)=0.0D0
-               DSPOT(6)=0.0D0
-               DSPOT(7)=0.0D0
-               DSPOT(8)=0.0D0
-               DSPOT(9)=0.0D0
-               DSPOT(10)=0.0D0
-               DSPOT(11)=0.0D0
-               DSPOT(12)=0.0D0
-               DSPOT(13)=0.0D0
-               DSPOT(14)=0.0D0
-               DSPOT(15)=0.0D0
-               DSPOT(16)=0.0D0
-               DSPOT(17)=0.0D0
-               DSPOT(18)=0.0D0
-               DSPOT(19)=0.0D0
-               DSPOT(20)=0.0D0
-               DSPOT(21)=0.0D0
-               DSPOT(22)=0.0D0
-               DSPOT(23)=0.0D0
-               DSPOT(24)=0.0D0
-               DSPOT(25)=0.0D0
-               DSPOT(26)=0.0D0
-               DSPOT(27)=0.0D0
-               DSPOT(28)=0.0D0
-               DSPOT(29)=0.0D0
-               DSPOT(30)=0.0D0
-               DSPOT(31)=0.0D0
-               DSPOT(32)=0.0D0
-               DSPOT(33)=0.0D0
-               DSPOT(34)=0.0D0
-               DSPOT(35)=0.0D0
-!
-               DSPOT(35)=WEI(IWL)
-!     THIS NEXT PART IS ONLY USED WHEN DOING A PSF NOT AN MTF
-!     NOW FIX THE RAY AIMING COORDINATES IF THE WAVELENGTH IS NOT
-!     THE SHORTEST WAVELENGTH SO THAT THE SPACING WILL BE THE SAME IN THE PSF
-               IF(IWL.NE.SHORT.AND.WC.EQ.'PSFK'.OR.IWL.EQ.SHORT.AND.WC .EQ.'PUPIL') THEN
-!     INCREASE THE WW1 AND WW2 BY THE RATIO OD THE CURRENT WAVELENGTH
-!     DIVIDED BY THE SHORTEST WAVELENGTH
-                  IF(IWL.LE.5) LAMFACTOR=sys_wavelength(IWL)/WVSHORT
-                  IF(IWL.GT.5) LAMFACTOR=sys_wavelength(IWL)/WVSHORT
-                  WW1=WW1*LAMFACTOR*NRDFACTOR
-                  WW2=WW2*LAMFACTOR*NRDFACTOR
-               END IF
-               ANAAIM=.FALSE.
-               WW4=1.0D0
-               WW1=WW1*DDEELL
-               WW2=WW2*DDEELL
-               NOCOAT=.FALSE.
-               GRASET=.FALSE.
-               DXFSET=.FALSE.
-               CALL RAYTRA2
-               SPDCD1=RAYCOD(1)
-               SPDCD2=RAYCOD(2)
-               CACOCH = 0
-               ANAAIM=.TRUE.
-               DSPOT(7)=DBLE(SPDCD1)
-               IF(NOOB.AND.DSPOT(7).EQ.7) DSPOT(7)=0.0D0
-               DSPOT(8)=DBLE(SPDCD2)
-               IF(DSPOT(7).NE.0.0D0) GO TO 1941
-               SPDTRA=.FALSE.
-               DSPOT(1)=RAYRAY(1,NEWIMG)
-               DSPOT(2)=RAYRAY(2,NEWIMG)
-               DSPOT(3)=RAYRAY(3,NEWIMG)
-!     RAY SLOPES
-               X=RAYRAY(11,NEWIMG)
-               Y=RAYRAY(12,NEWIMG)
-               CALL SLOPES
-               DSPOT(9)=X
-               DSPOT(10)=Y
-               DSPOT(11)=RAYRAY(25,NEWIMG)
-               IF(APODGAUSS) THEN
-                  APODX2=-DLOG(10.0D0**(-DABS(APODDBLOSS)/10.0D0))
-                  APODR2=(WW1**2)+(WW2**2)
-                  DSPOT(11)=DSPOT(11)*DEXP(-APODX2*APODR2)
-               END IF
-!       NOW CALCULATE THE RAY ENERGY TERM
-!     THIS IS SPECTRAL WEIGHT TIMES APODIZATION FACTOR FOR THIS RAY
-!
-               DSPOT(12)=(DSPOT(11))
-               DSPOT(34)=(DSPOT(11))
-               IF(DSPOT(7).NE.0.0D0) DSPOT(12)=0.0D0
-               DSPOT(37)=DSPOT(12)*RAYRAY(9,NEWIMG)
-!       KEEP TRACK OF THE TOTAL OPL ALONE THE RAY FROM NEWOBJ TO NEWI
-               DSPOT(13)=RAYRAY(22,NEWIMG)
-!               J=14 X RAY COORD AT TANGENT PLANE OF NEWOBJ+1
-               DSPOT(14)=RAYRAY(1,NEWOBJ+1)
-!               J=15 Y RAY COORD AT TANGENT PLANE OF NEWOBJ+1
-               DSPOT(15)=RAYRAY(2,NEWOBJ+1)
-!               J=18 Z RAY COORD AT TANGENT PLANE OF NEWOBJ+1
-               DSPOT(18)=RAYRAY(3,NEWOBJ+1)
-!               J=5 X COORD OF RAY AT NEWREF
-               DSPOT(5)=RAYRAY(1,NEWREF)
-!               J=6 Y COORD OF RAY AT NEWREF
-               DSPOT(6)=RAYRAY(2,NEWREF)
-!
-               DSPOT(16)=DBLE(IWL)
-               DSPOT(19)=RAYRAY(19,NEWOBJ+1)
-               DSPOT(20)=RAYRAY(20,NEWOBJ+1)
-               DSPOT(21)=RAYRAY(21,NEWOBJ+1)
-               DSPOT(22)=RAYRAY(19,NEWIMG)
-               DSPOT(23)=RAYRAY(20,NEWIMG)
-               DSPOT(24)=RAYRAY(21,NEWIMG)
-               DSPOT(25)=RAYRAY(9,NEWIMG)
-               DSPOT(26)=RAYRAY(10,NEWIMG)
-               DSPOT(27)=RAYRAY(1,NEWIMG-1)
-               DSPOT(28)=RAYRAY(2,NEWIMG-1)
-               DSPOT(29)=RAYRAY(3,NEWIMG-1)
-               DSPOT(30)=RAYRAY(19,NEWIMG-1)
-               DSPOT(31)=RAYRAY(20,NEWIMG-1)
-               DSPOT(32)=RAYRAY(21,NEWIMG-1)
-
-
-!
-               IF(IWL.GE.1.AND.IWL.LE.5)DSPOT(17)=sys_wl_weight(IWL)
-               IF(IWL.GE.6.AND.IWL.LE.10)DSPOT(17)=sys_wl_weight(IWL)
-!
-!     OPD CALCULATION
-               OOPD=0.0D0
-               CURLAM=DBLE(IWL)
-               IF(DSPOT(7).EQ.0.0D0) CALL SPOPD1
-               IF(DSPOT(7).NE.0.0D0) OOPD=0.0D0
-               IF(DSPOT(7).NE.0.0D0) OPDW=0.0D0
-               IF(PERFECT) OOPD=0.0D0
-               DSPOT(4)=OOPD
-               DSPOT(33)=OOPD
-!
-1941           DSPOT(16)=DBLE(IWL)
-!
-               IF(IWL.GE.1.AND.IWL.LE.5)DSPOT(17)=sys_wl_weight(IWL)
-               IF(IWL.GE.6.AND.IWL.LE.10)DSPOT(17)=sys_wl_weight(IWL)
-!     LOAD DSPOTT(*,ID) WITH DSPOT(*)
-               ID=I-1
-               CALL SPOTIT(3)
-            END DO
-         END DO
-!       SPECTRAL WEIGHT WAS ZERO, GO TO NEXT WAVELENGTH
-!     NO FILE OUTPUT WAS DONE
-      END IF
-   END DO
+   call capfn_trace_grid()
    ITOT=I
 !     ALL THE RAYS HAVE BEEN TRACED, NOW DO THE STATISTICS AND
 !     OUTPUT.
@@ -2595,6 +2397,476 @@ SUBROUTINE COMPAP(REFERR,TPT)
 !     REMEMBER THE SHORTEST WAVELENGTH, SHORTEST WAVELENGTH #,
 !     TOTAL NUMBER OF COLORS, THE LAST FOB DATA, THE GRID SIZE
    RETURN
+
+contains
+
+   ! The ray grid, traced by whichever tracer RAYENGINE selects.  ON uses the
+   ! global-free engine when the lens is supported (falling back to the legacy
+   ! loop otherwise); CHECK runs both on the same grid and compares every
+   ! DSPOTT entry they store, plus the globals they leave behind.
+   subroutine capfn_trace_grid()
+      use mod_ray_trace_builder, only: ray_engine_mode, ENGINE_OFF, ENGINE_ON, ENGINE_CHECK
+      use GLOBALS, only: DSPOTT
+      use zoa_output, only: zoa_emit
+      use type_utils, only: int2str
+      integer :: i0, ijk0, i1, ijk1, nrow, nbad, k
+      real(real64) :: iwlijk0(1:10), dspot0(60)
+      real(real64), allocatable :: keep(:,:)
+      real(real64) :: endleg(8), endnew(8)
+      logical :: ok
+
+      if (ray_engine_mode == ENGINE_OFF) then
+         call capfn_legacy_grid()
+         return
+      end if
+
+      i0 = I
+      ijk0 = IJK
+      iwlijk0 = IWLIJK
+      dspot0 = DSPOT(1:60)
+
+      if (ray_engine_mode == ENGINE_ON) then
+         call capfn_engine_grid(ok, .false.)
+         if (.not. ok) then
+            I = i0
+            IJK = ijk0
+            IWLIJK = iwlijk0
+            DSPOT(1:60) = dspot0
+            call capfn_legacy_grid()
+         end if
+         return
+      end if
+
+      ! ENGINE_CHECK: legacy first (its messages are the ones shown), keep
+      ! what it stored, then the engine over the same rows.
+      call capfn_legacy_grid()
+      i1 = I
+      ijk1 = IJK
+      ! rays are stored at ID = I-1 as I counts up from i0, so the rows
+      ! written are i0 .. i1-1
+      nrow = i1 - i0
+      allocate(keep(60, i0:i1-1))
+      if (nrow > 0) keep = DSPOTT(1:60, i0:i1-1)
+      endleg = [DSPOT(1), DSPOT(4), DSPOT(37), OOPD, X, Y, &
+                real(RAYCOD(1), real64), real(RAYCOD(2), real64)]
+      I = i0
+      IJK = ijk0
+      IWLIJK = iwlijk0
+      DSPOT(1:60) = dspot0
+      call capfn_engine_grid(ok, .true.)
+      if (.not. ok) then
+         call zoa_emit('RAYENGINE CHECK: engine declined this lens, legacy result kept', 'black')
+         I = i1
+         IJK = ijk1
+         if (nrow > 0) DSPOTT(1:60, i0:i1-1) = keep
+         return
+      end if
+      nbad = 0
+      if (I /= i1 .or. IJK /= ijk1) then
+         nbad = nbad + 1
+         call zoa_emit('RAYENGINE CHECK: row count or wavelength count differs', 'red')
+      end if
+      do k = i0, i1 - 1
+         if (any(DSPOTT(1:60, k) /= keep(:, k))) then
+            nbad = nbad + 1
+            if (nbad <= 3) call zoa_emit('RAYENGINE CHECK: row '//trim(int2str(k))// &
+               ' differs in column '//trim(int2str(findloc(DSPOTT(1:60, k) /= keep(:, k), .true., 1))), 'red')
+         end if
+      end do
+      endnew = [DSPOT(1), DSPOT(4), DSPOT(37), OOPD, X, Y, &
+                real(RAYCOD(1), real64), real(RAYCOD(2), real64)]
+      if (any(endnew /= endleg)) then
+         nbad = nbad + 1
+         call zoa_emit('RAYENGINE CHECK: end state differs in item '// &
+                       trim(int2str(findloc(endnew /= endleg, .true., 1))), 'red')
+      end if
+      call zoa_emit('RAYENGINE CHECK: rows '//trim(int2str(nrow))// &
+                    ', mismatches '//trim(int2str(nbad)), 'black')
+   end subroutine capfn_trace_grid
+
+   ! The original legacy loop, unchanged: one RAYTRA2 call per grid point.
+   subroutine capfn_legacy_grid()
+      DO IWL=1,10
+         IF(IWL.GE.1.AND.IWL.LE.5) SPT=sys_wl_weight(IWL)
+         IF(IWL.GE.6.AND.IWL.LE.10) SPT=sys_wl_weight(IWL)
+         IF(SPT.GT.0.0D0) THEN
+   !     ONLY TRACE RAYS FOR NON-ZERO SPECTRAL WEIGHTS
+   !       TRACE RAYS AT THAT WAVELENGTH
+   !       W1 IS EVEN
+            NSTART=0
+            NSTOP=INT(DABS(W1))-1
+   !
+            IF(SPT.NE.0.0D0) THEN
+               IF(TPT.EQ.1) THEN
+                  IF(F28.EQ.0.AND.F31.EQ.0) THEN
+                     IF(PERFECT) THEN
+                        IF(MSGSPD) WRITE(OUTLYNE,201)IWIW,IWL
+                        IF(MSGSPD) CALL SHOWIT(0)
+                     ELSE
+                        IF(MSGSPD) WRITE(OUTLYNE,200)IWIW,IWL
+                        IF(MSGSPD) CALL SHOWIT(0)
+                     END IF
+                  END IF
+               END IF
+               IJK=IJK+1
+               IF(IWL.LE.5) IWLIJK(IJK)=sys_wavelength(IWL)
+               IF(IWL.GT.5) IWLIJK(IJK)=sys_wavelength(IWL)
+            END IF
+   200      FORMAT('TRACING ',I10,' RAYS AT WAVELENGTH ',I1)
+   201      FORMAT('TRACING ',I10,' "PERFECT" RAYS AT WAVELENGTH ',I1)
+            DELFOB=2.0D0/DBLE(W1)
+            DO IY=NSTART,NSTOP
+               DO IX=NSTART,NSTOP
+                  I=I+1
+   !
+   !       THE CALL TO RAYTRA2 HAS INPUTS:
+   !               QUALIFIER
+                  WWQ='CAOB'
+   !       WW1 IS Y THE RELATIVE APERTURE HT OF THE RAY
+   !               WW1
+                  DDEELL=1.0D0
+                  IF(WC.EQ.'PSFK') DDEELL=0.9999D0
+                  IF(WC.EQ.'PUPIL') DDEELL=0.9999D0
+                  WW1=(-1.0+(DELFOB/2.0D0))+(DBLE(IY)*DELFOB)
+                  WW2=(-1.0+(DELFOB/2.0D0))+(DBLE(IX)*DELFOB)
+                  WW1=WW1*ADJUSTW1
+                  WW2=WW2*ADJUSTW2
+                  WW3=IWL
+                  WVN=IWL
+   !               CACOCH IS SET TO 1 FOR SPOT DIAGRAMS
+                  CACOCH = 1
+                  SPDTRA=.TRUE.
+                  MSG = .FALSE.
+                  STOPP=0
+   !
+   ! THE NEWOBJ,NEWREF AND NEWIMG ARE SET BY FOB
+   !       TRACE RAY AND RETURN
+                  DSPOT(1)=0.0D0
+                  DSPOT(2)=0.0D0
+                  DSPOT(3)=0.0D0
+                  DSPOT(4)=0.0D0
+                  DSPOT(5)=0.0D0
+                  DSPOT(6)=0.0D0
+                  DSPOT(7)=0.0D0
+                  DSPOT(8)=0.0D0
+                  DSPOT(9)=0.0D0
+                  DSPOT(10)=0.0D0
+                  DSPOT(11)=0.0D0
+                  DSPOT(12)=0.0D0
+                  DSPOT(13)=0.0D0
+                  DSPOT(14)=0.0D0
+                  DSPOT(15)=0.0D0
+                  DSPOT(16)=0.0D0
+                  DSPOT(17)=0.0D0
+                  DSPOT(18)=0.0D0
+                  DSPOT(19)=0.0D0
+                  DSPOT(20)=0.0D0
+                  DSPOT(21)=0.0D0
+                  DSPOT(22)=0.0D0
+                  DSPOT(23)=0.0D0
+                  DSPOT(24)=0.0D0
+                  DSPOT(25)=0.0D0
+                  DSPOT(26)=0.0D0
+                  DSPOT(27)=0.0D0
+                  DSPOT(28)=0.0D0
+                  DSPOT(29)=0.0D0
+                  DSPOT(30)=0.0D0
+                  DSPOT(31)=0.0D0
+                  DSPOT(32)=0.0D0
+                  DSPOT(33)=0.0D0
+                  DSPOT(34)=0.0D0
+                  DSPOT(35)=0.0D0
+   !
+                  DSPOT(35)=WEI(IWL)
+   !     THIS NEXT PART IS ONLY USED WHEN DOING A PSF NOT AN MTF
+   !     NOW FIX THE RAY AIMING COORDINATES IF THE WAVELENGTH IS NOT
+   !     THE SHORTEST WAVELENGTH SO THAT THE SPACING WILL BE THE SAME IN THE PSF
+                  IF(IWL.NE.SHORT.AND.WC.EQ.'PSFK'.OR.IWL.EQ.SHORT.AND.WC .EQ.'PUPIL') THEN
+   !     INCREASE THE WW1 AND WW2 BY THE RATIO OD THE CURRENT WAVELENGTH
+   !     DIVIDED BY THE SHORTEST WAVELENGTH
+                     IF(IWL.LE.5) LAMFACTOR=sys_wavelength(IWL)/WVSHORT
+                     IF(IWL.GT.5) LAMFACTOR=sys_wavelength(IWL)/WVSHORT
+                     WW1=WW1*LAMFACTOR*NRDFACTOR
+                     WW2=WW2*LAMFACTOR*NRDFACTOR
+                  END IF
+                  ANAAIM=.FALSE.
+                  WW4=1.0D0
+                  WW1=WW1*DDEELL
+                  WW2=WW2*DDEELL
+                  NOCOAT=.FALSE.
+                  GRASET=.FALSE.
+                  DXFSET=.FALSE.
+                  CALL RAYTRA2
+                  SPDCD1=RAYCOD(1)
+                  SPDCD2=RAYCOD(2)
+                  CACOCH = 0
+                  ANAAIM=.TRUE.
+                  DSPOT(7)=DBLE(SPDCD1)
+                  IF(NOOB.AND.DSPOT(7).EQ.7) DSPOT(7)=0.0D0
+                  DSPOT(8)=DBLE(SPDCD2)
+                  IF(DSPOT(7).NE.0.0D0) GO TO 1941
+                  SPDTRA=.FALSE.
+                  DSPOT(1)=RAYRAY(1,NEWIMG)
+                  DSPOT(2)=RAYRAY(2,NEWIMG)
+                  DSPOT(3)=RAYRAY(3,NEWIMG)
+   !     RAY SLOPES
+                  X=RAYRAY(11,NEWIMG)
+                  Y=RAYRAY(12,NEWIMG)
+                  CALL SLOPES
+                  DSPOT(9)=X
+                  DSPOT(10)=Y
+                  DSPOT(11)=RAYRAY(25,NEWIMG)
+                  IF(APODGAUSS) THEN
+                     APODX2=-DLOG(10.0D0**(-DABS(APODDBLOSS)/10.0D0))
+                     APODR2=(WW1**2)+(WW2**2)
+                     DSPOT(11)=DSPOT(11)*DEXP(-APODX2*APODR2)
+                  END IF
+   !       NOW CALCULATE THE RAY ENERGY TERM
+   !     THIS IS SPECTRAL WEIGHT TIMES APODIZATION FACTOR FOR THIS RAY
+   !
+                  DSPOT(12)=(DSPOT(11))
+                  DSPOT(34)=(DSPOT(11))
+                  IF(DSPOT(7).NE.0.0D0) DSPOT(12)=0.0D0
+                  DSPOT(37)=DSPOT(12)*RAYRAY(9,NEWIMG)
+   !       KEEP TRACK OF THE TOTAL OPL ALONE THE RAY FROM NEWOBJ TO NEWI
+                  DSPOT(13)=RAYRAY(22,NEWIMG)
+   !               J=14 X RAY COORD AT TANGENT PLANE OF NEWOBJ+1
+                  DSPOT(14)=RAYRAY(1,NEWOBJ+1)
+   !               J=15 Y RAY COORD AT TANGENT PLANE OF NEWOBJ+1
+                  DSPOT(15)=RAYRAY(2,NEWOBJ+1)
+   !               J=18 Z RAY COORD AT TANGENT PLANE OF NEWOBJ+1
+                  DSPOT(18)=RAYRAY(3,NEWOBJ+1)
+   !               J=5 X COORD OF RAY AT NEWREF
+                  DSPOT(5)=RAYRAY(1,NEWREF)
+   !               J=6 Y COORD OF RAY AT NEWREF
+                  DSPOT(6)=RAYRAY(2,NEWREF)
+   !
+                  DSPOT(16)=DBLE(IWL)
+                  DSPOT(19)=RAYRAY(19,NEWOBJ+1)
+                  DSPOT(20)=RAYRAY(20,NEWOBJ+1)
+                  DSPOT(21)=RAYRAY(21,NEWOBJ+1)
+                  DSPOT(22)=RAYRAY(19,NEWIMG)
+                  DSPOT(23)=RAYRAY(20,NEWIMG)
+                  DSPOT(24)=RAYRAY(21,NEWIMG)
+                  DSPOT(25)=RAYRAY(9,NEWIMG)
+                  DSPOT(26)=RAYRAY(10,NEWIMG)
+                  DSPOT(27)=RAYRAY(1,NEWIMG-1)
+                  DSPOT(28)=RAYRAY(2,NEWIMG-1)
+                  DSPOT(29)=RAYRAY(3,NEWIMG-1)
+                  DSPOT(30)=RAYRAY(19,NEWIMG-1)
+                  DSPOT(31)=RAYRAY(20,NEWIMG-1)
+                  DSPOT(32)=RAYRAY(21,NEWIMG-1)
+
+
+   !
+                  IF(IWL.GE.1.AND.IWL.LE.5)DSPOT(17)=sys_wl_weight(IWL)
+                  IF(IWL.GE.6.AND.IWL.LE.10)DSPOT(17)=sys_wl_weight(IWL)
+   !
+   !     OPD CALCULATION
+                  OOPD=0.0D0
+                  CURLAM=DBLE(IWL)
+                  IF(DSPOT(7).EQ.0.0D0) CALL SPOPD1
+                  IF(DSPOT(7).NE.0.0D0) OOPD=0.0D0
+                  IF(DSPOT(7).NE.0.0D0) OPDW=0.0D0
+                  IF(PERFECT) OOPD=0.0D0
+                  DSPOT(4)=OOPD
+                  DSPOT(33)=OOPD
+   !
+   1941           DSPOT(16)=DBLE(IWL)
+   !
+                  IF(IWL.GE.1.AND.IWL.LE.5)DSPOT(17)=sys_wl_weight(IWL)
+                  IF(IWL.GE.6.AND.IWL.LE.10)DSPOT(17)=sys_wl_weight(IWL)
+   !     LOAD DSPOTT(*,ID) WITH DSPOT(*)
+                  ID=I-1
+                  CALL SPOTIT(3)
+               END DO
+            END DO
+   !       SPECTRAL WEIGHT WAS ZERO, GO TO NEXT WAVELENGTH
+   !     NO FILE OUTPUT WAS DONE
+         END IF
+      END DO
+   end subroutine capfn_legacy_grid
+
+   ! The same grid on the global-free engine.  Fills DSPOTT exactly as the
+   ! legacy loop does (same rows, same values, the same running DSPOT row
+   ! carried from ray to ray), then leaves behind the globals the legacy loop
+   ! would.  ok = .false. means the caller must run the legacy loop instead:
+   ! the lens is unsupported, or a ray hit NEWDEL's MACFAL path, whose global
+   ! side effects change the rays traced after it.
+   subroutine capfn_engine_grid(ok, quiet)
+      use mod_ray_trace_engine, only: trace_context, ray_request, ray_result, trace_ray, &
+                                      wrap_slope, chief_opd, RR_UX, RR_UY, RR_ENERGY, &
+                                      RR_COSI, RR_COSIP, RR_OPL_TOTAL
+      use mod_ray_trace_builder, only: build_trace_context
+      use GLOBALS, only: DSPOTT
+      logical, intent(out) :: ok
+      logical, intent(in) :: quiet
+      type(trace_context) :: ctx
+      type(ray_request) :: req
+      type(ray_result) :: res
+      real(real64) :: row(60), ww1v, ww2v, oopdv, lastx, lasty
+      integer :: o, im, iwlc
+      logical :: last_ok, traced
+      logical :: SPDTRA_L
+      COMMON/SPRA1/SPDTRA_L
+
+      ok = .false.
+      call build_trace_context(ctx, check_apertures=.true., ana_aim=.false.)
+      if (.not. ctx%supported) return
+      o = ctx%obj
+      im = ctx%img
+      iwlc = INT(LFOB(4))
+      row = DSPOT(1:60)
+      lastx = X
+      lasty = Y
+      oopdv = OOPD
+      traced = .false.
+      last_ok = .false.
+
+      DO IWL=1,10
+         IF(IWL.GE.1.AND.IWL.LE.5) SPT=sys_wl_weight(IWL)
+         IF(IWL.GE.6.AND.IWL.LE.10) SPT=sys_wl_weight(IWL)
+         IF(SPT.GT.0.0D0) THEN
+            NSTART=0
+            NSTOP=INT(DABS(W1))-1
+            IF(SPT.NE.0.0D0) THEN
+               IF(TPT.EQ.1 .AND. .NOT. quiet) THEN
+                  IF(F28.EQ.0.AND.F31.EQ.0) THEN
+                     IF(PERFECT) THEN
+                        IF(MSGSPD) WRITE(OUTLYNE,'(A,I10,A,I1)') 'TRACING ',IWIW,' "PERFECT" RAYS AT WAVELENGTH ',IWL
+                        IF(MSGSPD) CALL SHOWIT(0)
+                     ELSE
+                        IF(MSGSPD) WRITE(OUTLYNE,'(A,I10,A,I1)') 'TRACING ',IWIW,' RAYS AT WAVELENGTH ',IWL
+                        IF(MSGSPD) CALL SHOWIT(0)
+                     END IF
+                  END IF
+               END IF
+               IJK=IJK+1
+               IF(IWL.LE.5) IWLIJK(IJK)=sys_wavelength(IWL)
+               IF(IWL.GT.5) IWLIJK(IJK)=sys_wavelength(IWL)
+            END IF
+            DELFOB=2.0D0/DBLE(W1)
+            DO IY=NSTART,NSTOP
+               DO IX=NSTART,NSTOP
+                  I=I+1
+                  ! pupil coordinates: the same expressions, in the same order,
+                  ! as the legacy loop
+                  DDEELL=1.0D0
+                  IF(WC.EQ.'PSFK') DDEELL=0.9999D0
+                  IF(WC.EQ.'PUPIL') DDEELL=0.9999D0
+                  ww1v=(-1.0+(DELFOB/2.0D0))+(DBLE(IY)*DELFOB)
+                  ww2v=(-1.0+(DELFOB/2.0D0))+(DBLE(IX)*DELFOB)
+                  ww1v=ww1v*ADJUSTW1
+                  ww2v=ww2v*ADJUSTW2
+                  row(1:35)=0.0D0
+                  row(35)=WEI(IWL)
+                  IF(IWL.NE.SHORT.AND.WC.EQ.'PSFK'.OR.IWL.EQ.SHORT.AND.WC .EQ.'PUPIL') THEN
+                     IF(IWL.LE.5) LAMFACTOR=sys_wavelength(IWL)/WVSHORT
+                     IF(IWL.GT.5) LAMFACTOR=sys_wavelength(IWL)/WVSHORT
+                     ww1v=ww1v*LAMFACTOR*NRDFACTOR
+                     ww2v=ww2v*LAMFACTOR*NRDFACTOR
+                  END IF
+                  ww1v=ww1v*DDEELL
+                  ww2v=ww2v*DDEELL
+
+                  req%py = ww1v
+                  req%px = ww2v
+                  req%iwl = IWL
+                  req%weight = 1.0D0
+                  call trace_ray(ctx, req, res)
+                  if (res%macfal_requested) return
+                  traced = .true.
+
+                  row(7)=DBLE(res%raycod(1))
+                  IF(NOOB.AND.row(7).EQ.7) row(7)=0.0D0
+                  row(8)=DBLE(res%raycod(2))
+                  last_ok = row(7) == 0.0D0
+                  IF(row(7).EQ.0.0D0) THEN
+                     row(1)=res%rr(1,im)
+                     row(2)=res%rr(2,im)
+                     row(3)=res%rr(3,im)
+                     lastx=wrap_slope(res%rr(RR_UX,im))
+                     lasty=wrap_slope(res%rr(RR_UY,im))
+                     row(9)=lastx
+                     row(10)=lasty
+                     row(11)=res%rr(RR_ENERGY,im)
+                     IF(APODGAUSS) THEN
+                        APODX2=-DLOG(10.0D0**(-DABS(APODDBLOSS)/10.0D0))
+                        APODR2=(ww1v**2)+(ww2v**2)
+                        row(11)=row(11)*DEXP(-APODX2*APODR2)
+                     END IF
+                     row(12)=(row(11))
+                     row(34)=(row(11))
+                     row(37)=row(12)*res%rr(RR_COSI,im)
+                     row(13)=res%rr(RR_OPL_TOTAL,im)
+                     row(14)=res%rr(1,o+1)
+                     row(15)=res%rr(2,o+1)
+                     row(18)=res%rr(3,o+1)
+                     row(5)=res%rr(1,ctx%ref)
+                     row(6)=res%rr(2,ctx%ref)
+                     row(16)=DBLE(IWL)
+                     row(19)=res%rr(19,o+1)
+                     row(20)=res%rr(20,o+1)
+                     row(21)=res%rr(21,o+1)
+                     row(22)=res%rr(19,im)
+                     row(23)=res%rr(20,im)
+                     row(24)=res%rr(21,im)
+                     row(25)=res%rr(RR_COSI,im)
+                     row(26)=res%rr(RR_COSIP,im)
+                     row(27)=res%rr(1,im-1)
+                     row(28)=res%rr(2,im-1)
+                     row(29)=res%rr(3,im-1)
+                     row(30)=res%rr(19,im-1)
+                     row(31)=res%rr(20,im-1)
+                     row(32)=res%rr(21,im-1)
+                     row(17)=sys_wl_weight(IWL)
+                     ! SPOPD1 needs both the ray and the chief ray
+                     oopdv=0.0D0
+                     IF(REFEXT) oopdv=chief_opd(ctx, res%rr, IWL, iwlc)
+                     IF(PERFECT) oopdv=0.0D0
+                     row(4)=oopdv
+                     row(33)=oopdv
+                  END IF
+                  ! (a failed ray leaves OOPD alone: legacy jumps past its
+                  ! OOPD=0 straight to label 1941)
+                  row(16)=DBLE(IWL)
+                  row(17)=sys_wl_weight(IWL)
+                  ID=I-1
+                  DSPOTT(1:60,ID)=row(1:60)
+               END DO
+            END DO
+         END IF
+      END DO
+
+      ! Leave behind what the legacy loop leaves: the last ray's data and the
+      ! per-ray flags it sets around each RAYTRA2 call.
+      DSPOT(1:60)=row
+      X=lastx
+      Y=lasty
+      OOPD=oopdv
+      IF(traced) THEN
+         RAYRAY(1:50,o:im)=res%rr(1:50,o:im)
+         RAYCOD(1:2)=res%raycod
+         WW1=ww1v
+         WW2=ww2v
+         WW3=DBLE(req%iwl)
+         WVN=DBLE(req%iwl)
+         WW4=1.0D0
+         WWQ='CAOB'
+         CURLAM=DBLE(req%iwl)
+         SPDCD1=res%raycod(1)
+         SPDCD2=res%raycod(2)
+         SPDTRA_L=.NOT.last_ok
+      END IF
+      CACOCH=0
+      ANAAIM=.TRUE.
+      MSG=.FALSE.
+      NOCOAT=.FALSE.
+      GRASET=.FALSE.
+      DXFSET=.FALSE.
+      ok = .true.
+   end subroutine capfn_engine_grid
+
 END
 ! SUB DOTF.FOR
 SUBROUTINE DOTF

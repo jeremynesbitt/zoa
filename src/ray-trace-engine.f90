@@ -33,6 +33,7 @@ module mod_ray_trace_engine
    private
 
    public :: trace_context, trace_surface, ray_request, ray_result, trace_ray
+   public :: wrap_slope, chief_opd
 
    ! ---- rr(:,s) slots: the legacy RAYRAY layout -------------------------
    integer, parameter, public :: RR_N         = 50
@@ -660,5 +661,38 @@ contains
          res%fail_surface = -1
       end if
    end subroutine trace_ray
+
+   ! Port of SLOPES (src/WAVSPOT3.f90): fold a slope angle from [0, 2*pi)
+   ! into the legacy signed range.  Same comparisons, same order.
+   pure elemental function wrap_slope(a) result(w)
+      real(real64), intent(in) :: a
+      real(real64) :: w, pii, twopii
+      pii = PLACE_PII
+      twopii = 2.0_real64*pii
+      w = a
+      if (w > (pii/2.0_real64) .and. w <= pii) w = -(pii - w)
+      if (w > (pii) .and. w <= ((3.0_real64*pii)/2.0_real64)) w = -(pii - w)
+      if (w > ((3.0_real64*pii)/2.0_real64)) w = w - (twopii)
+   end function wrap_slope
+
+   ! Port of SPOPD1 (src/WAVSPOT3.f90) for a ray that reached the image:
+   ! the optical path difference against the chief ray, summed surface by
+   ! surface with the chief's OPL rescaled from its wavelength (iwl_chief,
+   ! legacy LFOB(4)) to the ray's (iwl).  The first surface after an object
+   ! at infinity (|thickness| >= 1e10) is skipped, as in legacy.
+   pure function chief_opd(ctx, rr, iwl, iwl_chief) result(oopd)
+      type(trace_context), intent(in) :: ctx
+      real(real64), intent(in) :: rr(1:, ctx%obj:)
+      integer, intent(in) :: iwl, iwl_chief
+      real(real64) :: oopd
+      integer :: j, jj
+      oopd = 0.0_real64
+      if (abs(ctx%surf(ctx%obj)%place%thickness) >= 1.0e10_real64) jj = ctx%obj + 2
+      if (abs(ctx%surf(ctx%obj)%place%thickness) < 1.0e10_real64) jj = ctx%obj + 1
+      do j = jj, ctx%img
+         oopd = oopd + rr(RR_OPL, j) &
+            - (ctx%chief(RR_OPL, j)*(ctx%surf(j-1)%n_after(iwl)/ctx%surf(j-1)%n_after(iwl_chief)))
+      end do
+   end function chief_opd
 
 end module mod_ray_trace_engine

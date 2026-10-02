@@ -545,6 +545,11 @@ test('trace_engine_parity', test_runner,
             meson.project_source_root() / 'test/trace_engine_parity.ref'],
      timeout: 120, is_parallel: false)
 
+test('capfn_engine', test_runner,
+     args: [meson.project_source_root() / 'test/capfn_engine.zoa',
+            meson.project_source_root() / 'test/capfn_engine.ref'],
+     timeout: 120, is_parallel: false)
+
 test('engine_units', test_runner,
      args: [meson.project_source_root() / 'test/engine_units.zoa',
             meson.project_source_root() / 'test/engine_units.ref'],

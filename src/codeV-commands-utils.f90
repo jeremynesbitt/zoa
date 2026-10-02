@@ -2309,4 +2309,41 @@ contains
 
     end procedure execENGINETEST
 
+    !## cmd:      RAYENGINE
+    !## syntax:   RAYENGINE [ON | OFF | CHECK]
+    !## category: Diagnostics
+    !## desc:     Chooses the tracer CAPFN (and the plots built on it) uses.
+    !##           ON (default): the global-free ray trace engine, for any lens
+    !##           it supports, else the legacy tracer.  OFF: always the legacy
+    !##           tracer.  CHECK: trace with both and compare everything CAPFN
+    !##           stores, printing "RAYENGINE CHECK: rows N, mismatches M".
+    !##           With no argument, reports the current setting.
+    !##
+    module procedure execRAYENGINE
+        use mod_ray_trace_builder, only: ray_engine_mode, ENGINE_OFF, ENGINE_ON, ENGINE_CHECK
+        use zoa_output, only: zoa_emit
+        implicit none
+        character(len=80) :: tokens(40)
+        integer :: numTokens
+        character(len=5), parameter :: names(0:2) = ['OFF  ', 'ON   ', 'CHECK']
+
+        call parse(trim(iptStr), ' ', tokens, numTokens)
+        if (numTokens < 2) then
+            call zoa_emit('RAYENGINE '//trim(names(ray_engine_mode)), 'black')
+            return
+        end if
+        select case (trim(tokens(2)))
+        case ('ON')
+            ray_engine_mode = ENGINE_ON
+        case ('OFF')
+            ray_engine_mode = ENGINE_OFF
+        case ('CHECK')
+            ray_engine_mode = ENGINE_CHECK
+        case default
+            call zoa_emit("RAYENGINE: expected ON, OFF or CHECK, got '"//trim(tokens(2))//"'", 'red')
+            return
+        end select
+        call zoa_emit('RAYENGINE '//trim(names(ray_engine_mode)), 'black')
+    end procedure execRAYENGINE
+
 end submodule mod_codev_utils

@@ -49,6 +49,9 @@ module codeV_commands
    module subroutine execENGINETEST(iptStr)
    character(len=*) :: iptStr
    end subroutine execENGINETEST
+   module subroutine execRAYENGINE(iptStr)
+   character(len=*) :: iptStr
+   end subroutine execRAYENGINE
    module subroutine setPlotDensity(iptStr)
    character(len=*) :: iptStr
    end subroutine setPlotDensity
@@ -583,6 +586,8 @@ module codeV_commands
         zoaCmds(736)%execFunc => execTRACECMP
         zoaCmds(737)%cmd = 'ENGINETEST'
         zoaCmds(737)%execFunc => execENGINETEST
+        zoaCmds(738)%cmd = 'RAYENGINE'
+        zoaCmds(738)%execFunc => execRAYENGINE
         zoaCmds(527)%cmd = 'SETDENS'
         zoaCmds(527)%execFunc => setPlotDensity     
         zoaCmds(528)%cmd = 'SETZERNC'
