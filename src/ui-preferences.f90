@@ -6,6 +6,7 @@ module ui_preferences
   use gtk_hl_button
   use gtk_hl_entry
   use global_widgets, only: preferences_window, my_window
+  use GLOBALS, only: zoa_threads
   use zoa_file_handler, only: getMacroDir, getTempDirectory, getSaveDirectory, &
                                getGlassCatalogDir, setMacroDir, setTempDir,    &
                                setProjectDir, setGlassCatalogDir,              &
@@ -18,6 +19,9 @@ module ui_preferences
   ! Entry widgets — module-level so callbacks can read them
   type(c_ptr) :: entry_glass, entry_temp, entry_macros, entry_project
   type(c_ptr) :: label_error
+  ! Multithreading check box, and its state when the window opened
+  type(c_ptr) :: check_threads
+  logical :: threads_on_at_open
 
 contains
 
@@ -72,9 +76,28 @@ contains
     if (len_trim(tmp)    > 0) call setTempDir(trim(tmp))
     if (len_trim(macros) > 0) call setMacroDir(trim(macros))
     if (len_trim(proj)   > 0) call setProjectDir(trim(proj))
+    call apply_threads()
     call savePreferences()
     ok = .TRUE.
   end function
+
+  ! -----------------------------------------------------------------------
+  ! Multithreading on/off, applied through the THREADS command like any
+  ! other setting: on = THREADS 0 (all cores), off = THREADS 1.  Only sent
+  ! when the box was changed, so a count set with "THREADS n" survives a
+  ! visit to this window.
+  ! -----------------------------------------------------------------------
+  subroutine apply_threads()
+    logical :: want_on
+    want_on = gtk_check_button_get_active(check_threads) /= 0
+    if (want_on .eqv. threads_on_at_open) return
+    if (want_on) then
+      call PROCESKDP('THREADS 0')
+    else
+      call PROCESKDP('THREADS 1')
+    end if
+    threads_on_at_open = want_on
+  end subroutine
 
   ! -----------------------------------------------------------------------
   ! Button callbacks
@@ -114,8 +137,9 @@ contains
     type(c_ptr) :: lbl
     integer(c_int), parameter :: LABEL_COL = 0, ENTRY_COL = 1
     integer(c_int), parameter :: ROW_GLASS = 0, ROW_TEMP = 1, ROW_MACROS = 2, ROW_PROJ = 3
+    integer(c_int), parameter :: ROW_THREADS = 4
     integer(c_int), parameter :: GRID_COL_SPAN = 1, GRID_ROW_SPAN = 1
-    integer(c_int), parameter :: WIN_WIDTH = 550, WIN_HEIGHT = 220
+    integer(c_int), parameter :: WIN_WIDTH = 550, WIN_HEIGHT = 250
 
     ! Create window
     preferences_window = gtk_window_new()
@@ -173,6 +197,23 @@ contains
     entry_project = hl_gtk_entry_new(editable=TRUE, value=trim(getSaveDirectory()))
     call gtk_widget_set_hexpand(entry_project, TRUE)
     call gtk_grid_attach(grid, entry_project, ENTRY_COL, ROW_PROJ, GRID_COL_SPAN, GRID_ROW_SPAN)
+
+    ! Row 4 — Multithreading (CAPFN, spot diagrams and the plots built on them)
+    lbl = gtk_label_new('Multithreading:'//c_null_char)
+    call gtk_label_set_xalign(lbl, 1.0_c_float)
+    call gtk_grid_attach(grid, lbl, LABEL_COL, ROW_THREADS, GRID_COL_SPAN, GRID_ROW_SPAN)
+
+    check_threads = gtk_check_button_new_with_label( &
+         'Use all processor cores for ray tracing (THREADS)'//c_null_char)
+    threads_on_at_open = zoa_threads /= 1
+    if (threads_on_at_open) then
+      call gtk_check_button_set_active(check_threads, TRUE)
+    else
+      call gtk_check_button_set_active(check_threads, FALSE)
+    end if
+    call gtk_widget_set_tooltip_text(check_threads, &
+         'On: THREADS 0 (all cores).  Off: THREADS 1 (single-threaded).'//c_null_char)
+    call gtk_grid_attach(grid, check_threads, ENTRY_COL, ROW_THREADS, GRID_COL_SPAN, GRID_ROW_SPAN)
 
     call gtk_box_append(outer_box, grid)
 
