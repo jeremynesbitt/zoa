@@ -21,6 +21,15 @@ module mod_ray_trace_builder
    integer, parameter, public :: ENGINE_OFF = 0, ENGINE_ON = 1, ENGINE_CHECK = 2
    integer, public :: ray_engine_mode = ENGINE_ON
 
+   ! Global state legacy NEWDEL destroys when one ray's aiming derivatives
+   ! all vanish (code 16): it calls MACFAL and clears REFEXT, so in a CAPFN
+   ! grid every later ray lost its chief ray and got OPD = 0.  The legacy
+   ! CAPFN loop saves this once and restores it after such a ray, so the
+   ! failure stays confined to that ray -- as the engine does natively.
+   public :: macfal_state_save, macfal_state_restore
+   logical :: mf_refext, mf_fobrun, mf_gui, mf_all, mf_bad
+   integer :: mf_flags(100)
+
 contains
 
    ! check_apertures: run the clear-aperture/obscuration pass (legacy CACOCH=1).
@@ -305,5 +314,35 @@ contains
       a%surf1_curvature = surf_curvature(1)
       a%surf1_conic = surf_conic(1)
    end function aim_settings_of
+
+   subroutine macfal_state_save()
+      use DATLEN, only: REFEXT
+      use GLOBALS, only: FOBRUN
+      use DATMAI, only: ALLSTOP, GUIERROR
+      use DATSUB, only: BADOPS
+      integer :: flags(100)
+      common /FLAGS/ flags
+      mf_refext = REFEXT
+      mf_fobrun = FOBRUN
+      mf_gui = GUIERROR
+      mf_all = ALLSTOP
+      mf_bad = BADOPS
+      mf_flags = flags
+   end subroutine macfal_state_save
+
+   subroutine macfal_state_restore()
+      use DATLEN, only: REFEXT
+      use GLOBALS, only: FOBRUN
+      use DATMAI, only: ALLSTOP, GUIERROR
+      use DATSUB, only: BADOPS
+      integer :: flags(100)
+      common /FLAGS/ flags
+      REFEXT = mf_refext
+      FOBRUN = mf_fobrun
+      GUIERROR = mf_gui
+      ALLSTOP = mf_all
+      BADOPS = mf_bad
+      flags = mf_flags
+   end subroutine macfal_state_restore
 
 end module mod_ray_trace_builder

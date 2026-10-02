@@ -2484,8 +2484,15 @@ contains
                     ', mismatches '//trim(int2str(nbad)), 'black')
    end subroutine capfn_trace_grid
 
-   ! The original legacy loop, unchanged: one RAYTRA2 call per grid point.
+   ! The original legacy loop: one RAYTRA2 call per grid point.  One change:
+   ! a ray whose aiming fails with all-zero derivatives (code 16) no longer
+   ! takes the rest of the grid down with it.  NEWDEL's MACFAL used to clear
+   ! REFEXT, so every later ray got OPD = 0 and the result depended on grid
+   ! size (LithoKotaro FOB 1: RMS 0.04986 at 128x128 against ~0.04843 at
+   ! 124 and 132); that state is now restored after such a ray.
    subroutine capfn_legacy_grid()
+      use mod_ray_trace_builder, only: macfal_state_save, macfal_state_restore
+      call macfal_state_save()
       DO IWL=1,10
          IF(IWL.GE.1.AND.IWL.LE.5) SPT=sys_wl_weight(IWL)
          IF(IWL.GE.6.AND.IWL.LE.10) SPT=sys_wl_weight(IWL)
@@ -2597,6 +2604,7 @@ contains
                   GRASET=.FALSE.
                   DXFSET=.FALSE.
                   CALL RAYTRA2
+                  IF(RAYCOD(1).EQ.16) CALL macfal_state_restore()
                   SPDCD1=RAYCOD(1)
                   SPDCD2=RAYCOD(2)
                   CACOCH = 0
@@ -2690,9 +2698,8 @@ contains
    ! The same grid on the global-free engine.  Fills DSPOTT exactly as the
    ! legacy loop does (same rows, same values, the same running DSPOT row
    ! carried from ray to ray), then leaves behind the globals the legacy loop
-   ! would.  ok = .false. means the caller must run the legacy loop instead:
-   ! the lens is unsupported, or a ray hit NEWDEL's MACFAL path, whose global
-   ! side effects change the rays traced after it.
+   ! would.  ok = .false. means the lens is unsupported and the caller must
+   ! run the legacy loop instead.
    subroutine capfn_engine_grid(ok, quiet)
       use mod_ray_trace_engine, only: trace_context, ray_request, ray_result, trace_ray, &
                                       wrap_slope, chief_opd, RR_UX, RR_UY, RR_ENERGY, &
@@ -2774,7 +2781,8 @@ contains
                   req%iwl = IWL
                   req%weight = 1.0D0
                   call trace_ray(ctx, req, res)
-                  if (res%macfal_requested) return
+                  ! (a code-16 ray reports macfal_requested; it is simply a
+                  ! failed ray here -- see capfn_legacy_grid)
                   traced = .true.
 
                   row(7)=DBLE(res%raycod(1))

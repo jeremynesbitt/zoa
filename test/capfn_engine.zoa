@@ -41,3 +41,14 @@ FOB 0.7
 CAPFN 32
 RAYENGINE OFF
 RAYENGINE ON
+! Regression: at 128x128 one LithoKotaro ray fails aiming with all-zero
+! derivatives (code 16).  Legacy NEWDEL then cleared REFEXT, zeroing the OPD
+! of every later ray (RMS 0.04986 waves instead of ~0.04845).  The failure
+! must stay confined to that ray in both tracers.
+RAYENGINE CHECK
+CV2PRG LithoKotaro.seq
+FOB 1
+CAPFN 128
+FITZERN
+LISTREPT
+RAYENGINE ON
