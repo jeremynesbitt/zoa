@@ -2491,7 +2491,12 @@ contains
    ! size (LithoKotaro FOB 1: RMS 0.04986 at 128x128 against ~0.04843 at
    ! 124 and 132); that state is now restored after such a ray.
    subroutine capfn_legacy_grid()
-      use mod_ray_trace_builder, only: macfal_state_save, macfal_state_restore
+      use mod_ray_trace_builder, only: macfal_state_save, macfal_state_restore, &
+                                       ray_engine_mode, ENGINE_OFF
+      integer :: mode_keep
+      ! this loop IS the legacy reference: keep RAYTRA2 off the engine router
+      mode_keep = ray_engine_mode
+      ray_engine_mode = ENGINE_OFF
       call macfal_state_save()
       DO IWL=1,10
          IF(IWL.GE.1.AND.IWL.LE.5) SPT=sys_wl_weight(IWL)
@@ -2693,6 +2698,7 @@ contains
    !     NO FILE OUTPUT WAS DONE
          END IF
       END DO
+      ray_engine_mode = mode_keep
    end subroutine capfn_legacy_grid
 
    ! The same grid on the global-free engine.  Fills DSPOTT exactly as the

@@ -73,6 +73,7 @@ srcs += files(
   'ray-aiming.f90',
   'ray-trace-engine.f90',
   'ray-trace-builder.f90',
+  'ray-trace-router.f90',
   'ray-failure.f90',
   'zin-io.f90',
   'plot-setting-manager.f90',

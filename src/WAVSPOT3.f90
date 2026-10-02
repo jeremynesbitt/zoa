@@ -3263,7 +3263,12 @@ contains
    ! capfn_legacy_grid in WAVSPOT5), and under RAYENGINE CHECK the pupil
    ! coordinates of each ray are recorded for the engine run.
    subroutine spot_legacy_grid()
-      use mod_ray_trace_builder, only: macfal_state_save, macfal_state_restore
+      use mod_ray_trace_builder, only: macfal_state_save, macfal_state_restore, &
+                                       ray_engine_mode, ENGINE_OFF
+      integer :: mode_keep
+      ! this loop IS the legacy reference: keep RAYTRA2 off the engine router
+      mode_keep = ray_engine_mode
+      ray_engine_mode = ENGINE_OFF
       call macfal_state_save()
    DO IWL=1,10
       SPT=sys_wl_weight(IWL)
@@ -3687,6 +3692,7 @@ contains
 !     NO FILE OUTPUT WAS DONE
       END IF
    END DO
+      ray_engine_mode = mode_keep
    end subroutine spot_legacy_grid
 
    ! NSTART1.. NSTOP2 of the rectangular / random loops (the same expressions

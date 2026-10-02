@@ -46,10 +46,13 @@ contains
                             sys_screen, sys_wavelength
       use mod_surface_placement, only: pivot_normal_needed
       use mod_surface_interaction, only: hit_supported
+      use mod_surface, only: surf_clap_type, surf_coat_type, surf_cobs_ape_type, &
+                             surf_cobs_era_type
       use type_utils, only: int2str
       type(trace_context), intent(out) :: ctx
       logical, intent(in), optional :: check_apertures, ana_aim
       integer :: s, w
+      logical :: any_ipoly
       logical :: NOCOBSPSF
       COMMON/PSFCOBS/NOCOBSPSF
 
@@ -93,6 +96,16 @@ contains
          return
       end if
 
+      ! Irregular-polygon tables are needed only if some surface uses an IPOLY
+      ! aperture, obscuration or erase region -- decided lens-wide, because
+      ! the erase-type flags carry from one surface to the next in CACHEK.
+      any_ipoly = .false.
+      do s = ctx%obj, ctx%img
+         if (abs(surf_clap_type(s)) == 6 .or. abs(surf_coat_type(s)) == 6 .or. &
+             abs(surf_cobs_ape_type(s)) == 6 .or. abs(surf_cobs_era_type(s)) == 6) &
+            any_ipoly = .true.
+      end do
+
       allocate(ctx%surf(ctx%obj:ctx%img))
       do s = ctx%obj, ctx%img
          ! (the typed array can be stale -- shorter than the lens -- right after a
@@ -103,7 +116,7 @@ contains
             end if
          end if
          ctx%surf(s)%place = placement_of(s)
-         ctx%surf(s)%aper = apertures_of(s)
+         ctx%surf(s)%aper = apertures_of(s, with_ipoly=any_ipoly)
          ctx%surf(s)%optics = optics_of(s)
          do w = 1, 10
             ctx%surf(s)%n_after(w) = ldm%getSurfIndex(s, w)
@@ -199,7 +212,8 @@ contains
    ! Fill a surface_apertures for surface s from the legacy accessors and
    ! arrays: every quantity CACHEK / CAERRS / COERRS read for that surface, plus
    ! the MULTCLAP / MULTCOBS tables the CACOCH loop feeds to CACHEK.
-   function apertures_of(s) result(a)
+   ! with_ipoly (default .true.): also copy the IPOLY vertex tables.
+   function apertures_of(s, with_ipoly) result(a)
       use DATLEN, only: IPOLYX, IPOLYY, MULTCLAP, MULTCOBS
       use mod_lens_data_manager, only: ldm
       use mod_surface, only: surf_footblok_flag, surf_clap_type, surf_clap_dim, &
@@ -208,9 +222,13 @@ contains
          surf_multi_clap_flag, surf_multi_cobs_flag
       use mod_surface_apertures, only: surface_apertures, APER_MAXPTS
       integer, intent(in) :: s
+      logical, intent(in), optional :: with_ipoly
       type(surface_apertures) :: a
       integer :: k, n
+      logical :: want_ipoly
 
+      want_ipoly = .true.
+      if (present(with_ipoly)) want_ipoly = with_ipoly
       a%surface = s
       a%special_type = ldm%getSurfSpecialType(s)
       a%footblok_flag = surf_footblok_flag(s)
@@ -227,8 +245,11 @@ contains
          a%clap_erase_dim(k) = surf_cobs_ape_data(s, k)
          a%cobs_erase_dim(k) = surf_cobs_era_data(s, k)
       end do
-      a%ipoly_x(1:APER_MAXPTS, 1:4) = IPOLYX(1:APER_MAXPTS, s, 1:4)
-      a%ipoly_y(1:APER_MAXPTS, 1:4) = IPOLYY(1:APER_MAXPTS, s, 1:4)
+      if (want_ipoly) then
+         allocate(a%ipoly_x(APER_MAXPTS, 4), a%ipoly_y(APER_MAXPTS, 4))
+         a%ipoly_x(1:APER_MAXPTS, 1:4) = IPOLYX(1:APER_MAXPTS, s, 1:4)
+         a%ipoly_y(1:APER_MAXPTS, 1:4) = IPOLYY(1:APER_MAXPTS, s, 1:4)
+      end if
 
       n = max(0, min(surf_multi_clap_flag(s), 1000))
       a%multi_clap_n = n

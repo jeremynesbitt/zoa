@@ -539,10 +539,11 @@ contains
         use mod_system, only: sys_wl_ref
         use mod_ray_trace_engine, only: trace_context, ray_request, ray_result, &
                                         trace_ray, RR_N, RAY_OK
-        use mod_ray_trace_builder, only: build_trace_context
+        use mod_ray_trace_builder, only: build_trace_context, ray_engine_mode, ENGINE_OFF
         use zoa_output, only: zoa_emit
         implicit none
 
+        integer :: mode_keep
         ! Largest scaled difference |engine - legacy| / max(1,|legacy|) that
         ! still counts as agreement; ~1e5 x double epsilon, i.e. allows
         ! different-but-equivalent operation ordering, not algorithmic drift.
@@ -631,6 +632,9 @@ contains
         sRAYEXT = RAYEXT; sSPDTRA = SPDTRA
 
         ! ---- legacy trace of the grid (same setup as COMPAP) ----
+        ! RAYTRA2 must be the real legacy tracer here, not the engine router
+        mode_keep = ray_engine_mode
+        ray_engine_mode = ENGINE_OFF
         delfob = 2.0_real64/real(n, real64)
         k = 0
         do iy = 0, n-1
@@ -658,6 +662,7 @@ contains
                 legRR(:, :, k) = RAYRAY(1:NCMP, NEWOBJ:NEWIMG)
             end do
         end do
+        ray_engine_mode = mode_keep
 
         ! ---- restore ----
         RAYRAY = sRAYRAY
@@ -2230,6 +2235,8 @@ contains
             use mod_surface, only: surf_thickness, set_surf_thickness
             use real_ray_trace, only: adjustLastSurface
             use mod_lens_data_manager, only: ldm
+            use mod_ray_trace_builder, only: ray_engine_mode, ENGINE_OFF
+            integer :: mode_keep
             real(real64), parameter :: pup(2, 6) = reshape([0.0d0, 0.0d0, 0.5d0, 0.0d0, 0.0d0, 0.5d0, &
                                                             -0.7d0, 0.3d0, 1.0d0, 0.0d0, 0.0d0, -1.0d0], [2, 6])
             real(real64), parameter :: thv(4) = [-3.0d0, 2.5d0, 1.0d11, -1.0d11]
@@ -2263,7 +2270,11 @@ contains
                 WW3 = 1.0_real64; WVN = 1.0_real64
                 CACOCH = 1; SPDTRA = .true.; MSG = .false.; STOPP = 0
                 WW4 = 1.0_real64; NOCOAT = .false.; GRASET = .false.; DXFSET = .false.
+                ! the legacy tracer itself, not the engine router
+                mode_keep = ray_engine_mode
+                ray_engine_mode = ENGINE_OFF
                 call RAYTRA2
+                ray_engine_mode = mode_keep
                 if (RAYCOD(1) /= 0) cycle
                 base = RAYRAY
                 do il = NEWOBJ + 1, NEWIMG
@@ -2319,19 +2330,34 @@ contains
     !##           tracer.  CHECK: trace with both and compare everything they
     !##           store, printing "RAYENGINE CHECK: rows N, mismatches M"
     !##           (CAPFN) or "RAYENGINE CHECK (SPOT): rows N, mismatches M".
-    !##           With no argument, reports the current setting.
+    !##           The legacy RAYTRA/RAYTRA2 entry points (ray fans, the RAY
+    !##           family, footprints ...) follow the same setting, ray by
+    !##           ray; with no argument RAYENGINE reports the setting and how
+    !##           many of those calls the engine took, CHECK compared and
+    !##           declined.  RAYENGINE RESET zeroes those counters.
     !##
     module procedure execRAYENGINE
         use mod_ray_trace_builder, only: ray_engine_mode, ENGINE_OFF, ENGINE_ON, ENGINE_CHECK
+        use mod_ray_trace_router, only: router_report, router_reset
         use zoa_output, only: zoa_emit
         implicit none
         character(len=80) :: tokens(40)
-        integer :: numTokens
+        character(len=200) :: lines(3)
+        integer :: numTokens, nl, k
         character(len=5), parameter :: names(0:2) = ['OFF  ', 'ON   ', 'CHECK']
 
         call parse(trim(iptStr), ' ', tokens, numTokens)
         if (numTokens < 2) then
             call zoa_emit('RAYENGINE '//trim(names(ray_engine_mode)), 'black')
+            call router_report(lines, nl)
+            do k = 1, nl
+                call zoa_emit(trim(lines(k)), 'black')
+            end do
+            return
+        end if
+        if (trim(tokens(2)) == 'RESET') then
+            call router_reset()
+            call zoa_emit('RAYENGINE counters reset', 'black')
             return
         end if
         select case (trim(tokens(2)))

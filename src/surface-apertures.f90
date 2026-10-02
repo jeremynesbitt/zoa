@@ -65,8 +65,12 @@ module mod_surface_apertures
       integer :: cobs_erase_type = 0                 ! surf_cobs_era_type
       real(real64) :: cobs_erase_dim(6) = 0.0_real64 ! surf_cobs_era_data(s,1:6)
       ! Irregular polygon vertices: IPOLYX(1:200,s,1:4), IPOLYY(1:200,s,1:4)
-      real(real64) :: ipoly_x(APER_MAXPTS, 4) = 0.0_real64
-      real(real64) :: ipoly_y(APER_MAXPTS, 4) = 0.0_real64
+      ! Allocated (APER_MAXPTS, 4) only when the lens has an irregular-polygon
+      ! aperture anywhere: at 12.8 KB a surface, copying them for every lens
+      ! dominated the cost of building a trace context.  Only read in the
+      ! type-6 branches, which cannot be reached otherwise.
+      real(real64), allocatable :: ipoly_x(:,:)
+      real(real64), allocatable :: ipoly_y(:,:)
       ! Multiple apertures: surf_multi_clap_flag / MULTCLAP(1:n,1:3,s) stored as
       ! (1:3, 1:n) = (JK1, JK2, JK3) per entry, likewise for MULTCOBS.  CACHEK
       ! itself never reads them; the caller loops over them (see CACOCH in
