@@ -1,8 +1,11 @@
 ! ---- Engine unit tests: ENGINETEST compares the pure coordinate transforms of
 ! mod_surface_placement (place_into_surface, back_to_object, forward_from_object)
 ! bit-for-bit against legacy TRNSF2, BAKONE and FORONEL for the current lens, over
-! a fixed set of 20 rays at every surface.  BRIEF prints counts, the integer
-! flag summary and the verdict only (no floating-point values).
+! a fixed set of 20 rays at every surface.  It also compares legacy CACHEK (clear
+! aperture / obscuration / erase check) with check_apertures, which is the
+! "CACHEK: cases N, mismatches M" line; see the aperture cases from case 14 on.
+! BRIEF prints counts, the integer flag summary and the verdict only (no
+! floating-point values).
 ! Every case starts from RES osdtriplet, applies one tilt/decenter type in
 ! lens-update level (U L ... EOS), runs FOB 0.7, then ENGINETEST BRIEF.
 !
@@ -181,6 +184,245 @@ DEC 0.2 0.2 0.2
 GDX 0.1
 GDY 0.2
 GDZ 0.3
+EOS
+FOB 0.7
+ENGINETEST BRIEF
+
+! ----------------------------------------------------------------------------
+! CACHEK / check_apertures cases (14-25).  For every surface NEWOBJ+1..NEWIMG-1
+! the test runs a 41x41 grid spanning +-1.5x the largest aperture dimension, plus
+! points on and within 1e-8/1e-6 (relative) of the nominal edges and corners of
+! each aperture record, through legacy CACHEK and the port, from identical
+! sentinel state, and requires the same RAYCOD(1:2), STOPP, /CACO/ (CAERAS,
+! COERAS, LS bit for bit) and SPDCD1/2.  Modes: CACOCA 0, 1 and 2 with zero
+! offsets, with arbitrary JK1/JK2/JK3 offsets and extra tilt, CACOCA 0 with
+! NOCOBSPSF set, every MULTCLAP entry in mode 1 and MULTCOBS entry in mode 2 (as
+! the CACOCH loop of real-ray-trace.f90 feeds them), all at AIMTOL and at 1e-3.
+! Case 1-13 lenses have no apertures: they cover CACHEK's "no CLAP/COBS" early
+! return.  Every ENGINETEST also runs a built-in synthetic pass on surface
+! NEWOBJ+1 for shapes no script can create (see below), so its counts are part of
+! every CACHEK line.
+!
+!   case 14  CLAP circle (CAFLG 1): decentered (S1), dim1 <= dim2 and dim1 > dim2
+!            (S2, "CLAP 3 0 0 2": legacy radius = the smaller), ELIP + CLAP TILT
+!            + decenter (CAFLG 3, S4)
+!   case 15  CLAP RECT + tilt + decenter (CAFLG 2, S1); RCTK with radius < the
+!            larger side: 8-sided box (CAFLG 4, S2, with tilt); RCTK with radius
+!            = side of a square: 4-sided box (S4)
+!   case 16  CLAP POLY with tilt and decenter (CAFLG 5, S1, S2)
+!   case 17  COBS circle (COFLG 1, S1); COBS RECT + tilt + decenter (COFLG 2, S2);
+!            COBS ELIP + tilt + decenter (COFLG 3, S4)
+!   case 18  COBS RCTK 8-sided with tilt (COFLG 4, S1); COBS RCTK 4-sided (S2);
+!            COBS POLY with tilt (COFLG 5, S4)
+!   case 19  CLAP ERASE and COBS ERASE circular (CAERAS 1 in CAERRS, COERAS 1 in
+!            COERRS), decentered
+!   case 20  CLAP RECTE + CLAP TILTE, COBS RECTE + COBS TILTE (CAERAS/COERAS 2)
+!   case 21  ELIPE for clap and cobs with TILTE (CAERAS/COERAS 3)
+!   case 22  RCTKE for clap and cobs (CAERAS/COERAS 4): 8-sided box with side
+!            1 <= side 2 (clap S1) and side 1 > side 2 (cobs S2, clap S3, the
+!            two MAXSID branches), 4-sided box from a square (clap S4, cobs S5)
+!   case 23  COBS POLYE with TILTE (COERAS 5)
+!   case 24  FOOTBLOK YES on a surface with a CLAP (footblock early return, S1);
+!            CLAP + COBS + SPIDER (S2).  CACHEK never reads the spider data (the
+!            spider only affects drawing), so this case shows the spider changes
+!            nothing; there is no spider field in surface_apertures.
+!   case 25  MULTCLAP / MULTCOBS entries on three surfaces (JK1/JK2/JK3 from the
+!            tables, as CACOCH uses them)
+!
+! Synthetic pass (built into ENGINETEST, restores the surface afterwards):
+!   * type 6 (IPOLY) clap, clap erase, cobs and cobs erase: CAFLG/COFLG/CAERAS/
+!     COERAS 6.  These shapes load their vertices from an IPOLYnn.DAT file in the
+!     working directory, which no script can provide.
+!   * type 5 (POLYE) clap erase: the CLAP POLYE command stores the data and then
+!     always rejects it (a legacy test requires NW2 = 0 although the message says
+!     3..200), aborting the lens update, so a valid polygon clap erase cannot be
+!     entered from a command.
+! Not reachable at all: negative shape types (the code takes ABS of the stored
+! type, but every setter stores a positive value).
+! ----------------------------------------------------------------------------
+
+! case 14
+RES osdtriplet
+U L
+CHG 1
+CLAP 3 0.2 -0.1
+CHG 2
+CLAP 3 0 0 2
+CHG 4
+CLAP ELIP 3 2 0.2 -0.3
+CLAP TILT 25
+EOS
+FOB 0.7
+ENGINETEST BRIEF
+
+! case 15
+RES osdtriplet
+U L
+CHG 1
+CLAP RECT 3 2 0.2 -0.1
+CLAP TILT 20
+CHG 2
+CLAP RCTK 3 2 0 0 1
+CLAP TILT -15
+CHG 4
+CLAP RCTK 2 2 0.1 0.1 2
+EOS
+FOB 0.7
+ENGINETEST BRIEF
+
+! case 16
+RES osdtriplet
+U L
+CHG 1
+CLAP POLY 3 5 0.1 -0.2
+CLAP TILT 12
+CHG 2
+CLAP POLY 2.5 6
+EOS
+FOB 0.7
+ENGINETEST BRIEF
+
+! case 17
+RES osdtriplet
+U L
+CHG 1
+COBS 1.5 0.2 -0.1
+CHG 2
+COBS RECT 1 2 0.1 0.2
+COBS TILT 30
+CHG 4
+COBS ELIP 2 1 -0.2 0.3
+COBS TILT -20
+EOS
+FOB 0.7
+ENGINETEST BRIEF
+
+! case 18
+RES osdtriplet
+U L
+CHG 1
+COBS RCTK 3 2 0.1 -0.1 1
+COBS TILT 10
+CHG 2
+COBS RCTK 2 2 0 0 2
+CHG 4
+COBS POLY 2.5 5 0.1 0.2
+COBS TILT 18
+EOS
+FOB 0.7
+ENGINETEST BRIEF
+
+! case 19
+RES osdtriplet
+U L
+CHG 1
+CLAP 1.5 0 0
+CLAP ERASE 3 0.1 0.2
+CHG 2
+COBS 2 0 0
+COBS ERASE 1 0.2 0.1
+EOS
+FOB 0.7
+ENGINETEST BRIEF
+
+! case 20
+RES osdtriplet
+U L
+CHG 1
+CLAP 1.5 0 0
+CLAP RECTE 1 3 0.1 0.2
+CLAP TILTE 0.3
+CHG 2
+COBS RECT 2 3 0 0
+COBS RECTE 1 1.5 0.2 0.1
+COBS TILTE 0.4
+EOS
+FOB 0.7
+ENGINETEST BRIEF
+
+! case 21
+RES osdtriplet
+U L
+CHG 1
+CLAP 1.5 0 0
+CLAP ELIPE 1 3 0.1 0.2
+CLAP TILTE 0.3
+CHG 2
+COBS RECT 2 3 0 0
+COBS ELIPE 1 1.5 0.2 0.1
+COBS TILTE 0.4
+EOS
+FOB 0.7
+ENGINETEST BRIEF
+
+! case 22
+RES osdtriplet
+U L
+CHG 1
+CLAP 1.5 0 0
+CLAP RCTKE 1 3 0.1 0.2 0.5
+CLAP TILTE 0.3
+CHG 2
+COBS RECT 2 3 0 0
+COBS RCTKE 1.5 1 0.2 0.1 0.5
+COBS TILTE 0.4
+CHG 3
+CLAP 1.5 0 0
+CLAP RCTKE 3 1 0.1 0.2 0.5
+CHG 4
+CLAP 1.5 0 0
+CLAP RCTKE 2 2 0.1 0.2 2
+CHG 5
+COBS RECT 2 3 0 0
+COBS RCTKE 2 2 0.2 0.1 2
+EOS
+FOB 0.7
+ENGINETEST BRIEF
+
+! case 23
+RES osdtriplet
+U L
+CHG 2
+COBS RECT 2 3 0 0
+COBS POLYE 1.5 6 0.2 0.1
+COBS TILTE 0.4
+EOS
+FOB 0.7
+ENGINETEST BRIEF
+
+! case 24
+RES osdtriplet
+U L
+CHG 1
+CLAP 3 0 0
+FOOTBLOK YES
+CHG 2
+CLAP 3 0 0
+COBS 1 0 0
+SPIDER 4 45 0.2
+EOS
+FOB 0.7
+ENGINETEST BRIEF
+
+! case 25
+RES osdtriplet
+U L
+CHG 1
+CLAP 3 0 0
+MULTCLAP 1 0.5 0.3 10
+MULTCLAP 2 -0.4 0.2 -5
+MULTCLAP 3 0.2 -0.6 0
+CHG 2
+CLAP RECT 2 3 0 0
+COBS 1 0.1 0.1
+MULTCLAP 1 0.3 0 15
+MULTCOBS 1 0.5 0.4 0
+MULTCOBS 2 -0.6 0 0
+CHG 4
+CLAP ELIP 3 2 0 0
+COBS RECT 1 1.5 0 0
+MULTCOBS 1 0.5 0.4 20
+MULTCOBS 2 -0.6 0.1 0
 EOS
 FOB 0.7
 ENGINETEST BRIEF

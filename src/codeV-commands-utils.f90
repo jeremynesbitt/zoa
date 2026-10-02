@@ -790,15 +790,24 @@ contains
     !##           through legacy TRNSF2 and place_into_surface at every surface
     !##           NEWOBJ+1..NEWIMG, and the same points through BAKONE/FORONEL
     !##           and their ports on surface NEWOBJ+1, comparing results bit for
-    !##           bit.  BRIEF prints only counts and verdicts.
+    !##           bit.  Also runs every surface's clear aperture / obscuration
+    !##           check (legacy CACHEK) against its port, check_apertures, over a
+    !##           grid of points, comparing the return code and every value CACHEK
+    !##           leaves behind.  BRIEF prints only counts and verdicts.
     !##
     module procedure execENGINETEST
         use DATLEN, only: NEWOBJ, NEWIMG, R_X, R_Y, R_Z, R_L, R_M, R_N, R_I, &
-                          R_TX, R_TY, R_TZ
+                          R_TX, R_TY, R_TZ, RAYCOD, STOPP, MSG, AIMTOL, &
+                          X0, Y0, XT, YT, NP, IPOLYX, IPOLYY
         use mod_surface_placement, only: surface_placement, place_into_surface, &
                                          back_to_object, forward_from_object, &
                                          pivot_normal_needed
-        use mod_ray_trace_builder, only: placement_of
+        use mod_surface_apertures, only: surface_apertures, check_apertures
+        use mod_surface, only: set_surf_clap_type, set_surf_clap_dim, set_surf_clap_tilt, &
+                               set_surf_coat_type, set_surf_cobs_poly, &
+                               set_surf_cobs_ape_type, set_surf_cobs_ape_data, &
+                               set_surf_cobs_era_type, set_surf_cobs_era_data
+        use mod_ray_trace_builder, only: placement_of, apertures_of
         use zoa_output, only: zoa_emit
         use iso_fortran_env, only: int64
         implicit none
@@ -817,6 +826,25 @@ contains
         type(surface_placement) :: pp, pc
         type(surface_placement), allocatable :: pl_all(:)
         character(len=60) :: failName
+
+        ! ---- CACHEK test state ----
+        ! The legacy COMMON blocks CACHEK writes or reads (layouts as in CACHEK).
+        integer :: l_caeras, l_coeras
+        real(real64) :: l_ls
+        common /CACO/ l_caeras, l_coeras, l_ls
+        integer :: l_spd1, l_spd2
+        common /SPRA2/ l_spd1, l_spd2
+        logical :: l_nocobs
+        common /PSFCOBS/ l_nocobs
+        integer, parameter :: NGRID = 41, MAXPTS_T = 4500
+        integer :: cc_cases, cc_bad, cc_blk6, cc_blk7, cc_surfs, cc_ipoly
+        real(real64) :: cc_pts(2, MAXPTS_T)
+        integer :: cc_np
+        type(surface_apertures) :: cc_ap
+        ! saved legacy globals
+        integer :: sSTOP, sRAYCOD(2), sCAERAS, sCOERAS, sSPD1, sSPD2, sNP
+        real(real64) :: sLS, sAIMTOL, sX0, sY0, sXT(200), sYT(200)
+        logical :: sMSG, sNOCOBS
 
         call parse(trim(iptStr), ' ', tokens, numTokens)
         brief = .false.
@@ -912,6 +940,32 @@ contains
             call cmp6(3)
         end do
 
+        ! ---- CACHEK vs check_apertures ----
+        sSTOP = STOPP; sRAYCOD = RAYCOD; sCAERAS = l_caeras; sCOERAS = l_coeras
+        sSPD1 = l_spd1; sSPD2 = l_spd2; sLS = l_ls; sAIMTOL = AIMTOL; sMSG = MSG
+        sNOCOBS = l_nocobs; sX0 = X0; sY0 = Y0; sNP = NP; sXT = XT(1:200); sYT = YT(1:200)
+        cc_cases = 0; cc_bad = 0; cc_blk6 = 0; cc_blk7 = 0; cc_surfs = 0; cc_ipoly = 0
+        do s = nobj1, NEWIMG - 1
+            cc_ap = apertures_of(s)
+            if (cc_ap%clap_type /= 0 .or. cc_ap%cobs_type /= 0) cc_surfs = cc_surfs + 1
+            call run_cachek_surface(s)
+        end do
+        ! IPOLY (type 6) shapes can only be loaded from an IPOLYnn.DAT file in the
+        ! working directory, so no script can set them up.  Cover those branches
+        ! by temporarily writing synthetic polygons into the first surface of the
+        ! legacy store, running the same comparison, and restoring it.
+        ! (the first such surface without the footblock flag, which would skip it)
+        do s = nobj1, NEWIMG - 1
+            cc_ap = apertures_of(s)
+            if (cc_ap%footblok_flag /= 1) then
+                call run_synthetic_ipoly(s)
+                exit
+            end if
+        end do
+        STOPP = sSTOP; RAYCOD = sRAYCOD; l_caeras = sCAERAS; l_coeras = sCOERAS
+        l_spd1 = sSPD1; l_spd2 = sSPD2; l_ls = sLS; AIMTOL = sAIMTOL; MSG = sMSG
+        l_nocobs = sNOCOBS; X0 = sX0; Y0 = sY0; NP = sNP; XT(1:200) = sXT; YT(1:200) = sYT
+
         ! restore
         R_X = sRX; R_Y = sRY; R_Z = sRZ; R_L = sRL; R_M = sRM; R_N = sRN
         R_I = sRI; R_TX = sTX; R_TY = sTY; R_TZ = sTZ
@@ -952,6 +1006,14 @@ contains
             call zoa_emit(trim(line), "black")
             if (nbad(i) > 0 .and. len_trim(failName) == 0) failName = rname(i)
         end do
+        write(line, '(A,I0,A,I0)') 'CACHEK: cases ', cc_cases, ', mismatches ', cc_bad
+        call zoa_emit(trim(line), "black")
+        if (.not. brief) then
+            write(line, '(A,I0,A,I0,A,I0,A,I0)') 'CACHEK DETAIL: surfaces with apertures ', cc_surfs, &
+                ', blocked by clap ', cc_blk6, ', blocked by cobs ', cc_blk7, ', synthetic cases ', cc_ipoly
+            call zoa_emit(trim(line), "black")
+        end if
+        if (cc_bad > 0 .and. len_trim(failName) == 0) failName = 'CACHEK'
         if (len_trim(failName) == 0) then
             call zoa_emit('ENGINETEST: PASS', "black")
         else
@@ -976,6 +1038,229 @@ contains
             end do
             if (bad) nbad(r) = nbad(r) + 1
         end subroutine cmp6
+
+        ! Run every test point and mode on surface s, whose apertures are in the
+        ! legacy store.
+        subroutine run_cachek_surface(sf)
+            integer, intent(in) :: sf
+            real(real64) :: span, dm, v(2), w(2), scl(5), px, py
+            integer :: ix, iy, ir, isx, isy, iv, iw, isc, k, m
+            real(real64) :: tols(2)
+            real(real64) :: rec(6, 4)
+
+            cc_ap = apertures_of(sf)
+            ! the four aperture records: clap, cobs, clap erase, cobs erase
+            rec = 0.0_real64
+            rec(1:5, 1) = cc_ap%clap_dim
+            rec(1:5, 2) = cc_ap%cobs_dim(1:5)
+            rec(1:5, 3) = cc_ap%clap_erase_dim(1:5)
+            rec(1:5, 4) = cc_ap%cobs_erase_dim(1:5)
+            ! legacy layout: dims 1,2 are the sizes, 3 = y decenter, 4 = x decenter
+            dm = 0.0_real64
+            do ir = 1, 4
+                dm = max(dm, abs(rec(1, ir)) + abs(rec(3, ir)) + abs(rec(4, ir)))
+                dm = max(dm, abs(rec(2, ir)) + abs(rec(3, ir)) + abs(rec(4, ir)))
+            end do
+            if (dm == 0.0_real64) dm = 10.0_real64
+            span = 1.5_real64*dm
+
+            ! grid
+            cc_np = 0
+            do iy = 0, NGRID - 1
+                do ix = 0, NGRID - 1
+                    cc_np = cc_np + 1
+                    cc_pts(1, cc_np) = -span + 2.0_real64*span*real(ix, real64)/real(NGRID - 1, real64)
+                    cc_pts(2, cc_np) = -span + 2.0_real64*span*real(iy, real64)/real(NGRID - 1, real64)
+                end do
+            end do
+            ! points on the nominal edges and corners of each record (+- tiny)
+            scl = [1.0_real64, 1.0_real64 + 1.0e-8_real64, 1.0_real64 - 1.0e-8_real64, &
+                   1.0_real64 + 1.0e-6_real64, 1.0_real64 - 1.0e-6_real64]
+            do ir = 1, 4
+                v = [rec(1, ir), rec(2, ir)]
+                w = [rec(1, ir), rec(2, ir)]
+                do iv = 1, 2
+                    do iw = 1, 2
+                        do isx = -1, 1
+                            do isy = -1, 1
+                                do isc = 1, 5
+                                    if (cc_np + 1 > MAXPTS_T) exit
+                                    cc_np = cc_np + 1
+                                    cc_pts(1, cc_np) = rec(4, ir) + real(isx, real64)*v(iv)*scl(isc)
+                                    cc_pts(2, cc_np) = rec(3, ir) + real(isy, real64)*w(iw)*scl(isc)
+                                end do
+                            end do
+                        end do
+                    end do
+                end do
+            end do
+            tols = [sAIMTOL, 1.0e-3_real64]
+
+            do k = 1, cc_np
+                px = cc_pts(1, k); py = cc_pts(2, k)
+                do m = 1, 2
+                    ! plain checks, all three modes
+                    call one_case(sf, px, py, 0.0_real64, 0.0_real64, 0.0_real64, 0, .false., tols(m))
+                    call one_case(sf, px, py, 0.0_real64, 0.0_real64, 0.0_real64, 1, .false., tols(m))
+                    call one_case(sf, px, py, 0.0_real64, 0.0_real64, 0.0_real64, 2, .false., tols(m))
+                    ! arbitrary offsets and extra tilt (the JK1/JK2/JK3 path)
+                    call one_case(sf, px, py, 0.3_real64, -0.2_real64, 7.5_real64, 0, .false., tols(m))
+                    call one_case(sf, px, py, -0.15_real64, 0.25_real64, -12.0_real64, 1, .false., tols(m))
+                    call one_case(sf, px, py, 0.1_real64, 0.05_real64, 20.0_real64, 2, .false., tols(m))
+                end do
+                call one_case(sf, px, py, 0.0_real64, 0.0_real64, 0.0_real64, 0, .true., sAIMTOL)
+                ! the MULTCLAP / MULTCOBS entries, as the CACOCH loop feeds them
+                do m = 1, cc_ap%multi_clap_n
+                    call one_case(sf, px, py, cc_ap%multi_clap(1, m), cc_ap%multi_clap(2, m), &
+                                  cc_ap%multi_clap(3, m), 1, .false., sAIMTOL)
+                end do
+                do m = 1, cc_ap%multi_cobs_n
+                    call one_case(sf, px, py, cc_ap%multi_cobs(1, m), cc_ap%multi_cobs(2, m), &
+                                  cc_ap%multi_cobs(3, m), 2, .false., sAIMTOL)
+                end do
+            end do
+        end subroutine run_cachek_surface
+
+        ! One CACHEK call and one check_apertures call from identical sentinel
+        ! state; compare everything either leaves behind.
+        subroutine one_case(sf, px, py, j1, j2, j3, cac, nocop, tol)
+            integer, intent(in) :: sf, cac
+            real(real64), intent(in) :: px, py, j1, j2, j3, tol
+            logical, intent(in) :: nocop
+            real(real64) :: jk1, jk2, jk3
+            integer :: c_code, c_fs, c_stopp, c_caeras, c_coeras, c_s1, c_s2
+            real(real64) :: c_ls
+            logical :: bad
+
+            jk1 = j1; jk2 = j2; jk3 = j3
+            ! legacy
+            R_X = px; R_Y = py; R_Z = 0.0_real64; R_I = sf
+            STOPP = -7; l_caeras = -9; l_coeras = -9; l_ls = -99.0_real64
+            l_spd1 = -5; l_spd2 = -5; RAYCOD = -3
+            MSG = .false.; AIMTOL = tol; l_nocobs = nocop
+            call CACHEK(jk1, jk2, jk3, cac)
+            ! port, from the same sentinels
+            c_stopp = -7; c_caeras = -9; c_coeras = -9; c_ls = -99.0_real64
+            c_s1 = -5; c_s2 = -5
+            call check_apertures(cc_ap, px, py, jk1, jk2, jk3, cac, tol, nocop, &
+                                 c_code, c_fs, c_stopp, c_ls, c_caeras, c_coeras, c_s1, c_s2)
+            cc_cases = cc_cases + 1
+            bad = RAYCOD(1) /= c_code .or. RAYCOD(2) /= c_fs .or. STOPP /= c_stopp .or. &
+                  l_caeras /= c_caeras .or. l_coeras /= c_coeras .or. &
+                  l_spd1 /= c_s1 .or. l_spd2 /= c_s2 .or. &
+                  transfer(l_ls, 0_int64) /= transfer(c_ls, 0_int64)
+            if (bad) cc_bad = cc_bad + 1
+            if (RAYCOD(1) == 6) cc_blk6 = cc_blk6 + 1
+            if (RAYCOD(1) == 7) cc_blk7 = cc_blk7 + 1
+            AIMTOL = sAIMTOL
+        end subroutine one_case
+
+        ! Synthetic aperture sets written into the legacy store of surface sf,
+        ! for shapes no script can reach.  Runs the comparison for each set and
+        ! restores the surface.
+        !   set 1: irregular polygons (type 6, loaded from IPOLYnn.DAT files in
+        !          real use) for clap, clap erase, cobs and cobs erase
+        !   set 2: a polygon CLAP ERASE (type 5).  "CLAP POLYE" stores its data and
+        !          then always rejects it (legacy test: NW2 must be 0 for type 5,
+        !          the message says 3..200), so the command can never leave a
+        !          usable polygon erase behind.
+        subroutine run_synthetic_ipoly(sf)
+            integer, intent(in) :: sf
+            type(surface_apertures) :: keep
+            integer :: j, k, iset
+            real(real64) :: cx
+            ! vertex radius per slot: clap, clap erase, cobs, cobs erase (the erase
+            ! polygons are smaller than the cobs, bigger than the clap, so both
+            ! "erased" and "not erased" points occur)
+            real(real64), parameter :: polyscale(4) = [1.0_real64, 1.5_real64, 2.0_real64, 0.9_real64]
+
+            keep = apertures_of(sf)
+            do iset = 1, 2
+                call restore_surface(sf, keep)
+                if (iset == 1) then
+                    ! polygon k: a skewed pentagon, scaled per slot
+                    do k = 1, 4
+                        do j = 1, 5
+                            cx = polyscale(k)
+                            IPOLYX(j, sf, k) = cx*cos(1.2566370614359172_real64*real(j - 1, real64) + 0.3_real64*real(k, real64))
+                            IPOLYY(j, sf, k) = 0.8_real64*cx*sin(1.2566370614359172_real64*real(j - 1, real64) + 0.3_real64*real(k, real64))
+                        end do
+                        IPOLYX(6:200, sf, k) = 0.0_real64
+                        IPOLYY(6:200, sf, k) = 0.0_real64
+                    end do
+                    call set_surf_clap_type(sf, 6)
+                    call set_surf_clap_dim(sf, 1, 1.0_real64)
+                    call set_surf_clap_dim(sf, 2, 5.0_real64)
+                    call set_surf_clap_dim(sf, 3, 0.1_real64)
+                    call set_surf_clap_dim(sf, 4, -0.05_real64)
+                    call set_surf_clap_dim(sf, 5, 0.0_real64)
+                    call set_surf_clap_tilt(sf, 4.0_real64)
+                    call set_surf_cobs_ape_type(sf, 6)
+                    call set_surf_cobs_ape_data(sf, 1, 1.0_real64)
+                    call set_surf_cobs_ape_data(sf, 2, 5.0_real64)
+                    call set_surf_cobs_ape_data(sf, 3, 0.05_real64)
+                    call set_surf_cobs_ape_data(sf, 4, 0.02_real64)
+                    call set_surf_cobs_ape_data(sf, 5, 0.0_real64)
+                    call set_surf_cobs_ape_data(sf, 6, 0.1_real64)
+                    call set_surf_coat_type(sf, 6)
+                    call set_surf_cobs_poly(sf, 1, 1.0_real64)
+                    call set_surf_cobs_poly(sf, 2, 5.0_real64)
+                    call set_surf_cobs_poly(sf, 3, -0.1_real64)
+                    call set_surf_cobs_poly(sf, 4, 0.1_real64)
+                    call set_surf_cobs_poly(sf, 5, 0.0_real64)
+                    call set_surf_cobs_poly(sf, 6, 3.0_real64)
+                    call set_surf_cobs_era_type(sf, 6)
+                    call set_surf_cobs_era_data(sf, 1, 1.0_real64)
+                    call set_surf_cobs_era_data(sf, 2, 5.0_real64)
+                    call set_surf_cobs_era_data(sf, 3, 0.0_real64)
+                    call set_surf_cobs_era_data(sf, 4, 0.1_real64)
+                    call set_surf_cobs_era_data(sf, 5, 0.0_real64)
+                    call set_surf_cobs_era_data(sf, 6, 0.2_real64)
+                else
+                    ! small circular clap whose polygon erase region reaches past it
+                    call set_surf_clap_type(sf, 1)
+                    call set_surf_clap_dim(sf, 1, 1.0_real64)
+                    call set_surf_clap_dim(sf, 2, 1.0_real64)
+                    call set_surf_clap_dim(sf, 3, 0.0_real64)
+                    call set_surf_clap_dim(sf, 4, 0.0_real64)
+                    call set_surf_clap_dim(sf, 5, 0.0_real64)
+                    call set_surf_clap_tilt(sf, 0.0_real64)
+                    call set_surf_cobs_ape_type(sf, 5)
+                    call set_surf_cobs_ape_data(sf, 1, 1.4_real64)
+                    call set_surf_cobs_ape_data(sf, 2, 6.0_real64)
+                    call set_surf_cobs_ape_data(sf, 3, 0.1_real64)
+                    call set_surf_cobs_ape_data(sf, 4, -0.1_real64)
+                    call set_surf_cobs_ape_data(sf, 5, 0.0_real64)
+                    call set_surf_cobs_ape_data(sf, 6, 0.3_real64)
+                end if
+                k = cc_cases
+                call run_cachek_surface(sf)
+                cc_ipoly = cc_ipoly + cc_cases - k
+            end do
+            call restore_surface(sf, keep)
+        end subroutine run_synthetic_ipoly
+
+        ! Write a saved surface_apertures back into the legacy store of surface sf.
+        subroutine restore_surface(sf, keep)
+            integer, intent(in) :: sf
+            type(surface_apertures), intent(in) :: keep
+            integer :: j
+            call set_surf_clap_type(sf, keep%clap_type)
+            do j = 1, 5
+                call set_surf_clap_dim(sf, j, keep%clap_dim(j))
+            end do
+            call set_surf_clap_tilt(sf, keep%clap_tilt)
+            call set_surf_coat_type(sf, keep%cobs_type)
+            call set_surf_cobs_ape_type(sf, keep%clap_erase_type)
+            call set_surf_cobs_era_type(sf, keep%cobs_erase_type)
+            do j = 1, 6
+                call set_surf_cobs_poly(sf, j, keep%cobs_dim(j))
+                call set_surf_cobs_ape_data(sf, j, keep%clap_erase_dim(j))
+                call set_surf_cobs_era_data(sf, j, keep%cobs_erase_dim(j))
+            end do
+            IPOLYX(1:200, sf, 1:4) = keep%ipoly_x
+            IPOLYY(1:200, sf, 1:4) = keep%ipoly_y
+        end subroutine restore_surface
     end procedure execENGINETEST
 
 end submodule mod_codev_utils

@@ -68,6 +68,7 @@ srcs += files(
   'paraxial-ray-trace.f90',
   'real-ray-trace.f90',
   'surface-placement.f90',
+  'surface-apertures.f90',
   'ray-trace-engine.f90',
   'ray-trace-builder.f90',
   'ray-failure.f90',

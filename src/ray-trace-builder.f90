@@ -13,7 +13,7 @@ module mod_ray_trace_builder
    implicit none
    private
 
-   public :: build_trace_context, placement_of
+   public :: build_trace_context, placement_of, apertures_of
 
 contains
 
@@ -52,6 +52,7 @@ contains
             allocate(ctx%surf(s)%geom, source=ldm%surfaces(s)%s)
          end if
          ctx%surf(s)%place = placement_of(s)
+         ctx%surf(s)%aper = apertures_of(s)
          do w = 1, 10
             ctx%surf(s)%n_after(w) = ldm%getSurfIndex(s, w)
          end do
@@ -95,5 +96,54 @@ contains
       p%pivot_x = surf_pivot_x(s)
       p%pivot_y = surf_pivot_y(s)
    end function placement_of
+
+
+   ! Fill a surface_apertures for surface s from the legacy accessors and
+   ! arrays: every quantity CACHEK / CAERRS / COERRS read for that surface, plus
+   ! the MULTCLAP / MULTCOBS tables the CACOCH loop feeds to CACHEK.
+   function apertures_of(s) result(a)
+      use DATLEN, only: IPOLYX, IPOLYY, MULTCLAP, MULTCOBS
+      use mod_lens_data_manager, only: ldm
+      use mod_surface, only: surf_footblok_flag, surf_clap_type, surf_clap_dim, &
+         surf_clap_tilt, surf_coat_type, surf_cobs_poly, surf_cobs_ape_type, &
+         surf_cobs_ape_data, surf_cobs_era_type, surf_cobs_era_data, &
+         surf_multi_clap_flag, surf_multi_cobs_flag
+      use mod_surface_apertures, only: surface_apertures, APER_MAXPTS
+      integer, intent(in) :: s
+      type(surface_apertures) :: a
+      integer :: k, n
+
+      a%surface = s
+      a%special_type = ldm%getSurfSpecialType(s)
+      a%footblok_flag = surf_footblok_flag(s)
+      a%clap_type = surf_clap_type(s)
+      do k = 1, 5
+         a%clap_dim(k) = surf_clap_dim(s, k)
+      end do
+      a%clap_tilt = surf_clap_tilt(s)
+      a%cobs_type = surf_coat_type(s)
+      a%clap_erase_type = surf_cobs_ape_type(s)
+      a%cobs_erase_type = surf_cobs_era_type(s)
+      do k = 1, 6
+         a%cobs_dim(k) = surf_cobs_poly(s, k)
+         a%clap_erase_dim(k) = surf_cobs_ape_data(s, k)
+         a%cobs_erase_dim(k) = surf_cobs_era_data(s, k)
+      end do
+      a%ipoly_x(1:APER_MAXPTS, 1:4) = IPOLYX(1:APER_MAXPTS, s, 1:4)
+      a%ipoly_y(1:APER_MAXPTS, 1:4) = IPOLYY(1:APER_MAXPTS, s, 1:4)
+
+      n = max(0, min(surf_multi_clap_flag(s), 1000))
+      a%multi_clap_n = n
+      allocate(a%multi_clap(3, n))
+      do k = 1, n
+         a%multi_clap(1:3, k) = MULTCLAP(k, 1:3, s)
+      end do
+      n = max(0, min(surf_multi_cobs_flag(s), 1000))
+      a%multi_cobs_n = n
+      allocate(a%multi_cobs(3, n))
+      do k = 1, n
+         a%multi_cobs(1:3, k) = MULTCOBS(k, 1:3, s)
+      end do
+   end function apertures_of
 
 end module mod_ray_trace_builder

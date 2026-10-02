@@ -13,6 +13,7 @@ SURFACES WITH GLOBAL DATA: 0, FORONEL PIVOT PATH: F
 TRNSF2: cases 140, not bit-identical 0
 BAKONE: cases 20, not bit-identical 0
 FORONEL: cases 20, not bit-identical 0
+CACHEK: cases 249704, mismatches 0
 ENGINETEST: PASS
 All constraints removed
 
@@ -30,6 +31,7 @@ SURFACES WITH GLOBAL DATA: 0, FORONEL PIVOT PATH: F
 TRNSF2: cases 140, not bit-identical 0
 BAKONE: cases 20, not bit-identical 0
 FORONEL: cases 20, not bit-identical 0
+CACHEK: cases 249704, mismatches 0
 ENGINETEST: PASS
 All constraints removed
 
@@ -47,6 +49,7 @@ SURFACES WITH GLOBAL DATA: 1, FORONEL PIVOT PATH: F
 TRNSF2: cases 140, not bit-identical 0
 BAKONE: cases 20, not bit-identical 0
 FORONEL: cases 20, not bit-identical 0
+CACHEK: cases 249704, mismatches 0
 ENGINETEST: PASS
 All constraints removed
 
@@ -64,6 +67,7 @@ SURFACES WITH GLOBAL DATA: 0, FORONEL PIVOT PATH: F
 TRNSF2: cases 140, not bit-identical 0
 BAKONE: cases 20, not bit-identical 0
 FORONEL: cases 20, not bit-identical 0
+CACHEK: cases 249704, mismatches 0
 ENGINETEST: PASS
 All constraints removed
 
@@ -81,6 +85,7 @@ SURFACES WITH GLOBAL DATA: 0, FORONEL PIVOT PATH: F
 TRNSF2: cases 140, not bit-identical 0
 BAKONE: cases 20, not bit-identical 0
 FORONEL: cases 20, not bit-identical 0
+CACHEK: cases 249704, mismatches 0
 ENGINETEST: PASS
 All constraints removed
 
@@ -98,6 +103,7 @@ SURFACES WITH GLOBAL DATA: 0, FORONEL PIVOT PATH: F
 TRNSF2: cases 140, not bit-identical 0
 BAKONE: cases 20, not bit-identical 0
 FORONEL: cases 20, not bit-identical 0
+CACHEK: cases 249704, mismatches 0
 ENGINETEST: PASS
 All constraints removed
 
@@ -115,6 +121,7 @@ SURFACES WITH GLOBAL DATA: 0, FORONEL PIVOT PATH: F
 TRNSF2: cases 140, not bit-identical 0
 BAKONE: cases 20, not bit-identical 0
 FORONEL: cases 20, not bit-identical 0
+CACHEK: cases 249704, mismatches 0
 ENGINETEST: PASS
 All constraints removed
 
@@ -132,6 +139,7 @@ SURFACES WITH GLOBAL DATA: 0, FORONEL PIVOT PATH: F
 TRNSF2: cases 140, not bit-identical 0
 BAKONE: cases 20, not bit-identical 0
 FORONEL: cases 20, not bit-identical 0
+CACHEK: cases 249704, mismatches 0
 ENGINETEST: PASS
 All constraints removed
 
@@ -149,6 +157,7 @@ SURFACES WITH GLOBAL DATA: 0, FORONEL PIVOT PATH: F
 TRNSF2: cases 140, not bit-identical 0
 BAKONE: cases 20, not bit-identical 0
 FORONEL: cases 20, not bit-identical 0
+CACHEK: cases 249704, mismatches 0
 ENGINETEST: PASS
 All constraints removed
 
@@ -166,6 +175,7 @@ SURFACES WITH GLOBAL DATA: 0, FORONEL PIVOT PATH: F
 TRNSF2: cases 140, not bit-identical 0
 BAKONE: cases 20, not bit-identical 0
 FORONEL: cases 20, not bit-identical 0
+CACHEK: cases 249704, mismatches 0
 ENGINETEST: PASS
 All constraints removed
 
@@ -183,6 +193,7 @@ SURFACES WITH GLOBAL DATA: 0, FORONEL PIVOT PATH: T
 TRNSF2: cases 140, not bit-identical 0
 BAKONE: cases 20, not bit-identical 0
 FORONEL: cases 20, not bit-identical 0
+CACHEK: cases 249704, mismatches 0
 ENGINETEST: PASS
 All constraints removed
 
@@ -200,6 +211,7 @@ SURFACES WITH GLOBAL DATA: 0, FORONEL PIVOT PATH: T
 TRNSF2: cases 140, not bit-identical 0
 BAKONE: cases 20, not bit-identical 0
 FORONEL: cases 20, not bit-identical 0
+CACHEK: cases 249704, mismatches 0
 ENGINETEST: PASS
 All constraints removed
 
@@ -217,4 +229,221 @@ SURFACES WITH GLOBAL DATA: 1, FORONEL PIVOT PATH: F
 TRNSF2: cases 140, not bit-identical 0
 BAKONE: cases 20, not bit-identical 0
 FORONEL: cases 20, not bit-identical 0
+CACHEK: cases 249704, mismatches 0
+ENGINETEST: PASS
+All constraints removed
+
+
+
+
+
+
+Field Weights Command WTF     100     100     100 Not supported
+
+ENGINETEST: surfaces 8, input rays 20
+TILT FLAGS: 0 0 0 0 0 0 0 0
+DECENTER FLAGS: 0 0 0 0 0 0 0 0
+SURFACES WITH GLOBAL DATA: 0, FORONEL PIVOT PATH: F
+TRNSF2: cases 140, not bit-identical 0
+BAKONE: cases 20, not bit-identical 0
+FORONEL: cases 20, not bit-identical 0
+CACHEK: cases 249704, mismatches 0
+ENGINETEST: PASS
+All constraints removed
+
+
+
+
+
+
+Field Weights Command WTF     100     100     100 Not supported
+
+ENGINETEST: surfaces 8, input rays 20
+TILT FLAGS: 0 0 0 0 0 0 0 0
+DECENTER FLAGS: 0 0 0 0 0 0 0 0
+SURFACES WITH GLOBAL DATA: 0, FORONEL PIVOT PATH: F
+TRNSF2: cases 140, not bit-identical 0
+BAKONE: cases 20, not bit-identical 0
+FORONEL: cases 20, not bit-identical 0
+CACHEK: cases 249704, mismatches 0
+ENGINETEST: PASS
+All constraints removed
+
+
+
+
+
+
+Field Weights Command WTF     100     100     100 Not supported
+
+ENGINETEST: surfaces 8, input rays 20
+TILT FLAGS: 0 0 0 0 0 0 0 0
+DECENTER FLAGS: 0 0 0 0 0 0 0 0
+SURFACES WITH GLOBAL DATA: 0, FORONEL PIVOT PATH: F
+TRNSF2: cases 140, not bit-identical 0
+BAKONE: cases 20, not bit-identical 0
+FORONEL: cases 20, not bit-identical 0
+CACHEK: cases 249704, mismatches 0
+ENGINETEST: PASS
+All constraints removed
+
+
+
+
+
+
+Field Weights Command WTF     100     100     100 Not supported
+
+ENGINETEST: surfaces 8, input rays 20
+TILT FLAGS: 0 0 0 0 0 0 0 0
+DECENTER FLAGS: 0 0 0 0 0 0 0 0
+SURFACES WITH GLOBAL DATA: 0, FORONEL PIVOT PATH: F
+TRNSF2: cases 140, not bit-identical 0
+BAKONE: cases 20, not bit-identical 0
+FORONEL: cases 20, not bit-identical 0
+CACHEK: cases 249704, mismatches 0
+ENGINETEST: PASS
+All constraints removed
+
+
+
+
+
+
+Field Weights Command WTF     100     100     100 Not supported
+
+ENGINETEST: surfaces 8, input rays 20
+TILT FLAGS: 0 0 0 0 0 0 0 0
+DECENTER FLAGS: 0 0 0 0 0 0 0 0
+SURFACES WITH GLOBAL DATA: 0, FORONEL PIVOT PATH: F
+TRNSF2: cases 140, not bit-identical 0
+BAKONE: cases 20, not bit-identical 0
+FORONEL: cases 20, not bit-identical 0
+CACHEK: cases 249704, mismatches 0
+ENGINETEST: PASS
+All constraints removed
+
+
+
+
+
+
+Field Weights Command WTF     100     100     100 Not supported
+
+ENGINETEST: surfaces 8, input rays 20
+TILT FLAGS: 0 0 0 0 0 0 0 0
+DECENTER FLAGS: 0 0 0 0 0 0 0 0
+SURFACES WITH GLOBAL DATA: 0, FORONEL PIVOT PATH: F
+TRNSF2: cases 140, not bit-identical 0
+BAKONE: cases 20, not bit-identical 0
+FORONEL: cases 20, not bit-identical 0
+CACHEK: cases 249704, mismatches 0
+ENGINETEST: PASS
+All constraints removed
+
+
+
+
+
+
+Field Weights Command WTF     100     100     100 Not supported
+
+ENGINETEST: surfaces 8, input rays 20
+TILT FLAGS: 0 0 0 0 0 0 0 0
+DECENTER FLAGS: 0 0 0 0 0 0 0 0
+SURFACES WITH GLOBAL DATA: 0, FORONEL PIVOT PATH: F
+TRNSF2: cases 140, not bit-identical 0
+BAKONE: cases 20, not bit-identical 0
+FORONEL: cases 20, not bit-identical 0
+CACHEK: cases 249704, mismatches 0
+ENGINETEST: PASS
+All constraints removed
+
+
+
+
+
+
+Field Weights Command WTF     100     100     100 Not supported
+
+ENGINETEST: surfaces 8, input rays 20
+TILT FLAGS: 0 0 0 0 0 0 0 0
+DECENTER FLAGS: 0 0 0 0 0 0 0 0
+SURFACES WITH GLOBAL DATA: 0, FORONEL PIVOT PATH: F
+TRNSF2: cases 140, not bit-identical 0
+BAKONE: cases 20, not bit-identical 0
+FORONEL: cases 20, not bit-identical 0
+CACHEK: cases 249704, mismatches 0
+ENGINETEST: PASS
+All constraints removed
+
+
+
+
+
+
+Field Weights Command WTF     100     100     100 Not supported
+
+ENGINETEST: surfaces 8, input rays 20
+TILT FLAGS: 0 0 0 0 0 0 0 0
+DECENTER FLAGS: 0 0 0 0 0 0 0 0
+SURFACES WITH GLOBAL DATA: 0, FORONEL PIVOT PATH: F
+TRNSF2: cases 140, not bit-identical 0
+BAKONE: cases 20, not bit-identical 0
+FORONEL: cases 20, not bit-identical 0
+CACHEK: cases 249704, mismatches 0
+ENGINETEST: PASS
+All constraints removed
+
+
+
+
+
+
+Field Weights Command WTF     100     100     100 Not supported
+
+ENGINETEST: surfaces 8, input rays 20
+TILT FLAGS: 0 0 0 0 0 0 0 0
+DECENTER FLAGS: 0 0 0 0 0 0 0 0
+SURFACES WITH GLOBAL DATA: 0, FORONEL PIVOT PATH: F
+TRNSF2: cases 140, not bit-identical 0
+BAKONE: cases 20, not bit-identical 0
+FORONEL: cases 20, not bit-identical 0
+CACHEK: cases 249704, mismatches 0
+ENGINETEST: PASS
+All constraints removed
+
+
+
+
+
+
+Field Weights Command WTF     100     100     100 Not supported
+
+ENGINETEST: surfaces 8, input rays 20
+TILT FLAGS: 0 0 0 0 0 0 0 0
+DECENTER FLAGS: 0 0 0 0 0 0 0 0
+SURFACES WITH GLOBAL DATA: 0, FORONEL PIVOT PATH: F
+TRNSF2: cases 140, not bit-identical 0
+BAKONE: cases 20, not bit-identical 0
+FORONEL: cases 20, not bit-identical 0
+CACHEK: cases 278516, mismatches 0
+ENGINETEST: PASS
+All constraints removed
+
+
+
+
+
+
+Field Weights Command WTF     100     100     100 Not supported
+
+ENGINETEST: surfaces 8, input rays 20
+TILT FLAGS: 0 0 0 0 0 0 0 0
+DECENTER FLAGS: 0 0 0 0 0 0 0 0
+SURFACES WITH GLOBAL DATA: 0, FORONEL PIVOT PATH: F
+TRNSF2: cases 140, not bit-identical 0
+BAKONE: cases 20, not bit-identical 0
+FORONEL: cases 20, not bit-identical 0
+CACHEK: cases 283318, mismatches 0
 ENGINETEST: PASS
