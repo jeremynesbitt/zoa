@@ -10,7 +10,7 @@ Field Weights Command WTF     100     100     100 Not supported
 RAYENGINE counters reset
 RAYENGINE ON
 legacy RAYTRA/RAYTRA2 calls: engine 8, checked 0, mismatches 0
-declined: plot capture 0, wavelength 0, lens 0
+declined: wavelength 0, lens 0
 All constraints removed
 
 
@@ -30,7 +30,7 @@ TOTAL INTERNAL REFLECTION
  "SACM" IS NOT GETABLE
 RAYENGINE ON
 legacy RAYTRA/RAYTRA2 calls: engine 2, checked 0, mismatches 0
-declined: plot capture 0, wavelength 0, lens 0
+declined: wavelength 0, lens 0
 All constraints removed
 
 
@@ -51,7 +51,7 @@ RAY FAILED TO CONVERGE TO REFERENCE SURFACE RAY-AIM POINT
  "SACM" IS NOT GETABLE
 RAYENGINE ON
 legacy RAYTRA/RAYTRA2 calls: engine 2, checked 0, mismatches 0
-declined: plot capture 0, wavelength 0, lens 0
+declined: wavelength 0, lens 0
 NRAITR   RESET TO   100
 All constraints removed
 
@@ -71,8 +71,8 @@ TOTAL INTERNAL REFLECTION
  RAY FAILURE OCCURRED AT SURFACE            2
 TOTAL INTERNAL REFLECTION
 RAYENGINE ON
-legacy RAYTRA/RAYTRA2 calls: engine 0, checked 0, mismatches 0
-declined: plot capture 5, wavelength 0, lens 0
+legacy RAYTRA/RAYTRA2 calls: engine 5, checked 0, mismatches 0
+declined: wavelength 0, lens 0
 All constraints removed
 
 

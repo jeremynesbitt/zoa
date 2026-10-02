@@ -9,20 +9,14 @@
 ! the output with RAYENGINE OFF.  Output the legacy tracer sends to unit 6
 ! (PRINT *) is not captured by the test runner and so is not in the .ref.
 !
-! Which commands reach the engine.  A trace goes to the engine only when the
-! legacy entry point RAYTRA/RAYTRA2 is called with no plot-ray capture pending.
-!   Part 1  GET <operand> traces its rays with RAY semantics and MSG on but no
-!           capture, so they run on the engine: every case below is followed by
-!           a RAYENGINE report whose "engine" count is the number of rays the
-!           engine took and "plot capture 0" shows nothing was declined.
-!   Part 2  the RAY command (and so RSI, which sends RAY) always asks for plot-ray
-!           capture (GRASET), which the engine does not do, so with the engine ON
-!           these rays still run on the legacy tracer: the report shows them as
-!           "declined: plot capture".  They are here because they are the only
-!           commands that exercise CAOB (clear aperture / obscuration checking)
-!           and wavelength 0, and because the day the router stops declining
-!           plot capture they become engine cases with no change to this file.
-!           (The engine side was verified with that decline switched off.)
+! Which commands reach the engine.  Every case below is followed by a
+! RAYENGINE report whose "engine" count is the number of rays the engine took
+! and whose "declined" counts show nothing went to the legacy tracer.
+!   Part 1  GET <operand> traces its rays with RAY semantics and MSG on.
+!   Part 2  the RAY command (and so RSI, which sends RAY) also asks for plot-ray
+!           capture (GRASET); the router reproduces that capture (GLVERT/GLPRY)
+!           on the engine's ray.  These are the only commands that exercise
+!           CAOB (clear aperture / obscuration checking) and wavelength 0.
 !
 ! Messages (id in mod_ray_messages, legacy routine, text):
 !   MSG_TIR              INTERACK  TOTAL INTERNAL REFLECTION (at the failing surface)
@@ -76,7 +70,7 @@ RAYENGINE
 NRAITR 100
 
 ! ---------------------------------------------------------------------------
-! Part 2: the RAY command (legacy tracer, see above)
+! Part 2: the RAY command (plot-ray capture, see above)
 ! ---------------------------------------------------------------------------
 
 ! case 2.1: TIR.  Expected: surface 2, TOTAL INTERNAL REFLECTION, once for each

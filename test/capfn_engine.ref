@@ -1,7 +1,7 @@
 THREADS 1
 RAYENGINE ON
 legacy RAYTRA/RAYTRA2 calls: engine 0, checked 0, mismatches 0
-declined: plot capture 0, wavelength 0, lens 0
+declined: wavelength 0, lens 0
 RAYENGINE CHECK
 All constraints removed
 

@@ -8,12 +8,12 @@
 ! the result back exactly where and how the legacy core would -- including
 ! leaving RAYRAY untouched beyond the last surface an early failure reached,
 ! and reproducing the legacy side effects (MACFAL, the debug PRINT, the
-! global ray output GLBRAY) serially.
+! global ray output GLBRAY, and the plot-ray capture GLVERT/GLPRY that feeds
+! the lens drawing) serially.  (DXFSET, the DXF drawing flag, does not reach
+! the tracer: DXF output reads the same GRASET capture.)
 !
-! It declines -- and the caller runs the legacy core as before -- whenever
-! the legacy trace has effects the engine does not reproduce: GRASET/DXFSET
-! (plot-ray capture for the lens drawing and DXF), an irregular wavelength
-! setup, or anything build_trace_context declines.
+! It declines -- and the caller runs the legacy core as before -- for an
+! irregular wavelength setup or anything build_trace_context declines.
 !
 ! The engine is pure and cannot print.  Where the legacy tracer prints a
 ! failure diagnostic (MSG: " RAY FAILURE OCCURRED AT SURFACE n" and a reason),
@@ -38,7 +38,6 @@ module mod_ray_trace_router
    integer, public :: rt_engine = 0          ! traced by the engine (ON)
    integer, public :: rt_checked = 0         ! traced by both (CHECK)
    integer, public :: rt_mismatch = 0        ! CHECK disagreements
-   integer, public :: rt_decl_output = 0     ! declined: GRASET / DXFSET
    integer, public :: rt_decl_wave = 0       ! declined: WW3/WVN not a plain slot
    integer, public :: rt_decl_lens = 0       ! declined: build_trace_context
    ! ... broken down by build_trace_context's reason (surface numbers folded
@@ -48,13 +47,24 @@ module mod_ray_trace_router
    integer :: rt_reason_n(MAX_REASONS) = 0
    character(len=200), public :: rt_first_mismatch = ''
 
+   ! RAYENGINE CHECK's copy of the global-ray / plot-capture globals
+   real(real64), parameter :: PLOT_SENTINEL = -7.25e30_real64
+   type :: plot_state
+      logical :: globe = .false.
+      integer :: glsurf = 0
+      real(real64) :: off(6) = 0.0_real64
+      real(real64) :: vertex(12, 0:499) = 0.0_real64
+      real(real64) :: glray(12, 0:499) = 0.0_real64
+      real(real64) :: glpray(9, 0:499) = 0.0_real64
+      logical :: glvirt(0:499) = .false.
+   end type
+
 contains
 
    subroutine router_reset()
       rt_engine = 0
       rt_checked = 0
       rt_mismatch = 0
-      rt_decl_output = 0
       rt_decl_wave = 0
       rt_decl_lens = 0
       rt_reason = ''
@@ -93,8 +103,7 @@ contains
       lines(1) = 'legacy RAYTRA/RAYTRA2 calls: engine '//trim(int2str(rt_engine))// &
                  ', checked '//trim(int2str(rt_checked))// &
                  ', mismatches '//trim(int2str(rt_mismatch))
-      lines(2) = 'declined: plot capture '//trim(int2str(rt_decl_output))// &
-                 ', wavelength '//trim(int2str(rt_decl_wave))// &
+      lines(2) = 'declined: wavelength '//trim(int2str(rt_decl_wave))// &
                  ', lens '//trim(int2str(rt_decl_lens))
       lines(3) = ''
       if (rt_mismatch > 0) then
@@ -120,7 +129,7 @@ contains
                                       RAY_NOT_SUPPORTED
       use mod_ray_messages, only: print_ray_messages
       use real_ray_trace, only: real_ray_trace_core
-      use DATLEN, only: WW1, WW2, WW3, WW4, WVN, CACOCH, ANAAIM, MSG, GRASET, DXFSET
+      use DATLEN, only: WW1, WW2, WW3, WW4, WVN, CACOCH, ANAAIM, MSG
       logical, intent(in) :: for_opt
       type(trace_context) :: ctx
       type(ray_request) :: req
@@ -130,10 +139,6 @@ contains
       handled = .false.
       if (ray_engine_mode == ENGINE_OFF) return
 
-      if (GRASET .or. DXFSET) then
-         rt_decl_output = rt_decl_output + 1
-         return
-      end if
       iwl = int(WW3)
       if (real(iwl, real64) /= WW3 .or. iwl < 1 .or. iwl > 10 .or. int(WVN) /= iwl) then
          rt_decl_wave = rt_decl_wave + 1
@@ -181,13 +186,15 @@ contains
       use mod_ray_trace_engine, only: trace_context, ray_result, FAIL_NONE, FAIL_WAVELENGTH, &
                                       FAIL_SURFACE, FAIL_AIM, FAIL_BLOCKED
       use DATLEN, only: RAYRAY, RAYCOD, STOPP, RAYEXT, POLEXT, FAIL, REFMISS, RVSTART, &
-                        DUM, REFEXT, GLOBE
+                        DUM, REFEXT, GLOBE, GRASET, GLSURF, OFFX, OFFY, OFFZ, OFFA, OFFB, OFFC
       use DATMAI, only: F34, F58
+      use mod_lens_data_manager, only: ldm
+      use zoa_output, only: zoa_emit
       type(trace_context), intent(in) :: ctx
       type(ray_result), intent(in) :: res
       logical, intent(in) :: for_opt, side_effects
-      integer :: obj, img, ls
-      logical :: complete, want_macfal
+      integer :: obj, img, ls, s, glsurf_found
+      logical :: complete, want_macfal, capture
       logical :: SPDTRA
       COMMON/SPRA1/SPDTRA
 
@@ -195,6 +202,21 @@ contains
       img = ctx%img
       ls = res%last_surface
       complete = res%fail_stage == FAIL_NONE .or. res%fail_stage == FAIL_BLOCKED
+
+      ! RAYTRA's plot-ray capture (GRASET, the lens drawing and DXF): only the
+      ! RAYTRA flavour, only a ray that reached the end.  It plots from the
+      ! first surface of finite thickness; when there is none legacy reports
+      ! that and returns -- before the energy pass.
+      capture = GRASET .and. .not. for_opt .and. complete
+      glsurf_found = -99
+      if (capture) then
+         do s = 0, img
+            if (abs(ldm%getSurfThi(s)) <= 1.0e10_real64) then
+               glsurf_found = s
+               exit
+            end if
+         end do
+      end if
 
       ! The surfaces the final pass reached: geometry, OPL, cosines, slopes,
       ! normals, the pre-surface ray, RV/POSRAY and the polarization basis.
@@ -204,7 +226,7 @@ contains
          RAYRAY(34:38, obj) = res%rr(34:38, obj)
       end if
       ! Only a ray that reached the end runs the energy pass, over every surface.
-      if (complete) then
+      if (complete .and. .not. (capture .and. glsurf_found == -99)) then
          RAYRAY(25, obj:img) = res%rr(25, obj:img)
          RAYRAY(34:37, obj:img) = 0.0_real64
       end if
@@ -261,7 +283,98 @@ contains
       ! return makes unreachable, so no other ray gets one.  (Recomputing it
       ! is harmless, so CHECK runs it too and compares the result.)
       if (GLOBE .and. complete) call GLBRAY
+
+      ! The plot-ray capture itself, as RAYTRA's tail does it: vertex data
+      ! from the plot surface without offsets (GLVERT), then the ray in global
+      ! coordinates for the drawing (GLPRY).  It always leaves GLOBE off.
+      ! GLVERT and GLPRY only recompute from the lens and RAYRAY/DUM, so CHECK
+      ! runs them too and compares; only the messages are side effects.
+      if (capture) then
+         if (GLOBE .and. side_effects) then
+            call zoa_emit('GLOBAL RAY TRACING HAS BEEN SHUT OFF IN PREPARATION', 'black')
+            call zoa_emit('FOR RAY PLOTTING', 'black')
+         end if
+         GLSURF = glsurf_found
+         if (GLSURF == -99) then
+            GLOBE = .false.
+            if (side_effects) then
+               call zoa_emit('ALL SURFACES WERE OF INFINITE THICKNESS', 'black')
+               call zoa_emit('NO OPTICAL SYSTEM PLOT COULD BE MADE', 'black')
+            end if
+            return
+         end if
+         GLOBE = .true.
+         OFFX = 0.0_real64
+         OFFY = 0.0_real64
+         OFFZ = 0.0_real64
+         OFFA = 0.0_real64
+         OFFB = 0.0_real64
+         OFFC = 0.0_real64
+         call GLVERT
+         call GLPRY
+         GLOBE = .false.
+      end if
    end subroutine hand_back
+
+   ! The legacy globals that global ray output (GLBRAY) and the plot-ray
+   ! capture (GLVERT/GLPRY) read and write, for RAYENGINE CHECK.
+   subroutine get_plot_state(p)
+      use DATLEN, only: GLOBE, GLSURF, OFFX, OFFY, OFFZ, OFFA, OFFB, OFFC, VERTEX, GLRAY, &
+                        GLPRAY, GLVIRT
+      type(plot_state), intent(out) :: p
+      p%globe = GLOBE
+      p%glsurf = GLSURF
+      p%off = [OFFX, OFFY, OFFZ, OFFA, OFFB, OFFC]
+      p%vertex = VERTEX
+      p%glray = GLRAY
+      p%glpray = GLPRAY
+      p%glvirt = GLVIRT
+   end subroutine get_plot_state
+
+   ! sentinel: set the pure outputs GLRAY/GLPRAY to PLOT_SENTINEL instead.
+   ! before: where p holds PLOT_SENTINEL (a slot the trace did not write),
+   ! restore that state's value.
+   subroutine put_plot_state(p, sentinel, before)
+      use DATLEN, only: GLOBE, GLSURF, OFFX, OFFY, OFFZ, OFFA, OFFB, OFFC, VERTEX, GLRAY, &
+                        GLPRAY, GLVIRT
+      type(plot_state), intent(in) :: p
+      logical, intent(in) :: sentinel
+      type(plot_state), intent(in), optional :: before
+      GLOBE = p%globe
+      GLSURF = p%glsurf
+      OFFX = p%off(1); OFFY = p%off(2); OFFZ = p%off(3)
+      OFFA = p%off(4); OFFB = p%off(5); OFFC = p%off(6)
+      VERTEX = p%vertex
+      GLVIRT = p%glvirt
+      if (sentinel) then
+         GLRAY = PLOT_SENTINEL
+         GLPRAY = PLOT_SENTINEL
+      else if (present(before)) then
+         GLRAY = merge(p%glray, before%glray, p%glray /= PLOT_SENTINEL)
+         GLPRAY = merge(p%glpray, before%glpray, p%glpray /= PLOT_SENTINEL)
+      else
+         GLRAY = p%glray
+         GLPRAY = p%glpray
+      end if
+   end subroutine put_plot_state
+
+   ! '' when the current globals match legacy's state leg, else what differs
+   function plot_state_difference(leg) result(what)
+      use DATLEN, only: GLOBE, GLSURF, OFFX, OFFY, OFFZ, OFFA, OFFB, OFFC, VERTEX, GLRAY, &
+                        GLPRAY, GLVIRT
+      type(plot_state), intent(in) :: leg
+      character(len=60) :: what
+      what = ''
+      if (any(GLRAY /= leg%glray)) then
+         what = 'GLRAY (global ray output)'
+      else if (any(GLPRAY /= leg%glpray) .or. any(GLVIRT .neqv. leg%glvirt)) then
+         what = 'GLPRAY/GLVIRT (plot-ray capture)'
+      else if (any(VERTEX /= leg%vertex) .or. GLSURF /= leg%glsurf .or. &
+               any([OFFX, OFFY, OFFZ, OFFA, OFFB, OFFC] /= leg%off) .or. &
+               (GLOBE .neqv. leg%globe)) then
+         what = 'VERTEX/GLSURF/OFF*/GLOBE (plot capture)'
+      end if
+   end function plot_state_difference
 
    ! RAYENGINE CHECK: run the legacy core, keep its result, and compare the
    ! engine's hand-back against it.
@@ -269,7 +382,7 @@ contains
       use mod_ray_trace_engine, only: trace_context, ray_request, ray_result, trace_ray
       use real_ray_trace, only: real_ray_trace_core
       use DATLEN, only: RAYRAY, RAYCOD, STOPP, RAYEXT, POLEXT, FAIL, REFMISS, RVSTART, &
-                        DUM, REFEXT, GLOBE, GLRAY
+                        DUM, REFEXT, GLOBE, GRASET
       use type_utils, only: int2str
       type(trace_context), intent(in) :: ctx
       type(ray_request), intent(in) :: req
@@ -279,22 +392,24 @@ contains
       integer :: cod_leg(2), stopp_leg, obj, img
       logical :: rayext_leg, polext_leg, fail_leg, refmiss_leg, rvstart_leg, refext_leg
       logical, allocatable :: dum_leg(:)
-      real(real64), allocatable :: gl_leg(:,:), gl_pre(:,:)
+      logical :: plot
+      type(plot_state) :: pl_pre, pl_leg
       character(len=60) :: what
-      ! GLRAY is compared from a common sentinel, so a GLBRAY call made by one
-      ! side only shows up even when the values would happen to agree.
-      real(real64), parameter :: GL_SENTINEL = -7.25e30_real64
 
       obj = ctx%obj
       img = ctx%img
-      if (GLOBE) then
-         gl_pre = GLRAY
-         GLRAY = GL_SENTINEL
+      ! Global ray output and the plot-ray capture: both tracers start from
+      ! the same state, with the output arrays set to a sentinel so a write
+      ! made by one side only is caught even when the values would agree.
+      plot = GLOBE .or. GRASET
+      if (plot) then
+         call get_plot_state(pl_pre)
+         call put_plot_state(pl_pre, sentinel=.true.)
       end if
       call real_ray_trace_core(for_opt)
-      if (GLOBE) then
-         gl_leg = GLRAY
-         GLRAY = GL_SENTINEL
+      if (plot) then
+         call get_plot_state(pl_leg)
+         call put_plot_state(pl_pre, sentinel=.true.)
       end if
       allocate(rr_leg(size(RAYRAY, 1), obj:img), dum_leg(obj:img))
       rr_leg = RAYRAY(:, obj:img)
@@ -322,11 +437,12 @@ contains
          what = 'REFMISS/RVSTART/REFEXT/DUM'
       else if (any(RAYRAY(1:32, obj:img) /= rr_leg(1:32, :))) then
          what = 'RAYRAY slots 1-32'
-      else if (allocated(gl_leg)) then
-         if (any(GLRAY /= gl_leg)) what = 'GLRAY (global ray output)'
+      else if (plot) then
+         what = plot_state_difference(pl_leg)
       end if
-      ! keep legacy's GLRAY; slots it did not write keep their earlier values
-      if (allocated(gl_leg)) GLRAY = merge(gl_leg, gl_pre, gl_leg /= GL_SENTINEL)
+      ! keep legacy's plot state; output slots it did not write keep their
+      ! earlier values
+      if (plot) call put_plot_state(pl_leg, sentinel=.false., before=pl_pre)
 
       ! keep the legacy answer
       RAYRAY(:, obj:img) = rr_leg
