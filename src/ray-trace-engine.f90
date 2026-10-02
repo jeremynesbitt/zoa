@@ -70,6 +70,10 @@ module mod_ray_trace_engine
    integer, parameter, public :: RAY_OK            = 0
    integer, parameter, public :: RAY_NOT_SUPPORTED = -1   ! context declined
 
+   ! res%fail_stage
+   integer, parameter, public :: FAIL_NONE = 0, FAIL_WAVELENGTH = 1, FAIL_SURFACE = 2, &
+                                 FAIL_AIM = 3, FAIL_BLOCKED = 4
+
    ! One surface of the lens, as the engine sees it.  Filled by the builder.
    type :: trace_surface
       class(surface_type), allocatable :: geom   ! copy of ldm%surfaces(s)%s
@@ -112,6 +116,7 @@ module mod_ray_trace_engine
       logical :: scy_set = .false.                 ! sys_scy() /= 0
       ! Legacy state that survives from one ray to the next.  Every engine ray
       ! starts from this snapshot instead, so results never depend on ray order.
+      real(real64) :: wavelength(10) = 0.0_real64  ! sys_wavelength(1:10)
       logical :: rvstart0 = .false.                ! RVSTART
       logical, allocatable :: dum0(:)              ! DUM(obj:img)
    end type
@@ -123,6 +128,10 @@ module mod_ray_trace_engine
       real(real64) :: py = 0.0_real64
       integer      :: iwl = 1                      ! wavelength slot 1..10 (WW3)
       real(real64) :: weight = 1.0_real64          ! starting energy (WW4)
+      ! Which legacy entry point to reproduce: RAYTRA2 (.true., the path CAPFN
+      ! and the spot diagram use) or RAYTRA (.false.: also fails a zero
+      ! wavelength with code 12, and skips the reference-surface miss check).
+      logical      :: for_optimization = .true.
    end type
 
    type :: ray_result
@@ -143,6 +152,14 @@ module mod_ray_trace_engine
       ! leaves the previous ray's REFMISS in place for the caller to carry.
       logical :: refmiss_set = .false.
       logical :: refmiss = .false.
+      ! For handing the ray back to legacy callers exactly as legacy would:
+      ! the last surface whose rr column the final pass wrote (legacy leaves
+      ! RAYRAY beyond it untouched on an early failure), where a failure
+      ! happened, and the carried state the next legacy ray would start from.
+      integer :: last_surface = -1
+      integer :: fail_stage = 0                    ! FAIL_* below; 0 = none
+      logical :: rvstart_out = .false.             ! RVSTART afterwards
+      logical, allocatable :: dum_out(:)           ! DUM(obj:img) afterwards
       real(real64), allocatable :: rr(:,:)         ! (1:RR_N, obj:img)
    end type
 
@@ -183,7 +200,6 @@ contains
       logical :: revstr, ninty, refmiss, delfail, macfal, blocked
       type(hit_state) :: st
       type(aim_state) :: ast
-      logical, allocatable :: dum(:)
 
       obj = ctx%obj
       ref = ctx%ref
@@ -195,6 +211,9 @@ contains
       res%macfal_requested = .false.
       res%refmiss_set = .false.
       res%refmiss = .false.
+      res%last_surface = -1
+      res%fail_stage = FAIL_NONE
+      res%rvstart_out = ctx%rvstart0
       res%status = RAY_NOT_SUPPORTED
       res%fail_surface = obj
 
@@ -207,9 +226,20 @@ contains
       ww1 = req%py
       ww2 = req%px
       ww3 = real(iwl, real64)
-      allocate(dum(obj:img))
-      dum = ctx%dum0
+      allocate(res%dum_out(obj:img))
+      res%dum_out = ctx%dum0
       st%rvstart = ctx%rvstart0
+
+      ! RAYTRA (not RAYTRA2) refuses a wavelength slot with no wavelength
+      if (.not. req%for_optimization) then
+         if (ctx%wavelength(iwl) == 0.0_real64) then
+            res%raycod = [12, obj]
+            res%status = 12
+            res%fail_surface = obj
+            res%fail_stage = FAIL_WAVELENGTH
+            return
+         end if
+      end if
       ast%refext = ctx%chief_exists
 
       kkk = 0
@@ -314,6 +344,7 @@ contains
             res%raycod = [3, ref]
             res%status = 3
             res%fail_surface = ref
+            res%fail_stage = FAIL_AIM
             return
          end if
 
@@ -326,6 +357,7 @@ contains
          ninty = .false.
          if (nstart < 0.0_real64) ninty = .true.
          if (ninty) st%rvstart = .true.
+         res%rvstart_out = st%rvstart
          if (nstart == 0.0_real64) then
             yang = PII/2.0_real64
             xang = PII/2.0_real64
@@ -343,7 +375,12 @@ contains
          end if
 
          res%rr(34:35, obj) = 1.0_real64
-         res%rr(36:38, obj) = 0.0_real64
+         if (req%for_optimization) then
+            res%rr(36:38, obj) = 0.0_real64
+         else
+            res%rr(36:38, obj) = 1.0_real64
+         end if
+         res%last_surface = obj
          res%rr(32, obj) = ww3
          res%rr(RR_X, obj) = xstrt
          res%rr(RR_Y, obj) = ystrt
@@ -410,7 +447,7 @@ contains
             st%l = l
             st%m = m
             st%n = n
-            st%dum = dum(i)
+            st%dum = res%dum_out(i)
             st%raycod = res%raycod
             call hit_and_interact(ctx%surf(i)%geom, ctx%surf(i)%optics, ctx%surf(i-1)%optics, &
                                   i, obj, img, ww3, ctx%surtol, revstr, &
@@ -421,11 +458,13 @@ contains
                res%fail_surface = i
                return
             end if
-            dum(i) = st%dum
+            res%dum_out(i) = st%dum
+            res%rvstart_out = st%rvstart
             res%raycod = st%raycod
             if (st%stopp == 1) then
                res%status = res%raycod(1)
                res%fail_surface = res%raycod(2)
+               res%fail_stage = FAIL_SURFACE
                return
             end if
             x = st%x
@@ -511,6 +550,7 @@ contains
                end if
             end if
             res%rr(RR_OPL_TOTAL, i) = res%rr(RR_OPL_TOTAL, i-1) + res%rr(RR_OPL, i)
+            res%last_surface = i
             if (i == img .and. ctx%surf(i)%place%thickness /= 0.0_real64) then
                call adjust_last_surface(i, obj, ctx%surf(i)%place%thickness, &
                                         ctx%surf(i-1)%n_after(iwl), st%phase, res%rr)
@@ -520,10 +560,13 @@ contains
                call compute_aim_target(ctx%surf(ref)%aper, ctx%aim, ww1, ww2, tarx, tary)
                test = sqrt(((tarx - x)**2) + ((tary - y)**2))
                if (test <= ctx%aim_tol .or. .not. ctx%aim_on) then
-                  refmiss = .false.
-                  call missref(ctx%surf(ref)%aper, x, y, ctx%aim_tol, refmiss, ls)
-                  res%refmiss = refmiss
-                  res%refmiss_set = .true.
+                  ! (RAYTRA2 only: RAYTRA does not check the reference miss)
+                  if (req%for_optimization) then
+                     refmiss = .false.
+                     call missref(ctx%surf(ref)%aper, x, y, ctx%aim_tol, refmiss, ls)
+                     res%refmiss = refmiss
+                     res%refmiss_set = .true.
+                  end if
                   cycle surface_loop
                end if
 
@@ -580,6 +623,7 @@ contains
                   res%raycod = ast%raycod
                   res%status = res%raycod(1)
                   res%fail_surface = res%raycod(2)
+                  res%fail_stage = FAIL_AIM
                   res%macfal_requested = macfal
                   return
                end if
@@ -666,6 +710,7 @@ contains
       if (blocked) then
          res%status = res%raycod(1)
          res%fail_surface = res%raycod(2)
+         res%fail_stage = FAIL_BLOCKED
       else
          res%status = RAY_OK
          res%fail_surface = -1

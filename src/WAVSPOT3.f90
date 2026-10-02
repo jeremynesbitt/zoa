@@ -3944,6 +3944,9 @@ contains
                req%px = pw2(j)
                req%iwl = iw
                req%weight = 1.0D0
+               ! set explicitly: an OpenMP private copy of req is not
+               ! guaranteed its default component values
+               req%for_optimization = .true.
                call trace_ray(ctx, req, res)
                ! (a code-16 ray reports macfal_requested; it is simply a
                ! failed ray here -- see spot_legacy_grid)
@@ -4069,6 +4072,9 @@ contains
          req%px = WW2
          req%iwl = lastiwl
          req%weight = 1.0D0
+         ! set explicitly: an OpenMP private copy of req is not
+         ! guaranteed its default component values
+         req%for_optimization = .true.
          call trace_ray(ctx, req, res)
          RAYRAY(1:50,o:im) = res%rr(1:50,o:im)
          RAYCOD(1:2) = res%raycod

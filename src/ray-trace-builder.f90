@@ -43,7 +43,7 @@ contains
       use GLOBALS, only: NUMHITS
       use mod_lens_data_manager, only: ldm
       use mod_system, only: sys_ray_aiming, sys_telecentric, sys_scx, sys_scy, &
-                            sys_screen
+                            sys_screen, sys_wavelength
       use mod_surface_placement, only: pivot_normal_needed
       use mod_surface_interaction, only: hit_supported
       use type_utils, only: int2str
@@ -77,6 +77,9 @@ contains
       ctx%scx_set = sys_scx() /= 0.0_real64
       ctx%scy_set = sys_scy() /= 0.0_real64
       ctx%rvstart0 = RVSTART
+      do w = 1, 10
+         ctx%wavelength(w) = sys_wavelength(w)
+      end do
       allocate(ctx%dum0(ctx%obj:ctx%img))
       ctx%dum0 = DUM(ctx%obj:ctx%img)
 
