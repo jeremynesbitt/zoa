@@ -17,13 +17,26 @@ module mod_ray_trace_builder
 
 contains
 
-   subroutine build_trace_context(ctx, check_apertures)
-      use DATLEN, only: NEWOBJ, NEWREF, NEWIMG, REFEXT, REFRY, AIMTOL, NRAITR
+   ! check_apertures: run the clear-aperture/obscuration pass (legacy CACOCH=1).
+   ! ana_aim: the legacy ANAAIM flag the caller traces with.  COMPAP clears it
+   ! around each RAYTRA2 call and sets it again afterwards, so it cannot be
+   ! read from the global here -- the caller states it.
+   subroutine build_trace_context(ctx, check_apertures, ana_aim)
+      use DATLEN, only: NEWOBJ, NEWREF, NEWIMG, REFEXT, REFRY, AIMTOL, NRAITR, &
+                        SURTOL, PXTRAX, PXTRAY, LFOB, RVSTART, DUM, ITRACE, GLOBE, &
+                        COATSET, ANAAIM
+      use GLOBALS, only: NUMHITS
       use mod_lens_data_manager, only: ldm
-      use mod_system, only: sys_ray_aiming, sys_telecentric
+      use mod_system, only: sys_ray_aiming, sys_telecentric, sys_scx, sys_scy, &
+                            sys_screen
+      use mod_surface_placement, only: pivot_normal_needed
+      use mod_surface_interaction, only: hit_supported
+      use type_utils, only: int2str
       type(trace_context), intent(out) :: ctx
-      logical, intent(in), optional :: check_apertures
+      logical, intent(in), optional :: check_apertures, ana_aim
       integer :: s, w
+      logical :: NOCOBSPSF
+      COMMON/PSFCOBS/NOCOBSPSF
 
       ctx%obj = NEWOBJ
       ctx%ref = NEWREF
@@ -36,6 +49,21 @@ contains
       ctx%aim_tol = AIMTOL
       ctx%max_aim_iter = NRAITR
       ctx%aim = aim_settings_of(NEWREF)
+      ctx%aim%ana_aim = ANAAIM
+      if (present(ana_aim)) ctx%aim%ana_aim = ana_aim
+      ctx%surtol = SURTOL
+      ctx%no_cobs_psf = NOCOBSPSF
+      ctx%px_x1 = PXTRAX(1, NEWOBJ+1)
+      ctx%px_y1 = PXTRAY(1, NEWOBJ+1)
+      ctx%px_x5_obj = PXTRAX(5, NEWOBJ)
+      ctx%px_y5_obj = PXTRAY(5, NEWOBJ)
+      ctx%lfob1 = LFOB(1)
+      ctx%lfob2 = LFOB(2)
+      ctx%scx_set = sys_scx() /= 0.0_real64
+      ctx%scy_set = sys_scy() /= 0.0_real64
+      ctx%rvstart0 = RVSTART
+      allocate(ctx%dum0(ctx%obj:ctx%img))
+      ctx%dum0 = DUM(ctx%obj:ctx%img)
 
       ctx%chief_exists = REFEXT
       allocate(ctx%chief(RR_N, ctx%obj:ctx%img))
@@ -64,10 +92,56 @@ contains
          end do
       end do
 
-      ! Support gate.  Each phase of the engine widens this; until the
-      ! surface loop exists (P2) nothing is supported.
+      ! Support gate: decline anything the engine does not reproduce yet, so
+      ! the caller falls back to the legacy tracer.  Reasons are reported by
+      ! TRACECMP, so keep them specific.
       ctx%supported = .false.
-      ctx%reason = 'engine surface loop not implemented yet'
+      if (ctx%img < ctx%obj + 1) then
+         ctx%reason = 'lens has no surfaces to trace'
+         return
+      end if
+      if (.not. REFEXT) then
+         ctx%reason = 'no chief ray for this field (run FOB)'
+         return
+      end if
+      if (ITRACE) then
+         ctx%reason = 'illumination tracing is not supported'
+         return
+      end if
+      if (GLOBE) then
+         ctx%reason = 'global ray output is not supported'
+         return
+      end if
+      if (COATSET) then
+         ctx%reason = 'coatings (COATSET) are not supported'
+         return
+      end if
+      if (sys_screen() == 1.0_real64) then
+         ctx%reason = 'screen surfaces are not supported'
+         return
+      end if
+      if (pivot_normal_needed(ctx%surf(ctx%obj+1)%place)) then
+         ctx%reason = 'a pivot on surface '//trim(int2str(ctx%obj+1))//' is not supported'
+         return
+      end if
+      do s = ctx%obj, ctx%img - 1
+         if (allocated(NUMHITS)) then
+            if (s >= lbound(NUMHITS, 1) .and. s <= ubound(NUMHITS, 1)) then
+               if (NUMHITS(s) /= 1) then
+                  ctx%reason = 'surface '//trim(int2str(s))//' is a multi-hit surface'
+                  return
+               end if
+            end if
+         end if
+      end do
+      do s = ctx%obj + 1, ctx%img
+         if (.not. hit_supported(ctx%surf(s)%geom, ctx%surf(s)%optics, 1.0_real64)) then
+            ctx%reason = 'surface '//trim(int2str(s))//' has a type the engine does not support'
+            return
+         end if
+      end do
+      ctx%supported = .true.
+      ctx%reason = ''
    end subroutine build_trace_context
 
    ! Fill a surface_placement for surface s from the legacy accessors: every

@@ -8,12 +8,14 @@ All constraints removed
 Field Weights Command WTF     100     100     100 Not supported
 TRACECMP: grid 8x8 (64 rays), wavelength slot 1
 LEGACY: traced 64, ok 64, failed 0
-ENGINE NOT SUPPORTED: engine surface loop not implemented yet
-TRACECMP: SKIP
+ENGINE SUPPORTED
+STATUS MISMATCHES: 0
+TRACECMP: PASS
 TRACECMP: grid 8x8 (64 rays), wavelength slot 1
 LEGACY: traced 64, ok 64, failed 0
-ENGINE NOT SUPPORTED: engine surface loop not implemented yet
-TRACECMP: SKIP
+ENGINE SUPPORTED
+STATUS MISMATCHES: 0
+TRACECMP: PASS
 All constraints removed
 
 
@@ -21,18 +23,21 @@ All constraints removed
 TRACECMP: grid 8x8 (64 rays), wavelength slot 2
 LEGACY: traced 64, ok 52, failed 12
   LEGACY FAIL CODE 6: 12
-ENGINE NOT SUPPORTED: engine surface loop not implemented yet
-TRACECMP: SKIP
+ENGINE SUPPORTED
+STATUS MISMATCHES: 0
+TRACECMP: PASS
 TRACECMP: grid 8x8 (64 rays), wavelength slot 2
 LEGACY: traced 64, ok 52, failed 12
   LEGACY FAIL CODE 6: 12
-ENGINE NOT SUPPORTED: engine surface loop not implemented yet
-TRACECMP: SKIP
+ENGINE SUPPORTED
+STATUS MISMATCHES: 0
+TRACECMP: PASS
 TRACECMP: grid 8x8 (64 rays), wavelength slot 2
 LEGACY: traced 64, ok 52, failed 12
   LEGACY FAIL CODE 6: 12
-ENGINE NOT SUPPORTED: engine surface loop not implemented yet
-TRACECMP: SKIP
+ENGINE SUPPORTED
+STATUS MISMATCHES: 0
+TRACECMP: PASS
 All constraints removed
 
 
@@ -40,14 +45,16 @@ All constraints removed
 TRACECMP: grid 8x8 (64 rays), wavelength slot 1
 LEGACY: traced 64, ok 52, failed 12
   LEGACY FAIL CODE 6: 12
-ENGINE NOT SUPPORTED: engine surface loop not implemented yet
-TRACECMP: SKIP
+ENGINE SUPPORTED
+STATUS MISMATCHES: 0
+TRACECMP: PASS
 TRACECMP: grid 8x8 (64 rays), wavelength slot 1
 LEGACY: traced 64, ok 52, failed 12
   LEGACY FAIL CODE 4: 6
   LEGACY FAIL CODE 6: 6
-ENGINE NOT SUPPORTED: engine surface loop not implemented yet
-TRACECMP: SKIP
+ENGINE SUPPORTED
+STATUS MISMATCHES: 0
+TRACECMP: PASS
 All constraints removed
 
 
@@ -58,23 +65,27 @@ All constraints removed
 Field Weights Command WTF     100     100     100 Not supported
 TRACECMP: grid 8x8 (64 rays), wavelength slot 1
 LEGACY: traced 64, ok 64, failed 0
-ENGINE NOT SUPPORTED: engine surface loop not implemented yet
-TRACECMP: SKIP
+ENGINE SUPPORTED
+STATUS MISMATCHES: 0
+TRACECMP: PASS
 TRACECMP: grid 8x8 (64 rays), wavelength slot 1
 LEGACY: traced 64, ok 64, failed 0
-ENGINE NOT SUPPORTED: engine surface loop not implemented yet
-TRACECMP: SKIP
+ENGINE SUPPORTED
+STATUS MISMATCHES: 0
+TRACECMP: PASS
 All constraints removed
 
 
 TRACECMP: grid 8x8 (64 rays), wavelength slot 1
 LEGACY: traced 64, ok 64, failed 0
-ENGINE NOT SUPPORTED: engine surface loop not implemented yet
-TRACECMP: SKIP
+ENGINE SUPPORTED
+STATUS MISMATCHES: 0
+TRACECMP: PASS
 TRACECMP: grid 8x8 (64 rays), wavelength slot 1
 LEGACY: traced 64, ok 64, failed 0
-ENGINE NOT SUPPORTED: engine surface loop not implemented yet
-TRACECMP: SKIP
+ENGINE SUPPORTED
+STATUS MISMATCHES: 0
+TRACECMP: PASS
 All constraints removed
 
 
@@ -83,8 +94,9 @@ TRACECMP: grid 8x8 (64 rays), wavelength slot 1
 LEGACY: traced 64, ok 52, failed 12
   LEGACY FAIL CODE 4: 6
   LEGACY FAIL CODE 6: 6
-ENGINE NOT SUPPORTED: engine surface loop not implemented yet
-TRACECMP: SKIP
+ENGINE SUPPORTED
+STATUS MISMATCHES: 0
+TRACECMP: PASS
 All constraints removed
 
 
@@ -98,5 +110,6 @@ Field Weights Command WTF     100     100     100 Not supported
 
 TRACECMP: grid 8x8 (64 rays), wavelength slot 1
 LEGACY: traced 64, ok 64, failed 0
-ENGINE NOT SUPPORTED: engine surface loop not implemented yet
-TRACECMP: SKIP
+ENGINE SUPPORTED
+STATUS MISMATCHES: 0
+TRACECMP: PASS

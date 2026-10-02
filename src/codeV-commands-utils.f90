@@ -701,7 +701,7 @@ contains
         end if
 
         ! ---- engine ----
-        call build_trace_context(ctx)
+        call build_trace_context(ctx, ana_aim=.false.)
         if (.not. ctx%supported) then
             call zoa_emit('ENGINE NOT SUPPORTED: '//trim(ctx%reason), "black")
             call zoa_emit('TRACECMP: SKIP', "black")
