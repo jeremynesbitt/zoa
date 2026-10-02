@@ -137,6 +137,12 @@ module mod_ray_trace_engine
       ! derivative vanishes.  The engine only reports it; the caller decides,
       ! serially, whether to reproduce those global side effects.
       logical :: macfal_requested = .false.
+      ! Legacy REFMISS: whether the ray missed the reference surface's clear
+      ! aperture (MISSREF).  Only meaningful when refmiss_set -- a ray that
+      ! fails before reaching NEWREF never runs the check, and legacy then
+      ! leaves the previous ray's REFMISS in place for the caller to carry.
+      logical :: refmiss_set = .false.
+      logical :: refmiss = .false.
       real(real64), allocatable :: rr(:,:)         ! (1:RR_N, obj:img)
    end type
 
@@ -187,6 +193,8 @@ contains
       res%aim_iterations = 0
       res%raycod = -1
       res%macfal_requested = .false.
+      res%refmiss_set = .false.
+      res%refmiss = .false.
       res%status = RAY_NOT_SUPPORTED
       res%fail_surface = obj
 
@@ -514,6 +522,8 @@ contains
                if (test <= ctx%aim_tol .or. .not. ctx%aim_on) then
                   refmiss = .false.
                   call missref(ctx%surf(ref)%aper, x, y, ctx%aim_tol, refmiss, ls)
+                  res%refmiss = refmiss
+                  res%refmiss_set = .true.
                   cycle surface_loop
                end if
 
