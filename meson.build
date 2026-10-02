@@ -118,6 +118,10 @@ if fortran.get_id().contains('gcc')
     '-Wno-unused-dummy-argument',
     '-Wno-maybe-uninitialized',
     '-frecursive',
+    # No fused multiply-add contraction: keeps debug and release numerically
+    # identical, and the ray trace engine bit-identical to the legacy tracer
+    # (GCC otherwise fuses a*b+c differently in the two codes at -O3).
+    '-ffp-contract=off',
     '-fcheck=bounds',
     '-fcheck=mem',
     '-fcheck=pointer',
@@ -136,6 +140,8 @@ if fortran.get_id().contains('gcc')
     supported_arguments = fortran.get_supported_arguments([
     #'-pthread',
     '-w',
+    # See the debug list: no FMA contraction, so release matches debug.
+    '-ffp-contract=off',
     '-fno-align-commons',
     '-static-libgcc',
     '-static-libgfortran',
