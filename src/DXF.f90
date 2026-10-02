@@ -80,7 +80,7 @@ SUBROUTINE DXPOLY3(XA,YA,ZA,NP,IOP)
    IMPLICIT NONE
    INTEGER I,NP,IOP,IOP2,IOP3
    REAL XA,YA,ZA
-   DIMENSION XA(1),YA(1),ZA(1)
+   DIMENSION XA(*),YA(*),ZA(*)
 !     Polyline 3D with layer
 !     XA,YA,ZA arrays for x,y,z coordinates for polyline
 !     NP       number of points in arrays XA,YA

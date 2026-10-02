@@ -2,9 +2,15 @@ RES osdtriplet
 ! ---- DXF file commands ----
 ! DXF NEW: initialises a new DXF session (silent; writes nothing until END)
 DXF NEW
-! DXF PROF: crashes in DXF.f90 (array out-of-bounds on empty lens geometry)
-! BROKEN: DXF PROF — runtime error at DXF.f90:112, array 'xa' index above bound
-! DXF PROF
+! DXF PROF: the lens profile (used to crash at DXF.f90:112 -- DXPOLY3 declared
+! its point arrays XA(1); now assumed-size)
+DXF PROF
+! DXF RAY: the last ray traced, in global coordinates (GLOBAL n turns global
+! ray output on, referenced to surface n); same DXPOLY3 path
+GLOBAL 1
+FOB 0.7
+RAY 1 0
+DXF RAY
 ! DXF END: writes DXF3D.DXF to CWD (file content not goldenised; only console text)
 DXF END
 ! ---- SAVESESS: BROKEN: segfaults headlessly ----
