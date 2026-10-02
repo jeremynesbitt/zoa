@@ -39,7 +39,7 @@ contains
    ! read from the global here -- the caller states it.
    subroutine build_trace_context(ctx, check_apertures, ana_aim)
       use DATLEN, only: NEWOBJ, NEWREF, NEWIMG, REFEXT, REFRY, AIMTOL, NRAITR, &
-                        SURTOL, PXTRAX, PXTRAY, LFOB, RVSTART, DUM, ITRACE, GLOBE, &
+                        SURTOL, PXTRAX, PXTRAY, LFOB, RVSTART, DUM, ITRACE, &
                         COATSET, ANAAIM
       use GLOBALS, only: NUMHITS
       use mod_lens_data_manager, only: ldm
@@ -140,10 +140,6 @@ contains
          ctx%reason = 'illumination tracing is not supported'
          return
       end if
-      if (GLOBE) then
-         ctx%reason = 'global ray output is not supported'
-         return
-      end if
       if (COATSET) then
          ctx%reason = 'coatings (COATSET) are not supported'
          return
@@ -153,8 +149,14 @@ contains
          return
       end if
       if (pivot_normal_needed(ctx%surf(ctx%obj+1)%place)) then
-         ctx%reason = 'a pivot on surface '//trim(int2str(ctx%obj+1))//' is not supported'
-         return
+         ! FORONEL asks SAGINT for the normal at the pivot point on every call;
+         ! it depends on the surface only, so it is evaluated once here.
+         block
+            real(real64) :: jz, ll1, mm1, nn1
+            call SAGINT(ctx%obj + 1, ctx%surf(ctx%obj+1)%place%pivot_x, &
+                        ctx%surf(ctx%obj+1)%place%pivot_y, jz, ll1, mm1, nn1)
+            ctx%pivot_normal = [ll1, mm1, nn1]
+         end block
       end if
       do s = ctx%obj, ctx%img - 1
          if (allocated(NUMHITS)) then

@@ -7,7 +7,8 @@
 ! RAYTRA2: it builds a context, traces the ray with trace_ray, and writes
 ! the result back exactly where and how the legacy core would -- including
 ! leaving RAYRAY untouched beyond the last surface an early failure reached,
-! and reproducing the legacy side effects (MACFAL, the debug PRINT) serially.
+! and reproducing the legacy side effects (MACFAL, the debug PRINT, the
+! global ray output GLBRAY) serially.
 !
 ! It declines -- and the caller runs the legacy core as before -- whenever
 ! the legacy trace has effects the engine does not reproduce: GRASET/DXFSET
@@ -180,7 +181,7 @@ contains
       use mod_ray_trace_engine, only: trace_context, ray_result, FAIL_NONE, FAIL_WAVELENGTH, &
                                       FAIL_SURFACE, FAIL_AIM, FAIL_BLOCKED
       use DATLEN, only: RAYRAY, RAYCOD, STOPP, RAYEXT, POLEXT, FAIL, REFMISS, RVSTART, &
-                        DUM, REFEXT
+                        DUM, REFEXT, GLOBE
       use DATMAI, only: F34, F58
       type(trace_context), intent(in) :: ctx
       type(ray_result), intent(in) :: res
@@ -253,6 +254,13 @@ contains
       DUM(obj:img) = res%dum_out
 
       if (want_macfal .and. side_effects) call MACFAL
+      ! Global ray output (GLOBE): legacy converts the finished ray to global
+      ! coordinates (GLRAY) after the aperture pass, for a ray that reached
+      ! the end whether or not it was then blocked.  The in-loop GLBRAY call of
+      ! the legacy core sits behind a STOPP test that HITSUR's own failure
+      ! return makes unreachable, so no other ray gets one.  (Recomputing it
+      ! is harmless, so CHECK runs it too and compares the result.)
+      if (GLOBE .and. complete) call GLBRAY
    end subroutine hand_back
 
    ! RAYENGINE CHECK: run the legacy core, keep its result, and compare the
@@ -261,7 +269,7 @@ contains
       use mod_ray_trace_engine, only: trace_context, ray_request, ray_result, trace_ray
       use real_ray_trace, only: real_ray_trace_core
       use DATLEN, only: RAYRAY, RAYCOD, STOPP, RAYEXT, POLEXT, FAIL, REFMISS, RVSTART, &
-                        DUM, REFEXT
+                        DUM, REFEXT, GLOBE, GLRAY
       use type_utils, only: int2str
       type(trace_context), intent(in) :: ctx
       type(ray_request), intent(in) :: req
@@ -271,11 +279,23 @@ contains
       integer :: cod_leg(2), stopp_leg, obj, img
       logical :: rayext_leg, polext_leg, fail_leg, refmiss_leg, rvstart_leg, refext_leg
       logical, allocatable :: dum_leg(:)
+      real(real64), allocatable :: gl_leg(:,:), gl_pre(:,:)
       character(len=60) :: what
+      ! GLRAY is compared from a common sentinel, so a GLBRAY call made by one
+      ! side only shows up even when the values would happen to agree.
+      real(real64), parameter :: GL_SENTINEL = -7.25e30_real64
 
       obj = ctx%obj
       img = ctx%img
+      if (GLOBE) then
+         gl_pre = GLRAY
+         GLRAY = GL_SENTINEL
+      end if
       call real_ray_trace_core(for_opt)
+      if (GLOBE) then
+         gl_leg = GLRAY
+         GLRAY = GL_SENTINEL
+      end if
       allocate(rr_leg(size(RAYRAY, 1), obj:img), dum_leg(obj:img))
       rr_leg = RAYRAY(:, obj:img)
       cod_leg = RAYCOD
@@ -302,7 +322,11 @@ contains
          what = 'REFMISS/RVSTART/REFEXT/DUM'
       else if (any(RAYRAY(1:32, obj:img) /= rr_leg(1:32, :))) then
          what = 'RAYRAY slots 1-32'
+      else if (allocated(gl_leg)) then
+         if (any(GLRAY /= gl_leg)) what = 'GLRAY (global ray output)'
       end if
+      ! keep legacy's GLRAY; slots it did not write keep their earlier values
+      if (allocated(gl_leg)) GLRAY = merge(gl_leg, gl_pre, gl_leg /= GL_SENTINEL)
 
       ! keep the legacy answer
       RAYRAY(:, obj:img) = rr_leg

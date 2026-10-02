@@ -108,6 +108,11 @@ module mod_ray_trace_engine
       real(real64) :: aim_tol = 1.0e-10_real64     ! AIMTOL
       integer :: max_aim_iter = 100                ! NRAITR
       type(aim_settings) :: aim                    ! inputs of the aiming leaf routines (mod_ray_aiming)
+      ! FORONEL's pivot branch (PIVAXIS NORMAL on surface NEWOBJ+1): the
+      ! normal SAGINT returns at the pivot point.  It depends on the surface
+      ! only, so the builder evaluates it once; zero when the branch is not
+      ! taken (see pivot_normal_needed).
+      real(real64) :: pivot_normal(3) = 0.0_real64
       ! Clear aperture / obscuration blockage pass (legacy CACOCH = 1)
       logical :: check_apertures = .true.
       logical :: no_cobs_psf = .false.             ! NOCOBSPSF (/PSFCOBS/)
@@ -192,8 +197,9 @@ contains
    ! (for_optimization = .true., the one CAPFN and the spot diagram use),
    ! assembled from the pure ports of its leaves.  Variable names follow the
    ! legacy ones so the two can be read side by side.  Not reproduced: the
-   ! illumination-trace and NULL launch branches, global-ray output, coatings,
-   ! screens and multi-hit surfaces (the builder declines those lenses), the
+   ! illumination-trace and NULL launch branches, coatings, screens and
+   ! multi-hit surfaces (the builder declines those lenses), global-ray output
+   ! (GLBRAY, which the router runs on the handed-back ray), the
    ! polarization slots 26-40 beyond the launch vectors, and two dead paths:
    ! the STOPP retry after the surface loop (STOPP from HITSUR returns first
    ! and adjustLastSurface never sets it) and the outer_retry loop it fed.
@@ -240,7 +246,7 @@ contains
       if (iwl < 1 .or. iwl > 10) return
 
       twopii = 2.0_real64*PII
-      pn = 0.0_real64
+      pn = ctx%pivot_normal
       ww1 = req%py
       ww2 = req%px
       ww3 = real(iwl, real64)
