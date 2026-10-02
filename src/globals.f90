@@ -18,6 +18,10 @@ MODULE globals
    logical :: HEADLESS_MODE = .FALSE.
    logical :: RELEASE_MODE = .FALSE.
 
+   ! OpenMP threads for the CAPFN ray grid.  0 = automatic (all cores), 1 = serial.
+   ! Set by THREADS; persisted as the Threads preference.
+   integer :: zoa_threads = 0
+
    ! Thickness value stored when user enters "Infinity" (e.g. for object-at-infinity)
    real(kind=long), parameter :: INFINITY_DISTANCE = 1.0e13_long
    ! Display threshold: show "Infinity" in the lens editor for |thickness| above this

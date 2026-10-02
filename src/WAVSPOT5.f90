@@ -2705,15 +2705,18 @@ contains
                                       wrap_slope, chief_opd, RR_UX, RR_UY, RR_ENERGY, &
                                       RR_COSI, RR_COSIP, RR_OPL_TOTAL
       use mod_ray_trace_builder, only: build_trace_context
-      use GLOBALS, only: DSPOTT
+      use GLOBALS, only: DSPOTT, zoa_threads
+      use omp_lib, only: omp_get_num_procs
       logical, intent(out) :: ok
       logical, intent(in) :: quiet
       type(trace_context) :: ctx
       type(ray_request) :: req
       type(ray_result) :: res
-      real(real64) :: row(60), ww1v, ww2v, oopdv, lastx, lasty
-      integer :: o, im, iwlc
-      logical :: last_ok, traced
+      real(real64) :: row(60), row0(60), ww1v, ww2v, oopdv, lastx, lasty
+      real(real64) :: weiw, wtw, prev37
+      integer :: o, im, iwlc, n, nthr, id0, i_begin, jy, jx, iw, k, nseg, seg, lastid
+      integer :: seg_id0(10), seg_iwl(10), seg_n(10)
+      logical :: traced, rayok
       logical :: SPDTRA_L
       COMMON/SPRA1/SPDTRA_L
 
@@ -2723,12 +2726,12 @@ contains
       o = ctx%obj
       im = ctx%img
       iwlc = INT(LFOB(4))
-      row = DSPOT(1:60)
-      lastx = X
-      lasty = Y
-      oopdv = OOPD
-      traced = .false.
-      last_ok = .false.
+      row0 = DSPOT(1:60)
+      i_begin = I
+      nseg = 0
+      nthr = zoa_threads
+      if (nthr <= 0) nthr = omp_get_num_procs()
+      if (nthr < 1) nthr = 1
 
       DO IWL=1,10
          IF(IWL.GE.1.AND.IWL.LE.5) SPT=sys_wl_weight(IWL)
@@ -2753,55 +2756,58 @@ contains
                IF(IWL.GT.5) IWLIJK(IJK)=sys_wavelength(IWL)
             END IF
             DELFOB=2.0D0/DBLE(W1)
-            DO IY=NSTART,NSTOP
-               DO IX=NSTART,NSTOP
-                  I=I+1
-                  ! pupil coordinates: the same expressions, in the same order,
-                  ! as the legacy loop
-                  DDEELL=1.0D0
-                  IF(WC.EQ.'PSFK') DDEELL=0.9999D0
-                  IF(WC.EQ.'PUPIL') DDEELL=0.9999D0
-                  ww1v=(-1.0+(DELFOB/2.0D0))+(DBLE(IY)*DELFOB)
-                  ww2v=(-1.0+(DELFOB/2.0D0))+(DBLE(IX)*DELFOB)
-                  ww1v=ww1v*ADJUSTW1
-                  ww2v=ww2v*ADJUSTW2
+            n = NSTOP + 1
+            if (n < 0) n = 0
+            if (n == 0) cycle
+            ! Per-wavelength values the serial loop kept in globals: set once
+            ! here, so the parallel region only reads globals.
+            DDEELL=1.0D0
+            IF(WC.EQ.'PSFK') DDEELL=0.9999D0
+            IF(WC.EQ.'PUPIL') DDEELL=0.9999D0
+            IF(IWL.NE.SHORT.AND.WC.EQ.'PSFK'.OR.IWL.EQ.SHORT.AND.WC .EQ.'PUPIL') &
+               LAMFACTOR=sys_wavelength(IWL)/WVSHORT
+            weiw = WEI(IWL)
+            wtw = sys_wl_weight(IWL)
+            iw = IWL
+            id0 = I            ! first ray's ID: the serial loop does I=I+1, ID=I-1
+            nseg = nseg + 1
+            seg_id0(nseg) = id0
+            seg_iwl(nseg) = iw
+            seg_n(nseg) = n
+
+            ! Each ray is independent: its ID comes from its grid position, and
+            ! every thread builds its own DSPOT row (columns not computed here
+            ! keep their pre-grid values).  Column 37 of failed rays is
+            ! repaired serially below.
+!$omp parallel do collapse(2) schedule(dynamic, 16) num_threads(nthr) &
+!$omp&   default(shared) private(jy, jx, ww1v, ww2v, row, req, res, oopdv, rayok)
+            DO jy=0,n-1
+               DO jx=0,n-1
+                  call grid_coords(iw, jy, jx, ww1v, ww2v)
+                  row = row0
                   row(1:35)=0.0D0
-                  row(35)=WEI(IWL)
-                  IF(IWL.NE.SHORT.AND.WC.EQ.'PSFK'.OR.IWL.EQ.SHORT.AND.WC .EQ.'PUPIL') THEN
-                     IF(IWL.LE.5) LAMFACTOR=sys_wavelength(IWL)/WVSHORT
-                     IF(IWL.GT.5) LAMFACTOR=sys_wavelength(IWL)/WVSHORT
-                     ww1v=ww1v*LAMFACTOR*NRDFACTOR
-                     ww2v=ww2v*LAMFACTOR*NRDFACTOR
-                  END IF
-                  ww1v=ww1v*DDEELL
-                  ww2v=ww2v*DDEELL
+                  row(35)=weiw
 
                   req%py = ww1v
                   req%px = ww2v
-                  req%iwl = IWL
+                  req%iwl = iw
                   req%weight = 1.0D0
                   call trace_ray(ctx, req, res)
                   ! (a code-16 ray reports macfal_requested; it is simply a
                   ! failed ray here -- see capfn_legacy_grid)
-                  traced = .true.
 
                   row(7)=DBLE(res%raycod(1))
                   IF(NOOB.AND.row(7).EQ.7) row(7)=0.0D0
                   row(8)=DBLE(res%raycod(2))
-                  last_ok = row(7) == 0.0D0
                   IF(row(7).EQ.0.0D0) THEN
                      row(1)=res%rr(1,im)
                      row(2)=res%rr(2,im)
                      row(3)=res%rr(3,im)
-                     lastx=wrap_slope(res%rr(RR_UX,im))
-                     lasty=wrap_slope(res%rr(RR_UY,im))
-                     row(9)=lastx
-                     row(10)=lasty
+                     row(9)=wrap_slope(res%rr(RR_UX,im))
+                     row(10)=wrap_slope(res%rr(RR_UY,im))
                      row(11)=res%rr(RR_ENERGY,im)
                      IF(APODGAUSS) THEN
-                        APODX2=-DLOG(10.0D0**(-DABS(APODDBLOSS)/10.0D0))
-                        APODR2=(ww1v**2)+(ww2v**2)
-                        row(11)=row(11)*DEXP(-APODX2*APODR2)
+                        row(11)=row(11)*DEXP(-(-DLOG(10.0D0**(-DABS(APODDBLOSS)/10.0D0)))*((ww1v**2)+(ww2v**2)))
                      END IF
                      row(12)=(row(11))
                      row(34)=(row(11))
@@ -2812,7 +2818,7 @@ contains
                      row(18)=res%rr(3,o+1)
                      row(5)=res%rr(1,ctx%ref)
                      row(6)=res%rr(2,ctx%ref)
-                     row(16)=DBLE(IWL)
+                     row(16)=DBLE(iw)
                      row(19)=res%rr(19,o+1)
                      row(20)=res%rr(20,o+1)
                      row(21)=res%rr(21,o+1)
@@ -2827,32 +2833,74 @@ contains
                      row(30)=res%rr(19,im-1)
                      row(31)=res%rr(20,im-1)
                      row(32)=res%rr(21,im-1)
-                     row(17)=sys_wl_weight(IWL)
+                     row(17)=wtw
                      ! SPOPD1 needs both the ray and the chief ray
                      oopdv=0.0D0
-                     IF(REFEXT) oopdv=chief_opd(ctx, res%rr, IWL, iwlc)
+                     IF(REFEXT) oopdv=chief_opd(ctx, res%rr, iw, iwlc)
                      IF(PERFECT) oopdv=0.0D0
                      row(4)=oopdv
                      row(33)=oopdv
                   END IF
-                  ! (a failed ray leaves OOPD alone: legacy jumps past its
-                  ! OOPD=0 straight to label 1941)
-                  row(16)=DBLE(IWL)
-                  row(17)=sys_wl_weight(IWL)
-                  ID=I-1
-                  DSPOTT(1:60,ID)=row(1:60)
+                  row(16)=DBLE(iw)
+                  row(17)=wtw
+                  DSPOTT(1:60,id0 + jy*n + jx)=row(1:60)
                END DO
             END DO
+!$omp end parallel do
+            I = id0 + n*n
          END IF
       END DO
 
+      ! Serial passes over the finished rows, in ID order.
+      traced = (I > i_begin)
+      lastx = X
+      lasty = Y
+      oopdv = OOPD
+      lastid = -1
+      prev37 = row0(37)
+      DO k = i_begin, I - 1
+         ! a failed ray stores the previous ray's column 37 (carried across
+         ! wavelengths, starting from the pre-grid value)
+         IF (DSPOTT(7,k) /= 0.0D0) DSPOTT(37,k) = prev37
+         prev37 = DSPOTT(37,k)
+         IF (DSPOTT(7,k) == 0.0D0) lastid = k
+      END DO
+      IF (lastid >= 0) THEN
+         ! X, Y and OOPD keep the last successful ray's values
+         lastx = DSPOTT(9,lastid)
+         lasty = DSPOTT(10,lastid)
+         oopdv = DSPOTT(4,lastid)
+      END IF
+
       ! Leave behind what the legacy loop leaves: the last ray's data and the
       ! per-ray flags it sets around each RAYTRA2 call.
-      DSPOT(1:60)=row
-      X=lastx
-      Y=lasty
-      OOPD=oopdv
-      IF(traced) THEN
+      IF (traced) THEN
+         DSPOT(1:60)=DSPOTT(1:60,I-1)
+         seg = nseg
+         ! IX/IY are left at their past-the-end values by the finished loops
+         IY = seg_n(seg)
+         IX = seg_n(seg)
+         IF (lastid >= 0) THEN
+            ! APODX2/APODR2 come from the last ray that reached the image
+            DO seg = nseg, 1, -1
+               IF (lastid >= seg_id0(seg)) EXIT
+            END DO
+            jy = (lastid - seg_id0(seg)) / seg_n(seg)
+            jx = (lastid - seg_id0(seg)) - jy*seg_n(seg)
+            call grid_coords(seg_iwl(seg), jy, jx, ww1v, ww2v)
+            IF(APODGAUSS) THEN
+               APODX2=-DLOG(10.0D0**(-DABS(APODDBLOSS)/10.0D0))
+               APODR2=(ww1v**2)+(ww2v**2)
+            END IF
+         END IF
+         ! the very last ray again, for the globals it leaves behind
+         seg = nseg
+         call grid_coords(seg_iwl(seg), seg_n(seg)-1, seg_n(seg)-1, ww1v, ww2v)
+         req%py = ww1v
+         req%px = ww2v
+         req%iwl = seg_iwl(seg)
+         req%weight = 1.0D0
+         call trace_ray(ctx, req, res)
          RAYRAY(1:50,o:im)=res%rr(1:50,o:im)
          RAYCOD(1:2)=res%raycod
          WW1=ww1v
@@ -2864,8 +2912,13 @@ contains
          CURLAM=DBLE(req%iwl)
          SPDCD1=res%raycod(1)
          SPDCD2=res%raycod(2)
-         SPDTRA_L=.NOT.last_ok
+         SPDTRA_L = (DSPOTT(7,I-1) /= 0.0D0)
+      ELSE
+         DSPOT(1:60)=row0
       END IF
+      X=lastx
+      Y=lasty
+      OOPD=oopdv
       CACOCH=0
       ANAAIM=.TRUE.
       MSG=.FALSE.
@@ -2873,7 +2926,30 @@ contains
       GRASET=.FALSE.
       DXFSET=.FALSE.
       ok = .true.
+
    end subroutine capfn_engine_grid
+
+   ! Pupil coordinates of grid point (jy, jx) at wavelength iw: the same
+   ! expressions, in the same order, as the legacy loop.  Reads globals only.
+   subroutine grid_coords(iwv, jyv, jxv, w1v, w2v)
+      integer, intent(in) :: iwv, jyv, jxv
+      real(real64), intent(out) :: w1v, w2v
+      real(real64) :: ddl, lamf
+      ddl=1.0D0
+      IF(WC.EQ.'PSFK') ddl=0.9999D0
+      IF(WC.EQ.'PUPIL') ddl=0.9999D0
+      w1v=(-1.0+(DELFOB/2.0D0))+(DBLE(jyv)*DELFOB)
+      w2v=(-1.0+(DELFOB/2.0D0))+(DBLE(jxv)*DELFOB)
+      w1v=w1v*ADJUSTW1
+      w2v=w2v*ADJUSTW2
+      IF(iwv.NE.SHORT.AND.WC.EQ.'PSFK'.OR.iwv.EQ.SHORT.AND.WC .EQ.'PUPIL') THEN
+         lamf=sys_wavelength(iwv)/WVSHORT
+         w1v=w1v*lamf*NRDFACTOR
+         w2v=w2v*lamf*NRDFACTOR
+      END IF
+      w1v=w1v*ddl
+      w2v=w2v*ddl
+   end subroutine grid_coords
 
 END
 ! SUB DOTF.FOR

@@ -76,6 +76,7 @@ if fortran.get_id().contains('intel-cl') or fortran.get_id().contains('intel-llv
     '/Qdiag-disable:remark',
     '/Qdiag-disable:8889',
     '/Qm64',
+    '/Qopenmp',
     '/threads',
     '/traceback',
     #'/Od',
@@ -93,6 +94,7 @@ if fortran.get_id().contains('intel-cl') or fortran.get_id().contains('intel-llv
     #'-pthread',
     '-w',
     '/Qdiag-disable:remark',
+    '/Qopenmp',
     '/DNDEBUG',
     '/winapp',
     '/assume:byterecl',
@@ -118,6 +120,7 @@ if fortran.get_id().contains('gcc')
     '-Wno-unused-dummy-argument',
     '-Wno-maybe-uninitialized',
     '-frecursive',
+    '-fopenmp',
     # No fused multiply-add contraction: keeps debug and release numerically
     # identical, and the ray trace engine bit-identical to the legacy tracer
     # (GCC otherwise fuses a*b+c differently in the two codes at -O3).
@@ -142,6 +145,7 @@ if fortran.get_id().contains('gcc')
     '-w',
     # See the debug list: no FMA contraction, so release matches debug.
     '-ffp-contract=off',
+    '-fopenmp',
     '-fno-align-commons',
     '-static-libgcc',
     '-static-libgfortran',
@@ -222,6 +226,18 @@ if system == 'windows'
 endif
 
 zoa_deps = [dep3, dep0, dep1, dep2]
+
+# OpenMP (CAPFN ray grid).  gfortran: link libgomp STATICALLY by path (like
+# -static-libgfortran), so the app has no libgomp dylib dependency.
+if fortran.get_id().contains('gcc')
+  libgomp_a = run_command(fortran.cmd_array(), '-print-file-name=libgomp.a', check: true).stdout().strip()
+  if libgomp_a.contains('/') and run_command('test', '-f', libgomp_a, check: false).returncode() == 0
+    zoa_deps += declare_dependency(link_args: [libgomp_a])
+  else
+    message('static libgomp.a not found; linking -fopenmp dynamically')
+    zoa_deps += declare_dependency(link_args: ['-fopenmp'])
+  endif
+endif
 
 lib_deps = []
 

@@ -668,7 +668,7 @@ end function
 ! =========================================================================
 
 subroutine savePreferences()
-  use GLOBALS, only: basePath
+  use GLOBALS, only: basePath, zoa_threads
   implicit none
   character(len=1024) :: filePath
   integer :: funit
@@ -680,14 +680,15 @@ subroutine savePreferences()
   write(funit, '(A)') 'TempDir='//trim(tempDir)
   write(funit, '(A)') 'MacroDir='//trim(macroDir)
   write(funit, '(A)') 'GlassDir='//trim(glassCatalogDirOverride)
+  write(funit, '(A,I0)') 'Threads=', zoa_threads
   close(funit)
 end subroutine
 
 subroutine loadPreferences()
-  use GLOBALS, only: basePath
+  use GLOBALS, only: basePath, HEADLESS_MODE, zoa_threads
   implicit none
   character(len=1024) :: filePath, line, key, val
-  integer :: funit, ios, eq
+  integer :: funit, ios, eq, nthr
 
   filePath = trim(basePath)//'preferences.ini'
   funit = 98
@@ -716,6 +717,13 @@ subroutine loadPreferences()
       if (len_trim(val) > 0) macroDir = trim(val)
     case ('GlassDir')
       glassCatalogDirOverride = trim(val)
+    case ('Threads')
+      ! The headless runner (tests, zoa_server) ignores the user's thread
+      ! preference so results never depend on it; THREADS sets it there.
+      if (.not. HEADLESS_MODE) then
+        read(val, *, iostat=ios) nthr
+        if (ios == 0 .and. nthr >= 0) zoa_threads = nthr
+      end if
     end select
   end do
 

@@ -2346,4 +2346,47 @@ contains
         call zoa_emit('RAYENGINE '//trim(names(ray_engine_mode)), 'black')
     end procedure execRAYENGINE
 
+    !## THREADS [n]
+    !##
+    !## Number of CPU threads the CAPFN ray grid (wavefront, spot, MTF and PSF
+    !## calculations) is traced with.  n = 0 is automatic (all cores), n = 1
+    !## is serial.  With no argument, reports the current setting and the
+    !## number of threads that will be used.  The setting is saved as a
+    !## preference.  Results do not depend on the thread count.
+    !##
+    module procedure execTHREADS
+        use GLOBALS, only: zoa_threads, HEADLESS_MODE
+        use zoa_output, only: zoa_emit
+        use zoa_file_handler, only: savePreferences
+        use omp_lib, only: omp_get_num_procs
+        use type_utils, only: int2str
+        implicit none
+        character(len=80) :: tokens(40)
+        integer :: numTokens, n, ios
+
+        call parse(trim(iptStr), ' ', tokens, numTokens)
+        if (numTokens >= 2) then
+            read(tokens(2), *, iostat=ios) n
+            if (ios /= 0 .or. n < 0) then
+                call zoa_emit("THREADS: expected a count >= 0 (0 = automatic), got '"//trim(tokens(2))//"'", 'red')
+                return
+            end if
+            zoa_threads = n
+            if (.not. HEADLESS_MODE) call savePreferences()
+        end if
+        if (zoa_threads == 0) then
+            call zoa_emit('THREADS 0 (automatic)', 'black')
+        else
+            call zoa_emit('THREADS '//trim(int2str(zoa_threads)), 'black')
+        end if
+        ! (the processor count is machine-specific: shown only on a bare query)
+        if (numTokens < 2) then
+            if (zoa_threads == 0) then
+                call zoa_emit('Using '//trim(int2str(omp_get_num_procs()))//' threads', 'black')
+            else
+                call zoa_emit('Using '//trim(int2str(zoa_threads))//' threads', 'black')
+            end if
+        end if
+    end procedure execTHREADS
+
 end submodule mod_codev_utils
