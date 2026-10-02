@@ -1144,7 +1144,6 @@ subroutine real_ray_trace_core(for_optimization)
                      JK3=MULTCOBS(JK,3,R_I)
                      CALL CACHEK(JK1,JK2,JK3,2)
                      IF(RAYCOD(1).NE.0) THEN
-                        PRINT *, "RAYTRA FAILED RAYCOD=1 RAYTRA5.FOR L 3025"
                         SPDCD1=RAYCOD(1)
                         SPDCD2=RAYCOD(2)
                         STOPP=1
@@ -1155,6 +1154,10 @@ subroutine real_ray_trace_core(for_optimization)
                END IF
             END IF
          END IF
+         ! The multiple-aperture loops above switch MSG off for all but the
+         ! last entry and could leave it off -- silencing the failure messages
+         ! of every later ray.  Restore it.
+         MSG=MMSG
 
          IF(STOPP.EQ.1) THEN
             ray_blocked = .true.

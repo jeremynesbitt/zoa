@@ -1,0 +1,350 @@
+! ---- Ray failure diagnostics: the message catalog (src/ray-messages.f90) ----
+! The legacy tracer prints, while the MSG flag is on, a line
+!     " RAY FAILURE OCCURRED AT SURFACE n"
+! followed by a reason for every ray it cannot trace.  The global-free engine is
+! pure and cannot print: it records which message legacy would have printed (an
+! id of mod_ray_messages) and the router prints the recorded messages with the
+! same routines legacy uses.  This fixture runs the failing rays with the engine
+! ON (the default) and its .ref is identical, apart from the RAYENGINE lines, to
+! the output with RAYENGINE OFF.  Output the legacy tracer sends to unit 6
+! (PRINT *) is not captured by the test runner and so is not in the .ref.
+!
+! Which commands reach the engine.  A trace goes to the engine only when the
+! legacy entry point RAYTRA/RAYTRA2 is called with no plot-ray capture pending.
+!   Part 1  GET <operand> traces its rays with RAY semantics and MSG on but no
+!           capture, so they run on the engine: every case below is followed by
+!           a RAYENGINE report whose "engine" count is the number of rays the
+!           engine took and "plot capture 0" shows nothing was declined.
+!   Part 2  the RAY command (and so RSI, which sends RAY) always asks for plot-ray
+!           capture (GRASET), which the engine does not do, so with the engine ON
+!           these rays still run on the legacy tracer: the report shows them as
+!           "declined: plot capture".  They are here because they are the only
+!           commands that exercise CAOB (clear aperture / obscuration checking)
+!           and wavelength 0, and because the day the router stops declining
+!           plot capture they become engine cases with no change to this file.
+!           (The engine side was verified with that decline switched off.)
+!
+! Messages (id in mod_ray_messages, legacy routine, text):
+!   MSG_TIR              INTERACK  TOTAL INTERNAL REFLECTION (at the failing surface)
+!   MSG_AIM_NOT_CONVERGED  RAYTRA  RAY FAILED TO CONVERGE TO REFERENCE SURFACE
+!                                  RAY-AIM POINT (surface = reference surface)
+!   MSG_ZERO_WAVELENGTH    RAYTRA  RAY CAN NOT BE TRACED AT ZERO WAVELENGTH
+!   MSG_CLAP_*           CACHEK    RAY BLOCKED BY <shape> CLEAR APERTURE
+!   MSG_COBS_*           CACHEK    RAY BLOCKED BY <shape> OBSCURATION
+! Not reachable from a command: MSG_TIR_NOT_MET (TIRTESTER = sin(i)*+-1 can
+! never exceed 1), MSG_NO_AIM_SOLUTION (all four aiming derivatives exactly zero;
+! ENGINETEST checks the id on its failure branch), IPOLY shapes (their vertex
+! file cannot be provided to a script; ENGINETEST checks them synthetically),
+! and negative clear aperture types (no setter stores one).
+! (Legacy also had two ungated debug outputs on these paths and could leave
+! MSG off after a multiple-aperture surface; those were removed from the legacy
+! tracer -- see src/ray-messages.f90 -- so both tracers print the same.)
+RAYENGINE ON
+
+! ---------------------------------------------------------------------------
+! Part 1: engine-routed failing rays
+! ---------------------------------------------------------------------------
+
+! case 1.1: a ray that traces: nothing is printed
+RES osdtriplet
+FOB 0
+RAYENGINE RESET
+GET PACM
+RAYENGINE
+
+! case 1.2: with a 100 unit entrance pupil the marginal rays fail to refract.
+! Expected: " RAY FAILURE OCCURRED AT SURFACE 2", "TOTAL INTERNAL REFLECTION"
+RES osdtriplet
+EPD 100
+FOB 0
+RAYENGINE RESET
+GET PACM
+GET SACM
+RAYENGINE
+
+! case 1.3: ray aiming with at most one aim iteration cannot converge.
+! Expected: " RAY FAILURE OCCURRED AT SURFACE 3" (the reference surface),
+! "RAY FAILED TO CONVERGE TO REFERENCE SURFACE RAY-AIM POINT"
+RES osdtriplet
+RAYAIM ON
+FOB 0.7
+NRAITR 1
+RAYENGINE RESET
+GET PACM
+GET SACM
+RAYENGINE
+NRAITR 100
+
+! ---------------------------------------------------------------------------
+! Part 2: the RAY command (legacy tracer, see above)
+! ---------------------------------------------------------------------------
+
+! case 2.1: TIR.  Expected: surface 2, TOTAL INTERNAL REFLECTION, once for each
+! of the first four rays; the fifth traces
+RES osdtriplet
+FOB 0
+RAYENGINE RESET
+RAY 0 20
+RAY 0 -20
+RAY 20 0
+RAY 20 20
+RAY 0 0.5
+RAYENGINE
+
+! case 2.2: aim not converging.  Expected: surface 3, RAY FAILED TO CONVERGE ...
+! for the first three rays; the fourth, with an explicit fifth number, is traced
+! with MSG off and prints nothing
+RES osdtriplet
+RAYAIM ON
+FOB 0
+NRAITR 1
+RAY 0 0.5
+RAY 0 0.5 2
+RAY CAOB 0 0.5
+RAY 0 0.5 1 1 1
+NRAITR 100
+
+! case 2.3: wavelength 6 has no wavelength.  Expected: surface 0, RAY CAN NOT BE
+! TRACED AT ZERO WAVELENGTH (only for wavelength 6, 7); wavelength 1 traces
+RES osdtriplet
+FOB 0
+RAY 0 0.5 6
+RAY 0 0.5 7
+RAY 0 0.5 1
+
+! case 2.4: blocked by a clear aperture, one shape per case, 0.5 across at
+! surface 2 (the ray at relative pupil 0.9 is 4.08 high there).  CAOB turns the
+! aperture check on; a RAY without it is not blocked.
+! Expected: surface 2, RAY BLOCKED BY CIRCULAR CLEAR APERTURE for the first and
+! third ray (the one at 0.1 passes, the one without CAOB is not checked)
+RES osdtriplet
+U L
+CHG 2
+CLAP 0.5
+EOS
+FOB 0
+RAY CAOB 0 0.9
+RAY CAOB 0 0.1
+RAY CAOB 0.9 0
+RAY 0 0.9
+
+! Expected: surface 2, RAY BLOCKED BY RECTANGULAR CLEAR APERTURE, first two rays
+RES osdtriplet
+U L
+CHG 2
+CLAP RECT 0.5 0.5
+EOS
+FOB 0
+RAY CAOB 0 0.9
+RAY CAOB 0.9 0
+RAY CAOB 0 0.1
+
+! Expected: surface 2, RAY BLOCKED BY ELLIPTICAL CLEAR APERTURE, all three rays
+RES osdtriplet
+U L
+CHG 2
+CLAP ELIP 0.5 0.4
+EOS
+FOB 0
+RAY CAOB 0 0.9
+RAY CAOB 0.9 0
+RAY CAOB 0 0.1
+
+! Expected: surface 2, RAY BLOCKED BY RACETRACK CLEAR APERTURE, first two rays
+RES osdtriplet
+U L
+CHG 2
+CLAP RCTK 0.5 0.5 0 0 0.2
+EOS
+FOB 0
+RAY CAOB 0 0.9
+RAY CAOB 0.9 0
+RAY CAOB 0 0.1
+
+! Expected: surface 2, RAY BLOCKED BY POLYGON CLEAR APERTURE, all three rays
+RES osdtriplet
+U L
+CHG 2
+CLAP POLY 0.5 5
+EOS
+FOB 0
+RAY CAOB 0 0.9
+RAY CAOB 0.9 0
+RAY CAOB 0 0.1
+
+! case 2.5: blocked by an obscuration at surface 3 (the rays at 0.2 and at 0.1
+! across hit it; the one at 0.9 passes).
+! Expected: surface 3, RAY BLOCKED BY CIRCULAR OBSCURATION, for the first and
+! third ray
+RES osdtriplet
+U L
+CHG 3
+COBS 3
+EOS
+FOB 0
+RAY CAOB 0 0.2
+RAY CAOB 0 0.9
+RAY CAOB 0.1 0
+
+! Expected: surface 3, RAY BLOCKED BY RECTANGULAR OBSCURATION, first and third ray
+RES osdtriplet
+U L
+CHG 3
+COBS RECT 3 3
+EOS
+FOB 0
+RAY CAOB 0 0.2
+RAY CAOB 0 0.9
+RAY CAOB 0.1 0
+
+! Expected: surface 3, RAY BLOCKED BY ELLIPTICAL OBSCURATION, first and third ray
+RES osdtriplet
+U L
+CHG 3
+COBS ELIP 3 3
+EOS
+FOB 0
+RAY CAOB 0 0.2
+RAY CAOB 0 0.9
+RAY CAOB 0.1 0
+
+! Expected: surface 3, RAY BLOCKED BY RACETRACK OBSCURATION, first and third ray
+RES osdtriplet
+U L
+CHG 3
+COBS RCTK 3 3 0 0 1
+EOS
+FOB 0
+RAY CAOB 0 0.2
+RAY CAOB 0 0.9
+RAY CAOB 0.1 0
+
+! Expected: surface 3, RAY BLOCKED BY POLYGON OBSCURATION, first and third ray
+RES osdtriplet
+U L
+CHG 3
+COBS POLY 3 6
+EOS
+FOB 0
+RAY CAOB 0 0.2
+RAY CAOB 0 0.9
+RAY CAOB 0.1 0
+
+! case 2.6: erase regions and a footblock cancel or skip the check.
+! Expected: three messages for the four rays, in order: surface 2 CIRCULAR CLEAR
+! APERTURE, surface 4 CIRCULAR OBSCURATION, surface 2 CIRCULAR CLEAR APERTURE
+RES osdtriplet
+U L
+CHG 2
+CLAP 0.5
+CLAP ERASE 3 0 0
+CHG 4
+COBS 3
+COBS ERASE 1 0 0
+EOS
+FOB 0
+RAY CAOB 0 0.9
+RAY CAOB 0 0.1
+RAY CAOB 0 0.5
+RAY CAOB 0.7 0.7
+
+! Expected: two messages, both surface 4 CIRCULAR CLEAR APERTURE (surface 2 is
+! footblocked, so its aperture is never checked)
+RES osdtriplet
+U L
+CHG 2
+CLAP 0.5
+FOOTBLOK YES
+CHG 4
+CLAP 0.9
+EOS
+FOB 0
+RAY CAOB 0 0.9
+RAY CAOB 0 0.1
+RAY CAOB 0 0.5
+
+! case 2.7: several apertures on one surface (MULTCLAP, MULTCOBS).  Only the
+! last clear-aperture entry reports, so a ray every entry blocks prints once.
+! Expected: surface 5 CIRCULAR CLEAR APERTURE for the first and third ray (they
+! pass surface 2 through an entry before the last and are blocked at surface 5;
+! legacy used to leave MSG off after such a pass and so printed nothing for
+! them), surface 2 CIRCULAR CLEAR APERTURE for the second and fourth.
+RES osdtriplet
+U L
+CHG 2
+CLAP 1
+MULTCLAP 1 0 10 0
+MULTCLAP 2 0 3 0
+MULTCLAP 3 3 0 0
+MULTCLAP 4 0 -10 0
+CHG 5
+CLAP 0.3
+EOS
+FOB 0
+RAY CAOB 0 0.5
+RAY CAOB 0 0.9
+RAY CAOB 0.5 0
+RAY CAOB 0 0.2
+
+! ... the same with an obscuration on surface 2.  Expected, one message per ray,
+! in order: surface 5 CIRCULAR CLEAR APERTURE; surface 2 CIRCULAR CLEAR
+! APERTURE; surface 2 CIRCULAR OBSCURATION (a ray blocked by the MULTCOBS
+! entry); surface 2 CIRCULAR CLEAR APERTURE
+RES osdtriplet
+U L
+CHG 2
+CLAP 1
+COBS 0.2
+MULTCLAP 1 0 10 0
+MULTCLAP 2 0 3 0
+MULTCLAP 3 3 0 0
+MULTCLAP 4 0 -10 0
+MULTCOBS 1 0 2.27 0
+CHG 5
+CLAP 0.3
+EOS
+FOB 0
+RAY CAOB 0 0.5
+RAY CAOB 0 0.9
+RAY CAOB 0.5 0
+RAY CAOB 0 0.2
+
+! ... MULTCOBS entries alone.  Expected: surface 3 CIRCULAR OBSCURATION for the
+! first two rays
+RES osdtriplet
+U L
+CHG 3
+COBS 0.5
+MULTCOBS 1 0 8 0
+MULTCOBS 2 0 3.52 0
+MULTCOBS 3 3.52 0 0
+EOS
+FOB 0
+RAY CAOB 0 0.9
+RAY CAOB 0.9 0
+RAY CAOB 0 0.0
+RAY CAOB 0 0.5
+
+! case 2.8: apertures on several surfaces at once, a ray blocked by the first
+! one it meets.  Expected, in order: surface 1 CIRCULAR CLEAR APERTURE, surface 2
+! RECTANGULAR CLEAR APERTURE, surface 1 CIRCULAR CLEAR APERTURE, surface 4
+! ELLIPTICAL OBSCURATION, surface 1 CIRCULAR CLEAR APERTURE; the last ray has no
+! CAOB and is not checked
+RES osdtriplet
+U L
+CHG 1
+CLAP 2
+CHG 2
+CLAP RECT 1 1
+CHG 4
+COBS ELIP 0.5 0.5
+CHG 5
+CLAP RCTK 1 1 0 0 0.3
+EOS
+FOB 0
+RAY CAOB 0 0.9
+RAY CAOB 0 0.4
+RAY CAOB 0.3 0.3
+RAY CAOB 0 0.0
+RAY CAOB 0 1.0
+RAY 0 0.9

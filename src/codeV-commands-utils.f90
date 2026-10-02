@@ -811,7 +811,10 @@ contains
                                          back_to_object, forward_from_object, &
                                          pivot_normal_needed
         use mod_surface_apertures, only: surface_apertures, check_apertures
-        use mod_surface, only: set_surf_clap_type, set_surf_clap_dim, set_surf_clap_tilt, &
+        use mod_ray_messages, only: MSG_NONE, MSG_NO_AIM_SOLUTION, MSG_CLAP_CIRCLE, &
+                                     MSG_COBS_CIRCLE
+        use mod_surface, only: surf_clap_type, surf_coat_type, &
+                               set_surf_clap_type, set_surf_clap_dim, set_surf_clap_tilt, &
                                set_surf_coat_type, set_surf_cobs_poly, &
                                set_surf_cobs_ape_type, set_surf_cobs_ape_data, &
                                set_surf_cobs_era_type, set_surf_cobs_era_data
@@ -1184,7 +1187,7 @@ contains
             real(real64), intent(in) :: px, py, j1, j2, j3, tol
             logical, intent(in) :: nocop
             real(real64) :: jk1, jk2, jk3
-            integer :: c_code, c_fs, c_stopp, c_caeras, c_coeras, c_s1, c_s2
+            integer :: c_code, c_fs, c_stopp, c_caeras, c_coeras, c_s1, c_s2, c_msg, expect_msg
             real(real64) :: c_ls
             logical :: bad
 
@@ -1199,12 +1202,21 @@ contains
             c_stopp = -7; c_caeras = -9; c_coeras = -9; c_ls = -99.0_real64
             c_s1 = -5; c_s2 = -5
             call check_apertures(cc_ap, px, py, jk1, jk2, jk3, cac, tol, nocop, &
-                                 c_code, c_fs, c_stopp, c_ls, c_caeras, c_coeras, c_s1, c_s2)
+                                 c_code, c_fs, c_stopp, c_ls, c_caeras, c_coeras, c_s1, c_s2, c_msg)
             cc_cases = cc_cases + 1
             bad = RAYCOD(1) /= c_code .or. RAYCOD(2) /= c_fs .or. STOPP /= c_stopp .or. &
                   l_caeras /= c_caeras .or. l_coeras /= c_coeras .or. &
                   l_spd1 /= c_s1 .or. l_spd2 /= c_s2 .or. &
                   transfer(l_ls, 0_int64) /= transfer(c_ls, 0_int64)
+            ! the message id: CACHEK prints (under MSG) the shape's "RAY BLOCKED BY"
+            ! text for a block, only while the signed clap / obscuration type is
+            ! positive; the ids run in shape order
+            expect_msg = MSG_NONE
+            if (RAYCOD(1) == 6 .and. surf_clap_type(sf) > 0.0_real64) &
+               expect_msg = MSG_CLAP_CIRCLE + int(abs(surf_clap_type(sf))) - 1
+            if (RAYCOD(1) == 7 .and. surf_coat_type(sf) > 0.0_real64) &
+               expect_msg = MSG_COBS_CIRCLE + int(abs(surf_coat_type(sf))) - 1
+            bad = bad .or. c_msg /= expect_msg
             if (bad) cc_bad = cc_bad + 1
             if (RAYCOD(1) == 6) cc_blk6 = cc_blk6 + 1
             if (RAYCOD(1) == 7) cc_blk7 = cc_blk7 + 1
@@ -2046,6 +2058,7 @@ contains
             type(aim_state) :: s0, stl, stp
             type(aim_settings) :: aim
             logical :: dl, dp, mreq, b_fobrun, b_gui, b_all, b_bad
+            integer :: mmsg
             integer :: flags(100)
             common /FLAGS/ flags
             integer :: sflags(100)
@@ -2066,9 +2079,11 @@ contains
             stp = s0
             dp = .false.
             call p_newdel(aim, p1, thk, pnv, ob(1), ob(2), ob(3), NEWOBJ, mf1, mf2, d11, d12, d21, d22, &
-                          stp, dp, mreq)
+                          stp, dp, mreq, mmsg)
             ae_n(4) = ae_n(4) + 1
-            if (.not. same_aim(stl, stp) .or. (dl .neqv. dp) .or. (mreq .neqv. dl)) ae_bad(4) = ae_bad(4) + 1
+            ! legacy prints RAY_FAILURE(NEWOBJ) exactly on the failure branch
+            if (.not. same_aim(stl, stp) .or. (dl .neqv. dp) .or. (mreq .neqv. dl) .or. &
+                ((mmsg == MSG_NO_AIM_SOLUTION) .neqv. dl)) ae_bad(4) = ae_bad(4) + 1
             nd_branch(newdel_branch(d11, d12, d21, d22)) = nd_branch(newdel_branch(d11, d12, d21, d22)) + 1
         end subroutine one_newdel
 

@@ -67,6 +67,7 @@ srcs += files(
   'analysis-manager.f90',
   'paraxial-ray-trace.f90',
   'real-ray-trace.f90',
+  'ray-messages.f90',
   'surface-placement.f90',
   'surface-apertures.f90',
   'surface-interaction.f90',

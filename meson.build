@@ -566,6 +566,11 @@ test('capfn_engine', test_runner,
             meson.project_source_root() / 'test/capfn_engine.ref'],
      timeout: 120, is_parallel: false)
 
+test('ray_messages', test_runner,
+     args: [meson.project_source_root() / 'test/ray_messages.zoa',
+            meson.project_source_root() / 'test/ray_messages.ref'],
+     timeout: 120, is_parallel: false)
+
 test('spot_engine', test_runner,
      args: [meson.project_source_root() / 'test/spot_engine.zoa',
             meson.project_source_root() / 'test/spot_engine.ref'],

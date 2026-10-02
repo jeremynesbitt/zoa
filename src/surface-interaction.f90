@@ -14,8 +14,9 @@
 !   hit_supported     <-  the conditions under which the above is the whole story
 !
 ! The branch order, the arithmetic order and the clamps are the legacy ones.
-! All printing (the MSG-gated RAY_FAILURE/SHOWIT calls) is output only and has
-! been dropped.
+! Printing (the MSG-gated RAY_FAILURE/SHOWIT calls) is not done here: where
+! legacy would print, hit_state%msg_id records the message's id
+! (mod_ray_messages); the surface to report is the one passed in as surf.
 !
 ! What is NOT ported.  hit_supported() is false, and hit_and_interact returns
 ! HIT_UNSUPPORTED without computing anything, for a surface that has
@@ -42,12 +43,13 @@
 ! typed surface's intersect(): the surface_type interfaces in surface-type.f90
 ! are declared pure, so the compiler guarantees no global state is touched.
 !
-! This module may use ONLY iso_fortran_env and mod_surface_type: no legacy data
-! module, ever.  The builder (mod_ray_trace_builder) fills surface_optics from
-! the legacy accessors.
+! This module may use ONLY iso_fortran_env, mod_surface_type and the parameters
+! of mod_ray_messages: no legacy data module, ever.  The builder
+! (mod_ray_trace_builder) fills surface_optics from the legacy accessors.
 module mod_surface_interaction
    use iso_fortran_env, only: real64
    use mod_surface_type, only: surface_type, surf_ray_data
+   use mod_ray_messages, only: MSG_NONE, MSG_TIR, MSG_TIR_NOT_MET
    implicit none
    private
 
@@ -113,6 +115,10 @@ module mod_surface_interaction
       integer :: raycod(2) = 0              ! RAYCOD (/RAYC/)
       integer :: spdcd1 = 0, spdcd2 = 0     ! SPDCD1, SPDCD2 (/SPRA2/)
       integer :: hoe_do_it = 0              ! HOE_DO_IT
+      ! The message legacy prints (under MSG) for the failure it just reported
+      ! in raycod/stopp: an id from mod_ray_messages, MSG_NONE if none.  Reset
+      ! by every hit_and_interact; the surface to print is raycod(2).
+      integer :: msg_id = MSG_NONE
    end type hit_state
 
 contains
@@ -189,6 +195,7 @@ contains
       end if
       status = HIT_OK
 
+      st%msg_id = MSG_NONE
       st%phase = 0.0_real64
 
       if (opt%index(1) == prev%index(1) .and. opt%index(2) == prev%index(2) .and. &
@@ -296,6 +303,7 @@ contains
          ! a reflection
          if (opt%reflection_mode == 1 .and. tirtester > 1.0_real64) then
             ! "TIR condition not met"
+            st%msg_id = MSG_TIR_NOT_MET
             st%raycod(1) = 20
             st%raycod(2) = surf
             st%spdcd1 = st%raycod(1)
@@ -312,6 +320,7 @@ contains
          ! a refraction
          if (dd < 0.0_real64) then
             ! total internal reflection
+            st%msg_id = MSG_TIR
             st%raycod(1) = 4
             st%raycod(2) = surf
             st%spdcd1 = st%raycod(1)
@@ -324,6 +333,7 @@ contains
          qquu = -0.5_real64*(bterm + (sgnb*sqrt(dd)))
          gam1 = qquu
          if (gam1 == 0.0_real64) then
+            st%msg_id = MSG_TIR
             st%raycod(1) = 4
             st%raycod(2) = surf
             st%spdcd1 = st%raycod(1)
@@ -368,6 +378,7 @@ contains
             if (arg < 0.0_real64) then
                ! TIR (st%l/m/n have already been changed, as in legacy)
                st%tir = .true.
+               st%msg_id = MSG_TIR
                st%raycod(1) = 4
                st%raycod(2) = surf
                st%spdcd1 = st%raycod(1)

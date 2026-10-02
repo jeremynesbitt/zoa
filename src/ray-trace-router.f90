@@ -12,10 +12,14 @@
 ! It declines -- and the caller runs the legacy core as before -- whenever
 ! the legacy trace has effects the engine does not reproduce: GRASET/DXFSET
 ! (plot-ray capture for the lens drawing and DXF), an irregular wavelength
-! setup, or anything build_trace_context declines.  MSG (print diagnostics
-! when a ray fails) only matters for a failing ray, so such a ray is handed
-! back to the legacy core to re-trace and report; the engine has not touched
-! a global by then.
+! setup, or anything build_trace_context declines.
+!
+! The engine is pure and cannot print.  Where the legacy tracer prints a
+! failure diagnostic (MSG: " RAY FAILURE OCCURRED AT SURFACE n" and a reason),
+! the engine records the message ids (mod_ray_messages) in the result, and the
+! router prints them serially with print_ray_messages -- the same output
+! routines, order and text as legacy, so legacy's output suppression applies
+! unchanged.
 !
 ! RAYENGINE CHECK traces every routed ray with both tracers, keeps the
 ! legacy answer, and counts mismatches; RAYENGINE (no argument) reports the
@@ -34,7 +38,6 @@ module mod_ray_trace_router
    integer, public :: rt_checked = 0         ! traced by both (CHECK)
    integer, public :: rt_mismatch = 0        ! CHECK disagreements
    integer, public :: rt_decl_output = 0     ! declined: GRASET / DXFSET
-   integer, public :: rt_decl_msgfail = 0    ! failed with MSG on: legacy re-traced
    integer, public :: rt_decl_wave = 0       ! declined: WW3/WVN not a plain slot
    integer, public :: rt_decl_lens = 0       ! declined: build_trace_context
    character(len=200), public :: rt_first_mismatch = ''
@@ -46,7 +49,6 @@ contains
       rt_checked = 0
       rt_mismatch = 0
       rt_decl_output = 0
-      rt_decl_msgfail = 0
       rt_decl_wave = 0
       rt_decl_lens = 0
       rt_first_mismatch = ''
@@ -61,7 +63,6 @@ contains
                  ', checked '//trim(int2str(rt_checked))// &
                  ', mismatches '//trim(int2str(rt_mismatch))
       lines(2) = 'declined: plot capture '//trim(int2str(rt_decl_output))// &
-                 ', failed with MSG '//trim(int2str(rt_decl_msgfail))// &
                  ', wavelength '//trim(int2str(rt_decl_wave))// &
                  ', lens '//trim(int2str(rt_decl_lens))
       lines(3) = ''
@@ -80,7 +81,8 @@ contains
       use mod_ray_trace_builder, only: ray_engine_mode, ENGINE_OFF, ENGINE_CHECK, &
                                        build_trace_context
       use mod_ray_trace_engine, only: trace_context, ray_request, ray_result, trace_ray, &
-                                      RAY_NOT_SUPPORTED, FAIL_NONE
+                                      RAY_NOT_SUPPORTED
+      use mod_ray_messages, only: print_ray_messages
       use real_ray_trace, only: real_ray_trace_core
       use DATLEN, only: WW1, WW2, WW3, WW4, WVN, CACOCH, ANAAIM, MSG, GRASET, DXFSET
       logical, intent(in) :: for_opt
@@ -127,11 +129,9 @@ contains
          rt_decl_lens = rt_decl_lens + 1
          return
       end if
-      if (MSG .and. res%fail_stage /= FAIL_NONE) then
-         ! let the legacy core re-trace it and print its diagnostics
-         rt_decl_msgfail = rt_decl_msgfail + 1
-         return
-      end if
+      ! legacy's diagnostics, printed before the ray's results are handed back
+      ! (as legacy prints them while tracing; hand_back's own PRINT follows)
+      if (res%n_msg > 0) call print_ray_messages(res%n_msg, res%msg_id, res%msg_surface)
       call hand_back(ctx, res, for_opt, .true.)
       rt_engine = rt_engine + 1
       handled = .true.

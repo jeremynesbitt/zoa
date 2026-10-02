@@ -18,18 +18,24 @@
 !
 ! The branch order, the arithmetic order and the tolerance handling are the
 ! legacy ones.  The legacy code adds AIMTOL to the aperture dimensions; it is
-! an argument here.  All printing (the MSG-gated RAY_FAILURE/SHOWIT calls) is
-! output only and has been dropped.  The legacy routines also leave scratch
+! an argument here.  Printing (the MSG-gated RAY_FAILURE/SHOWIT calls) is not
+! done here: check_apertures reports which message legacy would print as an id
+! (mod_ray_messages).  The legacy routines also leave scratch
 ! values in the J_INSIDE COMMON (X0, Y0, XT, YT, NP); nothing reads them after
 ! the call and they are local here.
 !
 ! Legacy quirks that are kept on purpose are marked "legacy quirk" below.
 !
-! This module may use ONLY iso_fortran_env: no legacy data module, ever.  The
-! builder (mod_ray_trace_builder) fills surface_apertures from the legacy
-! accessors.
+! This module may use ONLY iso_fortran_env and the parameters of
+! mod_ray_messages: no legacy data module, ever.  The builder
+! (mod_ray_trace_builder) fills surface_apertures from the legacy accessors.
 module mod_surface_apertures
    use iso_fortran_env, only: real64
+   use mod_ray_messages, only: MSG_NONE, &
+      MSG_CLAP_CIRCLE, MSG_CLAP_RECT, MSG_CLAP_ELLIPSE, MSG_CLAP_RACETRACK, &
+      MSG_CLAP_POLYGON, MSG_CLAP_IPOLY, &
+      MSG_COBS_CIRCLE, MSG_COBS_RECT, MSG_COBS_ELLIPSE, MSG_COBS_RACETRACK, &
+      MSG_COBS_POLYGON, MSG_COBS_IPOLY
    implicit none
    private
 
@@ -712,19 +718,24 @@ contains
    !   caeras      /CACO/ CAERAS: set after the early returns, else unchanged
    !   coeras      /CACO/ COERAS: likewise
    !   spdcd1/2    /SPRA2/ SPDCD1, SPDCD2: set to (code, surface) when blocked
+   !   msg_id      the id (mod_ray_messages) of the "RAY BLOCKED BY ..." message
+   !               CACHEK prints, under MSG, for the block it reports; MSG_NONE
+   !               when it would print nothing.  The text is printed, with the
+   !               surface fail_surface, by print_ray_messages.
    !
-   ! Dropped: the MSG-gated RAY_FAILURE/SHOWIT calls (output only).  CACHEK
-   ! also declares SPDTRA/TCLPRF/INS-style locals it never reads.
+   ! Dropped: the MSG-gated RAY_FAILURE/SHOWIT calls (output only; recorded as
+   ! msg_id instead).  CACHEK also declares SPDTRA/TCLPRF/INS-style locals it
+   ! never reads.
    ! ------------------------------------------------------------------------
    pure subroutine check_apertures(ap, x, y, jk1, jk2, jk3, cacoca, aimtol, nocobspsf, &
                                    code, fail_surface, stopp, ls, caeras, coeras, &
-                                   spdcd1, spdcd2)
+                                   spdcd1, spdcd2, msg_id)
       type(surface_apertures), intent(in) :: ap
       real(real64), intent(in) :: x, y, jk1, jk2, jk3
       integer, intent(in) :: cacoca
       real(real64), intent(in) :: aimtol
       logical, intent(in) :: nocobspsf
-      integer, intent(out) :: code, fail_surface
+      integer, intent(out) :: code, fail_surface, msg_id
       integer, intent(inout) :: stopp, caeras, coeras, spdcd1, spdcd2
       real(real64), intent(inout) :: ls
 
@@ -745,6 +756,7 @@ contains
       i = ap%surface
       ls = 0
       code = 0
+      msg_id = MSG_NONE
       fail_surface = i
       ! VIIRS footprints: footblok on this surface skips the CLAP/COBS check
       if (ap%footblok_flag == 1) then
@@ -806,6 +818,8 @@ contains
          if (caeras /= 0 .and. ls == 10.0_real64) call clap_erase(ap, x, y, aimtol, caeras, ls)
          if (ls == 10.0_real64) then
             code = 6
+            ! legacy prints only when the signed clap type is positive
+            if (ap%clap_type > 0) msg_id = MSG_CLAP_CIRCLE
             fail_surface = i
             spdcd1 = code
             spdcd2 = i
@@ -847,6 +861,8 @@ contains
          if (caeras /= 0 .and. ls == 10.0_real64) call clap_erase(ap, x, y, aimtol, caeras, ls)
          if (ls == 10.0_real64) then
             code = 6
+            ! legacy prints only when the signed clap type is positive
+            if (ap%clap_type > 0) msg_id = MSG_CLAP_RECT
             fail_surface = i
             spdcd1 = code
             spdcd2 = i
@@ -875,6 +891,8 @@ contains
          if (caeras /= 0 .and. ls == 10.0_real64) call clap_erase(ap, x, y, aimtol, caeras, ls)
          if (ls == 10.0_real64) then
             code = 6
+            ! legacy prints only when the signed clap type is positive
+            if (ap%clap_type > 0) msg_id = MSG_CLAP_ELLIPSE
             fail_surface = i
             spdcd1 = code
             spdcd2 = i
@@ -974,6 +992,8 @@ contains
          if (caeras /= 0 .and. ls == 10.0_real64) call clap_erase(ap, x, y, aimtol, caeras, ls)
          if (ls == 10.0_real64) then
             code = 6
+            ! legacy prints only when the signed clap type is positive
+            if (ap%clap_type > 0) msg_id = MSG_CLAP_RACETRACK
             fail_surface = i
             spdcd1 = code
             spdcd2 = i
@@ -1011,6 +1031,8 @@ contains
          if (caeras /= 0 .and. ls == 10.0_real64) call clap_erase(ap, x, y, aimtol, caeras, ls)
          if (ls == 10.0_real64) then
             code = 6
+            ! legacy prints only when the signed clap type is positive
+            if (ap%clap_type > 0) msg_id = MSG_CLAP_POLYGON
             fail_surface = i
             spdcd1 = code
             spdcd2 = i
@@ -1046,6 +1068,8 @@ contains
          if (caeras /= 0 .and. ls == 10.0_real64) call clap_erase(ap, x, y, aimtol, caeras, ls)
          if (ls == 10.0_real64) then
             code = 6
+            ! legacy prints only when the signed clap type is positive
+            if (ap%clap_type > 0) msg_id = MSG_CLAP_IPOLY
             fail_surface = i
             spdcd1 = code
             spdcd2 = i
@@ -1074,6 +1098,7 @@ contains
          if (coeras /= 0 .and. ls == 10.0_real64) call cobs_erase(ap, x, y, aimtol, coeras, ls)
          if (ls == 10.0_real64) then
             code = 7
+            if (ap%cobs_type > 0) msg_id = MSG_COBS_CIRCLE
             fail_surface = i
             spdcd1 = code
             spdcd2 = i
@@ -1115,6 +1140,7 @@ contains
          if (coeras /= 0 .and. ls == 10.0_real64) call cobs_erase(ap, x, y, aimtol, coeras, ls)
          if (ls == 10.0_real64) then
             code = 7
+            if (ap%cobs_type > 0) msg_id = MSG_COBS_RECT
             fail_surface = i
             spdcd1 = code
             spdcd2 = i
@@ -1141,6 +1167,7 @@ contains
          if (coeras /= 0 .and. ls == 10.0_real64) call cobs_erase(ap, x, y, aimtol, coeras, ls)
          if (ls == 10.0_real64) then
             code = 7
+            if (ap%cobs_type > 0) msg_id = MSG_COBS_ELLIPSE
             fail_surface = i
             spdcd1 = code
             spdcd2 = i
@@ -1241,6 +1268,7 @@ contains
          if (coeras /= 0 .and. ls == 10.0_real64) call cobs_erase(ap, x, y, aimtol, coeras, ls)
          if (ls == 10.0_real64) then
             code = 7
+            if (ap%cobs_type > 0) msg_id = MSG_COBS_RACETRACK
             fail_surface = i
             spdcd1 = code
             spdcd2 = i
@@ -1277,6 +1305,7 @@ contains
          if (coeras /= 0 .and. ls == 10.0_real64) call cobs_erase(ap, x, y, aimtol, coeras, ls)
          if (ls == 10.0_real64) then
             code = 7
+            if (ap%cobs_type > 0) msg_id = MSG_COBS_POLYGON
             fail_surface = i
             spdcd1 = code
             spdcd2 = i
@@ -1311,6 +1340,7 @@ contains
          if (coeras /= 0 .and. ls == 10.0_real64) call cobs_erase(ap, x, y, aimtol, coeras, ls)
          if (ls == 10.0_real64) then
             code = 7
+            if (ap%cobs_type > 0) msg_id = MSG_COBS_IPOLY
             fail_surface = i
             spdcd1 = code
             spdcd2 = i

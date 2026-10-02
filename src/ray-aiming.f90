@@ -17,9 +17,11 @@
 !
 ! Branch order, arithmetic order and the single-precision literals/compares of
 ! the legacy code are kept.  Output only code is dropped: the DEBUGZEE PRINT
-! blocks in GETZEE1 and the logger%logTextWithNum call in NEWDEL (the aiming
-! result never depends on them), the MSG-gated RAY_FAILURE/SHOWIT calls in
-! NEWDEL, and the LogTermFOR calls of adjustLastSurface.
+! blocks in GETZEE1 (they run only while FOBBS sets DEBUGZEE around its own
+! GETZEE1 call, never on a trace) and the LogTermFOR calls of adjustLastSurface
+! (the aiming result never depends on them).  NEWDEL's MSG-gated
+! RAY_FAILURE/SHOWIT of its failure branch is not printed here: newdel returns
+! a message id (mod_ray_messages) for the caller to print.
 !
 ! State.  The legacy routines communicate through COMMON blocks.  Everything
 ! they read or write there is an argument here, grouped in aim_state (the
@@ -32,8 +34,9 @@
 ! changes unrelated global flags.  A pure routine cannot, so newdel only reports
 ! that MACFAL is due (macfal_requested) and the caller reproduces it serially.
 !
-! This module may use ONLY iso_fortran_env and the engine-side modules
-! (mod_surface_placement, mod_surface_apertures): no legacy data module, ever.
+! This module may use ONLY iso_fortran_env, the engine-side modules
+! (mod_surface_placement, mod_surface_apertures) and the parameters of
+! mod_ray_messages: no legacy data module, ever.
 ! The builder (mod_ray_trace_builder::aim_settings_of) fills aim_settings from
 ! the legacy accessors.
 module mod_ray_aiming
@@ -42,6 +45,7 @@ module mod_ray_aiming
                                     forward_from_object, PLACE_PII
    use mod_surface_apertures, only: surface_apertures, inside_closed, APER_MAXPTS, &
                                     APER_PII, APER_TWOPII
+   use mod_ray_messages, only: MSG_NONE, MSG_NO_AIM_SOLUTION
    implicit none
    private
 
@@ -547,9 +551,11 @@ contains
    ! then calls MACFAL (unrelated global flags), which the caller must do.
    ! delfail is only ever set to .true. (the caller clears it first), as legacy.
    !   newobj  legacy NEWOBJ, for RAYCOD(2) of the failure
+   !   msg_id  out: MSG_NO_AIM_SOLUTION on the failure branch (legacy prints
+   !           RAY_FAILURE(NEWOBJ), then SHOWIT, under MSG); else MSG_NONE
    ! ------------------------------------------------------------------------
    pure subroutine newdel(aim, p1, obj_thickness, pn, xstrt, ystrt, zstrt, newobj, &
-                          mf1, mf2, d11, d12, d21, d22, st, delfail, macfal_requested)
+                          mf1, mf2, d11, d12, d21, d22, st, delfail, macfal_requested, msg_id)
       type(aim_settings), intent(in) :: aim
       type(surface_placement), intent(in) :: p1
       real(real64), intent(in) :: obj_thickness, pn(3), xstrt, ystrt, zstrt
@@ -558,13 +564,16 @@ contains
       type(aim_state), intent(inout) :: st
       logical, intent(inout) :: delfail
       logical, intent(out) :: macfal_requested
+      integer, intent(out) :: msg_id
       real(real64) :: ddelx, ddely
 
       macfal_requested = .false.
+      msg_id = MSG_NONE
 
       if (d11 == 0.0_real64 .and. d12 == 0.0_real64 .and. d21 == 0.0_real64 &
           .and. d22 == 0.0_real64) then
          ! no solution exists to aim the reference ray to AIMTOL
+         msg_id = MSG_NO_AIM_SOLUTION
          st%stopp = 1
          st%raycod(1) = 16
          st%raycod(2) = newobj
