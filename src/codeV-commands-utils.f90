@@ -2312,11 +2312,13 @@ contains
     !## cmd:      RAYENGINE
     !## syntax:   RAYENGINE [ON | OFF | CHECK]
     !## category: Diagnostics
-    !## desc:     Chooses the tracer CAPFN (and the plots built on it) uses.
+    !## desc:     Chooses the tracer CAPFN and the spot diagram (SPD, SPO, and
+    !##           the plots built on them) use.
     !##           ON (default): the global-free ray trace engine, for any lens
     !##           it supports, else the legacy tracer.  OFF: always the legacy
-    !##           tracer.  CHECK: trace with both and compare everything CAPFN
-    !##           stores, printing "RAYENGINE CHECK: rows N, mismatches M".
+    !##           tracer.  CHECK: trace with both and compare everything they
+    !##           store, printing "RAYENGINE CHECK: rows N, mismatches M"
+    !##           (CAPFN) or "RAYENGINE CHECK (SPOT): rows N, mismatches M".
     !##           With no argument, reports the current setting.
     !##
     module procedure execRAYENGINE
