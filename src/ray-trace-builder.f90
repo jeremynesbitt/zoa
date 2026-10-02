@@ -13,7 +13,7 @@ module mod_ray_trace_builder
    implicit none
    private
 
-   public :: build_trace_context, placement_of, apertures_of, optics_of
+   public :: build_trace_context, placement_of, apertures_of, optics_of, aim_settings_of
 
 contains
 
@@ -35,6 +35,7 @@ contains
       ctx%telecentric = sys_telecentric() /= 0.0_real64
       ctx%aim_tol = AIMTOL
       ctx%max_aim_iter = NRAITR
+      ctx%aim = aim_settings_of(NEWREF)
 
       ctx%chief_exists = REFEXT
       allocate(ctx%chief(RR_N, ctx%obj:ctx%img))
@@ -195,5 +196,34 @@ contains
          end if
       end if
    end function optics_of
+
+
+   ! Fill an aim_settings for reference surface ref from the legacy globals:
+   ! everything the ray-aiming leaf routines (compute_aim_target/APLANA, GETZEE1,
+   ! NEWDEL, MISSREF) read that is not a per-surface placement or aperture.
+   function aim_settings_of(ref) result(a)
+      use DATLEN, only: SYSTEM, ANAAIM, AIMTOL, PXTRAX, PXTRAY
+      use mod_system, only: sys_aplanatic_aim, sys_ref_orient
+      use mod_surface, only: surf_curvature, surf_conic, surf_array_parity
+      use surface_params, only: SYS_FLIPREFX, SYS_FLIPREFY
+      use mod_ray_aiming, only: aim_settings
+      integer, intent(in) :: ref
+      type(aim_settings) :: a
+
+      a%aplanatic = sys_aplanatic_aim() == 1.0_real64
+      a%ref_orient = sys_ref_orient()
+      a%flip_x = SYSTEM(SYS_FLIPREFX) /= 0.0_real64
+      a%flip_y = SYSTEM(SYS_FLIPREFY) /= 0.0_real64
+      a%ana_aim = ANAAIM
+      a%aim_tol = AIMTOL
+      a%ref_curvature = surf_curvature(ref)
+      a%ref_array_parity = surf_array_parity(ref)
+      a%ref_pxtrax1 = PXTRAX(1, ref)
+      a%ref_pxtray1 = PXTRAY(1, ref)
+      a%ref_pxtray5 = PXTRAY(5, ref)
+      ! GETZEE1 / NEWDEL read surface 1 itself (not NEWOBJ+1)
+      a%surf1_curvature = surf_curvature(1)
+      a%surf1_conic = surf_conic(1)
+   end function aim_settings_of
 
 end module mod_ray_trace_builder

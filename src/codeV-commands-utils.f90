@@ -793,7 +793,10 @@ contains
     !##           bit.  Also runs every surface's clear aperture / obscuration
     !##           check (legacy CACHEK) against its port, check_apertures, over a
     !##           grid of points, comparing the return code and every value CACHEK
-    !##           leaves behind.  BRIEF prints only counts and verdicts.
+    !##           leaves behind.  Also compares the ray-aiming leaf routines
+    !##           (compute_aim_target/APLANA, GETZEE1, RAYDERIV, NEWDEL, MISSREF,
+    !##           adjustLastSurface) with their ports in mod_ray_aiming, bit for
+    !##           bit.  BRIEF prints only counts and verdicts.
     !##
     module procedure execENGINETEST
         use DATLEN, only: NEWOBJ, NEWIMG, R_X, R_Y, R_Z, R_L, R_M, R_N, R_I, &
@@ -807,7 +810,10 @@ contains
                                set_surf_coat_type, set_surf_cobs_poly, &
                                set_surf_cobs_ape_type, set_surf_cobs_ape_data, &
                                set_surf_cobs_era_type, set_surf_cobs_era_data
-        use mod_ray_trace_builder, only: placement_of, apertures_of
+        use mod_ray_trace_builder, only: placement_of, apertures_of, aim_settings_of
+        use mod_ray_aiming, only: aim_settings, aim_state, p_compute_aim_target => compute_aim_target, &
+                                  p_getzee1 => getzee1, p_rayderiv => rayderiv, p_newdel => newdel, &
+                                  p_missref => missref, p_adjust_last_surface => adjust_last_surface
         use zoa_output, only: zoa_emit
         use iso_fortran_env, only: int64
         implicit none
@@ -848,6 +854,17 @@ contains
 
         ! ---- HITSUR test tallies ----
         integer :: hs_cases, hs_skip, hs_bad, hs_c4, hs_c20, hs_dum, hs_refl, hs_rv, hs_surfs, hs_gates
+
+        ! ---- ray aiming test state ----
+        ! sections: 1 AIMTARGET, 2 GETZEE1, 3 RAYDERIV, 4 NEWDEL, 5 MISSREF, 6 ADJLAST
+        character(len=10), parameter :: aname(6) = [character(len=10) :: 'AIMTARGET', 'GETZEE1', &
+                                                    'RAYDERIV', 'NEWDEL', 'MISSREF', 'ADJLAST']
+        integer :: ae_n(6), ae_bad(6)
+        integer :: nd_branch(0:11)             ! NEWDEL cases per branch (0 = failure, 11 = fall-through)
+        integer :: gz_err, gz_one, gz_two, ms_blk, aj_rv, aj_big
+        logical :: l_zee
+        common /ERRZEE/ l_zee
+        character(len=240) :: aim_line
 
         call parse(trim(iptStr), ' ', tokens, numTokens)
         brief = .false.
@@ -972,6 +989,9 @@ contains
         ! ---- HITSUR vs hit_and_interact ----
         call run_hitsur()
 
+        ! ---- ray aiming leaf routines vs their ports ----
+        call run_aiming()
+
         ! restore
         R_X = sRX; R_Y = sRY; R_Z = sRZ; R_L = sRL; R_M = sRM; R_N = sRN
         R_I = sRI; R_TX = sTX; R_TY = sTY; R_TZ = sTZ
@@ -1022,6 +1042,18 @@ contains
         write(line, '(A,I0,A,I0,A,I0)') 'HITSUR: cases ', hs_cases, ', skipped ', hs_skip, &
             ', mismatches ', hs_bad
         call zoa_emit(trim(line), "black")
+        call zoa_emit(trim(aim_line), "black")
+        do i = 1, 6
+            write(line, '(A,A,I0,A,I0)') trim(aname(i)), ': cases ', ae_n(i), ', mismatches ', ae_bad(i)
+            call zoa_emit(trim(line), "black")
+        end do
+        if (.not. brief) then
+            write(line, '(A,11(I0,1X),I0)') 'NEWDEL DETAIL: cases per branch 0-11: ', nd_branch
+            call zoa_emit(trim(line), "black")
+            write(line, '(A,I0,A,I0,A,I0,A,I0,A,I0)') 'AIM DETAIL: GETZEE1 miss ', gz_err, ', one hit ', gz_one, &
+                ', two hits ', gz_two, ', MISSREF blocked ', ms_blk, ', ADJLAST reversed ', aj_rv
+            call zoa_emit(trim(line), "black")
+        end if
         if (.not. brief) then
             write(line, '(A,I0,A,I0,A,I0,A,I0,A,I0,A,I0,A,I0)') 'HITSUR DETAIL: surfaces compared ', hs_surfs, &
                 ', code 4 ', hs_c4, ', code 20 ', hs_c20, ', dummy ', hs_dum, ', reflection ', hs_refl, &
@@ -1030,6 +1062,9 @@ contains
         end if
         if (cc_bad > 0 .and. len_trim(failName) == 0) failName = 'CACHEK'
         if (hs_bad > 0 .and. len_trim(failName) == 0) failName = 'HITSUR'
+        do i = 1, 6
+            if (ae_bad(i) > 0 .and. len_trim(failName) == 0) failName = aname(i)
+        end do
         if (len_trim(failName) == 0) then
             call zoa_emit('ENGINETEST: PASS', "black")
         else
@@ -1541,6 +1576,737 @@ contains
             real(real64), intent(in) :: p, q
             same_r = transfer(p, 0_int64) == transfer(q, 0_int64)
         end function same_r
+
+        ! ================================================================
+        ! Ray aiming leaf routines against their ports (mod_ray_aiming).
+        !   AIMTARGET  compute_aim_target (+ APLANA)      <-> compute_aim_target
+        !   GETZEE1                                       <-> getzee1
+        !   RAYDERIV                                      <-> rayderiv
+        !   NEWDEL (incl. GETZEE1/BAKONE)                 <-> newdel
+        !   MISSREF                                       <-> missref
+        !   adjustLastSurface                             <-> adjust_last_surface
+        ! Each case sets every global the legacy routine reads (sentinels in
+        ! every one it writes), runs it, reads every global it writes, then runs
+        ! the port from the same values; the results must be identical bit for
+        ! bit.  Everything touched is restored at the end.  Beyond the current
+        ! lens, synthetic passes temporarily rewrite the reference surface's
+        ! clear aperture / curvature / array parity and surface 1's curvature and
+        ! conic, so branches no fixture reaches are covered on every lens.
+        ! ================================================================
+        subroutine run_aiming()
+            use DATLEN, only: NEWREF, ANAAIM, SYSTEM, PXTRAX, PXTRAY, REFMISS, XSTRT, YSTRT, ZSTRT, &
+                              REFRY, REFEXT, XC, YC, ZC, X1AIM, Y1AIM, Z1AIM, XAIMOL, YAIMOL, ZAIMOL, &
+                              INTERS
+            use mod_surface, only: surf_curvature, surf_conic, set_surf_curvature, set_surf_conic, &
+                                   surf_array_parity, set_surf_array_parity, surf_multi_clap_flag, &
+                                   set_surf_multi_clap_flag
+            use mod_system, only: sys_aplanatic_aim, sys_set_aplanatic_aim, sys_ray_aiming
+            use surface_params, only: SYS_FLIPREFX, SYS_FLIPREFY
+            type(aim_state) :: sv
+            type(surface_apertures) :: keep
+            type(aim_settings) :: aimcfg
+            real(real64) :: sv_xs, sv_ys, sv_zs, sv_aplan, sv_orient, sv_fx, sv_fy, sv_cv1, sv_cc1
+            real(real64) :: sv_cvr, sv_px1, sv_py1, sv_py5
+            real(real64) :: sv_ls, sv_aimtol, sv_x0, sv_y0, sv_xt(200), sv_yt(200)
+            integer :: sv_par, sv_multi, sv_np
+            logical :: sv_ana, sv_refmiss, sv_zee, sv_msg
+
+            ae_n = 0; ae_bad = 0; nd_branch = 0
+            ! what the current lens sets up for the aiming routines (integers/flags
+            ! only), so a reader can see which branches the fixture reaches
+            keep = apertures_of(NEWREF)
+            aimcfg = aim_settings_of(NEWREF)
+            write(aim_line, '(A,I0,A,I0,A,I0,A,L1,A,L1,A,L1,A,L1,A,L1,A,L1,A,L1,A,L1,A,L1)') &
+                'AIM SETUP: reference surface ', NEWREF, ', clap type ', keep%clap_type, &
+                ', multi clap ', keep%multi_clap_n, ', aplanatic ', aimcfg%aplanatic, &
+                ', flip X ', aimcfg%flip_x, ', flip Y ', aimcfg%flip_y, ', orient ', &
+                aimcfg%ref_orient /= 0.0_real64, ', clap decentered or tilted ', &
+                (keep%clap_dim(3) /= 0.0_real64 .or. keep%clap_dim(4) /= 0.0_real64 .or. &
+                 keep%clap_tilt /= 0.0_real64), ', surface 1 curved ', &
+                aimcfg%surf1_curvature /= 0.0_real64, ', surface 1 conic ', &
+                aimcfg%surf1_conic /= 0.0_real64, ', ray aiming ', sys_ray_aiming() /= 0.0_real64, &
+                ', last surface thickness ', pl_all(NEWIMG)%thickness /= 0.0_real64
+            gz_err = 0; gz_one = 0; gz_two = 0; ms_blk = 0; aj_rv = 0; aj_big = 0
+
+            ! save everything the sections touch
+            call get_aim(sv)
+            sv_xs = XSTRT; sv_ys = YSTRT; sv_zs = ZSTRT
+            sv_ana = ANAAIM; sv_aplan = sys_aplanatic_aim(); sv_orient = SYSTEM(59)
+            sv_fx = SYSTEM(SYS_FLIPREFX); sv_fy = SYSTEM(SYS_FLIPREFY)
+            sv_cv1 = surf_curvature(1); sv_cc1 = surf_conic(1)
+            sv_cvr = surf_curvature(NEWREF); sv_par = surf_array_parity(NEWREF)
+            sv_multi = surf_multi_clap_flag(NEWREF)
+            sv_px1 = PXTRAX(1, NEWREF); sv_py1 = PXTRAY(1, NEWREF); sv_py5 = PXTRAY(5, NEWREF)
+            sv_refmiss = REFMISS; sv_ls = l_ls; sv_aimtol = AIMTOL; sv_msg = MSG
+            sv_x0 = X0; sv_y0 = Y0; sv_np = NP; sv_xt = XT(1:200); sv_yt = YT(1:200)
+            sv_zee = l_zee
+            keep = apertures_of(NEWREF)
+            MSG = .false.
+
+            call sec_aimtarget()
+            call sec_getzee_newdel()
+            call sec_rayderiv()
+            call sec_missref()
+            call sec_adjlast()
+
+            ! restore
+            call put_aim(sv)
+            XSTRT = sv_xs; YSTRT = sv_ys; ZSTRT = sv_zs
+            ANAAIM = sv_ana; call sys_set_aplanatic_aim(sv_aplan); SYSTEM(59) = sv_orient
+            SYSTEM(SYS_FLIPREFX) = sv_fx; SYSTEM(SYS_FLIPREFY) = sv_fy
+            call set_surf_curvature(1, sv_cv1); call set_surf_conic(1, sv_cc1)
+            call set_surf_curvature(NEWREF, sv_cvr); call set_surf_array_parity(NEWREF, sv_par)
+            call set_surf_multi_clap_flag(NEWREF, sv_multi)
+            PXTRAX(1, NEWREF) = sv_px1; PXTRAY(1, NEWREF) = sv_py1; PXTRAY(5, NEWREF) = sv_py5
+            call restore_surface(NEWREF, keep)
+            REFMISS = sv_refmiss; l_ls = sv_ls; AIMTOL = sv_aimtol; MSG = sv_msg
+            X0 = sv_x0; Y0 = sv_y0; NP = sv_np; XT(1:200) = sv_xt; YT(1:200) = sv_yt
+            l_zee = sv_zee
+        end subroutine run_aiming
+
+        ! ---- state transfer between the legacy globals and aim_state ----
+        subroutine get_aim(st)
+            use DATLEN, only: XC, YC, ZC, X1AIM, Y1AIM, Z1AIM, XAIMOL, YAIMOL, ZAIMOL, INTERS, REFEXT
+            type(aim_state), intent(out) :: st
+            st%xc = XC; st%yc = YC; st%zc = ZC
+            st%x1aim = X1AIM; st%y1aim = Y1AIM; st%z1aim = Z1AIM
+            st%xaimol = XAIMOL; st%yaimol = YAIMOL; st%zaimol = ZAIMOL
+            st%r_x = R_X; st%r_y = R_Y; st%r_z = R_Z; st%r_l = R_L; st%r_m = R_M; st%r_n = R_N
+            st%r_tx = R_TX; st%r_ty = R_TY; st%r_tz = R_TZ
+            st%inters = INTERS; st%zeeerr = l_zee
+            st%stopp = STOPP; st%raycod = RAYCOD; st%spdcd1 = l_spd1; st%spdcd2 = l_spd2
+            st%refext = REFEXT
+        end subroutine get_aim
+
+        subroutine put_aim(st)
+            use DATLEN, only: XC, YC, ZC, X1AIM, Y1AIM, Z1AIM, XAIMOL, YAIMOL, ZAIMOL, INTERS, REFEXT
+            type(aim_state), intent(in) :: st
+            XC = st%xc; YC = st%yc; ZC = st%zc
+            X1AIM = st%x1aim; Y1AIM = st%y1aim; Z1AIM = st%z1aim
+            XAIMOL = st%xaimol; YAIMOL = st%yaimol; ZAIMOL = st%zaimol
+            R_X = st%r_x; R_Y = st%r_y; R_Z = st%r_z; R_L = st%r_l; R_M = st%r_m; R_N = st%r_n
+            R_TX = st%r_tx; R_TY = st%r_ty; R_TZ = st%r_tz
+            INTERS = st%inters; l_zee = st%zeeerr
+            STOPP = st%stopp; RAYCOD = st%raycod; l_spd1 = st%spdcd1; l_spd2 = st%spdcd2
+            REFEXT = st%refext
+        end subroutine put_aim
+
+        logical function same_aim(a, b)
+            type(aim_state), intent(in) :: a, b
+            same_aim = same_rn(a%xc, b%xc) .and. same_rn(a%yc, b%yc) .and. same_rn(a%zc, b%zc) .and. &
+                       same_rn(a%x1aim, b%x1aim) .and. same_rn(a%y1aim, b%y1aim) .and. same_rn(a%z1aim, b%z1aim) .and. &
+                       same_rn(a%xaimol, b%xaimol) .and. same_rn(a%yaimol, b%yaimol) .and. &
+                       same_rn(a%zaimol, b%zaimol) .and. &
+                       same_rn(a%r_x, b%r_x) .and. same_rn(a%r_y, b%r_y) .and. same_rn(a%r_z, b%r_z) .and. &
+                       same_rn(a%r_l, b%r_l) .and. same_rn(a%r_m, b%r_m) .and. same_rn(a%r_n, b%r_n) .and. &
+                       same_rn(a%r_tx, b%r_tx) .and. same_rn(a%r_ty, b%r_ty) .and. same_rn(a%r_tz, b%r_tz) .and. &
+                       a%inters == b%inters .and. (a%zeeerr .eqv. b%zeeerr) .and. a%stopp == b%stopp .and. &
+                       all(a%raycod == b%raycod) .and. a%spdcd1 == b%spdcd1 .and. a%spdcd2 == b%spdcd2 .and. &
+                       (a%refext .eqv. b%refext)
+        end function same_aim
+
+        ! Bit-for-bit equality, except that any two NaNs count as equal: legacy and
+        ! port can differ in the sign bit of a NaN produced by the same operations
+        ! (the sign of a generated NaN is not defined by the arithmetic), and a NaN
+        ! is a NaN whichever way.  Every other value must match exactly.
+        logical function same_rn(p, q)
+            real(real64), intent(in) :: p, q
+            same_rn = (p /= p .and. q /= q) .or. transfer(p, 0_int64) == transfer(q, 0_int64)
+        end function same_rn
+
+        ! A state full of distinct sentinels, so any value a routine fails to
+        ! write (or writes differently) shows up.
+        function sentinel_state() result(st)
+            type(aim_state) :: st
+            st%xc = -91.1_real64; st%yc = -92.2_real64; st%zc = -93.3_real64
+            st%x1aim = -81.1_real64; st%y1aim = -82.2_real64; st%z1aim = -83.3_real64
+            st%xaimol = -71.1_real64; st%yaimol = -72.2_real64; st%zaimol = -73.3_real64
+            st%r_x = -61.1_real64; st%r_y = -62.2_real64; st%r_z = -63.3_real64
+            st%r_l = -51.1_real64; st%r_m = -52.2_real64; st%r_n = -53.3_real64
+            st%r_tx = -41.1_real64; st%r_ty = -42.2_real64; st%r_tz = -43.3_real64
+            st%inters = 77; st%zeeerr = .true.; st%stopp = -7; st%raycod = -3
+            st%spdcd1 = -5; st%spdcd2 = -5; st%refext = .true.
+        end function sentinel_state
+
+        ! The normal SAGINT returns at the pivot of surface NEWOBJ+1: the one
+        ! part of FORONEL that is surface geometry (as in the FORONEL test).
+        subroutine pivot_normal(pnv)
+            real(real64), intent(out) :: pnv(3)
+            real(real64) :: z
+            pnv = [0.0_real64, 0.0_real64, 1.0_real64]
+            if (pivot_normal_needed(pl_all(nobj1))) &
+                call SAGINT(nobj1, pl_all(nobj1)%pivot_x, pl_all(nobj1)%pivot_y, z, pnv(1), pnv(2), pnv(3))
+        end subroutine pivot_normal
+
+        ! Point the legacy surface-1 curvature and conic at (cv, cc).
+        subroutine set_surf1(cv, cc)
+            use mod_surface, only: set_surf_curvature, set_surf_conic
+            real(real64), intent(in) :: cv, cc
+            call set_surf_curvature(1, cv)
+            call set_surf_conic(1, cc)
+        end subroutine set_surf1
+
+        ! Set the reference surface's clear aperture from a record
+        ! (type, dim1, dim2, dec_y, dec_x, dim5, tilt) through the legacy setters.
+        subroutine set_clap(sf, ty, d1, d2, dy, dx, d5, tl)
+            integer, intent(in) :: sf, ty
+            real(real64), intent(in) :: d1, d2, dy, dx, d5, tl
+            call set_surf_clap_type(sf, ty)
+            call set_surf_clap_dim(sf, 1, d1)
+            call set_surf_clap_dim(sf, 2, d2)
+            call set_surf_clap_dim(sf, 3, dy)
+            call set_surf_clap_dim(sf, 4, dx)
+            call set_surf_clap_dim(sf, 5, d5)
+            call set_surf_clap_tilt(sf, tl)
+        end subroutine set_clap
+
+        ! Fill the stack below the caller with zeros, so that the uninitialised
+        ! locals JK1/JK2/JK3 of legacy MISSREF (never assigned there) read as the
+        ! zero offsets the routine was written for.
+        subroutine scrub_stack()
+            real(real64) :: pad(4096)
+            pad = 0.0_real64
+            if (pad(1) /= 0.0_real64) pad(2) = 1.0_real64
+        end subroutine scrub_stack
+
+        ! ----------------------------------------------------------------
+        ! AIMTARGET
+        ! ----------------------------------------------------------------
+        subroutine sec_aimtarget()
+            use DATLEN, only: NEWREF, ANAAIM, SYSTEM, PXTRAX, PXTRAY
+            use mod_surface, only: surf_curvature, set_surf_curvature, set_surf_array_parity, &
+                                   set_surf_multi_clap_flag, surf_array_parity
+            use mod_system, only: sys_set_aplanatic_aim
+            use surface_params, only: SYS_FLIPREFX, SYS_FLIPREFY
+            ! synthetic aperture dimension sets (dim1, dim2, dim5): dim1 < dim2,
+            ! dim1 > dim2, and large ones for which the aplanatic adjustment is
+            ! skipped (|R| < dim)
+            real(real64), parameter :: dimset(3, 3) = reshape([3.0d0, 5.0d0, 1.0d0, &
+                                                               5.0d0, 3.0d0, 4.0d0, &
+                                                               25.0d0, 30.0d0, 2.0d0], [3, 3])
+            ! decenter y, decenter x, tilt
+            real(real64), parameter :: decset(3, 4) = reshape([0.0d0, 0.0d0, 0.0d0, &
+                                                               0.2d0, -0.1d0, 0.0d0, &
+                                                               0.0d0, 0.0d0, 12.0d0, &
+                                                               0.1d0, 0.2d0, 15.0d0], [3, 4])
+            ! (aplanatic, ANAAIM, ref orientation, curvature (0 = lens), array parity)
+            real(real64), parameter :: combo(5, 5) = reshape([ &
+                0.0d0, 1.0d0, 0.0d0, 0.0d0, 0.0d0, &
+                1.0d0, 1.0d0, 0.0d0, 0.05d0, 0.0d0, &
+                1.0d0, 0.0d0, 17.5d0, 0.05d0, 1.0d0, &
+                0.0d0, 0.0d0, 17.5d0, 0.0d0, 0.0d0, &
+                1.0d0, 1.0d0, 0.0d0, 0.0d0, 0.0d0], [5, 5])
+            integer :: ana, ish, idm, idc, ifl, ico
+            real(real64) :: cv_keep, px1, py1, py5
+            integer :: par_keep
+            type(surface_apertures) :: keep_ap
+
+            keep_ap = apertures_of(NEWREF)
+
+            ! the current lens as it stands (both ANAAIM values)
+            do ana = 1, 2
+                ANAAIM = (ana == 1)
+                call target_grid(13, 0.2_real64)
+            end do
+            ANAAIM = .true.
+
+            ! synthetic reference-surface settings
+            cv_keep = surf_curvature(NEWREF); par_keep = surf_array_parity(NEWREF)
+            px1 = PXTRAX(1, NEWREF); py1 = PXTRAY(1, NEWREF); py5 = PXTRAY(5, NEWREF)
+            PXTRAX(1, NEWREF) = 2.0_real64
+            PXTRAY(1, NEWREF) = 2.5_real64
+            PXTRAY(5, NEWREF) = 0.4_real64
+            do ico = 1, 5
+                call sys_set_aplanatic_aim(combo(1, ico))
+                ANAAIM = (combo(2, ico) /= 0.0_real64)
+                SYSTEM(59) = combo(3, ico)
+                if (combo(4, ico) /= 0.0_real64) then
+                    call set_surf_curvature(NEWREF, combo(4, ico))
+                else
+                    call set_surf_curvature(NEWREF, cv_keep)
+                end if
+                call set_surf_array_parity(NEWREF, nint(combo(5, ico)))
+                do ifl = 0, 3
+                    SYSTEM(SYS_FLIPREFX) = real(mod(ifl, 2), real64)
+                    SYSTEM(SYS_FLIPREFY) = real(ifl/2, real64)
+                    do ish = 0, 6
+                        do idm = 1, 3
+                            do idc = 1, 4
+                                call set_clap(NEWREF, ish, dimset(1, idm), dimset(2, idm), decset(1, idc), &
+                                              decset(2, idc), dimset(3, idm), decset(3, idc))
+                                call target_grid(9, 0.3_real64)
+                            end do
+                        end do
+                    end do
+                end do
+            end do
+            ! multiple clear apertures on the reference surface: paraxial target
+            ! (shape 0 with the flag set is the same path; shapes 1-3 are skipped by the flag)
+            call sys_set_aplanatic_aim(1.0d0)
+            call set_surf_curvature(NEWREF, 0.05d0)
+            call set_surf_array_parity(NEWREF, 0)
+            call set_surf_multi_clap_flag(NEWREF, 1)
+            do ifl = 0, 3
+                SYSTEM(SYS_FLIPREFX) = real(mod(ifl, 2), real64)
+                SYSTEM(SYS_FLIPREFY) = real(ifl/2, real64)
+                do ish = 1, 3
+                    call set_clap(NEWREF, ish, 3.0d0, 5.0d0, 0.0d0, 0.0d0, 1.0d0, 0.0d0)
+                    call target_grid(9, 0.3_real64)
+                end do
+            end do
+            call set_surf_multi_clap_flag(NEWREF, 0)
+            call set_surf_curvature(NEWREF, cv_keep)
+            call set_surf_array_parity(NEWREF, par_keep)
+            PXTRAX(1, NEWREF) = px1; PXTRAY(1, NEWREF) = py1; PXTRAY(5, NEWREF) = py5
+            call restore_surface(NEWREF, keep_ap)
+        end subroutine sec_aimtarget
+
+        ! n x n grid of relative pupil coordinates over [-1.2, 1.2]^2 (n odd)
+        subroutine target_grid(n, step)
+            use DATLEN, only: NEWREF
+            integer, intent(in) :: n
+            real(real64), intent(in) :: step
+            type(aim_settings) :: aim
+            type(surface_apertures) :: ap
+            real(real64) :: w1, w2, lx, ly, px, py
+            integer :: i1, i2
+
+            aim = aim_settings_of(NEWREF)
+            ap = apertures_of(NEWREF)
+            do i1 = 1, n
+                do i2 = 1, n
+                    w1 = real(i1 - (n + 1)/2, real64)*step
+                    w2 = real(i2 - (n + 1)/2, real64)*step
+                    lx = -1.0e30_real64; ly = -1.0e30_real64
+                    call compute_aim_target(NEWREF, w1, w2, lx, ly)
+                    call p_compute_aim_target(ap, aim, w1, w2, px, py)
+                    ae_n(1) = ae_n(1) + 1
+                    if (.not. (same_rn(lx, px) .and. same_rn(ly, py))) ae_bad(1) = ae_bad(1) + 1
+                end do
+            end do
+        end subroutine target_grid
+
+        ! ----------------------------------------------------------------
+        ! GETZEE1 and NEWDEL (which calls GETZEE1 and BAKONE)
+        ! ----------------------------------------------------------------
+        subroutine sec_getzee_newdel()
+            use DATLEN, only: XSTRT, YSTRT, ZSTRT, REFRY, REFEXT
+            use mod_surface, only: surf_curvature, surf_conic
+            use ieee_arithmetic, only: ieee_value, ieee_quiet_nan
+            ! surface-1 curvature / conic variants: (use lens as is = 0), flat,
+            ! sphere, parabola (conic -1: GETZEE1's one-intersection branch),
+            ! negative sphere with a conic, oblate/prolate conic
+            real(real64), parameter :: cvs(6) = [0.0d0, 0.0d0, 0.02d0, 0.02d0, -0.03d0, 0.05d0]
+            real(real64), parameter :: ccs(6) = [0.0d0, 0.0d0, 0.0d0, -1.0d0, -0.6d0, 1.5d0]
+            real(real64), parameter :: axs(4) = [0.0d0, 0.7d0, -1.3d0, 3.0d0]
+            real(real64), parameter :: ays(4) = [0.0d0, 0.4d0, -2.2d0, 5.0d0]
+            real(real64), parameter :: azs(6) = [0.0d0, 0.05d0, 30.0d0, -30.0d0, 80.0d0, -60.0d0]
+            ! object points (XSTRT, YSTRT, ZSTRT), in the NEWOBJ frame
+            real(real64), parameter :: objs(3, 2) = reshape([0.0d0, 0.5d0, -20.0d0, &
+                                                             1.0d0, -2.0d0, -30.0d0], [3, 2])
+            ! derivative quadruples (D11, D12, D21, D22), one per NEWDEL branch in
+            ! legacy order: 0 failure (all zero), 1 (11,22), 2 (11,12), 3 (21,12),
+            ! 4 (21,22), 5 (11,21), 6 (12,22), 7 only D22, 8 only D11, 9 only D12,
+            ! and the fall-through (only D21)
+            real(real64), parameter :: dq(4, 11) = reshape([ &
+                0.0d0, 0.0d0, 0.0d0, 0.0d0, &
+                1.5d0, 0.3d0, -0.2d0, 0.8d0, &
+                1.2d0, 0.4d0, 0.3d0, 0.0d0, &
+                0.0d0, 0.4d0, 0.3d0, 0.0d0, &
+                0.0d0, 0.0d0, 0.3d0, 0.7d0, &
+                1.2d0, 0.0d0, 0.3d0, 0.0d0, &
+                0.0d0, 0.4d0, 0.0d0, 0.7d0, &
+                0.0d0, 0.0d0, 0.0d0, 0.7d0, &
+                1.2d0, 0.0d0, 0.0d0, 0.0d0, &
+                0.0d0, 0.4d0, 0.0d0, 0.0d0, &
+                0.0d0, 0.0d0, 0.3d0, 0.0d0], [4, 11])
+            real(real64), parameter :: mfs(2, 2) = reshape([0.3d0, -0.2d0, -1.1d0, 0.7d0], [2, 2])
+            real(real64), parameter :: aol(3, 2) = reshape([0.2d0, -0.1d0, 0.0d0, 1.5d0, 2.5d0, 0.05d0], [3, 2])
+            real(real64) :: cv_keep, cc_keep, ob(3, 3)
+            integer :: iv, ia, ib, ic, iq, im, io, nob, k
+            real(real64) :: qnan
+            type(surface_placement) :: p1
+            real(real64) :: thk, pnv(3)
+
+            qnan = ieee_value(1.0_real64, ieee_quiet_nan)
+            cv_keep = surf_curvature(1); cc_keep = surf_conic(1)
+            p1 = pl_all(nobj1)
+            thk = pl_all(NEWOBJ)%thickness
+            nob = 2
+            ob(:, 1:2) = objs
+            if (REFEXT) then
+                nob = 3
+                ob(:, 3) = REFRY(1:3, NEWOBJ)
+            end if
+
+            do iv = 1, 6
+                if (iv == 1) then
+                    call set_surf1(cv_keep, cc_keep)
+                else
+                    call set_surf1(cvs(iv), ccs(iv))
+                end if
+                call pivot_normal(pnv)
+                ! GETZEE1 over a grid of aim points
+                do io = 1, nob
+                    do ia = 1, 4
+                        do ib = 1, 4
+                            do ic = 1, 6
+                                call one_getzee(axs(ia), ays(ib), azs(ic), ob(:, io), p1, thk, pnv)
+                            end do
+                        end do
+                    end do
+                    ! aim points off the surface: the ray misses the sphere (ZEEERR)
+                    call one_getzee(30.0d0, 0.0d0, 0.0d0, ob(:, io), p1, thk, pnv)
+                    call one_getzee(0.0d0, 40.0d0, 0.0d0, ob(:, io), p1, thk, pnv)
+                    ! NaN aim points (legacy debugging code was written for these):
+                    ! the only way to the "else" of |HV1| <= |HV2|, since the stable
+                    ! quadratic formula always makes HV1 the nearer root
+                    call one_getzee(qnan, 0.0d0, 0.0d0, ob(:, io), p1, thk, pnv)
+                    call one_getzee(0.0d0, qnan, 0.5d0, ob(:, io), p1, thk, pnv)
+                end do
+                ! NEWDEL over every derivative branch
+                do iq = 1, 11
+                    do im = 1, 2
+                        do ia = 1, 2
+                            do io = 1, nob
+                                call one_newdel(mfs(1, im), mfs(2, im), dq(1, iq), dq(2, iq), dq(3, iq), &
+                                                dq(4, iq), aol(:, ia), ob(:, io), p1, thk, pnv)
+                            end do
+                        end do
+                    end do
+                end do
+            end do
+            call set_surf1(cv_keep, cc_keep)
+        end subroutine sec_getzee_newdel
+
+        subroutine one_getzee(x, y, z, ob, p1, thk, pnv)
+            use DATLEN, only: XC, YC, ZC, XSTRT, YSTRT, ZSTRT, NEWREF
+            real(real64), intent(in) :: x, y, z, ob(3), thk, pnv(3)
+            type(surface_placement), intent(in) :: p1
+            type(aim_state) :: s0, stl, stp
+            type(aim_settings) :: aim
+
+            aim = aim_settings_of(NEWREF)
+            s0 = sentinel_state()
+            s0%xc = x; s0%yc = y; s0%zc = z
+            ! legacy
+            call put_aim(s0)
+            XSTRT = ob(1); YSTRT = ob(2); ZSTRT = ob(3)
+            call GETZEE1
+            call get_aim(stl)
+            ! port
+            stp = s0
+            call p_getzee1(aim, p1, thk, pnv, ob(1), ob(2), ob(3), stp)
+            ae_n(2) = ae_n(2) + 1
+            if (.not. same_aim(stl, stp)) ae_bad(2) = ae_bad(2) + 1
+            if (stl%zeeerr) gz_err = gz_err + 1
+            if (.not. stl%zeeerr .and. stl%inters == 1) gz_one = gz_one + 1
+            if (.not. stl%zeeerr .and. stl%inters == 2) gz_two = gz_two + 1
+        end subroutine one_getzee
+
+        ! the NEWDEL branch (legacy order) a derivative quadruple selects; 11 = none
+        integer function newdel_branch(d11, d12, d21, d22)
+            real(real64), intent(in) :: d11, d12, d21, d22
+            newdel_branch = 11
+            if (d11 == 0.0d0 .and. d12 == 0.0d0 .and. d21 == 0.0d0 .and. d22 == 0.0d0) then
+                newdel_branch = 0
+            else if (d11 /= 0.0d0 .and. d22 /= 0.0d0) then
+                newdel_branch = 1
+            else if (d11 /= 0.0d0 .and. d12 /= 0.0d0) then
+                newdel_branch = 2
+            else if (d21 /= 0.0d0 .and. d12 /= 0.0d0) then
+                newdel_branch = 3
+            else if (d21 /= 0.0d0 .and. d22 /= 0.0d0) then
+                newdel_branch = 4
+            else if (d11 /= 0.0d0 .and. d21 /= 0.0d0) then
+                newdel_branch = 5
+            else if (d12 /= 0.0d0 .and. d22 /= 0.0d0) then
+                newdel_branch = 6
+            else if (d11 == 0.0d0 .and. d12 == 0.0d0 .and. d21 == 0.0d0) then
+                newdel_branch = 7
+            else if (d12 == 0.0d0 .and. d21 == 0.0d0 .and. d22 == 0.0d0) then
+                newdel_branch = 8
+            else if (d11 == 0.0d0 .and. d21 == 0.0d0 .and. d22 == 0.0d0) then
+                newdel_branch = 9
+            end if
+        end function newdel_branch
+
+        subroutine one_newdel(mf1, mf2, d11, d12, d21, d22, ao, ob, p1, thk, pnv)
+            use DATLEN, only: XSTRT, YSTRT, ZSTRT, NEWREF
+            use GLOBALS, only: FOBRUN
+            use DATMAI, only: ALLSTOP, GUIERROR
+            use DATSUB, only: BADOPS
+            real(real64), intent(in) :: mf1, mf2, d11, d12, d21, d22, ao(3), ob(3), thk, pnv(3)
+            type(surface_placement), intent(in) :: p1
+            type(aim_state) :: s0, stl, stp
+            type(aim_settings) :: aim
+            logical :: dl, dp, mreq, b_fobrun, b_gui, b_all, b_bad
+            integer :: flags(100)
+            common /FLAGS/ flags
+            integer :: sflags(100)
+
+            aim = aim_settings_of(NEWREF)
+            s0 = sentinel_state()
+            s0%xaimol = ao(1); s0%yaimol = ao(2); s0%zaimol = ao(3)
+            ! legacy
+            call put_aim(s0)
+            XSTRT = ob(1); YSTRT = ob(2); ZSTRT = ob(3)
+            dl = .false.
+            ! MACFAL (failure branch) changes unrelated global flags: keep them
+            b_fobrun = FOBRUN; b_gui = GUIERROR; b_all = ALLSTOP; b_bad = BADOPS; sflags = flags
+            call NEWDEL(mf1, mf2, d11, d12, d21, d22, dl)
+            FOBRUN = b_fobrun; GUIERROR = b_gui; ALLSTOP = b_all; BADOPS = b_bad; flags = sflags
+            call get_aim(stl)
+            ! port
+            stp = s0
+            dp = .false.
+            call p_newdel(aim, p1, thk, pnv, ob(1), ob(2), ob(3), NEWOBJ, mf1, mf2, d11, d12, d21, d22, &
+                          stp, dp, mreq)
+            ae_n(4) = ae_n(4) + 1
+            if (.not. same_aim(stl, stp) .or. (dl .neqv. dp) .or. (mreq .neqv. dl)) ae_bad(4) = ae_bad(4) + 1
+            nd_branch(newdel_branch(d11, d12, d21, d22)) = nd_branch(newdel_branch(d11, d12, d21, d22)) + 1
+        end subroutine one_newdel
+
+        ! ----------------------------------------------------------------
+        ! RAYDERIV
+        ! ----------------------------------------------------------------
+        subroutine sec_rayderiv()
+            ! (last, one) pairs: ordinary, equal (zero denominator), mixed signs,
+            ! the LARGE start value of the aiming loop, tiny
+            real(real64), parameter :: p(2, 6) = reshape([1.0d0, 0.5d0, 0.5d0, 0.5d0, -2.0d0, 3.0d0, &
+                                                          -99999.9d0, -99999.9d0, 1.0d-300, 0.0d0, &
+                                                          0.25d0, -0.25d0], [2, 6])
+            ! landing coordinates (rxone, ryone, rxlast, rylast)
+            real(real64), parameter :: r(4, 4) = reshape([0.1d0, 0.2d0, 0.4d0, 0.9d0, &
+                                                          -1.5d0, 2.5d0, -1.5d0, 2.5d0, &
+                                                          -99999.9d0, -99999.9d0, 0.3d0, -0.3d0, &
+                                                          3.0d0, -2.0d0, 7.0d0, 11.0d0], [4, 4])
+            integer :: ix, iy, ir
+            real(real64) :: l11, l12, l21, l22, q11, q12, q21, q22
+            do ix = 1, 6
+                do iy = 1, 6
+                    do ir = 1, 4
+                        l11 = -9.0d0; l12 = -9.0d0; l21 = -9.0d0; l22 = -9.0d0
+                        call RAYDERIV(p(1, ix), p(1, iy), p(2, ix), p(2, iy), r(1, ir), r(2, ir), &
+                                      r(3, ir), r(4, ir), l11, l12, l21, l22)
+                        call p_rayderiv(p(1, ix), p(1, iy), p(2, ix), p(2, iy), r(1, ir), r(2, ir), &
+                                        r(3, ir), r(4, ir), q11, q12, q21, q22)
+                        ae_n(3) = ae_n(3) + 1
+                        if (.not. (same_rn(l11, q11) .and. same_rn(l12, q12) .and. same_rn(l21, q21) &
+                                   .and. same_rn(l22, q22))) ae_bad(3) = ae_bad(3) + 1
+                    end do
+                end do
+            end do
+        end subroutine sec_rayderiv
+
+        ! ----------------------------------------------------------------
+        ! MISSREF
+        ! ----------------------------------------------------------------
+        subroutine sec_missref()
+            use DATLEN, only: NEWREF
+            real(real64), parameter :: dimset(3, 4) = reshape([3.0d0, 5.0d0, 1.0d0, &
+                                                               5.0d0, 3.0d0, 1.0d0, &
+                                                               2.0d0, 2.0d0, 2.0d0, &
+                                                               4.0d0, 2.5d0, 5.0d0], [3, 4])
+            real(real64), parameter :: decset(3, 4) = reshape([0.0d0, 0.0d0, 0.0d0, &
+                                                               0.2d0, -0.1d0, 0.0d0, &
+                                                               0.0d0, 0.0d0, 12.0d0, &
+                                                               0.1d0, 0.2d0, 15.0d0], [3, 4])
+            type(surface_apertures) :: keep_ap
+            integer :: ish, idm, idc, j
+            real(real64) :: cx
+
+            keep_ap = apertures_of(NEWREF)
+            ! the lens as it stands
+            call missref_grid()
+            ! synthetic clear apertures of every type (decentered/tilted or not)
+            do ish = 1, 6
+                do idm = 1, 4
+                    do idc = 1, 4
+                        if (ish == 5) then
+                            ! POLY: number of sides in dim2
+                            call set_clap(NEWREF, ish, dimset(1, idm), real(idm + 2, real64), decset(1, idc), &
+                                          decset(2, idc), 0.0d0, decset(3, idc))
+                        else if (ish == 6) then
+                            ! IPOLY: vertices from the table, number in dim2
+                            do j = 1, 5
+                                cx = dimset(1, idm)
+                                IPOLYX(j, NEWREF, 1) = cx*cos(1.2566370614359172_real64*real(j - 1, real64) + 0.3_real64)
+                                IPOLYY(j, NEWREF, 1) = 0.8_real64*cx*sin(1.2566370614359172_real64*real(j - 1, real64) + 0.3_real64)
+                            end do
+                            call set_clap(NEWREF, ish, dimset(1, idm), 5.0d0, decset(1, idc), &
+                                          decset(2, idc), 0.0d0, decset(3, idc))
+                        else
+                            call set_clap(NEWREF, ish, dimset(1, idm), dimset(2, idm), decset(1, idc), &
+                                          decset(2, idc), dimset(3, idm), decset(3, idc))
+                        end if
+                        call missref_grid()
+                    end do
+                end do
+            end do
+            call restore_surface(NEWREF, keep_ap)
+        end subroutine sec_missref
+
+        ! a grid of points around the reference surface's aperture, plus points
+        ! on and within 1e-8 / 1e-6 of its nominal edges, for two tolerances and
+        ! both starting values of REFMISS
+        subroutine missref_grid()
+            use DATLEN, only: NEWREF, REFMISS
+            integer, parameter :: NG = 21
+            type(surface_apertures) :: ap
+            real(real64) :: dm, span, scl(5), px, py, tols(2), v(2)
+            integer :: ix, iy, isx, isy, iv, iw, isc, it, ir
+            logical :: rm0
+
+            ap = apertures_of(NEWREF)
+            dm = max(abs(ap%clap_dim(1)) + abs(ap%clap_dim(3)) + abs(ap%clap_dim(4)), &
+                     abs(ap%clap_dim(2)) + abs(ap%clap_dim(3)) + abs(ap%clap_dim(4)))
+            if (dm == 0.0d0) dm = 10.0d0
+            span = 1.5d0*dm
+            tols = [AIMTOL, 1.0d-3]
+            do it = 1, 2
+                do ir = 1, 2
+                    rm0 = (ir == 2)
+                    do iy = 0, NG - 1
+                        do ix = 0, NG - 1
+                            px = -span + 2.0d0*span*real(ix, real64)/real(NG - 1, real64)
+                            py = -span + 2.0d0*span*real(iy, real64)/real(NG - 1, real64)
+                            call one_missref(ap, px, py, tols(it), rm0)
+                        end do
+                    end do
+                    scl = [1.0d0, 1.0d0 + 1.0d-8, 1.0d0 - 1.0d-8, 1.0d0 + 1.0d-6, 1.0d0 - 1.0d-6]
+                    v = [ap%clap_dim(1), ap%clap_dim(2)]
+                    do iv = 1, 2
+                        do iw = 1, 2
+                            do isx = -1, 1
+                                do isy = -1, 1
+                                    do isc = 1, 5
+                                        px = ap%clap_dim(4) + real(isx, real64)*v(iv)*scl(isc)
+                                        py = ap%clap_dim(3) + real(isy, real64)*v(iw)*scl(isc)
+                                        call one_missref(ap, px, py, tols(it), rm0)
+                                    end do
+                                end do
+                            end do
+                        end do
+                    end do
+                end do
+            end do
+        end subroutine missref_grid
+
+        subroutine one_missref(ap, px, py, tol, rm0)
+            use DATLEN, only: REFMISS
+            type(surface_apertures), intent(in) :: ap
+            real(real64), intent(in) :: px, py, tol
+            logical, intent(in) :: rm0
+            logical :: lrm, prm
+            real(real64) :: lls, pls, t0
+
+            t0 = AIMTOL
+            AIMTOL = tol
+            REFMISS = rm0
+            l_ls = -99.0_real64
+            call scrub_stack()
+            call MISSREF(px, py)
+            lrm = REFMISS
+            lls = l_ls
+            AIMTOL = t0
+            prm = rm0
+            pls = -99.0_real64
+            call p_missref(ap, px, py, tol, prm, pls)
+            ae_n(5) = ae_n(5) + 1
+            if ((lrm .neqv. prm) .or. .not. same_rn(lls, pls)) ae_bad(5) = ae_bad(5) + 1
+            if (lrm .and. .not. rm0) ms_blk = ms_blk + 1
+        end subroutine one_missref
+
+        ! ----------------------------------------------------------------
+        ! adjustLastSurface: real RAYRAY data from legacy RAYTRA2 traces of a few
+        ! rays, then the routine on every surface L, for the real thickness and
+        ! synthetic ones (negative: reversed ray; huge: the 1e10 guard), two PHASE
+        ! values and three wavelength slots.
+        ! ----------------------------------------------------------------
+        subroutine sec_adjlast()
+            use DATLEN, only: RAYRAY, RAYCOD, RELX, RELY, WWQ, WW1, WW2, WW3, WW4, WW5, WVN, CACOCH, &
+                              REFEXT, RAYEXT, NOCOAT, GRASET, DXFSET, PHASE, REFRY, ANAAIM
+            use mod_surface, only: surf_thickness, set_surf_thickness
+            use real_ray_trace, only: adjustLastSurface
+            use mod_lens_data_manager, only: ldm
+            real(real64), parameter :: pup(2, 6) = reshape([0.0d0, 0.0d0, 0.5d0, 0.0d0, 0.0d0, 0.5d0, &
+                                                            -0.7d0, 0.3d0, 1.0d0, 0.0d0, 0.0d0, -1.0d0], [2, 6])
+            real(real64), parameter :: thv(4) = [-3.0d0, 2.5d0, 1.0d11, -1.0d11]
+            logical :: sv_SPD, sv_msg, sv_ana, sv_nocoat, sv_graset, sv_dxfset, sv_rayext, ok
+            logical :: SPDTRA
+            common /SPRA1/ SPDTRA
+            integer :: sv_cacoch, ir, il, iw, ip, it, nthi, jc, jr
+            real(real64), allocatable :: sv_rayray(:, :), sv_refry(:, :), base(:, :), leg(:, :), prt(:, :)
+            real(real64) :: sv_ww1, sv_ww2, sv_ww3, sv_ww4, sv_ww5, sv_wvn, sv_relx, sv_rely, sv_phase
+            character(len=8) :: sv_wwq
+            type(aim_state) :: sv_aim
+            real(real64) :: thi0
+
+            if (.not. REFEXT) return
+
+            allocate(sv_rayray(size(RAYRAY, 1), 0:ubound(RAYRAY, 2)), sv_refry(size(REFRY, 1), 0:ubound(REFRY, 2)))
+            allocate(base(size(RAYRAY, 1), 0:ubound(RAYRAY, 2)), leg(size(RAYRAY, 1), 0:ubound(RAYRAY, 2)))
+            allocate(prt(1:50, NEWOBJ:NEWIMG))
+            sv_rayray = RAYRAY; sv_refry = REFRY
+            call get_aim(sv_aim)
+            sv_relx = RELX; sv_rely = RELY; sv_wwq = WWQ
+            sv_ww1 = WW1; sv_ww2 = WW2; sv_ww3 = WW3; sv_ww4 = WW4; sv_ww5 = WW5; sv_wvn = WVN
+            sv_cacoch = CACOCH; sv_msg = MSG; sv_ana = ANAAIM; sv_nocoat = NOCOAT
+            sv_graset = GRASET; sv_dxfset = DXFSET; sv_rayext = RAYEXT; sv_SPD = SPDTRA
+            sv_phase = PHASE
+            nthi = size(thv)
+
+            do ir = 1, 6
+                WWQ = 'CAOB'
+                WW1 = pup(1, ir); WW2 = pup(2, ir)
+                WW3 = 1.0_real64; WVN = 1.0_real64
+                CACOCH = 1; SPDTRA = .true.; MSG = .false.; STOPP = 0
+                WW4 = 1.0_real64; NOCOAT = .false.; GRASET = .false.; DXFSET = .false.
+                call RAYTRA2
+                if (RAYCOD(1) /= 0) cycle
+                base = RAYRAY
+                do il = NEWOBJ + 1, NEWIMG
+                    thi0 = surf_thickness(il)
+                    do it = 0, nthi
+                        if (it > 0) call set_surf_thickness(il, thv(it))
+                        do iw = 1, 3
+                            WW3 = real(iw, real64)
+                            do ip = 1, 2
+                                PHASE = 0.0_real64
+                                if (ip == 2) PHASE = 0.37_real64
+                                leg = base
+                                call adjustLastSurface(il, leg)
+                                prt = base(1:50, NEWOBJ:NEWIMG)
+                                call p_adjust_last_surface(il, NEWOBJ, ldm%getSurfThi(il), &
+                                                           ldm%getSurfIndex(il - 1, int(WW3)), PHASE, prt)
+                                ok = .true.
+                                do jc = NEWOBJ, NEWIMG
+                                    do jr = 1, 50
+                                        if (.not. same_rn(leg(jr, jc), prt(jr, jc))) ok = .false.
+                                    end do
+                                end do
+                                ae_n(6) = ae_n(6) + 1
+                                if (.not. ok) ae_bad(6) = ae_bad(6) + 1
+                                if (surf_thickness(il) < 0.0_real64) aj_rv = aj_rv + 1
+                                if (abs(surf_thickness(il)) >= 1.0d10) aj_big = aj_big + 1
+                            end do
+                        end do
+                        if (it > 0) call set_surf_thickness(il, thi0)
+                    end do
+                end do
+            end do
+
+            ! restore
+            RAYRAY = sv_rayray; REFRY = sv_refry
+            call put_aim(sv_aim)
+            RELX = sv_relx; RELY = sv_rely; WWQ = sv_wwq
+            WW1 = sv_ww1; WW2 = sv_ww2; WW3 = sv_ww3; WW4 = sv_ww4; WW5 = sv_ww5; WVN = sv_wvn
+            CACOCH = sv_cacoch; MSG = sv_msg; ANAAIM = sv_ana; NOCOAT = sv_nocoat
+            GRASET = sv_graset; DXFSET = sv_dxfset; RAYEXT = sv_rayext; SPDTRA = sv_SPD
+            PHASE = sv_phase
+        end subroutine sec_adjlast
+
     end procedure execENGINETEST
 
 end submodule mod_codev_utils

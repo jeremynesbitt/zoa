@@ -25,6 +25,7 @@ module mod_ray_trace_engine
    use mod_surface_placement, only: surface_placement
    use mod_surface_apertures, only: surface_apertures
    use mod_surface_interaction, only: surface_optics
+   use mod_ray_aiming, only: aim_settings
    implicit none
    private
 
@@ -90,6 +91,7 @@ module mod_ray_trace_engine
       logical :: telecentric = .false.
       real(real64) :: aim_tol = 1.0e-10_real64     ! AIMTOL
       integer :: max_aim_iter = 100                ! NRAITR
+      type(aim_settings) :: aim                    ! inputs of the aiming leaf routines (mod_ray_aiming)
       ! Clear aperture / obscuration blockage pass (legacy CACOCH = 1)
       logical :: check_apertures = .true.
    end type

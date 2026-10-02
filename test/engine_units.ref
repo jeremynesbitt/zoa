@@ -15,6 +15,13 @@ BAKONE: cases 20, not bit-identical 0
 FORONEL: cases 20, not bit-identical 0
 CACHEK: cases 249704, mismatches 0
 HITSUR: cases 4992, skipped 0, mismatches 0
+AIM SETUP: reference surface 3, clap type 0, multi clap 0, aplanatic F, flip X F, flip Y F, orient F, clap decentered or tilted F, surface 1 curved T, surface 1 conic F, ray aiming T, last surface thickness F
+AIMTARGET: cases 137390, mismatches 0
+GETZEE1: cases 1800, mismatches 0
+RAYDERIV: cases 144, mismatches 0
+NEWDEL: cases 792, mismatches 0
+MISSREF: cases 240948, mismatches 0
+ADJLAST: cases 1260, mismatches 0
 ENGINETEST: PASS
 All constraints removed
 
@@ -34,6 +41,13 @@ BAKONE: cases 20, not bit-identical 0
 FORONEL: cases 20, not bit-identical 0
 CACHEK: cases 249704, mismatches 0
 HITSUR: cases 4992, skipped 0, mismatches 0
+AIM SETUP: reference surface 3, clap type 0, multi clap 0, aplanatic F, flip X F, flip Y F, orient F, clap decentered or tilted F, surface 1 curved T, surface 1 conic F, ray aiming T, last surface thickness F
+AIMTARGET: cases 137390, mismatches 0
+GETZEE1: cases 1800, mismatches 0
+RAYDERIV: cases 144, mismatches 0
+NEWDEL: cases 792, mismatches 0
+MISSREF: cases 240948, mismatches 0
+ADJLAST: cases 1260, mismatches 0
 ENGINETEST: PASS
 All constraints removed
 
@@ -53,6 +67,13 @@ BAKONE: cases 20, not bit-identical 0
 FORONEL: cases 20, not bit-identical 0
 CACHEK: cases 249704, mismatches 0
 HITSUR: cases 4992, skipped 0, mismatches 0
+AIM SETUP: reference surface 3, clap type 0, multi clap 0, aplanatic F, flip X F, flip Y F, orient F, clap decentered or tilted F, surface 1 curved T, surface 1 conic F, ray aiming T, last surface thickness F
+AIMTARGET: cases 137390, mismatches 0
+GETZEE1: cases 1800, mismatches 0
+RAYDERIV: cases 144, mismatches 0
+NEWDEL: cases 792, mismatches 0
+MISSREF: cases 240948, mismatches 0
+ADJLAST: cases 1260, mismatches 0
 ENGINETEST: PASS
 All constraints removed
 
@@ -72,6 +93,13 @@ BAKONE: cases 20, not bit-identical 0
 FORONEL: cases 20, not bit-identical 0
 CACHEK: cases 249704, mismatches 0
 HITSUR: cases 4992, skipped 0, mismatches 0
+AIM SETUP: reference surface 3, clap type 0, multi clap 0, aplanatic F, flip X F, flip Y F, orient F, clap decentered or tilted F, surface 1 curved T, surface 1 conic F, ray aiming T, last surface thickness F
+AIMTARGET: cases 137390, mismatches 0
+GETZEE1: cases 1800, mismatches 0
+RAYDERIV: cases 144, mismatches 0
+NEWDEL: cases 792, mismatches 0
+MISSREF: cases 240948, mismatches 0
+ADJLAST: cases 1260, mismatches 0
 ENGINETEST: PASS
 All constraints removed
 
@@ -91,6 +119,13 @@ BAKONE: cases 20, not bit-identical 0
 FORONEL: cases 20, not bit-identical 0
 CACHEK: cases 249704, mismatches 0
 HITSUR: cases 4992, skipped 0, mismatches 0
+AIM SETUP: reference surface 3, clap type 0, multi clap 0, aplanatic F, flip X F, flip Y F, orient F, clap decentered or tilted F, surface 1 curved T, surface 1 conic F, ray aiming T, last surface thickness F
+AIMTARGET: cases 137390, mismatches 0
+GETZEE1: cases 1800, mismatches 0
+RAYDERIV: cases 144, mismatches 0
+NEWDEL: cases 792, mismatches 0
+MISSREF: cases 240948, mismatches 0
+ADJLAST: cases 1260, mismatches 0
 ENGINETEST: PASS
 All constraints removed
 
@@ -110,6 +145,13 @@ BAKONE: cases 20, not bit-identical 0
 FORONEL: cases 20, not bit-identical 0
 CACHEK: cases 249704, mismatches 0
 HITSUR: cases 4992, skipped 0, mismatches 0
+AIM SETUP: reference surface 3, clap type 0, multi clap 0, aplanatic F, flip X F, flip Y F, orient F, clap decentered or tilted F, surface 1 curved T, surface 1 conic F, ray aiming T, last surface thickness F
+AIMTARGET: cases 137390, mismatches 0
+GETZEE1: cases 1800, mismatches 0
+RAYDERIV: cases 144, mismatches 0
+NEWDEL: cases 792, mismatches 0
+MISSREF: cases 240948, mismatches 0
+ADJLAST: cases 1260, mismatches 0
 ENGINETEST: PASS
 All constraints removed
 
@@ -129,6 +171,13 @@ BAKONE: cases 20, not bit-identical 0
 FORONEL: cases 20, not bit-identical 0
 CACHEK: cases 249704, mismatches 0
 HITSUR: cases 4992, skipped 0, mismatches 0
+AIM SETUP: reference surface 3, clap type 0, multi clap 0, aplanatic F, flip X F, flip Y F, orient F, clap decentered or tilted F, surface 1 curved T, surface 1 conic F, ray aiming T, last surface thickness F
+AIMTARGET: cases 137390, mismatches 0
+GETZEE1: cases 1800, mismatches 0
+RAYDERIV: cases 144, mismatches 0
+NEWDEL: cases 792, mismatches 0
+MISSREF: cases 240948, mismatches 0
+ADJLAST: cases 1260, mismatches 0
 ENGINETEST: PASS
 All constraints removed
 
@@ -148,6 +197,13 @@ BAKONE: cases 20, not bit-identical 0
 FORONEL: cases 20, not bit-identical 0
 CACHEK: cases 249704, mismatches 0
 HITSUR: cases 4992, skipped 0, mismatches 0
+AIM SETUP: reference surface 3, clap type 0, multi clap 0, aplanatic F, flip X F, flip Y F, orient F, clap decentered or tilted F, surface 1 curved T, surface 1 conic F, ray aiming T, last surface thickness F
+AIMTARGET: cases 137390, mismatches 0
+GETZEE1: cases 1800, mismatches 0
+RAYDERIV: cases 144, mismatches 0
+NEWDEL: cases 792, mismatches 0
+MISSREF: cases 240948, mismatches 0
+ADJLAST: cases 1260, mismatches 0
 ENGINETEST: PASS
 All constraints removed
 
@@ -167,6 +223,13 @@ BAKONE: cases 20, not bit-identical 0
 FORONEL: cases 20, not bit-identical 0
 CACHEK: cases 249704, mismatches 0
 HITSUR: cases 4992, skipped 0, mismatches 0
+AIM SETUP: reference surface 3, clap type 0, multi clap 0, aplanatic F, flip X F, flip Y F, orient F, clap decentered or tilted F, surface 1 curved T, surface 1 conic F, ray aiming T, last surface thickness F
+AIMTARGET: cases 137390, mismatches 0
+GETZEE1: cases 1800, mismatches 0
+RAYDERIV: cases 144, mismatches 0
+NEWDEL: cases 792, mismatches 0
+MISSREF: cases 240948, mismatches 0
+ADJLAST: cases 1260, mismatches 0
 ENGINETEST: PASS
 All constraints removed
 
@@ -186,6 +249,13 @@ BAKONE: cases 20, not bit-identical 0
 FORONEL: cases 20, not bit-identical 0
 CACHEK: cases 249704, mismatches 0
 HITSUR: cases 4992, skipped 0, mismatches 0
+AIM SETUP: reference surface 3, clap type 0, multi clap 0, aplanatic F, flip X F, flip Y F, orient F, clap decentered or tilted F, surface 1 curved T, surface 1 conic F, ray aiming T, last surface thickness F
+AIMTARGET: cases 137390, mismatches 0
+GETZEE1: cases 1800, mismatches 0
+RAYDERIV: cases 144, mismatches 0
+NEWDEL: cases 792, mismatches 0
+MISSREF: cases 240948, mismatches 0
+ADJLAST: cases 1260, mismatches 0
 ENGINETEST: PASS
 All constraints removed
 
@@ -205,6 +275,13 @@ BAKONE: cases 20, not bit-identical 0
 FORONEL: cases 20, not bit-identical 0
 CACHEK: cases 249704, mismatches 0
 HITSUR: cases 4992, skipped 0, mismatches 0
+AIM SETUP: reference surface 3, clap type 0, multi clap 0, aplanatic F, flip X F, flip Y F, orient F, clap decentered or tilted F, surface 1 curved T, surface 1 conic F, ray aiming T, last surface thickness F
+AIMTARGET: cases 137390, mismatches 0
+GETZEE1: cases 1800, mismatches 0
+RAYDERIV: cases 144, mismatches 0
+NEWDEL: cases 792, mismatches 0
+MISSREF: cases 240948, mismatches 0
+ADJLAST: cases 1260, mismatches 0
 ENGINETEST: PASS
 All constraints removed
 
@@ -224,6 +301,13 @@ BAKONE: cases 20, not bit-identical 0
 FORONEL: cases 20, not bit-identical 0
 CACHEK: cases 249704, mismatches 0
 HITSUR: cases 4992, skipped 0, mismatches 0
+AIM SETUP: reference surface 3, clap type 0, multi clap 0, aplanatic F, flip X F, flip Y F, orient F, clap decentered or tilted F, surface 1 curved T, surface 1 conic F, ray aiming T, last surface thickness F
+AIMTARGET: cases 137390, mismatches 0
+GETZEE1: cases 1800, mismatches 0
+RAYDERIV: cases 144, mismatches 0
+NEWDEL: cases 792, mismatches 0
+MISSREF: cases 240948, mismatches 0
+ADJLAST: cases 1260, mismatches 0
 ENGINETEST: PASS
 All constraints removed
 
@@ -243,6 +327,13 @@ BAKONE: cases 20, not bit-identical 0
 FORONEL: cases 20, not bit-identical 0
 CACHEK: cases 249704, mismatches 0
 HITSUR: cases 4992, skipped 0, mismatches 0
+AIM SETUP: reference surface 3, clap type 0, multi clap 0, aplanatic F, flip X F, flip Y F, orient F, clap decentered or tilted F, surface 1 curved T, surface 1 conic F, ray aiming T, last surface thickness F
+AIMTARGET: cases 137390, mismatches 0
+GETZEE1: cases 1800, mismatches 0
+RAYDERIV: cases 144, mismatches 0
+NEWDEL: cases 792, mismatches 0
+MISSREF: cases 240948, mismatches 0
+ADJLAST: cases 1260, mismatches 0
 ENGINETEST: PASS
 All constraints removed
 
@@ -262,6 +353,13 @@ BAKONE: cases 20, not bit-identical 0
 FORONEL: cases 20, not bit-identical 0
 CACHEK: cases 249704, mismatches 0
 HITSUR: cases 4992, skipped 0, mismatches 0
+AIM SETUP: reference surface 3, clap type 0, multi clap 0, aplanatic F, flip X F, flip Y F, orient F, clap decentered or tilted F, surface 1 curved T, surface 1 conic F, ray aiming T, last surface thickness F
+AIMTARGET: cases 137390, mismatches 0
+GETZEE1: cases 1800, mismatches 0
+RAYDERIV: cases 144, mismatches 0
+NEWDEL: cases 792, mismatches 0
+MISSREF: cases 240948, mismatches 0
+ADJLAST: cases 210, mismatches 0
 ENGINETEST: PASS
 All constraints removed
 
@@ -281,6 +379,13 @@ BAKONE: cases 20, not bit-identical 0
 FORONEL: cases 20, not bit-identical 0
 CACHEK: cases 249704, mismatches 0
 HITSUR: cases 4992, skipped 0, mismatches 0
+AIM SETUP: reference surface 3, clap type 0, multi clap 0, aplanatic F, flip X F, flip Y F, orient F, clap decentered or tilted F, surface 1 curved T, surface 1 conic F, ray aiming T, last surface thickness F
+AIMTARGET: cases 137390, mismatches 0
+GETZEE1: cases 1800, mismatches 0
+RAYDERIV: cases 144, mismatches 0
+NEWDEL: cases 792, mismatches 0
+MISSREF: cases 240948, mismatches 0
+ADJLAST: cases 210, mismatches 0
 ENGINETEST: PASS
 All constraints removed
 
@@ -300,6 +405,13 @@ BAKONE: cases 20, not bit-identical 0
 FORONEL: cases 20, not bit-identical 0
 CACHEK: cases 249704, mismatches 0
 HITSUR: cases 4992, skipped 0, mismatches 0
+AIM SETUP: reference surface 3, clap type 0, multi clap 0, aplanatic F, flip X F, flip Y F, orient F, clap decentered or tilted F, surface 1 curved T, surface 1 conic F, ray aiming T, last surface thickness F
+AIMTARGET: cases 137390, mismatches 0
+GETZEE1: cases 1800, mismatches 0
+RAYDERIV: cases 144, mismatches 0
+NEWDEL: cases 792, mismatches 0
+MISSREF: cases 240948, mismatches 0
+ADJLAST: cases 210, mismatches 0
 ENGINETEST: PASS
 All constraints removed
 
@@ -319,6 +431,13 @@ BAKONE: cases 20, not bit-identical 0
 FORONEL: cases 20, not bit-identical 0
 CACHEK: cases 249704, mismatches 0
 HITSUR: cases 4992, skipped 0, mismatches 0
+AIM SETUP: reference surface 3, clap type 0, multi clap 0, aplanatic F, flip X F, flip Y F, orient F, clap decentered or tilted F, surface 1 curved T, surface 1 conic F, ray aiming T, last surface thickness F
+AIMTARGET: cases 137390, mismatches 0
+GETZEE1: cases 1800, mismatches 0
+RAYDERIV: cases 144, mismatches 0
+NEWDEL: cases 792, mismatches 0
+MISSREF: cases 240948, mismatches 0
+ADJLAST: cases 840, mismatches 0
 ENGINETEST: PASS
 All constraints removed
 
@@ -338,6 +457,13 @@ BAKONE: cases 20, not bit-identical 0
 FORONEL: cases 20, not bit-identical 0
 CACHEK: cases 249704, mismatches 0
 HITSUR: cases 4992, skipped 0, mismatches 0
+AIM SETUP: reference surface 3, clap type 0, multi clap 0, aplanatic F, flip X F, flip Y F, orient F, clap decentered or tilted F, surface 1 curved T, surface 1 conic F, ray aiming T, last surface thickness F
+AIMTARGET: cases 137390, mismatches 0
+GETZEE1: cases 1800, mismatches 0
+RAYDERIV: cases 144, mismatches 0
+NEWDEL: cases 792, mismatches 0
+MISSREF: cases 240948, mismatches 0
+ADJLAST: cases 420, mismatches 0
 ENGINETEST: PASS
 All constraints removed
 
@@ -357,6 +483,13 @@ BAKONE: cases 20, not bit-identical 0
 FORONEL: cases 20, not bit-identical 0
 CACHEK: cases 249704, mismatches 0
 HITSUR: cases 4992, skipped 0, mismatches 0
+AIM SETUP: reference surface 3, clap type 0, multi clap 0, aplanatic F, flip X F, flip Y F, orient F, clap decentered or tilted F, surface 1 curved T, surface 1 conic F, ray aiming T, last surface thickness F
+AIMTARGET: cases 137390, mismatches 0
+GETZEE1: cases 1800, mismatches 0
+RAYDERIV: cases 144, mismatches 0
+NEWDEL: cases 792, mismatches 0
+MISSREF: cases 240948, mismatches 0
+ADJLAST: cases 420, mismatches 0
 ENGINETEST: PASS
 All constraints removed
 
@@ -376,6 +509,13 @@ BAKONE: cases 20, not bit-identical 0
 FORONEL: cases 20, not bit-identical 0
 CACHEK: cases 249704, mismatches 0
 HITSUR: cases 4992, skipped 0, mismatches 0
+AIM SETUP: reference surface 3, clap type 0, multi clap 0, aplanatic F, flip X F, flip Y F, orient F, clap decentered or tilted F, surface 1 curved T, surface 1 conic F, ray aiming T, last surface thickness F
+AIMTARGET: cases 137390, mismatches 0
+GETZEE1: cases 1800, mismatches 0
+RAYDERIV: cases 144, mismatches 0
+NEWDEL: cases 792, mismatches 0
+MISSREF: cases 240948, mismatches 0
+ADJLAST: cases 210, mismatches 0
 ENGINETEST: PASS
 All constraints removed
 
@@ -395,6 +535,13 @@ BAKONE: cases 20, not bit-identical 0
 FORONEL: cases 20, not bit-identical 0
 CACHEK: cases 249704, mismatches 0
 HITSUR: cases 4992, skipped 0, mismatches 0
+AIM SETUP: reference surface 3, clap type 0, multi clap 0, aplanatic F, flip X F, flip Y F, orient F, clap decentered or tilted F, surface 1 curved T, surface 1 conic F, ray aiming T, last surface thickness F
+AIMTARGET: cases 137390, mismatches 0
+GETZEE1: cases 1800, mismatches 0
+RAYDERIV: cases 144, mismatches 0
+NEWDEL: cases 792, mismatches 0
+MISSREF: cases 240948, mismatches 0
+ADJLAST: cases 0, mismatches 0
 ENGINETEST: PASS
 All constraints removed
 
@@ -414,6 +561,13 @@ BAKONE: cases 20, not bit-identical 0
 FORONEL: cases 20, not bit-identical 0
 CACHEK: cases 249704, mismatches 0
 HITSUR: cases 4992, skipped 0, mismatches 0
+AIM SETUP: reference surface 3, clap type 1, multi clap 0, aplanatic F, flip X F, flip Y F, orient F, clap decentered or tilted F, surface 1 curved T, surface 1 conic F, ray aiming T, last surface thickness F
+AIMTARGET: cases 137390, mismatches 0
+GETZEE1: cases 1800, mismatches 0
+RAYDERIV: cases 144, mismatches 0
+NEWDEL: cases 792, mismatches 0
+MISSREF: cases 240948, mismatches 0
+ADJLAST: cases 0, mismatches 0
 ENGINETEST: PASS
 All constraints removed
 
@@ -433,6 +587,13 @@ BAKONE: cases 20, not bit-identical 0
 FORONEL: cases 20, not bit-identical 0
 CACHEK: cases 249704, mismatches 0
 HITSUR: cases 4992, skipped 0, mismatches 0
+AIM SETUP: reference surface 3, clap type 0, multi clap 0, aplanatic F, flip X F, flip Y F, orient F, clap decentered or tilted F, surface 1 curved T, surface 1 conic F, ray aiming T, last surface thickness F
+AIMTARGET: cases 137390, mismatches 0
+GETZEE1: cases 1800, mismatches 0
+RAYDERIV: cases 144, mismatches 0
+NEWDEL: cases 792, mismatches 0
+MISSREF: cases 240948, mismatches 0
+ADJLAST: cases 1050, mismatches 0
 ENGINETEST: PASS
 All constraints removed
 
@@ -452,6 +613,13 @@ BAKONE: cases 20, not bit-identical 0
 FORONEL: cases 20, not bit-identical 0
 CACHEK: cases 278516, mismatches 0
 HITSUR: cases 4992, skipped 0, mismatches 0
+AIM SETUP: reference surface 3, clap type 0, multi clap 0, aplanatic F, flip X F, flip Y F, orient F, clap decentered or tilted F, surface 1 curved T, surface 1 conic F, ray aiming T, last surface thickness F
+AIMTARGET: cases 137390, mismatches 0
+GETZEE1: cases 1800, mismatches 0
+RAYDERIV: cases 144, mismatches 0
+NEWDEL: cases 792, mismatches 0
+MISSREF: cases 240948, mismatches 0
+ADJLAST: cases 1260, mismatches 0
 ENGINETEST: PASS
 All constraints removed
 
@@ -471,6 +639,13 @@ BAKONE: cases 20, not bit-identical 0
 FORONEL: cases 20, not bit-identical 0
 CACHEK: cases 283318, mismatches 0
 HITSUR: cases 4992, skipped 0, mismatches 0
+AIM SETUP: reference surface 3, clap type 0, multi clap 0, aplanatic F, flip X F, flip Y F, orient F, clap decentered or tilted F, surface 1 curved T, surface 1 conic F, ray aiming T, last surface thickness F
+AIMTARGET: cases 137390, mismatches 0
+GETZEE1: cases 1800, mismatches 0
+RAYDERIV: cases 144, mismatches 0
+NEWDEL: cases 792, mismatches 0
+MISSREF: cases 240948, mismatches 0
+ADJLAST: cases 420, mismatches 0
 ENGINETEST: PASS
 All constraints removed
 
@@ -485,6 +660,13 @@ BAKONE: cases 20, not bit-identical 0
 FORONEL: cases 20, not bit-identical 0
 CACHEK: cases 1935206, mismatches 0
 HITSUR: cases 38688, skipped 0, mismatches 0
+AIM SETUP: reference surface 41, clap type 1, multi clap 0, aplanatic F, flip X F, flip Y F, orient F, clap decentered or tilted F, surface 1 curved T, surface 1 conic F, ray aiming T, last surface thickness F
+AIMTARGET: cases 137390, mismatches 0
+GETZEE1: cases 1800, mismatches 0
+RAYDERIV: cases 144, mismatches 0
+NEWDEL: cases 792, mismatches 0
+MISSREF: cases 240948, mismatches 0
+ADJLAST: cases 10980, mismatches 0
 ENGINETEST: PASS
 All constraints removed
 
@@ -498,6 +680,13 @@ BAKONE: cases 20, not bit-identical 0
 FORONEL: cases 20, not bit-identical 0
 CACHEK: cases 93639, mismatches 0
 HITSUR: cases 1872, skipped 0, mismatches 0
+AIM SETUP: reference surface 1, clap type 0, multi clap 0, aplanatic F, flip X F, flip Y F, orient F, clap decentered or tilted F, surface 1 curved T, surface 1 conic F, ray aiming T, last surface thickness F
+AIMTARGET: cases 137390, mismatches 0
+GETZEE1: cases 1800, mismatches 0
+RAYDERIV: cases 144, mismatches 0
+NEWDEL: cases 792, mismatches 0
+MISSREF: cases 240948, mismatches 0
+ADJLAST: cases 360, mismatches 0
 ENGINETEST: PASS
 All constraints removed
 
@@ -511,6 +700,13 @@ BAKONE: cases 20, not bit-identical 0
 FORONEL: cases 20, not bit-identical 0
 CACHEK: cases 93639, mismatches 0
 HITSUR: cases 1872, skipped 0, mismatches 0
+AIM SETUP: reference surface 1, clap type 0, multi clap 0, aplanatic F, flip X F, flip Y F, orient F, clap decentered or tilted F, surface 1 curved T, surface 1 conic F, ray aiming T, last surface thickness F
+AIMTARGET: cases 137390, mismatches 0
+GETZEE1: cases 1800, mismatches 0
+RAYDERIV: cases 144, mismatches 0
+NEWDEL: cases 792, mismatches 0
+MISSREF: cases 240948, mismatches 0
+ADJLAST: cases 360, mismatches 0
 ENGINETEST: PASS
 All constraints removed
 
@@ -526,6 +722,13 @@ BAKONE: cases 20, not bit-identical 0
 FORONEL: cases 20, not bit-identical 0
 CACHEK: cases 93639, mismatches 0
 HITSUR: cases 1872, skipped 0, mismatches 0
+AIM SETUP: reference surface 1, clap type 0, multi clap 0, aplanatic F, flip X F, flip Y F, orient F, clap decentered or tilted F, surface 1 curved T, surface 1 conic F, ray aiming T, last surface thickness F
+AIMTARGET: cases 137390, mismatches 0
+GETZEE1: cases 1800, mismatches 0
+RAYDERIV: cases 144, mismatches 0
+NEWDEL: cases 792, mismatches 0
+MISSREF: cases 240948, mismatches 0
+ADJLAST: cases 360, mismatches 0
 ENGINETEST: PASS
 All constraints removed
 
@@ -544,6 +747,13 @@ BAKONE: cases 20, not bit-identical 0
 FORONEL: cases 20, not bit-identical 0
 CACHEK: cases 280917, mismatches 0
 HITSUR: cases 5616, skipped 0, mismatches 0
+AIM SETUP: reference surface 3, clap type 0, multi clap 0, aplanatic F, flip X F, flip Y F, orient F, clap decentered or tilted F, surface 1 curved T, surface 1 conic F, ray aiming T, last surface thickness F
+AIMTARGET: cases 137390, mismatches 0
+GETZEE1: cases 1800, mismatches 0
+RAYDERIV: cases 144, mismatches 0
+NEWDEL: cases 792, mismatches 0
+MISSREF: cases 240948, mismatches 0
+ADJLAST: cases 1440, mismatches 0
 ENGINETEST: PASS
 All constraints removed
 
@@ -564,6 +774,13 @@ BAKONE: cases 20, not bit-identical 0
 FORONEL: cases 20, not bit-identical 0
 CACHEK: cases 249704, mismatches 0
 HITSUR: cases 4992, skipped 0, mismatches 0
+AIM SETUP: reference surface 3, clap type 0, multi clap 0, aplanatic F, flip X F, flip Y F, orient F, clap decentered or tilted F, surface 1 curved T, surface 1 conic F, ray aiming T, last surface thickness F
+AIMTARGET: cases 137390, mismatches 0
+GETZEE1: cases 1800, mismatches 0
+RAYDERIV: cases 144, mismatches 0
+NEWDEL: cases 792, mismatches 0
+MISSREF: cases 240948, mismatches 0
+ADJLAST: cases 1260, mismatches 0
 ENGINETEST: PASS
 All constraints removed
 
@@ -583,6 +800,13 @@ BAKONE: cases 20, not bit-identical 0
 FORONEL: cases 20, not bit-identical 0
 CACHEK: cases 249704, mismatches 0
 HITSUR: cases 2496, skipped 4, mismatches 0
+AIM SETUP: reference surface 3, clap type 0, multi clap 0, aplanatic F, flip X F, flip Y F, orient F, clap decentered or tilted F, surface 1 curved T, surface 1 conic F, ray aiming T, last surface thickness F
+AIMTARGET: cases 137390, mismatches 0
+GETZEE1: cases 1800, mismatches 0
+RAYDERIV: cases 144, mismatches 0
+NEWDEL: cases 792, mismatches 0
+MISSREF: cases 240948, mismatches 0
+ADJLAST: cases 0, mismatches 0
 ENGINETEST: PASS
 All constraints removed
 
@@ -601,6 +825,13 @@ BAKONE: cases 20, not bit-identical 0
 FORONEL: cases 20, not bit-identical 0
 CACHEK: cases 280917, mismatches 0
 HITSUR: cases 0, skipped 8, mismatches 0
+AIM SETUP: reference surface 3, clap type 0, multi clap 0, aplanatic F, flip X F, flip Y F, orient F, clap decentered or tilted F, surface 1 curved T, surface 1 conic F, ray aiming T, last surface thickness F
+AIMTARGET: cases 137390, mismatches 0
+GETZEE1: cases 1800, mismatches 0
+RAYDERIV: cases 144, mismatches 0
+NEWDEL: cases 792, mismatches 0
+MISSREF: cases 240948, mismatches 0
+ADJLAST: cases 1440, mismatches 0
 ENGINETEST: PASS
 All constraints removed
 
@@ -620,4 +851,552 @@ BAKONE: cases 20, not bit-identical 0
 FORONEL: cases 20, not bit-identical 0
 CACHEK: cases 249704, mismatches 0
 HITSUR: cases 4368, skipped 1, mismatches 0
+AIM SETUP: reference surface 3, clap type 0, multi clap 0, aplanatic F, flip X F, flip Y F, orient F, clap decentered or tilted F, surface 1 curved T, surface 1 conic F, ray aiming T, last surface thickness F
+AIMTARGET: cases 137390, mismatches 0
+GETZEE1: cases 1800, mismatches 0
+RAYDERIV: cases 144, mismatches 0
+NEWDEL: cases 792, mismatches 0
+MISSREF: cases 240948, mismatches 0
+ADJLAST: cases 1260, mismatches 0
+ENGINETEST: PASS
+All constraints removed
+
+
+
+
+
+
+Field Weights Command WTF     100     100     100 Not supported
+
+ENGINETEST: surfaces 8, input rays 20
+TILT FLAGS: 0 0 0 0 0 0 0 0
+DECENTER FLAGS: 0 0 0 0 0 0 0 0
+SURFACES WITH GLOBAL DATA: 0, FORONEL PIVOT PATH: F
+TRNSF2: cases 140, not bit-identical 0
+BAKONE: cases 20, not bit-identical 0
+FORONEL: cases 20, not bit-identical 0
+CACHEK: cases 249704, mismatches 0
+HITSUR: cases 4992, skipped 0, mismatches 0
+AIM SETUP: reference surface 3, clap type 1, multi clap 0, aplanatic F, flip X F, flip Y F, orient F, clap decentered or tilted F, surface 1 curved T, surface 1 conic F, ray aiming T, last surface thickness F
+AIMTARGET: cases 137390, mismatches 0
+GETZEE1: cases 1800, mismatches 0
+RAYDERIV: cases 144, mismatches 0
+NEWDEL: cases 792, mismatches 0
+MISSREF: cases 240948, mismatches 0
+ADJLAST: cases 1260, mismatches 0
+ENGINETEST: PASS
+All constraints removed
+
+
+
+
+
+
+Field Weights Command WTF     100     100     100 Not supported
+
+ENGINETEST: surfaces 8, input rays 20
+TILT FLAGS: 0 0 0 0 0 0 0 0
+DECENTER FLAGS: 0 0 0 0 0 0 0 0
+SURFACES WITH GLOBAL DATA: 0, FORONEL PIVOT PATH: F
+TRNSF2: cases 140, not bit-identical 0
+BAKONE: cases 20, not bit-identical 0
+FORONEL: cases 20, not bit-identical 0
+CACHEK: cases 249704, mismatches 0
+HITSUR: cases 4992, skipped 0, mismatches 0
+AIM SETUP: reference surface 3, clap type 1, multi clap 0, aplanatic T, flip X F, flip Y F, orient F, clap decentered or tilted F, surface 1 curved T, surface 1 conic F, ray aiming F, last surface thickness F
+AIMTARGET: cases 137390, mismatches 0
+GETZEE1: cases 1800, mismatches 0
+RAYDERIV: cases 144, mismatches 0
+NEWDEL: cases 792, mismatches 0
+MISSREF: cases 240948, mismatches 0
+ADJLAST: cases 840, mismatches 0
+ENGINETEST: PASS
+All constraints removed
+
+
+
+
+
+
+Field Weights Command WTF     100     100     100 Not supported
+
+ENGINETEST: surfaces 8, input rays 20
+TILT FLAGS: 0 0 0 0 0 0 0 0
+DECENTER FLAGS: 0 0 0 0 0 0 0 0
+SURFACES WITH GLOBAL DATA: 0, FORONEL PIVOT PATH: F
+TRNSF2: cases 140, not bit-identical 0
+BAKONE: cases 20, not bit-identical 0
+FORONEL: cases 20, not bit-identical 0
+CACHEK: cases 249704, mismatches 0
+HITSUR: cases 4992, skipped 0, mismatches 0
+AIM SETUP: reference surface 3, clap type 1, multi clap 0, aplanatic T, flip X F, flip Y F, orient F, clap decentered or tilted F, surface 1 curved T, surface 1 conic F, ray aiming F, last surface thickness F
+AIMTARGET: cases 137390, mismatches 0
+GETZEE1: cases 1800, mismatches 0
+RAYDERIV: cases 144, mismatches 0
+NEWDEL: cases 792, mismatches 0
+MISSREF: cases 240948, mismatches 0
+ADJLAST: cases 630, mismatches 0
+ENGINETEST: PASS
+All constraints removed
+
+
+
+
+
+
+Field Weights Command WTF     100     100     100 Not supported
+
+ENGINETEST: surfaces 8, input rays 20
+TILT FLAGS: 0 0 0 0 0 0 0 0
+DECENTER FLAGS: 0 0 0 0 0 0 0 0
+SURFACES WITH GLOBAL DATA: 0, FORONEL PIVOT PATH: F
+TRNSF2: cases 140, not bit-identical 0
+BAKONE: cases 20, not bit-identical 0
+FORONEL: cases 20, not bit-identical 0
+CACHEK: cases 249704, mismatches 0
+HITSUR: cases 4992, skipped 0, mismatches 0
+AIM SETUP: reference surface 3, clap type 1, multi clap 0, aplanatic T, flip X F, flip Y F, orient F, clap decentered or tilted T, surface 1 curved T, surface 1 conic F, ray aiming F, last surface thickness F
+AIMTARGET: cases 137390, mismatches 0
+GETZEE1: cases 1800, mismatches 0
+RAYDERIV: cases 144, mismatches 0
+NEWDEL: cases 792, mismatches 0
+MISSREF: cases 240948, mismatches 0
+ADJLAST: cases 840, mismatches 0
+ENGINETEST: PASS
+All constraints removed
+
+
+
+
+
+
+Field Weights Command WTF     100     100     100 Not supported
+
+ENGINETEST: surfaces 8, input rays 20
+TILT FLAGS: 0 0 0 0 0 0 0 0
+DECENTER FLAGS: 0 0 0 0 0 0 0 0
+SURFACES WITH GLOBAL DATA: 0, FORONEL PIVOT PATH: F
+TRNSF2: cases 140, not bit-identical 0
+BAKONE: cases 20, not bit-identical 0
+FORONEL: cases 20, not bit-identical 0
+CACHEK: cases 249704, mismatches 0
+HITSUR: cases 4992, skipped 0, mismatches 0
+AIM SETUP: reference surface 3, clap type 2, multi clap 0, aplanatic F, flip X F, flip Y F, orient F, clap decentered or tilted F, surface 1 curved T, surface 1 conic F, ray aiming T, last surface thickness F
+AIMTARGET: cases 137390, mismatches 0
+GETZEE1: cases 1800, mismatches 0
+RAYDERIV: cases 144, mismatches 0
+NEWDEL: cases 792, mismatches 0
+MISSREF: cases 240948, mismatches 0
+ADJLAST: cases 1260, mismatches 0
+ENGINETEST: PASS
+All constraints removed
+
+
+
+
+
+
+Field Weights Command WTF     100     100     100 Not supported
+
+ENGINETEST: surfaces 8, input rays 20
+TILT FLAGS: 0 0 0 0 0 0 0 0
+DECENTER FLAGS: 0 0 0 0 0 0 0 0
+SURFACES WITH GLOBAL DATA: 0, FORONEL PIVOT PATH: F
+TRNSF2: cases 140, not bit-identical 0
+BAKONE: cases 20, not bit-identical 0
+FORONEL: cases 20, not bit-identical 0
+CACHEK: cases 249704, mismatches 0
+HITSUR: cases 4992, skipped 0, mismatches 0
+AIM SETUP: reference surface 3, clap type 2, multi clap 0, aplanatic F, flip X F, flip Y F, orient F, clap decentered or tilted T, surface 1 curved T, surface 1 conic F, ray aiming T, last surface thickness F
+AIMTARGET: cases 137390, mismatches 0
+GETZEE1: cases 1800, mismatches 0
+RAYDERIV: cases 144, mismatches 0
+NEWDEL: cases 792, mismatches 0
+MISSREF: cases 240948, mismatches 0
+ADJLAST: cases 1050, mismatches 0
+ENGINETEST: PASS
+All constraints removed
+
+
+
+
+
+
+Field Weights Command WTF     100     100     100 Not supported
+
+ENGINETEST: surfaces 8, input rays 20
+TILT FLAGS: 0 0 0 0 0 0 0 0
+DECENTER FLAGS: 0 0 0 0 0 0 0 0
+SURFACES WITH GLOBAL DATA: 0, FORONEL PIVOT PATH: F
+TRNSF2: cases 140, not bit-identical 0
+BAKONE: cases 20, not bit-identical 0
+FORONEL: cases 20, not bit-identical 0
+CACHEK: cases 249704, mismatches 0
+HITSUR: cases 4992, skipped 0, mismatches 0
+AIM SETUP: reference surface 3, clap type 3, multi clap 0, aplanatic F, flip X F, flip Y F, orient F, clap decentered or tilted F, surface 1 curved T, surface 1 conic F, ray aiming T, last surface thickness F
+AIMTARGET: cases 137390, mismatches 0
+GETZEE1: cases 1800, mismatches 0
+RAYDERIV: cases 144, mismatches 0
+NEWDEL: cases 792, mismatches 0
+MISSREF: cases 240948, mismatches 0
+ADJLAST: cases 1260, mismatches 0
+ENGINETEST: PASS
+All constraints removed
+
+
+
+
+
+
+Field Weights Command WTF     100     100     100 Not supported
+
+ENGINETEST: surfaces 8, input rays 20
+TILT FLAGS: 0 0 0 0 0 0 0 0
+DECENTER FLAGS: 0 0 0 0 0 0 0 0
+SURFACES WITH GLOBAL DATA: 0, FORONEL PIVOT PATH: F
+TRNSF2: cases 140, not bit-identical 0
+BAKONE: cases 20, not bit-identical 0
+FORONEL: cases 20, not bit-identical 0
+CACHEK: cases 249704, mismatches 0
+HITSUR: cases 4992, skipped 0, mismatches 0
+AIM SETUP: reference surface 3, clap type 3, multi clap 0, aplanatic F, flip X F, flip Y F, orient F, clap decentered or tilted T, surface 1 curved T, surface 1 conic F, ray aiming T, last surface thickness F
+AIMTARGET: cases 137390, mismatches 0
+GETZEE1: cases 1800, mismatches 0
+RAYDERIV: cases 144, mismatches 0
+NEWDEL: cases 792, mismatches 0
+MISSREF: cases 240948, mismatches 0
+ADJLAST: cases 1050, mismatches 0
+ENGINETEST: PASS
+All constraints removed
+
+
+
+
+
+
+Field Weights Command WTF     100     100     100 Not supported
+
+ENGINETEST: surfaces 8, input rays 20
+TILT FLAGS: 0 0 0 0 0 0 0 0
+DECENTER FLAGS: 0 0 0 0 0 0 0 0
+SURFACES WITH GLOBAL DATA: 0, FORONEL PIVOT PATH: F
+TRNSF2: cases 140, not bit-identical 0
+BAKONE: cases 20, not bit-identical 0
+FORONEL: cases 20, not bit-identical 0
+CACHEK: cases 249704, mismatches 0
+HITSUR: cases 4992, skipped 0, mismatches 0
+AIM SETUP: reference surface 3, clap type 4, multi clap 0, aplanatic F, flip X F, flip Y F, orient F, clap decentered or tilted F, surface 1 curved T, surface 1 conic F, ray aiming T, last surface thickness F
+AIMTARGET: cases 137390, mismatches 0
+GETZEE1: cases 1800, mismatches 0
+RAYDERIV: cases 144, mismatches 0
+NEWDEL: cases 792, mismatches 0
+MISSREF: cases 240948, mismatches 0
+ADJLAST: cases 1260, mismatches 0
+ENGINETEST: PASS
+All constraints removed
+
+
+
+
+
+
+Field Weights Command WTF     100     100     100 Not supported
+
+ENGINETEST: surfaces 8, input rays 20
+TILT FLAGS: 0 0 0 0 0 0 0 0
+DECENTER FLAGS: 0 0 0 0 0 0 0 0
+SURFACES WITH GLOBAL DATA: 0, FORONEL PIVOT PATH: F
+TRNSF2: cases 140, not bit-identical 0
+BAKONE: cases 20, not bit-identical 0
+FORONEL: cases 20, not bit-identical 0
+CACHEK: cases 249704, mismatches 0
+HITSUR: cases 4992, skipped 0, mismatches 0
+AIM SETUP: reference surface 3, clap type 5, multi clap 0, aplanatic F, flip X F, flip Y F, orient F, clap decentered or tilted T, surface 1 curved T, surface 1 conic F, ray aiming T, last surface thickness F
+AIMTARGET: cases 137390, mismatches 0
+GETZEE1: cases 1800, mismatches 0
+RAYDERIV: cases 144, mismatches 0
+NEWDEL: cases 792, mismatches 0
+MISSREF: cases 240948, mismatches 0
+ADJLAST: cases 840, mismatches 0
+ENGINETEST: PASS
+All constraints removed
+
+
+
+
+
+
+Field Weights Command WTF     100     100     100 Not supported
+ENGINETEST: surfaces 8, input rays 20
+TILT FLAGS: 0 0 0 0 0 0 0 0
+DECENTER FLAGS: 0 0 0 0 0 0 0 0
+SURFACES WITH GLOBAL DATA: 0, FORONEL PIVOT PATH: F
+TRNSF2: cases 140, not bit-identical 0
+BAKONE: cases 20, not bit-identical 0
+FORONEL: cases 20, not bit-identical 0
+CACHEK: cases 249704, mismatches 0
+HITSUR: cases 4992, skipped 0, mismatches 0
+AIM SETUP: reference surface 3, clap type 0, multi clap 0, aplanatic F, flip X T, flip Y F, orient F, clap decentered or tilted F, surface 1 curved T, surface 1 conic F, ray aiming T, last surface thickness F
+AIMTARGET: cases 137390, mismatches 0
+GETZEE1: cases 1800, mismatches 0
+RAYDERIV: cases 144, mismatches 0
+NEWDEL: cases 792, mismatches 0
+MISSREF: cases 240948, mismatches 0
+ADJLAST: cases 1260, mismatches 0
+ENGINETEST: PASS
+All constraints removed
+
+
+
+
+
+
+Field Weights Command WTF     100     100     100 Not supported
+
+ENGINETEST: surfaces 8, input rays 20
+TILT FLAGS: 0 0 0 0 0 0 0 0
+DECENTER FLAGS: 0 0 0 0 0 0 0 0
+SURFACES WITH GLOBAL DATA: 0, FORONEL PIVOT PATH: F
+TRNSF2: cases 140, not bit-identical 0
+BAKONE: cases 20, not bit-identical 0
+FORONEL: cases 20, not bit-identical 0
+CACHEK: cases 249704, mismatches 0
+HITSUR: cases 4992, skipped 0, mismatches 0
+AIM SETUP: reference surface 3, clap type 2, multi clap 0, aplanatic F, flip X F, flip Y T, orient F, clap decentered or tilted F, surface 1 curved T, surface 1 conic F, ray aiming T, last surface thickness F
+AIMTARGET: cases 137390, mismatches 0
+GETZEE1: cases 1800, mismatches 0
+RAYDERIV: cases 144, mismatches 0
+NEWDEL: cases 792, mismatches 0
+MISSREF: cases 240948, mismatches 0
+ADJLAST: cases 1260, mismatches 0
+ENGINETEST: PASS
+All constraints removed
+
+
+
+
+
+
+Field Weights Command WTF     100     100     100 Not supported
+
+ENGINETEST: surfaces 8, input rays 20
+TILT FLAGS: 0 0 0 0 0 0 0 0
+DECENTER FLAGS: 0 0 0 0 0 0 0 0
+SURFACES WITH GLOBAL DATA: 0, FORONEL PIVOT PATH: F
+TRNSF2: cases 140, not bit-identical 0
+BAKONE: cases 20, not bit-identical 0
+FORONEL: cases 20, not bit-identical 0
+CACHEK: cases 249704, mismatches 0
+HITSUR: cases 4992, skipped 0, mismatches 0
+AIM SETUP: reference surface 3, clap type 2, multi clap 0, aplanatic F, flip X T, flip Y T, orient F, clap decentered or tilted T, surface 1 curved T, surface 1 conic F, ray aiming T, last surface thickness F
+AIMTARGET: cases 137390, mismatches 0
+GETZEE1: cases 1800, mismatches 0
+RAYDERIV: cases 144, mismatches 0
+NEWDEL: cases 792, mismatches 0
+MISSREF: cases 240948, mismatches 0
+ADJLAST: cases 1050, mismatches 0
+ENGINETEST: PASS
+All constraints removed
+
+
+
+
+
+
+Field Weights Command WTF     100     100     100 Not supported
+
+ENGINETEST: surfaces 8, input rays 20
+TILT FLAGS: 0 0 0 0 0 0 0 0
+DECENTER FLAGS: 0 0 0 0 0 0 0 0
+SURFACES WITH GLOBAL DATA: 0, FORONEL PIVOT PATH: F
+TRNSF2: cases 140, not bit-identical 0
+BAKONE: cases 20, not bit-identical 0
+FORONEL: cases 20, not bit-identical 0
+CACHEK: cases 249704, mismatches 0
+HITSUR: cases 4992, skipped 0, mismatches 0
+AIM SETUP: reference surface 3, clap type 3, multi clap 0, aplanatic F, flip X F, flip Y F, orient T, clap decentered or tilted F, surface 1 curved T, surface 1 conic F, ray aiming T, last surface thickness F
+AIMTARGET: cases 137390, mismatches 0
+GETZEE1: cases 1800, mismatches 0
+RAYDERIV: cases 144, mismatches 0
+NEWDEL: cases 792, mismatches 0
+MISSREF: cases 240948, mismatches 0
+ADJLAST: cases 1260, mismatches 0
+ENGINETEST: PASS
+All constraints removed
+
+
+
+
+
+
+Field Weights Command WTF     100     100     100 Not supported
+
+ENGINETEST: surfaces 8, input rays 20
+TILT FLAGS: 0 0 0 0 0 0 0 0
+DECENTER FLAGS: 0 0 0 0 0 0 0 0
+SURFACES WITH GLOBAL DATA: 0, FORONEL PIVOT PATH: F
+TRNSF2: cases 140, not bit-identical 0
+BAKONE: cases 20, not bit-identical 0
+FORONEL: cases 20, not bit-identical 0
+CACHEK: cases 249704, mismatches 0
+HITSUR: cases 4992, skipped 0, mismatches 0
+AIM SETUP: reference surface 3, clap type 0, multi clap 0, aplanatic F, flip X F, flip Y F, orient T, clap decentered or tilted F, surface 1 curved T, surface 1 conic F, ray aiming T, last surface thickness F
+AIMTARGET: cases 137390, mismatches 0
+GETZEE1: cases 1800, mismatches 0
+RAYDERIV: cases 144, mismatches 0
+NEWDEL: cases 792, mismatches 0
+MISSREF: cases 240948, mismatches 0
+ADJLAST: cases 1260, mismatches 0
+ENGINETEST: PASS
+All constraints removed
+
+
+
+
+
+
+Field Weights Command WTF     100     100     100 Not supported
+
+ENGINETEST: surfaces 8, input rays 20
+TILT FLAGS: 0 0 0 0 0 0 0 0
+DECENTER FLAGS: 0 0 0 0 0 0 0 0
+SURFACES WITH GLOBAL DATA: 0, FORONEL PIVOT PATH: F
+TRNSF2: cases 140, not bit-identical 0
+BAKONE: cases 20, not bit-identical 0
+FORONEL: cases 20, not bit-identical 0
+CACHEK: cases 249704, mismatches 0
+HITSUR: cases 4992, skipped 0, mismatches 0
+AIM SETUP: reference surface 3, clap type 1, multi clap 0, aplanatic F, flip X F, flip Y F, orient F, clap decentered or tilted F, surface 1 curved T, surface 1 conic F, ray aiming F, last surface thickness F
+AIMTARGET: cases 137390, mismatches 0
+GETZEE1: cases 1800, mismatches 0
+RAYDERIV: cases 144, mismatches 0
+NEWDEL: cases 792, mismatches 0
+MISSREF: cases 240948, mismatches 0
+ADJLAST: cases 840, mismatches 0
+ENGINETEST: PASS
+All constraints removed
+
+
+
+
+
+
+Field Weights Command WTF     100     100     100 Not supported
+ENGINETEST: surfaces 8, input rays 20
+TILT FLAGS: 0 0 0 0 0 0 0 0
+DECENTER FLAGS: 0 0 0 0 0 0 0 0
+SURFACES WITH GLOBAL DATA: 0, FORONEL PIVOT PATH: F
+TRNSF2: cases 140, not bit-identical 0
+BAKONE: cases 20, not bit-identical 0
+FORONEL: cases 20, not bit-identical 0
+CACHEK: cases 249704, mismatches 0
+HITSUR: cases 4992, skipped 0, mismatches 0
+AIM SETUP: reference surface 3, clap type 0, multi clap 0, aplanatic F, flip X F, flip Y F, orient F, clap decentered or tilted F, surface 1 curved F, surface 1 conic F, ray aiming T, last surface thickness F
+AIMTARGET: cases 137390, mismatches 0
+GETZEE1: cases 1800, mismatches 0
+RAYDERIV: cases 144, mismatches 0
+NEWDEL: cases 792, mismatches 0
+MISSREF: cases 240948, mismatches 0
+ADJLAST: cases 1260, mismatches 0
+ENGINETEST: PASS
+All constraints removed
+
+
+
+
+
+
+Field Weights Command WTF     100     100     100 Not supported
+ENGINETEST: surfaces 8, input rays 20
+TILT FLAGS: 0 0 0 0 0 0 0 0
+DECENTER FLAGS: 0 0 0 0 0 0 0 0
+SURFACES WITH GLOBAL DATA: 0, FORONEL PIVOT PATH: F
+TRNSF2: cases 140, not bit-identical 0
+BAKONE: cases 20, not bit-identical 0
+FORONEL: cases 20, not bit-identical 0
+CACHEK: cases 249704, mismatches 0
+HITSUR: cases 4992, skipped 0, mismatches 0
+AIM SETUP: reference surface 3, clap type 0, multi clap 0, aplanatic F, flip X F, flip Y F, orient F, clap decentered or tilted F, surface 1 curved T, surface 1 conic T, ray aiming T, last surface thickness F
+AIMTARGET: cases 137390, mismatches 0
+GETZEE1: cases 1800, mismatches 0
+RAYDERIV: cases 144, mismatches 0
+NEWDEL: cases 792, mismatches 0
+MISSREF: cases 240948, mismatches 0
+ADJLAST: cases 1260, mismatches 0
+ENGINETEST: PASS
+All constraints removed
+
+
+
+
+
+
+Field Weights Command WTF     100     100     100 Not supported
+
+ENGINETEST: surfaces 8, input rays 20
+TILT FLAGS: 0 1 0 0 0 0 0 0
+DECENTER FLAGS: 0 1 0 0 0 0 0 0
+SURFACES WITH GLOBAL DATA: 0, FORONEL PIVOT PATH: F
+TRNSF2: cases 140, not bit-identical 0
+BAKONE: cases 20, not bit-identical 0
+FORONEL: cases 20, not bit-identical 0
+CACHEK: cases 249704, mismatches 0
+HITSUR: cases 4992, skipped 0, mismatches 0
+AIM SETUP: reference surface 3, clap type 0, multi clap 0, aplanatic F, flip X F, flip Y F, orient F, clap decentered or tilted F, surface 1 curved T, surface 1 conic T, ray aiming T, last surface thickness F
+AIMTARGET: cases 137390, mismatches 0
+GETZEE1: cases 1800, mismatches 0
+RAYDERIV: cases 144, mismatches 0
+NEWDEL: cases 792, mismatches 0
+MISSREF: cases 240948, mismatches 0
+ADJLAST: cases 1260, mismatches 0
+ENGINETEST: PASS
+All constraints removed
+
+
+
+
+
+
+Field Weights Command WTF     100     100     100 Not supported
+ENGINETEST: surfaces 8, input rays 20
+TILT FLAGS: 0 0 0 0 0 0 0 0
+DECENTER FLAGS: 0 0 0 0 0 0 0 0
+SURFACES WITH GLOBAL DATA: 0, FORONEL PIVOT PATH: F
+TRNSF2: cases 140, not bit-identical 0
+BAKONE: cases 20, not bit-identical 0
+FORONEL: cases 20, not bit-identical 0
+CACHEK: cases 249704, mismatches 0
+HITSUR: cases 4992, skipped 0, mismatches 0
+AIM SETUP: reference surface 3, clap type 0, multi clap 0, aplanatic F, flip X F, flip Y F, orient F, clap decentered or tilted F, surface 1 curved T, surface 1 conic F, ray aiming T, last surface thickness T
+AIMTARGET: cases 137390, mismatches 0
+GETZEE1: cases 1800, mismatches 0
+RAYDERIV: cases 144, mismatches 0
+NEWDEL: cases 792, mismatches 0
+MISSREF: cases 240948, mismatches 0
+ADJLAST: cases 1260, mismatches 0
+ENGINETEST: PASS
+All constraints removed
+
+
+
+
+
+
+Field Weights Command WTF     100     100     100 Not supported
+ENGINETEST: surfaces 8, input rays 20
+TILT FLAGS: 0 0 0 0 0 0 0 0
+DECENTER FLAGS: 0 0 0 0 0 0 0 0
+SURFACES WITH GLOBAL DATA: 0, FORONEL PIVOT PATH: F
+TRNSF2: cases 140, not bit-identical 0
+BAKONE: cases 20, not bit-identical 0
+FORONEL: cases 20, not bit-identical 0
+CACHEK: cases 249704, mismatches 0
+HITSUR: cases 4992, skipped 0, mismatches 0
+AIM SETUP: reference surface 3, clap type 0, multi clap 0, aplanatic F, flip X F, flip Y F, orient F, clap decentered or tilted F, surface 1 curved T, surface 1 conic F, ray aiming T, last surface thickness T
+AIMTARGET: cases 137390, mismatches 0
+GETZEE1: cases 1800, mismatches 0
+RAYDERIV: cases 144, mismatches 0
+NEWDEL: cases 792, mismatches 0
+MISSREF: cases 240948, mismatches 0
+ADJLAST: cases 1260, mismatches 0
 ENGINETEST: PASS

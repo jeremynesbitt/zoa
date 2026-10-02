@@ -557,3 +557,235 @@ RDTOR 20
 EOS
 FOB 0.7
 ENGINETEST BRIEF
+
+! ----------------------------------------------------------------------------
+! Ray aiming leaf routines (cases 35-55).  The six lines after HITSUR in the
+! output compare the legacy routines with their ports in mod_ray_aiming, bit for
+! bit:
+!   AIMTARGET  compute_aim_target (and APLANA): the target point on the
+!              reference surface for a 13x13 grid of relative pupil coordinates
+!              over [-1.2, 1.2]^2, for ANAAIM true and false
+!   GETZEE1    the aim point -> surface 1 intersection, for a grid of aim points
+!              and object points, for the lens as it stands and for synthetic
+!              surface-1 curvatures/conics (flat, sphere, parabola (conic -1: one
+!              intersection), oblate and prolate conics); points off the surface
+!              reach the ZEEERR miss exit
+!   RAYDERIV   the four derivatives for pairs incl. equal (zero) denominators
+!   NEWDEL     one Newton step, for a derivative quadruple that takes each
+!              branch, for several landing errors, aim points, object points and
+!              the same surface-1 variants (so both with and without GETZEE1)
+!   MISSREF    "is the reference-surface point blocked by the clear aperture"
+!              over a grid and the nominal edges, REFMISS starting false and true
+!   ADJLAST    adjustLastSurface on real RAYRAY data from legacy RAYTRA2 traces
+!              of six rays, at every surface, for the real and synthetic
+!              thicknesses (negative: reversed; huge: the 1e10 guard)
+! Every ENGINETEST (cases 1-34 included) also runs synthetic passes that
+! temporarily rewrite the reference surface's clear aperture (every type, centred
+! or decentered/tilted), curvature and array parity, the aplanatic / flip /
+! orientation settings, and surface 1's curvature and conic, then restore them,
+! so branches that no command can set up on the current lens are covered anyway.
+! The AIM SETUP line summarises what the case's own lens sets up.
+!
+! NEWDEL branches (legacy order; "NEWDEL DETAIL" of a non-BRIEF run counts the
+! cases per branch, 72 each):
+!   0 all derivatives zero (failure: RAYCOD 16, MACFAL due)   1 D11&D22
+!   2 D11&D12   3 D21&D12   4 D21&D22   5 D11&D21   6 D12&D22   7 only D22
+!   8 only D11   9 only D12   (10 = a copy of 7 that can never run: unreachable)
+!   11 only D21: no branch matches, the routine returns having changed nothing
+!
+! Not reachable from commands, covered by the synthetic passes: IPOLY (type 6)
+! reference apertures, array parity on the reference surface, a reference
+! surface with MULTCLAP (REFS refuses one), the MISSREF types on a given lens.
+! ----------------------------------------------------------------------------
+
+! case 35: circular reference clap, centred, aplanatic off (osdtriplet reference
+! surface = stop = S3)
+RES osdtriplet
+U L
+CHG 3
+CLAP 3.5 0 0
+EOS
+FOB 0.7
+ENGINETEST BRIEF
+
+! case 36: same, aplanatic aiming on: APLANA runs (|R| = 37.5 >= the radius)
+RES osdtriplet
+AIMAPL ON
+U L
+CHG 3
+CLAP 3.5 0 0
+EOS
+FOB 0.7
+ENGINETEST BRIEF
+
+! case 37: circular clap with dim1 > dim2 (the smaller is the radius), aplanatic on
+RES osdtriplet
+AIMAPL ON
+U L
+CHG 3
+CLAP 3.5 0 0 2.5
+EOS
+FOB 0.7
+ENGINETEST BRIEF
+
+! case 38: circular clap decentered: "clapt" branch, aplanatic skipped.  (CLAP TILT
+! is refused for a circular clap, so a tilted circle only exists synthetically.)
+RES osdtriplet
+AIMAPL ON
+U L
+CHG 3
+CLAP 3.5 0.2 -0.1
+EOS
+FOB 0.7
+ENGINETEST BRIEF
+
+! case 39: rectangular reference clap, centred
+RES osdtriplet
+U L
+CHG 3
+CLAP RECT 3.5 3.0 0 0
+EOS
+FOB 0.7
+ENGINETEST BRIEF
+
+! case 40: rectangular clap decentered and tilted (the ANAAIM branches of clapt)
+RES osdtriplet
+U L
+CHG 3
+CLAP RECT 3.5 3.0 0.2 -0.1
+CLAP TILT 20
+EOS
+FOB 0.7
+ENGINETEST BRIEF
+
+! case 41: elliptical clap, centred
+RES osdtriplet
+U L
+CHG 3
+CLAP ELIP 3.5 3.0 0 0
+EOS
+FOB 0.7
+ENGINETEST BRIEF
+
+! case 42: elliptical clap decentered and tilted
+RES osdtriplet
+U L
+CHG 3
+CLAP ELIP 3.5 3.0 0.2 -0.1
+CLAP TILT 25
+EOS
+FOB 0.7
+ENGINETEST BRIEF
+
+! case 43: racetrack clap (centred; the 8-sided box in MISSREF)
+RES osdtriplet
+U L
+CHG 3
+CLAP RCTK 3.5 3.0 0 0 1
+EOS
+FOB 0.7
+ENGINETEST BRIEF
+
+! case 44: polygon clap, decentered and tilted
+RES osdtriplet
+U L
+CHG 3
+CLAP POLY 3.5 6 0.1 -0.2
+CLAP TILT 12
+EOS
+FOB 0.7
+ENGINETEST BRIEF
+
+! case 45: FLIPREFX on (no clap on the reference surface: paraxial target)
+RES osdtriplet
+FLIPREFX ON
+FOB 0.7
+ENGINETEST BRIEF
+
+! case 46: FLIPREFY on with a rectangular clap
+RES osdtriplet
+U L
+CHG 3
+CLAP RECT 3.5 3.0 0 0
+EOS
+FLIPREFY ON
+FOB 0.7
+ENGINETEST BRIEF
+
+! case 47: both flips with a decentered, tilted rectangular clap
+RES osdtriplet
+U L
+CHG 3
+CLAP RECT 3.5 3.0 0.2 -0.1
+CLAP TILT 20
+EOS
+FLIPREFX ON
+FLIPREFY ON
+FOB 0.7
+ENGINETEST BRIEF
+
+! case 48: reference surface orientation 30 degrees with an elliptical clap
+RES osdtriplet
+U L
+CHG 3
+CLAP ELIP 3.5 3.0 0 0
+REFS 30
+EOS
+FOB 0.7
+ENGINETEST BRIEF
+
+! case 49: reference surface orientation with no clap (paraxial target rotated)
+RES osdtriplet
+U L
+CHG 3
+REFS 30
+EOS
+FOB 0.7
+ENGINETEST BRIEF
+
+! case 50: ray aiming off (osdtriplet has it on by default, as in every other
+! case; AIMAPL ON in 36-38 turns it off in favour of aplanatic aiming)
+RES osdtriplet
+AIMRAY OFF
+U L
+CHG 3
+CLAP 3.5 0 0
+EOS
+FOB 0.7
+ENGINETEST BRIEF
+
+! case 51: surface 1 flat (GETZEE1 guard: NEWDEL does not call it)
+RES osdtriplet
+RDY S1 0
+FOB 0.7
+ENGINETEST BRIEF
+
+! case 52: surface 1 parabolic (conic -1): GETZEE1's single-intersection branch
+RES osdtriplet
+K S1 -1
+FOB 0.7
+ENGINETEST BRIEF
+
+! case 53: surface 1 oblate conic with a tilt and decenter (BAKONE/FORONEL in
+! GETZEE1 and NEWDEL on a placed surface 1)
+RES osdtriplet
+U L
+CHG 1
+K 0.5
+TILT 0.5 0.3 0.2
+DEC 0.1 -0.2 0.3
+EOS
+FOB 0.7
+ENGINETEST BRIEF
+
+! case 54: last surface with a positive thickness (adjustLastSurface does work)
+RES osdtriplet
+THI S7 5
+FOB 0.7
+ENGINETEST BRIEF
+
+! case 55: last surface with a negative thickness (reversed propagation)
+RES osdtriplet
+THI S7 -4
+FOB 0.7
+ENGINETEST BRIEF
