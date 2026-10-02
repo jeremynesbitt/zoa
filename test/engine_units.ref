@@ -1,0 +1,220 @@
+All constraints removed
+
+
+
+
+
+
+Field Weights Command WTF     100     100     100 Not supported
+ENGINETEST: surfaces 8, input rays 20
+TILT FLAGS: 0 0 0 0 0 0 0 0
+DECENTER FLAGS: 0 0 0 0 0 0 0 0
+SURFACES WITH GLOBAL DATA: 0, FORONEL PIVOT PATH: F
+TRNSF2: cases 140, not bit-identical 0
+BAKONE: cases 20, not bit-identical 0
+FORONEL: cases 20, not bit-identical 0
+ENGINETEST: PASS
+All constraints removed
+
+
+
+
+
+
+Field Weights Command WTF     100     100     100 Not supported
+
+ENGINETEST: surfaces 8, input rays 20
+TILT FLAGS: 0 0 0 0 0 0 0 0
+DECENTER FLAGS: 0 1 0 1 0 0 0 0
+SURFACES WITH GLOBAL DATA: 0, FORONEL PIVOT PATH: F
+TRNSF2: cases 140, not bit-identical 0
+BAKONE: cases 20, not bit-identical 0
+FORONEL: cases 20, not bit-identical 0
+ENGINETEST: PASS
+All constraints removed
+
+
+
+
+
+
+Field Weights Command WTF     100     100     100 Not supported
+
+ENGINETEST: surfaces 8, input rays 20
+TILT FLAGS: 0 1 0 1 0 0 0 0
+DECENTER FLAGS: 0 0 0 1 0 0 0 0
+SURFACES WITH GLOBAL DATA: 1, FORONEL PIVOT PATH: F
+TRNSF2: cases 140, not bit-identical 0
+BAKONE: cases 20, not bit-identical 0
+FORONEL: cases 20, not bit-identical 0
+ENGINETEST: PASS
+All constraints removed
+
+
+
+
+
+
+Field Weights Command WTF     100     100     100 Not supported
+
+ENGINETEST: surfaces 8, input rays 20
+TILT FLAGS: 0 -1 0 -1 0 0 0 0
+DECENTER FLAGS: 0 1 0 1 0 0 0 0
+SURFACES WITH GLOBAL DATA: 0, FORONEL PIVOT PATH: F
+TRNSF2: cases 140, not bit-identical 0
+BAKONE: cases 20, not bit-identical 0
+FORONEL: cases 20, not bit-identical 0
+ENGINETEST: PASS
+All constraints removed
+
+
+
+
+
+
+Field Weights Command WTF     100     100     100 Not supported
+
+ENGINETEST: surfaces 8, input rays 20
+TILT FLAGS: 0 0 0 4 0 0 0 0
+DECENTER FLAGS: 0 0 0 1 0 0 0 0
+SURFACES WITH GLOBAL DATA: 0, FORONEL PIVOT PATH: F
+TRNSF2: cases 140, not bit-identical 0
+BAKONE: cases 20, not bit-identical 0
+FORONEL: cases 20, not bit-identical 0
+ENGINETEST: PASS
+All constraints removed
+
+
+
+
+
+
+Field Weights Command WTF     100     100     100 Not supported
+
+ENGINETEST: surfaces 8, input rays 20
+TILT FLAGS: 0 0 0 5 0 0 0 0
+DECENTER FLAGS: 0 0 0 1 0 0 0 0
+SURFACES WITH GLOBAL DATA: 0, FORONEL PIVOT PATH: F
+TRNSF2: cases 140, not bit-identical 0
+BAKONE: cases 20, not bit-identical 0
+FORONEL: cases 20, not bit-identical 0
+ENGINETEST: PASS
+All constraints removed
+
+
+
+
+
+
+Field Weights Command WTF     100     100     100 Not supported
+
+ENGINETEST: surfaces 8, input rays 20
+TILT FLAGS: 0 0 0 7 0 0 0 0
+DECENTER FLAGS: 0 0 0 1 0 0 0 0
+SURFACES WITH GLOBAL DATA: 0, FORONEL PIVOT PATH: F
+TRNSF2: cases 140, not bit-identical 0
+BAKONE: cases 20, not bit-identical 0
+FORONEL: cases 20, not bit-identical 0
+ENGINETEST: PASS
+All constraints removed
+
+
+
+
+
+
+Field Weights Command WTF     100     100     100 Not supported
+
+ENGINETEST: surfaces 8, input rays 20
+TILT FLAGS: 0 0 0 0 0 2 0 0
+DECENTER FLAGS: 0 0 0 0 0 0 0 0
+SURFACES WITH GLOBAL DATA: 0, FORONEL PIVOT PATH: F
+TRNSF2: cases 140, not bit-identical 0
+BAKONE: cases 20, not bit-identical 0
+FORONEL: cases 20, not bit-identical 0
+ENGINETEST: PASS
+All constraints removed
+
+
+
+
+
+
+Field Weights Command WTF     100     100     100 Not supported
+
+ENGINETEST: surfaces 8, input rays 20
+TILT FLAGS: 0 0 0 0 0 3 0 0
+DECENTER FLAGS: 0 0 0 0 0 0 0 0
+SURFACES WITH GLOBAL DATA: 0, FORONEL PIVOT PATH: F
+TRNSF2: cases 140, not bit-identical 0
+BAKONE: cases 20, not bit-identical 0
+FORONEL: cases 20, not bit-identical 0
+ENGINETEST: PASS
+All constraints removed
+
+
+
+
+
+
+Field Weights Command WTF     100     100     100 Not supported
+
+ENGINETEST: surfaces 8, input rays 20
+TILT FLAGS: 0 0 0 1 0 0 0 0
+DECENTER FLAGS: 0 0 0 1 0 0 0 0
+SURFACES WITH GLOBAL DATA: 0, FORONEL PIVOT PATH: F
+TRNSF2: cases 140, not bit-identical 0
+BAKONE: cases 20, not bit-identical 0
+FORONEL: cases 20, not bit-identical 0
+ENGINETEST: PASS
+All constraints removed
+
+
+
+
+
+
+Field Weights Command WTF     100     100     100 Not supported
+
+ENGINETEST: surfaces 8, input rays 20
+TILT FLAGS: 0 1 0 0 0 0 0 0
+DECENTER FLAGS: 0 1 0 0 0 0 0 0
+SURFACES WITH GLOBAL DATA: 0, FORONEL PIVOT PATH: T
+TRNSF2: cases 140, not bit-identical 0
+BAKONE: cases 20, not bit-identical 0
+FORONEL: cases 20, not bit-identical 0
+ENGINETEST: PASS
+All constraints removed
+
+
+
+
+
+
+Field Weights Command WTF     100     100     100 Not supported
+
+ENGINETEST: surfaces 8, input rays 20
+TILT FLAGS: 0 -1 0 0 0 0 0 0
+DECENTER FLAGS: 0 1 0 0 0 0 0 0
+SURFACES WITH GLOBAL DATA: 0, FORONEL PIVOT PATH: T
+TRNSF2: cases 140, not bit-identical 0
+BAKONE: cases 20, not bit-identical 0
+FORONEL: cases 20, not bit-identical 0
+ENGINETEST: PASS
+All constraints removed
+
+
+
+
+
+
+Field Weights Command WTF     100     100     100 Not supported
+
+ENGINETEST: surfaces 8, input rays 20
+TILT FLAGS: 0 1 -1 4 5 7 1 0
+DECENTER FLAGS: 0 0 1 1 1 1 1 0
+SURFACES WITH GLOBAL DATA: 1, FORONEL PIVOT PATH: F
+TRNSF2: cases 140, not bit-identical 0
+BAKONE: cases 20, not bit-identical 0
+FORONEL: cases 20, not bit-identical 0
+ENGINETEST: PASS

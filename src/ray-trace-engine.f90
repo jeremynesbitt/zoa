@@ -22,6 +22,7 @@
 module mod_ray_trace_engine
    use iso_fortran_env, only: real64
    use mod_surface_type, only: surface_type
+   use mod_surface_placement, only: surface_placement
    implicit none
    private
 
@@ -66,6 +67,7 @@ module mod_ray_trace_engine
    type :: trace_surface
       class(surface_type), allocatable :: geom   ! copy of ldm%surfaces(s)%s
       real(real64) :: n_after(10) = 1.0_real64   ! index after s, per wavelength
+      type(surface_placement) :: place           ! tilts/decenters/thickness (TRNSF2 data)
    end type
 
    ! Read-only inputs shared by every ray of one trace job (one field, one

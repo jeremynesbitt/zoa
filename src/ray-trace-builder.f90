@@ -13,7 +13,7 @@ module mod_ray_trace_builder
    implicit none
    private
 
-   public :: build_trace_context
+   public :: build_trace_context, placement_of
 
 contains
 
@@ -51,6 +51,7 @@ contains
          if (allocated(ldm%surfaces(s)%s)) then
             allocate(ctx%surf(s)%geom, source=ldm%surfaces(s)%s)
          end if
+         ctx%surf(s)%place = placement_of(s)
          do w = 1, 10
             ctx%surf(s)%n_after(w) = ldm%getSurfIndex(s, w)
          end do
@@ -61,5 +62,38 @@ contains
       ctx%supported = .false.
       ctx%reason = 'engine surface loop not implemented yet'
    end subroutine build_trace_context
+
+   ! Fill a surface_placement for surface s from the legacy accessors: every
+   ! quantity TRNSF2 / BAKONE / FORONEL read for that surface.
+   function placement_of(s) result(p)
+      use mod_surface, only: surf_tilt_flag, surf_decenter_flag, surf_alpha, &
+         surf_beta, surf_gamma, surf_decenter_x, surf_decenter_y, surf_decenter_z, &
+         surf_thickness, surf_global_dx, surf_global_dy, surf_global_dz, &
+         surf_global_alpha, surf_global_beta, surf_global_gamma, &
+         surf_pivot_flag, surf_pivot_axis, surf_pivot_x, surf_pivot_y
+      use mod_surface_placement, only: surface_placement
+      integer, intent(in) :: s
+      type(surface_placement) :: p
+
+      p%tilt_flag = surf_tilt_flag(s)
+      p%decenter_flag = surf_decenter_flag(s)
+      p%alpha = surf_alpha(s)
+      p%beta = surf_beta(s)
+      p%gamma = surf_gamma(s)
+      p%dx = surf_decenter_x(s)
+      p%dy = surf_decenter_y(s)
+      p%dz = surf_decenter_z(s)
+      p%thickness = surf_thickness(s)
+      p%global_dx = surf_global_dx(s)
+      p%global_dy = surf_global_dy(s)
+      p%global_dz = surf_global_dz(s)
+      p%global_alpha = surf_global_alpha(s)
+      p%global_beta = surf_global_beta(s)
+      p%global_gamma = surf_global_gamma(s)
+      p%pivot_flag = surf_pivot_flag(s)
+      p%pivot_axis = surf_pivot_axis(s)
+      p%pivot_x = surf_pivot_x(s)
+      p%pivot_y = surf_pivot_y(s)
+   end function placement_of
 
 end module mod_ray_trace_builder

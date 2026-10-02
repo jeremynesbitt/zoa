@@ -782,4 +782,200 @@ contains
         end if
     end procedure execTRACECMP
 
+    !## cmd:      ENGINETEST
+    !## syntax:   ENGINETEST [BRIEF]
+    !## category: Diagnostics
+    !## desc:     Unit test of the pure surface-placement transforms against the
+    !##           legacy ones.  For the current lens, runs a fixed set of rays
+    !##           through legacy TRNSF2 and place_into_surface at every surface
+    !##           NEWOBJ+1..NEWIMG, and the same points through BAKONE/FORONEL
+    !##           and their ports on surface NEWOBJ+1, comparing results bit for
+    !##           bit.  BRIEF prints only counts and verdicts.
+    !##
+    module procedure execENGINETEST
+        use DATLEN, only: NEWOBJ, NEWIMG, R_X, R_Y, R_Z, R_L, R_M, R_N, R_I, &
+                          R_TX, R_TY, R_TZ
+        use mod_surface_placement, only: surface_placement, place_into_surface, &
+                                         back_to_object, forward_from_object, &
+                                         pivot_normal_needed
+        use mod_ray_trace_builder, only: placement_of
+        use zoa_output, only: zoa_emit
+        use iso_fortran_env, only: int64
+        implicit none
+
+        integer, parameter :: NRAY = 20
+        character(len=80) :: tokens(40)
+        character(len=200) :: line
+        character(len=8), parameter :: rname(3) = [character(len=8) :: 'TRNSF2', 'BAKONE', 'FORONEL']
+        integer :: numTokens, i, k, s, ncase(3), nbad(3), nobj1, nglob
+        logical :: brief
+        real(real64) :: pos(3, NRAY), dirv(3, NRAY), raw(3, NRAY), nrm
+        real(real64) :: a(6), b(6), maxd(3), d
+        real(real64) :: sRX, sRY, sRZ, sRL, sRM, sRN, sTX, sTY, sTZ
+        integer :: sRI
+        real(real64) :: jz, pl, pm, pn
+        type(surface_placement) :: pp, pc
+        type(surface_placement), allocatable :: pl_all(:)
+        character(len=60) :: failName
+
+        call parse(trim(iptStr), ' ', tokens, numTokens)
+        brief = .false.
+        do i = 2, numTokens
+            if (trim(tokens(i)) == 'BRIEF') then
+                brief = .true.
+            else
+                call zoa_emit("ENGINETEST: unknown argument '"//trim(tokens(i))//"'", "red")
+                return
+            end if
+        end do
+
+        ! Fixed deterministic inputs: positions spread over +-12 incl. off-axis x
+        ! and y, and a z offset; directions from fixed raw vectors, normalized.
+        do k = 1, NRAY
+            pos(1, k) = 0.75_real64*real(mod(k*7, 11) - 5, real64)
+            pos(2, k) = 0.6_real64*real(mod(k*5, 13) - 6, real64)
+            pos(3, k) = 0.1_real64*real(mod(k*3, 7) - 3, real64)
+            raw(1, k) = 0.07_real64*real(mod(k*3, 9) - 4, real64)
+            raw(2, k) = 0.05_real64*real(mod(k*4, 11) - 5, real64)
+            raw(3, k) = 1.0_real64
+        end do
+        ! a few hand-picked extremes
+        pos(:, 1) = [0.0_real64, 0.0_real64, 0.0_real64]
+        raw(:, 1) = [0.0_real64, 0.0_real64, 1.0_real64]
+        pos(:, 2) = [5.0_real64, 0.0_real64, 0.0_real64]
+        raw(:, 2) = [0.0_real64, 0.0_real64, 1.0_real64]
+        pos(:, 3) = [0.0_real64, 5.0_real64, 0.0_real64]
+        raw(:, 3) = [0.0_real64, 0.0_real64, 1.0_real64]
+        raw(:, 4) = [0.3_real64, 0.0_real64, 1.0_real64]
+        raw(:, 5) = [0.0_real64, 0.3_real64, 1.0_real64]
+        raw(:, 6) = [0.25_real64, -0.35_real64, 1.0_real64]
+        raw(:, 7) = [-0.5_real64, 0.4_real64, 0.8_real64]
+        do k = 1, NRAY
+            nrm = sqrt(raw(1, k)**2 + raw(2, k)**2 + raw(3, k)**2)
+            dirv(:, k) = raw(:, k)/nrm
+        end do
+
+        nobj1 = NEWOBJ + 1
+        allocate(pl_all(NEWOBJ:NEWIMG))
+        do s = NEWOBJ, NEWIMG
+            pl_all(s) = placement_of(s)
+        end do
+
+        ! save every legacy global we write
+        sRX = R_X; sRY = R_Y; sRZ = R_Z; sRL = R_L; sRM = R_M; sRN = R_N
+        sRI = R_I; sTX = R_TX; sTY = R_TY; sTZ = R_TZ
+
+        ncase = 0
+        nbad = 0
+        maxd = 0.0_real64
+
+        ! ---- TRNSF2 vs place_into_surface ----
+        do s = nobj1, NEWIMG
+            do k = 1, NRAY
+                R_X = pos(1, k); R_Y = pos(2, k); R_Z = pos(3, k)
+                R_L = dirv(1, k); R_M = dirv(2, k); R_N = dirv(3, k)
+                R_I = s
+                call TRNSF2
+                a = [R_X, R_Y, R_Z, R_L, R_M, R_N]
+                b = [pos(:, k), dirv(:, k)]
+                call place_into_surface(pl_all(s-1), pl_all(s), b(1), b(2), b(3), b(4), b(5), b(6))
+                call cmp6(1)
+            end do
+        end do
+
+        ! ---- BAKONE vs back_to_object (surface NEWOBJ+1) ----
+        do k = 1, NRAY
+            R_TX = pos(1, k); R_TY = pos(2, k); R_TZ = pos(3, k)
+            call BAKONE
+            a(1:3) = [R_TX, R_TY, R_TZ]
+            a(4:6) = 0.0_real64
+            b(1:3) = pos(:, k)
+            b(4:6) = 0.0_real64
+            call back_to_object(pl_all(nobj1), pl_all(NEWOBJ)%thickness, b(1), b(2), b(3))
+            call cmp6(2)
+        end do
+
+        ! ---- FORONEL vs forward_from_object (surface NEWOBJ+1) ----
+        pl = 0.0_real64; pm = 0.0_real64; pn = 1.0_real64
+        if (pivot_normal_needed(pl_all(nobj1))) then
+            ! the one piece of FORONEL that is surface geometry: SAGINT's normal
+            call SAGINT(nobj1, pl_all(nobj1)%pivot_x, pl_all(nobj1)%pivot_y, jz, pl, pm, pn)
+        end if
+        do k = 1, NRAY
+            R_TX = pos(1, k); R_TY = pos(2, k); R_TZ = pos(3, k)
+            call FORONEL
+            a(1:3) = [R_TX, R_TY, R_TZ]
+            a(4:6) = 0.0_real64
+            b(1:3) = pos(:, k)
+            b(4:6) = 0.0_real64
+            call forward_from_object(pl_all(nobj1), pl, pm, pn, b(1), b(2), b(3))
+            call cmp6(3)
+        end do
+
+        ! restore
+        R_X = sRX; R_Y = sRY; R_Z = sRZ; R_L = sRL; R_M = sRM; R_N = sRN
+        R_I = sRI; R_TX = sTX; R_TY = sTY; R_TZ = sTZ
+
+        write(line, '(A,I0,A,I0)') 'ENGINETEST: surfaces ', NEWIMG - NEWOBJ + 1, ', input rays ', NRAY
+        call zoa_emit(trim(line), "black")
+        ! per-surface flag summary (integers only), so a reader of the output can
+        ! see which TRNSF2/BAKONE/FORONEL branches the lens exercises
+        line = 'TILT FLAGS:'
+        do s = NEWOBJ, NEWIMG
+            write(line, '(A,1X,I0)') trim(line), pl_all(s)%tilt_flag
+        end do
+        call zoa_emit(trim(line), "black")
+        line = 'DECENTER FLAGS:'
+        do s = NEWOBJ, NEWIMG
+            write(line, '(A,1X,I0)') trim(line), pl_all(s)%decenter_flag
+        end do
+        call zoa_emit(trim(line), "black")
+        nglob = 0
+        do s = NEWOBJ, NEWIMG
+            if (pl_all(s)%global_dx /= 0.0_real64 .or. pl_all(s)%global_dy /= 0.0_real64 .or. &
+                pl_all(s)%global_dz /= 0.0_real64 .or. pl_all(s)%global_alpha /= 0.0_real64 .or. &
+                pl_all(s)%global_beta /= 0.0_real64 .or. pl_all(s)%global_gamma /= 0.0_real64) &
+                nglob = nglob + 1
+        end do
+        write(line, '(A,I0,A,L1)') 'SURFACES WITH GLOBAL DATA: ', nglob, &
+            ', FORONEL PIVOT PATH: ', pivot_normal_needed(pl_all(nobj1))
+        call zoa_emit(trim(line), "black")
+        failName = ''
+        do i = 1, 3
+            if (brief) then
+                write(line, '(A,A,I0,A,I0)') trim(rname(i)), ': cases ', ncase(i), &
+                    ', not bit-identical ', nbad(i)
+            else
+                write(line, '(A,A,I0,A,I0,A,ES10.3)') trim(rname(i)), ': cases ', ncase(i), &
+                    ', not bit-identical ', nbad(i), ', max abs diff ', maxd(i)
+            end if
+            call zoa_emit(trim(line), "black")
+            if (nbad(i) > 0 .and. len_trim(failName) == 0) failName = rname(i)
+        end do
+        if (len_trim(failName) == 0) then
+            call zoa_emit('ENGINETEST: PASS', "black")
+        else
+            call zoa_emit('ENGINETEST: FAIL ('//trim(failName)//')', "black")
+        end if
+
+    contains
+
+        ! compare a(1:6) (legacy) with b(1:6) (port) bitwise; accumulate for routine r
+        subroutine cmp6(r)
+            integer, intent(in) :: r
+            integer :: j
+            logical :: bad
+            ncase(r) = ncase(r) + 1
+            bad = .false.
+            do j = 1, 6
+                if (transfer(a(j), 0_int64) /= transfer(b(j), 0_int64)) then
+                    bad = .true.
+                    d = abs(a(j) - b(j))
+                    if (d > maxd(r) .or. d /= d) maxd(r) = d
+                end if
+            end do
+            if (bad) nbad(r) = nbad(r) + 1
+        end subroutine cmp6
+    end procedure execENGINETEST
+
 end submodule mod_codev_utils

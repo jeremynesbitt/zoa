@@ -1,0 +1,186 @@
+! ---- Engine unit tests: ENGINETEST compares the pure coordinate transforms of
+! mod_surface_placement (place_into_surface, back_to_object, forward_from_object)
+! bit-for-bit against legacy TRNSF2, BAKONE and FORONEL for the current lens, over
+! a fixed set of 20 rays at every surface.  BRIEF prints counts, the integer
+! flag summary and the verdict only (no floating-point values).
+! Every case starts from RES osdtriplet, applies one tilt/decenter type in
+! lens-update level (U L ... EOS), runs FOB 0.7, then ENGINETEST BRIEF.
+!
+! Flag coverage (TILT FLAGS line of each case shows the surface flags):
+!   case 1   no tilts                             flag 0 (cur), decenter flag 0
+!   case 2   DEC only (no tilt)                   flag 0 + decenter flag 1
+!   case 3   TILT + DEC + GDX/GDY/GDZ             flag 1; global offsets (S3);
+!                                                 BAKONE/FORONEL flag 1 (S1)
+!   case 4   RTILT + DEC                          flag -1 (cur, BAKONE, FORONEL)
+!   case 5   TILT BEN + DEC                       flag 4 (cur at S3, prev for S4)
+!   case 6   TILT DAR + DEC                       flag 5 (cur, and prev for S4)
+!   case 7   TILT REV + DEC                       flag 7 (cur, and prev for S4)
+!   case 8   TILT AUTO                            flag 2
+!   case 9   TILT AUTOM                           flag 3
+!   case 10  TILT RET                             flag 6 is transient: EOS resolves
+!                                                 it to 1 (+return flag), so 6 itself
+!                                                 never survives to trace time.  The
+!                                                 TRNSF2 test (1,6,2,3,4,5) shares
+!                                                 one branch, covered by 1/2/3/4/5.
+!   case 11  TILT + PIVOT + PIVAXIS NORMAL (S1)   FORONEL pivot path (flag 1)
+!   case 12  RTILT + PIVOT + PIVAXIS NORMAL (S1)  FORONEL pivot path (flag -1)
+!   case 13  mixed types on adjacent surfaces     prev/cur combinations:
+!            (TILT, RTILT, BEN, DAR, REV, TILT)   (1,-1) (-1,4) (4,5) (5,7) (7,1)
+! Not reachable from any command: TILT BEN and TILT DAR are rejected on surface
+! NEWOBJ+1 ("DISALLOWED ON SURFACES 0 AND 1"), so BAKONE's flag-4 and flag-5
+! branches and FORONEL's flag-4 branch and flag-5 pivot path cannot be exercised
+! (they run only through BAKONE/FORONEL, which only look at surface NEWOBJ+1);
+! TILT REV is likewise rejected there.  The global ANGLES (surf_global_alpha/beta/gamma) are
+! never set by any live command (only GDX/GDY/GDZ are), so the global-rotation
+! branches run with zero angles.
+! ----------------------------------------------------------------------------
+
+! case 1
+RES osdtriplet
+FOB 0.7
+ENGINETEST BRIEF
+
+! case 2
+RES osdtriplet
+U L
+CHG 1
+DEC 0.1 -0.2 0.3
+CHG 3
+DEC -0.3 0.2 0.1
+EOS
+FOB 0.7
+ENGINETEST BRIEF
+
+! case 3
+RES osdtriplet
+U L
+CHG 1
+TILT 0.5 0.3 0.2
+CHG 3
+TILT 1 2 3
+DEC 0.1 0.2 0.3
+GDX 0.4
+GDY 0.5
+GDZ 0.6
+EOS
+FOB 0.7
+ENGINETEST BRIEF
+
+! case 4
+RES osdtriplet
+U L
+CHG 1
+RTILT 0.5 0.3 0.2
+DEC 0.1 -0.2 0.3
+CHG 3
+RTILT 1 2 3
+DEC 0.3 0.2 0.1
+EOS
+FOB 0.7
+ENGINETEST BRIEF
+
+! case 5
+RES osdtriplet
+U L
+CHG 3
+TILT BEN 2 3
+DEC 0.1 0.2 0.3
+EOS
+FOB 0.7
+ENGINETEST BRIEF
+
+! case 6
+RES osdtriplet
+U L
+CHG 3
+TILT DAR 2 3 1
+DEC 0.1 0.2 0.3
+EOS
+FOB 0.7
+ENGINETEST BRIEF
+
+! case 7
+RES osdtriplet
+U L
+CHG 3
+TILT REV 2 3 1
+DEC 0.1 0.2 0.3
+EOS
+FOB 0.7
+ENGINETEST BRIEF
+
+! case 8
+RES osdtriplet
+U L
+CHG 5
+TILT AUTO 2 3 1
+EOS
+FOB 0.7
+ENGINETEST BRIEF
+
+! case 9
+RES osdtriplet
+U L
+CHG 5
+TILT AUTOM 2 3 1
+EOS
+FOB 0.7
+ENGINETEST BRIEF
+
+! case 10
+RES osdtriplet
+U L
+CHG 3
+TILT RET 1
+EOS
+FOB 0.7
+ENGINETEST BRIEF
+
+! case 11
+RES osdtriplet
+U L
+CHG 1
+TILT 1 2 3
+PIVOT 2 3 0
+PIVAXIS NORMAL
+EOS
+FOB 0.7
+ENGINETEST BRIEF
+
+! case 12
+RES osdtriplet
+U L
+CHG 1
+RTILT 1 2 3
+PIVOT 2 3 0
+PIVAXIS NORMAL
+EOS
+FOB 0.7
+ENGINETEST BRIEF
+
+! case 13
+RES osdtriplet
+U L
+CHG 1
+TILT 0.5 0.3 0.2
+CHG 2
+RTILT 0.4 0.2 0.1
+DEC 0.1 0.1 0.1
+CHG 3
+TILT BEN 1 2
+DEC 0.2 -0.1 0.3
+CHG 4
+TILT DAR 0.6 0.3 0.1
+DEC -0.2 0.1 0.2
+CHG 5
+TILT REV 0.7 0.2 0.3
+DEC 0.1 0.3 -0.1
+CHG 6
+TILT 0.3 0.6 0.2
+DEC 0.2 0.2 0.2
+GDX 0.1
+GDY 0.2
+GDZ 0.3
+EOS
+FOB 0.7
+ENGINETEST BRIEF
