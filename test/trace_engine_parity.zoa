@@ -1,0 +1,57 @@
+! ---- Trace engine parity: TRACECMP compares the legacy real-ray tracer ----
+! (RAYTRA2) against the new global-free engine (mod_ray_trace_engine) over an
+! 8x8 pupil grid, for several lenses and fields.  BRIEF mode prints only
+! deterministic counts and the verdict -- no floating-point deltas.
+! Until the engine supports a lens the verdict is SKIP (the legacy counts are
+! still checked); once supported it must be PASS.
+RES osdtriplet
+FOB 0
+TRACECMP 8 BRIEF
+FOB 1
+TRACECMP 8 BRIEF
+CV2PRG DoubleGauss.seq
+FOB 0
+TRACECMP 8 BRIEF
+FOB 0.7
+TRACECMP 8 BRIEF
+FOB 1
+TRACECMP 8 BRIEF
+CV2PRG LithoKotaro.seq
+FOB 0
+TRACECMP 8 BRIEF
+FOB 1
+TRACECMP 8 BRIEF
+! Ray aiming: default is ON, so toggle it OFF, then back ON.
+RES osdtriplet
+RAYAIM OFF
+FOB 1
+TRACECMP 8 BRIEF
+RAYAIM ON
+FOB 1
+TRACECMP 8 BRIEF
+! Mirror system (reflection).  Built inline: Library/Projects/OSDmirror.zoa
+! is a command script that ends in VIE, which would leave the plot's
+! settings level active and swallow the commands that follow.
+LEN NEW
+EPD 20
+TIT 'OSDmirror'
+RDY S1 -100
+RMD S1 REFL
+PIM
+FOB 0
+TRACECMP 8 BRIEF
+FOB 1
+TRACECMP 8 BRIEF
+! Telecentric aiming, finite object.  (LithoKotaroTelOBNA.seq would be the
+! natural fixture, but CV2PRG rejects its NAO line and the import fails, so
+! switch telecentric aiming on for LithoKotaro instead.)
+CV2PRG LithoKotaro.seq
+TEL ON
+FOB 1
+TRACECMP 8 BRIEF
+TEL OFF
+! A tilted surface (same tilt the tilts_decenters test applies).
+RES osdtriplet
+STILT 2 0.5 0 0
+FOB 0.7
+TRACECMP 8 BRIEF

@@ -534,6 +534,11 @@ test('zin_roundtrip', test_runner,
             meson.project_source_root() / 'test/zin_roundtrip.ref'],
      timeout: 120, is_parallel: false)
 
+test('trace_engine_parity', test_runner,
+     args: [meson.project_source_root() / 'test/trace_engine_parity.zoa',
+            meson.project_source_root() / 'test/trace_engine_parity.ref'],
+     timeout: 120, is_parallel: false)
+
 
 if system == 'darwin'
   MacOSDir = meson.project_source_root() / 'MacOS'

@@ -522,4 +522,264 @@ contains
         end function
     end procedure execRAYREF
 
+    !## cmd:      TRACECMP
+    !## syntax:   TRACECMP [n] [w] [BRIEF]
+    !## category: Diagnostics
+    !## desc:     Parity check of the ray trace engine against the legacy tracer.
+    !##           Traces an n x n pupil grid (default 8) at wavelength slot w
+    !##           (default: reference wavelength) for the current lens and field
+    !##           with both tracers and compares status codes and the per-surface
+    !##           ray data.  Run FOB first.  BRIEF prints only deterministic
+    !##           counts and the PASS/FAIL/SKIP verdict.
+    !##
+    module procedure execTRACECMP
+        use DATLEN, only: NEWOBJ, NEWIMG, REFEXT, RAYRAY, RAYCOD, RELX, RELY, &
+                          WWQ, WW1, WW2, WW3, WW4, WW5, WVN, CACOCH, MSG, STOPP, &
+                          ANAAIM, NOCOAT, GRASET, DXFSET, RAYEXT
+        use mod_system, only: sys_wl_ref
+        use mod_ray_trace_engine, only: trace_context, ray_request, ray_result, &
+                                        trace_ray, RR_N, RAY_OK
+        use mod_ray_trace_builder, only: build_trace_context
+        use zoa_output, only: zoa_emit
+        implicit none
+
+        ! Largest scaled difference |engine - legacy| / max(1,|legacy|) that
+        ! still counts as agreement; ~1e5 x double epsilon, i.e. allows
+        ! different-but-equivalent operation ordering, not algorithmic drift.
+        real(real64), parameter :: PARITY_TOL = 1.0e-9_real64
+        integer, parameter :: NCMP = 25
+        character(len=12), parameter :: slotName(NCMP) = [character(len=12) :: &
+            'X', 'Y', 'Z', 'L', 'M', 'N', 'OPL', 'LEN', 'COSI', 'COSIP', &
+            'UX', 'UY', 'LN', 'MN', 'NN', 'XOLD', 'YOLD', 'ZOLD', 'LOLD', &
+            'MOLD', 'NOLD', 'OPL_TOTAL', 'RV', 'POSRAY', 'ENERGY']
+
+        character(len=80) :: tokens(40)
+        character(len=200) :: line
+        integer :: numTokens, i, ios, n, iwl, iy, ix, k, s, ntot, nok, nfail
+        integer :: nStatMis, nBoth, ir, worstSlot
+        integer :: codeHist(0:99), nOther
+        logical :: brief, nSet, wSet
+        real(real64) :: delfob, px, py, dv, rv, worstVal, px0
+        real(real64) :: slotMax(NCMP), slotPx(NCMP), slotPy(NCMP)
+        integer :: slotSurf(NCMP)
+
+        ! saved legacy state
+        logical :: sANAAIM, sNOCOAT, sGRASET, sDXFSET, sMSG, sRAYEXT, sSPDTRA
+        integer :: sCACOCH, sSTOPP, sRAYCOD(2)
+        character(len=8) :: sWWQ
+        real(real64) :: sWW1, sWW2, sWW3, sWW4, sWW5, sWVN, sRELX, sRELY
+        real(real64), allocatable :: sRAYRAY(:,:)
+        logical :: SPDTRA
+        common /SPRA1/ SPDTRA
+
+        type(trace_context) :: ctx
+        type(ray_request) :: req
+        type(ray_result) :: res
+        integer, allocatable :: legCode(:), legSurf(:)
+        real(real64), allocatable :: legRR(:,:,:)
+
+        call parse(trim(iptStr), ' ', tokens, numTokens)
+
+        brief = .false.
+        nSet = .false.
+        wSet = .false.
+        n = 8
+        iwl = nint(sys_wl_ref())
+        do i = 2, numTokens
+            if (trim(tokens(i)) == 'BRIEF') then
+                brief = .true.
+            else
+                read(tokens(i), *, iostat=ios) dv
+                if (ios /= 0) then
+                    call zoa_emit("TRACECMP: cannot parse '"//trim(tokens(i))//"'", "red")
+                    return
+                end if
+                if (.not. nSet) then
+                    n = nint(dv); nSet = .true.
+                else if (.not. wSet) then
+                    iwl = nint(dv); wSet = .true.
+                end if
+            end if
+        end do
+        if (n < 1 .or. n > 200) then
+            call zoa_emit("TRACECMP: grid size must be 1..200", "red")
+            return
+        end if
+        if (iwl < 1 .or. iwl > 10) then
+            call zoa_emit("TRACECMP: wavelength slot must be 1..10", "red")
+            return
+        end if
+
+        if (.not. REFEXT) then
+            call zoa_emit("TRACECMP: no chief ray exists - run FOB first", "red")
+            return
+        end if
+
+        ntot = n*n
+        allocate(legCode(ntot), legSurf(ntot))
+        allocate(legRR(NCMP, NEWOBJ:NEWIMG, ntot))
+        allocate(sRAYRAY(size(RAYRAY,1), 0:ubound(RAYRAY,2)))
+
+        ! ---- save every global the legacy trace touches ----
+        sRAYRAY = RAYRAY
+        sRAYCOD = RAYCOD
+        sRELX = RELX; sRELY = RELY
+        sWWQ = WWQ
+        sWW1 = WW1; sWW2 = WW2; sWW3 = WW3; sWW4 = WW4; sWW5 = WW5
+        sWVN = WVN; sCACOCH = CACOCH; sSTOPP = STOPP; sMSG = MSG
+        sANAAIM = ANAAIM; sNOCOAT = NOCOAT; sGRASET = GRASET; sDXFSET = DXFSET
+        sRAYEXT = RAYEXT; sSPDTRA = SPDTRA
+
+        ! ---- legacy trace of the grid (same setup as COMPAP) ----
+        delfob = 2.0_real64/real(n, real64)
+        k = 0
+        do iy = 0, n-1
+            do ix = 0, n-1
+                k = k + 1
+                py = (-1.0_real64 + delfob/2.0_real64) + real(iy, real64)*delfob
+                px = (-1.0_real64 + delfob/2.0_real64) + real(ix, real64)*delfob
+                WWQ = 'CAOB'
+                WW1 = py
+                WW2 = px
+                WW3 = real(iwl, real64)
+                WVN = real(iwl, real64)
+                CACOCH = 1
+                SPDTRA = .true.
+                MSG = .false.
+                STOPP = 0
+                ANAAIM = .false.
+                WW4 = 1.0_real64
+                NOCOAT = .false.
+                GRASET = .false.
+                DXFSET = .false.
+                call RAYTRA2
+                legCode(k) = RAYCOD(1)
+                legSurf(k) = RAYCOD(2)
+                legRR(:, :, k) = RAYRAY(1:NCMP, NEWOBJ:NEWIMG)
+            end do
+        end do
+
+        ! ---- restore ----
+        RAYRAY = sRAYRAY
+        RAYCOD = sRAYCOD
+        RELX = sRELX; RELY = sRELY
+        WWQ = sWWQ
+        WW1 = sWW1; WW2 = sWW2; WW3 = sWW3; WW4 = sWW4; WW5 = sWW5
+        WVN = sWVN; CACOCH = sCACOCH; STOPP = sSTOPP; MSG = sMSG
+        ANAAIM = sANAAIM; NOCOAT = sNOCOAT; GRASET = sGRASET; DXFSET = sDXFSET
+        RAYEXT = sRAYEXT; SPDTRA = sSPDTRA
+
+        ! ---- legacy summary ----
+        nok = count(legCode == 0)
+        nfail = ntot - nok
+        codeHist = 0
+        nOther = 0
+        do k = 1, ntot
+            if (legCode(k) /= 0) then
+                if (legCode(k) >= 0 .and. legCode(k) <= 99) then
+                    codeHist(legCode(k)) = codeHist(legCode(k)) + 1
+                else
+                    nOther = nOther + 1
+                end if
+            end if
+        end do
+
+        write(line, '(A,I0,A,I0,A,I0,A)') 'TRACECMP: grid ', n, 'x', n, ' (', ntot, ' rays)'
+        write(line, '(A,A,I0)') trim(line), ', wavelength slot ', iwl
+        call zoa_emit(trim(line), "black")
+        write(line, '(A,I0,A,I0,A,I0)') 'LEGACY: traced ', ntot, ', ok ', nok, ', failed ', nfail
+        call zoa_emit(trim(line), "black")
+        do i = 0, 99
+            if (codeHist(i) > 0) then
+                write(line, '(A,I0,A,I0)') '  LEGACY FAIL CODE ', i, ': ', codeHist(i)
+                call zoa_emit(trim(line), "black")
+            end if
+        end do
+        if (nOther > 0) then
+            write(line, '(A,I0)') '  LEGACY FAIL CODE (other): ', nOther
+            call zoa_emit(trim(line), "black")
+        end if
+
+        ! ---- engine ----
+        call build_trace_context(ctx)
+        if (.not. ctx%supported) then
+            call zoa_emit('ENGINE NOT SUPPORTED: '//trim(ctx%reason), "black")
+            call zoa_emit('TRACECMP: SKIP', "black")
+            return
+        end if
+        call zoa_emit('ENGINE SUPPORTED', "black")
+
+        nStatMis = 0
+        nBoth = 0
+        slotMax = 0.0_real64
+        slotPx = 0.0_real64
+        slotPy = 0.0_real64
+        slotSurf = 0
+        k = 0
+        do iy = 0, n-1
+            do ix = 0, n-1
+                k = k + 1
+                req%py = (-1.0_real64 + delfob/2.0_real64) + real(iy, real64)*delfob
+                req%px = (-1.0_real64 + delfob/2.0_real64) + real(ix, real64)*delfob
+                req%iwl = iwl
+                req%weight = 1.0_real64
+                call trace_ray(ctx, req, res)
+                if (res%status /= legCode(k)) then
+                    nStatMis = nStatMis + 1
+                    cycle
+                end if
+                if (res%status /= RAY_OK) cycle
+                nBoth = nBoth + 1
+                do s = NEWOBJ, NEWIMG
+                    do ir = 1, NCMP
+                        rv = legRR(ir, s, k)
+                        dv = abs(res%rr(ir, s) - rv)/max(1.0_real64, abs(rv))
+                        if (dv > slotMax(ir)) then
+                            slotMax(ir) = dv
+                            slotPx(ir) = req%px
+                            slotPy(ir) = req%py
+                            slotSurf(ir) = s
+                        end if
+                    end do
+                end do
+            end do
+        end do
+
+        write(line, '(A,I0)') 'STATUS MISMATCHES: ', nStatMis
+        call zoa_emit(trim(line), "black")
+
+        worstVal = 0.0_real64
+        worstSlot = 0
+        do ir = 1, NCMP
+            if (slotMax(ir) > worstVal) then
+                worstVal = slotMax(ir)
+                worstSlot = ir
+            end if
+        end do
+
+        if (.not. brief) then
+            write(line, '(A,I0,A)') 'Compared ', nBoth, ' rays OK in both tracers'
+            call zoa_emit(trim(line), "black")
+            do ir = 1, NCMP
+                if (slotMax(ir) > 0.0_real64) then
+                    write(line, '(A,I0,1X,A,A,ES10.3,A,F8.4,A,F8.4,A,I0)') 'SLOT ', ir, &
+                        trim(slotName(ir)), ' max scaled diff ', slotMax(ir), &
+                        ' at px=', slotPx(ir), ' py=', slotPy(ir), ' surf ', slotSurf(ir)
+                    call zoa_emit(trim(line), "black")
+                end if
+            end do
+        end if
+
+        if (nStatMis == 0 .and. worstVal <= PARITY_TOL) then
+            call zoa_emit('TRACECMP: PASS', "black")
+        else
+            if (worstSlot > 0 .and. worstVal > PARITY_TOL) then
+                write(line, '(A,I0,1X,A)') 'TRACECMP: FAIL (worst slot ', worstSlot, trim(slotName(worstSlot))//')'
+            else
+                line = 'TRACECMP: FAIL'
+            end if
+            call zoa_emit(trim(line), "black")
+        end if
+    end procedure execTRACECMP
+
 end submodule mod_codev_utils
