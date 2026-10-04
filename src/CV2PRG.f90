@@ -66,6 +66,9 @@ SUBROUTINE CV2PRG
    readformat = '(A' // substr // ')'
    PRINT *, "READFORMAT IS ", readformat
    SURFER=0
+   ! Zoa's CODE V export uses radii without an explicit RDM command.
+   ! Reset for every import; RDM N below explicitly selects curvature mode.
+   RADON=.TRUE.
 
    !PRINT *, "CV2PRG Starting.."
 !

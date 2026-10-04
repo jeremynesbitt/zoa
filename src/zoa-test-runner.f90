@@ -8,7 +8,7 @@
 !   2 arguments: Run script, compare output to reference file
 !
 ! Plot PNGs:
-!   In compare mode each rendered plot (/tmp/zoa_plot_<N>.png) is checked for a
+!   In compare mode each rendered plot (zoa_plot_<N>.png) is checked for a
 !   valid PNG/dimensions AND compared byte-for-byte against a baseline
 !   <ref>.p<N>.png (Cairo rendering is deterministic).  A mismatch fails the test
 !   (PNGDIFF); a missing baseline is a non-fatal PNGNOBASE.
@@ -21,6 +21,7 @@
 !   2 = error (bad arguments, file not found, etc.)
 
 program zoa_test_runner
+  use platform_io, only: silence_stdout, restore_stdout, plot_temp_path, copy_file
   use zoa_output, only: zoa_set_output_handler
   use zoa_test_capture
   use zoa_headless, only: zoa_headless_init
@@ -29,7 +30,7 @@ program zoa_test_runner
   implicit none
 
   character(len=512) :: test_file, ref_file
-  integer :: nargs, dev_null_unit
+  integer :: nargs
   logical :: has_ref, passed, gen_png_baseline
   integer :: num_diffs, png_fails
   real(8) :: tolerance
@@ -57,8 +58,7 @@ program zoa_test_runner
   if (has_ref) call get_command_argument(2, ref_file)
 
   ! Suppress PRINT * noise during initialization by redirecting unit 6
-  open(newunit=dev_null_unit, file='/dev/null', status='old', action='write')
-  open(unit=6, file='/dev/null', status='old', action='write')
+  call silence_stdout()
 
   ! Initialize engine headlessly
   ! Capture and discard init output
@@ -66,15 +66,14 @@ program zoa_test_runner
   call zoa_headless_init()
   call clear_capture()
 
-  ! Enable PNG announcements and clean up stale PNGs from previous runs
+  ! Each process uses its own plot directory; no wildcard cleanup is needed.
   call enable_plot_announcements()
-  call execute_command_line('rm -f /tmp/zoa_plot_*.png')
 
   ! Execute the test script (unit 6 stays suppressed to avoid PRINT noise)
   call process_zoa_file(trim(test_file))
 
   ! Restore stdout for status/output reporting
-  open(unit=6, file='/dev/stdout', status='old', action='write')
+  call restore_stdout()
 
   if (has_ref) then
     ! Compare mode
@@ -100,7 +99,12 @@ program zoa_test_runner
 contains
 
   subroutine write_captured_to_stdout()
-    call write_captured_to_file('/dev/stdout')
+    integer :: i
+    character(len=512) :: line
+    do i = 1, get_num_captured()
+      call get_captured_line_from_buffer(i, line)
+      write(*, '(A)') trim(line)
+    end do
   end subroutine
 
   ! Scan the capture buffer for "PLOT: <basename> [WxH]" lines and
@@ -140,7 +144,9 @@ contains
         has_dim = (len_trim(dimstr) > 0)
       end if
 
-      fpath = '/tmp/'//trim(basename)
+      fpath = plot_temp_path(trim(basename))
+      ! Diagnostic only, outside captured reference output, for artifact review.
+      write(out_unit, '(A)') 'PNGACTUAL: '//trim(fpath)
 
       ! 1. Existence and size check
       fsize = 0_8
@@ -227,7 +233,7 @@ contains
       if (.not. have_n) then
         write(out_unit, '(A)') 'PNGOK: '//trim(basename)//' (sanity only; plot name not parsed)'
       else if (gen_png_baseline) then
-        call execute_command_line('cp '//trim(fpath)//' '//trim(basepath))
+        call copy_file(trim(fpath), trim(basepath))
         write(out_unit, '(A)') 'PNGSAVED: '//trim(basepath)
       else
         inquire(file=trim(basepath), exist=base_exist)

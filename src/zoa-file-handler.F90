@@ -43,6 +43,8 @@ module zoa_file_handler
     contains
 
       subroutine openHelpFile(fileName)
+        use GLOBALS, only: basePath
+        use zoa_output, only: zoa_emit
         implicit none
         character(len=1024) :: helpfilePath
         integer(kind=c_int) :: browserResult
@@ -54,9 +56,10 @@ module zoa_file_handler
 #endif
 
 #ifdef WINDOWS
-     helpfilePath = trim(getZoaPath())//'help'// &
+     helpfilePath = trim(basePath)//'help'// &
      & getFileSep()//'html'//getFileSep()//fileName
-     browserResult =  browser_open_url(trim(helpfilePath))
+     browserResult = browser_open_url(trim(helpfilePath)//c_null_char)
+     if (browserResult == 0) call zoa_emit('Unable to open help: '//trim(helpfilePath), 'red')
 
 
 #endif
@@ -68,7 +71,7 @@ module zoa_file_handler
       & trim(str_bundle_dir)//getFileSep()//'Resources'//getFileSep()// &
       & 'help'//getFileSep()//'html'//getFileSep()//fileName
 
-      browserResult =  browser_open_url(trim(helpfilePath))
+      browserResult = browser_open_url(trim(helpfilePath)//c_null_char)
 #endif      
 
 
@@ -108,6 +111,7 @@ module zoa_file_handler
       end function
 
       function getZoaPath() result(path)
+        use platform_io, only: configure_plplot_runtime
         use iso_c_binding, only: c_char, c_null_char
         use g, only: g_setenv
 
@@ -120,6 +124,7 @@ module zoa_file_handler
        !PRINT *, "About to enter ifdef part... "
 
             path = ''
+            call configure_plplot_runtime()
 
 #ifdef MACOS
             !PRINT *, "MACOS IFDEF LOOP ACTIVATED!"
@@ -166,8 +171,8 @@ module zoa_file_handler
 
         ! Since this method essentially serves as an initialization
         ! add this here.  Should probably go somewhere else.
-        codevdir  = trim(path)//getFileSep()//'CodeV'//getFileSep()
-        savresDir = trim(path)//getFileSep()//'Projects'//getFileSep()
+        codevdir  = trim(path)//'CodeV'//getFileSep()
+        savresDir = trim(path)//'Projects'//getFileSep()
         tempDir   = trim(path)//'Temp'//getFileSep()
         macroDir  = trim(path)//'MACROS'//getFileSep()
 
@@ -708,6 +713,9 @@ subroutine loadPreferences()
     select case (trim(key))
     case ('ProjectDir')
       if (len_trim(val) > 0) then
+        ! Migrate the old generated default without rewriting custom/UNC paths.
+        if (trim(val) == trim(basePath)//getFileSep()//'Projects'//getFileSep()) &
+          val = trim(basePath)//'Projects'//getFileSep()
         savresDir   = trim(val)
         currSaveDir = trim(val)
       end if

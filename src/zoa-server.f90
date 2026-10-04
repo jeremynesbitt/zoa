@@ -12,6 +12,7 @@
 !     "__PING__"  — server responds with "PONG"
 
 program zoa_server
+  use platform_io, only: silence_stdout, restore_stdout
   use zmq_binding
   use zoa_headless
   use zoa_output, only: zoa_set_output_handler
@@ -40,10 +41,10 @@ program zoa_server
   end if
 
   ! Initialize headless Zoa engine
-  ! Redirect stdout to /dev/null during init to suppress PRINT * noise
-  open(unit=6, file='/dev/null', status='old')
+  ! Suppress PRINT noise while preserving the original stdout destination.
+  call silence_stdout()
   call zoa_headless_init()
-  open(unit=6, file='/dev/stdout', status='old')
+  call restore_stdout()
 
   ! Register capture handler for all output
   call zoa_set_output_handler(capture_handler)
@@ -108,9 +109,9 @@ program zoa_server
     call clear_plot_output()
 
     ! Redirect stdout during command execution to suppress PRINT * noise
-    open(unit=6, file='/dev/null', status='old')
+    call silence_stdout()
     call execute_commands(trim(cmd_buf))
-    open(unit=6, file='/dev/stdout', status='old')
+    call restore_stdout()
 
     ! Build reply from captured output
     ! If a plot was generated, append __IMAGE__ marker
@@ -212,7 +213,7 @@ contains
 
     call clear_capture()
     call clear_plot_output()
-    open(unit=6, file='/dev/null', status='old')
+    call silence_stdout()
 
     ! SEI / THO both use MMAB3_NEW; call it directly to work headlessly
     if (trim(ucmd) == 'SEI' .or. trim(ucmd) == 'THO') then
@@ -245,7 +246,7 @@ contains
       call execute_commands(trim(real_cmd))
     end if
 
-    open(unit=6, file='/dev/stdout', status='old')
+    call restore_stdout()
 
     if (result_has_data) then
       json_reply = result_to_json()

@@ -1314,9 +1314,10 @@ subroutine genSaveOutputText(self, fID)
   character(len=256) :: strOutLine
   character(len=256) :: strWL, strWLwgt, strXFLD, strYFLD, strFLDWGT
 
-  write(fID, *) "! Zoa "//zoaVersion
-  write(fID, *) "LEN"
-  write(fID, *) "TIT "//"'"//trim(self%lensTitle)//"'"
+  ! Lens commands are records; list-directed output may wrap them with ifx.
+  write(fID, '(A)') "! Zoa "//zoaVersion
+  write(fID, '(A)') "LEN"
+  write(fID, '(A)') "TIT "//"'"//trim(self%lensTitle)//"'"
         ! Store dimensions
   select case(self%currLensUnitsID)
   case(LENS_UNITS_MM)
@@ -1326,14 +1327,14 @@ subroutine genSaveOutputText(self, fID)
   case(LENS_UNITS_INCHES)
     strOutLine = "DIM I"
   end select
-  write(fID, *) trim(strOutLine)
+  write(fID, '(A)') trim(strOutLine)
 
   ! Store Aperture
   select case(self%currApertureID)
   case(APER_ENTR_PUPIL_DIAMETER)
     strOutLine = "EPD "//real2str(self%refApertureValue(2),4)
   end select
-  write(fID, *) trim(strOutLine)
+  write(fID, '(A)') trim(strOutLine)
 
   !Store Wavelength Info
   strWL = 'WL'
@@ -1342,7 +1343,7 @@ subroutine genSaveOutputText(self, fID)
 
   end do
   !PRINT *, trim(strWL)
-  write(fID, *) trim(strWL)
+  write(fID, '(A)') trim(strWL)
   ! Spectral Weights
 
   if(self%numWavelengths > 1 ) then 
@@ -1350,12 +1351,12 @@ subroutine genSaveOutputText(self, fID)
     do ii=1,self%numWavelengths
       strWLwgt = trim(strWLwgt)//blankStr(1)//real2str(100.0*self%spectralWeights(ii),4)
     end do
-    write(fID, *) trim(strWLwgt)
+    write(fID, '(A)') trim(strWLwgt)
   end if
 
     ! Print Ref wavelength
     strOutLine = "REF "// int2str(self%refWavelengthIndex)
-    write(fID, *) trim(strOutLine)
+    write(fID, '(A)') trim(strOutLine)
        
   ! Store Field
     select case(self%currFieldID)
@@ -1373,8 +1374,8 @@ subroutine genSaveOutputText(self, fID)
         strXFLD = trim(strXFLD)//blankStr(1)//real2str(self%refFieldValue(1)*self%relativeFields(1,ii),4)
         strYFLD = trim(strYFLD)//blankStr(1)//real2str(self%refFieldValue(2)*self%relativeFields(2,ii),4)
        end do
-       write(fID, *) trim(strXFLD)
-       write(fID, *) trim(strYFLD)
+       write(fID, '(A)') trim(strXFLD)
+       write(fID, '(A)') trim(strYFLD)
 
 
     ! Field weights not supported, so for now just output all 100s
@@ -1382,13 +1383,13 @@ subroutine genSaveOutputText(self, fID)
     do ii=1,self%numFields
       strFLDWGT = trim(strFLDWGT)//blankStr(5)//'100'
     end do
-    write(fID, *) trim(strFLDWGT)
+    write(fID, '(A)') trim(strFLDWGT)
 
     ! Per-field vignetting factors (only emit fields that have any set, so a lens
     ! with no vignetting saves identically to before this feature).
     do ii=1,self%numFields
       if (any(self%vignetting(:,ii) /= 0.0_real64)) then
-        write(fID, *) "SET VIG "//trim(int2str(ii))//blankStr(1)// &
+        write(fID, '(A)') "SET VIG "//trim(int2str(ii))//blankStr(1)// &
           real2str(self%vignetting(1,ii),4)//blankStr(1)// &
           real2str(self%vignetting(2,ii),4)//blankStr(1)// &
           real2str(self%vignetting(3,ii),4)//blankStr(1)// &
@@ -2194,7 +2195,7 @@ function genAsphereSavOutputText(self, surf, fID) result(strSurfLine)
       strSurfLine = trim(strSurfLine)//blankStr(1)//lblsPart1(ii)//blankStr(1)// &
       & trim(real2str(ALENS(ii+3,surf),sci=.TRUE.))//' ;'
   end do
-  write(fID, *) strSurfLine(1:len_trim(strSurfLine)-1)
+  write(fID, '(A)') strSurfLine(1:len_trim(strSurfLine)-1)
   strSurfLine = ' '
   !     ALENS(81,surf#) -- 12th order aspheric coefficient
   !     ALENS(82,surf#) -- 14th order aspheric coefficient
@@ -2207,7 +2208,7 @@ function genAsphereSavOutputText(self, surf, fID) result(strSurfLine)
   ! Drop the trailing ' ;' (the -1 removes the semicolon, as for the A-D line).
   ! Previously this also blanked the semicolon first, so the -1 then truncated a
   ! real digit (e.g. "...D+00" -> "...D+0"), corrupting the value on restore.
-  write(fID, *) strSurfLine(1:len_trim(strSurfLine)-1)
+  write(fID, '(A)') strSurfLine(1:len_trim(strSurfLine)-1)
     
 
 end function

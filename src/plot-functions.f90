@@ -257,7 +257,7 @@ subroutine vie_go(psm)
       ! REPLAY record, a session restore) keeps that number; otherwise take
       ! the lowest free one.
       if (psm%plotNum < 1) psm%plotNum = zoatabMgr%getLowestAvailablePlotNum(plot_code)
-      psm%baseCmd = withPlotNum(psm%baseCmd, psm%plotNum)
+      call setPlotNum(psm%baseCmd, psm%plotNum)
       inputCmd = trim(psm%generatePlotCommand())
       tabName = plotName
       if  (psm%plotNum > 1) then
@@ -1261,23 +1261,28 @@ end subroutine
 ! another produced "VIE P1 P1", which the next replot pass no longer recognized
 ! as an existing plot (execVIE checks for exactly two tokens) and so opened a
 ! duplicate tab.
-function withPlotNum(baseCmd, plotNum) result(cmd)
+! Use an in-place subroutine: ifx 2024.2 miscompiles the dependent-length
+! character function result at these GUI call sites.
+subroutine setPlotNum(baseCmd, plotNum)
     use strings, only: parse
     use type_utils, only: int2str
     implicit none
-    character(len=*), intent(in) :: baseCmd
+    character(len=*), intent(inout) :: baseCmd
     integer, intent(in) :: plotNum
-    character(len=len(baseCmd)) :: cmd
+    character(len=len(baseCmd)) :: cmd, parseCmd
     character(len=80) :: tokens(40)
     integer :: n, i
-    call parse(trim(baseCmd), ' ', tokens, n)
+    ! parse modifies its first argument, even though it restores it on return.
+    parseCmd = baseCmd
+    call parse(parseCmd, ' ', tokens, n)
     cmd = ''
     do i = 1, n
       if (isPlotNumToken(trim(tokens(i)))) cycle
       cmd = trim(cmd)//' '//trim(tokens(i))
     end do
     cmd = trim(adjustl(cmd))//' P'//int2str(plotNum)
-end function withPlotNum
+    baseCmd = cmd
+end subroutine setPlotNum
 
 ! True for a plot-number token: P followed only by digits (P1, P12).
 logical function isPlotNumToken(tok)
@@ -1338,7 +1343,7 @@ subroutine initializeGoPlot(psm, plot_code, plotName, replot, objIdx)
         pIdx = zoatabMgr%getNumberOfPlotsByCode(plot_code)
         psm%plotNum = pIdx+1 ! Noreplot so this is the next num
       end if
-      psm%baseCmd = withPlotNum(psm%baseCmd, psm%plotNum)
+      call setPlotNum(psm%baseCmd, psm%plotNum)
       inputCmd = trim(psm%generatePlotCommand())
       tabName = plotName
       if  (psm%plotNum > 1) then
@@ -1432,7 +1437,7 @@ subroutine finalizeGoPlot(mplt, psm, plot_code, plotName)
         pIdx = zoatabMgr%getNumberOfPlotsByCode(plot_code)
         psm%plotNum = pIdx+1 ! Noreplot so this is the next num
       end if
-      psm%baseCmd = withPlotNum(psm%baseCmd, psm%plotNum)
+      call setPlotNum(psm%baseCmd, psm%plotNum)
       inputCmd = trim(psm%generatePlotCommand())
       tabName = plotName
       if  (psm%plotNum > 1) then

@@ -68,6 +68,10 @@ supported_arguments = []
 pkgconf = find_program('pkg-config', required: true)
 
 if fortran.get_id().contains('intel-cl') or fortran.get_id().contains('intel-llvm-cl')
+  # Make PRINT/WRITE(*) follow ISO_FORTRAN_ENV's standard output unit.
+  add_project_arguments('/assume:noold_unit_star', language: 'fortran')
+  # FFT temporaries and nested optical calculations exceed the Windows 1 MiB default.
+  add_project_link_arguments('/STACK:67108864', language: 'fortran')
   # Define arguments for different build types (debug is default):
   if build_type == 'debug'
     #warning_level = 2
@@ -363,6 +367,16 @@ test_runner = executable(
   link_language: 'fortran',
   install: false
 )
+
+plot_command_test = executable(
+  'plot_command_test',
+  sources: 'test/plot-command-test.f90',
+  link_with: [zoa_lib, plotcad5_lib],
+  dependencies: [zoa_deps, thread_dep],
+  link_language: 'fortran',
+  install: false
+)
+test('plot_command', plot_command_test, timeout: 30)
 
 # Test cases
 # is_parallel: false because tests share disk state (currlens.zoa temp file)

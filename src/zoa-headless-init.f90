@@ -53,6 +53,7 @@ contains
     implicit none
 
     HEADLESS_MODE = .TRUE.
+    zoaVersion = __VERSION
 
     ! Initialize data structures (mirrors zoamain.F90 lines 52-54)
     curr_lens_data = lens_data()

@@ -988,7 +988,7 @@ module mod_lens_data_manager
           strSurfLine = 'SO'//blankStr(3)//real2str(curr_lens_data%curvatures(1),4)//blankStr(5)//real2str(curr_lens_data%thicknesses(1))// &
           & blankStr(5)//curr_lens_data%glassnames(1)    
         end if
-        write(fID, *) trim(strSurfLine)
+        write(fID, '(A)') trim(strSurfLine)
       
         do ii=2,curr_lens_data%num_surfaces-1
           surfStr = 'S' !//trim(int2str(ii-1))
@@ -1014,15 +1014,15 @@ module mod_lens_data_manager
             & blankStr(5)//trim(strTHI)// &
             & blankStr(5)//curr_lens_data%glassnames(ii)    
           end if      
-          write(fID, *) trim(strSurfLine)
+          write(fID, '(A)') trim(strSurfLine)
           ! Check for ref stop
           if (curr_lens_data%ref_stop == ii) then
             strSurfLine = blankStr(2)//'STO'
-            write(fID, *) trim(strSurfLine)
+            write(fID, '(A)') trim(strSurfLine)
           end if
           if (trim(ldm%getSurfLabel(ii-1)) .NE. ' ') then
             strSurfLine = blankStr(2)//'SLB "'//trim(ldm%getSurfLabel(ii-1))//""""
-            write(fID, *) trim(strSurfLine)
+            write(fID, '(A)') trim(strSurfLine)
           end if
           
           ! Save an assigned clear aperture from the typed clap (circular for now;
@@ -1034,7 +1034,7 @@ module mod_lens_data_manager
                 if (ldm%surfaces(ii-1)%s%clap%is_set()) then
                   strSurfLine = blankStr(2)//'CIR '// &
                   & trim(real2str(ldm%surfaces(ii-1)%s%clap%dim1, 10))
-                  write(fID, *) trim(strSurfLine)
+                  write(fID, '(A)') trim(strSurfLine)
                 end if
                 ! Explicit edge (physical) aperture, if set.  Emitted without a
                 ! surface qualifier so it attaches to the current surface being
@@ -1042,7 +1042,7 @@ module mod_lens_data_manager
                 if (ldm%surfaces(ii-1)%s%clap%semi_edge_y /= 0.0_real64) then
                   strSurfLine = blankStr(2)//'CIR EDG '// &
                   & trim(real2str(ldm%surfaces(ii-1)%s%clap%semi_edge_y, 10))
-                  write(fID, *) trim(strSurfLine)
+                  write(fID, '(A)') trim(strSurfLine)
                 end if
               end if
             end if
@@ -1056,7 +1056,7 @@ module mod_lens_data_manager
           ! Do not like directly acccessing ALENS here.  THink I should move this func to lens_Data_manager
           if (curr_lens_data%isConicConstantOnSurface(ii-1)) then
             strSurfLine = blankStr(2)//'K '//trim(real2str(surf_conic(ii-1), sci=.TRUE.))
-            write(fID, *) trim(strSurfLine)
+            write(fID, '(A)') trim(strSurfLine)
           end if
       
             ! Thickness solves (slot 6) are emitted inline: they reload fine
@@ -1075,7 +1075,7 @@ module mod_lens_data_manager
           strSurfLine = 'SI'//blankStr(2)//trim(real2str(curr_lens_data%curvatures(curr_lens_data%num_surfaces),4))//blankStr(3)// &
           & trim(strTHI)//blankStr(3)//curr_lens_data%glassnames(curr_lens_data%num_surfaces)  
         end if
-        write(fID, *) trim(strSurfLine)
+        write(fID, '(A)') trim(strSurfLine)
         if (allocated(ldm%surfaces)) then
           if (curr_lens_data%num_surfaces-1 <= ubound(ldm%surfaces,1)) then
             if (allocated(ldm%surfaces(curr_lens_data%num_surfaces-1)%s)) then
@@ -1084,7 +1084,7 @@ module mod_lens_data_manager
                 ! the image-surface aperture radius from the typed clap.
                 strSurfLine = blankStr(2)//'CIR '// &
                 & trim(real2str(ldm%surfaces(curr_lens_data%num_surfaces-1)%s%clap%dim1, 10))
-                write(fID, *) trim(strSurfLine)
+                write(fID, '(A)') trim(strSurfLine)
               end if
             end if
           end if
@@ -1098,7 +1098,7 @@ module mod_lens_data_manager
         ! gen pickup text
         ! Now that we are done send GO cmd to leave lens update level
         call self%outputPikupText(fID)
-        write(fID, *) "GO"
+        write(fID, '(A)') "GO"
 
         ! Curvature solves (slot 8), emitted AFTER "GO" so they apply to the
         ! fully built & traced lens: an aplanatic curvature solve needs a
@@ -1129,7 +1129,7 @@ module mod_lens_data_manager
         kidx = solve_kind_at(typeSlot, code)
         if (kidx == 0) return
         line = solve_save_line(recIdx-1, kidx, dble(lData%solves(SOLVE_KINDS(kidx)%tgt_slot, recIdx)))
-        if (len_trim(line) > 0) write(fID, *) trim(line)
+        if (len_trim(line) > 0) write(fID, '(A)') trim(line)
       end subroutine
 
       subroutine removeAllSurfaceData(self, surfIdx)

@@ -28,6 +28,7 @@ src_c += files('zoa_utils.c', 'ui-list-models.c', 'ui-constraint-models.c')
 
 
 srcs += files(
+  'platform-io.f90',
   'surface-params.f90',
   'zoa-output.f90',
   'zoa-ui-callbacks.f90',

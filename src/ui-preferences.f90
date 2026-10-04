@@ -167,7 +167,8 @@ contains
     call gtk_label_set_xalign(lbl, 1.0_c_float)
     call gtk_grid_attach(grid, lbl, LABEL_COL, ROW_GLASS, GRID_COL_SPAN, GRID_ROW_SPAN)
 
-    entry_glass = hl_gtk_entry_new(editable=TRUE, value=trim(getGlassCatalogDir()))
+    ! gtk-fortran passes value to GTK with length -1, requiring a C terminator.
+    entry_glass = hl_gtk_entry_new(editable=TRUE, value=trim(getGlassCatalogDir())//c_null_char)
     call gtk_widget_set_hexpand(entry_glass, TRUE)
     call gtk_grid_attach(grid, entry_glass, ENTRY_COL, ROW_GLASS, GRID_COL_SPAN, GRID_ROW_SPAN)
 
@@ -176,7 +177,7 @@ contains
     call gtk_label_set_xalign(lbl, 1.0_c_float)
     call gtk_grid_attach(grid, lbl, LABEL_COL, ROW_TEMP, GRID_COL_SPAN, GRID_ROW_SPAN)
 
-    entry_temp = hl_gtk_entry_new(editable=TRUE, value=trim(getTempDirectory()))
+    entry_temp = hl_gtk_entry_new(editable=TRUE, value=trim(getTempDirectory())//c_null_char)
     call gtk_widget_set_hexpand(entry_temp, TRUE)
     call gtk_grid_attach(grid, entry_temp, ENTRY_COL, ROW_TEMP, GRID_COL_SPAN, GRID_ROW_SPAN)
 
@@ -185,7 +186,7 @@ contains
     call gtk_label_set_xalign(lbl, 1.0_c_float)
     call gtk_grid_attach(grid, lbl, LABEL_COL, ROW_MACROS, GRID_COL_SPAN, GRID_ROW_SPAN)
 
-    entry_macros = hl_gtk_entry_new(editable=TRUE, value=trim(getMacroDir()))
+    entry_macros = hl_gtk_entry_new(editable=TRUE, value=trim(getMacroDir())//c_null_char)
     call gtk_widget_set_hexpand(entry_macros, TRUE)
     call gtk_grid_attach(grid, entry_macros, ENTRY_COL, ROW_MACROS, GRID_COL_SPAN, GRID_ROW_SPAN)
 
@@ -194,7 +195,7 @@ contains
     call gtk_label_set_xalign(lbl, 1.0_c_float)
     call gtk_grid_attach(grid, lbl, LABEL_COL, ROW_PROJ, GRID_COL_SPAN, GRID_ROW_SPAN)
 
-    entry_project = hl_gtk_entry_new(editable=TRUE, value=trim(getSaveDirectory()))
+    entry_project = hl_gtk_entry_new(editable=TRUE, value=trim(getSaveDirectory())//c_null_char)
     call gtk_widget_set_hexpand(entry_project, TRUE)
     call gtk_grid_attach(grid, entry_project, ENTRY_COL, ROW_PROJ, GRID_COL_SPAN, GRID_ROW_SPAN)
 

@@ -9,6 +9,7 @@
 ! sanity-check the PNG on disk.
 
 module zoa_plot_output
+  use platform_io, only: plot_temp_path
   implicit none
 
   logical :: plot_was_generated = .false.
@@ -48,8 +49,10 @@ contains
 
   function next_plot_path() result(path)
     character(len=512) :: path
+    character(len=64) :: basename
     plot_counter = plot_counter + 1
-    write(path, '(A,I0,A)') '/tmp/zoa_plot_', plot_counter, '.png'
+    write(basename, '(A,I0,A)') 'zoa_plot_', plot_counter, '.png'
+    path = plot_temp_path(trim(basename))
   end function
 
 end module zoa_plot_output
