@@ -56,6 +56,9 @@ module codeV_commands
    module subroutine execTHREADS(iptStr)
     character(len=*) :: iptStr
    end subroutine execTHREADS
+   module subroutine execSEARCHPATH(iptStr)
+    character(len=*) :: iptStr
+   end subroutine execSEARCHPATH
    module subroutine setPlotDensity(iptStr)
    character(len=*) :: iptStr
    end subroutine setPlotDensity
@@ -417,7 +420,7 @@ module codeV_commands
 
 
     character(len=4), dimension(500) :: surfCmds
-    type(zoa_cmd), dimension(740) :: zoaCmds
+    type(zoa_cmd), dimension(760) :: zoaCmds
 
     type(zoaplot_setting_manager)  :: curr_psm
     character(len=10024) :: cmdTOW
@@ -594,6 +597,8 @@ module codeV_commands
         zoaCmds(738)%execFunc => execRAYENGINE
         zoaCmds(739)%cmd = 'THREADS'
         zoaCmds(739)%execFunc => execTHREADS
+        zoaCmds(740)%cmd = 'SEARCHPATH'
+        zoaCmds(740)%execFunc => execSEARCHPATH
         zoaCmds(527)%cmd = 'SETDENS'
         zoaCmds(527)%execFunc => setPlotDensity     
         zoaCmds(528)%cmd = 'SETZERNC'
@@ -921,7 +926,9 @@ module codeV_commands
         character(len=*), intent(in) :: seg
         logical :: handled
         character(len=140) :: segU
-        character(len=80)  :: tokens(40)
+        ! as long as the segment itself: parse stops with a runtime error on a
+        ! word longer than its token buffer (a long folder or file name)
+        character(len=140) :: tokens(40)
         integer :: numTokens
         character(len=8)   :: token
 

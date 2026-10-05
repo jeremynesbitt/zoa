@@ -18,6 +18,25 @@ module zoa_file_handler
       integer, parameter :: ID_OS_MAC = 1
       integer, parameter :: ID_OS_LINUX = 2
 
+      ! Search path: extra folders searched for lenses (RES), macros
+      ! (macro:), CODE V / Zemax imports and the new-lens template, after the
+      ! folder that kind of file normally lives in.  Each folder may hold the
+      ! files directly or in Projects/, Macros/ and CodeV/ subfolders (the
+      ! install's layout).  Entries come from the ZOA_SEARCH_PATH environment
+      ! variable, the SearchPath= preference lines, or the SEARCHPATH command.
+      integer, parameter :: MAX_SEARCH_DIRS = 32
+      integer, parameter :: SP_ENV = 1      ! ZOA_SEARCH_PATH (not saved)
+      integer, parameter :: SP_PREF = 2     ! preferences / SEARCHPATH ADD (saved)
+      integer, parameter :: SP_SESSION = 3  ! this run only (test runner)
+      character(len=1024) :: searchDirs(MAX_SEARCH_DIRS) = ''
+      integer :: searchOrigin(MAX_SEARCH_DIRS) = 0
+      integer :: nSearchDirs = 0
+      ! getZoaPath sets the default asset folders on its first call only, so
+      ! later calls cannot undo the preferences or a test's isolation.
+      logical :: assetDirsInitialized = .false.
+      ! Set by the test runner: preferences are neither read nor written.
+      logical :: preferencesIsolated = .false.
+
       ! Recursion depth counter for process_zoa_file: incremented on open,
       ! decremented on close.  Gating headless per-line flushes on depth==1
       ! prevents mid-file snapshots during nested RES loads.
@@ -170,13 +189,18 @@ module zoa_file_handler
 
 
         ! Since this method essentially serves as an initialization
-        ! add this here.  Should probably go somewhere else.
-        codevdir  = trim(path)//'CodeV'//getFileSep()
-        savresDir = trim(path)//'Projects'//getFileSep()
-        tempDir   = trim(path)//'Temp'//getFileSep()
-        macroDir  = trim(path)//'MACROS'//getFileSep()
+        ! add this here.  Should probably go somewhere else.  Only on the
+        ! first call: it is also called later just for the base path.
+        if (.not. assetDirsInitialized) then
+          codevdir  = trim(path)//'CodeV'//getFileSep()
+          savresDir = trim(path)//'Projects'//getFileSep()
+          tempDir   = trim(path)//'Temp'//getFileSep()
+          macroDir  = trim(path)//'MACROS'//getFileSep()
 
-        currSaveDir = savresDir
+          currSaveDir = savresDir
+          call loadSearchPathFromEnv()
+          assetDirsInitialized = .true.
+        end if
 
         !PRINT *, "Set ID_SYSTEM in getZoaPath to ", ID_SYSTEM
 
@@ -188,10 +212,11 @@ module zoa_file_handler
           character(len=*) :: fName
           character(len=1024) :: fullPath
 
-          fullPath = trim(savresDir)//fName
-          if (doesFileExist(trim(fullPath))) then
+          fullPath = findDataFile('Projects', fName)
+          if (len_trim(fullPath) > 0) then
             return
           else
+            fullPath = trim(savresDir)//fName
             call LogTermFOR("Error:  File does not exist "//trim(fullPath))
             !call updateTerminalLog("Error:  File does not exist "//trim(fullPath), "red")
             fullPath = ""
@@ -669,6 +694,147 @@ function doesDirectoryExist(dirPath) result(res)
 end function
 
 ! =========================================================================
+! Search path (see searchDirs above)
+! =========================================================================
+
+! Add a folder (no-op if already listed).  ok is false when the list is full.
+subroutine addSearchDir(dir, origin, ok)
+  character(len=*), intent(in) :: dir
+  integer, intent(in) :: origin
+  logical, intent(out), optional :: ok
+  character(len=1024) :: d
+  integer :: i
+  if (present(ok)) ok = .true.
+  if (len_trim(dir) == 0) return
+  d = trim(addFileSepIfNeeded(trim(adjustl(dir))))
+  do i = 1, nSearchDirs
+    if (trim(searchDirs(i)) == trim(d)) return
+  end do
+  if (nSearchDirs >= MAX_SEARCH_DIRS) then
+    if (present(ok)) ok = .false.
+    return
+  end if
+  nSearchDirs = nSearchDirs + 1
+  searchDirs(nSearchDirs) = d
+  searchOrigin(nSearchDirs) = origin
+end subroutine
+
+! Remove entry i (1-based); ok is false when there is no such entry.
+subroutine removeSearchDir(i, ok)
+  integer, intent(in) :: i
+  logical, intent(out) :: ok
+  ok = (i >= 1 .and. i <= nSearchDirs)
+  if (.not. ok) return
+  searchDirs(i:nSearchDirs-1) = searchDirs(i+1:nSearchDirs)
+  searchOrigin(i:nSearchDirs-1) = searchOrigin(i+1:nSearchDirs)
+  searchDirs(nSearchDirs) = ''
+  searchOrigin(nSearchDirs) = 0
+  nSearchDirs = nSearchDirs - 1
+end subroutine
+
+! The 1-based index of dir in the list, or 0.
+function searchDirIndex(dir) result(idx)
+  character(len=*), intent(in) :: dir
+  integer :: idx, i
+  character(len=1024) :: d
+  idx = 0
+  if (len_trim(dir) == 0) return
+  d = trim(addFileSepIfNeeded(trim(adjustl(dir))))
+  do i = 1, nSearchDirs
+    if (trim(searchDirs(i)) == trim(d)) then
+      idx = i
+      return
+    end if
+  end do
+end function
+
+! Remove every entry of the given origin.
+subroutine clearSearchDirs(origin)
+  integer, intent(in) :: origin
+  integer :: i
+  logical :: ok
+  i = 1
+  do while (i <= nSearchDirs)
+    if (searchOrigin(i) == origin) then
+      call removeSearchDir(i, ok)
+    else
+      i = i + 1
+    end if
+  end do
+end subroutine
+
+! ZOA_SEARCH_PATH: folders separated by ';' (any platform) or, except on
+! Windows where ':' follows a drive letter, ':'.
+subroutine loadSearchPathFromEnv()
+  character(len=4096) :: env
+  integer :: stat, i, start
+  logical :: sep
+  call get_environment_variable('ZOA_SEARCH_PATH', env, status=stat)
+  if (stat /= 0 .or. len_trim(env) == 0) return
+  start = 1
+  do i = 1, len_trim(env) + 1
+    if (i > len_trim(env)) then
+      sep = .true.
+    else
+      sep = env(i:i) == ';'
+#ifndef WINDOWS
+      sep = sep .or. env(i:i) == ':'
+#endif
+    end if
+    if (sep) then
+      if (i > start) call addSearchDir(env(start:i-1), SP_ENV)
+      start = i + 1
+    end if
+  end do
+end subroutine
+
+! Locate a data file of one kind ('Projects', 'Macros' or 'CodeV'): first in
+! the folder that kind normally lives in (the project, macro or CODE V
+! folder), then in each search-path folder -- in its kind subfolder, then
+! directly.  name may contain subfolders ('Bentley/Bentley4p2.zoa'), with
+! either separator.  Returns '' when the file is nowhere.
+function findDataFile(kind, name) result(path)
+  character(len=*), intent(in) :: kind, name
+  character(len=1024) :: path
+  character(len=1024) :: nm, home
+  character(len=16) :: sub(2)
+  integer :: i, k, nsub
+
+  nm = adjustl(name)
+  do i = 1, len_trim(nm)
+    if (nm(i:i) == '/' .or. nm(i:i) == '\') nm(i:i) = getFileSep()
+  end do
+
+  select case (kind)
+  case ('Projects')
+    home = savresDir
+    sub(1) = 'Projects'; nsub = 1
+  case ('Macros')
+    home = macroDir
+    sub(1) = 'Macros'; sub(2) = 'MACROS'; nsub = 2
+  case ('CodeV')
+    home = trim(addFileSepIfNeeded(trim(codevdir)))
+    sub(1) = 'CodeV'; nsub = 1
+  case default
+    home = ''
+    nsub = 0
+  end select
+
+  path = trim(home)//trim(nm)
+  if (len_trim(home) > 0 .and. doesFileExist(trim(path))) return
+
+  do i = 1, nSearchDirs
+    do k = 1, nsub
+      path = trim(searchDirs(i))//trim(sub(k))//getFileSep()//trim(nm)
+      if (doesFileExist(trim(path))) return
+    end do
+    path = trim(searchDirs(i))//trim(nm)
+    if (doesFileExist(trim(path))) return
+  end do
+  path = ''
+end function
+
+! =========================================================================
 ! Preferences persistence — simple key=value text file in basePath
 ! =========================================================================
 
@@ -676,8 +842,10 @@ subroutine savePreferences()
   use GLOBALS, only: basePath, zoa_threads
   implicit none
   character(len=1024) :: filePath
-  integer :: funit
+  integer :: funit, i
 
+  ! A test run (isolated) never writes the user's preferences.
+  if (preferencesIsolated) return
   filePath = trim(basePath)//'preferences.ini'
   funit = 99
   open(unit=funit, file=trim(filePath), status='replace', action='write', form='formatted')
@@ -686,6 +854,9 @@ subroutine savePreferences()
   write(funit, '(A)') 'MacroDir='//trim(macroDir)
   write(funit, '(A)') 'GlassDir='//trim(glassCatalogDirOverride)
   write(funit, '(A,I0)') 'Threads=', zoa_threads
+  do i = 1, nSearchDirs
+    if (searchOrigin(i) == SP_PREF) write(funit, '(A)') 'SearchPath='//trim(searchDirs(i))
+  end do
   close(funit)
 end subroutine
 
@@ -695,6 +866,7 @@ subroutine loadPreferences()
   character(len=1024) :: filePath, line, key, val
   integer :: funit, ios, eq, nthr
 
+  if (preferencesIsolated) return
   filePath = trim(basePath)//'preferences.ini'
   funit = 98
   open(unit=funit, file=trim(filePath), status='old', action='read', &
@@ -725,6 +897,8 @@ subroutine loadPreferences()
       if (len_trim(val) > 0) macroDir = trim(val)
     case ('GlassDir')
       glassCatalogDirOverride = trim(val)
+    case ('SearchPath')
+      call addSearchDir(trim(val), SP_PREF)
     case ('Threads')
       ! The headless runner (tests, zoa_server) ignores the user's thread
       ! preference so results never depend on it; THREADS sets it there.

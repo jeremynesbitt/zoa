@@ -10,7 +10,9 @@ module ui_preferences
   use zoa_file_handler, only: getMacroDir, getTempDirectory, getSaveDirectory, &
                                getGlassCatalogDir, setMacroDir, setTempDir,    &
                                setProjectDir, setGlassCatalogDir,              &
-                               doesDirectoryExist, savePreferences
+                               doesDirectoryExist, savePreferences,            &
+                               addSearchDir, clearSearchDirs, searchDirs,      &
+                               searchOrigin, nSearchDirs, SP_PREF
 
   implicit none
   private
@@ -18,6 +20,8 @@ module ui_preferences
 
   ! Entry widgets — module-level so callbacks can read them
   type(c_ptr) :: entry_glass, entry_temp, entry_macros, entry_project
+  ! Search path: the saved (SearchPath=) folders, separated by ';'
+  type(c_ptr) :: entry_search
   type(c_ptr) :: label_error
   ! Multithreading check box, and its state when the window opened
   type(c_ptr) :: check_threads
@@ -45,12 +49,17 @@ contains
   function apply_preferences() result(ok)
     logical :: ok
     character(len=1024) :: glass, tmp, macros, proj
+    character(len=4096) :: search
+    character(len=1024) :: dirs(32)
+    integer :: ndirs, k
     character(len=512)  :: errmsg
 
     call get_entry_text(entry_glass,   glass)
     call get_entry_text(entry_temp,    tmp)
     call get_entry_text(entry_macros,  macros)
     call get_entry_text(entry_project, proj)
+    call get_entry_text(entry_search,  search)
+    call split_search_path(search, dirs, ndirs)
 
     errmsg = ''
 
@@ -62,6 +71,10 @@ contains
         errmsg = trim(errmsg)//'  Macros'
     if (len_trim(proj)   > 0 .and. .not. doesDirectoryExist(trim(proj)))   &
         errmsg = trim(errmsg)//'  Project Dir'
+    do k = 1, ndirs
+      if (.not. doesDirectoryExist(trim(dirs(k)))) &
+          errmsg = trim(errmsg)//'  Search Path ('//trim(dirs(k))//')'
+    end do
 
     if (len_trim(errmsg) > 0) then
       call gtk_label_set_text(label_error, &
@@ -76,9 +89,48 @@ contains
     if (len_trim(tmp)    > 0) call setTempDir(trim(tmp))
     if (len_trim(macros) > 0) call setMacroDir(trim(macros))
     if (len_trim(proj)   > 0) call setProjectDir(trim(proj))
+    ! the saved search folders become exactly the ones listed
+    call clearSearchDirs(SP_PREF)
+    do k = 1, ndirs
+      call addSearchDir(trim(dirs(k)), SP_PREF)
+    end do
     call apply_threads()
     call savePreferences()
     ok = .TRUE.
+  end function
+
+  ! -----------------------------------------------------------------------
+  ! The Search Path entry: folders separated by ';' (blank pieces skipped).
+  ! -----------------------------------------------------------------------
+  subroutine split_search_path(text, dirs, n)
+    character(len=*), intent(in) :: text
+    character(len=*), intent(out) :: dirs(:)
+    integer, intent(out) :: n
+    integer :: i, start
+    n = 0
+    start = 1
+    do i = 1, len_trim(text) + 1
+      if (i > len_trim(text) .or. text(min(i, len(text)):min(i, len(text))) == ';') then
+        if (i > start .and. n < size(dirs)) then
+          if (len_trim(text(start:i-1)) > 0) then
+            n = n + 1
+            dirs(n) = adjustl(text(start:i-1))
+          end if
+        end if
+        start = i + 1
+      end if
+    end do
+  end subroutine
+
+  function joined_search_path() result(text)
+    character(len=4096) :: text
+    integer :: i
+    text = ''
+    do i = 1, nSearchDirs
+      if (searchOrigin(i) /= SP_PREF) cycle
+      if (len_trim(text) > 0) text = trim(text)//'; '
+      text = trim(text)//trim(searchDirs(i))
+    end do
   end function
 
   ! -----------------------------------------------------------------------
@@ -137,7 +189,7 @@ contains
     type(c_ptr) :: lbl
     integer(c_int), parameter :: LABEL_COL = 0, ENTRY_COL = 1
     integer(c_int), parameter :: ROW_GLASS = 0, ROW_TEMP = 1, ROW_MACROS = 2, ROW_PROJ = 3
-    integer(c_int), parameter :: ROW_THREADS = 4
+    integer(c_int), parameter :: ROW_THREADS = 4, ROW_SEARCH = 5
     integer(c_int), parameter :: GRID_COL_SPAN = 1, GRID_ROW_SPAN = 1
     integer(c_int), parameter :: WIN_WIDTH = 550, WIN_HEIGHT = 250
 
@@ -215,6 +267,18 @@ contains
     call gtk_widget_set_tooltip_text(check_threads, &
          'On: THREADS 0 (all cores).  Off: THREADS 1 (single-threaded).'//c_null_char)
     call gtk_grid_attach(grid, check_threads, ENTRY_COL, ROW_THREADS, GRID_COL_SPAN, GRID_ROW_SPAN)
+
+    ! Row 5 — Search Path (extra folders for lenses, macros and imports)
+    lbl = gtk_label_new('Search Path:'//c_null_char)
+    call gtk_label_set_xalign(lbl, 1.0_c_float)
+    call gtk_grid_attach(grid, lbl, LABEL_COL, ROW_SEARCH, GRID_COL_SPAN, GRID_ROW_SPAN)
+
+    entry_search = hl_gtk_entry_new(editable=TRUE, value=trim(joined_search_path())//c_null_char)
+    call gtk_widget_set_hexpand(entry_search, TRUE)
+    call gtk_widget_set_tooltip_text(entry_search, &
+         'Extra folders searched for lenses (RES), macros and CODE V/Zemax imports, '// &
+         'after the folders above.  Separate folders with ";".  Same as the SEARCHPATH command.'//c_null_char)
+    call gtk_grid_attach(grid, entry_search, ENTRY_COL, ROW_SEARCH, GRID_COL_SPAN, GRID_ROW_SPAN)
 
     call gtk_box_append(outer_box, grid)
 

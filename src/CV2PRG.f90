@@ -144,7 +144,9 @@ SUBROUTINE CV2PRG
    !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!! End input error checking
 
    EXIS37=.FALSE.
-   filePath = trim(getCodeVDir())//getFileSep()//&
+   ! the CODE V folder first, then the search path
+   filePath = findDataFile('CodeV', CVFILENAME(1:CVFILENAMELENGTH))
+   IF(len_trim(filePath).EQ.0) filePath = trim(getCodeVDir())//getFileSep()//&
    &CVFILENAME(1:CVFILENAMELENGTH)
 
 

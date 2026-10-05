@@ -504,10 +504,12 @@ contains
     module procedure resetToNewLensTemplate
         use mod_lens_data_manager
         use zoom_manager, only: zoom_reset
+        use zoa_file_handler, only: findDataFile, getFileSep
         implicit none
 
         integer :: ios, fID
         character(len=200) :: line
+        character(len=1024) :: templatePath
 
         ! A new lens starts single-config; clear any prior zoom before loading.
         ! (Per-field vignetting is cleared by the DEL VIG line in newlens.zoa;
@@ -515,7 +517,12 @@ contains
         call zoom_reset()
         ! newunit (not a hardcoded unit): this also runs nested inside
         ! process_zoa_file when a script line triggers a lens load.
-        open(newunit=fID, file=trim(basePath)//'Macros/newlens.zoa', iostat=ios)
+        ! The template: the macro folder, then the search path, then the
+        ! install's Macros folder.
+        templatePath = findDataFile('Macros', 'newlens.zoa')
+        if (len_trim(templatePath) == 0) &
+            templatePath = trim(basePath)//'Macros'//getFileSep()//'newlens.zoa'
+        open(newunit=fID, file=trim(templatePath), iostat=ios)
         if (ios /= 0) stop "Error opening file "
 
         do

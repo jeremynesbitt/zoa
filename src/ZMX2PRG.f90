@@ -149,7 +149,9 @@ SUBROUTINE ZMX2PRG
 10 CONTINUE
    ZMXFILENAMELENGTH=N
    EXIS37=.FALSE.
-   filePath = trim(getCodeVDir())//getFileSep()//&
+   ! the CODE V folder first, then the search path
+   filePath = findDataFile('CodeV', ZMXFILENAME(1:N))
+   IF(len_trim(filePath).EQ.0) filePath = trim(getCodeVDir())//getFileSep()//&
    &ZMXFILENAME(1:N)
 
    INQUIRE(FILE=trim(filePath),EXIST=EXIS37)

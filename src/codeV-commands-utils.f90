@@ -267,8 +267,12 @@ contains
             end do
             locDot = index(fileName, '.')
             if (locDot == 0) fileName = trim(fileName)//'.zoa'
-            fileName = trim(getMacroDir())//trim(fileName)
-            if (doesFileExist(trim(fileName))) then
+            ! the macro folder first, then the search path
+            fileName = findDataFile('Macros', trim(fileName))
+            if (len_trim(fileName) == 0) then
+                call zoa_emit("Error:  Macro not found: "// &
+                &             trim(iptStr(locStr + len('MACRO:') : len_trim(iptStr))), "red")
+            else if (doesFileExist(trim(fileName))) then
                 if (present(printOnly)) then
                     call process_zoa_file(trim(fileName), printOnly=.TRUE.)
                 else
@@ -2431,5 +2435,104 @@ contains
             end if
         end if
     end procedure execTHREADS
+
+    ! Extra folders searched for lenses (RES), macros (macro:), CODE V /
+    ! Zemax imports and the new-lens template, after their usual folder.  A
+    ! folder may hold the files directly or in Projects/, Macros/ and CodeV/
+    ! subfolders.  The folder is taken from the command as typed (case kept;
+    ! quotes optional, needed only around a ';').  Entries added here are
+    ! saved in the preferences (except headless); ZOA_SEARCH_PATH entries are
+    ! listed but not saved.
+    !## cmd:      SEARCHPATH
+    !## syntax:   SEARCHPATH [ADD folder | REMOVE n|folder | CLEAR | ?]
+    !## category: Utilities
+    !## desc:     List or change the extra folders searched for lenses, macros and imports.
+    !##
+    module procedure execSEARCHPATH
+        use GLOBALS, only: HEADLESS_MODE, currentCommandRaw
+        use zoa_output, only: zoa_emit
+        use zoa_file_handler, only: addSearchDir, removeSearchDir, searchDirIndex, &
+                                    clearSearchDirs, savePreferences, searchDirs, &
+                                    searchOrigin, nSearchDirs, SP_ENV, SP_PREF, SP_SESSION, &
+                                    doesDirectoryExist
+        use type_utils, only: int2str
+        implicit none
+        character(len=1024) :: tokens(40)   ! a folder can be long
+        character(len=1024) :: rest
+        integer :: numTokens, i, n, ios, k
+        logical :: ok
+        character(len=16) :: what
+
+        call parse(trim(iptStr), ' ', tokens, numTokens)
+        what = ''
+        if (numTokens >= 2) what = tokens(2)
+
+        ! the argument after the subcommand, in its original case
+        rest = adjustl(currentCommandRaw)
+        k = index(rest, ' ')
+        rest = adjustl(rest(k+1:))
+        k = index(rest, ' ')
+        if (k > 0) then
+            rest = adjustl(rest(k+1:))
+        else
+            rest = ''
+        end if
+        k = len_trim(rest)
+        if (k >= 2) then
+            if ((rest(1:1) == '"' .and. rest(k:k) == '"') .or. &
+                (rest(1:1) == "'" .and. rest(k:k) == "'")) rest = rest(2:k-1)
+        end if
+
+        select case (trim(what))
+        case ('', '?')
+        case ('ADD')
+            if (len_trim(rest) == 0) then
+                call zoa_emit('SEARCHPATH ADD: expected a folder', 'red')
+                return
+            end if
+            if (.not. doesDirectoryExist(trim(rest))) then
+                call zoa_emit('SEARCHPATH ADD: no such folder: '//trim(rest), 'red')
+                return
+            end if
+            call addSearchDir(trim(rest), SP_PREF, ok)
+            if (.not. ok) then
+                call zoa_emit('SEARCHPATH ADD: the search path is full', 'red')
+                return
+            end if
+            if (.not. HEADLESS_MODE) call savePreferences()
+        case ('REMOVE')
+            read(rest, *, iostat=ios) n
+            if (ios /= 0) n = searchDirIndex(trim(rest))
+            call removeSearchDir(n, ok)
+            if (.not. ok) then
+                call zoa_emit('SEARCHPATH REMOVE: not in the search path: '//trim(rest), 'red')
+                return
+            end if
+            if (.not. HEADLESS_MODE) call savePreferences()
+        case ('CLEAR')
+            call clearSearchDirs(SP_PREF)
+            call clearSearchDirs(SP_SESSION)
+            if (.not. HEADLESS_MODE) call savePreferences()
+        case default
+            call zoa_emit('SEARCHPATH: expected ADD folder, REMOVE n|folder, CLEAR or ?', 'red')
+            return
+        end select
+
+        if (nSearchDirs == 0) then
+            call zoa_emit('Search path is empty', 'black')
+        else
+            call zoa_emit('Search path (after the usual project, macro and CODE V folders):', 'black')
+            do i = 1, nSearchDirs
+                select case (searchOrigin(i))
+                case (SP_ENV)
+                    call zoa_emit('  '//trim(int2str(i))//'  '//trim(searchDirs(i))//'  (ZOA_SEARCH_PATH)', 'black')
+                case (SP_SESSION)
+                    call zoa_emit('  '//trim(int2str(i))//'  '//trim(searchDirs(i))//'  (this session)', 'black')
+                case default
+                    call zoa_emit('  '//trim(int2str(i))//'  '//trim(searchDirs(i)), 'black')
+                end select
+            end do
+        end if
+    end procedure execSEARCHPATH
 
 end submodule mod_codev_utils
