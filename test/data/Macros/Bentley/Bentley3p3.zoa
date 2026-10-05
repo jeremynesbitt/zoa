@@ -1,0 +1,8 @@
+LEN      NEW              ! Set up LDM for a new lens.
+EPD      20               ! Entrance pupil set to 10 mm.
+TIT      'OSDmirror'      ! Title the mirror.
+RDY      S1 -100          ! Assign R1 = -100. It is negative because the
+                          ! center of curvature is to the left.
+RMD      S1 REFL          ! Set the surface to reflection.
+PIM                       ! Solve for the paraxial image location.
+VIE ; GO                  ! Show the mirror.

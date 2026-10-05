@@ -73,6 +73,12 @@ int zoa_plot_temp_dir(char *buffer, int capacity)
     return 0;
 }
 
+/* Create a directory and any missing parents (0 = ok). */
+int zoa_make_dir(const char *path)
+{
+    return g_mkdir_with_parents(path, 0755) == 0 ? 0 : -1;
+}
+
 int zoa_copy_file(const char *source, const char *destination)
 {
     GFile *src = g_file_new_for_path(source);

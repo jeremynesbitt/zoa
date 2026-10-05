@@ -1,0 +1,20 @@
+LEN NEW
+TIT 'OSDEye'                     ! Note the title is enclosed in single quotes.
+WL 656.27 587.56 486.13
+EPD 6                            ! Increase the entrance pupil diameter to 6 mm.
+YAN 0        14      25          ! Add fields.
+INS S1.2                         ! Second surface of the lens.
+STOP S2
+RDY S1       7.8                 ! Radius of curvature of the cornea.
+THI S1       3.6                 ! Thickness of the crystalline lens.
+GLA S1       WATER               ! Water for the vitreous humor.
+RDY S2       10                  ! Radius curvature of the front surface of the lens.
+THI S2       3.6                 ! Thickness of the lens.
+GLA S2       1.415:47.0          ! Refractive index and V-number of the lens.
+RDY S3       -6                  ! Radius of the back surface of the lens.
+GLA S3       WATER               ! Water for the aqueous humor.
+RDY S4       -10                 ! Radius of curvature of the retina.
+PIM                              ! Solve for the distance to the retina.
+FIR
+INS S4                           ! Insert air space to get the correct focal lengths.
+FIR

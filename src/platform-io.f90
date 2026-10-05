@@ -3,7 +3,7 @@ module platform_io
   use iso_fortran_env, only: output_unit
   implicit none
   private
-  public :: silence_stdout, restore_stdout, plot_temp_path, copy_file
+  public :: silence_stdout, restore_stdout, plot_temp_path, copy_file, make_directory
   public :: configure_plplot_runtime
   integer(c_int), save :: saved_stdout = -1
   interface
@@ -18,6 +18,11 @@ module platform_io
       import c_int, c_char
       character(c_char) :: buffer(*)
       integer(c_int), value :: capacity
+      integer(c_int) :: rc
+    end function
+    function native_mkdir(path) bind(c, name='zoa_make_dir') result(rc)
+      import c_char, c_int
+      character(c_char), intent(in) :: path(*)
       integer(c_int) :: rc
     end function
     function native_copy(src, dst) bind(c, name='zoa_copy_file') result(rc)
@@ -70,6 +75,12 @@ contains
     if (n + 1 + len_trim(basename) > len(path)) error stop 'Plot path too long'
     path = path(:n)//'/'//trim(basename)
   end function
+
+  ! Create a directory (and missing parents); stops if it cannot.
+  subroutine make_directory(path)
+    character(len=*), intent(in) :: path
+    if (native_mkdir(trim(path)//c_null_char) /= 0) error stop 'Cannot create directory'
+  end subroutine
 
   subroutine copy_file(source, destination)
     character(len=*), intent(in) :: source, destination

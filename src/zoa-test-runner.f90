@@ -21,11 +21,11 @@
 !   2 = error (bad arguments, file not found, etc.)
 
 program zoa_test_runner
-  use platform_io, only: silence_stdout, restore_stdout, plot_temp_path, copy_file
+  use platform_io, only: silence_stdout, restore_stdout, plot_temp_path, copy_file, make_directory
   use zoa_output, only: zoa_set_output_handler
   use zoa_test_capture
   use zoa_headless, only: zoa_headless_init
-  use zoa_file_handler, only: process_zoa_file
+  use zoa_file_handler, only: process_zoa_file, preferencesIsolated
   use zoa_plot_output, only: enable_plot_announcements
   implicit none
 
@@ -61,9 +61,12 @@ program zoa_test_runner
   call silence_stdout()
 
   ! Initialize engine headlessly
-  ! Capture and discard init output
+  ! Capture and discard init output.  The user's preferences are neither
+  ! read nor written by a test run (see isolate_test_files).
   call zoa_set_output_handler(capture_handler)
+  preferencesIsolated = .true.
   call zoa_headless_init()
+  call isolate_test_files(trim(test_file))
   call clear_capture()
 
   ! Each process uses its own plot directory; no wildcard cleanup is needed.
@@ -97,6 +100,42 @@ program zoa_test_runner
   end if
 
 contains
+
+  ! A test reads and writes nothing in the user's Zoa folder except the
+  ! read-only engine data (glass catalogs, PLplot data):
+  !  - the project, macro, temp and CODE V folders -- where SAV, the exports
+  !    and the current-lens autosave write -- are fresh folders of this run;
+  !  - the inputs come from the search path: <test folder>/data (the test's
+  !    own lenses, macros and CODE V/Zemax files, in Projects/, Macros/ and
+  !    CodeV/), then <test folder>/../Library (the repository's install
+  !    payload, e.g. the newlens.zoa template), so a test sees the files of
+  !    its own commit, never what happens to be installed.
+  subroutine isolate_test_files(script)
+    use zoa_file_handler, only: setProjectDir, setMacroDir, setTempDir, setCodeVDir, &
+                                addSearchDir, SP_SESSION
+    character(len=*), intent(in) :: script
+    character(len=512) :: home, testdir
+    integer :: k
+
+    home = plot_temp_path('home')
+    call make_directory(trim(home)//'/Projects')
+    call make_directory(trim(home)//'/Macros')
+    call make_directory(trim(home)//'/Temp')
+    call make_directory(trim(home)//'/CodeV')
+    call setProjectDir(trim(home)//'/Projects/')
+    call setMacroDir(trim(home)//'/Macros/')
+    call setTempDir(trim(home)//'/Temp/')
+    call setCodeVDir(trim(home)//'/CodeV/')
+
+    k = max(index(script, '/', back=.true.), index(script, '\', back=.true.))
+    if (k > 0) then
+      testdir = script(1:k-1)
+    else
+      testdir = '.'
+    end if
+    call addSearchDir(trim(testdir)//'/data', SP_SESSION)
+    call addSearchDir(trim(testdir)//'/../Library', SP_SESSION)
+  end subroutine
 
   subroutine write_captured_to_stdout()
     integer :: i
