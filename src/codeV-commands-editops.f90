@@ -953,9 +953,35 @@ contains
         result = evalfunc(iptStr(4:len_trim(iptStr)), .TRUE.)
     end procedure evaluateCmd
 
+    ! A merit operand name (EFL, SPO, ...) is evaluated directly from the
+    ! evaluator registry.  Anything else is run as a command and read back
+    ! from the scalar data register (the ray-data commands fill it).  When
+    ! neither yields a value the result is 0 and an error is reported --
+    ! never an undefined value.
     module procedure evalFunc
         use data_registers, only: getData
-        call getData(iptStr, res)
+        use optim_types, only: evaluators, isNameInEvaluatorList
+        use strings, only: uppercase
+        character(len=:), allocatable :: what
+        integer :: idx
+        logical :: ok
+
+        what = trim(adjustl(iptStr))
+        res = 0.0_long
+        idx = 0
+        if (len(what) > 0) idx = isNameInEvaluatorList(uppercase(what))
+        if (idx > 0) then
+            res = evaluators(idx)%func()
+            ok = .true.
+        else if (len(what) > 0) then
+            call getData(what, res, ok)
+        else
+            ok = .false.
+        end if
+        if (.not. ok) then
+            call zoa_emit("Error:  EVA cannot evaluate '"//what//"'", "red")
+            return
+        end if
         if (present(logResult)) then
             if (logResult) then
                 call LogTermFOR(real2str(res))

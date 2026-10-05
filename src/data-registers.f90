@@ -34,17 +34,24 @@ module data_registers
 
     contains
 
-    subroutine getData_scalar(strCmd, data1d)
+    ! ok (optional): whether strCmd updated the register.  When it did not,
+    ! data1d is 0 -- never left undefined.
+    subroutine getData_scalar(strCmd, data1d, ok)
         use strings
         character(len=*), intent(in) :: strCmd
         real(long), intent(out) :: data1d
+        logical, intent(out), optional :: ok
+        logical :: updated
+        regCmd1d = ''
         call PROCESSILENT(strCmd)
-        print *, "regCmd1d is ", regCmd1d
-        if(lowercase(trim(regCmd1d)) == lowercase(trim(strCmd))) then
-        data1d = regData1d   
-        else 
-            call LogTermFOR("Error! cmd did not update register "//strCmd)  
+        updated = lowercase(trim(regCmd1d)) == lowercase(trim(strCmd))
+        if (updated) then
+            data1d = regData1d
+        else
+            data1d = 0.0_long
+            if (.not. present(ok)) call LogTermFOR("Error! cmd did not update register "//strCmd)
         end if
+        if (present(ok)) ok = updated
     end subroutine
 
     subroutine getData_2d(strCmd, data2d)

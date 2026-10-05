@@ -147,9 +147,7 @@ Reference sphere centre will remove tilt
 Reference sphere centre removes tilt (NOTILT)
   X displacement = 0.00000
   Y displacement = 0.00000
-Error:  Can only set constraint in AUT loop!
-Error! cmd did not update register
-0.00000
+50.01074
 NO CONFIG DATA
 
 SURFACE "INR" VALUES
