@@ -10,8 +10,10 @@
 ! Plot PNGs:
 !   In compare mode each rendered plot (zoa_plot_<N>.png) is checked for a
 !   valid PNG/dimensions AND compared byte-for-byte against a baseline
-!   <ref>.p<N>.png (Cairo rendering is deterministic).  A mismatch fails the test
-!   (PNGDIFF); a missing baseline is a non-fatal PNGNOBASE.
+!   <ref>.p<N>.<os>.png, os = mac | win | linux (Cairo rendering is
+!   deterministic on one platform, but the fonts differ between platforms, so
+!   each keeps its own set).  A mismatch fails the test (PNGDIFF); a missing
+!   baseline is a non-fatal PNGNOBASE.
 !   Regenerate text refs:  ./buildHB/zoa_test test/X.zoa > test/X.ref
 !   Regenerate PNG baselines:  ZOA_GEN_PNG_BASELINE=1 ./buildHB/zoa_test test/X.zoa test/X.ref
 !
@@ -289,8 +291,10 @@ contains
     end do
   end subroutine check_plot_pngs
 
-  ! Build the baseline path <ref>.p<N>.png from a plot basename "zoa_plot_<N>.png".
+  ! Build the baseline path <ref>.p<N>.<os>.png from a plot basename
+  ! "zoa_plot_<N>.png".
   subroutine build_baseline_path(bname, refpath, bpath, ok)
+    use zoa_file_handler, only: ID_SYSTEM, ID_OS_MAC, ID_OS_WINDOWS
     character(len=*), intent(in)  :: bname, refpath
     character(len=*), intent(out) :: bpath
     logical, intent(out) :: ok
@@ -302,7 +306,13 @@ contains
     us = us + len('zoa_plot_')
     dot = index(bname(us:), '.')
     if (dot <= 1) return
-    bpath = trim(refpath)//'.p'//bname(us:us+dot-2)//'.png'
+    if (ID_SYSTEM == ID_OS_MAC) then
+      bpath = trim(refpath)//'.p'//bname(us:us+dot-2)//'.mac.png'
+    else if (ID_SYSTEM == ID_OS_WINDOWS) then
+      bpath = trim(refpath)//'.p'//bname(us:us+dot-2)//'.win.png'
+    else
+      bpath = trim(refpath)//'.p'//bname(us:us+dot-2)//'.linux.png'
+    end if
     ok = .true.
   end subroutine
 
