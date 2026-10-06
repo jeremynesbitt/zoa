@@ -698,3 +698,26 @@ RSPH BEST   ; CAPFN SILENT, 16 ; SHO RMSOPD
 
 Then repeat after `U L ; WV 0.58756 0.58756 0.58756 0.58756 0.58756 ; EOS` to
 see the ordering come right.
+
+## TODO: Data tab contract -- audit every plot (2026-10-06)
+
+**Rule (from the user):** every plot's Data tab must hold the data the plot is
+made from, in a form that can be copied straight into MATLAB or Python to
+reproduce the plot -- e.g. a 2D image as one matrix row per line, curves as
+plain numeric columns, explicit full-precision formats. Never reduce or reshape
+that data (no 2D -> 1D summaries) without asking first; when an output causes a
+test or platform problem, fix its *format*, not its content.
+
+**Status:**
+- PSF: full 2D PSF + FFT real/imag, one matrix row per line, ES24.16 (cb39c27).
+  Positions are not given: the PSF pixel size is computed from wavelength 1, not
+  the shortest wavelength the grid is built for (TODO in `src/psf.f90`).
+- MTF: frequency, Y (tangential), X (sagittal), diffraction limit columns after
+  a two-line header (0af0193).
+- PMA (OPD map / Zernike bar): pupil X, Y, OPD points or the coefficient list
+  (written before this rule; check against it).
+- Every other plot: not yet audited.
+
+**To do:** go through each plot's Data tab, list what it prints against what the
+plot draws, and report gaps before changing anything. The test capture now keeps
+lines of any length (cb39c27), so long matrix rows are no obstacle to testing.
