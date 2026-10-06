@@ -6,6 +6,9 @@ type zoaLogger
   character(len=355)  :: logFileName
   integer             :: fileID
   integer             :: recNo
+  ! The log file is connected on its own unit (NEWUNIT, negative) for the
+  ! logger's lifetime; isOpen replaces the old "fileID <= 0" guard.
+  logical             :: isOpen = .false.
 
 
 contains
@@ -30,12 +33,16 @@ type(zoaLogger) function zoaLogger_constructor(path) result(self)
 
 
     character(len=255) :: path
+    integer :: ios
     self%basePath = path
     self%logFileName = trim(self%basePath)//'zoalogger.log'
-    self%fileID = 1
     self%recNo = 0
     PRINT *, "Create Logger here: ", self%logFileName
-    open(unit=self%fileID,access='sequential',file=self%logFileName,status='replace',form='formatted')
+    ! NEWUNIT: a fixed unit (it was 1) is shared with legacy code -- BMPJN
+    ! opens and closes unit 1 -- which would close or redirect the log.
+    open(newunit=self%fileID, access='sequential', file=self%logFileName, &
+         status='replace', form='formatted', iostat=ios)
+    self%isOpen = (ios == 0)
 
 end function
 
@@ -43,16 +50,28 @@ subroutine writeLogToDisk(self, logTxt)
   class(zoaLogger) :: self
   character(len=*), intent(in) :: logTxt
   logical :: fileOpen
-  integer :: recL
+  integer :: ios
 
-  if (self%fileID <= 0) return
+  if (.not. self%isOpen) return
 
   self%recNo = self%recNo + 1
+  ! The file stays connected; flush puts each record on disk at once (what
+  ! the old close + reopen-to-append per record achieved).  That reopen cost
+  ! a file open and close per record -- cheap on macOS, but ~7 ms each on
+  ! Windows, where the optimizer's thousands of logged commands made
+  ! optim_extra take 95-135 s instead of 7-9 s.  Reconnect only if the unit
+  ! was somehow closed.
   inquire(unit=self%fileID, opened=fileOpen)
-  inquire(iolength=recL) logTxt
-  close(self%fileID, status='KEEP')
-  open(unit=self%fileID,file=self%logFileName,position='append',form='formatted')
+  if (.not. fileOpen) then
+    open(newunit=self%fileID, file=self%logFileName, position='append', &
+         form='formatted', iostat=ios)
+    if (ios /= 0) then
+      self%isOpen = .false.
+      return
+    end if
+  end if
   write(self%fileID, *) logTxt
+  flush(self%fileID)
 
   PRINT *, logTxt
 
@@ -112,6 +131,8 @@ end subroutine
  subroutine closeLogFile(self)
   type(zoaLogger) :: self
   PRINT *, "Zoa Logger Destructor Being Called!"
+  ! Never close here: "logger = zoaLogger(path)" finalizes the constructor's
+  ! result, which shares the unit with the logger being assigned.
   !close(self%fileID)
 
 end subroutine
