@@ -379,221 +379,223 @@ plot_command_test = executable(
 test('plot_command', plot_command_test, timeout: 30)
 
 # Test cases
-# is_parallel: false because tests share disk state (currlens.zoa temp file)
+# Tests run in parallel: zoa_test gives each run a private folder for everything
+# it writes and changes into it (see prepare_test_home in src/zoa-test-runner.f90).
+# The longest tests get priority: 10 so they start first.
 test('basic_paraxial', test_runner,
      args: [meson.project_source_root() / 'test/basic_paraxial.zoa',
             meson.project_source_root() / 'test/basic_paraxial.ref'],
-     timeout: 60, is_parallel: false)
+     timeout: 60)
 
 test('fieldflattener', test_runner,
      args: [meson.project_source_root() / 'test/fieldflattener.zoa',
             meson.project_source_root() / 'test/fieldflattener.ref'],
-     timeout: 120, is_parallel: false)
+     timeout: 120, priority: 10)
 
 test('newlenstest', test_runner,
      args: [meson.project_source_root() / 'test/newlensTest.zoa',
             meson.project_source_root() / 'test/newlensTest.ref'],
-     timeout: 120, is_parallel: false)
+     timeout: 120)
 
 test('DoubleGaussTest', test_runner,
      args: [meson.project_source_root() / 'test/DoubleGaussTest.zoa',
             meson.project_source_root() / 'test/DoubleGaussTest.ref'],
-     timeout: 120, is_parallel: false)
+     timeout: 120)
 
 test('macro_ex1', test_runner,
      args: [meson.project_source_root() / 'test/macro_ex1.zoa',
             meson.project_source_root() / 'test/macro_ex1.ref'],
-     timeout: 120, is_parallel: false)
+     timeout: 120)
 
 test('raytrace', test_runner,
      args: [meson.project_source_root() / 'test/raytrace.zoa',
             meson.project_source_root() / 'test/raytrace.ref'],
-     timeout: 120, is_parallel: false)
+     timeout: 120)
 
 test('stop_aperture', test_runner,
      args: [meson.project_source_root() / 'test/stop_aperture.zoa',
             meson.project_source_root() / 'test/stop_aperture.ref'],
-     timeout: 120, is_parallel: false)
+     timeout: 120)
 
 test('stop_draw', test_runner,
      args: [meson.project_source_root() / 'test/stop_draw.zoa',
             meson.project_source_root() / 'test/stop_draw.ref'],
-     timeout: 120, is_parallel: false)
+     timeout: 120)
 
 test('vie_settings', test_runner,
      args: [meson.project_source_root() / 'test/vie_settings.zoa',
             meson.project_source_root() / 'test/vie_settings.ref'],
-     timeout: 120, is_parallel: false)
+     timeout: 120)
 
 test('vie_orient', test_runner,
      args: [meson.project_source_root() / 'test/vie_orient.zoa',
             meson.project_source_root() / 'test/vie_orient.ref'],
-     timeout: 120, is_parallel: false)
+     timeout: 120)
 
 test('refrays', test_runner,
      args: [meson.project_source_root() / 'test/refrays.zoa',
             meson.project_source_root() / 'test/refrays.ref'],
-     timeout: 120, is_parallel: false)
+     timeout: 120)
 
 test('bentley_twice', test_runner,
      args: [meson.project_source_root() / 'test/bentley_twice.zoa',
             meson.project_source_root() / 'test/bentley_twice.ref'],
-     timeout: 120, is_parallel: false)
+     timeout: 120)
 
 test('litho_restart', test_runner,
      args: [meson.project_source_root() / 'test/litho_restart.zoa',
             meson.project_source_root() / 'test/litho_restart.ref'],
-     timeout: 120, is_parallel: false)
+     timeout: 120)
 
 test('tho_test', test_runner,
      args: [meson.project_source_root() / 'test/tho_test.zoa',
             meson.project_source_root() / 'test/tho_test.ref'],
-     timeout: 120, is_parallel: false)
+     timeout: 120)
 
 test('zoom_basic', test_runner,
      args: [meson.project_source_root() / 'test/zoom_basic.zoa',
             meson.project_source_root() / 'test/zoom_basic.ref'],
-     timeout: 120, is_parallel: false)
+     timeout: 120)
 
 test('asph_modifiers', test_runner,
      args: [meson.project_source_root() / 'test/asph_modifiers.zoa',
             meson.project_source_root() / 'test/asph_modifiers.ref'],
-     timeout: 120, is_parallel: false)
+     timeout: 120)
 
 test('plots_geom', test_runner,
      args: [meson.project_source_root() / 'test/plots_geom.zoa',
             meson.project_source_root() / 'test/plots_geom.ref'],
-     timeout: 120, is_parallel: false)
+     timeout: 120)
 
 test('plots_wave', test_runner,
      args: [meson.project_source_root() / 'test/plots_wave.zoa',
             meson.project_source_root() / 'test/plots_wave.ref'],
-     timeout: 240, is_parallel: false)
+     timeout: 240)
 
 test('plots_seidel', test_runner,
      args: [meson.project_source_root() / 'test/plots_seidel.zoa',
             meson.project_source_root() / 'test/plots_seidel.ref'],
-     timeout: 120, is_parallel: false)
+     timeout: 120)
 
 test('pickups', test_runner,
      args: [meson.project_source_root() / 'test/pickups.zoa',
             meson.project_source_root() / 'test/pickups.ref'],
-     timeout: 120, is_parallel: false)
+     timeout: 120)
 
 test('solves', test_runner,
      args: [meson.project_source_root() / 'test/solves.zoa',
             meson.project_source_root() / 'test/solves.ref'],
-     timeout: 120, is_parallel: false)
+     timeout: 120)
 
 test('apertures_bes', test_runner,
      args: [meson.project_source_root() / 'test/apertures_bes.zoa',
             meson.project_source_root() / 'test/apertures_bes.ref'],
-     timeout: 120, is_parallel: false)
+     timeout: 120)
 
 test('zmx_import', test_runner,
      args: [meson.project_source_root() / 'test/zmx_import.zoa',
             meson.project_source_root() / 'test/zmx_import.ref'],
-     timeout: 120, is_parallel: false)
+     timeout: 120)
 
 test('export_roundtrip', test_runner,
      args: [meson.project_source_root() / 'test/export_roundtrip.zoa',
             meson.project_source_root() / 'test/export_roundtrip.ref'],
-     timeout: 120, is_parallel: false)
+     timeout: 120)
 
 test('mirror_example', test_runner,
      args: [meson.project_source_root() / 'test/mirror_example.zoa',
             meson.project_source_root() / 'test/mirror_example.ref'],
-     timeout: 120, is_parallel: false)
+     timeout: 120)
 
 test('debug_rmd', test_runner,
      args: [meson.project_source_root() / 'test/debug_rmd.zoa',
             meson.project_source_root() / 'test/debug_rmd.ref'],
-     timeout: 120, is_parallel: false)
+     timeout: 120)
 
 test('undo_redo', test_runner,
      args: [meson.project_source_root() / 'test/undo_redo.zoa',
             meson.project_source_root() / 'test/undo_redo.ref'],
-     timeout: 120, is_parallel: false)
+     timeout: 120)
 
 test('queries_basic', test_runner,
      args: [meson.project_source_root() / 'test/queries_basic.zoa',
             meson.project_source_root() / 'test/queries_basic.ref'],
-     timeout: 120, is_parallel: false)
+     timeout: 120)
 
 test('lens_edit', test_runner,
      args: [meson.project_source_root() / 'test/lens_edit.zoa',
             meson.project_source_root() / 'test/lens_edit.ref'],
-     timeout: 120, is_parallel: false)
+     timeout: 120)
 
 test('tilts_decenters', test_runner,
      args: [meson.project_source_root() / 'test/tilts_decenters.zoa',
             meson.project_source_root() / 'test/tilts_decenters.ref'],
-     timeout: 120, is_parallel: false)
+     timeout: 120)
 
 test('wavefront_zern', test_runner,
      args: [meson.project_source_root() / 'test/wavefront_zern.zoa',
             meson.project_source_root() / 'test/wavefront_zern.ref'],
-     timeout: 120, is_parallel: false)
+     timeout: 120)
 
 test('optim_extra', test_runner,
      args: [meson.project_source_root() / 'test/optim_extra.zoa',
             meson.project_source_root() / 'test/optim_extra.ref'],
-     timeout: 120, is_parallel: false)
+     timeout: 120)
 
 test('plot_modifiers', test_runner,
      args: [meson.project_source_root() / 'test/plot_modifiers.zoa',
             meson.project_source_root() / 'test/plot_modifiers.ref'],
-     timeout: 120, is_parallel: false)
+     timeout: 120)
 
 test('gui_guards', test_runner,
      args: [meson.project_source_root() / 'test/gui_guards.zoa',
             meson.project_source_root() / 'test/gui_guards.ref'],
-     timeout: 120, is_parallel: false)
+     timeout: 120)
 
 test('files_misc', test_runner,
      args: [meson.project_source_root() / 'test/files_misc.zoa',
             meson.project_source_root() / 'test/files_misc.ref'],
-     timeout: 120, is_parallel: false)
+     timeout: 120)
 
 test('misc_commands', test_runner,
      args: [meson.project_source_root() / 'test/misc_commands.zoa',
             meson.project_source_root() / 'test/misc_commands.ref'],
-     timeout: 120, is_parallel: false)
+     timeout: 120)
 
 test('raytrace_opt', test_runner,
      args: [meson.project_source_root() / 'test/raytrace_opt.zoa',
             meson.project_source_root() / 'test/raytrace_opt.ref'],
-     timeout: 120, is_parallel: false)
+     timeout: 120)
 
 test('zin_roundtrip', test_runner,
      args: [meson.project_source_root() / 'test/zin_roundtrip.zoa',
             meson.project_source_root() / 'test/zin_roundtrip.ref'],
-     timeout: 120, is_parallel: false)
+     timeout: 120)
 
 test('trace_engine_parity', test_runner,
      args: [meson.project_source_root() / 'test/trace_engine_parity.zoa',
             meson.project_source_root() / 'test/trace_engine_parity.ref'],
-     timeout: 120, is_parallel: false)
+     timeout: 120)
 
 test('capfn_engine', test_runner,
      args: [meson.project_source_root() / 'test/capfn_engine.zoa',
             meson.project_source_root() / 'test/capfn_engine.ref'],
-     timeout: 120, is_parallel: false)
+     timeout: 120, priority: 10)
 
 test('ray_messages', test_runner,
      args: [meson.project_source_root() / 'test/ray_messages.zoa',
             meson.project_source_root() / 'test/ray_messages.ref'],
-     timeout: 120, is_parallel: false)
+     timeout: 120)
 
 test('spot_engine', test_runner,
      args: [meson.project_source_root() / 'test/spot_engine.zoa',
             meson.project_source_root() / 'test/spot_engine.ref'],
-     timeout: 120, is_parallel: false)
+     timeout: 120, priority: 10)
 
 test('engine_units', test_runner,
      args: [meson.project_source_root() / 'test/engine_units.zoa',
             meson.project_source_root() / 'test/engine_units.ref'],
-     timeout: 120, is_parallel: false)
+     timeout: 120, priority: 10)
 
 
 if system == 'darwin'
