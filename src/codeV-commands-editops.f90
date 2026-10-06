@@ -818,7 +818,20 @@ contains
 
     module function getDefaultMaxFrequency() result(maxFreq)
         use DATSPD
-        real :: FREQ1, FREQ2, maxFreq
+        use iso_fortran_env, only: real64
+        ! CUTTOFF (WAVSPOT5.f90) is an external routine with real64 outputs.
+        ! These were default REAL, called with no interface: CUTTOFF wrote 8
+        ! bytes into each 4-byte actual, corrupting the adjacent stack (ERROR
+        ! among it).  The interface makes any such mismatch a compile error.
+        interface
+            subroutine CUTTOFF(FREQ1, FREQ2, ERROR)
+                import real64
+                real(real64) :: FREQ1, FREQ2
+                logical :: ERROR
+            end subroutine CUTTOFF
+        end interface
+        real(real64) :: FREQ1, FREQ2
+        real :: maxFreq
         logical :: ERROR
         ERROR = .FALSE.
         ! Always define the result: the error path used to return with maxFreq
@@ -831,11 +844,10 @@ contains
             return
         end if
         if (SPACEBALL .EQ. 1) then
-            maxFreq = FREQ2
+            maxFreq = real(FREQ2)
         else
-            maxFreq = FREQ1
+            maxFreq = real(FREQ1)
         end if
-        print *, "Max Frequency is ", maxFreq
     end function getDefaultMaxFrequency
 
     !## cmd:      IMP
