@@ -5,7 +5,14 @@ MODULE globals
    PUBLIC
    integer, parameter :: long = selected_real_kind(15, 307)
    character(len=10) :: zoaVersion
+   ! basePath: the install's data folder -- shipped, read-only data (glass
+   ! catalogs, PLplot data, help, the newlens.zoa template).
+   ! writePath: where Zoa writes its own files -- the log, legacy scratch
+   ! *.DAT files, DEFAULTS.DAT / BATCH.DAT, the LIB* libraries, CURLENS,
+   ! PERMAC, the command history, preferences.ini.  The same folder as
+   ! basePath unless a test run moves it to its own temporary folder.
    character(len=256) :: basePath
+   character(len=256) :: writePath
    type(zoaLogger) :: logger
    character(len=140)  :: rawCommands(20)
    character(len=140)  :: currentCommand

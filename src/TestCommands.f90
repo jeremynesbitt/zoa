@@ -10,8 +10,8 @@ subroutine TestCommands
   TEST_MODE = .TRUE.
 
   ! Delete test output.  This needs to match  the file in the dumpto file.
-  if (doesFileExist(trim(getZoaPath())//'testOutput.txt')) then
-     call delete_file(trim(getZoaPath())//'testOutput.txt')
+  if (doesFileExist(trim(writePath)//'testOutput.txt')) then
+     call delete_file(trim(writePath)//'testOutput.txt')
   end if
 
 
@@ -66,7 +66,7 @@ subroutine dumpToFile(iptStr)
   character(len=512) :: tmpFile
   logical itsopen 
   
-  dbgFileName = trim(getZoaPath())//'testOutput.txt'
+  dbgFileName = trim(writePath)//'testOutput.txt'
   !PRINT *, "dbgFileName is ", dbgFileName
 
   inquire(unit=3578, opened=itsopen) 

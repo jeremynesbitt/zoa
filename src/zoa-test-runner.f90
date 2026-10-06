@@ -23,7 +23,8 @@
 !   2 = error (bad arguments, file not found, etc.)
 
 program zoa_test_runner
-  use platform_io, only: silence_stdout, restore_stdout, plot_temp_path, copy_file, make_directory
+  use platform_io, only: silence_stdout, restore_stdout, plot_temp_path, copy_file, make_directory, &
+                         absolute_path, change_directory
   use zoa_output, only: zoa_set_output_handler
   use zoa_test_capture
   use zoa_headless, only: zoa_headless_init
@@ -31,7 +32,9 @@ program zoa_test_runner
   use zoa_plot_output, only: enable_plot_announcements
   implicit none
 
-  character(len=512) :: test_file, ref_file
+  character(len=1024) :: test_file, ref_file
+  ! this run's private folder (see prepare_test_home)
+  character(len=512) :: test_home
   integer :: nargs
   logical :: has_ref, passed, gen_png_baseline
   integer :: num_diffs, png_fails
@@ -67,6 +70,7 @@ program zoa_test_runner
   ! read nor written by a test run (see isolate_test_files).
   call zoa_set_output_handler(capture_handler)
   preferencesIsolated = .true.
+  call prepare_test_home()
   call zoa_headless_init()
   call isolate_test_files(trim(test_file))
   call clear_capture()
@@ -103,6 +107,30 @@ program zoa_test_runner
 
 contains
 
+  ! Before init: a private folder for everything this run writes.  It is
+  ! GLOBALS writePath (the log, the legacy scratch *.DAT files, the LIB*
+  ! libraries, CURLENS, PERMAC ... -- INITKDP opens and clears them during
+  ! init) and the current directory (legacy code also writes scratch files
+  ! by bare name: PSF.DAT, CARDTEXT.DAT, DXF3D.DXF ...).  The script and
+  ! reference paths are made absolute first.  So a test shares no file with
+  ! the GUI or with another test running at the same time.
+  subroutine prepare_test_home()
+    use zoa_file_handler, only: writeRootOverride
+    character(len=12), parameter :: subdirs(13) = [character(len=12) :: &
+      'Projects', 'Macros', 'Temp', 'CodeV', 'LIBLEN', 'LIBMAC', 'LIBTRA', &
+      'LIBSPO', 'LIBAUT', 'LIBPLO', 'NSSDIR', 'CURLENS', 'PERMAC']
+    integer :: k
+
+    test_home = plot_temp_path('home')
+    do k = 1, size(subdirs)
+      call make_directory(trim(test_home)//'/'//trim(subdirs(k)))
+    end do
+    writeRootOverride = trim(test_home)//'/'
+    test_file = absolute_path(trim(test_file))
+    if (has_ref) ref_file = absolute_path(trim(ref_file))
+    call change_directory(trim(test_home))
+  end subroutine
+
   ! A test reads and writes nothing in the user's Zoa folder except the
   ! read-only engine data (glass catalogs, PLplot data):
   !  - the project, macro, temp and CODE V folders -- where SAV, the exports
@@ -116,18 +144,13 @@ contains
     use zoa_file_handler, only: setProjectDir, setMacroDir, setTempDir, setCodeVDir, &
                                 addSearchDir, SP_SESSION
     character(len=*), intent(in) :: script
-    character(len=512) :: home, testdir
+    character(len=512) :: testdir
     integer :: k
 
-    home = plot_temp_path('home')
-    call make_directory(trim(home)//'/Projects')
-    call make_directory(trim(home)//'/Macros')
-    call make_directory(trim(home)//'/Temp')
-    call make_directory(trim(home)//'/CodeV')
-    call setProjectDir(trim(home)//'/Projects/')
-    call setMacroDir(trim(home)//'/Macros/')
-    call setTempDir(trim(home)//'/Temp/')
-    call setCodeVDir(trim(home)//'/CodeV/')
+    call setProjectDir(trim(test_home)//'/Projects/')
+    call setMacroDir(trim(test_home)//'/Macros/')
+    call setTempDir(trim(test_home)//'/Temp/')
+    call setCodeVDir(trim(test_home)//'/CodeV/')
 
     k = max(index(script, '/', back=.true.), index(script, '\', back=.true.))
     if (k > 0) then

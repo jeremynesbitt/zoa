@@ -47,7 +47,8 @@ contains
     use GLOBALS
     use global_widgets
     use kdp_data_types
-    use zoa_file_handler, only: getZoaPath, loadPreferences, applyGlassCatalogDirFromPrefs
+    use zoa_file_handler, only: getZoaPath, loadPreferences, applyGlassCatalogDirFromPrefs, &
+                                writeRootOverride
     use zoa_ui_callbacks, only: zoa_set_replot_callback, zoa_set_replot_flush_callback
     use zoa_output, only: zoa_set_replot_flush_hook
     implicit none
@@ -62,6 +63,13 @@ contains
 
     ! Set base path for data files (glass catalogs, etc.)
     basePath = getZoaPath()
+    ! A test run writes into its own folder (set before this call), so it
+    ! never shares the log or scratch files with the GUI or another test.
+    if (len_trim(writeRootOverride) > 0) then
+      writePath = writeRootOverride
+    else
+      writePath = basePath
+    end if
     call loadPreferences()
 
     ! Allocate command history (mirrors zoamain.F90 line 60)

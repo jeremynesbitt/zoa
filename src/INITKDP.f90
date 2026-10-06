@@ -150,7 +150,7 @@ SUBROUTINE INITKDP
    !basePath = getZoaPath()
    fileSep = getFileSep()
 
-   logger = zoaLogger(basePath)
+   logger = zoaLogger(writePath)
    call logger%logText("File Sep is "//fileSep)
 
 
@@ -386,9 +386,9 @@ SUBROUTINE INITKDP
 !     SET VSYM TO .TRUE.
    VSYM=.TRUE.
 !     SET APPEND TO FALSE FOR EDITTEXT.DAT, CARDTEXT.DAT AND PUNCH.DAT
-   call clear_file(trim(basePath)//'SENSIOUT.DAT')
-   call clear_file(trim(basePath)//'ISENSOUT.DAT')
-   call clear_file(trim(basePath)//'MONTEOUT.DAT')
+   call clear_file(trim(writePath)//'SENSIOUT.DAT')
+   call clear_file(trim(writePath)//'ISENSOUT.DAT')
+   call clear_file(trim(writePath)//'MONTEOUT.DAT')
 
 !
    APPEND=.FALSE.
@@ -570,15 +570,15 @@ SUBROUTINE INITKDP
    DRWNAM='NEUTRAL.DAT'
    ! Set directories.  Base path and File separator should have been
    ! set based on os
-   LIBLEN=trim(basePath)//'LIBLEN'//fileSep
-   LIBMAC=trim(basePath)//'LIBMAC'//fileSep
-   LIBTRA=trim(basePath)//'LIBTRA'//fileSep
-   LIBSPO=trim(basePath)//'LIBSPO'//fileSep
-   LIBAUT=trim(basePath)//'LIBAUT'//fileSep
-   LIBPLO=trim(basePath)//'LIBPLO'//fileSep
-   NSSDIR=trim(basePath)//'NSSDIR'//fileSep
+   LIBLEN=trim(writePath)//'LIBLEN'//fileSep
+   LIBMAC=trim(writePath)//'LIBMAC'//fileSep
+   LIBTRA=trim(writePath)//'LIBTRA'//fileSep
+   LIBSPO=trim(writePath)//'LIBSPO'//fileSep
+   LIBAUT=trim(writePath)//'LIBAUT'//fileSep
+   LIBPLO=trim(writePath)//'LIBPLO'//fileSep
+   NSSDIR=trim(writePath)//'NSSDIR'//fileSep
    LIBGLA=trim(basePath)//'LIBGLA'//fileSep
-   CURLENS=trim(basePath)//'CURLENS'//fileSep
+   CURLENS=trim(writePath)//'CURLENS'//fileSep
 
 
    PRINT *, "LIBMAC IS ", trim(LIBMAC)
@@ -1130,7 +1130,7 @@ SUBROUTINE INITKDP
 !
    OPEN(UNIT=16,ACCESS='SEQUENTIAL',&
    &BLANK='NULL',FORM='FORMATTED',&
-   &FILE=trim(basePath)//'DEFAULTS.DAT',STATUS='UNKNOWN')
+   &FILE=trim(writePath)//'DEFAULTS.DAT',STATUS='UNKNOWN')
    DO I=1,99999
       READ(UNIT=16,FMT=100,END=9887,ERR=9877) INPUT(1:140)
       MULTICOM=.TRUE.
@@ -1147,9 +1147,9 @@ SUBROUTINE INITKDP
 !     unseeded for the surviving raytrace/LDM readers.  Call the still-present
 !     initializers (NEWFIELD/NEWRAY, KDP.f90) directly, replicating exactly
 !     what RFRESET did (clear the .DAT file, then re-seed the arrays).
-   call clear_file(trim(basePath)//'FIELDS.DAT')
+   call clear_file(trim(writePath)//'FIELDS.DAT')
    CALL NEWFIELD
-   call clear_file(trim(basePath)//'RAYS.DAT')
+   call clear_file(trim(writePath)//'RAYS.DAT')
    CALL NEWRAY
 !
    !PRINT *, "Got to line 1361"
@@ -1275,8 +1275,8 @@ SUBROUTINE INITKDP
    IN=5
 
    EXIS7=.FALSE.
-   INQUIRE(FILE=trim(basePath)//'PRINTER.TXT',EXIST=EXIS7)
-   IF(EXIS7) call clear_file(trim(basePath)//'PRINTER.TXT')
+   INQUIRE(FILE=trim(writePath)//'PRINTER.TXT',EXIST=EXIS7)
+   IF(EXIS7) call clear_file(trim(writePath)//'PRINTER.TXT')
 
    EXIS7=.FALSE.
 
@@ -1305,12 +1305,12 @@ SUBROUTINE INITKDP
    IF(CMDLINE(1:5).EQ.'BATCH') THEN
       EXIS44=.FALSE.
       OPEN44=.FALSE.
-      INQUIRE(FILE=basePath//'BATCH.DAT',EXIST=EXIS44)
-      INQUIRE(FILE=basePath//'BATCH.DAT',OPENED=OPEN44)
+      INQUIRE(FILE=writePath//'BATCH.DAT',EXIST=EXIS44)
+      INQUIRE(FILE=writePath//'BATCH.DAT',OPENED=OPEN44)
       IF(EXIS44) THEN
          IF(OPEN44) CALL CLOSE_FILE(44,1)
 !     OPEN AND PROCESS CONTENTS
-         OPEN(UNIT=44,ACCESS='SEQUENTIAL',FILE=basePath//'BATCH.DAT',&
+         OPEN(UNIT=44,ACCESS='SEQUENTIAL',FILE=writePath//'BATCH.DAT',&
          &FORM='FORMATTED',STATUS='UNKNOWN')
          REWIND(UNIT=44)
 

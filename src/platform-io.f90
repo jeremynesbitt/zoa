@@ -4,6 +4,7 @@ module platform_io
   implicit none
   private
   public :: silence_stdout, restore_stdout, plot_temp_path, copy_file, make_directory
+  public :: absolute_path, change_directory
   public :: configure_plplot_runtime
   integer(c_int), save :: saved_stdout = -1
   interface
@@ -18,6 +19,18 @@ module platform_io
       import c_int, c_char
       character(c_char) :: buffer(*)
       integer(c_int), value :: capacity
+      integer(c_int) :: rc
+    end function
+    function native_abspath(path, buffer, capacity) bind(c, name='zoa_absolute_path') result(rc)
+      import c_char, c_int
+      character(c_char), intent(in) :: path(*)
+      character(c_char) :: buffer(*)
+      integer(c_int), value :: capacity
+      integer(c_int) :: rc
+    end function
+    function native_chdir(path) bind(c, name='zoa_change_dir') result(rc)
+      import c_char, c_int
+      character(c_char), intent(in) :: path(*)
       integer(c_int) :: rc
     end function
     function native_mkdir(path) bind(c, name='zoa_make_dir') result(rc)
@@ -75,6 +88,27 @@ contains
     if (n + 1 + len_trim(basename) > len(path)) error stop 'Plot path too long'
     path = path(:n)//'/'//trim(basename)
   end function
+
+  ! The absolute, normalized form of path; stops if it cannot be formed.
+  function absolute_path(path) result(abspath)
+    character(len=*), intent(in) :: path
+    character(len=1024) :: abspath
+    character(c_char) :: buffer(1024)
+    integer :: i
+    if (native_abspath(trim(path)//c_null_char, buffer, 1024_c_int) /= 0) &
+      error stop 'Cannot form an absolute path'
+    abspath = ''
+    do i = 1, size(buffer)
+      if (buffer(i) == c_null_char) exit
+      abspath(i:i) = buffer(i)
+    end do
+  end function
+
+  ! Make path the current directory; stops if it cannot.
+  subroutine change_directory(path)
+    character(len=*), intent(in) :: path
+    if (native_chdir(trim(path)//c_null_char) /= 0) error stop 'Cannot change directory'
+  end subroutine
 
   ! Create a directory (and missing parents); stops if it cannot.
   subroutine make_directory(path)

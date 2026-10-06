@@ -12,7 +12,7 @@ program zoa_program
   use handlers
   use zoa_ui
   use global_widgets
-  use GLOBALS, only: zoaVersion, RELEASE_MODE
+  use GLOBALS, only: zoaVersion, RELEASE_MODE, basePath, writePath
   implicit none
 
 #ifdef WINDOWS
@@ -71,6 +71,7 @@ zoaVersion = __VERSION
 
   ! This also doubles as storing OS
   basePath = getZoaPath()
+  writePath = basePath
   call loadPreferences()
 
   !For saving command history.

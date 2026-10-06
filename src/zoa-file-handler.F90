@@ -36,6 +36,9 @@ module zoa_file_handler
       logical :: assetDirsInitialized = .false.
       ! Set by the test runner: preferences are neither read nor written.
       logical :: preferencesIsolated = .false.
+      ! Set by the test runner before zoa_headless_init: the folder used as
+      ! GLOBALS writePath (with a trailing separator).  Empty: basePath.
+      character(len=256) :: writeRootOverride = ''
 
       ! Recursion depth counter for process_zoa_file: incremented on open,
       ! decremented on close.  Gating headless per-line flushes on depth==1
@@ -460,6 +463,7 @@ module zoa_file_handler
       end function
 
       subroutine saveCommandHistoryToFile(command_history, command_index)
+        use GLOBALS, only: writePath
         implicit none
         character(len=*), intent(in) :: command_history(:)
         integer :: command_index
@@ -467,7 +471,7 @@ module zoa_file_handler
         logical :: existFlag
         integer :: recLen, i
 
-        filePath = trim(getZoaPath())//'command_history.dat'
+        filePath = trim(writePath)//'command_history.dat'
 
         inquire(file=filePath,EXIST=existFlag)
         if(existFlag) call clear_file(filePath)
@@ -488,7 +492,7 @@ module zoa_file_handler
       end subroutine
 
       subroutine readCommandHistoryFromFile(command_history, command_index)
-
+        use GLOBALS, only: writePath
         implicit none
         character(len=*), intent(inout) :: command_history(:)
         integer, intent(inout) :: command_index
@@ -496,7 +500,7 @@ module zoa_file_handler
         logical :: existFlag
         integer :: recLen, i
 
-        filePath = trim(getZoaPath())//getFileSep()//'command_history.dat'
+        filePath = trim(writePath)//'command_history.dat'
 
         inquire(file=filePath,EXIST=existFlag)
         if(existFlag) then
@@ -627,8 +631,9 @@ function getMacroDir() result (outDir)
 end function
 
 function getPermMacroDir() result(permDir)
+  use GLOBALS, only: writePath
   character(len=500) :: permDir
-  permDir = trim(getZoaPath())//'PERMAC'//getFileSep()
+  permDir = trim(writePath)//'PERMAC'//getFileSep()
 
 end function
 
@@ -839,14 +844,14 @@ end function
 ! =========================================================================
 
 subroutine savePreferences()
-  use GLOBALS, only: basePath, zoa_threads
+  use GLOBALS, only: writePath, zoa_threads
   implicit none
   character(len=1024) :: filePath
   integer :: funit, i
 
   ! A test run (isolated) never writes the user's preferences.
   if (preferencesIsolated) return
-  filePath = trim(basePath)//'preferences.ini'
+  filePath = trim(writePath)//'preferences.ini'
   funit = 99
   open(unit=funit, file=trim(filePath), status='replace', action='write', form='formatted')
   write(funit, '(A)') 'ProjectDir='//trim(savresDir)
@@ -861,13 +866,13 @@ subroutine savePreferences()
 end subroutine
 
 subroutine loadPreferences()
-  use GLOBALS, only: basePath, HEADLESS_MODE, zoa_threads
+  use GLOBALS, only: basePath, writePath, HEADLESS_MODE, zoa_threads
   implicit none
   character(len=1024) :: filePath, line, key, val
   integer :: funit, ios, eq, nthr
 
   if (preferencesIsolated) return
-  filePath = trim(basePath)//'preferences.ini'
+  filePath = trim(writePath)//'preferences.ini'
   funit = 98
   open(unit=funit, file=trim(filePath), status='old', action='read', &
        form='formatted', iostat=ios)

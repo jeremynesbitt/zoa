@@ -155,7 +155,7 @@ SUBROUTINE CV2PRG
    &EXIST=EXIS37)
 
    !  INQUIRE(
-   ! 1 FILE=trim(basePath)//'CodeV'//
+   ! 1 FILE=trim(writePath)//'CodeV'//
    ! 1 getFileSep()//CVFILENAME(1:CVFILENAMELENGTH),
    ! 1 EXIST=EXIS37)
 
@@ -242,12 +242,12 @@ SUBROUTINE CV2PRG
    &,STATUS='UNKNOWN')
    OPEN(UNIT=38,ACCESS='SEQUENTIAL',BLANK='NULL'&
    &,FORM='FORMATTED',&
-   &FILE=trim(basePath)//'CONVERT.ERR'&
+   &FILE=trim(writePath)//'CONVERT.ERR'&
    &,STATUS='UNKNOWN')
    CALL CLOSE_FILE(38,0)
    OPEN(UNIT=38,ACCESS='SEQUENTIAL',BLANK='NULL'&
    &,FORM='FORMATTED',&
-   &FILE=trim(basePath)//'CONVERT.ERR'&
+   &FILE=trim(writePath)//'CONVERT.ERR'&
    &,STATUS='UNKNOWN')
 
 

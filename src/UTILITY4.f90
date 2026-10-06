@@ -451,10 +451,10 @@ SUBROUTINE EXITT(CLSCODE)
    EXIS96=.FALSE.
    INQUIRE(FILE=trim(LIBSPO)//'SPOTS.DAT',OPENED=OPEN32)
    INQUIRE(FILE=trim(LIBSPO)//'SPOTS.DAT',EXIST=EXIS32)
-   INQUIRE(FILE=trim(basePath)//'APMAP.DAT',EXIST=EXIS72)
-   INQUIRE(FILE=trim(basePath)//'OPDMAP.DAT',EXIST=EXIS70)
-   INQUIRE(FILE=trim(basePath)//'FOOT1.DAT',EXIST=EXIS94)
-   INQUIRE(FILE=trim(basePath)//'QUIET.DAT',EXIST=EXIS96)
+   INQUIRE(FILE=trim(writePath)//'APMAP.DAT',EXIST=EXIS72)
+   INQUIRE(FILE=trim(writePath)//'OPDMAP.DAT',EXIST=EXIS70)
+   INQUIRE(FILE=trim(writePath)//'FOOT1.DAT',EXIST=EXIS94)
+   INQUIRE(FILE=trim(writePath)//'QUIET.DAT',EXIST=EXIS96)
    CALL CLOSE_FILE(7,1)
    CALL CLOSE_FILE(8,1)
    CALL CLOSE_FILE(9,1)
@@ -462,16 +462,16 @@ SUBROUTINE EXITT(CLSCODE)
    CALL CLOSE_FILE(30,1)
    CALL CLOSE_FILE(80,1)
    CALL CLOSE_FILE(81,1)
-   IF(EXIS94) call clear_file(trim(basePath)//'FOOT1.DAT')
+   IF(EXIS94) call clear_file(trim(writePath)//'FOOT1.DAT')
 
    OPEN32=.FALSE.
    OPEN63=.FALSE.
    EXIS32=.FALSE.
    EXIS63=.FALSE.
    IF(EXIS32) call clear_file(trim(LIBSPO)//'SPOTS.DAT')
-   IF(EXIS72) call clear_file(trim(basePath)//'APMAP.DAT')
-   IF(EXIS70) call clear_file(trim(basePath)//'OPDMAP.DAT')
-   IF(EXIS96) call clear_file(trim(basePath)//'QUIET.DAT')
+   IF(EXIS72) call clear_file(trim(writePath)//'APMAP.DAT')
+   IF(EXIS70) call clear_file(trim(writePath)//'OPDMAP.DAT')
+   IF(EXIS96) call clear_file(trim(writePath)//'QUIET.DAT')
 
    CALL CLOSE_FILE(95,1)
    CALL CLOSE_FILE(97,1)
@@ -542,7 +542,7 @@ SUBROUTINE EXITT(CLSCODE)
 !     SAVE RAY AND FIELD DATA
    OPEN(UNIT=16,ACCESS='SEQUENTIAL',&
    &BLANK='NULL',FORM='FORMATTED',&
-   &FILE=trim(basePath)//'FIELDS.DAT', STATUS='UNKNOWN')
+   &FILE=trim(writePath)//'FIELDS.DAT', STATUS='UNKNOWN')
 100 FORMAT(A4,1X,D15.8,1X,D15.8,1X,D15.8,1X,I2)
    DO I=1,200
       CALL ITOAAA(I,AI4)
@@ -552,7 +552,7 @@ SUBROUTINE EXITT(CLSCODE)
    CALL CLOSE_FILE(16,1)
    OPEN(UNIT=16,ACCESS='SEQUENTIAL',&
    &BLANK='NULL',FORM='FORMATTED',&
-   &FILE=trim(basePath)//'RAYS.DAT', STATUS='UNKNOWN')
+   &FILE=trim(writePath)//'RAYS.DAT', STATUS='UNKNOWN')
 102 FORMAT(A4,1X,D15.8,1X,D15.8,1X,I2)
    DO I=1,5000
       CALL ITOAAA(I,AI4)
@@ -566,7 +566,7 @@ SUBROUTINE EXITT(CLSCODE)
    CALL CLOSE_FILE(27,1)
 
 !
-   call clear_file(trim(basePath)//'FASTLENS.DAT')
+   call clear_file(trim(writePath)//'FASTLENS.DAT')
 !
 !     CLOSE AND SAVE THE DXF3D.DXF FILE UNIT #39
    CALL CLOSE_FILE(39,1)
@@ -604,8 +604,8 @@ SUBROUTINE EXITT(CLSCODE)
 
 !
 10 CONTINUE
-   call clear_file(trim(basePath)//'NEUTRAL.DAT')
-   call clear_file(trim(basePath)//'NEUTRERP.DAT')
+   call clear_file(trim(writePath)//'NEUTRAL.DAT')
+   call clear_file(trim(writePath)//'NEUTRERP.DAT')
 
 
 ! WINTER
@@ -1127,7 +1127,7 @@ SUBROUTINE INPUTT
 !
    IF(WQ.EQ.'FILE') THEN
       EXIS97=.FALSE.
-      INQUIRE(FILE=trim(basePath)//OFILN,EXIST=EXIS97)
+      INQUIRE(FILE=trim(writePath)//OFILN,EXIST=EXIS97)
       IF(.NOT.EXIS97) THEN
          OUTLYNE='FILE '//OFILN//' DOES NOT EXIST TO READ'
          CALL SHOWIT(1)
@@ -1141,10 +1141,10 @@ SUBROUTINE INPUTT
       CALL CLOSE_FILE(96,1)
       CALL CLOSE_FILE(97,1)
       IF(APPEND) OPEN(UNIT=97,ACCESS='APPEND',BLANK='NULL'&
-      &,FORM='FORMATTED',FILE=trim(basePath)//OFILN &
+      &,FORM='FORMATTED',FILE=trim(writePath)//OFILN &
       &,STATUS='UNKNOWN')
       IF(.NOT.APPEND) OPEN(UNIT=97,ACCESS='SEQUENTIAL',BLANK='NULL'&
-      &,FORM='FORMATTED',FILE=trim(basePath)//OFILN &
+      &,FORM='FORMATTED',FILE=trim(writePath)//OFILN &
       &,STATUS='UNKNOWN')
       IF(F4.EQ.1) THEN
 !     IN A MACRO, READ THE DATA

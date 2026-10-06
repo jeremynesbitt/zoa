@@ -73,6 +73,26 @@ int zoa_plot_temp_dir(char *buffer, int capacity)
     return 0;
 }
 
+/* The absolute, normalized form of path (relative to the current directory)
+   in buffer (0 = ok). */
+int zoa_absolute_path(const char *path, char *buffer, int capacity)
+{
+    gchar *abs = g_canonicalize_filename(path, NULL);
+    int rc = -1;
+    if (abs && strlen(abs) < (size_t)capacity) {
+        g_strlcpy(buffer, abs, capacity);
+        rc = 0;
+    }
+    g_free(abs);
+    return rc;
+}
+
+/* Change the current directory (0 = ok). */
+int zoa_change_dir(const char *path)
+{
+    return g_chdir(path) == 0 ? 0 : -1;
+}
+
 /* Create a directory and any missing parents (0 = ok). */
 int zoa_make_dir(const char *path)
 {
