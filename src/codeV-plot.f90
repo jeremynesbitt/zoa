@@ -509,11 +509,13 @@ contains
 
 
         call psm%initialize(trim(iptStr))
-        !call psm%addDensitySetting(16,8,128)
-        call psm%addPowerOfTwoImageSetting(16,16,128)
+        ! The pupil grid of the CAPFN that DOTF autocorrelates (64 x 64 by
+        ! default; 16 x 16 is too coarse for the MTF).
+        call psm%addPowerOfTwoImageSetting(64,16,128)
 
+        ! No wavelength setting: the MTF is polychromatic (DOTF weights every
+        ! wavelength), like CODE V's default.
         call psm%addFieldSetting()
-        call psm%addWavelengthSetting()
         maxFreq = getDefaultMaxFrequency()
         call psm%addGenericSetting(SETTING_MAX_FREQUENCY, 'Maximum Frequency [lp]', maxFreq, &
         & 0.0, 100000.0, 'MFR', 'MFR '//trim(real2str(maxFreq)), UITYPE_SPINBUTTON) 

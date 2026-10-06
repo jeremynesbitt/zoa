@@ -242,111 +242,159 @@ module procedure pma_go
 end procedure pma_go
 
 module procedure mtf_go
-  use mod_fft, only: fft2
+  ! Polychromatic diffraction MTF for one field, from the engine's DOTF (pupil
+  ! autocorrelation over the CAPFN wavefront, spectrally weighted): the Y
+  ! (tangential for a Y field) and X (sagittal) responses at frequencies 0,
+  ! IFR, 2*IFR, ... up to MFR, with the aberration-free curve of a circular
+  ! pupil for reference.  The MTF is zero from the cutoff (shortest weighted
+  ! wavelength) on, so those frequencies are not computed.
+  !
+  ! It used to be the FFT of the PSF image, which got the frequency axis
+  ! (integer division, wrong scale), the modulus (|Re|^2) and the pixel size
+  ! wrong -- non-zero modulation far beyond the cutoff -- and ignored MFR/IFR.
   USE GLOBALS
   use command_utils
   use zoa_output, only: zoa_emit
-  use global_widgets, only:  curr_par_ray_trace, curr_lens_data, ioConfig, sysConfig, curr_mtf
-  use kdp_utils, only: OUTKDP, logDataVsField, log2DData
-  use type_utils, only: int2str, str2int, real2str
-  use DATMAI
-  use DATSPD, only: NRD
+  use global_widgets, only: ioConfig, sysConfig
+  use kdp_utils, only: OUTKDP
+  use type_utils, only: int2str, real2str
+  use DATMAI, only: REG
+  use DATLEN, only: CPFNEXT
+  use DATSPD, only: SPACEBALL
+  use mod_system, only: sys_wavelength, sys_wl_weight, sys_mode
   use iso_c_binding, only: c_ptr, c_null_ptr
-  use mod_analysis_manager
-
-
+  use iso_fortran_env, only: real64
   IMPLICIT NONE
 
-  integer, parameter :: nS = 7
-  real, allocatable, dimension(:,:) :: seidel
-  real, allocatable, dimension(:) :: surfIdx
+  interface
+    subroutine CUTTOFF(FREQ1, FREQ2, ERROR)
+      import real64
+      real(real64) :: FREQ1, FREQ2
+      logical :: ERROR
+    end subroutine CUTTOFF
+  end interface
 
-  character(len=230) :: ffieldstr
-  character(len=40) :: inputCmd
-  integer :: ii, objIdx, jj
-  logical :: replot
+  integer, parameter :: MAX_FREQ_POINTS = 1001
   type(c_ptr) :: canvas
-  integer, dimension(nS) :: graphColors
   type(zoaplot) :: xyscat
   type(multiplot) :: mplt
-  character(len=100) :: strTitle
-  character(len=20), dimension(nS) :: yLabels
-  character(len=23) :: cmdTxt
-  integer :: iField
-  character(len=80) :: charFLD
-  type(image_data) :: imgPSF
-  complex(long), allocatable :: fftData(:,:)
-  real, allocatable :: xAxis(:), xPlt(:)
-  real(long), allocatable :: yAxis(:), yPlt(:)
+  character(len=230) :: ffieldstr
+  character(len=100) :: lineStr
+  character(len=30) :: unitStr
+  integer :: objIdx, iField, xpts, nPts, k, w
+  logical :: replot, cutErr
+  real(real64) :: maxFreq, dFreq, freq1, freq2, cutoff, shortWl, wsum, x
+  real(real64), allocatable :: f(:), mtfY(:), mtfX(:), mtfDL(:)
 
-  integer :: lambda, fldIdx, xpts, iDiff
-
-  real(long) :: fnum, imgNA, lambdaInUm, diffLimit
-
-
-  call initializeGoPlot(psm,ID_PLOTTYPE_MTF, "MTF", replot, objIdx)
+  call initializeGoPlot(psm, ID_PLOTTYPE_MTF, "MTF", replot, objIdx)
 
   iField = psm%getFieldSetting()
   xpts = psm%getPowerOfTwoImageSetting()
-  lambda = psm%getWavelengthSetting()
-  WRITE(charFLD, *) "FOB ", &
-  & sysConfig%relativeFields(2,iField) &
-  & , ' ' , sysConfig%relativeFields(1,iField)
-  call PROCESKDP(trim(charFLD))
-  call PROCESKDP('NRD, '//trim(int2str(xpts)))
-  call PROCESKDP('CAPFN, '//trim(int2str(xpts)))
+  maxFreq = psm%getSettingValueByCode(SETTING_MAX_FREQUENCY)
+  dFreq = psm%getSettingValueByCode(SETTING_FREQUENCY_INTERVAL)
 
-  call getData("PSFK", imgPSF)
-  allocate(fftData(size(imgPsf%img,1),size(imgPsf%img,2)))
-  fftData = fft2(cmplx(imgPsf%img,kind=long),1)
+  write(ffieldstr, *) "FOB ", sysConfig%relativeFields(2,iField), ' ', &
+  &                   sysConfig%relativeFields(1,iField)
+  call PROCESKDP(trim(ffieldstr))
+  call PROCESSILENT('NRD, '//trim(int2str(xpts)))
+  call PROCESSILENT('CAPFN, '//trim(int2str(xpts)))
 
-  allocate(xAxis(imgPsf%N/2))
-  allocate(yAxis(imgPsf%N/2))
-
-  imgNA = am%getImgNA()
-  lambdaInUm = sysConfig%getWavelength(lambda)
-  diffLimit = 2.0_long*1000.0_long*imgNA/lambdaInUm
-  iDiff = 0
-  do ii=1,imgPsf%N/2
-    xAxis(ii) = 1000*(ii-1)/(imgPsf%N/2-1)/(imgPsf%pS)
-    if (iDiff == 0 .and. xAxis(ii) > diffLimit) iDiff = ii+1
-  end do
-  yAxis = REAL(DABS(REAL(fftData(1,1:size(fftData,1)/2)))/DABS(REAL(fftData(1,1))),8)
-  yAxis = yAxis**2
-
-  print *, "Diff Limit is ", diffLimit
-  print *, "Plot max index is ", iDiff
-
-  allocate(xPlt(iDiff))
-  allocate(yPlt(iDiff))
-  xPlt(1:iDiff) = xAxis(1:iDiff)
-  yPlt(1:iDiff) = yAxis(1:iDiff)
-
-  if (.not. HEADLESS_MODE) then
-    call ioConfig%setTextViewFromPtr(getTabTextView(objIdx))
+  ! the cutoff frequency, in the current SPACE, at the shortest wavelength
+  cutErr = .false.
+  call CUTTOFF(freq1, freq2, cutErr)
+  if (cutErr) then
+    call zoa_emit('MTF: cannot compute the cutoff frequency for this system', 'red')
+    return
   end if
-  call log2DData(real(xAxis,8),yAxis)
+  if (SPACEBALL == 1) then
+    cutoff = freq2
+  else
+    cutoff = freq1
+  end if
+  if (maxFreq <= 0.0_real64) maxFreq = cutoff
+  if (dFreq <= 0.0_real64) dFreq = maxFreq/100.0_real64
+  nPts = int(maxFreq/dFreq + 1.0e-9_real64) + 1
+  if (nPts > MAX_FREQ_POINTS) then
+    call zoa_emit('MTF: MFR/IFR asks for '//trim(int2str(nPts))//' frequencies; using the first '// &
+    &             trim(int2str(MAX_FREQ_POINTS)), 'red')
+    nPts = MAX_FREQ_POINTS
+  end if
+
+  allocate(f(nPts), mtfY(nPts), mtfX(nPts), mtfDL(nPts))
+  do k = 1, nPts
+    f(k) = (k-1)*dFreq
+    mtfY(k) = 0.0_real64
+    mtfX(k) = 0.0_real64
+    if (f(k) >= cutoff) cycle
+    ! DOTF clears CPFNEXT after each call; the CAPFN data it uses is still
+    ! the plot's own, so mark it current again (otherwise DOTF falls into its
+    ! all-fields mode).  YACC/XACC: no printout, modulus left in REG(9).
+    CPFNEXT = .true.
+    call PROCESSILENT('DOTF YACC '//trim(real2str(f(k), 6)))
+    mtfY(k) = REG(9)
+    CPFNEXT = .true.
+    call PROCESSILENT('DOTF XACC '//trim(real2str(f(k), 6)))
+    mtfX(k) = REG(9)
+  end do
+
+  ! Aberration-free reference: each weighted wavelength's circular-pupil MTF
+  ! at its own cutoff (scaled from the shortest one), weight-averaged.
+  shortWl = huge(1.0_real64)
+  do w = 1, 10
+    if (sys_wavelength(w) > 0.0_real64 .and. sys_wl_weight(w) > 0.0_real64) &
+      shortWl = min(shortWl, sys_wavelength(w))
+  end do
+  mtfDL = 0.0_real64
+  wsum = 0.0_real64
+  do w = 1, 10
+    if (.not. (sys_wavelength(w) > 0.0_real64 .and. sys_wl_weight(w) > 0.0_real64)) cycle
+    wsum = wsum + sys_wl_weight(w)
+    do k = 1, nPts
+      x = f(k)/(cutoff*shortWl/sys_wavelength(w))
+      if (x < 1.0_real64) mtfDL(k) = mtfDL(k) + sys_wl_weight(w)* &
+        (2.0_real64/acos(-1.0_real64))*(acos(x) - x*sqrt(1.0_real64 - x*x))
+    end do
+  end do
+  if (wsum > 0.0_real64) mtfDL = mtfDL/wsum
+
+  if (sys_mode() > 2.0_real64) then
+    unitStr = 'cycles/mrad'
+  else
+    unitStr = 'cycles/mm'
+  end if
+
+  ! Data tab
+  if (.not. HEADLESS_MODE) call ioConfig%setTextViewFromPtr(getTabTextView(objIdx))
+  call OUTKDP('Polychromatic diffraction MTF, field '//trim(int2str(iField))// &
+  &           ', cutoff '//trim(real2str(cutoff, 4))//' '//trim(unitStr))
+  call OUTKDP('  Frequency      Y (tan)     X (sag)   Diff. limit')
+  do k = 1, nPts
+    write(lineStr, '(F11.4,3F12.6)') f(k), mtfY(k), mtfX(k), mtfDL(k)
+    call OUTKDP(trim(lineStr))
+  end do
   if (.not. HEADLESS_MODE) call ioConfig%setTextView(ID_TERMINAL_DEFAULT)
 
   if (HEADLESS_MODE) then
     canvas = c_null_ptr
   else
-    canvas = hl_gtk_drawing_area_new(size=[1200,800], &
-    & has_alpha=FALSE)
+    canvas = hl_gtk_drawing_area_new(size=[1200,800], has_alpha=FALSE)
   end if
+  call mplt%initialize(canvas, 1,1)
+  call xyscat%initialize(c_null_ptr, real(f), real(mtfY), &
+  & xlabel='Spatial Frequency ['//trim(unitStr)//']'//c_null_char, &
+  & ylabel='Modulation'//c_null_char, &
+  & title='Diffraction MTF (polychromatic)'//c_null_char)
+  call xyscat%setDataColorCode(PL_PLOT_BLUE)
+  call xyscat%addXYPlot(real(f), real(mtfX))
+  call xyscat%setDataColorCode(PL_PLOT_RED)
+  call xyscat%addXYPlot(real(f), real(mtfDL))
+  call xyscat%setDataColorCode(PL_PLOT_BLACK)
+  call xyscat%setLineStyleCode(2)
+  ! (the shared legend clips entries to about five characters)
+  call xyscat%addLegend([character(len=30) :: 'Tan', 'Sag', 'Limit'])
+  call mplt%set(1,1,xyscat)
 
-   call mplt%initialize(canvas, 1,1)
-
-   call xyscat%initialize(c_null_ptr, xPlt, REAL(yPlt,4), &
-   & xlabel='Spatial Frequency [cycles/mm]'//c_null_char, &
-   & ylabel='Modulation'//c_null_char, &
-   & title='Diffraction MTF'//c_null_char)
-
-   call mplt%set(1,1,xyscat)
-
-   call finalizeGoPlot_new(mplt, psm, replot, objIdx)
-
-
+  call finalizeGoPlot_new(mplt, psm, replot, objIdx)
 
 end procedure mtf_go
 
