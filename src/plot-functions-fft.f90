@@ -3,7 +3,6 @@ implicit none
 contains
 
 module procedure psf_go
-  use mod_fft, only: four2, fftshift, fft2
   USE GLOBALS
   use command_utils
   use zoa_output, only: zoa_emit
@@ -31,7 +30,6 @@ real(long), allocatable :: psfData(:,:), psfX(:), psfY(:), psfZ(:)
 type(image_data) :: imgPSF
 integer :: objIdx
 logical :: replot
-complex(long), allocatable :: fftData(:,:)
 
 
 call initializeGoPlot(psm,ID_PLOTTYPE_PSF, "Point Spread Function", replot, objIdx)
@@ -39,7 +37,6 @@ call initializeGoPlot(psm,ID_PLOTTYPE_PSF, "Point Spread Function", replot, objI
 lambda = psm%getWavelengthSetting()
 fldIdx = psm%getFieldSetting()
 
-PRINT *, "fldIdx is ", fldIdx
 WRITE(ffieldstr, *) "FOB ", sysConfig%relativeFields(2,fldIdx) &
 & , ' ' , sysConfig%relativeFields(1, fldIdx)
 CALL PROCESKDP(trim(ffieldstr))
@@ -71,17 +68,36 @@ allocate(psfX(xpts*ypts))
 allocate(psfY(xpts*ypts))
 allocate(psfZ(xpts*ypts))
 
-allocate(fftData(size(psfData,1),size(psfData,2)))
-fftData = fft2(cmplx(psfData,kind=long),1)
-call fftshift(fftData)
+! Data tab: the peak and the X and Y sections through it (pixel indices, as
+! the plot's axes).  It used to dump the whole image and its FFT, one image
+! row per line -- thousands of numbers no one could read, in rows far longer
+! than any line the test capture keeps.
 if (.not. HEADLESS_MODE) then
   call ioConfig%setTextViewFromPtr(getTabTextView(objIdx))
 end if
-call logImageData(psfData)
-call LogTermFOR("Real")
-call logImageData(real(real(fftData),kind=long))
-call LogTermFOR("Imag")
-call logImageData(real(aimag(fftData),kind=long))
+block
+  integer :: pk(2), k
+  character(len=80) :: lineStr
+  pk = maxloc(psfData)
+  call OUTKDP('Point spread function, field '//trim(int2str(fldIdx))// &
+  &           ', wavelength '//trim(int2str(lambda))//', '// &
+  &           trim(int2str(xpts))//' x '//trim(int2str(ypts))//' pixels')
+  write(lineStr, '(A,I0,A,I0,A,F12.8)') 'Peak at pixel (', pk(1), ', ', pk(2), &
+  &     '), relative intensity ', psfData(pk(1), pk(2))
+  call OUTKDP(trim(lineStr))
+  call OUTKDP('Section along the first index through the peak')
+  call OUTKDP('   Pixel    Intensity')
+  do k = 1, xpts
+    write(lineStr, '(I8,F13.8)') k, psfData(k, pk(2))
+    call OUTKDP(trim(lineStr))
+  end do
+  call OUTKDP('Section along the second index through the peak')
+  call OUTKDP('   Pixel    Intensity')
+  do k = 1, ypts
+    write(lineStr, '(I8,F13.8)') k, psfData(pk(1), k)
+    call OUTKDP(trim(lineStr))
+  end do
+end block
 
 if (.not. HEADLESS_MODE) call ioConfig%restoreTextView()
 
