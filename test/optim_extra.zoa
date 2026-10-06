@@ -1,9 +1,9 @@
 RES osdtriplet
 ! ---- Constraint commands work inside AUT loop ----
-! Run a short optimisation: CCY S2 + THC S3 as variables, TAS as constraint.
+! Run a short optimisation: CCY S3 + THC S3 as variables, TAS as constraint.
 ! LCON lists constraints after the loop; DCON ALL clears them.
 AUT
-CCY S2 0
+CCY S3 0
 THC S3 0
 TAS = 0.01
 TCO = 0.005
