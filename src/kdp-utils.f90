@@ -119,14 +119,17 @@ module kdp_utils
     implicit none
 
     real(long), intent(in) :: img(:,:)
-    integer :: ii, jj
-    character(len=20480) :: strData
+    integer :: ii
+    character(len=:), allocatable :: strData
 
-    print *, "Size of img,2 is ", size(img,2)
+    ! Every value of the 2D image, one image row per line, so the Data tab
+    ! pastes straight into MATLAB/Python as the matrix.  Explicit format
+    ! (full double precision, fixed width): list-directed output laid a row
+    ! out differently on each compiler.
+    allocate(character(len=24*size(img,2)) :: strData)
     do ii=1,size(img,1)
-        write(strData, *) (img(ii,jj), jj=1,size(img,2))
-        call updateTerminal(trim(adjustl(strData)), "black")
-        !call OUTKDP(trim(strData))
+        write(strData, '(*(ES24.16))') img(ii,:)
+        call updateTerminal(trim(strData), "black")
     end do
 
   end subroutine

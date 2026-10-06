@@ -10,11 +10,16 @@ module zoa_test_capture
   private
   public :: capture_handler, clear_capture, get_num_captured
   public :: write_captured_to_file, compare_with_reference
-  public :: get_captured_line_from_buffer
+  public :: get_captured_line_from_buffer, get_captured_line
 
+  ! Lines of any length: Data tabs print whole data rows (an image row per
+  ! line), which must be captured and compared completely.
   integer, parameter :: MAX_LINES = 100000
-  integer, parameter :: MAX_LINE_LEN = 512
-  character(len=MAX_LINE_LEN) :: captured(MAX_LINES)
+  integer, parameter :: MAX_LINE_LEN = 512   ! token buffers only
+  type :: text_line
+    character(len=:), allocatable :: s
+  end type
+  type(text_line), allocatable :: captured(:)
   integer :: num_captured = 0
 
 contains
@@ -22,9 +27,10 @@ contains
   subroutine capture_handler(text, color)
     character(len=*), intent(in) :: text
     character(len=*), intent(in) :: color
+    if (.not. allocated(captured)) allocate(captured(MAX_LINES))
     if (num_captured < MAX_LINES) then
       num_captured = num_captured + 1
-      captured(num_captured) = text
+      captured(num_captured)%s = text
     end if
   end subroutine
 
@@ -46,7 +52,7 @@ contains
       return
     end if
     do i = 1, num_captured
-      write(iu, '(A)') trim(captured(i))
+      write(iu, '(A)') trim(captured(i)%s)
     end do
     close(iu)
   end subroutine
@@ -57,7 +63,7 @@ contains
     logical, intent(out) :: passed
     integer, intent(out) :: num_diffs
 
-    character(len=MAX_LINE_LEN) :: ref_line
+    character(len=:), allocatable :: ref_line
     integer :: iu, ios, ref_count, i
     logical :: lines_match
 
@@ -74,7 +80,7 @@ contains
     end if
 
     do i = 1, num_captured
-      read(iu, '(A)', iostat=ios) ref_line
+      call read_line(iu, ref_line, ios)
       if (ios /= 0) then
         ! Reference file has fewer lines
         write(*, '(A,I0,A)') 'DIFF: Output has more lines than reference (', &
@@ -86,25 +92,25 @@ contains
       end if
       ref_count = ref_count + 1
 
-      call compare_lines(trim(captured(i)), trim(ref_line), tolerance, lines_match)
+      call compare_lines(trim(captured(i)%s), trim(ref_line), tolerance, lines_match)
       if (.not. lines_match) then
         num_diffs = num_diffs + 1
         passed = .false.
         if (num_diffs <= 20) then
           write(*, '(A,I0)') 'DIFF at line ', i
-          write(*, '(A,A)') '  GOT: ', trim(captured(i))
+          write(*, '(A,A)') '  GOT: ', trim(captured(i)%s)
           write(*, '(A,A)') '  REF: ', trim(ref_line)
         end if
       end if
     end do
 
     ! Check if reference has more lines
-    read(iu, '(A)', iostat=ios) ref_line
+    call read_line(iu, ref_line, ios)
     if (ios == 0) then
       ! Count remaining reference lines
       ref_count = ref_count + 1
       do
-        read(iu, '(A)', iostat=ios) ref_line
+        call read_line(iu, ref_line, ios)
         if (ios /= 0) exit
         ref_count = ref_count + 1
       end do
@@ -194,10 +200,40 @@ contains
     integer, intent(in) :: idx
     character(len=*), intent(out) :: line
     if (idx >= 1 .and. idx <= num_captured) then
-      line = captured(idx)
+      line = captured(idx)%s
     else
       line = ''
     end if
+  end subroutine
+
+  ! The whole captured line idx, whatever its length.
+  function get_captured_line(idx) result(line)
+    integer, intent(in) :: idx
+    character(len=:), allocatable :: line
+    if (idx >= 1 .and. idx <= num_captured) then
+      line = captured(idx)%s
+    else
+      line = ''
+    end if
+  end function
+
+  ! Read one whole line of any length (non-advancing reads in chunks).
+  subroutine read_line(iu, line, ios)
+    integer, intent(in) :: iu
+    character(len=:), allocatable, intent(out) :: line
+    integer, intent(out) :: ios
+    character(len=4096) :: chunk
+    integer :: n
+    line = ''
+    do
+      read(iu, '(A)', advance='no', size=n, iostat=ios) chunk
+      line = line//chunk(1:n)
+      if (is_iostat_eor(ios)) then
+        ios = 0
+        return
+      end if
+      if (ios /= 0) return
+    end do
   end subroutine
 
 end module zoa_test_capture

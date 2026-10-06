@@ -141,10 +141,8 @@ contains
 
   subroutine write_captured_to_stdout()
     integer :: i
-    character(len=512) :: line
     do i = 1, get_num_captured()
-      call get_captured_line_from_buffer(i, line)
-      write(*, '(A)') trim(line)
+      write(*, '(A)') trim(get_captured_line(i))
     end do
   end subroutine
 
