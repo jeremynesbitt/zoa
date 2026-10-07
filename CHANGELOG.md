@@ -3,6 +3,17 @@
 All notable changes to Zoa are recorded here, newest first. Zoa is currently
 beta (0.x) software under active development.
 
+## 0.1.11 (beta)
+
+- **Multithreading support** for ray tracing (CAPFN and the analyses built on it,
+  spot diagrams). On by default using all processor cores; set it with the
+  `THREADS` command or the Preferences check box (`THREADS 1` turns it off).
+- **Fixed the Windows build** (several issues).
+- **Faster on Windows**: reduced logging file I/O.
+
+> Zoa remains **beta** software under active development. Please back up your
+> work and report issues at https://github.com/jeremynesbitt/zoa/issues.
+
 ## 0.1.10 (beta)
 
  New `.zin` companion file that saves status open closing (eg plots that are open), and a
