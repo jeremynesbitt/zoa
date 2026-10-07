@@ -10,7 +10,9 @@ module kdp_data_types
   integer, parameter :: APER_ENTR_PUPIL_DIAMETER = 102
   integer, parameter :: APER_OBJECT_NA = 103
   integer, parameter :: APER_STOP_SURFACE = 104
-  integer, PARAMETER :: APER_FNO = 105
+  integer, PARAMETER :: APER_FNO = 105         ! object-space F/# (legacy FNOY/FNOX)
+  ! Image-space F/#, held -- CODE V's FNO (engine: FNBY/FNBX HLD)
+  integer, PARAMETER :: APER_IMAGE_FNO = 106
 
   integer, parameter :: FIELD_OBJECT_HEIGHT = 202
   integer, parameter :: FIELD_OBJECT_ANGLE_DEG = 203
@@ -137,6 +139,7 @@ contains
  procedure, private :: setNumberofWavelengths
  procedure, private, pass(self) :: setRefFieldKDP
  procedure, public, pass(self) :: genSaveOutputText
+ procedure, public, pass(self) :: genPostLensSaveText
  procedure, public, pass(self) :: setFieldTypeFromString
  procedure, public, pass(self) :: setMaxField
  procedure, public, pass(self) :: getWavelength
@@ -459,7 +462,7 @@ end function
 type(sys_config) function sys_config_constructor() result(self)
 
   use DATLEN
-  allocate(idText :: self%aperOptions(3))
+  allocate(idText :: self%aperOptions(4))
   allocate(idText :: self%refFieldOptions(3))
   allocate(idText :: self%lensUnits(4))
   allocate(idText :: self%rayAimOptions(4))
@@ -472,6 +475,9 @@ type(sys_config) function sys_config_constructor() result(self)
 
   self%aperOptions(3)%text = "Stop Surface Aperture"
   self%aperOptions(3)%id = APER_STOP_SURFACE
+
+  self%aperOptions(4)%text = "Image Space F/#"
+  self%aperOptions(4)%id = APER_IMAGE_FNO
 
   self%rayAimOptions(1)%text = "Paraxial Only"
   self%rayAimOptions(1)%id = RAYAIM_PARAX
@@ -609,6 +615,7 @@ subroutine setTextView(self, idTextView)
 end subroutine
 
 subroutine updateParameters(self)
+  use mod_system, only: sys_fno_hold_y, sys_fno_hold_x, sys_fno_flag_x
   use mod_system, only: sys_naox, sys_naoy, sys_pxim, sys_pyim, sys_rxim, sys_ryim, &
      & sys_sax, sys_say, sys_scx, sys_scx_fang, sys_scy, sys_scy_fang, sys_units, sys_wl_ref, &
      & sys_wavelength, sys_wl_weight
@@ -630,6 +637,11 @@ subroutine updateParameters(self)
   case (APER_OBJECT_NA)
      self%refApertureValue(1) = sys_naox()
      self%refApertureValue(2) = sys_naoy()
+
+  case (APER_IMAGE_FNO)
+     self%refApertureValue(2) = sys_fno_hold_y()
+     self%refApertureValue(1) = sys_fno_hold_y()
+     if (sys_fno_flag_x() == -1.0D0) self%refApertureValue(1) = sys_fno_hold_x()
 
   end select
 
@@ -850,10 +862,13 @@ end select
 end subroutine
 
 subroutine getApertureFromSystemArr(self)
-  use mod_system, only: sys_fno_val_set, sys_na_set, sys_say_float
+  use mod_system, only: sys_fno_val_set, sys_na_set, sys_say_float, sys_fno_flag_y
   use DATLEN
   class(sys_config), intent(inout) :: self
-  if (sys_na_set().EQ.0.AND.sys_fno_val_set().EQ.0.AND.sys_say_float().EQ.0) then
+  ! A held image-space F/# (FNO) drives the entrance pupil, whatever SAY holds.
+  if (sys_fno_flag_y() == -1.0D0) then
+    self%currApertureID = APER_IMAGE_FNO
+  else if (sys_na_set().EQ.0.AND.sys_fno_val_set().EQ.0.AND.sys_say_float().EQ.0) then
     self%currApertureID = APER_ENTR_PUPIL_DIAMETER
   else if (sys_na_set().EQ.1) then
     self%currApertureID = APER_OBJECT_NA
@@ -1306,6 +1321,7 @@ subroutine setSpectralWeights(self, index, weight)
 end subroutine
 
 subroutine genSaveOutputText(self, fID)
+  use mod_system, only: sys_say
   use type_utils, only: real2str, blankStr, int2str
   use GLOBALS, only: zoaVersion
   class(sys_config) :: self
@@ -1333,6 +1349,11 @@ subroutine genSaveOutputText(self, fID)
   select case(self%currApertureID)
   case(APER_ENTR_PUPIL_DIAMETER)
     strOutLine = "EPD "//real2str(self%refApertureValue(2),4)
+  case(APER_IMAGE_FNO)
+    ! The pupil the held F/# currently gives, so the lens is right as soon
+    ! as it is read; the FNO itself follows the lens (genPostLensSaveText),
+    ! where it runs at command level and re-establishes the hold.
+    strOutLine = "EPD "//real2str(2.0d0*sys_say(),6)
   end select
   write(fID, '(A)') trim(strOutLine)
 
@@ -1401,6 +1422,17 @@ subroutine genSaveOutputText(self, fID)
 
  
 
+end subroutine
+
+! Lines that must follow the lens data (after its GO), at command level:
+! the held image-space F/# (CODE V FNO), which needs the finished lens.
+subroutine genPostLensSaveText(self, fID)
+  use type_utils, only: real2str
+  class(sys_config), intent(in) :: self
+  integer, intent(in) :: fID
+  if (self%currApertureID == APER_IMAGE_FNO) then
+    write(fID, '(A)') "FNO "//trim(real2str(self%refApertureValue(2),6))
+  end if
 end subroutine
 
 subroutine setAbsoluteFields(self, absFields, fieldDir)
@@ -1523,6 +1555,10 @@ subroutine updateApertureSelectionByCode(self, ID_SELECTION, xAp, yAp, xySame)
   character(len=23) :: strXAp, strYAp
   !self%currApertureID = ID_SELECTION
 
+  ! Any other aperture type replaces a held image-space F/#, which would
+  ! otherwise keep resizing the entrance pupil over the new value.
+  if (ID_SELECTION /= APER_IMAGE_FNO) call releaseImageFNoHold()
+
   select case (ID_SELECTION)
 
   case (APER_OBJECT_NA)
@@ -1557,6 +1593,10 @@ subroutine updateApertureSelectionByCode(self, ID_SELECTION, xAp, yAp, xySame)
       call PROCESKDP('SAX,'//strXAp)
     END IF
     call PROCESKDP('EOS')
+
+  case (APER_IMAGE_FNO)
+    ! CODE V's FNO (one value: the dialog's Y value)
+    call PROCESKDP('FNO '//trim(adjustl(strYFromReal(yAp))))
 
   case (APER_STOP_SURFACE)
     call PROCESKDP('U L')
@@ -2737,5 +2777,29 @@ DEALLOCATE(VERARRAY,STAT=ALLOERR)
                   !END IF
 END !check_clear_apertures
 
+
+! Release a held image-space F/# (CODE V FNO; engine FNBY/FNBX HLD), so that
+! a newly specified aperture (EPD, NAO, stop surface) is not overridden by
+! the hold re-adjusting the entrance pupil.  Silent (the engine's FNBY DELK
+! prints "ADJUSTMENT DELETED"); a no-op when nothing is held.
+subroutine releaseImageFNoHold()
+  use mod_system, only: sys_fno_flag_y, sys_fno_flag_x, sys_set_fno_flag_y, &
+                        sys_set_fno_flag_x, sys_set_fno_hold_y, sys_set_fno_hold_x
+  if (sys_fno_flag_y() /= 0.0D0) then
+    call sys_set_fno_flag_y(0.0D0)
+    call sys_set_fno_hold_y(0.0D0)
+  end if
+  if (sys_fno_flag_x() /= 0.0D0) then
+    call sys_set_fno_flag_x(0.0D0)
+    call sys_set_fno_hold_x(0.0D0)
+  end if
+end subroutine
+
+! A real as text with enough digits to round-trip (for command strings).
+function strYFromReal(v) result(s)
+  real, intent(in) :: v
+  character(len=32) :: s
+  write(s, '(G0)') v
+end function
 
 end module kdp_data_types

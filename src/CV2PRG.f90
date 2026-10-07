@@ -29,6 +29,10 @@ SUBROUTINE CV2PRG
    LOGICAL EXIS37,EXIS38,OPEN37,OPEN38,SEMI,ADD,RADON,OLDADD
 !
    LOGICAL CVERROR
+!     CODE V FNO (image-space F/#, held): applied after the lens is built
+   LOGICAL HASFNO
+   real(real64) PENDFNO
+   CHARACTER(len=40) FNOSTR
    LOGICAL :: COMMANDINFOCHECK, STRINGINPUTCHECK, CHECKMAXFLOATINPUTS
 !
    LOGICAL DOWV,DOWV2,CLAP1,CLAP2,CLDX,CLDY,CLTILT
@@ -66,6 +70,8 @@ SUBROUTINE CV2PRG
    readformat = '(A' // substr // ')'
    PRINT *, "READFORMAT IS ", readformat
    SURFER=0
+   HASFNO=.FALSE.
+   PENDFNO=0.0D0
    ! Zoa's CODE V export uses radii without an explicit RDM command.
    ! Reset for every import; RDM N below explicitly selects curvature mode.
    RADON=.TRUE.
@@ -494,6 +500,24 @@ SUBROUTINE CV2PRG
             END IF
             REST_KDP(1)=RESTINPT(1)
          END IF
+         TEMPC(I)(1:1024)=BL1024(1:1024)
+         GO TO 8888
+      END IF
+!     FNO (CODE V image-space F/number).  It needs the finished lens and runs
+!     at command level, so it is kept and applied after the final EOS --
+!     whether it appears in the system data or after GO.
+      IF(TEMPC(I)(1:4).EQ.'FNO ') THEN
+         TEMPER=TEMPC(I)(4:1024)
+         CALL LEFTJUST(TEMPER)
+         VALA=TEMPER(1:23)
+         CALL RIGHTJUST(VALA)
+         CALL ATODCODEV(VALA,VALV,CVERROR)
+         IF(CVERROR) THEN
+            WRITE(38,4001) TEMPCC(1:78)
+            GO TO 8888
+         END IF
+         HASFNO=.TRUE.
+         PENDFNO=VALV
          TEMPC(I)(1:1024)=BL1024(1:1024)
          GO TO 8888
       END IF
@@ -2077,6 +2101,11 @@ SUBROUTINE CV2PRG
    DEALLOCATE (HOE,HOESUR,HV1,HV2,HX1,HY1,HZ1 &
    &,HWL,HX2,HY2,HZ2,HOR,STAT=ALLOERR)
    call ldm%load_surfaces_from_alens()
+!     The held F/number, now that the lens exists (CODE V FNO command).
+   IF(HASFNO) THEN
+      WRITE(FNOSTR,'(G0)') PENDFNO
+      CALL PROCESKDP('FNO '//TRIM(FNOSTR))
+   END IF
    ! Converting a CODE V file replaces the lens: reset undo history with it as baseline.
    call undo_reset_baseline()
    RETURN

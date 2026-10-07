@@ -1,0 +1,120 @@
+All constraints removed
+
+
+
+
+
+
+Field Weights Command WTF     100     100     100 Not supported
+FNO 5.001074
+FNO 4.000000  (held)
+ENTRANCE PUPIL
+DIA       12.5027
+THI       6.7224
+INFINITE CONJUGATES
+EFL       50.0107
+BFL       38.5152
+FFL       -44.5831
+FNO       4.0000
+IMG DIS   38.5152
+OAL       16.6000
+PARAXIAL IMAGE
+ HT      8.8182
+ANG       10.3644 DEG
+ENTRANCE PUPIL
+DIA       12.5027
+THI       6.7224
+EXIT PUPIL
+DIA       12.1871
+THI       -10.2334
+ENTRANCE PUPIL
+DIA       17.9745
+THI       6.5745
+INFINITE CONJUGATES
+EFL       71.8981
+BFL       62.7892
+FFL       -64.2165
+FNO       4.0000
+IMG DIS   62.7892
+OAL       16.7000
+PARAXIAL IMAGE
+ HT      12.6776
+ANG       9.9472 DEG
+ENTRANCE PUPIL
+DIA       17.9745
+THI       6.5745
+EXIT PUPIL
+DIA       18.2556
+THI       -10.2334
+Number of tokens is 2
+File name to save is FNOTEST.zoa
+All constraints removed
+
+
+
+
+
+
+Field Weights Command WTF     100     100     100 Not supported
+All constraints removed
+
+
+
+Field Weights Command WTF     100     100     100 Not supported
+
+FNO 4.000000  (held)
+ENTRANCE PUPIL
+DIA       12.4592
+THI       6.8867
+INFINITE CONJUGATES
+EFL       49.8368
+BFL       38.0888
+FFL       -44.5122
+FNO       4.0000
+IMG DIS   38.0888
+OAL       16.7000
+PARAXIAL IMAGE
+ HT      8.7876
+ANG       10.4194 DEG
+ENTRANCE PUPIL
+DIA       12.4592
+THI       6.8867
+EXIT PUPIL
+DIA       12.0806
+THI       -10.2334
+Saved CODE V file FNOTEST.SEQ
+All constraints removed
+
+
+
+
+
+
+Field Weights Command WTF     100     100     100 Not supported
+All constraints removed
+
+
+
+FNO 4.000000  (held)
+FNO 4.153064
+ENTRANCE PUPIL
+DIA       12.0000
+THI       6.5745
+INFINITE CONJUGATES
+EFL       71.8981
+BFL       24.7004
+FFL       -64.2165
+FNO       5.9915
+IMG DIS   0.0000
+OAL       54.7888
+PARAXIAL IMAGE
+ HT      8.3893
+ANG       9.9472 DEG
+ENTRANCE PUPIL
+DIA       12.0000
+THI       6.5745
+EXIT PUPIL
+DIA       12.1877
+THI       -48.3222
+Error! FNO must be greater than zero
+Error! Expecting 'FNO X' where X is the image-space F/number

@@ -1,0 +1,36 @@
+RES osdtriplet
+! ---- FNO: CODE V image-space F/number, held ----
+! Bare FNO reports the current image-space F/# (-1/(2u') of the marginal ray).
+FNO
+! FNO 4 holds F/4: the entrance pupil becomes EFL/4 at once (12.5027 here).
+FNO 4
+FNO
+FIR
+! The hold survives lens changes (thickness, then radius): F/4 throughout,
+! the pupil follows.  (A thickness change before a radius change once
+! collapsed the pupil to 0 -- the paraxial launch must treat a held F/# as
+! an EPD-defined pupil.)
+THI S2 3.2
+RDY S1 18
+FIR
+! Saved as EPD (current pupil) in the lens block plus FNO after GO; the
+! restored lens keeps the hold.
+SAV fnotest
+RES osdtriplet
+RES fnotest
+FNO
+RDY S1 15
+FIR
+! CODE V export/import: CV2PRG applies the FNO once the lens is built.
+ZOA2CV fnotest.seq
+RES osdtriplet
+CV2PRG fnotest.seq
+FNO
+! EPD replaces the held F/#: the pupil stays 12 and the F/# now varies.
+EPD 12
+FNO
+RDY S1 18
+FIR
+! Bad input
+FNO 0
+FNO abc

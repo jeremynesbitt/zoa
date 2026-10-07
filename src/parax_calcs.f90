@@ -180,7 +180,10 @@ contains
                 if(sysConfig%isFocalSystem()) THEN   
                         ! Bacically NAO times the thickness of the object surface
                         Lo = curr_lens_data%thicknesses(1)+curr_par_ray_trace%ENPUPPOS
-                        if (sysConfig%currApertureID == APER_ENTR_PUPIL_DIAMETER) then
+                        ! A held image-space F/# (FNO) only adjusts SAY, so the
+                        ! pupil is still SAY -- launch from it as for EPD.
+                        if (sysConfig%currApertureID == APER_ENTR_PUPIL_DIAMETER .or. &
+                            sysConfig%currApertureID == APER_IMAGE_FNO) then
                             thetao = ATAN(sys_say()/(Lo))
                         else
                             thetao = ATAN(curr_par_ray_trace%EPD/Lo)
@@ -224,7 +227,8 @@ contains
 
                 if(sysConfig%isFocalSystem()) THEN
                         Lo = curr_lens_data%thicknesses(1)+curr_par_ray_trace%ENPUPPOS
-                        if (sysConfig%currApertureID == APER_ENTR_PUPIL_DIAMETER) then
+                        if (sysConfig%currApertureID == APER_ENTR_PUPIL_DIAMETER .or. &
+                            sysConfig%currApertureID == APER_IMAGE_FNO) then
                             thetao = ATAN(sys_sax()/(Lo))
                         else
                             thetao = ATAN(curr_par_ray_trace%EPD/Lo)

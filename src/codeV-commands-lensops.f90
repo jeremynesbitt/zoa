@@ -143,6 +143,7 @@ contains
             if (fID /= 0) then
                 call sysConfig%genSaveOutputText(fID)
                 call ldm%genSaveOutputText(fID)
+                call sysConfig%genPostLensSaveText(fID)
                 call optim%genSaveOutputText(fID)
                 close(fID)
                 call zoa_emit("Saved CODE V file "//trim(fileName), "black")
@@ -162,6 +163,7 @@ contains
                 if (fID /= 0) then
                     call sysConfig%genSaveOutputText(fID)
                     call ldm%genSaveOutputText(fID)
+                    call sysConfig%genPostLensSaveText(fID)
                     call optim%genSaveOutputText(fID)
                     close(fID)
                     call zoa_emit("Saved CODE V file "//trim(getFileNameFromPath(fileName)), "black")
@@ -182,7 +184,8 @@ contains
         use global_widgets, only: sysConfig
         use mod_lens_data_manager, only: ldm
         use DATLEN, only: GLANAM
-        use kdp_data_types, only: FIELD_OBJECT_ANGLE_DEG, FIELD_OBJECT_HEIGHT
+        use kdp_data_types, only: FIELD_OBJECT_ANGLE_DEG, FIELD_OBJECT_HEIGHT, APER_IMAGE_FNO
+        use mod_system, only: sys_say
         use zoa_output, only: zoa_emit
         use iso_fortran_env, only: real64
 
@@ -222,6 +225,8 @@ contains
         ! refApertureValue(2) holds the full diameter (saved as EPD);
         ! ZMX2PRG converts ENPD back via SAY = ENPD/2
         enpd = sysConfig%refApertureValue(2)
+        ! A held image-space F/# keeps the F/# there, not a diameter.
+        if (sysConfig%currApertureID == APER_IMAGE_FNO) enpd = 2.0d0*sys_say()
         write(fID, '(A,1X,G20.10)') 'ENPD', enpd
 
         ! Field type
@@ -373,6 +378,7 @@ contains
         if (fID /= 0) then
             call sysConfig%genSaveOutputText(fID)
             call ldm%genSaveOutputText(fID)
+            call sysConfig%genPostLensSaveText(fID)
             call optim%genSaveOutputText(fID)
             call zoom_genSaveOutputText(fID)
             close(fID)
@@ -642,6 +648,7 @@ contains
         ! SAY (semi-aperture) = EPD / 2.
         use command_utils, only: isInputNumber
         use type_utils, only: str2real8, real2str
+        use kdp_data_types, only: releaseImageFNoHold
         implicit none
         character(len=80) :: tokens(40)
         integer :: numTokens
@@ -649,6 +656,9 @@ contains
         call parse(iptStr, ' ', tokens, numTokens)
         if (numTokens == 2) then
             if (isInputNumber(tokens(2))) then
+                ! EPD replaces a held image-space F/# (FNO), which would
+                ! otherwise resize the pupil straight back over this value.
+                call releaseImageFNoHold()
                 call kdp_silent_begin()
                 call kdp_lens_begin()
                 call kdp_lens_cmd('SAY', w1=str2real8(trim(tokens(2)))/2.0d0)
@@ -661,6 +671,64 @@ contains
             call zoa_emit("Error! Expecting 'EPD X' where X is the entrance pupil diameter", "red")
         end if
     end procedure setEPD
+
+    ! CODE V's FNO: the system aperture given as the paraxial image-space
+    ! F/number, -1/(2u') of the marginal ray.  It is held: the entrance pupil
+    ! is resized to keep it as the lens changes, until another aperture
+    ! (EPD, ...) replaces it.  Engine: the aperture is first made an explicit
+    ! semi-aperture (SAY, clearing NAO / float / object F/#), then FNBY and
+    ! FNBX HLD hold the F/#.  "FNO" or "FNO ?" reports the current value.
+    !## cmd:      FNO
+    !## syntax:   FNO [f | ?]
+    !## category: System Data
+    !## desc:     Set (and hold) the image-space F/number, or report it.
+    !##
+    module procedure setFNO
+        use command_utils, only: isInputNumber
+        use type_utils, only: str2real8, real2str
+        use mod_system, only: sys_say, sys_last_surf, sys_fno_flag_y
+        use DATLEN, only: PXTRAY
+        implicit none
+        character(len=80) :: tokens(40)
+        character(len=40) :: numStr
+        integer :: numTokens
+        real(real64) :: fno, u
+
+        call parse(iptStr, ' ', tokens, numTokens)
+        if (numTokens == 1 .or. (numTokens == 2 .and. trim(tokens(2)) == '?')) then
+            u = PXTRAY(2, int(sys_last_surf()))
+            if (abs(u) <= 1.0d-15) then
+                call zoa_emit("FNO: the marginal ray leaves the lens parallel (afocal); no F/number", "red")
+                return
+            end if
+            fno = -1.0d0/(2.0d0*u)
+            if (sys_fno_flag_y() == -1.0d0) then
+                call zoa_emit("FNO "//trim(real2str(fno, 6))//"  (held)", "black")
+            else
+                call zoa_emit("FNO "//trim(real2str(fno, 6)), "black")
+            end if
+        else if (numTokens == 2 .and. isInputNumber(tokens(2))) then
+            fno = str2real8(trim(tokens(2)))
+            if (fno <= 0.0d0) then
+                call zoa_emit("Error! FNO must be greater than zero", "red")
+                return
+            end if
+            write(numStr, '(G0)') fno
+            call kdp_silent_begin()
+            call kdp_lens_begin()
+            call kdp_lens_cmd('SAY', w1=sys_say())
+            call kdp_lens_end()
+            call KDP_EXEC('FNBY HLD, '//trim(numStr))
+            call KDP_EXEC('FNBX HLD, '//trim(numStr))
+            ! The adjustment reaches the paraxial trace at once but the stored
+            ! semi-aperture (and so real rays, VIE) only at the next EOS.
+            call kdp_lens_begin()
+            call kdp_lens_end()
+            call kdp_silent_end()
+        else
+            call zoa_emit("Error! Expecting 'FNO X' where X is the image-space F/number", "red")
+        end if
+    end procedure setFNO
 
     module procedure setParaxialImageSolve
         use global_widgets, only: curr_lens_data

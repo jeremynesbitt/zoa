@@ -457,6 +457,11 @@ test('zoom_basic', test_runner,
             meson.project_source_root() / 'test/zoom_basic.ref'],
      timeout: 120)
 
+test('aperture_fno', test_runner,
+     args: [meson.project_source_root() / 'test/aperture_fno.zoa',
+            meson.project_source_root() / 'test/aperture_fno.ref'],
+     timeout: 60)
+
 test('asph_modifiers', test_runner,
      args: [meson.project_source_root() / 'test/asph_modifiers.zoa',
             meson.project_source_root() / 'test/asph_modifiers.ref'],

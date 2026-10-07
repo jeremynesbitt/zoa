@@ -59,6 +59,9 @@ module codeV_commands
    module subroutine execSEARCHPATH(iptStr)
     character(len=*) :: iptStr
    end subroutine execSEARCHPATH
+   module subroutine setFNO(iptStr)
+    character(len=*) :: iptStr
+   end subroutine setFNO
    module subroutine setPlotDensity(iptStr)
    character(len=*) :: iptStr
    end subroutine setPlotDensity
@@ -599,6 +602,8 @@ module codeV_commands
         zoaCmds(739)%execFunc => execTHREADS
         zoaCmds(740)%cmd = 'SEARCHPATH'
         zoaCmds(740)%execFunc => execSEARCHPATH
+        zoaCmds(741)%cmd = 'FNO'
+        zoaCmds(741)%execFunc => setFNO
         zoaCmds(527)%cmd = 'SETDENS'
         zoaCmds(527)%execFunc => setPlotDensity     
         zoaCmds(528)%cmd = 'SETZERNC'
