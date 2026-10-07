@@ -31,7 +31,6 @@ module ui_sys_config
 type, extends(zoa_settings_obj) :: ui_aperture_settings
 
   type(c_ptr) :: apertureType
-  integer :: idxBoolXYSame
 
 contains
   procedure, public, pass(self) :: createUI => createApertureSettingsUI
@@ -65,7 +64,6 @@ end type
 type, extends(zoa_settings_obj) :: ui_rayaim_settings
 
   type(c_ptr) :: rayAimType
-  !integer :: idxBoolXYSame
 
 contains
   procedure, public, pass(self) :: createUI => createRayAimSettingsUI
@@ -96,17 +94,15 @@ end type
 
   integer, parameter :: ID_SYSCON_APERTURE = 7040
   integer, parameter :: ID_SYSCON_FIELDTYPE = 7041
-  integer, parameter :: ID_SYSCON_APERTURE_XYSAME = 7042
   integer, parameter :: ID_SYSCON_FIELD_NUM = 7043
   integer, parameter :: ID_SYSCON_WAVELENGTH_NUM = 8001
   integer, parameter :: ID_SYSCON_WAVELENGTH_REF = 8002
   integer, parameter :: ID_SYSCON_Y_APERTURE = 7050
-  integer, parameter :: ID_SYSCON_X_APERTURE = 7051
   integer, parameter :: ID_SYSCON_RAYAIM = 7052
   integer, parameter :: ID_SYSCON_EDGE_FACTOR = 7053
 
 
-  type(c_ptr) :: spinButton_xAperture, spinButton_yAperture, spinButton_edgeFactor
+  type(c_ptr) :: spinButton_yAperture, spinButton_edgeFactor
 
   type(c_ptr) :: spinButton_numFields, spinButton_numWavelengths, spinButton_refWavelength
 
@@ -124,10 +120,6 @@ contains
     integer, parameter :: ID_TST1 = 7038
     integer, parameter :: ID_TST2 = 7039
     integer, target :: TARGET_APERTURE = ID_SYSCON_APERTURE
-    integer, target :: TARGET_XYSAME = ID_SYSCON_APERTURE_XYSAME
-
-
-    integer, target :: TARGET_X_APERTURE = ID_SYSCON_X_APERTURE
     integer, target :: TARGET_Y_APERTURE = ID_SYSCON_Y_APERTURE
     integer, target :: TARGET_EDGE_FACTOR = ID_SYSCON_EDGE_FACTOR
 
@@ -140,23 +132,6 @@ contains
     self%apertureType = self%getWidget(self%numSettings)
 
 
-    spinButton_xAperture = gtk_spin_button_new (gtk_adjustment_new( &
-                                                     & value=sysConfig%refApertureValue(1)*1d0, &
-                                                               & lower=0d0, &
-                                                               & upper=10000000d0, &
-                                                               & step_increment=0.05d0, &
-                                                               & page_increment=.1d0, &
-                                                               & page_size=0d0),climb_rate=2d0, &
-                                                               & digits=3_c_int)
-
-    call self%addSpinBox("X Aperture Value", spinButton_xAperture, &
-    & c_funloc(callback_sys_config_settings), c_loc(TARGET_X_APERTURE), ID_SYSCON_X_APERTURE)
-
-    !call sysconfigwindow%addSpinBoxSetting("X Aperture Value", spinButton_xAperture, &
-    !& c_funloc(callback_sys_config_settings), c_loc(TARGET_X_APERTURE))
-
-
-
     spinButton_yAperture = gtk_spin_button_new (gtk_adjustment_new(&
                                                      & value=sysConfig%refApertureValue(2)*1d0, &
                                                                & lower=0d0, &
@@ -166,7 +141,9 @@ contains
                                                                & page_size=0d0),climb_rate=2d0, &
                                                                & digits=3_c_int)
 
-    call self%addSpinBox("Y Aperture Value", spinButton_yAperture, &
+    ! One value: the pupil is circular (separate X/Y apertures are no longer
+    ! offered -- the X spin box and the "XY Symmetric" check box are gone).
+    call self%addSpinBox("Aperture Value", spinButton_yAperture, &
     & c_funloc(callback_sys_config_settings), c_loc(TARGET_Y_APERTURE), ID_SYSCON_Y_APERTURE)
 
     !call sysconfigwindow%addSpinBoxSetting("Y Aperture Value", spinButton_yAperture, &
@@ -176,9 +153,6 @@ contains
     ! & sysConfig%refFieldOptions, c_funloc(callback_sys_config_settings), &
     ! & c_loc(TARGET_FIELD))
 
-    call self%addCheckBox("XY Symmetric", c_funloc(callback_sys_config_settings), &
-    & c_loc(TARGET_XYSAME), ID_SYSCON_APERTURE_XYSAME)
-    self%idxBoolXYSame = self%numSettings
 
     ! Default clear-aperture margin (%) for lens drawing.  Shown as a percentage;
     ! stored internally as a scale factor (factor = 1 + margin/100).
@@ -244,8 +218,7 @@ contains
     call sysConfig%updateParameters()
     sysconfig_updating = .true.
 
-    ! Aperture (X/Y value + type, edge margin)
-    call gtk_spin_button_set_value(spinButton_xAperture, sysConfig%refApertureValue(1)*1d0)
+    ! Aperture (value + type, edge margin)
     call gtk_spin_button_set_value(spinButton_yAperture, sysConfig%refApertureValue(2)*1d0)
     call gtk_spin_button_set_value(spinButton_edgeFactor, &
       & (sysConfig%defaultEdgeScaleFactor - 1d0)*100d0)
@@ -275,7 +248,6 @@ subroutine createFieldSettingsUI(self)
   integer, target :: TARGET_FIELD = ID_SYSCON_FIELDTYPE
   integer, target :: TARGET_FIELD_NUM = ID_SYSCON_FIELD_NUM
 
-  !integer, target :: TARGET_XYSAME = ID_SYSCON_APERTURE_XYSAME
 
 
   call self%addListBoxTextID("Field Type ",  &
@@ -938,8 +910,7 @@ subroutine callback_sys_config_settings (widget, gdata ) bind(c)
    implicit none
    type(c_ptr), value, intent(in) :: widget, gdata
    integer :: int_value
-   real :: xAp, yAp
-   integer :: xySame
+   real :: apValue
 
   integer(kind=c_int), pointer :: ID_SETTING
 
@@ -951,25 +922,16 @@ subroutine callback_sys_config_settings (widget, gdata ) bind(c)
 
   !PRINT *, "SYS CONFIG IS ", ID_SETTING
 
-    xySame = gtk_check_button_get_active(uiApertureSettings%getWidget(uiApertureSettings%idxBoolXYSame))
-    PRINT *, "xySame is ", xySame
-
   select case (ID_SETTING)
 
   case (ID_SYSCON_APERTURE)
 
 
     int_value = hl_zoa_combo_get_selected_list2_id(widget)
-    PRINT *, "Aperture Selection for ", int_value
     if (int_value.NE.sysConfig%currApertureID) THEN
-       yAp = REAL(gtk_spin_button_get_value (spinButton_yAperture))
-       xAp = REAL(gtk_spin_button_get_value (spinButton_xAperture))
-       !xySame = gtk_check_button_get_active ()
-       call sysConfig%updateApertureSelectionByCode(int_value, xAp, yAp, xySame)
+       apValue = REAL(gtk_spin_button_get_value (spinButton_yAperture))
+       call sysConfig%updateApertureSelectionByCode(int_value, apValue)
      end if
-
-  !call gtk_spin_button_set_value(spinButton_xAperture, sysConfig%refApertureValue(1)*1d0)
-  !call gtk_spin_button_set_value(spinButton_yAperture, sysConfig%refApertureValue(2)*1d0)
 
   case (ID_SYSCON_RAYAIM)
       int_value = hl_zoa_combo_get_selected_list2_id(widget)
@@ -989,31 +951,8 @@ case (ID_SYSCON_Y_APERTURE)
     ! used int_value, which only the aperture-TYPE branch assigns: here it
     ! was uninitialised, matched no aperture type, and the new value was
     ! silently never applied -- the spin box kept it, the lens did not.)
-    int_value = sysConfig%currApertureID
-    yAp = REAL(gtk_spin_button_get_value (spinButton_yAperture))
-    if (xySame.EQ.1) then
-      call gtk_spin_button_set_value(spinButton_xAperture, &
-      & REAL(gtk_spin_button_get_value (spinButton_yAperture))*1d0)
-      PRINT *, "Updating Aperture in KDP"
-      call sysConfig%updateApertureSelectionByCode(int_value, yAp, yAp, xySame)
-    else
-      xAp = REAL(gtk_spin_button_get_value (spinButton_xAperture))
-      call sysConfig%updateApertureSelectionByCode(int_value, xAp, yAp, xySame)
-    end if
-
-
-case (ID_SYSCON_X_APERTURE)
-    int_value = sysConfig%currApertureID   ! see ID_SYSCON_Y_APERTURE
-    xAp = REAL(gtk_spin_button_get_value (spinButton_xAperture))
-    if (xySame.EQ.1) then
-      ! Ignore change essentially
-      call gtk_spin_button_set_value(spinButton_xAperture, &
-      & REAL(gtk_spin_button_get_value (spinButton_yAperture))*1d0)
-    else
-      xAp = REAL(gtk_spin_button_get_value (spinButton_xAperture))
-      yAp = REAL(gtk_spin_button_get_value (spinButton_yAperture))
-      call sysConfig%updateApertureSelectionByCode(int_value, xAp, yAp, xySame)
-    end if
+    apValue = REAL(gtk_spin_button_get_value (spinButton_yAperture))
+    call sysConfig%updateApertureSelectionByCode(sysConfig%currApertureID, apValue)
 
   case (ID_SYSCON_FIELDTYPE)
     int_value = hl_zoa_combo_get_selected_list2_id(widget)
@@ -1054,7 +993,6 @@ subroutine createWavelengthSettingsUI(self)
   integer, target :: TARGET_WAVELENGTH_REF = ID_SYSCON_WAVELENGTH_REF
   integer, target :: TARGET_WAVELENGTH_NUM = ID_SYSCON_WAVELENGTH_NUM
 
-  !integer, target :: TARGET_XYSAME = ID_SYSCON_APERTURE_XYSAME
 
   spinButton_refWavelength =   gtk_spin_button_new (gtk_adjustment_new( &
                                                      & value=sysConfig%refWavelengthIndex*1d0, &

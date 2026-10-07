@@ -1564,59 +1564,25 @@ function getVignetting(self, field) result(vig)
 end function
 
 
-subroutine updateApertureSelectionByCode(self, ID_SELECTION, xAp, yAp, xySame)
-  use DATLEN
-   use iso_fortran_env, only: real64
+! Apply an aperture of the given type and value from the System
+! Configuration window, through its command (CODE V names; FLOAT is Zoa's).
+! The pupil is circular: one value (EPD diameter, NAO, FNO; unused for FLOAT).
+subroutine updateApertureSelectionByCode(self, ID_SELECTION, apValue)
+  use iso_fortran_env, only: real64
   implicit none
   class(sys_config), intent(inout) :: self
   integer, intent(in) :: ID_SELECTION
-  real :: xAp, yAp, xApertureRadius, yApertureRadius
-  integer :: xySame
-  character(len=23) :: strXAp, strYAp
-  !self%currApertureID = ID_SELECTION
+  real, intent(in) :: apValue
 
-  ! Any other aperture type replaces a held image-space F/#, which would
-  ! otherwise keep resizing the entrance pupil over the new value.
-  if (ID_SELECTION /= APER_IMAGE_FNO) call releaseImageFNoHold()
-
-  ! Each aperture type through its command (CODE V names; FLOAT is Zoa's).
-  ! Separate X and Y values have no CODE V command, so they use the
-  ! engine's per-plane SAY/SAX and NAOY/NAOX.
   select case (ID_SELECTION)
-
-  case (APER_OBJECT_NA)
-     IF(xySame.EQ.1) THEN
-       call PROCESKDP('NAO '//trim(adjustl(strYFromReal(yAp))))
-     ELSE
-       CALL DTOA23(xAp,strXAp)
-       CALL DTOA23(yAp,strYAp)
-       call PROCESKDP('U L')
-       call PROCESKDP('NAOY,'//strYAp)
-       call PROCESKDP('NAOX,'//strXAp)
-       call PROCESKDP('EOS')
-     END IF
-
   case (APER_ENTR_PUPIL_DIAMETER)
-     IF(xySame.EQ.1) THEN
-       call PROCESKDP('EPD '//trim(adjustl(strYFromReal(yAp))))
-     ELSE
-       xApertureRadius = xAp/2.0
-       yApertureRadius = yAp/2.0
-       CALL DTOA23(xApertureRadius,strXAp)
-       CALL DTOA23(yApertureRadius,strYAp)
-       call PROCESKDP('U L')
-       call PROCESKDP('SAY,'//strYAp)
-       call PROCESKDP('SAX,'//strXAp)
-       call PROCESKDP('EOS')
-     END IF
-
+    call PROCESKDP('EPD '//trim(adjustl(strYFromReal(apValue))))
+  case (APER_OBJECT_NA)
+    call PROCESKDP('NAO '//trim(adjustl(strYFromReal(apValue))))
   case (APER_IMAGE_FNO)
-    ! CODE V's FNO (one value: the dialog's Y value)
-    call PROCESKDP('FNO '//trim(adjustl(strYFromReal(yAp))))
-
+    call PROCESKDP('FNO '//trim(adjustl(strYFromReal(apValue))))
   case (APER_STOP_SURFACE)
     call PROCESKDP('FLOAT')
-
   end select
 
   ! Make sure we have the up to date values
