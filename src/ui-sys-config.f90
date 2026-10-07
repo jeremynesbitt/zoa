@@ -985,6 +985,11 @@ subroutine callback_sys_config_settings (widget, gdata ) bind(c)
       call notify_replot()
 
 case (ID_SYSCON_Y_APERTURE)
+    ! The value applies to the aperture type the lens already has.  (This
+    ! used int_value, which only the aperture-TYPE branch assigns: here it
+    ! was uninitialised, matched no aperture type, and the new value was
+    ! silently never applied -- the spin box kept it, the lens did not.)
+    int_value = sysConfig%currApertureID
     yAp = REAL(gtk_spin_button_get_value (spinButton_yAperture))
     if (xySame.EQ.1) then
       call gtk_spin_button_set_value(spinButton_xAperture, &
@@ -998,6 +1003,7 @@ case (ID_SYSCON_Y_APERTURE)
 
 
 case (ID_SYSCON_X_APERTURE)
+    int_value = sysConfig%currApertureID   ! see ID_SYSCON_Y_APERTURE
     xAp = REAL(gtk_spin_button_get_value (spinButton_xAperture))
     if (xySame.EQ.1) then
       ! Ignore change essentially
