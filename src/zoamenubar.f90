@@ -110,7 +110,7 @@ contains
     type(c_ptr) :: act_lenslib, menu_item_lenslib
  
 
-    type(c_ptr) :: menu_import
+    type(c_ptr) :: menu_import, menu_export
 
 
     character(len=100), target :: pltAst = "FIE; GO"
@@ -145,6 +145,7 @@ contains
     menu = g_menu_new ()
     menu_edit = g_menu_new()
     menu_import = g_menu_new()
+    menu_export = g_menu_new()
 
     menu_lens = g_menu_new()
     menu_macro = g_menu_new()
@@ -163,6 +164,7 @@ contains
     & c_funloc(export_plot_png), win)
 
     call g_menu_append_submenu (menu, "Import"//c_null_char, menu_import)
+    call g_menu_append_submenu (menu, "Export"//c_null_char, menu_export)
     call addFuncMenuItem(menu, "Preferences", "Preferences", c_funloc(zoa_preferencesUI), win)
 
     call g_menu_append_submenu (menubar, "Edit"//c_null_char, menu_edit)
@@ -342,6 +344,9 @@ contains
     call addFuncMenuItem(menu_import, "CodeV .seq file", "ImpCodeV", c_funloc(import_codeV), win)
     call addFuncMenuItem(menu_import, "Zemax .zmx file", "ImpZemax", c_funloc(import_zemax), win)
 
+    call addFuncMenuItem(menu_export, "CodeV .seq file", "ExpCodeV", c_funloc(export_codeV), win)
+    call addFuncMenuItem(menu_export, "Zemax .zmx file", "ExpZemax", c_funloc(export_zemax), win)
+
 
     !call addCommandMenuItem(menu_import, "CodeV .seq File", &
     !& "CV2PRG", cv2prg, win)
@@ -474,6 +479,47 @@ contains
     end if
     ! Restore CodeVDir
 
+  end subroutine
+
+  ! File > Export: a save dialog, then the export command (ZOA2CV / ZOA2ZMX),
+  ! which writes into the CODE V folder -- pointed at the chosen folder for
+  ! the call, as File > Import does for CV2PRG / ZMX2PRG.
+  subroutine export_codev(act, avalue, win) bind(c)
+    use zoa_file_handler, only: getFileNameFromPath, getCodeVDir, setCodeVDir
+    use zoa_ui_callbacks, only: query_save_file
+    type(c_ptr), value, intent(in) :: act, avalue, win
+    character(len=500) :: fileName
+    character(len=500) :: cdir
+    character(len=1024) :: existingCodeVDir
+    logical :: fileSelected
+
+    fileName = ''
+    call query_save_file(fileName, cdir, trim(getCodeVDir()), "*.seq", "CodeV .seq File", fileSelected)
+    if (fileSelected) then
+     existingCodeVDir = getCodeVDir()
+     call setCodeVDir(trim(cdir))
+     CALL PROCESKDP('ZOA2CV '//trim(getFileNameFromPath(trim(fileName))))
+     call setCodeVDir(trim(existingCodeVDir))
+    end if
+  end subroutine
+
+  subroutine export_zemax(act, avalue, win) bind(c)
+    use zoa_file_handler, only: getFileNameFromPath, getZemaxDir, getCodeVDir, setCodeVDir
+    use zoa_ui_callbacks, only: query_save_file
+    type(c_ptr), value, intent(in) :: act, avalue, win
+    character(len=500) :: fileName
+    character(len=500) :: cdir
+    character(len=1024) :: existingCodeVDir
+    logical :: fileSelected
+
+    fileName = ''
+    call query_save_file(fileName, cdir, trim(getZemaxDir()), "*.zmx", "Zemax .zmx File", fileSelected)
+    if (fileSelected) then
+     existingCodeVDir = getCodeVDir()
+     call setCodeVDir(trim(cdir))
+     CALL PROCESKDP('ZOA2ZMX '//trim(getFileNameFromPath(trim(fileName))))
+     call setCodeVDir(trim(existingCodeVDir))
+    end if
   end subroutine
 
   subroutine open_zoa(act, avalue, win) bind(c)
