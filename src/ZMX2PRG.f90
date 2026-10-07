@@ -50,6 +50,12 @@ SUBROUTINE ZMX2PRG
    LOGICAL EXIS37,EXIS38,OPEN37,OPEN38,SEMI,ADD,OLDADD
 !
    LOGICAL ZMXERROR
+!     Zemax OBNA (object NA) and FLOA (float by stop size): applied after the
+!     lens is built, as the NAO / FLOAT commands -- they need the object
+!     distance and the stop's clear aperture, which come later in the file
+   LOGICAL HASNAO, HASFLOAT
+   real(real64) PENDNAO
+   CHARACTER(len=40) NAOSTR
 !
    LOGICAL DOWV,DOWV2,CLAP1,CLAP2,CLDX,CLDY
 !
@@ -82,6 +88,9 @@ SUBROUTINE ZMX2PRG
    readformat = '(A' // substr // ')'
    PRINT *, "READFORMAT IS ", readformat
    SURFER=0
+   HASNAO=.FALSE.
+   HASFLOAT=.FALSE.
+   PENDNAO=0.0D0
    GLASSA='AIR                        '
    SURFIT=.FALSE.
 !
@@ -582,12 +591,7 @@ SUBROUTINE ZMX2PRG
       END IF
 !     FLOA
       IF(TEMPC(I)(1:4).EQ.'FLOA') THEN
-         WRITE(OUTLYNE,2085)
-2085     FORMAT('SAY FLOAT')
-         SAVE_KDP(1)=SAVEINPT(1)
-         INPUT(1:132)=OUTLYNE(1:132)
-         CALL PROCES
-         REST_KDP(1)=RESTINPT(1)
+         HASFLOAT=.TRUE.
          TEMPC(I)(1:1024)=BL1024(1:1024)
          GO TO 8888
       END IF
@@ -603,12 +607,10 @@ SUBROUTINE ZMX2PRG
             WRITE(38,4001) TEMPCC(1:78)
             GO TO 8888
          END IF
-         WRITE(OUTLYNE,2002) VALV
-2002     FORMAT('NAO,',D23.15)
-         SAVE_KDP(1)=SAVEINPT(1)
-         INPUT(1:132)=OUTLYNE(1:132)
-         CALL PROCES
-         REST_KDP(1)=RESTINPT(1)
+!        (was sent as 'NAO,', which the engine does not have -- the object NA
+!        was silently dropped)
+         HASNAO=.TRUE.
+         PENDNAO=VALV
          TEMPC(I)(1:1024)=BL1024(1:1024)
          GO TO 8888
       END IF
@@ -1829,6 +1831,12 @@ SUBROUTINE ZMX2PRG
 !     Importing a Zemax file replaces the lens: rebuild the typed store and
 !     reset the undo history with the imported lens as the new baseline.
    call ldm%load_surfaces_from_alens()
+!     The aperture definitions that need the finished lens.
+   IF(HASNAO) THEN
+      WRITE(NAOSTR,'(G0)') PENDNAO
+      CALL PROCESKDP('NAO '//TRIM(NAOSTR))
+   END IF
+   IF(HASFLOAT) CALL PROCESKDP('FLOAT')
    call undo_reset_baseline()
    RETURN
 100 FORMAT(A132)

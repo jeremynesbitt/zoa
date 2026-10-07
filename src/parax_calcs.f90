@@ -164,43 +164,57 @@ contains
          ! marginal ray position on surfacd 1
          ! 
          subroutine computeMarginalRayPosition(pos1, ang0) !result(pos1)
-                use ISO_FORTRAN_ENV, only: real64  
-                use kdp_data_types  
+                use ISO_FORTRAN_ENV, only: real64
+                use kdp_data_types
                 use global_widgets, only: curr_lens_data, curr_par_ray_trace, sysConfig
-                use mod_system, only: sys_say
-              
-                implicit none   
+                use mod_system, only: sys_say, sys_naoy, sys_fno_val_y
+
+                implicit none
                 real(kind=real64) :: pos1, ang0
-                real(kind=real64) :: Lo, thetao, nao
+                real(kind=real64) :: Lo, thetao
 
                 !TODO:  Calc nao in different structure.  Obvious candidate is paraxial_Ray_Trace
                 ! But it needs to be seaprated from sysConfig in different modules to avoid circular
                 ! dependencies.
 
-                if(sysConfig%isFocalSystem()) THEN   
-                        ! Bacically NAO times the thickness of the object surface
-                        Lo = curr_lens_data%thicknesses(1)+curr_par_ray_trace%ENPUPPOS
-                        ! A held image-space F/# (FNO) only adjusts SAY, so the
-                        ! pupil is still SAY -- launch from it as for EPD.
-                        if (sysConfig%currApertureID == APER_ENTR_PUPIL_DIAMETER .or. &
-                            sysConfig%currApertureID == APER_IMAGE_FNO) then
+                if(sysConfig%isFocalSystem()) THEN
+                        ! The aperture type from the engine's flags NOW: the
+                        ! stored sysConfig value is refreshed only after the
+                        ! update, so it is stale on the first trace after a
+                        ! change of aperture type.
+                        call sysConfig%getApertureFromSystemArr()
+                        select case (sysConfig%currApertureID)
+                        case (APER_OBJECT_NA)
+                            ! NAO is the marginal ray's slope from the axial
+                            ! object point (the engine's own definition:
+                            ! SAY = object distance * NAOY).
+                            ang0 = sys_naoy()
+                        case (APER_FNO)
+                            ! object-space F/#: slope 1/(2 F/#)
+                            ang0 = 1.0_real64/(2.0_real64*sys_fno_val_y())
+                        case default
+                            ! EPD; a held image-space F/# (FNO), which only
+                            ! adjusts SAY; the stop-float aperture, whose SAY
+                            ! the engine derives from the stop: the marginal
+                            ! ray passes the entrance pupil edge.  (Every
+                            ! other type used to launch from the PREVIOUS
+                            ! trace's EPD, which fed back on itself and
+                            ! collapsed the pupil to 0.)
+                            !
+                            ! Paraxial slope, i.e. tan(theta) -- NOT sin(theta).
+                            ! The marginal ray is defined by the semi-aperture at the
+                            ! entrance pupil, so its slope from the axial object
+                            ! point is (semi-aperture / object-to-pupil distance),
+                            ! which is exactly tan(thetao).  Launching it with
+                            ! sin(thetao) instead made every height downstream short
+                            ! by a factor cos(thetao): LithoKotaro, defined at
+                            ! EPD 1013.2, reported an entrance pupil diameter of
+                            ! 995.2305 = 1013.2 * cos(10.805 deg).
+                            Lo = curr_lens_data%thicknesses(1)+curr_par_ray_trace%ENPUPPOS
                             thetao = ATAN(sys_say()/(Lo))
-                        else
-                            thetao = ATAN(curr_par_ray_trace%EPD/Lo)
-                        end if
-
-                        ! Paraxial slope, i.e. tan(theta) -- NOT sin(theta).
-                        ! The marginal ray is defined by the semi-aperture at the
-                        ! entrance pupil, so its slope from the axial object
-                        ! point is (semi-aperture / object-to-pupil distance),
-                        ! which is exactly tan(thetao).  Launching it with
-                        ! sin(thetao) instead made every height downstream short
-                        ! by a factor cos(thetao): LithoKotaro, defined at
-                        ! EPD 1013.2, reported an entrance pupil diameter of
-                        ! 995.2305 = 1013.2 * cos(10.805 deg).
-                        nao = sin(thetao)
-                        pos1 = tan(thetao)*curr_lens_data%thicknesses(1)
-                        ang0 = tan(thetao)
+                            ang0 = tan(thetao)
+                        end select
+                        pos1 = ang0*curr_lens_data%thicknesses(1)
                 else
                         pos1 =(sys_say())
                         ang0 =(sys_say())/curr_lens_data%thicknesses(1)
@@ -219,30 +233,30 @@ contains
                 use ISO_FORTRAN_ENV, only: real64
                 use kdp_data_types
                 use global_widgets, only: curr_lens_data, curr_par_ray_trace, sysConfig
-                use mod_system, only: sys_sax
+                use mod_system, only: sys_sax, sys_naox, sys_fno_val_x
 
                 implicit none
                 real(kind=real64) :: pos1, ang0
-                real(kind=real64) :: Lo, thetao, nao
+                real(kind=real64) :: Lo, thetao
 
                 if(sysConfig%isFocalSystem()) THEN
-                        Lo = curr_lens_data%thicknesses(1)+curr_par_ray_trace%ENPUPPOS
-                        if (sysConfig%currApertureID == APER_ENTR_PUPIL_DIAMETER .or. &
-                            sysConfig%currApertureID == APER_IMAGE_FNO) then
+                        ! Same rules as the YZ routine above.
+                        call sysConfig%getApertureFromSystemArr()
+                        select case (sysConfig%currApertureID)
+                        case (APER_OBJECT_NA)
+                            ang0 = sys_naox()
+                        case (APER_FNO)
+                            ang0 = 1.0_real64/(2.0_real64*sys_fno_val_x())
+                        case default
+                            Lo = curr_lens_data%thicknesses(1)+curr_par_ray_trace%ENPUPPOS
                             thetao = ATAN(sys_sax()/(Lo))
-                        else
-                            thetao = ATAN(curr_par_ray_trace%EPD/Lo)
-                        end if
-
-                        ! Paraxial slope, tan not sin -- see the YZ routine.
-                        nao = sin(thetao)
-                        pos1 = tan(thetao)*curr_lens_data%thicknesses(1)
-                        ang0 = tan(thetao)
+                            ang0 = tan(thetao)
+                        end select
+                        pos1 = ang0*curr_lens_data%thicknesses(1)
                 else
                         pos1 =(sys_sax())
                         ang0 =(sys_sax())/curr_lens_data%thicknesses(1)
                 end if
-
         end subroutine
 
 

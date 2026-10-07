@@ -870,11 +870,14 @@ subroutine getApertureFromSystemArr(self)
     self%currApertureID = APER_IMAGE_FNO
   else if (sys_na_set().EQ.0.AND.sys_fno_val_set().EQ.0.AND.sys_say_float().EQ.0) then
     self%currApertureID = APER_ENTR_PUPIL_DIAMETER
-  else if (sys_na_set().EQ.1) then
+  ! na_set / fno_val_set are 1 (Y set), 2 (X set) or 3 (both) -- NAO sets
+  ! both.  Only 1 used to be recognised, so a lens with both left the type
+  ! at whatever it was before.
+  else if (sys_na_set() /= 0) then
     self%currApertureID = APER_OBJECT_NA
   else if (sys_say_float().EQ.1) then
     self%currApertureID = APER_STOP_SURFACE
-  else if (sys_fno_val_set().EQ.1) then
+  else if (sys_fno_val_set() /= 0) then
     self%currApertureID = APER_FNO
   end if
 
@@ -1320,12 +1323,15 @@ subroutine setSpectralWeights(self, index, weight)
 
 end subroutine
 
-subroutine genSaveOutputText(self, fID)
+! forCodeV: writing a CODE V .seq file -- only CODE V commands (a lens
+! whose pupil floats with the stop is written as its current EPD).
+subroutine genSaveOutputText(self, fID, forCodeV)
   use mod_system, only: sys_say
   use type_utils, only: real2str, blankStr, int2str
   use GLOBALS, only: zoaVersion
   class(sys_config) :: self
   integer :: fID
+  logical, intent(in), optional :: forCodeV
   integer :: ii
   character(len=256) :: strOutLine
   character(len=256) :: strWL, strWLwgt, strXFLD, strYFLD, strFLDWGT
@@ -1349,10 +1355,13 @@ subroutine genSaveOutputText(self, fID)
   select case(self%currApertureID)
   case(APER_ENTR_PUPIL_DIAMETER)
     strOutLine = "EPD "//real2str(self%refApertureValue(2),4)
-  case(APER_IMAGE_FNO)
-    ! The pupil the held F/# currently gives, so the lens is right as soon
-    ! as it is read; the FNO itself follows the lens (genPostLensSaveText),
-    ! where it runs at command level and re-establishes the hold.
+  case default
+    ! NAO, FLOAT, FNO and the object-space F/# need the finished lens (the
+    ! object distance, the stop's clear aperture, the paraxial trace), so
+    ! here the lens gets the pupil they currently give, and the defining
+    ! command follows the lens (genPostLensSaveText).  (Every type but EPD
+    ! used to write nothing here -- the DIM line twice -- so the aperture
+    ! was lost on save.)
     strOutLine = "EPD "//real2str(2.0d0*sys_say(),6)
   end select
   write(fID, '(A)') trim(strOutLine)
@@ -1425,14 +1434,25 @@ subroutine genSaveOutputText(self, fID)
 end subroutine
 
 ! Lines that must follow the lens data (after its GO), at command level:
-! the held image-space F/# (CODE V FNO), which needs the finished lens.
-subroutine genPostLensSaveText(self, fID)
+! an aperture defined by something that needs the finished lens -- CODE V
+! FNO and NAO, Zoa's FLOAT (not in a CODE V file: CODE V has no such
+! aperture, the EPD written in the lens block stands).
+subroutine genPostLensSaveText(self, fID, forCodeV)
   use type_utils, only: real2str
   class(sys_config), intent(in) :: self
   integer, intent(in) :: fID
-  if (self%currApertureID == APER_IMAGE_FNO) then
+  logical, intent(in), optional :: forCodeV
+  logical :: cv
+  cv = .false.
+  if (present(forCodeV)) cv = forCodeV
+  select case (self%currApertureID)
+  case (APER_IMAGE_FNO)
     write(fID, '(A)') "FNO "//trim(real2str(self%refApertureValue(2),6))
-  end if
+  case (APER_OBJECT_NA)
+    write(fID, '(A)') "NAO "//trim(real2str(self%refApertureValue(2),8))
+  case (APER_STOP_SURFACE)
+    if (.not. cv) write(fID, '(A)') "FLOAT"
+  end select
 end subroutine
 
 subroutine setAbsoluteFields(self, absFields, fieldDir)
@@ -1559,55 +1579,43 @@ subroutine updateApertureSelectionByCode(self, ID_SELECTION, xAp, yAp, xySame)
   ! otherwise keep resizing the entrance pupil over the new value.
   if (ID_SELECTION /= APER_IMAGE_FNO) call releaseImageFNoHold()
 
+  ! Each aperture type through its command (CODE V names; FLOAT is Zoa's).
+  ! Separate X and Y values have no CODE V command, so they use the
+  ! engine's per-plane SAY/SAX and NAOY/NAOX.
   select case (ID_SELECTION)
 
   case (APER_OBJECT_NA)
-
-     CALL DTOA23(xAp,strXAp)
-     CALL DTOA23(yAp,strYAp)
-     call PROCESKDP('U L')
      IF(xySame.EQ.1) THEN
-      call PROCESKDP('NAOY,'//strYAp)
+       call PROCESKDP('NAO '//trim(adjustl(strYFromReal(yAp))))
      ELSE
-      call PROCESKDP('NAOY,'//strYAp)
-      call PROCESKDP('NAOX,'//strXAp)
-    END IF
-    call PROCESKDP('EOS')
+       CALL DTOA23(xAp,strXAp)
+       CALL DTOA23(yAp,strYAp)
+       call PROCESKDP('U L')
+       call PROCESKDP('NAOY,'//strYAp)
+       call PROCESKDP('NAOX,'//strXAp)
+       call PROCESKDP('EOS')
+     END IF
 
   case (APER_ENTR_PUPIL_DIAMETER)
-
-!       SAY/SAX
-!        CALL WDIALOGGETDOUBLE(IDF_X,DW1)
-!        CALL WDIALOGGETDOUBLE(IDF_Y,DW2)
-     xApertureRadius = xAp/2.0
-     yApertureRadius = yAp/2.0
-
-     CALL DTOA23(xApertureRadius,strXAp)
-     CALL DTOA23(yApertureRadius,strYAp)
-     call PROCESKDP('U L')
      IF(xySame.EQ.1) THEN
-      call PROCESKDP('SAY,'//strYAp)
-      call PROCESKDP('SAX,'//strYAp)
+       call PROCESKDP('EPD '//trim(adjustl(strYFromReal(yAp))))
      ELSE
-      call PROCESKDP('SAY,'//strYAp)
-      call PROCESKDP('SAX,'//strXAp)
-    END IF
-    call PROCESKDP('EOS')
+       xApertureRadius = xAp/2.0
+       yApertureRadius = yAp/2.0
+       CALL DTOA23(xApertureRadius,strXAp)
+       CALL DTOA23(yApertureRadius,strYAp)
+       call PROCESKDP('U L')
+       call PROCESKDP('SAY,'//strYAp)
+       call PROCESKDP('SAX,'//strXAp)
+       call PROCESKDP('EOS')
+     END IF
 
   case (APER_IMAGE_FNO)
     ! CODE V's FNO (one value: the dialog's Y value)
     call PROCESKDP('FNO '//trim(adjustl(strYFromReal(yAp))))
 
   case (APER_STOP_SURFACE)
-    call PROCESKDP('U L')
-     IF(xySame.EQ.1) THEN
-       CALL PROCESKDP('SAY FLOAT')
-     ELSE
-       CALL PROCESKDP('SAY FLOAT')
-       CALL PROCESKDP('SAX FLOAT')
-     END IF
-     call PROCESKDP('EOS')
-
+    call PROCESKDP('FLOAT')
 
   end select
 

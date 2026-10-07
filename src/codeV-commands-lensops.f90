@@ -141,9 +141,9 @@ contains
             if (locDot == 0) fileName = trim(fileName)//'.seq'
             fID = open_file_to_sav_lens(trim(fileName), dirName=trim(getCodeVDir()), overwriteFlag=.TRUE.)
             if (fID /= 0) then
-                call sysConfig%genSaveOutputText(fID)
+                call sysConfig%genSaveOutputText(fID, forCodeV=.true.)
                 call ldm%genSaveOutputText(fID)
-                call sysConfig%genPostLensSaveText(fID)
+                call sysConfig%genPostLensSaveText(fID, forCodeV=.true.)
                 call optim%genSaveOutputText(fID)
                 close(fID)
                 call zoa_emit("Saved CODE V file "//trim(fileName), "black")
@@ -161,9 +161,9 @@ contains
 
                 fID = open_file_to_sav_lens(trim(getFileNameFromPath(fileName)), dirName=trim(cdir), overwriteFlag=.TRUE.)
                 if (fID /= 0) then
-                    call sysConfig%genSaveOutputText(fID)
+                    call sysConfig%genSaveOutputText(fID, forCodeV=.true.)
                     call ldm%genSaveOutputText(fID)
-                    call sysConfig%genPostLensSaveText(fID)
+                    call sysConfig%genPostLensSaveText(fID, forCodeV=.true.)
                     call optim%genSaveOutputText(fID)
                     close(fID)
                     call zoa_emit("Saved CODE V file "//trim(getFileNameFromPath(fileName)), "black")
@@ -184,7 +184,9 @@ contains
         use global_widgets, only: sysConfig
         use mod_lens_data_manager, only: ldm
         use DATLEN, only: GLANAM
-        use kdp_data_types, only: FIELD_OBJECT_ANGLE_DEG, FIELD_OBJECT_HEIGHT, APER_IMAGE_FNO
+        use mod_surface, only: surf_clap_type, surf_clap_dim
+        use kdp_data_types, only: FIELD_OBJECT_ANGLE_DEG, FIELD_OBJECT_HEIGHT, APER_IMAGE_FNO, &
+                                  APER_OBJECT_NA, APER_STOP_SURFACE
         use mod_system, only: sys_say
         use zoa_output, only: zoa_emit
         use iso_fortran_env, only: real64
@@ -222,12 +224,19 @@ contains
         ! Header — NAME triggers PROCESKDP('LENS') in ZMX2PRG; no VERS needed
         write(fID, '(A)') 'NAME '//trim(sysConfig%lensTitle)
         write(fID, '(A)') 'UNIT MM'
-        ! refApertureValue(2) holds the full diameter (saved as EPD);
-        ! ZMX2PRG converts ENPD back via SAY = ENPD/2
-        enpd = sysConfig%refApertureValue(2)
-        ! A held image-space F/# keeps the F/# there, not a diameter.
-        if (sysConfig%currApertureID == APER_IMAGE_FNO) enpd = 2.0d0*sys_say()
-        write(fID, '(A,1X,G20.10)') 'ENPD', enpd
+        ! The aperture, as the Zemax type ZMX2PRG reads back: OBNA (object
+        ! NA), FLOA (float by stop size), otherwise ENPD -- the entrance
+        ! pupil diameter, 2*SAY (refApertureValue holds the NA or F/# for
+        ! the other types; it used to be written as ENPD for all of them).
+        select case (sysConfig%currApertureID)
+        case (APER_OBJECT_NA)
+            write(fID, '(A,1X,G20.10)') 'OBNA', sysConfig%refApertureValue(2)
+        case (APER_STOP_SURFACE)
+            write(fID, '(A)') 'FLOA'
+        case default
+            enpd = 2.0d0*sys_say()
+            write(fID, '(A,1X,G20.10)') 'ENPD', enpd
+        end select
 
         ! Field type
         if (sysConfig%currFieldID == FIELD_OBJECT_ANGLE_DEG) then
@@ -285,6 +294,13 @@ contains
                 else
                     write(fID, '(A)') '  GLAS '//trim(glassName)
                 end if
+            end if
+
+            ! Circular clear aperture (needed by FLOA, the stop-size float),
+            ! as ZMX2PRG reads it back: CLAP 0 <radius> 0.  Other shapes are
+            ! not exported.
+            if (surf_clap_type(k) == 1.0d0) then
+                write(fID, '(A,1X,G20.12,A)') '  CLAP 0', surf_clap_dim(k, 1), ' 0'
             end if
 
             thi = ldm%getSurfThi(k)
@@ -417,6 +433,7 @@ contains
         if (fID /= 0) then
             call sysConfig%genSaveOutputText(fID)
             call ldm%genSaveOutputText(fID)
+            call sysConfig%genPostLensSaveText(fID)
             call notify_write_tab_state(fID)
             close(fID)
         else
@@ -661,7 +678,11 @@ contains
                 call releaseImageFNoHold()
                 call kdp_silent_begin()
                 call kdp_lens_begin()
+                ! CODE V's EPD is one circular pupil: both semi-apertures.
+                ! (Until the SAY handler's lost IFs were restored, SAY set
+                ! SAX too, which this relied on.)
                 call kdp_lens_cmd('SAY', w1=str2real8(trim(tokens(2)))/2.0d0)
+                call kdp_lens_cmd('SAX', w1=str2real8(trim(tokens(2)))/2.0d0)
                 call kdp_lens_end()
                 call kdp_silent_end()
             else
@@ -729,6 +750,81 @@ contains
             call zoa_emit("Error! Expecting 'FNO X' where X is the image-space F/number", "red")
         end if
     end procedure setFNO
+
+    ! CODE V's NAO: the system aperture given as the object-space numerical
+    ! aperture (finite object distance only).  Replaces a held FNO.  Engine:
+    ! NAOY and NAOX.  "NAO" or "NAO ?" reports the current value.
+    !## cmd:      NAO
+    !## syntax:   NAO [na | ?]
+    !## category: System Data
+    !## desc:     Set the object-space numerical aperture, or report it.
+    !##
+    module procedure setNAO
+        use command_utils, only: isInputNumber
+        use type_utils, only: str2real8, real2str
+        use mod_system, only: sys_naoy, sys_na_set
+        use mod_surface, only: surf_thickness
+        use kdp_data_types, only: releaseImageFNoHold
+        implicit none
+        character(len=80) :: tokens(40)
+        integer :: numTokens
+        real(real64) :: na
+
+        call parse(iptStr, ' ', tokens, numTokens)
+        if (numTokens == 1 .or. (numTokens == 2 .and. trim(tokens(2)) == '?')) then
+            if (sys_na_set() == 0.0d0) then
+                call zoa_emit("NAO is not set (the aperture is not defined by the object NA)", "black")
+            else
+                call zoa_emit("NAO "//trim(real2str(sys_naoy(), 6)), "black")
+            end if
+        else if (numTokens == 2 .and. isInputNumber(tokens(2))) then
+            na = str2real8(trim(tokens(2)))
+            if (na <= 0.0d0 .or. na >= 1.0d0) then
+                call zoa_emit("Error! NAO must be between 0 and 1", "red")
+                return
+            end if
+            if (abs(surf_thickness(0)) >= 1.0d10) then
+                call zoa_emit("Error! NAO needs a finite object distance (the object is at infinity); use EPD or FNO", "red")
+                return
+            end if
+            call releaseImageFNoHold()
+            call kdp_silent_begin()
+            call kdp_lens_begin()
+            call kdp_lens_cmd('NAOY', w1=na)
+            call kdp_lens_cmd('NAOX', w1=na)
+            call kdp_lens_end()
+            call kdp_silent_end()
+        else
+            call zoa_emit("Error! Expecting 'NAO X' where X is the object-space numerical aperture", "red")
+        end if
+    end procedure setNAO
+
+    ! The system aperture floats with the stop: the entrance pupil is whatever
+    ! the stop surface's clear aperture admits (Zemax "Float By Stop Size";
+    ! CODE V has no equivalent).  Replaces a held FNO.  Engine: SAY FLOAT.
+    !## cmd:      FLOAT
+    !## syntax:   FLOAT
+    !## category: System Data
+    !## desc:     Make the entrance pupil float with the stop surface's clear aperture.
+    !##
+    module procedure setFLOAT
+        use kdp_data_types, only: releaseImageFNoHold
+        implicit none
+        character(len=80) :: tokens(40)
+        integer :: numTokens
+
+        call parse(iptStr, ' ', tokens, numTokens)
+        if (numTokens /= 1) then
+            call zoa_emit("Error! FLOAT takes no arguments", "red")
+            return
+        end if
+        call releaseImageFNoHold()
+        call kdp_silent_begin()
+        call kdp_lens_begin()
+        call kdp_lens_cmd('SAY', wq='FLOAT')
+        call kdp_lens_end()
+        call kdp_silent_end()
+    end procedure setFLOAT
 
     module procedure setParaxialImageSolve
         use global_widgets, only: curr_lens_data

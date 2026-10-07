@@ -62,6 +62,12 @@ module codeV_commands
    module subroutine setFNO(iptStr)
     character(len=*) :: iptStr
    end subroutine setFNO
+   module subroutine setNAO(iptStr)
+    character(len=*) :: iptStr
+   end subroutine setNAO
+   module subroutine setFLOAT(iptStr)
+    character(len=*) :: iptStr
+   end subroutine setFLOAT
    module subroutine setPlotDensity(iptStr)
    character(len=*) :: iptStr
    end subroutine setPlotDensity
@@ -604,6 +610,10 @@ module codeV_commands
         zoaCmds(740)%execFunc => execSEARCHPATH
         zoaCmds(741)%cmd = 'FNO'
         zoaCmds(741)%execFunc => setFNO
+        zoaCmds(742)%cmd = 'NAO'
+        zoaCmds(742)%execFunc => setNAO
+        zoaCmds(743)%cmd = 'FLOAT'
+        zoaCmds(743)%execFunc => setFLOAT
         zoaCmds(527)%cmd = 'SETDENS'
         zoaCmds(527)%execFunc => setPlotDensity     
         zoaCmds(528)%cmd = 'SETZERNC'

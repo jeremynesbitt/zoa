@@ -1,0 +1,278 @@
+All constraints removed
+
+
+
+NAO is not set (the aperture is not defined by the object NA)
+NAO 0.100000
+ENTRANCE PUPIL
+DIA       530.7894
+THI       2613.5212
+INFINITE CONJUGATES
+EFL       660.0448
+BFL       -165.0114
+FFL       2599.7507
+FNO       1.2435
+AT USED CONJUGATES
+RED       0.2500
+FNO       1.2500
+OBJ DIS   40.4256
+TT        808.5117
+IMG DIS   0.0000
+OAL       768.0862
+Number of tokens is 2
+File name to save is NATEST.zoa
+All constraints removed
+
+
+
+
+
+
+Field Weights Command WTF     100     100     100 Not supported
+All constraints removed
+
+
+
+Field Weights Command WTF     100     100     100 Not supported
+
+NAO 0.100000
+Saved CODE V file NATEST.SEQ
+All constraints removed
+
+
+
+
+
+
+Field Weights Command WTF     100     100     100 Not supported
+All constraints removed
+
+
+
+NAO 0.100000
+Saved Zemax file NATEST.ZMX
+All constraints removed
+
+
+
+
+
+
+Field Weights Command WTF     100     100     100 Not supported
+All constraints removed
+
+
+
+NAO 0.100000
+ENTRANCE PUPIL
+DIA       530.7894
+THI       2613.5212
+INFINITE CONJUGATES
+EFL       660.0448
+BFL       -165.0114
+FFL       2599.7507
+FNO       1.2435
+AT USED CONJUGATES
+RED       0.2500
+FNO       1.2500
+OBJ DIS   40.4256
+TT        808.5117
+IMG DIS   0.0000
+OAL       768.0862
+All constraints removed
+
+
+
+
+
+
+Field Weights Command WTF     100     100     100 Not supported
+Error! NAO needs a finite object distance (the object is at infinity); use EPD or FNO
+Error! NAO must be between 0 and 1
+ENTRANCE PUPIL
+DIA       5.1122
+THI       6.7224
+INFINITE CONJUGATES
+EFL       50.0107
+BFL       38.5152
+FFL       -44.5831
+FNO       9.7827
+IMG DIS   38.5152
+OAL       16.6000
+PARAXIAL IMAGE
+ HT      8.8182
+ANG       10.3644 DEG
+ENTRANCE PUPIL
+DIA       5.1122
+THI       6.7224
+EXIT PUPIL
+DIA       4.9832
+THI       -10.2334
+ENTRANCE PUPIL
+DIA       7.6683
+THI       6.7224
+INFINITE CONJUGATES
+EFL       50.0107
+BFL       38.5152
+FFL       -44.5831
+FNO       6.5218
+IMG DIS   38.5152
+OAL       16.6000
+PARAXIAL IMAGE
+ HT      8.8182
+ANG       10.3644 DEG
+ENTRANCE PUPIL
+DIA       7.6683
+THI       6.7224
+EXIT PUPIL
+DIA       7.4747
+THI       -10.2334
+Number of tokens is 2
+File name to save is FLTEST.zoa
+All constraints removed
+
+
+
+
+
+
+Field Weights Command WTF     100     100     100 Not supported
+All constraints removed
+
+
+
+Field Weights Command WTF     100     100     100 Not supported
+
+ENTRANCE PUPIL
+DIA       7.6683
+THI       6.7224
+INFINITE CONJUGATES
+EFL       50.0107
+BFL       38.5152
+FFL       -44.5831
+FNO       6.5218
+IMG DIS   38.5152
+OAL       16.6000
+PARAXIAL IMAGE
+ HT      8.8182
+ANG       10.3644 DEG
+ENTRANCE PUPIL
+DIA       7.6683
+THI       6.7224
+EXIT PUPIL
+DIA       7.4747
+THI       -10.2334
+Saved Zemax file FLTEST.ZMX
+All constraints removed
+
+
+
+
+
+
+Field Weights Command WTF     100     100     100 Not supported
+All constraints removed
+
+
+
+ENTRANCE PUPIL
+DIA       7.6683
+THI       6.7224
+INFINITE CONJUGATES
+EFL       50.0107
+BFL       38.5152
+FFL       -44.5831
+FNO       6.5218
+IMG DIS   38.5152
+OAL       16.6000
+PARAXIAL IMAGE
+ HT      8.8182
+ANG       10.3644 DEG
+ENTRANCE PUPIL
+DIA       7.6683
+THI       6.7224
+EXIT PUPIL
+DIA       7.4747
+THI       -10.2334
+All constraints removed
+
+
+
+Field Weights Command WTF     100     100     100 Not supported
+
+Saved CODE V file FLTEST.SEQ
+All constraints removed
+
+
+
+
+
+
+Field Weights Command WTF     100     100     100 Not supported
+All constraints removed
+
+
+
+ENTRANCE PUPIL
+DIA       7.6683
+THI       6.7224
+INFINITE CONJUGATES
+EFL       50.0107
+BFL       -0.0000
+FFL       -44.5831
+FNO       6.5218
+IMG DIS   0.0000
+OAL       55.1152
+PARAXIAL IMAGE
+ HT      8.8182
+ANG       10.3644 DEG
+ENTRANCE PUPIL
+DIA       7.6683
+THI       6.7224
+EXIT PUPIL
+DIA       7.4747
+THI       -48.7486
+ENTRANCE PUPIL
+DIA       10.0000
+THI       6.7224
+INFINITE CONJUGATES
+EFL       50.0107
+BFL       -0.0000
+FFL       -44.5831
+FNO       5.0011
+IMG DIS   0.0000
+OAL       55.1152
+PARAXIAL IMAGE
+ HT      8.8182
+ANG       10.3644 DEG
+ENTRANCE PUPIL
+DIA       10.0000
+THI       6.7224
+EXIT PUPIL
+DIA       9.7476
+THI       -48.7486
+Error! FLOAT takes no arguments
+All constraints removed
+
+
+
+
+
+
+Field Weights Command WTF     100     100     100 Not supported
+SEMI-APERTURE REFERENCE RAY HEIGHT AT SURFACE #1
+SAY(YZ-PLANE IN LENS UNITS) =    0.600000000000000D+01
+
+SEMI-APERTURE REFERENCE RAY HEIGHT AT SURFACE #1
+SAX(XZ-PLANE IN LENS UNITS) =    0.600000000000000D+01
+
+SEMI-APERTURE REFERENCE RAY HEIGHT AT SURFACE #1
+SAY(YZ-PLANE IN LENS UNITS) =    0.600000000000000D+01
+
+SEMI-APERTURE REFERENCE RAY HEIGHT AT SURFACE #1
+SAX(XZ-PLANE IN LENS UNITS) =    0.300000000000000D+01
+SEMI-APERTURE REFERENCE RAY HEIGHT AT SURFACE #1
+SAY(YZ-PLANE IN LENS UNITS) =    0.700000000000000D+01
+
+SEMI-APERTURE REFERENCE RAY HEIGHT AT SURFACE #1
+SAX(XZ-PLANE IN LENS UNITS) =    0.700000000000000D+01

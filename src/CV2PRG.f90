@@ -29,9 +29,10 @@ SUBROUTINE CV2PRG
    LOGICAL EXIS37,EXIS38,OPEN37,OPEN38,SEMI,ADD,RADON,OLDADD
 !
    LOGICAL CVERROR
-!     CODE V FNO (image-space F/#, held): applied after the lens is built
-   LOGICAL HASFNO
-   real(real64) PENDFNO
+!     CODE V FNO (image-space F/#, held) and NAO (object NA): applied after
+!     the lens is built (they need the object distance / paraxial trace)
+   LOGICAL HASFNO, HASNAO
+   real(real64) PENDFNO, PENDNAO
    CHARACTER(len=40) FNOSTR
    LOGICAL :: COMMANDINFOCHECK, STRINGINPUTCHECK, CHECKMAXFLOATINPUTS
 !
@@ -72,6 +73,8 @@ SUBROUTINE CV2PRG
    SURFER=0
    HASFNO=.FALSE.
    PENDFNO=0.0D0
+   HASNAO=.FALSE.
+   PENDNAO=0.0D0
    ! Zoa's CODE V export uses radii without an explicit RDM command.
    ! Reset for every import; RDM N below explicitly selects curvature mode.
    RADON=.TRUE.
@@ -549,9 +552,10 @@ SUBROUTINE CV2PRG
             WRITE(38,4001) TEMPCC(1:78)
             GO TO 8888
          END IF
-         WRITE(OUTLYNE2,2002) VALV
-2002     FORMAT('NAO,',D23.15)
-         CALL UPDATECV2INPUTANDPROCESCOMMAND(OUTLYNE2, SUB)
+!        (was sent as 'NAO,', which the engine does not have -- NAO was
+!        silently dropped; it is the NAO command, applied after the lens)
+         HASNAO=.TRUE.
+         PENDNAO=VALV
          TEMPC(I)(1:1024)=BL1024(1:1024)
          GO TO 8888
       END IF
@@ -2101,7 +2105,11 @@ SUBROUTINE CV2PRG
    DEALLOCATE (HOE,HOESUR,HV1,HV2,HX1,HY1,HZ1 &
    &,HWL,HX2,HY2,HZ2,HOR,STAT=ALLOERR)
    call ldm%load_surfaces_from_alens()
-!     The held F/number, now that the lens exists (CODE V FNO command).
+!     The object NA and the held F/number, now that the lens exists.
+   IF(HASNAO) THEN
+      WRITE(FNOSTR,'(G0)') PENDNAO
+      CALL PROCESKDP('NAO '//TRIM(FNOSTR))
+   END IF
    IF(HASFNO) THEN
       WRITE(FNOSTR,'(G0)') PENDFNO
       CALL PROCESKDP('FNO '//TRIM(FNOSTR))

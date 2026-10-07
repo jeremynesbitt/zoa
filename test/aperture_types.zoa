@@ -1,0 +1,74 @@
+! ---- System aperture types: NAO (CODE V object NA), FLOAT (pupil floats
+! with the stop's clear aperture), and the per-plane SAY/SAX they build on.
+!
+! NAO needs a finite object distance: LithoKotaro (4x reduction).  NAO 0.1
+! gives image NA 0.4, i.e. F/1.25 working.
+CV2PRG LithoKotaro.seq
+NAO
+NAO 0.1
+NAO
+FIR
+! Saved as EPD in the lens block plus NAO after GO; CODE V (NAO) and Zemax
+! (OBNA) round trips.  (Both importers used to send 'NAO,', which the engine
+! does not have, so the object NA was dropped.)
+SAV natest
+RES osdtriplet
+RES natest
+NAO
+ZOA2CV natest.seq
+RES osdtriplet
+CV2PRG natest.seq
+NAO
+ZOA2ZMX natest.zmx
+RES osdtriplet
+ZMX2PRG natest.zmx
+NAO
+FIR
+! Errors: object at infinity, out of range
+RES osdtriplet
+NAO 0.1
+NAO 1.5
+!
+! FLOAT: with a 2 mm stop the pupil is 10 * 2 / 3.912 = 5.112 (the marginal
+! ray meets the stop at 3.912 when EPD is 10); it follows the stop size.
+! (SAY FLOAT never took effect: a SYSTEM()->setter migration dropped the
+! IF(WQ.EQ.'FLOAT') guards, so the flag was set and cleared at once.)
+CIR S3 2
+FLOAT
+FIR
+CIR S3 3
+FIR
+! .zoa restores FLOAT; Zemax carries it as FLOA plus the stop's CLAP; CODE V
+! has no float, so the .seq holds the current EPD.
+SAV fltest
+RES osdtriplet
+RES fltest
+FIR
+ZOA2ZMX fltest.zmx
+RES osdtriplet
+ZMX2PRG fltest.zmx
+FIR
+RES fltest
+ZOA2CV fltest.seq
+RES osdtriplet
+CV2PRG fltest.seq
+FIR
+! EPD replaces FLOAT
+EPD 10
+FIR
+FLOAT 2
+!
+! SAY and SAX are independent (the same migration made each set both);
+! EPD sets both (one circular pupil).
+RES osdtriplet
+EPD 12
+SAY
+SAX
+U L
+SAX, 3
+EOS
+SAY
+SAX
+EPD 14
+SAY
+SAX
