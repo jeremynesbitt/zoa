@@ -68,8 +68,8 @@ SUBROUTINE ENEXRS
             CALL SHOWIT(1)
             OUTLYNE='THE (EN) ADJUSTMENT IS BEING CANCELLED'
             CALL SHOWIT(1)
-            call sys_set_astop_adj(0.0D0)
-            call sys_set_astop_adj(-1.0D0)
+            IF(sys_astop_adj().EQ.1.0D0) call sys_set_astop_adj(0.0D0)
+            IF(sys_astop_adj().EQ.2.0D0) call sys_set_astop_adj(-1.0D0)
             GO TO 100
          ELSE
 !       PROCEED
@@ -105,8 +105,8 @@ SUBROUTINE ENEXRS
          CALL SHOWIT(1)
          OUTLYNE='THE (EN) ADJUSTMENT IS BEING CANCELLED'
          CALL SHOWIT(1)
-         call sys_set_astop_adj(0.0D0)
-         call sys_set_astop_adj(-1.0D0)
+         IF(sys_astop_adj().EQ.1.0D0) call sys_set_astop_adj(0.0D0)
+         IF(sys_astop_adj().EQ.2.0D0) call sys_set_astop_adj(-1.0D0)
          GO TO 100
       END IF
 !
@@ -174,8 +174,8 @@ SUBROUTINE ENEXRS
             CALL SHOWIT(1)
             OUTLYNE='THE (EX) ADJUSTMENT IS BEING CANCELLED'
             CALL SHOWIT(1)
-            call sys_set_astop_adj(0.0D0)
-            call sys_set_astop_adj(1.0D0)
+            IF(sys_astop_adj().EQ.-1.0D0) call sys_set_astop_adj(0.0D0)
+            IF(sys_astop_adj().EQ.2.0D0) call sys_set_astop_adj(1.0D0)
             GO TO 200
          ELSE
 !       PROCEED
@@ -216,8 +216,8 @@ SUBROUTINE ENEXRS
          CALL SHOWIT(1)
          OUTLYNE='THE (EX) ADJUSTMENT IS BEING CANCELLED'
          CALL SHOWIT(1)
-         call sys_set_astop_adj(0.0D0)
-         call sys_set_astop_adj(1.0D0)
+         IF(sys_astop_adj().EQ.-1.0D0) call sys_set_astop_adj(0.0D0)
+         IF(sys_astop_adj().EQ.2.0D0) call sys_set_astop_adj(1.0D0)
          GO TO 200
       END IF
 !

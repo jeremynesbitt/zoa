@@ -1090,6 +1090,7 @@ SUBROUTINE SSPC
 END
 ! SUB SSC.FOR
 SUBROUTINE SSC
+   use mod_system, only: sys_xz_data_flag
 !
    use DATLEN
    use mod_surface
@@ -1274,8 +1275,8 @@ SUBROUTINE SSC
 !
 !     ASSIGN VALUES
 !
-         call sys_set_scy_fang_set(1.0D0)
-         call sys_set_scx_fang_set(1.0D0)
+         IF(WC.EQ.'SCY') call sys_set_scy_fang_set(1.0D0)
+         IF(WC.EQ.'SCX') call sys_set_scx_fang_set(1.0D0)
 !       FANG IS USED HERE
          IF(WC.EQ.'SCY') THEN
             IF(DABS(W1).GE.90.0D0) THEN
@@ -1287,8 +1288,8 @@ SUBROUTINE SSC
             call sys_set_scy_fang((W1))
             SYSTEM(92:99)=0.0D0
             IF(DF2.EQ.1) W2=0.0D0
-            call sys_set_y1_scy_set(1.0D0)
-            call sys_set_y1_scy_fang_set(1.0D0)
+            IF(DF2.EQ.0) call sys_set_y1_scy_set(1.0D0)
+            IF(DF2.EQ.0) call sys_set_y1_scy_fang_set(1.0D0)
             call sys_set_y1_scy_fang(W2)
             call sys_set_y1_scy(W2)
             IF(WC.EQ.'SCY'.OR.WC.EQ.'SCX') THEN
@@ -1306,11 +1307,11 @@ SUBROUTINE SSC
             END IF
             call sys_set_scx_fang((W1))
             SYSTEM(92:99)=0.0D0
-            call sys_set_xz_data_flag(2.0D0)
-            call sys_set_xz_data_flag(3.0D0)
+            IF(sys_xz_data_flag().EQ.0.0D0) call sys_set_xz_data_flag(2.0D0)
+            IF(sys_xz_data_flag().EQ.1.0D0) call sys_set_xz_data_flag(3.0D0)
             IF(DF2.EQ.1) W2=0.0D0
-            call sys_set_x1_scx_set(1.0D0)
-            call sys_set_x1_scx_fang_set(1.0D0)
+            IF(DF2.EQ.0) call sys_set_x1_scx_set(1.0D0)
+            IF(DF2.EQ.0) call sys_set_x1_scx_fang_set(1.0D0)
             call sys_set_x1_scx_fang(W2)
             call sys_set_x1_scx(W2)
             IF(WC.EQ.'SCY'.OR.WC.EQ.'SCX') THEN
@@ -1324,8 +1325,8 @@ SUBROUTINE SSC
          IF(WC.EQ.'SCY') THEN
             call sys_set_scy_fang_set(0.0D0)
             IF(DF2.EQ.1) W2=0.0D0
-            call sys_set_y1_scy_set(1.0D0)
-            call sys_set_y1_scy_fang_set(1.0D0)
+            IF(DF2.EQ.0) call sys_set_y1_scy_set(1.0D0)
+            IF(DF2.EQ.0) call sys_set_y1_scy_fang_set(1.0D0)
             call sys_set_scy(W1)
             SYSTEM(92:99)=0.0D0
             call sys_set_y1_scy(W2)
@@ -1339,12 +1340,12 @@ SUBROUTINE SSC
          IF(WC.EQ.'SCX') THEN
             call sys_set_scx_fang_set(0.0D0)
             IF(DF2.EQ.1) W2=0.0D0
-            call sys_set_x1_scx_set(1.0D0)
-            call sys_set_x1_scx_fang_set(1.0D0)
+            IF(DF2.EQ.0) call sys_set_x1_scx_set(1.0D0)
+            IF(DF2.EQ.0) call sys_set_x1_scx_fang_set(1.0D0)
             call sys_set_scx(W1)
             SYSTEM(92:99)=0.0D0
-            call sys_set_xz_data_flag(2.0D0)
-            call sys_set_xz_data_flag(3.0D0)
+            IF(sys_xz_data_flag().EQ.0.0D0) call sys_set_xz_data_flag(2.0D0)
+            IF(sys_xz_data_flag().EQ.1.0D0) call sys_set_xz_data_flag(3.0D0)
             call sys_set_x1_scx(W2)
             call sys_set_x1_scx_fang(W2)
             IF(WC.EQ.'SCY'.OR.WC.EQ.'SCX') THEN
@@ -1373,6 +1374,7 @@ SUBROUTINE SSC
    RETURN
 END
 SUBROUTINE PXYIM
+   use mod_system, only: sys_xz_data_flag
    use DATLEN
    use mod_surface
    use DATMAI
@@ -1533,8 +1535,8 @@ SUBROUTINE PXYIM
             call sys_set_pxim_fang_set(1.0D0)
             call sys_set_scx_set(1.0D0)
             call sys_set_scy_set(1.0D0)
-            call sys_set_xz_data_flag(2.0D0)
-            call sys_set_xz_data_flag(3.0D0)
+            IF(sys_xz_data_flag().EQ.0.0D0) call sys_set_xz_data_flag(2.0D0)
+            IF(sys_xz_data_flag().EQ.1.0D0) call sys_set_xz_data_flag(3.0D0)
          ELSE
          END IF
       ELSE
@@ -1543,8 +1545,8 @@ SUBROUTINE PXYIM
             call sys_set_pxim_fang_set(-1.0D0)
             call sys_set_pxim(W1)
             SYSTEM(96:99)=0.0D0
-            call sys_set_xz_data_flag(2.0D0)
-            call sys_set_xz_data_flag(3.0D0)
+            IF(sys_xz_data_flag().EQ.0.0D0) call sys_set_xz_data_flag(2.0D0)
+            IF(sys_xz_data_flag().EQ.1.0D0) call sys_set_xz_data_flag(3.0D0)
             call sys_set_scx_set(1.0D0)
             call sys_set_scy_set(1.0D0)
          ELSE
@@ -1593,6 +1595,7 @@ SUBROUTINE PXYIM
    RETURN
 END
 SUBROUTINE RXYIM
+   use mod_system, only: sys_xz_data_flag
    use DATLEN
    use mod_surface
    use DATMAI
@@ -1750,8 +1753,8 @@ SUBROUTINE RXYIM
             END IF
             call sys_set_rxim((W1))
             SYSTEM(92:95)=0.0D0
-            call sys_set_xz_data_flag(2.0D0)
-            call sys_set_xz_data_flag(3.0D0)
+            IF(sys_xz_data_flag().EQ.0.0D0) call sys_set_xz_data_flag(2.0D0)
+            IF(sys_xz_data_flag().EQ.1.0D0) call sys_set_xz_data_flag(3.0D0)
             call sys_set_rxim_fang_set(1.0D0)
             call sys_set_scx_set(1.0D0)
             call sys_set_scy_set(1.0D0)
@@ -1763,8 +1766,8 @@ SUBROUTINE RXYIM
             call sys_set_rxim_fang_set(-1.0D0)
             call sys_set_rxim(W1)
             SYSTEM(92:95)=0.0D0
-            call sys_set_xz_data_flag(2.0D0)
-            call sys_set_xz_data_flag(3.0D0)
+            IF(sys_xz_data_flag().EQ.0.0D0) call sys_set_xz_data_flag(2.0D0)
+            IF(sys_xz_data_flag().EQ.1.0D0) call sys_set_xz_data_flag(3.0D0)
             call sys_set_scx_set(1.0D0)
             call sys_set_scy_set(1.0D0)
          ELSE
@@ -1967,12 +1970,12 @@ SUBROUTINE SBD
             & 'RE-ENTER COMMAND', 1)
             RETURN
          END IF
-         call sys_set_bdx(W1)
-         call sys_set_bdy(W1)
+         IF(WC.EQ.'BDX') call sys_set_bdx(W1)
+         IF(WC.EQ.'BDY') call sys_set_bdy(W1)
       END IF
       IF(SQ.EQ.1) THEN
-         call sys_set_bdx(1000.0D0*(WAVER)/(PII*sys_wrx()))
-         call sys_set_bdy(1000.0D0*(WAVER)/(PII*sys_wry()))
+         IF(WC.EQ.'BDX') call sys_set_bdx(1000.0D0*(WAVER)/(PII*sys_wrx()))
+         IF(WC.EQ.'BDY') call sys_set_bdy(1000.0D0*(WAVER)/(PII*sys_wry()))
       END IF
       RETURN
    END IF
@@ -2097,8 +2100,8 @@ SUBROUTINE SWR
             RETURN
          END IF
       END IF
-      call sys_set_wrx(W1)
-      call sys_set_wry(W1)
+      IF(WC.EQ.'WRX') call sys_set_wrx(W1)
+      IF(WC.EQ.'WRY') call sys_set_wry(W1)
       RETURN
    END IF
 2001 FORMAT(1X)
@@ -2108,6 +2111,7 @@ SUBROUTINE SWR
 END
 ! SUB SSA.FOR
 SUBROUTINE SSA
+   use mod_system, only: sys_xz_data_flag
 !
    use DATLEN
    use mod_surface
@@ -2291,10 +2295,12 @@ SUBROUTINE SSA
             END IF
          END IF
       END IF
-      call sys_set_say_float(1.0D0)
-      call sys_set_sax_float(1.0D0)
-      call sys_set_say_float(0.0D0)
-      call sys_set_sax_float(0.0D0)
+      ! (The SYSTEM() -> setter migration dropped these IFs, so FLOAT was
+      ! set and immediately cleared: SAY FLOAT never took effect.)
+      IF(WQ.EQ.'FLOAT')   call sys_set_say_float(1.0D0)
+      IF(WQ.EQ.'FLOAT')   call sys_set_sax_float(1.0D0)
+      IF(WQ.EQ.'NOFLOAT') call sys_set_say_float(0.0D0)
+      IF(WQ.EQ.'NOFLOAT') call sys_set_sax_float(0.0D0)
 !     IF NUMERIC INPUT, SHUT OFF FLOAT
       IF(DF1.EQ.0.AND.WC.EQ.'SAY'.OR.DF1.EQ.0.AND.WC.EQ.'SAX') THEN
          call sys_set_say_float(0.0D0)
@@ -2332,38 +2338,38 @@ SUBROUTINE SSA
       IF(SQ.EQ.0) THEN
          call sys_set_na_set(0.0D0)
          call sys_set_fno_val_set(0.0D0)
-         call sys_set_say((W1))
-         call sys_set_sax((W1))
+         IF(WC.EQ.'SAY') call sys_set_say((W1))
+         IF(WC.EQ.'SAX') call sys_set_sax((W1))
 !     IF NUMERIC INPUT, SHUT OFF FLOAT
-         call sys_set_say_float(0.0D0)
-         call sys_set_sax_float(0.0D0)
+         IF(WC.EQ.'SAY') call sys_set_say_float(0.0D0)
+         IF(WC.EQ.'SAX') call sys_set_sax_float(0.0D0)
          IF(WC.EQ.'SAX') THEN
-            call sys_set_xz_data_flag(1.0D0)
-            call sys_set_xz_data_flag(3.0D0)
+            IF(sys_xz_data_flag().EQ.0.0D0) call sys_set_xz_data_flag(1.0D0)
+            IF(sys_xz_data_flag().EQ.2.0D0) call sys_set_xz_data_flag(3.0D0)
          END IF
       END IF
       IF(WQ.EQ.'DELT') THEN
          call sys_set_na_set(0.0D0)
          call sys_set_fno_val_set(0.0D0)
-         call sys_set_say(sys_say()+(W1))
-         call sys_set_sax(sys_sax()+(W1))
-         call sys_set_say_float(0.0D0)
-         call sys_set_sax_float(0.0D0)
+         IF(WC.EQ.'SAY') call sys_set_say(sys_say()+(W1))
+         IF(WC.EQ.'SAX') call sys_set_sax(sys_sax()+(W1))
+         IF(WC.EQ.'SAY') call sys_set_say_float(0.0D0)
+         IF(WC.EQ.'SAX') call sys_set_sax_float(0.0D0)
          IF(WC.EQ.'SAX') THEN
-            call sys_set_xz_data_flag(1.0D0)
-            call sys_set_xz_data_flag(3.0D0)
+            IF(sys_xz_data_flag().EQ.0.0D0) call sys_set_xz_data_flag(1.0D0)
+            IF(sys_xz_data_flag().EQ.2.0D0) call sys_set_xz_data_flag(3.0D0)
          END IF
       END IF
       IF(WQ.EQ.'CENT') THEN
          call sys_set_na_set(0.0D0)
          call sys_set_fno_val_set(0.0D0)
-         call sys_set_say(sys_say()+(W1*0.01D0*sys_say()))
-         call sys_set_sax(sys_sax()+(W1*0.01D0*sys_sax()))
-         call sys_set_say_float(0.0D0)
-         call sys_set_sax_float(0.0D0)
+         IF(WC.EQ.'SAY') call sys_set_say(sys_say()+(W1*0.01D0*sys_say()))
+         IF(WC.EQ.'SAX') call sys_set_sax(sys_sax()+(W1*0.01D0*sys_sax()))
+         IF(WC.EQ.'SAY') call sys_set_say_float(0.0D0)
+         IF(WC.EQ.'SAX') call sys_set_sax_float(0.0D0)
          IF(WC.EQ.'SAX') THEN
-            call sys_set_xz_data_flag(1.0D0)
-            call sys_set_xz_data_flag(3.0D0)
+            IF(sys_xz_data_flag().EQ.0.0D0) call sys_set_xz_data_flag(1.0D0)
+            IF(sys_xz_data_flag().EQ.2.0D0) call sys_set_xz_data_flag(3.0D0)
          END IF
       END IF
       RETURN
