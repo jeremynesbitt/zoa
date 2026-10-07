@@ -5,8 +5,7 @@ beta (0.x) software under active development.
 
 ## 0.1.11 (beta)
 
-- **Multithreading support** for ray tracing (CAPFN and the analyses built on it,
-  spot diagrams). On by default using all processor cores; set it with the
+- **Multithreading support** for ray tracing (most analyses used by plotting routines, such as spot diagrams, rms vs field, etc). On by default using all processor cores; set it with the
   `THREADS` command or the Preferences check box (`THREADS 1` turns it off).
 - **Fixed the Windows build** (several issues).
 - **Faster on Windows**: reduced logging file I/O.
