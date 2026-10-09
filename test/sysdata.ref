@@ -1,0 +1,175 @@
+All constraints removed
+
+
+
+
+
+
+Field Weights Command WTF     100     100     100 Not supported
+System Data
+Title: New Lens From Template
+
+GENERAL LENS DATA:
+
+Surfaces                  : 7
+Stop                      : 3
+System Aperture           : Entrance Pupil Diameter (EPD) = 10.00000
+Ray Aiming                : Off
+Telecentric Object Space  : Off
+Afocal Image Space        : Off
+Effective Focal Length    : 50.01074
+Back Focal Length         : 38.51522
+Front Focal Length        : -44.58314
+Total Track               : 55.11522
+Image Space F/#           : 5.001074
+Paraxial Working F/#      : 5.001074
+Image Space NA            : 0.09948256
+Object Space NA           : 5.000000E-013
+Stop Radius               : 3.912225
+Paraxial Image Height     : 8.818243
+Paraxial Magnification    : -5.001074E-012
+Entrance Pupil Diameter   : 10.000000
+Entrance Pupil Position   : 6.722449
+Exit Pupil Diameter       : 9.747621
+Exit Pupil Position       : -10.23336
+Field Type                : Angle in degrees
+Maximum Radial Field      : 10.00000
+Primary Wavelength [um]   : 0.5875600
+Lens Units                : Millimeters
+Angular Magnification     : 1.025891
+
+Fields                    : 3
+Field Type: Angle in degrees
+ #        X-Value        Y-Value
+ 1       0.000000       0.000000
+ 2       0.000000       7.000000
+ 3       0.000000      10.000000
+
+Vignetting Factors
+ #       VUY       VLY       VUX       VLX
+ 1   0.00000   0.00000   0.00000   0.00000
+ 2   0.00000   0.00000   0.00000   0.00000
+ 3   0.00000   0.00000   0.00000   0.00000
+
+Wavelengths               : 5
+Units: um
+ #          Value         Weight
+ 1       0.587560     100.000000  (primary)
+ 2       0.486130     100.000000
+ 3       0.656270     100.000000
+ 4       0.435840     100.000000
+ 5       0.706520     100.000000
+All constraints removed
+
+
+
+System Data
+Title: Lithographic system, Kotaro
+
+GENERAL LENS DATA:
+
+Surfaces                  : 61
+Stop                      : 41
+System Aperture           : Object Space NA (NAO) = 0.1000000
+Ray Aiming                : Off
+Telecentric Object Space  : Off
+Afocal Image Space        : Off
+Effective Focal Length    : 660.0448
+Back Focal Length         : -165.0114
+Front Focal Length        : 2599.751
+Total Track               : 768.0862
+Image Space F/#           : 1.243516
+Paraxial Working F/#      : 1.250001
+Image Space NA            : 0.3713903
+Object Space NA           : 0.09950372
+Stop Radius               : 40.06046
+Paraxial Image Height     : -9.769519
+Paraxial Magnification    : -0.2500003
+Entrance Pupil Diameter   : 530.7894
+Entrance Pupil Position   : 2613.521
+Exit Pupil Diameter       : 25441.66
+Exit Pupil Position       : -31802.11
+Field Type                : Object Height
+Maximum Radial Field      : 39.07803
+Primary Wavelength [um]   : 0.2482870
+Lens Units                : Millimeters
+Angular Magnification     : 0.02086300
+
+Fields                    : 3
+Field Type: Object Height
+ #        X-Value        Y-Value
+ 1       0.000000       0.000000
+ 2       0.000000      27.354621
+ 3       0.000000      39.078030
+
+Vignetting Factors
+ #       VUY       VLY       VUX       VLX
+ 1   0.00000   0.00000   0.00000   0.00000
+ 2   0.00000   0.00000   0.00000   0.00000
+ 3   0.00000   0.00000   0.00000   0.00000
+
+Wavelengths               : 1
+Units: um
+ #          Value         Weight
+ 1       0.248287     248.287000  (primary)
+All constraints removed
+
+
+
+
+
+
+Field Weights Command WTF     100     100     100 Not supported
+System Data
+Title: New Lens From Template
+
+GENERAL LENS DATA:
+
+Surfaces                  : 7
+Stop                      : 3
+System Aperture           : Image Space F/# (FNO) = 4.000000
+Ray Aiming                : Off
+Telecentric Object Space  : Off
+Afocal Image Space        : Off
+Effective Focal Length    : 50.01074
+Back Focal Length         : 38.51522
+Front Focal Length        : -44.58314
+Total Track               : 55.11522
+Image Space F/#           : 4.000000
+Paraxial Working F/#      : 4.000000
+Image Space NA            : 0.1240347
+Object Space NA           : 6.251342E-013
+Stop Radius               : 4.891332
+Paraxial Image Height     : 8.818243
+Paraxial Magnification    : -5.001074E-012
+Entrance Pupil Diameter   : 12.50268
+Entrance Pupil Position   : 6.722449
+Exit Pupil Diameter       : 12.18714
+Exit Pupil Position       : -10.23336
+Field Type                : Angle in degrees
+Maximum Radial Field      : 10.00000
+Primary Wavelength [um]   : 0.5875600
+Lens Units                : Millimeters
+Angular Magnification     : 1.025891
+
+Fields                    : 3
+Field Type: Angle in degrees
+ #        X-Value        Y-Value
+ 1       0.000000       0.000000
+ 2       0.000000       7.000000
+ 3       0.000000      10.000000
+
+Vignetting Factors
+ #       VUY       VLY       VUX       VLX
+ 1   0.00000   0.00000   0.00000   0.00000
+ 2   0.00000   0.00000   0.00000   0.00000
+ 3   0.00000   0.00000   0.00000   0.00000
+
+Wavelengths               : 5
+Units: um
+ #          Value         Weight
+ 1       0.587560     100.000000  (primary)
+ 2       0.486130     100.000000
+ 3       0.656270     100.000000
+ 4       0.435840     100.000000
+ 5       0.706520     100.000000

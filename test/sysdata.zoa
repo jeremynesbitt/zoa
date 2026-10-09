@@ -1,0 +1,13 @@
+! ---- SYSDATA: system data report (General Lens Data, Fields, Vignetting,
+! Wavelengths), modelled on Zemax's System Data report.  Paraxial values.
+! Infinite conjugates, EPD aperture:
+RES osdtriplet
+SYSDATA
+! Finite conjugates (4x reduction), object-space NA aperture:
+CV2PRG LithoKotaro.seq
+NAO 0.1
+SYSDATA
+! Held image-space F/#:
+RES osdtriplet
+FNO 4
+SYSDATA

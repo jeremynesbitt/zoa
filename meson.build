@@ -467,6 +467,11 @@ test('aperture_types', test_runner,
             meson.project_source_root() / 'test/aperture_types.ref'],
      timeout: 60)
 
+test('sysdata', test_runner,
+     args: [meson.project_source_root() / 'test/sysdata.zoa',
+            meson.project_source_root() / 'test/sysdata.ref'],
+     timeout: 60)
+
 test('asph_modifiers', test_runner,
      args: [meson.project_source_root() / 'test/asph_modifiers.zoa',
             meson.project_source_root() / 'test/asph_modifiers.ref'],

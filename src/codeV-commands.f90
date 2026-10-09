@@ -46,6 +46,9 @@ module codeV_commands
    module subroutine execPLTSIZE(iptStr)
    character(len=*) :: iptStr
    end subroutine execPLTSIZE
+   module subroutine execSYSDATA(iptStr)
+   character(len=*) :: iptStr
+   end subroutine execSYSDATA
    module subroutine execTRACECMP(iptStr)
    character(len=*) :: iptStr
    end subroutine execTRACECMP
@@ -619,6 +622,8 @@ module codeV_commands
         zoaCmds(743)%execFunc => setFLOAT
         zoaCmds(744)%cmd = 'PLTSIZE'
         zoaCmds(744)%execFunc => execPLTSIZE
+        zoaCmds(745)%cmd = 'SYSDATA'
+        zoaCmds(745)%execFunc => execSYSDATA
         zoaCmds(527)%cmd = 'SETDENS'
         zoaCmds(527)%execFunc => setPlotDensity     
         zoaCmds(528)%cmd = 'SETZERNC'

@@ -2535,4 +2535,205 @@ contains
         end if
     end procedure execSEARCHPATH
 
+    ! A report of the system's settings and first-order properties, modelled
+    ! on the General Lens Data / Fields / Wavelengths sections of Zemax's
+    ! System Data report (FIR lists a subset).  All values are paraxial.
+    !## cmd:      SYSDATA
+    !## syntax:   SYSDATA
+    !## category: Analysis
+    !## desc:     Report the system data: aperture, fields, wavelengths, units and first-order properties.
+    !##
+    module procedure execSYSDATA
+        use global_widgets, only: sysConfig, curr_lens_data, curr_par_ray_trace
+        use mod_lens_data_manager, only: ldm
+        use kdp_data_types
+        use DATLEN, only: PXTRAY
+        use DATMAI, only: REG
+        use mod_system, only: sys_telecentric, sys_mode, sys_units, sys_fno_hold_y
+        use type_utils, only: int2str
+        implicit none
+        integer :: last, stp, i
+        real(real64) :: nImg, nObj, uImg, uObj, epd, ifno, naImg, naObj, stopRad
+        real(real64) :: imgHt, angMag, fx, fy, maxField
+        character(len=40) :: apName, fieldName, unitName, aimName
+        character(len=100) :: line
+
+        ! current first-order data, aperture and field settings
+        call curr_lens_data%update()
+        call curr_par_ray_trace%calculateFirstOrderParameters(curr_lens_data)
+        call sysConfig%updateParameters()
+
+        last = curr_lens_data%num_surfaces - 1      ! the image surface
+        stp = ldm%getStopSurf()
+        nImg = curr_lens_data%surf_index(last)
+        nObj = curr_lens_data%surf_index(1)
+        uImg = PXTRAY(2, last)
+        uObj = PXTRAY(2, 0)
+        epd = curr_par_ray_trace%ENPUPDIA
+        ifno = 0.0d0
+        if (abs(epd) > 0.0d0) ifno = curr_par_ray_trace%EFL/epd
+        naImg = nImg*sin(atan(abs(uImg)))
+        naObj = nObj*sin(atan(abs(uObj)))
+        stopRad = 0.0d0
+        if (stp >= 0 .and. stp <= last) stopRad = abs(PXTRAY(1, stp))
+        call PROCESSILENT("GET GPCY")
+        imgHt = REG(9)
+        angMag = 0.0d0
+        if (abs(PXTRAY(6, 0)) > 1.0d-15) angMag = PXTRAY(6, last)/PXTRAY(6, 0)
+
+        select case (sysConfig%currApertureID)
+        case (APER_ENTR_PUPIL_DIAMETER)
+            apName = 'Entrance Pupil Diameter (EPD)'
+        case (APER_OBJECT_NA)
+            apName = 'Object Space NA (NAO)'
+        case (APER_IMAGE_FNO)
+            apName = 'Image Space F/# (FNO)'
+        case (APER_STOP_SURFACE)
+            apName = 'Float By Stop Size (FLOAT)'
+        case default
+            apName = 'Object Space F/#'
+        end select
+        select case (sysConfig%currFieldID)
+        case (FIELD_OBJECT_HEIGHT)
+            fieldName = 'Object Height'
+        case (FIELD_OBJECT_ANGLE_DEG)
+            fieldName = 'Angle in degrees'
+        case (FIELD_PARAX_IMAGE_HEIGHT)
+            fieldName = 'Paraxial Image Height'
+        case (FIELD_PARAX_IMAGE_SLOPE_TAN)
+            fieldName = 'Paraxial Image Slope (tan)'
+        case (FIELD_REAL_IMAGE_HEIGHT)
+            fieldName = 'Real Image Height'
+        case default
+            fieldName = 'Unknown'
+        end select
+        select case (nint(sys_units()))
+        case (1)
+            unitName = 'Inches'
+        case (2)
+            unitName = 'Centimeters'
+        case (4)
+            unitName = 'Meters'
+        case default
+            unitName = 'Millimeters'
+        end select
+        aimName = 'Off'
+        do i = 1, size(sysConfig%rayAimOptions)
+            if (sysConfig%rayAimOptions(i)%id == sysConfig%currRayAimID) &
+                aimName = sysConfig%rayAimOptions(i)%text
+        end do
+        maxField = 0.0d0
+        do i = 1, sysConfig%numFields
+            fx = sysConfig%relativeFields(1, i)*sysConfig%refFieldValue(1)
+            fy = sysConfig%relativeFields(2, i)*sysConfig%refFieldValue(2)
+            maxField = max(maxField, sqrt(fx*fx + fy*fy))
+        end do
+
+        call emit('System Data')
+        call emit('Title: '//trim(sysConfig%lensTitle))
+        call emit('')
+        call emit('GENERAL LENS DATA:')
+        call emit('')
+        call kv('Surfaces', int2str(last))
+        call kv('Stop', int2str(stp))
+        if (sysConfig%currApertureID == APER_STOP_SURFACE) then
+            call kv('System Aperture', trim(apName)//' = '//g(stopRad))
+        else if (sysConfig%currApertureID == APER_IMAGE_FNO) then
+            call kv('System Aperture', trim(apName)//' = '//g(sys_fno_hold_y()))
+        else
+            call kv('System Aperture', trim(apName)//' = '//g(sysConfig%refApertureValue(2)))
+        end if
+        call kv('Ray Aiming', aimName)
+        if (sys_telecentric() == 1.0d0) then
+            call kv('Telecentric Object Space', 'On')
+        else
+            call kv('Telecentric Object Space', 'Off')
+        end if
+        if (sys_mode() > 2.0d0) then
+            call kv('Afocal Image Space', 'On')
+        else
+            call kv('Afocal Image Space', 'Off')
+        end if
+        call kv('Effective Focal Length', g(curr_par_ray_trace%EFL))
+        call kv('Back Focal Length', g(curr_par_ray_trace%BFL))
+        call kv('Front Focal Length', g(curr_par_ray_trace%FFL))
+        ! surface 1 to the image (TT includes the object distance)
+        call kv('Total Track', g(curr_par_ray_trace%OAL + curr_par_ray_trace%imageDistance))
+        call kv('Image Space F/#', g(ifno))
+        call kv('Paraxial Working F/#', g(curr_par_ray_trace%FNUM))
+        call kv('Image Space NA', g(naImg))
+        call kv('Object Space NA', g(naObj))
+        call kv('Stop Radius', g(stopRad))
+        call kv('Paraxial Image Height', g(imgHt))
+        call kv('Paraxial Magnification', g(curr_par_ray_trace%t_mag))
+        call kv('Entrance Pupil Diameter', g(epd))
+        call kv('Entrance Pupil Position', g(curr_par_ray_trace%ENPUPPOS))
+        call kv('Exit Pupil Diameter', g(curr_par_ray_trace%EXPUPDIA))
+        call kv('Exit Pupil Position', g(curr_par_ray_trace%EXPUPPOS))
+        call kv('Field Type', fieldName)
+        call kv('Maximum Radial Field', g(maxField))
+        call kv('Primary Wavelength [um]', g(sysConfig%wavelengths(sysConfig%refWavelengthIndex)))
+        call kv('Lens Units', unitName)
+        call kv('Angular Magnification', g(angMag))
+
+        call emit('')
+        call kv('Fields', int2str(sysConfig%numFields))
+        call emit('Field Type: '//trim(fieldName))
+        call emit(' #        X-Value        Y-Value')
+        do i = 1, sysConfig%numFields
+            write(line, '(I2,2F15.6)') i, sysConfig%relativeFields(1, i)*sysConfig%refFieldValue(1), &
+                sysConfig%relativeFields(2, i)*sysConfig%refFieldValue(2)
+            call emit(trim(line))
+        end do
+        call emit('')
+        call emit('Vignetting Factors')
+        call emit(' #       VUY       VLY       VUX       VLX')
+        do i = 1, sysConfig%numFields
+            write(line, '(I2,4F10.5)') i, sysConfig%vignetting(1:4, i)
+            call emit(trim(line))
+        end do
+        call emit('')
+        call kv('Wavelengths', int2str(sysConfig%numWavelengths))
+        call emit('Units: um')
+        call emit(' #          Value         Weight')
+        do i = 1, sysConfig%numWavelengths
+            write(line, '(I2,2F15.6)') i, sysConfig%wavelengths(i), sysConfig%spectralWeights(i)
+            if (i == sysConfig%refWavelengthIndex) line = trim(line)//'  (primary)'
+            call emit(trim(line))
+        end do
+
+    contains
+
+        subroutine emit(txt)
+            character(len=*), intent(in) :: txt
+            call zoa_emit(txt, "black")
+        end subroutine
+
+        ! "Label                    : value", labels padded as in Zemax
+        subroutine kv(label, val)
+            character(len=*), intent(in) :: label, val
+            character(len=26) :: lab
+            lab = label
+            call zoa_emit(lab//': '//trim(adjustl(val)), "black")
+        end subroutine
+
+        ! 7 significant digits: plain decimal for ordinary magnitudes, an
+        ! exponent only for very large or very small ones
+        function g(x) result(s)
+            real(real64), intent(in) :: x
+            character(len=24) :: s
+            integer :: d
+            if (x == 0.0d0) then
+                s = '0'
+            else if (abs(x) >= 1.0d-4 .and. abs(x) < 1.0d7) then
+                d = max(0, 6 - int(floor(log10(abs(x)))))
+                write(s, '(F24.'//trim(int2str(d))//')') x
+            else
+                write(s, '(ES14.6E3)') x
+            end if
+            s = adjustl(s)
+        end function
+
+    end procedure execSYSDATA
+
 end submodule mod_codev_utils
