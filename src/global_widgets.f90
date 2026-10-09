@@ -46,6 +46,12 @@ type(ray_fan_data) :: curr_ray_fan_data
   ! See test/KNOWN_ISSUES.md for the separate (frame) dimension set in kdp_plot_gen.
   real(real64), parameter :: KDP_PLOT_HEIGHT = 7050.0d0
   real(real64), parameter :: KDP_CAIRO_SCALE = 0.1d0
+  ! The lens drawing's frame width in KDP units (with KDP_PLOT_HEIGHT).
+  real(real64), parameter :: KDP_PLOT_WIDTH = 10500.0d0
+  ! The scale the lens drawing was last drawn at: KDP_CAIRO_SCALE headless
+  ! (fixed-size PNGs), otherwise vie_draw_scale of its widget -- the cursor
+  ! readout (mod_vie_transform) inverts with the same value.
+  real(real64) :: vie_current_scale = KDP_CAIRO_SCALE
 
   ! kdp_height doubles as the per-plot y-flip origin (lens draw uses the full
   ! height, the RMS-field overlay sets it to 0), so it stays a mutable variable.
@@ -55,5 +61,15 @@ type(ray_fan_data) :: curr_ray_fan_data
   logical :: debug_messages = .FALSE.
 
   character(len=42), allocatable :: currVieData(:)
+
+contains
+
+  ! The largest scale at which the whole lens-drawing frame fits w x h pixels.
+  pure function vie_draw_scale(w, h) result(s)
+    integer, intent(in) :: w, h
+    real(real64) :: s
+    s = KDP_CAIRO_SCALE
+    if (w > 0 .and. h > 0) s = min(real(w, real64)/KDP_PLOT_WIDTH, real(h, real64)/KDP_PLOT_HEIGHT)
+  end function
 
 end module global_widgets

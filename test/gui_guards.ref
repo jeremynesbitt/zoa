@@ -16,3 +16,9 @@ Error:  Can only set constraint in AUT loop!
 "VIEOVER" SETS VIE OVERLAY "ON" FOR THE NEXT "VIE"
 EXPORTPNG requires the GUI
 Error! Expecting 'EXPORTPNG file.png'
+PLTSIZE requires the GUI
+PLTSIZE requires the GUI
+PLTSIZE requires the GUI
+Error! PLTSIZE takes whole numbers of pixels from 50 to 10000
+Error! PLTSIZE takes whole numbers of pixels from 50 to 10000
+Error! Expecting 'PLTSIZE w h', 'PLTSIZE AUTO' or 'PLTSIZE ?'

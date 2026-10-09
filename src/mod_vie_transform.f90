@@ -13,9 +13,11 @@
 !   ! 2. world(mm) -> KDP plot units:
 !        Xplot = (Hp/SCFAX)*1000 + PXSHFT + JUSOFF
 !        Yplot = (Vp/SCFAY)*1000 + height_mid + PYSHFT
-!   ! 3. KDP plot units -> screen pixels (KDP_CAIRO_SCALE, y-flip about KDP_PLOT_HEIGHT):
-!        px = KDP_CAIRO_SCALE * Xplot
-!        py = KDP_CAIRO_SCALE * (KDP_PLOT_HEIGHT - Yplot)
+!   ! 3. KDP plot units -> screen pixels (scale s = vie_current_scale, the
+!   !    scale of the last draw -- it follows the widget size; y-flip about
+!   !    KDP_PLOT_HEIGHT):
+!        px = s * Xplot
+!        py = s * (KDP_PLOT_HEIGHT - Yplot)
 !
 ! Inverting (1)-(3) recovers (Hp, Vp); inverting the rotation with the
 ! out-of-plane depth assumed 0 recovers world (X,Y,Z).  This is unique only for
@@ -26,7 +28,7 @@ module mod_vie_transform
   use iso_fortran_env, only: real64
   ! Device constants shared with the renderer so the inverse can never drift from
   ! the forward transform in DRAWOPTICALSYSTEM (single source of truth).
-  use global_widgets, only: KDP_CAIRO_SCALE, KDP_PLOT_HEIGHT
+  use global_widgets, only: vie_current_scale, KDP_PLOT_HEIGHT
   implicit none
   private
 
@@ -93,8 +95,9 @@ contains
     if (.not. vieXform%isPlanar) return
 
     ! (3) pixel -> KDP plot units
-    Xplot = px / real(KDP_CAIRO_SCALE, real64)
-    Yplot = real(KDP_PLOT_HEIGHT, real64) - py / real(KDP_CAIRO_SCALE, real64)
+    ! (the scale the drawing was last drawn at -- it follows the widget size)
+    Xplot = px / vie_current_scale
+    Yplot = real(KDP_PLOT_HEIGHT, real64) - py / vie_current_scale
     ! (2) plot units -> rotated world (mm)
     Hp = (Xplot - vieXform%pxshft - vieXform%jusoff) * vieXform%scfax / 1000.0d0
     Vp = (Yplot - vieXform%height_mid - vieXform%pyshft) * vieXform%scfay / 1000.0d0

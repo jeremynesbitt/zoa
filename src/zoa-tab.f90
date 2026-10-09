@@ -423,7 +423,24 @@ module zoa_tab
   use collections
   use settings_obj
   use global_widgets, only: uiSettingCommands, uiSetCmdsIdx
-  
+
+  ! Plot sizing.  By default a plot follows its tab: the canvas fills the
+  ! space below the settings and the plot is re-rendered (from the tab's
+  ! stored multiplot) at the largest size with the plot's own aspect ratio
+  ! that fits -- tall stacked plots (the multi-field spot diagram) fit the
+  ! width and scroll.  PLTSIZE w h fixes a tab's size instead.
+  integer(c_int), parameter :: PLOT_MIN_W = 300, PLOT_MIN_H = 200
+  ! Called with each plot canvas once packed or swapped in, so the GUI layer
+  ! can follow its size (it connects the canvas's "resize" signal).  Set by
+  ! the GUI (zzhandlers); unset headless, where nothing resizes.
+  abstract interface
+    subroutine plot_canvas_hook_iface(canvas)
+      import :: c_ptr
+      type(c_ptr), intent(in) :: canvas
+    end subroutine
+  end interface
+  procedure(plot_canvas_hook_iface), pointer :: plot_canvas_hook => null()
+
 
 
 ! pseudocode for zoatab
@@ -521,9 +538,20 @@ type, extends(zoatab) ::  zoaplottab
   ! anything that wants their pixels has to re-render them.
   logical :: usesKdpDraw = .false.
   logical :: useToolbar
+  ! Sizing (see PLOT_MIN_W): follow the tab, or a fixed size (PLTSIZE).
+  logical :: autoSize = .true.
+  ! The size the plot asks for itself -- kept for its aspect ratio.
+  integer(c_int) :: naturalW = 0, naturalH = 0
+  ! Set by the canvas "resize" signal, cleared when re-rendered.
+  logical :: resizePending = .false.
 
   contains
   procedure, public, pass(self) :: initialize => init_zoaplottab
+  procedure, public, pass(self) :: applySizingMode
+  procedure, public, pass(self) :: renderAtSize
+  procedure, public, pass(self) :: setFixedSize
+  procedure, public, pass(self) :: setAutoSize
+  procedure, public, pass(self) :: autoTargetSize
   procedure, public, pass(self) :: finalizeWindow => final_zoaplottab
   procedure, public, pass(self) :: updateGenericMultiPlot
   procedure, public, pass(self) :: createGenericMultiPlot
@@ -789,7 +817,6 @@ subroutine updateGenericMultiPlot(self, mplt)
   class(zoaplot), pointer :: p
   integer :: i, j
   type(c_ptr) :: isurface
-  logical :: swapCanvas
   integer :: curW, curH
 
   ! Persist a deep copy of the caller's transient mplt so the tab retains its
@@ -819,89 +846,204 @@ subroutine updateGenericMultiPlot(self, mplt)
 
   !Currently zoatab does not save the mplt object (seems bad) so setting the canvas here as the object
   !needs to be added to the ui window
-  if (c_associated(self%canvas)) then
-
-    ! Normally the tab keeps its own drawing area across replots.  But a plot
-    ! whose size depends on its settings (the spot diagram is 400 x 400*panels,
-    ! and the Field Point selection changes the panel count) arrives with a
-    ! correctly sized area of its own, and the tab's is the wrong shape.  A
-    ! size request on the existing widget is not enough -- GTK re-lays out
-    ! later, so the extra panels had nowhere to go -- so swap the widget in.
-    swapCanvas = .FALSE.
-    curW = -1
-    curH = -1
-    isurface = g_object_get_data(self%canvas, "backing-surface"//c_null_char)
+  ! The plot's own (natural) size, for its aspect ratio: what it set in its
+  ! multiplot, or -- for the plots that leave the multiplot at its defaults
+  ! and size their drawing area directly (700x500, 1200x800, ...) -- the
+  ! backing surface of the area it drew into.
+  if (mplt%width /= MP_DEFAULT_WIDTH .or. mplt%height /= MP_DEFAULT_HEIGHT) then
+    self%naturalW = mplt%width
+    self%naturalH = mplt%height
+  else if (c_associated(mplt%area)) then
+    isurface = g_object_get_data(mplt%area, "backing-surface"//c_null_char)
     if (c_associated(isurface)) then
-      curW = INT(cairo_image_surface_get_width(isurface))
-      curH = INT(cairo_image_surface_get_height(isurface))
+      self%naturalW = cairo_image_surface_get_width(isurface)
+      self%naturalH = cairo_image_surface_get_height(isurface)
     end if
-    ! Swap whenever the incoming plot brought its own, differently sized area.
-    ! (A null backing surface counts as a mismatch: it means we cannot tell,
-    ! and the incoming area is the one sized for this plot.)
-    if (c_associated(mplt%area) .and. .not. c_associated(mplt%area, self%canvas)) then
-      if (curW /= self%mplt%width .or. curH /= self%mplt%height) swapCanvas = .TRUE.
-    end if
+  end if
+  if (self%naturalW <= 0 .or. self%naturalH <= 0) then
+    self%naturalW = mplt%width
+    self%naturalH = mplt%height
+  end if
 
-    if (swapCanvas) then
-      call gtk_box_remove(self%box1, self%canvas)
-      call gtk_box_append(self%box1, mplt%area)
-      call gtk_widget_set_halign(mplt%area, GTK_ALIGN_START)
-      self%canvas = mplt%area
-      ! Tell the enclosing scrolled window its content changed height, or it
-      ! keeps the old viewport and shows only the top panel.
-      call gtk_widget_queue_resize(self%canvas)
-      call gtk_widget_queue_resize(self%box1)
+  ! The tab keeps its own drawing area across replots (it used to swap in the
+  ! incoming one when the plot's size changed -- the spot diagram's Field
+  ! Point setting changes its panel count; the size now follows the tab, or
+  ! the fixed PLTSIZE, on the same canvas).
+  if (c_associated(self%canvas)) then
+    mplt%area = self%canvas
+  else
+    self%canvas = mplt%area
+  end if
+  self%mplt%area = self%canvas
+
+  ! The size to draw at: automatic -> the largest size with the plot's
+  ! aspect that fits the canvas's current allocation (its natural size
+  ! before the first allocation); fixed -> the PLTSIZE size.
+  if (c_associated(self%canvas)) then
+    if (self%autoSize) then
+      curW = gtk_widget_get_width(self%canvas)
+      curH = gtk_widget_get_height(self%canvas)
+      if (curW > 0 .and. curH > 0) then
+        call self%autoTargetSize(curW, curH, self%mplt%width, self%mplt%height)
+        if (self%naturalH > self%naturalW) &
+          call gtk_drawing_area_set_content_height(self%canvas, self%mplt%height)
+      else
+        self%mplt%width = self%naturalW
+        self%mplt%height = self%naturalH
+      end if
     else
-      mplt%area = self%canvas
+      self%mplt%width = gtk_drawing_area_get_content_width(self%canvas)
+      self%mplt%height = gtk_drawing_area_get_content_height(self%canvas)
     end if
+  end if
 
-else
-   self%canvas = mplt%area
-
-end if
-
-self%mplt%area = self%canvas
-
-! Record a sensible size in the persisted copy so a .zin restore can recreate
-! the canvas.  A plot that set its own size wins (spo_go uses 400 x 400*nFields);
-! only fall back to the canvas's real backing-surface size for the plots that
-! leave multiplot%width/height at the mp_init defaults while sizing their
-! drawing area directly (700x500, 1200x800, ...).
-if (self%mplt%width == MP_DEFAULT_WIDTH .and. self%mplt%height == MP_DEFAULT_HEIGHT) then
-  if (c_associated(self%canvas)) then
+  ! A backing surface of that size (gtk-fortran's hl_gtk_drawing_area_resize
+  ! cannot be used: it takes the widget's current allocation, which GTK has
+  ! not updated yet at this point).
+  if (c_associated(self%canvas) .and. self%mplt%width > 0 .and. self%mplt%height > 0) then
     isurface = g_object_get_data(self%canvas, "backing-surface"//c_null_char)
-    if (c_associated(isurface)) then
-      self%mplt%width  = cairo_image_surface_get_width(isurface)
-      self%mplt%height = cairo_image_surface_get_height(isurface)
+    if (.not. c_associated(isurface) .or. &
+    &   cairo_image_surface_get_width(isurface)  /= self%mplt%width .or. &
+    &   cairo_image_surface_get_height(isurface) /= self%mplt%height) then
+      if (c_associated(isurface)) call cairo_surface_destroy(isurface)
+      isurface = cairo_image_surface_create(CAIRO_FORMAT_RGB24, &
+      &                                     self%mplt%width, self%mplt%height)
+      isurface = cairo_surface_reference(isurface)   ! Prevent accidental deletion
+      call g_object_set_data(self%canvas, "backing-surface"//c_null_char, isurface)
     end if
   end if
-end if
-
-! A replot may want a different canvas size than the tab already has -- the
-! spot diagram's Field Point setting switches between one panel and one per
-! field.  The tab keeps its drawing area across replots, so resize it (and its
-! backing surface) to match, or the multiplot is drawn into the old aspect
-! ratio.  gtk-fortran's hl_gtk_drawing_area_resize cannot be used here: it
-! overwrites the requested size with the widget's current allocation, which
-! GTK has not updated yet at this point.
-if (c_associated(self%canvas) .and. self%mplt%width > 0 .and. self%mplt%height > 0) then
-  isurface = g_object_get_data(self%canvas, "backing-surface"//c_null_char)
-  if (.not. c_associated(isurface) .or. &
-  &   cairo_image_surface_get_width(isurface)  /= self%mplt%width .or. &
-  &   cairo_image_surface_get_height(isurface) /= self%mplt%height) then
-    call gtk_widget_set_size_request(self%canvas, self%mplt%width, self%mplt%height)
-    call gtk_widget_queue_resize(self%canvas)
-    if (c_associated(self%box1)) call gtk_widget_queue_resize(self%box1)
-    if (c_associated(isurface)) call cairo_surface_destroy(isurface)
-    isurface = cairo_image_surface_create(CAIRO_FORMAT_RGB24, &
-    &                                     self%mplt%width, self%mplt%height)
-    isurface = cairo_surface_reference(isurface)   ! Prevent accidental deletion
-    call g_object_set_data(self%canvas, "backing-surface"//c_null_char, isurface)
-  end if
-end if
 
 call self%mplt%draw()
 
+end subroutine
+
+! Put the canvas in the current sizing mode: automatic -> it expands to fill
+! the tab (with a small minimum); fixed -> exactly the stored size.  Records
+! the plot's natural size first, from its own backing surface, if not known.
+subroutine applySizingMode(self)
+  use g, only: g_object_get_data
+  use cairo, only: cairo_image_surface_get_width, cairo_image_surface_get_height
+  class(zoaplottab) :: self
+  type(c_ptr) :: isurface
+
+  if (.not. c_associated(self%canvas)) return
+  if (self%naturalW <= 0 .or. self%naturalH <= 0) then
+    isurface = g_object_get_data(self%canvas, "backing-surface"//c_null_char)
+    if (c_associated(isurface)) then
+      self%naturalW = cairo_image_surface_get_width(isurface)
+      self%naturalH = cairo_image_surface_get_height(isurface)
+    else
+      self%naturalW = gtk_drawing_area_get_content_width(self%canvas)
+      self%naturalH = gtk_drawing_area_get_content_height(self%canvas)
+    end if
+    if (self%naturalW <= 0 .or. self%naturalH <= 0) then
+      self%naturalW = self%width
+      self%naturalH = self%height
+    end if
+  end if
+
+  call gtk_widget_set_size_request(self%canvas, -1_c_int, -1_c_int)
+  if (self%autoSize) then
+    call gtk_drawing_area_set_content_width(self%canvas, PLOT_MIN_W)
+    call gtk_drawing_area_set_content_height(self%canvas, PLOT_MIN_H)
+    call gtk_widget_set_hexpand(self%canvas, TRUE)
+    call gtk_widget_set_vexpand(self%canvas, TRUE)
+    call gtk_widget_set_halign(self%canvas, GTK_ALIGN_FILL)
+    call gtk_widget_set_valign(self%canvas, GTK_ALIGN_FILL)
+    if (c_associated(self%box1)) call gtk_widget_set_vexpand(self%box1, TRUE)
+  else
+    call gtk_widget_set_hexpand(self%canvas, FALSE)
+    call gtk_widget_set_vexpand(self%canvas, FALSE)
+    call gtk_widget_set_halign(self%canvas, GTK_ALIGN_START)
+    call gtk_widget_set_valign(self%canvas, GTK_ALIGN_START)
+  end if
+  if (associated(plot_canvas_hook)) call plot_canvas_hook(self%canvas)
+end subroutine
+
+! The automatic size for an available area: the plot's own aspect ratio,
+! as large as fits; a tall (stacked) plot fits the width only and scrolls.
+subroutine autoTargetSize(self, availW, availH, tW, tH)
+  class(zoaplottab) :: self
+  integer(c_int), intent(in) :: availW, availH
+  integer(c_int), intent(out) :: tW, tH
+  real :: aspect
+
+  aspect = 0.7
+  if (self%naturalW > 0 .and. self%naturalH > 0) aspect = real(self%naturalH)/real(self%naturalW)
+  tW = max(availW, PLOT_MIN_W)
+  if (aspect <= 1.0) then
+    tW = min(tW, int(real(max(availH, PLOT_MIN_H))/aspect))
+    tW = max(tW, PLOT_MIN_W)
+  end if
+  tH = max(int(real(tW)*aspect), PLOT_MIN_H)
+end subroutine
+
+! Re-render the plot for an available area (automatic mode) or at exactly
+! w x h (exact = .true., fixed mode): a new backing image of that size and a
+! redraw from the stored multiplot.  KDP-drawn tabs (VIE) draw at the
+! widget's size on every paint, so they only need a redraw.
+subroutine renderAtSize(self, w, h, exact)
+  use g, only: g_object_get_data, g_object_set_data
+  use cairo, only: cairo_image_surface_get_width, cairo_image_surface_get_height, &
+  &                cairo_image_surface_create, cairo_surface_reference, cairo_surface_destroy
+  class(zoaplottab) :: self
+  integer(c_int), intent(in) :: w, h
+  logical, intent(in), optional :: exact
+  integer(c_int) :: tW, tH
+  type(c_ptr) :: isurface
+  logical :: isExact
+
+  if (.not. c_associated(self%canvas)) return
+  if (self%usesKdpDraw .or. .not. self%hasMplt) then
+    call gtk_widget_queue_draw(self%canvas)
+    return
+  end if
+  isExact = .false.
+  if (present(exact)) isExact = exact
+  if (isExact) then
+    tW = max(w, 1_c_int)
+    tH = max(h, 1_c_int)
+  else
+    if (w <= 0 .or. h <= 0) return
+    call self%autoTargetSize(w, h, tW, tH)
+    ! a tall plot is taller than the tab: make the canvas that tall (scroll)
+    if (self%naturalH > self%naturalW) call gtk_drawing_area_set_content_height(self%canvas, tH)
+  end if
+
+  isurface = g_object_get_data(self%canvas, "backing-surface"//c_null_char)
+  if (c_associated(isurface)) then
+    if (cairo_image_surface_get_width(isurface) == tW .and. &
+    &   cairo_image_surface_get_height(isurface) == tH) return
+    call cairo_surface_destroy(isurface)
+  end if
+  isurface = cairo_image_surface_create(CAIRO_FORMAT_RGB24, tW, tH)
+  isurface = cairo_surface_reference(isurface)   ! Prevent accidental deletion
+  call g_object_set_data(self%canvas, "backing-surface"//c_null_char, isurface)
+  self%mplt%width = tW
+  self%mplt%height = tH
+  self%mplt%area = self%canvas
+  call self%mplt%draw()
+  call gtk_widget_queue_draw(self%canvas)
+end subroutine
+
+! PLTSIZE w h: this tab stays w x h pixels until PLTSIZE AUTO.
+subroutine setFixedSize(self, w, h)
+  class(zoaplottab) :: self
+  integer(c_int), intent(in) :: w, h
+  self%autoSize = .false.
+  call self%applySizingMode()
+  call gtk_drawing_area_set_content_width(self%canvas, w)
+  call gtk_drawing_area_set_content_height(self%canvas, h)
+  call self%renderAtSize(w, h, exact=.true.)
+end subroutine
+
+! PLTSIZE AUTO: back to following the tab.  The canvas's next allocation
+! fires "resize", which re-renders it at the new size.
+subroutine setAutoSize(self)
+  class(zoaplottab) :: self
+  self%autoSize = .true.
+  call self%applySizingMode()
+  call gtk_widget_queue_resize(self%canvas)
 end subroutine
 
 subroutine addEntry_runCommand(self, labelTxt, valueStr, command, SETTING_CODE)
@@ -1290,7 +1432,7 @@ end subroutine
     call gtk_scrolled_window_set_child(scrolled_tab, self%box1)
 
     call self%finishTab(scrolled_tab)
-    call gtk_widget_set_halign(self%canvas, GTK_ALIGN_START)
+    call self%applySizingMode()
 
 
  end subroutine
@@ -1393,7 +1535,7 @@ end function
    call gtk_notebook_set_current_page(self%dataNotebook, plotLoc)
 
    call self%finishTab(self%dataNotebook)
-   call gtk_widget_set_halign(self%canvas, GTK_ALIGN_START)
+   call self%applySizingMode()
    
 end subroutine
 

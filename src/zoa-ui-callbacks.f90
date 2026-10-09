@@ -34,6 +34,7 @@ module zoa_ui_callbacks
   public :: notify_save_zin, zoa_set_save_zin_callback
   public :: notify_load_zin, zoa_set_load_zin_callback
   public :: notify_export_png, zoa_set_export_png_callback
+  public :: notify_plot_size, zoa_set_plot_size_callback
 
   ! Abstract interfaces so procedure pointers have explicit types
   abstract interface
@@ -86,6 +87,12 @@ module zoa_ui_callbacks
       character(len=*), intent(in) :: path
     end subroutine
 
+    ! PLTSIZE on the active plot tab: mode 'SET' (w x h), 'AUTO' or '?'.
+    subroutine plot_size_iface(mode, w, h)
+      character(len=*), intent(in) :: mode
+      integer, intent(in) :: w, h
+    end subroutine
+
     subroutine load_zin_iface(path)
       character(len=*), intent(in) :: path
     end subroutine
@@ -104,6 +111,7 @@ module zoa_ui_callbacks
   procedure(save_zin_iface),            pointer :: save_zin_cb           => null()
   procedure(load_zin_iface),            pointer :: load_zin_cb           => null()
   procedure(export_png_iface),          pointer :: export_png_cb         => null()
+  procedure(plot_size_iface),           pointer :: plot_size_cb          => null()
   ! Flush any deferred replot NOW. Used by GUI callbacks (e.g. the lens editor)
   ! that modify the lens but do not go through name_enter, which is the only other
   ! place a deferred replot is drained. Safe to call only at a top-level GUI
@@ -176,6 +184,11 @@ contains
   subroutine zoa_set_save_zin_callback(cb)
     procedure(save_zin_iface) :: cb
     save_zin_cb => cb
+  end subroutine
+
+  subroutine zoa_set_plot_size_callback(cb)
+    procedure(plot_size_iface) :: cb
+    plot_size_cb => cb
   end subroutine
 
   subroutine zoa_set_export_png_callback(cb)
@@ -278,6 +291,18 @@ contains
       call export_png_cb(path)
     else
       call zoa_emit("EXPORTPNG requires the GUI", "red")
+    end if
+  end subroutine
+
+  ! notify_plot_size: PLTSIZE needs the GUI (headless plots have no tab)
+  subroutine notify_plot_size(mode, w, h)
+    use zoa_output, only: zoa_emit
+    character(len=*), intent(in) :: mode
+    integer, intent(in) :: w, h
+    if (associated(plot_size_cb)) then
+      call plot_size_cb(mode, w, h)
+    else
+      call zoa_emit("PLTSIZE requires the GUI", "red")
     end if
   end subroutine
 

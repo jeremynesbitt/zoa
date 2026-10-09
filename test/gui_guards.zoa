@@ -24,3 +24,11 @@ VIEOVER
 ! ---- EXPORTPNG: GUI-only, and argument checked ----
 EXPORTPNG should_not_be_written.png
 EXPORTPNG
+! ---- PLTSIZE: GUI-only (plots follow their window; PLTSIZE w h fixes a size) ----
+PLTSIZE
+PLTSIZE 800 600
+PLTSIZE AUTO
+! argument checks run before the GUI is needed
+PLTSIZE 10 10
+PLTSIZE 800.5 600
+PLTSIZE BIG

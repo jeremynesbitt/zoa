@@ -35,6 +35,8 @@ module handlers
 
 
   type(zoatabManager) :: zoatabMgr
+  ! pending plot re-render after a resize (0: none) -- see gui_plot_canvas_resized
+  integer(c_int) :: plot_resize_timer = 0
 
   ! Top-level command queue — prevents re-entrant execution via pending_events()
   logical :: cmd_in_progress = .false.
@@ -323,8 +325,9 @@ contains
         zoa_set_query_existing_plot_callback, &
         zoa_set_query_save_file_callback, &
         zoa_set_save_zin_callback, zoa_set_load_zin_callback, &
-        zoa_set_export_png_callback, &
+        zoa_set_export_png_callback, zoa_set_plot_size_callback, &
         zoa_set_replot_flush_callback
+    use zoa_tab, only: plot_canvas_hook
 
     implicit none
     type(c_ptr), value, intent(in)  :: gdata, app2
@@ -542,6 +545,8 @@ contains
     call zoa_set_query_save_file_callback(gui_query_save_file)
     call zoa_set_save_zin_callback(gui_save_zin)
     call zoa_set_export_png_callback(gui_export_png)
+    call zoa_set_plot_size_callback(gui_plot_size)
+    plot_canvas_hook => gui_plot_canvas_hook
     call zoa_set_load_zin_callback(gui_load_zin)
 
     ! INIT KDP
@@ -1149,6 +1154,65 @@ end subroutine
 
   ! ---- .zin companion plot file (registered in activate) --------------------
   ! Core code reaches these only through zoa_ui_callbacks, so it never needs GTK.
+
+  ! ---- Plot sizing (see zoa_tab PLOT_MIN_W) -------------------------------
+  ! Each plot canvas reports size changes through GtkDrawingArea "resize";
+  ! the re-render waits until the size has stopped changing for 150 ms, so
+  ! dragging a window edge does not redraw every plot continuously.
+
+  subroutine gui_plot_canvas_hook(canvas)
+    use g, only: g_object_get_data, g_object_set_data
+    type(c_ptr), intent(in) :: canvas
+    if (.not. c_associated(canvas)) return
+    if (c_associated(g_object_get_data(canvas, "zoa-size-hooked"//c_null_char))) return
+    call g_signal_connect(canvas, "resize"//c_null_char, c_funloc(gui_plot_canvas_resized), c_null_ptr)
+    call g_object_set_data(canvas, "zoa-size-hooked"//c_null_char, canvas)
+  end subroutine
+
+  subroutine gui_plot_canvas_resized(area, width, height, gdata) bind(c)
+    use g, only: g_timeout_add, g_source_remove
+    type(c_ptr), value, intent(in) :: area, gdata
+    integer(c_int), value, intent(in) :: width, height
+    integer :: i
+    integer(c_int) :: rc
+
+    do i = 1, size(zoatabMgr%tabInfo)
+      if (.not. allocated(zoatabMgr%tabInfo(i)%tabObj)) cycle
+      select type (t => zoatabMgr%tabInfo(i)%tabObj)
+      class is (zoaplottab)
+        if (c_associated(t%canvas, area)) t%resizePending = .true.
+      end select
+    end do
+    ! restart the quiet period
+    if (plot_resize_timer /= 0) rc = g_source_remove(plot_resize_timer)
+    plot_resize_timer = g_timeout_add(150_c_int, c_funloc(gui_apply_plot_resizes), c_null_ptr)
+  end subroutine
+
+  function gui_apply_plot_resizes(gdata) result(ret) bind(c)
+    type(c_ptr), value, intent(in) :: gdata
+    integer(c_int) :: ret
+    integer :: i
+
+    plot_resize_timer = 0
+    do i = 1, size(zoatabMgr%tabInfo)
+      if (.not. allocated(zoatabMgr%tabInfo(i)%tabObj)) cycle
+      select type (t => zoatabMgr%tabInfo(i)%tabObj)
+      class is (zoaplottab)
+        if (t%resizePending) then
+          t%resizePending = .false.
+          if (t%autoSize .and. c_associated(t%canvas)) &
+            call t%renderAtSize(gtk_widget_get_width(t%canvas), gtk_widget_get_height(t%canvas))
+        end if
+      end select
+    end do
+    ret = 0_c_int   ! G_SOURCE_REMOVE: one shot
+  end function
+
+  subroutine gui_plot_size(mode, w, h)
+    character(len=*), intent(in) :: mode
+    integer, intent(in) :: w, h
+    call zoatabMgr%sizeActivePlot(mode, w, h)
+  end subroutine
 
   subroutine gui_export_png(path)
     character(len=*), intent(in) :: path

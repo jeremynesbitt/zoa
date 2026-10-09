@@ -149,6 +149,46 @@ contains
 
     end procedure
 
+    ! Plots follow their window by default: the plot is re-rendered at the
+    ! largest size with its own aspect ratio that fits the tab.  PLTSIZE w h
+    ! fixes the active plot's size in pixels instead; PLTSIZE AUTO returns it
+    ! to following the window; PLTSIZE (or PLTSIZE ?) reports it.
+    !## cmd:      PLTSIZE
+    !## syntax:   PLTSIZE [w h | AUTO | ?]
+    !## category: Plotting
+    !## desc:     Set the active plot's size in pixels, or make it follow the window (AUTO).
+    !##           GUI only.
+    !##
+    module procedure execPLTSIZE
+        use zoa_ui_callbacks, only: notify_plot_size
+        use command_utils, only: isInputNumber
+        use type_utils, only: str2real8
+        implicit none
+        character(len=80) :: tokens(40)
+        integer :: numTokens, w, h
+        real(kind=8) :: rw, rh
+
+        call parse(trim(iptStr), ' ', tokens, numTokens)
+        if (numTokens == 1 .or. (numTokens == 2 .and. trim(tokens(2)) == '?')) then
+            call notify_plot_size('?', 0, 0)
+        else if (numTokens == 2 .and. trim(tokens(2)) == 'AUTO') then
+            call notify_plot_size('AUTO', 0, 0)
+        else if (numTokens == 3 .and. isInputNumber(tokens(2)) .and. isInputNumber(tokens(3))) then
+            rw = str2real8(trim(tokens(2)))
+            rh = str2real8(trim(tokens(3)))
+            if (rw /= anint(rw) .or. rh /= anint(rh) .or. rw < 50 .or. rh < 50 .or. &
+                rw > 10000 .or. rh > 10000) then
+                call zoa_emit("Error! PLTSIZE takes whole numbers of pixels from 50 to 10000", "red")
+                return
+            end if
+            w = nint(rw)
+            h = nint(rh)
+            call notify_plot_size('SET', w, h)
+        else
+            call zoa_emit("Error! Expecting 'PLTSIZE w h', 'PLTSIZE AUTO' or 'PLTSIZE ?'", "red")
+        end if
+    end procedure execPLTSIZE
+
     !## cmd:      EXPORTPNG
     !## syntax:   EXPORTPNG file.png
     !## category: Plotting

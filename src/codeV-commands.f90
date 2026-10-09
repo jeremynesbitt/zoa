@@ -43,6 +43,9 @@ module codeV_commands
    module subroutine execExportPng(iptStr)
    character(len=*) :: iptStr
    end subroutine execExportPng
+   module subroutine execPLTSIZE(iptStr)
+   character(len=*) :: iptStr
+   end subroutine execPLTSIZE
    module subroutine execTRACECMP(iptStr)
    character(len=*) :: iptStr
    end subroutine execTRACECMP
@@ -614,6 +617,8 @@ module codeV_commands
         zoaCmds(742)%execFunc => setNAO
         zoaCmds(743)%cmd = 'FLOAT'
         zoaCmds(743)%execFunc => setFLOAT
+        zoaCmds(744)%cmd = 'PLTSIZE'
+        zoaCmds(744)%execFunc => execPLTSIZE
         zoaCmds(527)%cmd = 'SETDENS'
         zoaCmds(527)%execFunc => setPlotDensity     
         zoaCmds(528)%cmd = 'SETZERNC'

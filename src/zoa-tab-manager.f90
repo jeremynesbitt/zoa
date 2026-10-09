@@ -55,6 +55,7 @@ type  zoatabManager
    procedure, public :: restoreTabsFromZin
    procedure, public :: restorePlotTab
   procedure, public :: exportActivePlotPng
+  procedure, public :: sizeActivePlot
 
    !Support for KDP (now only VIE) plot
    procedure :: addKDPPlotTab
@@ -939,6 +940,73 @@ subroutine exportActivePlotPng(self, fileName, ok)
   end select
 
 end subroutine exportActivePlotPng
+
+! PLTSIZE on the active plot tab (identified as exportActivePlotPng does):
+! mode 'SET' fixes it at w x h pixels, 'AUTO' makes it follow its tab, '?'
+! reports its size and mode.
+subroutine sizeActivePlot(self, mode, w, h)
+  use cairo, only: cairo_image_surface_get_width, cairo_image_surface_get_height
+  use gtk_sup, only: c_f_string
+  use g, only: g_object_get_data
+  use zoa_output, only: zoa_emit
+  use type_utils, only: int2str
+  implicit none
+  class(zoatabManager) :: self
+  character(len=*), intent(in) :: mode
+  integer, intent(in) :: w, h
+  integer :: objIdx, curW, curH
+  integer(kind=c_int) :: currPageIndex
+  type(c_ptr) :: currPage, cptr, isurface
+  character(len=100) :: tabTitle
+
+  currPageIndex = gtk_notebook_get_current_page(self%notebook)
+  currPage = gtk_notebook_get_nth_page(self%notebook, currPageIndex)
+  if (.not. c_associated(currPage)) then
+    call zoa_emit("PLTSIZE: no active plot tab", "red")
+    return
+  end if
+  tabTitle = ''
+  cptr = g_object_get_data(currPage, "tab-id"//c_null_char)
+  if (c_associated(cptr)) call c_f_string(cptr, tabTitle)
+  objIdx = self%getTabIdxByID(trim(tabTitle))
+  if (objIdx == -1) then
+    call zoa_emit("PLTSIZE: the active tab is not a plot", "red")
+    return
+  end if
+  if (.not. allocated(self%tabInfo(objIdx)%tabObj)) then
+    call zoa_emit("PLTSIZE: the active tab is not a plot", "red")
+    return
+  end if
+
+  select type (t => self%tabInfo(objIdx)%tabObj)
+  class is (zoaplottab)
+    select case (mode)
+    case ('SET')
+      call t%setFixedSize(int(w, c_int), int(h, c_int))
+    case ('AUTO')
+      call t%setAutoSize()
+    end select
+    if (t%autoSize) then
+      curW = gtk_widget_get_width(t%canvas)
+      curH = gtk_widget_get_height(t%canvas)
+      if (.not. t%usesKdpDraw) then
+        isurface = g_object_get_data(t%canvas, "backing-surface"//c_null_char)
+        if (c_associated(isurface)) then
+          curW = cairo_image_surface_get_width(isurface)
+          curH = cairo_image_surface_get_height(isurface)
+        end if
+      end if
+      call zoa_emit("PLTSIZE "//trim(int2str(curW))//" "//trim(int2str(curH))// &
+      &             "  (automatic: follows the window)", "black")
+    else
+      call zoa_emit("PLTSIZE "//trim(int2str(int(gtk_drawing_area_get_content_width(t%canvas))))// &
+      &             " "//trim(int2str(int(gtk_drawing_area_get_content_height(t%canvas))))// &
+      &             "  (fixed)", "black")
+    end if
+  class default
+    call zoa_emit("PLTSIZE: the active tab is not a plot", "red")
+  end select
+end subroutine sizeActivePlot
 
 ! Re-render a KDP-drawn tab (VIE) into a standalone image surface, the way its
 ! draw callback would paint the widget.  The caller owns the returned surface.
