@@ -917,6 +917,10 @@ call self%mplt%draw()
 
 end subroutine
 
+! The toolbar's buttons are packed with expand on (hl_gtk_box_pack), which
+! propagates up: once the canvas made the tab's box fill its height, the
+! toolbar row took a share of it -- a big gap above the settings.  Pin the
+! row (and the settings expander) to their natural height.
 ! Put the canvas in the current sizing mode: automatic -> it expands to fill
 ! the tab (with a small minimum); fixed -> exactly the stored size.  Records
 ! the plot's natural size first, from its own backing surface, if not known.
@@ -951,6 +955,8 @@ subroutine applySizingMode(self)
     call gtk_widget_set_halign(self%canvas, GTK_ALIGN_FILL)
     call gtk_widget_set_valign(self%canvas, GTK_ALIGN_FILL)
     if (c_associated(self%box1)) call gtk_widget_set_vexpand(self%box1, TRUE)
+    ! The canvas, and nothing else in the box, takes the extra height.
+    if (c_associated(self%expander)) call gtk_widget_set_vexpand(self%expander, FALSE)
   else
     call gtk_widget_set_hexpand(self%canvas, FALSE)
     call gtk_widget_set_vexpand(self%canvas, FALSE)
@@ -1417,6 +1423,7 @@ end subroutine
        ! call LogTermFOR("Here is where I would like to init toolbar!")
        call createPlotManipulationToolbar(self%canvas, box_plotmanip) 
        call gtk_box_append(self%box1, box_plotmanip)
+       call gtk_widget_set_vexpand(box_plotmanip, FALSE)   ! see applySizingMode
     end if
     end if
     
@@ -1506,6 +1513,7 @@ end function
      if (useToolBar) then
       call createPlotManipulationToolbar(self%canvas, box_plotmanip) 
       call gtk_box_append(self%box1, box_plotmanip)
+      call gtk_widget_set_vexpand(box_plotmanip, FALSE)   ! see applySizingMode
    end if
    end if
    
