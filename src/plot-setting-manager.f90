@@ -124,6 +124,7 @@ module plot_setting_manager
     procedure, public, pass(self) :: getAirySetting
 
     procedure, public, pass(self) :: updateSetting, addPowerOfTwoImageSetting, getPowerOfTwoImageSetting
+    procedure, public, pass(self) :: setSettingCommand
     procedure, public, pass(self) :: applySettingCommand
 
     procedure, public, pass(self) :: saveToBinary => psm_save_binary
@@ -172,15 +173,21 @@ contains
       & "Num Rays Per Field", real(7),1.0,real(19), &
       & "NUMRAYS ", "NUMRAYS "//trim(int2str(7)), UITYPE_SPINBUTTON)
 
+      ! The surface range.  The spin boxes allow every surface number (the
+      ! lens may grow while the plot is open -- their limit used to be the
+      ! lens's last surface when the plot was made); the values are clamped
+      ! to the lens when used.  The last surface defaults to the image, stored
+      ! as "DRAWSF I" (CODE V's I), so it follows the lens as surfaces are
+      ! added -- a plain number was replayed on every replot and hid them.
       self%numSettings = self%numSettings + 1
       call self%ps(self%numSettings)%initialize(ID_LENS_FIRSTSURFACE, & 
-      & "First Surface", real(0),0.0,real(ldm%getLastSurf()), &
+      & "First Surface", real(0),0.0,real(499), &
       & "DRAWSI", "DRAWSI "//trim(int2str(0)), UITYPE_SPINBUTTON)
 
       self%numSettings = self%numSettings + 1
       call self%ps(self%numSettings)%initialize(ID_LENS_LASTSURFACE, & 
-      & "Last Surface", real(ldm%getLastSurf()),real(1.0),real(ldm%getLastSurf()), &
-      & "DRAWSF ", "DRAWSF "//trim(int2str(ldm%getLastSurf())), UITYPE_SPINBUTTON)
+      & "Last Surface", real(ldm%getLastSurf()),real(1.0),real(499), &
+      & "DRAWSF ", "DRAWSF I", UITYPE_SPINBUTTON)
 
       self%numSettings = self%numSettings + 1
       call self%ps(self%numSettings)%initialize(ID_LENSDRAW_ELEVATION, &
@@ -1172,6 +1179,18 @@ contains
         end select
       end function
 
+
+      ! Set the command text a setting replays (its ps%fullCmd) -- for a value
+      ! stored symbolically, e.g. "DRAWSF I" for "to the image surface".
+      subroutine setSettingCommand(self, setting_code, cmdText)
+        class(zoaplot_setting_manager) :: self
+        integer, intent(in) :: setting_code
+        character(len=*), intent(in) :: cmdText
+        integer :: i
+        do i=1,self%numSettings
+          if (self%ps(i)%ID == setting_code) self%ps(i)%fullCmd = cmdText
+        end do
+      end subroutine
 
       subroutine updateSetting(self, setting_code, newVal)
         use global_widgets, only: sysConfig

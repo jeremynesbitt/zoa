@@ -579,7 +579,20 @@ contains
         case ('DRAWSI')
             call curr_psm%updateSetting(ID_LENS_FIRSTSURFACE, clampToLens(str2int(trim(tokens(2)))))
         case ('DRAWSF')
-            call curr_psm%updateSetting(ID_LENS_LASTSURFACE, clampToLens(str2int(trim(tokens(2)))))
+            ! "DRAWSF I" (CODE V's image surface), or the image surface's
+            ! number, means "to the image": stored as I, so a replot after
+            ! surfaces are added draws them too.  Any other surface stays put.
+            block
+                use mod_lens_data_manager, only: ldm
+                integer :: sf
+                if (trim(tokens(2)) == 'I') then
+                    sf = ldm%getLastSurf()
+                else
+                    sf = clampToLens(str2int(trim(tokens(2))))
+                end if
+                call curr_psm%updateSetting(ID_LENS_LASTSURFACE, sf)
+                if (sf == ldm%getLastSurf()) call curr_psm%setSettingCommand(ID_LENS_LASTSURFACE, 'DRAWSF I')
+            end block
         case ('ELEV')
             call curr_psm%updateSetting(ID_LENSDRAW_ELEVATION, real(str2real8(trim(tokens(2))), real64))
         case ('AZI')
