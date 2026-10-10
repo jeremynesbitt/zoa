@@ -104,7 +104,6 @@ SUBROUTINE QRRAY
    call zoa_emit('BEAM FOOTPRINT DATA BEING GENERATED', 'black')
    write(emit_tmp,*)'CURRENT RAY GRID SIZE IS : ',(2*FOTLIM)+1,' x ',(2*FOTLIM)+1
    call zoa_emit(trim(emit_tmp), 'black')
-   call zoa_emit('PLEASE WAIT...', 'black')
 !
 !
 !     AREA OF ONE SQUARE ON THE REFERENCE SURFACE IS EQUAL TO 4 TIMES THE AREA

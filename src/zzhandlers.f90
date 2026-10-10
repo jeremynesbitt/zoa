@@ -1090,6 +1090,13 @@ end subroutine
     use undo_manager, only: undo_snapshot
     use mod_reference_rays, only: refRays
     use zoa_file_handler, only: zoa_file_depth
+    use cmd_loop_state, only: cmd_loop
+    ! Not while a command loop (AUT, TAR, UPD CON, a plot's settings) is
+    ! open: redrawing a plot runs its own "VIE ...; GO" loop, which replaced
+    ! the open loop and closed it -- after typing AUT the next line was
+    ! rejected as outside the AUT loop.  The replot stays deferred and runs
+    ! after the GO that closes the loop.
+    if (cmd_loop /= 0) return
     if (replot_deferred) then
       replot_deferred = .false.
       call zoatabMgr%rePlotIfNeeded()

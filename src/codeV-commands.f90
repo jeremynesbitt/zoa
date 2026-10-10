@@ -16,6 +16,7 @@
 
 module codeV_commands
     use iso_c_binding, only: c_ptr
+    use cmd_loop_state, only: cmd_loop
     use zoa_ui
     use iso_fortran_env, only: real64
     use plot_setting_manager, only: zoaplot_setting_manager
@@ -463,7 +464,7 @@ module codeV_commands
     logical          :: fbLogOn = .FALSE.
     character(len=256) :: fbLogFile = ''
 
-    integer :: cmd_loop = 0
+    ! cmd_loop (the open command loop) lives in cmd_loop_state; see there.
     integer, parameter :: VIE_LOOP = 1
     integer, parameter :: DRAW_LOOP = 2 ! While plot is being drawn
     integer, parameter :: SPO_LOOP = 3
