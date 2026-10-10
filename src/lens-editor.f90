@@ -498,8 +498,8 @@ function buildLensEditTable() result(store)
     integer, parameter :: numThickSolves = size(thick_solves)
     integer, parameter :: numCurvSolves = size(curv_solves)
 
-    character(len=30), dimension(numThickSolves) :: thicSolves
-    character(len=30), dimension(numCurvSolves) :: curvSolves
+    character(len=60), dimension(numThickSolves) :: thicSolves
+    character(len=60), dimension(numCurvSolves) :: curvSolves
 
     !type(c_ptr), dimension(numThickSolves+1) :: c_ptr_array
     type(c_ptr), dimension(:), allocatable :: c_ptr_array

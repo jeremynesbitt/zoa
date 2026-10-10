@@ -196,7 +196,7 @@ end type
 ! This is to store all the data needed for telling the user the 
 ! type of solves available and how to interface it with the CLI
 type solve_options
- character(len=40) :: uiText
+ character(len=60) :: uiText
  integer :: id_solve, solve_type
  character(len=8) :: cmd_kdp 
  character(len=8) :: cmd_codeV 
@@ -305,8 +305,10 @@ end type
 
 ! More definitions
   ! Solves
+  ! Built from solve_manager's SOLVE_KINDS (init_solves): "None" + every
+  ! thickness kind (7), "None" + every curvature kind (14).
   type(solve_options), dimension(8) :: thick_solves
-  type(solve_options), dimension(8) :: curv_solves
+  type(solve_options), dimension(15) :: curv_solves
 
 
 contains
@@ -1026,145 +1028,74 @@ subroutine getFieldRefFromSystemArr(self)
 end subroutine
 
 subroutine init_solves()
+ ! The lens editor's solve choices, one per solve kind in solve_manager's
+ ! SOLVE_KINDS (the single source of truth for solves): id_solve is the kind's
+ ! code as the engine stores it in the SOLVE array (slot 6/4 thickness, 8/2
+ ! curvature), cmd_kdp the engine command the editor sends.  The text shows
+ ! what the solve does and its CODE V command (THI/CUY/CUX Sk <qualifier>);
+ ! kinds CODE V has no spelling for (CAY/CAX, COCY/COCX) show the engine name.
+ use solve_manager, only: SOLVE_KINDS, NUM_SOLVE_KINDS
+ integer :: i, nt, nc
+ character(len=40) :: what, param
+ character(len=60) :: txt
 
- thick_solves(1)%solve_type = ID_PICKUP_THIC
- thick_solves(1)%id_solve = ID_SOLVE_NONE
- thick_solves(1)%param1Name = "Not Used"
- thick_solves(1)%param2Name = "Not Used"
- thick_solves(1)%uiText = "None"
- thick_solves(1)%cmd_kdp = ""
- thick_solves(1)%cmd_codeV = ""
+ thick_solves(1) = solve_options("None", ID_SOLVE_NONE, ID_PICKUP_THIC, "", "", "Not Used", "Not Used")
+ curv_solves(1)  = solve_options("None", ID_SOLVE_NONE, ID_PICKUP_RAD,  "", "", "Not Used", "Not Used")
+ nt = 1
+ nc = 1
+ do i = 1, NUM_SOLVE_KINDS
+   call describe(trim(SOLVE_KINDS(i)%kdp_cmd), what, param)
+   if (len_trim(SOLVE_KINDS(i)%codev_cmd) == 0) then
+     txt = trim(what)//' ('//trim(SOLVE_KINDS(i)%kdp_cmd)//')'
+   else if (len_trim(SOLVE_KINDS(i)%codev_qual) == 0) then
+     txt = trim(what)//': '//trim(SOLVE_KINDS(i)%codev_cmd)
+   else
+     txt = trim(what)//': '//trim(SOLVE_KINDS(i)%codev_cmd)//' Sk '//trim(SOLVE_KINDS(i)%codev_qual)
+   end if
+   if (trim(SOLVE_KINDS(i)%kdp_cmd) == 'PY') txt = trim(txt)//' (0 = PIM)'
+   if (index(SOLVE_KINDS(i)%plane_cls, 'thi') > 0) then
+     nt = nt + 1
+     thick_solves(nt) = solve_options(txt, SOLVE_KINDS(i)%code, ID_PICKUP_THIC, &
+       SOLVE_KINDS(i)%kdp_cmd, trim(SOLVE_KINDS(i)%codev_cmd)//' '//trim(SOLVE_KINDS(i)%codev_qual), &
+       param, "Not Used")
+   else
+     nc = nc + 1
+     curv_solves(nc) = solve_options(txt, SOLVE_KINDS(i)%code, ID_PICKUP_RAD, &
+       SOLVE_KINDS(i)%kdp_cmd, trim(SOLVE_KINDS(i)%codev_cmd)//' '//trim(SOLVE_KINDS(i)%codev_qual), &
+       param, "Not Used")
+   end if
+ end do
 
+contains
 
- thick_solves(2)%solve_type = ID_PICKUP_THIC
- thick_solves(2)%id_solve = ID_SOLVE_PY
- thick_solves(2)%param1Name = "Axial Height"
- thick_solves(2)%param2Name = "Not Used"
- thick_solves(2)%uiText = "Paraxial Axial Height (PY)"
- thick_solves(2)%cmd_kdp = "PY"  
- thick_solves(2)%cmd_codeV = "PIM"  
-
- thick_solves(3)%solve_type = ID_PICKUP_THIC
- thick_solves(3)%id_solve = ID_SOLVE_PX
- thick_solves(3)%param1Name = "Axial Height"
- thick_solves(3)%param2Name = "Not Used"
- thick_solves(3)%uiText = "X Paraxial Axial Height (PX)"
- thick_solves(3)%cmd_kdp = "PX" 
- thick_solves(3)%cmd_codeV = ""   
-
- thick_solves(4)%solve_type = ID_PICKUP_THIC
- thick_solves(4)%id_solve = ID_SOLVE_PCY
- thick_solves(4)%param1Name = "Chief Ray Height"
- thick_solves(4)%param2Name = "Not Used"
- thick_solves(4)%uiText = "Paraxial Chief Ray Height (PCY)"
- thick_solves(4)%cmd_kdp = "PCY"
- thick_solves(4)%cmd_codeV = ""
-
- thick_solves(5)%solve_type = ID_PICKUP_THIC
- thick_solves(5)%id_solve = ID_SOLVE_PCX
- thick_solves(5)%param1Name = "Chief Ray Height"
- thick_solves(5)%param2Name = "Not Used"
- thick_solves(5)%uiText = "X Paraxial Chief Ray Height (PCX)"
- thick_solves(5)%cmd_kdp = "PCX" 
- thick_solves(5)%cmd_codeV = ""   
-
- thick_solves(6)%solve_type = ID_PICKUP_THIC
- thick_solves(6)%id_solve = ID_SOLVE_CAY
- thick_solves(6)%param1Name = "Clear Aperture"
- thick_solves(6)%param2Name = "Not Used"
- thick_solves(6)%uiText = "Clear Aperture Solve (CAY)"
- thick_solves(6)%cmd_kdp = "CAY" 
- thick_solves(6)%cmd_codeV = ""  
-
- thick_solves(7)%solve_type = ID_PICKUP_THIC
- thick_solves(7)%id_solve = ID_SOLVE_CAX
- thick_solves(7)%param1Name = "Clear Aperture"
- thick_solves(7)%param2Name = "Not Used"
- thick_solves(7)%uiText = "X Clear Aperture Solve (CAX)"
- thick_solves(7)%cmd_kdp = "CAX" 
- thick_solves(7)%cmd_codeV = ""  
-
- thick_solves(8)%solve_type = ID_PICKUP_THIC
- thick_solves(8)%id_solve = ID_SOLVE_MAG
- thick_solves(8)%param1Name = "Target Reduction"
- thick_solves(8)%param2Name = "Not Used"
- thick_solves(8)%uiText = "Mag Solve - Object Surf Only"
- thick_solves(8)%cmd_kdp = "REDSLV"
- thick_solves(8)%cmd_codeV = "RED"   
-
- curv_solves(1)%solve_type = ID_PICKUP_RAD
- curv_solves(1)%id_solve = ID_SOLVE_NONE
- curv_solves(1)%param1Name = "Not Used"
- curv_solves(1)%param2Name = "Not Used"
- curv_solves(1)%uiText = "None"
- curv_solves(1)%cmd_kdp = ""
- curv_solves(1)%cmd_codeV = ""
-
- curv_solves(2)%solve_type = ID_PICKUP_RAD
- curv_solves(2)%id_solve = ID_SOLVE_APY
- curv_solves(2)%param1Name = "Not Used"
- curv_solves(2)%param2Name = "Not Used"
- curv_solves(2)%uiText = "Aplanatic Paraxial Axial Ray (APY)"
- curv_solves(2)%cmd_kdp = "APY"  
- curv_solves(2)%cmd_codeV = ""  
-
- curv_solves(3)%solve_type = ID_PICKUP_RAD
- curv_solves(3)%id_solve = ID_SOLVE_APX
- curv_solves(3)%param1Name = "Not Used"
- curv_solves(3)%param2Name = "Not Used"
- curv_solves(3)%uiText = "X Aplanatic Paraxial Axial Ray (APX)"
- curv_solves(3)%cmd_kdp = "PX"   
- curv_solves(3)%cmd_codeV = ""   
-
- curv_solves(4)%solve_type = ID_PICKUP_RAD
- curv_solves(4)%id_solve = ID_SOLVE_APCY
- curv_solves(4)%param1Name = "Not Used"
- curv_solves(4)%param2Name = "Not Used"
- curv_solves(4)%uiText = "Paraxial Chief Ray Angle (APCY)"
- curv_solves(4)%cmd_kdp = "APCY"  
- curv_solves(5)%cmd_codeV = "APCY"  
-
- curv_solves(5)%solve_type = ID_PICKUP_RAD
- curv_solves(5)%id_solve = ID_SOLVE_APCX
- curv_solves(5)%param1Name = "Not Used"
- curv_solves(5)%param2Name = "Not Used"
- curv_solves(5)%uiText = "X Paraxial Chief Ray Angle (APCX)"
- curv_solves(5)%cmd_kdp = "APCX"   
- curv_solves(5)%cmd_codeV = ""   
-
- curv_solves(6)%solve_type = ID_PICKUP_RAD
- curv_solves(6)%id_solve = ID_SOLVE_PIY
- curv_solves(6)%param1Name = "Angle of Incidece"
- curv_solves(6)%param2Name = "Not Used"
- curv_solves(6)%uiText = "Paraxial Chief Ray AOI (PIY)"
- curv_solves(6)%cmd_kdp = "PIY"  
- curv_solves(6)%cmd_codeV = "PIY"  
-
- curv_solves(7)%solve_type = ID_PICKUP_RAD
- curv_solves(7)%id_solve = ID_SOLVE_PIX
- curv_solves(7)%param1Name = "Angle of Incidece"
- curv_solves(7)%param2Name = "Not Used"
- curv_solves(7)%uiText = "X Paraxial Chief Ray AOI (PIY)"
- curv_solves(7)%cmd_kdp = "PIX"  
- curv_solves(7)%cmd_codeV = "PIX" 
-
- curv_solves(8)%solve_type = ID_PICKUP_RAD
- curv_solves(8)%id_solve = ID_SOLVE_PUY
- curv_solves(8)%param1Name = "Paraxial Angle"
- curv_solves(8)%param2Name = "Not Used"
- curv_solves(8)%uiText = "Paraxial Axial Ray Slope Angle (HUY)"
- curv_solves(8)%cmd_kdp = "PUY"  
- curv_solves(8)%cmd_codeV = ""
- 
- 
-
-    !thicSolves(1) = "None"
-    !thicSolves(2) = "Paraxial Axial Height (PY)"
-    !thicSolves(3) = "X Paraxial Axial Height (PX)"
-    !thicSolves(4) = "Paraxial Chief Ray Height (PCY)"
-    !thicSolves(5) = "X Paraxial Chief Ray Height (PCX)"
-    !thicSolves(6) = "Clear Aperture Solve (CAY)"
-    !thicSolves(7) = "X Clear Aperture Solve (CAX)"
+ subroutine describe(cmd, what, param)
+   character(len=*), intent(in) :: cmd
+   character(len=*), intent(out) :: what, param
+   select case (cmd)
+   case ('PY');     what = 'Marginal Ray Height';           param = 'Height'
+   case ('PX');     what = 'X Marginal Ray Height';         param = 'Height'
+   case ('PCY');    what = 'Chief Ray Height';              param = 'Height'
+   case ('PCX');    what = 'X Chief Ray Height';            param = 'Height'
+   case ('CAY');    what = 'Clear Aperture';                param = 'Clear Aperture'
+   case ('CAX');    what = 'X Clear Aperture';              param = 'Clear Aperture'
+   case ('REDSLV'); what = 'Reduction, Object Surf Only';   param = 'Target Reduction'
+   case ('APY');    what = 'Aplanatic, Marginal Ray';       param = 'Not Used'
+   case ('APX');    what = 'X Aplanatic, Marginal Ray';     param = 'Not Used'
+   case ('PIY');    what = 'Marginal Ray Incidence Angle';  param = 'Angle of Incidence'
+   case ('PIX');    what = 'X Marginal Ray Incidence Angle'; param = 'Angle of Incidence'
+   case ('PUY');    what = 'Marginal Ray Slope';            param = 'Slope'
+   case ('PUX');    what = 'X Marginal Ray Slope';          param = 'Slope'
+   case ('APCY');   what = 'Aplanatic, Chief Ray';          param = 'Not Used'
+   case ('APCX');   what = 'X Aplanatic, Chief Ray';        param = 'Not Used'
+   case ('PICY');   what = 'Chief Ray Incidence Angle';     param = 'Angle of Incidence'
+   case ('PICX');   what = 'X Chief Ray Incidence Angle';   param = 'Angle of Incidence'
+   case ('PUCY');   what = 'Chief Ray Slope';               param = 'Slope'
+   case ('PUCX');   what = 'X Chief Ray Slope';             param = 'Slope'
+   case ('COCY');   what = 'Concentric with Surface';       param = 'Surface'
+   case ('COCX');   what = 'X Concentric with Surface';     param = 'Surface'
+   case default;    what = cmd;                             param = 'Value'
+   end select
+ end subroutine
 
 end subroutine
 
@@ -1792,12 +1723,22 @@ subroutine updateSolveData(self, lData, row, solve_type)
  ! understand what is in solves array
 
  select case(solve_type)
+ ! The YZ slot (6/7 thickness, 8/9 curvature), else the XZ slot (4/3, 2/1):
+ ! the choices list both planes' kinds, each with its own code.
  case(ID_PICKUP_THIC)
   self%id_solve = INT(lData%solves(6,row))
   self%param1 =  lData%solves(7,row)
+  if (self%id_solve == 0) then
+    self%id_solve = INT(lData%solves(4,row))
+    self%param1 =  lData%solves(3,row)
+  end if
  case(ID_PICKUP_RAD)
   self%id_solve = INT(lData%solves(8,row))
   self%param1 =  lData%solves(9,row)
+  if (self%id_solve == 0) then
+    self%id_solve = INT(lData%solves(2,row))
+    self%param1 =  lData%solves(1,row)
+  end if
  end select 
 
  self%solve_type = solve_type
@@ -2234,9 +2175,10 @@ function setSolveData(self, surf, solve_type, solveOptions) result(currSolve)
   class(lens_data) :: self
   type(solve_options), dimension(:) :: solveOptions
   type(ksolve) :: currSolve
-  integer :: surf, solve_type, id, col
+  integer :: surf, solve_type, id, col, tcol
   integer :: i
 
+  ! YZ slot (code 6 / target 7, code 8 / target 9), else XZ (4/3, 2/1)
   select case (solve_type)
 
   case (ID_PICKUP_THIC)
@@ -2244,8 +2186,14 @@ function setSolveData(self, surf, solve_type, solveOptions) result(currSolve)
   case (ID_PICKUP_RAD)
     col = 8
   end select
+  tcol = col + 1
 
   id = INT(self%solves(col,surf))
+  if (id == 0) then
+    col = col - 4
+    tcol = col - 1
+    id = INT(self%solves(col,surf))
+  end if
   
   
   do i=1,size(solveOptions)
@@ -2253,7 +2201,7 @@ function setSolveData(self, surf, solve_type, solveOptions) result(currSolve)
       ! Transfer data
       currSolve%solve_type = solveOptions(i)%solve_type
       currSolve%id_solve = id
-      currSolve%param1 = self%solves(col+1,surf)
+      currSolve%param1 = self%solves(tcol,surf)
       currSolve%param1Name =  solveOptions(i)%param1Name
       currSolve%param2Name =  solveOptions(i)%param2Name
       currSolve%cmd_kdp = solveOptions(i)%cmd_kdp
