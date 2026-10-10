@@ -1,0 +1,21 @@
+! ---- DDR: CODE V default drawing rules (only EDG for now).  DDR EDG f makes
+! the default edge (physical) aperture f times the clear aperture: the System
+! Configuration's "Default Clear Aperture Margin", 10% = DDR EDG 1.10.  It
+! belongs to the lens: saved (after GO) and restored, reset on a new lens.
+RES osdtriplet
+DDR
+DDR EDG 1.10
+DDR ?
+SAV ddrtest
+PRT ddrtest
+! another lens: back to no margin; reloading restores 1.10
+RES osdtriplet
+DDR
+RES ddrtest
+DDR
+LEN NEW
+DDR
+! errors
+DDR EDG 0.5
+DDR SCA 2
+DDR EDG

@@ -1376,6 +1376,9 @@ subroutine genPostLensSaveText(self, fID, forCodeV)
   logical :: cv
   cv = .false.
   if (present(forCodeV)) cv = forCodeV
+  ! the default edge aperture (DDR EDG; 1.0, no margin, is the default)
+  if (abs(self%defaultEdgeScaleFactor - 1.0_real64) > 1.0e-12_real64) &
+    write(fID, '(A)') "DDR EDG "//trim(real2str(self%defaultEdgeScaleFactor,4))
   select case (self%currApertureID)
   case (APER_IMAGE_FNO)
     write(fID, '(A)') "FNO "//trim(real2str(self%refApertureValue(2),6))

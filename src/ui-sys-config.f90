@@ -941,10 +941,13 @@ subroutine callback_sys_config_settings (widget, gdata ) bind(c)
 
   case (ID_SYSCON_EDGE_FACTOR)
       ! Spin shows a margin percentage; store the scale factor (1 + margin/100).
-      sysConfig%defaultEdgeScaleFactor = &
-      & 1.0_real64 + real(gtk_spin_button_get_value(spinButton_edgeFactor), real64)/100.0_real64
-      ! Display-only setting (no EOS), so mark a replot for the flush below.
-      call notify_replot()
+      ! Through DDR EDG (factor = 1 + margin/100), so it is recorded and saved
+      ! with the lens; DDR marks the replot for the flush below.
+      block
+        character(len=40) :: fstr
+        write(fstr, '(F12.6)') 1.0_real64 + real(gtk_spin_button_get_value(spinButton_edgeFactor), real64)/100.0_real64
+        call PROCESKDP('DDR EDG '//trim(adjustl(fstr)))
+      end block
 
 case (ID_SYSCON_Y_APERTURE)
     ! The value applies to the aperture type the lens already has.  (This

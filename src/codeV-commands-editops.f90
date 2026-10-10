@@ -515,6 +515,9 @@ contains
         ! (Per-field vignetting is cleared by the DEL VIG line in newlens.zoa;
         ! clear + edge apertures by its DEL APE SA; constraints by DCON ALL.)
         call zoom_reset()
+        ! the default edge aperture belongs to the lens (saved as DDR EDG):
+        ! a new or loaded lens starts with no margin
+        sysConfig%defaultEdgeScaleFactor = 1.0_long
         ! newunit (not a hardcoded unit): this also runs nested inside
         ! process_zoa_file when a script line triggers a lens load.
         ! The template: the macro folder, then the search path, then the

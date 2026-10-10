@@ -2535,6 +2535,45 @@ contains
         end if
     end procedure execSEARCHPATH
 
+    ! CODE V's DDR (default drawing rules).  Only the EDG qualifier is
+    ! supported: DDR EDG f sets the default edge (physical) aperture of a
+    ! surface without an explicit CIR EDG to f times its clear aperture --
+    ! the System Configuration's "Default Clear Aperture Margin", a 10% margin
+    ! being DDR EDG 1.10.  Saved with the lens.  DDR / DDR ? reports it.
+    !## cmd:      DDR
+    !## syntax:   DDR [EDG f | ?]
+    !## category: System Data
+    !## desc:     Default drawing rules: EDG f = default edge aperture as f times the clear aperture.
+    !##
+    module procedure execDDR
+        use global_widgets, only: sysConfig
+        use command_utils, only: isInputNumber
+        use type_utils, only: str2real8, real2str
+        use zoa_ui_callbacks, only: notify_replot
+        implicit none
+        character(len=80) :: tokens(40)
+        integer :: numTokens
+        real(real64) :: f
+
+        call parse(trim(iptStr), ' ', tokens, numTokens)
+        if (numTokens == 1 .or. (numTokens == 2 .and. trim(tokens(2)) == '?')) then
+            call zoa_emit("DDR EDG "//trim(real2str(sysConfig%defaultEdgeScaleFactor, 4)), "black")
+        else if (trim(tokens(2)) /= 'EDG') then
+            call zoa_emit("DDR: only the EDG qualifier is supported (DDR EDG f)", "red")
+        else if (numTokens == 3 .and. isInputNumber(tokens(3))) then
+            f = str2real8(trim(tokens(3)))
+            if (f < 1.0d0 .or. f > 10.0d0) then
+                call zoa_emit("Error! DDR EDG takes a factor from 1 to 10 (1.10 = a 10% margin)", "red")
+                return
+            end if
+            sysConfig%defaultEdgeScaleFactor = f
+            ! a drawing setting: replot the lens drawings, nothing to EOS
+            call notify_replot()
+        else
+            call zoa_emit("Error! Expecting 'DDR EDG f', e.g. DDR EDG 1.10 for a 10% margin", "red")
+        end if
+    end procedure execDDR
+
     ! A report of the system's settings and first-order properties, modelled
     ! on the General Lens Data / Fields / Wavelengths sections of Zemax's
     ! System Data report (FIR lists a subset).  All values are paraxial.

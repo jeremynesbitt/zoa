@@ -472,6 +472,11 @@ test('sysdata', test_runner,
             meson.project_source_root() / 'test/sysdata.ref'],
      timeout: 60)
 
+test('drawing_rules', test_runner,
+     args: [meson.project_source_root() / 'test/drawing_rules.zoa',
+            meson.project_source_root() / 'test/drawing_rules.ref'],
+     timeout: 60)
+
 test('asph_modifiers', test_runner,
      args: [meson.project_source_root() / 'test/asph_modifiers.zoa',
             meson.project_source_root() / 'test/asph_modifiers.ref'],

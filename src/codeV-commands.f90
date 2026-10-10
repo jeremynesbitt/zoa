@@ -49,6 +49,9 @@ module codeV_commands
    module subroutine execSYSDATA(iptStr)
    character(len=*) :: iptStr
    end subroutine execSYSDATA
+   module subroutine execDDR(iptStr)
+   character(len=*) :: iptStr
+   end subroutine execDDR
    module subroutine execTRACECMP(iptStr)
    character(len=*) :: iptStr
    end subroutine execTRACECMP
@@ -624,6 +627,8 @@ module codeV_commands
         zoaCmds(744)%execFunc => execPLTSIZE
         zoaCmds(745)%cmd = 'SYSDATA'
         zoaCmds(745)%execFunc => execSYSDATA
+        zoaCmds(746)%cmd = 'DDR'
+        zoaCmds(746)%execFunc => execDDR
         zoaCmds(527)%cmd = 'SETDENS'
         zoaCmds(527)%execFunc => setPlotDensity     
         zoaCmds(528)%cmd = 'SETZERNC'

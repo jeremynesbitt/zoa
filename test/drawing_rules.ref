@@ -1,0 +1,57 @@
+All constraints removed
+
+
+
+
+
+
+Field Weights Command WTF     100     100     100 Not supported
+DDR EDG 1.0000
+DDR EDG 1.1000
+Number of tokens is 2
+File name to save is DDRTEST.zoa
+LEN
+TIT 'New Lens From Template'
+DIM M
+EPD 10.0000
+WL 587.5600 486.1300 656.2700 435.8400 706.5200
+WTW 10000.000000000000 10000.000000000000 10000.000000000000 10000.000000000000 10000.000000000000
+REF 1
+XAN 0.0000 0.0000 0.0000
+YAN 0.0000 7.0000 10.0000
+WTF     100     100     100
+SO   0.000000000000000D+00   0.999999982796800D+13
+S   0.150000000000000D+02   0.350000000000000D+01 N-SK16
+S   0.000000000000000D+00   0.310000000000000D+01
+S  -0.375300000000000D+02   0.150000000000000D+01 N-F2
+  STO
+S   0.140800000000000D+02   0.500000000000000D+01
+S   0.502600000000000D+02   0.350000000000000D+01 N-SK16
+S  -0.313800000000000D+02   0.385152169975528D+02
+PIM
+SI  0.0000     0.000000000000000D+00
+GO
+DDR EDG 1.1000
+All constraints removed
+
+
+
+
+
+
+Field Weights Command WTF     100     100     100 Not supported
+DDR EDG 1.0000
+All constraints removed
+
+
+
+Field Weights Command WTF     100     100     100 Not supported
+
+DDR EDG 1.1000
+All constraints removed
+
+
+DDR EDG 1.0000
+Error! DDR EDG takes a factor from 1 to 10 (1.10 = a 10% margin)
+DDR: only the EDG qualifier is supported (DDR EDG f)
+Error! Expecting 'DDR EDG f', e.g. DDR EDG 1.10 for a 10% margin
