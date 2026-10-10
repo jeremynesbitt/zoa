@@ -142,6 +142,15 @@ module optimizer_ui
     ! commands from rows that were merely being (re)displayed.
     logical :: binding_merit_row = .FALSE.
 
+    ! General Constraints tab: the GENCON checkbox and one value entry per
+    ! constraint (MXT, MNT, MNE, MNA, MAE in that order).  genRefreshing
+    ! blocks the toggled handler while the tab is being refreshed from optim.
+    type(c_ptr) :: genCheck = c_null_ptr
+    type(c_ptr) :: genEntries(5) = c_null_ptr
+    logical :: genRefreshing = .FALSE.
+    integer(c_int), target :: genIdx(5) = [1, 2, 3, 4, 5]
+    character(len=3), parameter :: GEN_NAMES(5) = ['MXT', 'MNT', 'MNE', 'MNA', 'MAE']
+
     contains
 
     subroutine optimizer_ui_new(parent_window)
@@ -204,6 +213,12 @@ module optimizer_ui
     
         SolveLabel = gtk_label_new_with_mnemonic("_Optimize"//c_null_char)
         pageIdx = gtk_notebook_append_page(nbk, optimize_create_objects(), SolveLabel)
+
+        conLabel = gtk_label_new_with_mnemonic("_General Constraints"//c_null_char)
+        pageIdx = gtk_notebook_append_page(nbk, general_constraints_create(), conLabel)
+        ! A GENCON/MXT/... typed at the command line while the window is open
+        ! shows up the next time the tab is selected.
+        call g_signal_connect(nbk, "switch-page"//c_null_char, c_funloc(gen_switch_page_cb))
     
         PRINT *, "FINISHED WITH OPTIMIZER WINDOW"
         !call gtk_box_append(box1, rf_cairo_drawing_area)
@@ -243,6 +258,149 @@ module optimizer_ui
 
     end function
 
+    ! General Constraints tab.  Every change goes through a command (GENCON,
+    ! MXT, ...) in an UPD CON loop, which sets it without running the
+    ! optimizer; the tab then re-reads optim so it always shows what is set.
+    function general_constraints_create() result(boxGen)
+        type(c_ptr) :: boxGen, grid, lbl, note
+        integer :: i
+        character(len=40) :: desc(5), units(5)
+        real(long) :: defaults(5)
+
+        desc = [character(len=40) :: 'Maximum element center thickness', &
+            &   'Minimum element center thickness', 'Minimum element edge thickness', &
+            &   'Minimum axial air spacing', 'Minimum air spacing at edge']
+        defaults = [GEN_MXT_DEFAULT, GEN_MNT_DEFAULT, GEN_MNE_DEFAULT, &
+            &       GEN_MNA_DEFAULT, GEN_MAE_DEFAULT]
+
+        boxGen = gtk_box_new(GTK_ORIENTATION_VERTICAL, 8_c_int)
+        call gtk_widget_set_margin_start(boxGen,  12_c_int)
+        call gtk_widget_set_margin_end(boxGen,    12_c_int)
+        call gtk_widget_set_margin_top(boxGen,    12_c_int)
+        call gtk_widget_set_margin_bottom(boxGen, 12_c_int)
+
+        genCheck = gtk_check_button_new_with_label( &
+            & 'Use general constraints (GENCON)'//c_null_char)
+        call gtk_widget_set_tooltip_text(genCheck, &
+            & 'On: GENCON YES.  Off: GENCON NO (none of the limits below are applied).'//c_null_char)
+        call g_signal_connect(genCheck, "toggled"//c_null_char, c_funloc(gen_toggled_cb))
+        call gtk_box_append(boxGen, genCheck)
+
+        grid = gtk_grid_new()
+        call gtk_grid_set_column_spacing(grid, 12_c_int)
+        call gtk_grid_set_row_spacing(grid, 6_c_int)
+
+        call gen_header(grid, 'Command', 0)
+        call gen_header(grid, 'Limit', 1)
+        call gen_header(grid, 'Value', 2)
+        call gen_header(grid, 'Default', 3)
+
+        do i = 1, 5
+            lbl = gtk_label_new(GEN_NAMES(i)//c_null_char)
+            call gtk_label_set_xalign(lbl, 0.0_c_float)
+            call gtk_grid_attach(grid, lbl, 0_c_int, int(i, c_int), 1_c_int, 1_c_int)
+
+            lbl = gtk_label_new(trim(desc(i))//c_null_char)
+            call gtk_label_set_xalign(lbl, 0.0_c_float)
+            call gtk_grid_attach(grid, lbl, 1_c_int, int(i, c_int), 1_c_int, 1_c_int)
+
+            genEntries(i) = hl_gtk_entry_new(editable=TRUE, &
+                & activate=c_funloc(gen_value_entered_cb), data=c_loc(genIdx(i)))
+            call gtk_widget_set_tooltip_text(genEntries(i), &
+                & 'Press Enter to apply ('//GEN_NAMES(i)//' value)'//c_null_char)
+            call gtk_grid_attach(grid, genEntries(i), 2_c_int, int(i, c_int), 1_c_int, 1_c_int)
+
+            lbl = gtk_label_new(trim(gen_fmt(defaults(i)))//c_null_char)
+            call gtk_label_set_xalign(lbl, 0.0_c_float)
+            call gtk_grid_attach(grid, lbl, 3_c_int, int(i, c_int), 1_c_int, 1_c_int)
+        end do
+        call gtk_box_append(boxGen, grid)
+
+        note = gtk_label_new('Applied at AUT; GO to variable thicknesses only (lens units).'// &
+            & '  If MNE and MXT conflict, MNE wins.'//c_null_char)
+        call gtk_label_set_wrap(note, TRUE)
+        call gtk_label_set_xalign(note, 0.0_c_float)
+        call gtk_box_append(boxGen, note)
+
+        call gen_refresh()
+    end function
+
+    subroutine gen_header(grid, text, col)
+        type(c_ptr), intent(in) :: grid
+        character(len=*), intent(in) :: text
+        integer, intent(in) :: col
+        type(c_ptr) :: lbl
+        lbl = gtk_label_new('<b>'//text//'</b>'//c_null_char)
+        call gtk_label_set_use_markup(lbl, TRUE)
+        call gtk_label_set_xalign(lbl, 0.0_c_float)
+        call gtk_grid_attach(grid, lbl, int(col, c_int), 0_c_int, 1_c_int, 1_c_int)
+    end subroutine
+
+    function gen_fmt(v) result(s)
+        use type_utils, only: real2str
+        real(long), intent(in) :: v
+        character(len=40) :: s
+        s = adjustl(real2str(v))
+    end function
+
+    ! Show the current settings (optim) in the tab.
+    subroutine gen_refresh()
+        real(long) :: vals(5)
+        integer :: i
+        if (.not. c_associated(genCheck)) return
+        genRefreshing = .TRUE.
+        if (optim%genConOn) then
+            call gtk_check_button_set_active(genCheck, TRUE)
+        else
+            call gtk_check_button_set_active(genCheck, FALSE)
+        end if
+        vals = [optim%mxt, optim%mnt, optim%mne, optim%mna, optim%mae]
+        do i = 1, 5
+            call gtk_entry_buffer_set_text(gtk_entry_get_buffer(genEntries(i)), &
+                & trim(gen_fmt(vals(i)))//c_null_char, -1_c_int)
+            if (optim%genConOn) then
+                call gtk_widget_set_sensitive(genEntries(i), TRUE)
+            else
+                call gtk_widget_set_sensitive(genEntries(i), FALSE)
+            end if
+        end do
+        genRefreshing = .FALSE.
+    end subroutine
+
+    subroutine gen_toggled_cb(widget, gdata) bind(c)
+        type(c_ptr), value, intent(in) :: widget, gdata
+        if (genRefreshing) return
+        if (gtk_check_button_get_active(widget) /= 0) then
+            call PROCESKDP('UPD CON; GENCON YES; GO')
+        else
+            call PROCESKDP('UPD CON; GENCON NO; GO')
+        end if
+        call gen_refresh()
+    end subroutine
+
+    subroutine gen_value_entered_cb(widget, gdata) bind(c)
+        use gtk_sup, only: c_f_string_copy
+        use command_utils, only: isInputNumber
+        use zoa_output, only: zoa_emit
+        type(c_ptr), value, intent(in) :: widget, gdata
+        integer(c_int), pointer :: idx
+        character(len=80) :: text
+        call c_f_pointer(gdata, idx)
+        call c_f_string_copy(gtk_entry_buffer_get_text(gtk_entry_get_buffer(widget)), text)
+        if (isInputNumber(trim(adjustl(text)))) then
+            call PROCESKDP('UPD CON; '//GEN_NAMES(idx)//' '//trim(adjustl(text))//'; GO')
+        else
+            call zoa_emit(GEN_NAMES(idx)//': "'//trim(adjustl(text))//'" is not a number', "red")
+        end if
+        call gen_refresh()
+    end subroutine
+
+    subroutine gen_switch_page_cb(notebook, page, pageNum, gdata) bind(c)
+        type(c_ptr), value, intent(in) :: notebook, page, gdata
+        integer(c_int), value, intent(in) :: pageNum
+        call gen_refresh()
+    end subroutine
+
     subroutine run_optimizer_cmd(but, gdata) bind(c)
         type(c_ptr), value, intent(in) :: but, gdata
         call PROCESKDP('AUT;GO')
@@ -279,6 +437,8 @@ module optimizer_ui
     subroutine optimizer_ui_on_destroy(widget, gdata) bind(c)
         type(c_ptr), value, intent(in) :: widget, gdata
         optimizer_window = c_null_ptr
+        genCheck = c_null_ptr
+        genEntries = c_null_ptr
     end subroutine
 
     subroutine initConstraintColInfo()

@@ -297,6 +297,43 @@ contains
         end select
     end procedure updateGeneralConstraint
 
+    !## cmd:      GENCON
+    !## syntax:   GENCON YES|NO
+    !## category: Optimization
+    !## desc:     Turn the general constraints (MXT/MNT/MNE/MNA/MAE) on or off; bare GENCON queries. Set inside AUT or UPD CON.
+    !##
+    module procedure execGENCON
+        use optim_types, only: optim
+        implicit none
+
+        character(len=80) :: tokens(40)
+        integer :: numTokens
+
+        if (cmd_loop /= AUT_LOOP .AND. cmd_loop /= TAR_LOOP) then
+            call zoa_emit("Error:  GENCON is set inside the AUT loop (or UPD CON)", "red")
+            return
+        end if
+
+        call parse(trim(iptStr), ' ', tokens, numTokens)
+        if (numTokens < 2) then
+            if (optim%genConOn) then
+                call zoa_emit("GENCON YES (general constraints MXT/MNT/MNE/MNA/MAE are on)", "black")
+            else
+                call zoa_emit("GENCON NO (general constraints MXT/MNT/MNE/MNA/MAE are off)", "black")
+            end if
+            return
+        end if
+
+        select case (trim(tokens(2)))
+        case ('YES', 'Y', 'ON')
+            optim%genConOn = .true.
+        case ('NO', 'N', 'OFF')
+            optim%genConOn = .false.
+        case default
+            call zoa_emit("Error:  GENCON takes YES or NO", "red")
+        end select
+    end procedure execGENCON
+
     ! ETH: list every gap's center and edge thickness.  Edge thickness is
     ! computed from the typed surfaces' sag() methods at the gap's evaluation
     ! height (max of the two surfaces' semi-diameters: explicit CIR EDG if
@@ -1069,6 +1106,10 @@ contains
         use kdp_utils, only: OUTKDP
         implicit none
 
+        if (.not. optim%genConOn) then
+            call OUTKDP('General constraints: OFF (GENCON NO)')
+            return
+        end if
         call OUTKDP('General (variable thicknesses): MXT '//trim(real2str(optim%mxt))// &
         &  '  MNT '//trim(real2str(optim%mnt))//'  MNE '//trim(real2str(optim%mne))// &
         &  '  MNA '//trim(real2str(optim%mna))//'  MAE '//trim(real2str(optim%mae)))

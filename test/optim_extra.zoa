@@ -80,6 +80,28 @@ LCON
 RES osdtriplet
 LCON
 
+! ---- GENCON: master switch for the general constraints ----
+! GENCON NO turns all five off (LCON says so, and it round-trips through
+! SAV/RES); bare GENCON queries; UPD CON; GENCON YES; GO turns them back on
+! without optimizing (the AUTUI path).  GENCON outside a loop is an error.
+GENCON NO
+RES osdtriplet
+AUT
+GENCON NO
+GENCON
+GO
+LCON
+SAV genconoff
+RES genconoff
+LCON
+UPD CON
+GENCON YES
+GENCON
+GO
+LCON
+RES osdtriplet
+LCON
+
 ! ---- General constraints active in an optimization ----
 ! THC S1 makes the first element's thickness a variable: bounds [MNT, MXT]
 ! apply and an MNE edge constraint is generated (report shows the MNE row).

@@ -375,6 +375,9 @@ module codeV_commands
    module subroutine execEDI(iptStr)
     character(len=*) :: iptStr
    end subroutine execEDI
+   module subroutine execGENCON(iptStr)
+    character(len=*) :: iptStr
+   end subroutine execGENCON
    module subroutine execTERM(iptStr)
     character(len=*) :: iptStr
    end subroutine execTERM
@@ -636,6 +639,8 @@ module codeV_commands
         zoaCmds(746)%execFunc => execDDR
         zoaCmds(747)%cmd = 'PTZ'
         zoaCmds(747)%execFunc => updateConstraint
+        zoaCmds(748)%cmd = 'GENCON'
+        zoaCmds(748)%execFunc => execGENCON
         zoaCmds(527)%cmd = 'SETDENS'
         zoaCmds(527)%execFunc => setPlotDensity     
         zoaCmds(528)%cmd = 'SETZERNC'

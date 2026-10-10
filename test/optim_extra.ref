@@ -660,6 +660,43 @@ All constraints removed
 Field Weights Command WTF     100     100     100 Not supported
 No merit entries (operands or constraints) defined
 General (variable thicknesses): MXT 12.00000  MNT 2.00000  MNE 2.00000  MNA 0.10000  MAE 0.00250
+Error:  GENCON is set inside the AUT loop (or UPD CON)
+All constraints removed
+
+
+
+
+
+
+Field Weights Command WTF     100     100     100 Not supported
+GENCON NO (general constraints MXT/MNT/MNE/MNA/MAE are off)
+AUT: no variables are defined; nothing to optimize.
+Set at least one variable first (e.g. CCY S2 0, THC S3 0, KC S2 0), or use the lens editor's Set Variable menu.
+No merit entries (operands or constraints) defined
+General constraints: OFF (GENCON NO)
+Number of tokens is 2
+File name to save is GENCONOFF.zoa
+All constraints removed
+
+
+
+Field Weights Command WTF     100     100     100 Not supported
+
+No merit entries (operands or constraints) defined
+General constraints: OFF (GENCON NO)
+GENCON YES (general constraints MXT/MNT/MNE/MNA/MAE are on)
+No merit entries (operands or constraints) defined
+General (variable thicknesses): MXT 12.00000  MNT 2.00000  MNE 2.00000  MNA 0.10000  MAE 0.00250
+All constraints removed
+
+
+
+
+
+
+Field Weights Command WTF     100     100     100 Not supported
+No merit entries (operands or constraints) defined
+General (variable thicknesses): MXT 12.00000  MNT 2.00000  MNE 2.00000  MNA 0.10000  MAE 0.00250
 All constraints removed
 
 

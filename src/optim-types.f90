@@ -25,6 +25,14 @@ module optim_types
             procedure :: getConstraintTypeAsText
     end type
 
+    ! General-constraint defaults (CODE V's): the reset values, and what the
+    ! optimizer UI's General Constraints tab shows as "Default".
+    real(kind=long), parameter :: GEN_MXT_DEFAULT = 12.0_long
+    real(kind=long), parameter :: GEN_MNT_DEFAULT = 2.0_long
+    real(kind=long), parameter :: GEN_MNE_DEFAULT = 2.0_long
+    real(kind=long), parameter :: GEN_MNA_DEFAULT = 0.1_long
+    real(kind=long), parameter :: GEN_MAE_DEFAULT = 0.0025_long
+
     type optimizer
         real(kind=long) :: imp
         ! General constraints (CODE V-style): global limits applied
@@ -32,11 +40,13 @@ module optim_types
         ! loop, e.g. "AUT; MXT 14.0; GO").  Center-thickness limits become
         ! slsqp variable bounds; edge limits become internal inequality
         ! constraints evaluated via the typed surfaces' sag().
-        real(kind=long) :: mxt = 12.0_long    ! max element center thickness
-        real(kind=long) :: mnt = 2.0_long     ! min element center thickness
-        real(kind=long) :: mne = 2.0_long     ! min element edge thickness
-        real(kind=long) :: mna = 0.1_long     ! min axial air spacing
-        real(kind=long) :: mae = 0.0025_long  ! min air spacing at edge
+        real(kind=long) :: mxt = GEN_MXT_DEFAULT  ! max element center thickness
+        real(kind=long) :: mnt = GEN_MNT_DEFAULT  ! min element center thickness
+        real(kind=long) :: mne = GEN_MNE_DEFAULT  ! min element edge thickness
+        real(kind=long) :: mna = GEN_MNA_DEFAULT  ! min axial air spacing
+        real(kind=long) :: mae = GEN_MAE_DEFAULT  ! min air spacing at edge
+        ! Master switch (GENCON YES/NO): off skips all five at AUT;GO.
+        logical :: genConOn = .true.
 
     contains
         procedure ::  genSaveOutputText
@@ -168,9 +178,9 @@ module optim_types
     ! (drives whether the saved merit block needs a TAR section for them).
     function genSettingsModified() result(modified)
         logical :: modified
-        modified = (optim%mxt /= 12.0_long) .OR. (optim%mnt /= 2.0_long) .OR. &
-        &          (optim%mne /= 2.0_long)  .OR. (optim%mna /= 0.1_long) .OR. &
-        &          (optim%mae /= 0.0025_long)
+        modified = (optim%mxt /= GEN_MXT_DEFAULT) .OR. (optim%mnt /= GEN_MNT_DEFAULT) .OR. &
+        &          (optim%mne /= GEN_MNE_DEFAULT) .OR. (optim%mna /= GEN_MNA_DEFAULT) .OR. &
+        &          (optim%mae /= GEN_MAE_DEFAULT) .OR. (.not. optim%genConOn)
     end function
 
     ! Counts by role, derived from the merit list (no separate counters to drift).
@@ -599,11 +609,12 @@ module optim_types
                 end if
             end do
             ! Non-default general-constraint settings (loop commands).
-            if (optim%mxt /= 12.0_long)   write(fID,*) "MXT "//real2str(optim%mxt)
-            if (optim%mnt /= 2.0_long)    write(fID,*) "MNT "//real2str(optim%mnt)
-            if (optim%mne /= 2.0_long)    write(fID,*) "MNE "//real2str(optim%mne)
-            if (optim%mna /= 0.1_long)    write(fID,*) "MNA "//real2str(optim%mna)
-            if (optim%mae /= 0.0025_long) write(fID,*) "MAE "//real2str(optim%mae)
+            if (optim%mxt /= GEN_MXT_DEFAULT) write(fID,*) "MXT "//real2str(optim%mxt)
+            if (optim%mnt /= GEN_MNT_DEFAULT) write(fID,*) "MNT "//real2str(optim%mnt)
+            if (optim%mne /= GEN_MNE_DEFAULT) write(fID,*) "MNE "//real2str(optim%mne)
+            if (optim%mna /= GEN_MNA_DEFAULT) write(fID,*) "MNA "//real2str(optim%mna)
+            if (optim%mae /= GEN_MAE_DEFAULT) write(fID,*) "MAE "//real2str(optim%mae)
+            if (.not. optim%genConOn)     write(fID,*) "GENCON NO"
             write(fID, *) "GO"
         end if
         end if
@@ -645,11 +656,12 @@ module optim_types
         class(optimizer) :: self
 
         nM = 0
-        self%mxt = 12.0_long
-        self%mnt = 2.0_long
-        self%mne = 2.0_long
-        self%mna = 0.1_long
-        self%mae = 0.0025_long
+        self%mxt = GEN_MXT_DEFAULT
+        self%mnt = GEN_MNT_DEFAULT
+        self%mne = GEN_MNE_DEFAULT
+        self%mna = GEN_MNA_DEFAULT
+        self%mae = GEN_MAE_DEFAULT
+        self%genConOn = .true.
 
     end subroutine removeAllConstraints
 

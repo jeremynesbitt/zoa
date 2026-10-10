@@ -160,6 +160,9 @@ subroutine expandGeneralConstraints(x, xl, xu)
 
     nGen = 0
 
+    ! GENCON NO: the user turned the general constraints off.
+    if (.not. optim%genConOn) return
+
     ! Nothing to do without a thickness variable -- in particular, skip the
     ! aperture ray trace below (it can spam ray-failure messages on systems
     ! whose optimization has nothing to do with thicknesses).
