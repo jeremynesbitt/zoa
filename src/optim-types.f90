@@ -72,6 +72,10 @@ module optim_types
             class(merit_entry) :: self
             real(long) :: res
         end function
+        module function getPetzvalCurvatureConstraint(self) result(res)
+            class(merit_entry) :: self
+            real(long) :: res
+        end function
         module function getTransverseAstigmatismConstraint(self) result(res)
             class(merit_entry) :: self
             real(long) :: res
@@ -154,6 +158,8 @@ module optim_types
         evaluators(6)%func => setDistanceToImagePlaneConstraint
         evaluators(7)%name = 'SAS'
         evaluators(7)%func => getSphericalConstraint
+        evaluators(8)%name = 'PTZ'
+        evaluators(8)%func => getPetzvalCurvatureConstraint
 
 
     end subroutine

@@ -663,20 +663,21 @@ module mod_lens_data_manager
         integer, optional :: lambdaIdx
         real(kind=real64) :: index
 
-        INTEGER :: WWVN
+        INTEGER :: WWVN, wl
 
-        ! TODO:  CLean up 
-
-        if(present(lambdaIdx) .EQV. .FALSE. ) then
-            WWVN = sysConfig%refWavelengthIndex
+        ! The wavelength number (default: the reference wavelength) maps to
+        ! its ALENS index slot: 1-5 -> 46-50, 6-10 -> 71-75.  (Without
+        ! lambdaIdx the number itself was used as the slot -- slot 1 is the
+        ! curvature, so the "index" came back as the curvature; every caller
+        ! passed lambdaIdx until the Petzval sum did not.)
+        if (present(lambdaIdx)) then
+            wl = lambdaIdx
         else
-           if (lambdaIdx.GT.0.AND.lambdaIdx.LT.6) then
-            WWVN = lambdaIdx+45 ! From 46-50
-           end if
-           if (lambdaIdx.GT.5.AND.lambdaIdx.LT.11) then
-            WWVN = lambdaIdx+65 ! From 71-75
-           end if           
+            wl = sysConfig%refWavelengthIndex
         end if
+        WWVN = 46
+        if (wl.GT.0.AND.wl.LT.6) WWVN = wl+45 ! From 46-50
+        if (wl.GT.5.AND.wl.LT.11) WWVN = wl+65 ! From 71-75
 
         index = ALENS(WWVN,surfIdx)
 

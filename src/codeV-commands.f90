@@ -629,6 +629,8 @@ module codeV_commands
         zoaCmds(745)%execFunc => execSYSDATA
         zoaCmds(746)%cmd = 'DDR'
         zoaCmds(746)%execFunc => execDDR
+        zoaCmds(747)%cmd = 'PTZ'
+        zoaCmds(747)%execFunc => updateConstraint
         zoaCmds(527)%cmd = 'SETDENS'
         zoaCmds(527)%execFunc => setPlotDensity     
         zoaCmds(528)%cmd = 'SETZERNC'

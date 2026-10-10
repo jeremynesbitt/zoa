@@ -37,6 +37,8 @@ Maximum Radial Field      : 10.00000
 Primary Wavelength [um]   : 0.5875600
 Lens Units                : Millimeters
 Angular Magnification     : 1.025891
+Petzval Sum               : 0.007962681
+Petzval Radius            : -125.5858
 
 Fields                    : 3
 Field Type: Angle in degrees
@@ -59,6 +61,7 @@ Units: um
  3       0.656270     100.000000
  4       0.435840     100.000000
  5       0.706520     100.000000
+-0.00796
 All constraints removed
 
 
@@ -94,6 +97,8 @@ Maximum Radial Field      : 39.07803
 Primary Wavelength [um]   : 0.2482870
 Lens Units                : Millimeters
 Angular Magnification     : 0.02086300
+Petzval Sum               : 5.342109E-007
+Petzval Radius            : -1871920.
 
 Fields                    : 3
 Field Type: Object Height
@@ -151,6 +156,8 @@ Maximum Radial Field      : 10.00000
 Primary Wavelength [um]   : 0.5875600
 Lens Units                : Millimeters
 Angular Magnification     : 1.025891
+Petzval Sum               : 0.007962681
+Petzval Radius            : -125.5858
 
 Fields                    : 3
 Field Type: Angle in degrees

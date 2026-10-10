@@ -13,6 +13,7 @@ module mod_analysis_manager
    
     contains
      procedure :: getTransverseComa, getTransverseAstigmatism, getPetzvalBlur, getTransverseSpherical
+     procedure :: getPetzvalSum, getPetzvalCurvature
      procedure :: getPSF, getImgNA
 
     end type
@@ -78,6 +79,33 @@ module mod_analysis_manager
         & curr_par_ray_trace%CSeidel(5,ubound(curr_par_ray_trace%CSeidel, dim=2))
 
     end function    
+
+    ! Petzval sum P = sum over surfaces of c (n' - n) / (n n'), paraxial
+    ! curvatures (getSurfCurv) and reference-wavelength indices.
+    function getPetzvalSum(self) result(res)
+        implicit none
+        class(analysis_manager) :: self
+        real(long) :: res
+        integer :: i
+        real(long) :: n, np
+
+        res = 0.0_long
+        do i = 1, ldm%getLastSurf()
+            n = ldm%getSurfIndex(i-1)
+            np = ldm%getSurfIndex(i)
+            if (n == 0.0_long .or. np == 0.0_long) cycle
+            res = res + ldm%getSurfCurv(i)*(np - n)/(n*np)
+        end do
+    end function
+
+    ! Curvature of the Petzval surface, 1/R = -n'(image space) * P -- the
+    ! legacy PTZCV (sum of the per-surface PIECV) times the image-space index.
+    function getPetzvalCurvature(self) result(res)
+        implicit none
+        class(analysis_manager) :: self
+        real(long) :: res
+        res = -ldm%getSurfIndex(ldm%getLastSurf()-1)*self%getPetzvalSum()
+    end function
 
     function getPetzvalBlur(self) result (res)
         implicit none

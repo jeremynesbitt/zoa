@@ -96,10 +96,15 @@ contains
     !## category: Optimization
     !## desc:     Petzval-blur merit entry.
     !##
+    !## cmd:      PTZ
+    !## syntax:   PTZ = v | PTZ v [w]
+    !## category: Optimization
+    !## desc:     Petzval-curvature merit entry (1/R of the Petzval surface, lens units^-1).
+    !##
     !## cmd:      SAS
     !## syntax:   SAS = v | SAS v [w]
     !## category: Optimization
-    !## desc:     Sagittal-astigmatism merit entry.
+    !## desc:     Transverse spherical aberration merit entry.
     !##
     !## cmd:      TAS
     !## syntax:   TAS = v | TAS v [w]
@@ -109,7 +114,7 @@ contains
     !## cmd:      TCO
     !## syntax:   TCO = v | TCO v [w]
     !## category: Optimization
-    !## desc:     Transverse-color merit entry.
+    !## desc:     Transverse coma merit entry.
     !##
     module procedure updateConstraint
         use command_utils, only : isInputNumber

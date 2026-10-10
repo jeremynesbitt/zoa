@@ -3,6 +3,8 @@
 ! Infinite conjugates, EPD aperture:
 RES osdtriplet
 SYSDATA
+! PTZ (the optimizer operand): Petzval curvature, 1/(Petzval Radius)
+EVA PTZ
 ! Finite conjugates (4x reduction), object-space NA aperture:
 CV2PRG LithoKotaro.seq
 NAO 0.1

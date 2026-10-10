@@ -49,6 +49,15 @@ contains
         res = am%getTransverseSpherical()
     end function
 
+    ! PTZ: Petzval curvature, 1/R of the Petzval surface (lens units^-1).
+    module function getPetzvalCurvatureConstraint(self) result(res)
+        use mod_analysis_manager
+        class(merit_entry) :: self
+        real(long) :: res
+
+        res = am%getPetzvalCurvature()
+    end function
+
     module function getTransverseAstigmatismConstraint(self) result(res)
         use mod_analysis_manager
         class(merit_entry) :: self

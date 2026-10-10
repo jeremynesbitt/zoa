@@ -2714,6 +2714,19 @@ contains
         call kv('Primary Wavelength [um]', g(sysConfig%wavelengths(sysConfig%refWavelengthIndex)))
         call kv('Lens Units', unitName)
         call kv('Angular Magnification', g(angMag))
+        ! Petzval: P = sum c (n'-n)/(n n'); the Petzval surface's radius is
+        ! 1/(-n'image P) (PTZ, the optimizer operand, is its curvature)
+        block
+            use mod_analysis_manager, only: am
+            real(real64) :: ptzc
+            call kv('Petzval Sum', g(am%getPetzvalSum()))
+            ptzc = am%getPetzvalCurvature()
+            if (abs(ptzc) > 1.0d-15) then
+                call kv('Petzval Radius', g(1.0d0/ptzc))
+            else
+                call kv('Petzval Radius', 'Infinity')
+            end if
+        end block
 
         call emit('')
         call kv('Fields', int2str(sysConfig%numFields))
