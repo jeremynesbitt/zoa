@@ -254,13 +254,19 @@ SUBROUTINE PROCESSILENT(ftext)
    use zoa_ui
 
    use iso_fortran_env, only: real64
+   use iso_c_binding, only: c_ptr
    implicit none
 
    character(len=*) :: ftext
+   type(c_ptr) :: savedView
 
+   ! Return to the exact view we started from: the command's own silent
+   ! brackets redirect too, so restoreTextView() (single prev slot) would land
+   ! on the hidden KDP dump and leave the console dead until TERM.
+   savedView = ioConfig%currentTextView()
    call ioConfig%setTextView(ID_TERMINAL_KDPDUMP)
    call PROCESKDP(ftext)
-   call ioConfig%restoreTextView()
+   call ioConfig%returnToTextView(savedView)
 
 END SUBROUTINE
 

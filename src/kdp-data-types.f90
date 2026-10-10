@@ -171,6 +171,8 @@ contains
    procedure, public, pass(self) :: setTextViewFromPtr 
    procedure, public, pass(self) :: restoreTextView
    procedure, public, pass(self) :: registerTextView
+   procedure, public, pass(self) :: currentTextView
+   procedure, public, pass(self) :: returnToTextView
 end type
 
 interface io_config
@@ -583,6 +585,28 @@ subroutine restoreTextView(self)
   ! This is indeterminate but keep as a band aid for now.
   if (self%dumpText) self%dumpText = .FALSE.
 
+end subroutine
+
+! Nesting-safe redirection: a caller saves currentTextView() before it
+! redirects and hands it back to returnToTextView() afterwards. Unlike
+! restoreTextView(), this does not depend on the single prev_textView slot,
+! which any redirect nested inside the bracket overwrites.
+function currentTextView(self) result(tv)
+  class(io_config) :: self
+  type(c_ptr) :: tv
+  tv = self%textView
+end function
+
+subroutine returnToTextView(self, tv)
+  use iso_c_binding, only: c_associated
+  class(io_config) :: self
+  type(c_ptr), intent(in) :: tv
+  self%prev_textView = self%textView
+  self%textView = tv
+  self%dumpText = .false.
+  if (allocated(self%allBuffers)) then
+    if (c_associated(tv)) self%dumpText = c_associated(tv, self%allBuffers(ID_TERMINAL_KDPDUMP))
+  end if
 end subroutine
 
 subroutine setTextViewFromPtr(self, newtextview)

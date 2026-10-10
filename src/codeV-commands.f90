@@ -15,6 +15,7 @@
 ! fake textView, print code v cmd, then when done redirect output to window
 
 module codeV_commands
+    use iso_c_binding, only: c_ptr
     use zoa_ui
     use iso_fortran_env, only: real64
     use plot_setting_manager, only: zoaplot_setting_manager
@@ -468,6 +469,10 @@ module codeV_commands
     integer, parameter :: AUT_LOOP = 6
     integer, parameter :: TAR_LOOP = 7
     integer, parameter :: CON_UPDATE_LOOP = 7
+
+    ! Views saved by nested kdp_silent_begin calls (see kdpApiSilenceOn).
+    type(c_ptr), private :: silenceSaved(32)
+    integer, private :: silenceDepth = 0
 
 
     contains
@@ -1672,20 +1677,29 @@ module codeV_commands
         end if
       end subroutine
 
+      ! kdp_silent_begin/end brackets nest (a silenced handler run from
+      ! PROCESSILENT, or from another silenced handler), so each begin saves
+      ! the view it found and its end returns to exactly that view.  Ending on
+      ! a fixed ID_TERMINAL_DEFAULT broke an enclosing bracket's restore; the
+      ! single-slot restoreTextView() breaks because the EOS traces inside the
+      ! bracket redirect output themselves.
       subroutine kdpApiSilenceOn()
         use global_widgets, only: ioConfig
+        if (silenceDepth < size(silenceSaved)) then
+            silenceDepth = silenceDepth + 1
+            silenceSaved(silenceDepth) = ioConfig%currentTextView()
+        end if
         call ioConfig%setTextView(ID_TERMINAL_KDPDUMP)
       end subroutine
 
       subroutine kdpApiSilenceOff()
         use global_widgets, only: ioConfig
-        ! Explicitly return to the default terminal, NOT restoreTextView():
-        ! the EOS/LNSEOS traces inside the silenced bracket redirect output
-        ! themselves, clobbering ioConfig's single-slot prev, so a restore
-        ! would land on the wrong view and leave the terminal stuck on the
-        ! hidden KDP dump.  Matches executeCodeVLensUpdateCommand, which ends
-        ! with setTextView(ID_TERMINAL_DEFAULT) for the same reason.
-        call ioConfig%setTextView(ID_TERMINAL_DEFAULT)
+        if (silenceDepth > 0) then
+            call ioConfig%returnToTextView(silenceSaved(silenceDepth))
+            silenceDepth = silenceDepth - 1
+        else
+            call ioConfig%setTextView(ID_TERMINAL_DEFAULT)
+        end if
       end subroutine
       ! ----------------------------------------------------------------------
 
