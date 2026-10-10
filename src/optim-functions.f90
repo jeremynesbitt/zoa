@@ -375,8 +375,9 @@ subroutine report_iteration(me,iter,x,f,c)
                     typTxt  = ' '
                     val = meritInUse(i)%val
                 end if
-                write(output_line,'(A4,2X,A10,2X,A1,2X,*(F20.16,1X))') &
-                &  meritInUse(i)%name, roleTxt, typTxt, meritInUse(i)%targ, &
+                ! Qualified entries (UMY S3 W2 ...) widen their own name field.
+                write(output_line,'(A,2X,A10,2X,A1,2X,*(F20.16,1X))') &
+                &  meritNameField(meritInUse(i)), roleTxt, typTxt, meritInUse(i)%targ, &
                 &  val, val - meritInUse(i)%targ
                 call OUTKDP(trim(output_line))
             end do

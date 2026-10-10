@@ -959,3 +959,147 @@ General (variable thicknesses): MXT 12.00000  MNT 2.00000  MNE 2.00000  MNA 0.10
   2   EFL    Constraint   =         50.00000
 General (variable thicknesses): MXT 12.00000  MNT 2.00000  MNE 2.00000  MNA 0.10000  MAE 0.00250
 All constraints removed
+All constraints removed
+
+
+
+
+
+
+Field Weights Command WTF     100     100     100 Not supported
+Error:  zoom position Z2 is not defined
+Error:  EFL takes no S3 qualifier
+Error:  wavelength W9 is not defined (W1..W5)
+Error:  surface S99 is not in the lens (S0..S7)
+AUT: no variables are defined; nothing to optimize.
+Set at least one variable first (e.g. CCY S2 0, THC S3 0, KC S2 0), or use the lens editor's Set Variable menu.
+  #   NAME   ROLE         TYPE        TARGET   WEIGHT
+  -   ----   ----------   ----   -----------   ------
+  1   UMY    Constraint   =         -0.10000
+  2   HMY S3 W2   Constraint   =          3.90000
+  3   IMY S2   Constraint   >         -0.30000
+  4   HCX S7   Operand                 0.00000   2.00000
+  5   ICY Z1   Constraint   =          0.20000
+General (variable thicknesses): MXT 12.00000  MNT 2.00000  MNE 2.00000  MNA 0.10000  MAE 0.00250
+Number of tokens is 2
+File name to save is PARAXTEST.zoa
+All constraints removed
+
+
+
+Field Weights Command WTF     100     100     100 Not supported
+
+  #   NAME   ROLE         TYPE        TARGET   WEIGHT
+  -   ----   ----------   ----   -----------   ------
+  1   HCX S7   Operand                 0.00000   2.00000
+  2   UMY    Constraint   =         -0.10000
+  3   HMY S3 W2   Constraint   =          3.90000
+  4   IMY S2   Constraint   >         -0.30000
+  5   ICY Z1   Constraint   =          0.20000
+General (variable thicknesses): MXT 12.00000  MNT 2.00000  MNE 2.00000  MNA 0.10000  MAE 0.00250
+  #   NAME   ROLE         TYPE        TARGET   WEIGHT
+  -   ----   ----------   ----   -----------   ------
+  1   HCX S7   Operand                 0.00000   2.00000
+  2   HMY S4 W3   Constraint   =          3.80000
+  3   HMY S3 W2   Constraint   =          3.90000
+  4   IMY S2   Constraint   >         -0.30000
+  5   ICY Z1   Constraint   =          0.20000
+General (variable thicknesses): MXT 12.00000  MNT 2.00000  MNE 2.00000  MNA 0.10000  MAE 0.00250
+All constraints removed
+All constraints removed
+
+
+AUT: no operand defined; minimizing spot size (SPO)
+                                                          l
+CYCLE NUMBER 0
+   ERROR FUNCTION = 0.78961
+          RDY          THI     RMD          GLA          CCY     THC     GLC
+OBJ:    INFINITY    INFINITY                              100     100     100
+STO:    120.00000    5.00000               N-BK7_SCH2000  100     100     100
+002:    -32.218    48.99672                              0       100     100
+IMG:    INFINITY    0.00000                              100     100     100
+                                                          l
+Name  Role        Typ  Target              Value               diff
+UMY   Constraint  =   -0.0800000000000000  -0.2006883643244042  -0.1206883643244041
+SPO   Operand          0.0000000000000000   0.8948277887308429   0.8948277887308429
+                                                          l
+CYCLE NUMBER 1
+   ERROR FUNCTION = 0.11163
+          RDY          THI     RMD          GLA          CCY     THC     GLC
+OBJ:    INFINITY    INFINITY                              100     100     100
+STO:    120.00000    5.00000               N-BK7_SCH2000  100     100     100
+002:    -52.099    69.98778                              0       100     100
+IMG:    INFINITY    0.00000                              100     100     100
+                                                          l
+Name  Role        Typ  Target              Value               diff
+UMY   Constraint  =   -0.0800000000000000  -0.1403441821622009  -0.0603441821622009
+SPO   Operand          0.0000000000000000   0.3374739829215477   0.3374739829215477
+                                                          l
+CYCLE NUMBER 2
+   ERROR FUNCTION = 0.02859
+          RDY          THI     RMD          GLA          CCY     THC     GLC
+OBJ:    INFINITY    INFINITY                              100     100     100
+STO:    120.00000    5.00000               N-BK7_SCH2000  100     100     100
+002:    -75.348    89.06664                              0       100     100
+IMG:    INFINITY    0.00000                              100     100     100
+                                                          l
+Name  Role        Typ  Target              Value               diff
+UMY   Constraint  =   -0.0800000000000000  -0.1101720910810998  -0.0301720910810998
+SPO   Operand          0.0000000000000000   0.1713355369518736   0.1713355369518736
+                                                          l
+CYCLE NUMBER 3
+   ERROR FUNCTION = 0.01208
+          RDY          THI     RMD          GLA          CCY     THC     GLC
+OBJ:    INFINITY    INFINITY                              100     100     100
+STO:    120.00000    5.00000               N-BK7_SCH2000  100     100     100
+002:    -96.987    103.12236                              0       100     100
+IMG:    INFINITY    0.00000                              100     100     100
+                                                          l
+Name  Role        Typ  Target              Value               diff
+UMY   Constraint  =   -0.0800000000000000  -0.0950860455405505  -0.0150860455405505
+SPO   Operand          0.0000000000000000   0.1116576711155735   0.1116576711155735
+                                                          l
+CYCLE NUMBER 4
+   ERROR FUNCTION = 0.00736
+          RDY          THI     RMD          GLA          CCY     THC     GLC
+OBJ:    INFINITY    INFINITY                              100     100     100
+STO:    120.00000    5.00000               N-BK7_SCH2000  100     100     100
+002:    -113.250    111.95635                              0       100     100
+IMG:    INFINITY    0.00000                              100     100     100
+                                                          l
+Name  Role        Typ  Target              Value               diff
+UMY   Constraint  =   -0.0800000000000000  -0.0875430227702751  -0.0075430227702751
+SPO   Operand          0.0000000000000000   0.0872990196567515   0.0872990196567515
+                                                          l
+CYCLE NUMBER 5
+   ERROR FUNCTION = 0.00736
+          RDY          THI     RMD          GLA          CCY     THC     GLC
+OBJ:    INFINITY    INFINITY                              100     100     100
+STO:    120.00000    5.00000               N-BK7_SCH2000  100     100     100
+002:    -113.250    111.95635                              0       100     100
+IMG:    INFINITY    0.00000                              100     100     100
+                                                          l
+Name  Role        Typ  Target              Value               diff
+UMY   Constraint  =   -0.0800000000000000  -0.0875430227702751  -0.0075430227702751
+SPO   Operand          0.0000000000000000   0.0872990196567515   0.0872990196567515
+AUT: done after 5 iterations, status: Required accuracy for solution obtained
+ENTRANCE PUPIL
+DIA       20.0000
+THI       0.0000
+INFINITE CONJUGATES
+EFL       114.2296
+BFL       112.6079
+FFL       -112.5307
+FNO       5.7115
+IMG DIS   112.6079
+OAL       5.0000
+PARAXIAL IMAGE
+ HT      -0.0000
+ANG       -0.0000 DEG
+ENTRANCE PUPIL
+DIA       20.0000
+THI       0.0000
+EXIT PUPIL
+DIA       20.3019
+THI       -3.3462
+All constraints removed

@@ -1266,6 +1266,13 @@ module optimizer_ui
                 weightStr = colText
             end select
 
+            ! The table has no qualifier column: keep the row's [Sk] [Wm] [Zn]
+            ! (paraxial ray operands) so editing its target or role does not
+            ! silently move it back to the image surface / reference wavelength.
+            if (row+1 <= nM .AND. isParaxialOperand(trim(nameStr))) then
+                nameStr = trim(nameStr)//trim(meritQualText(meritInUse(row+1)))
+            end if
+
             if (role == ID_ROLE_CONSTRAINT) then
                 select case (conType)
                 case(ID_CON_EXACT)

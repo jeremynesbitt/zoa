@@ -147,3 +147,43 @@ SPO 0.0 1000
 GO
 LCON
 DCON ALL
+
+! ---- Paraxial ray operands: UMX..ICY with [Sk] [Wm] [Zn] qualifiers ----
+! U = exit angle, H = height, I = incidence angle (index*i); M = marginal,
+! C = chief; X/Y = plane.  Defaults: image surface, reference wavelength,
+! active zoom position.  Qualifiers show in LCON and round-trip through
+! SAV/RES; bad qualifiers are rejected (non-paraxial names take none, Zn must
+! be the active position).
+RES osdtriplet
+AUT
+UMY = -0.1
+HMY S3 W2 = 3.9
+IMY S2 > -0.3
+HCX SI 0 2
+ICY Z1 = 0.2
+UMY Z2 = 0
+EFL S3 = 50
+UMY W9 = 0
+UMY S99 = 0
+GO
+LCON
+SAV paraxtest
+RES paraxtest
+LCON
+UPD CON
+CHA 2
+HMY S4 W3 = 3.8
+GO
+LCON
+DCON ALL
+
+! A paraxial constraint drives an optimization: the singlet's marginal ray
+! exit angle at the image (UMY, i.e. the F-number) is constrained with the
+! back curvature as the variable; the report lists UMY with its value.
+RES OsdSinglet
+CCY S2 0
+AUT
+UMY = -0.08
+GO
+FIR
+DCON ALL

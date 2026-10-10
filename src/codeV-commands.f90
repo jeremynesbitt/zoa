@@ -442,7 +442,7 @@ module codeV_commands
 
 
     character(len=4), dimension(500) :: surfCmds
-    type(zoa_cmd), dimension(760) :: zoaCmds
+    type(zoa_cmd), dimension(800) :: zoaCmds
 
     type(zoaplot_setting_manager)  :: curr_psm
     character(len=10024) :: cmdTOW
@@ -471,7 +471,10 @@ module codeV_commands
     integer, parameter :: TOW_LOOP = 5
     integer, parameter :: AUT_LOOP = 6
     integer, parameter :: TAR_LOOP = 7
-    integer, parameter :: CON_UPDATE_LOOP = 7
+    ! Distinct from TAR_LOOP: with the two equal, a saved lens's TAR merit
+    ! block was read as UPD CON edits, so after any CHA n every loaded entry
+    ! overwrote row n and only the last one survived.
+    integer, parameter :: CON_UPDATE_LOOP = 8
 
     ! Views saved by nested kdp_silent_begin calls (see kdpApiSilenceOn).
     type(c_ptr), private :: silenceSaved(32)
@@ -641,6 +644,15 @@ module codeV_commands
         zoaCmds(747)%execFunc => updateConstraint
         zoaCmds(748)%cmd = 'GENCON'
         zoaCmds(748)%execFunc => execGENCON
+        ! Paraxial ray operands UMX..ICY (slots 749-760), same parser as EFL.
+        block
+            use optim_types, only: PARAXIAL_OPERANDS
+            integer :: ip
+            do ip = 1, size(PARAXIAL_OPERANDS)
+                zoaCmds(748+ip)%cmd = PARAXIAL_OPERANDS(ip)
+                zoaCmds(748+ip)%execFunc => updateConstraint
+            end do
+        end block
         zoaCmds(527)%cmd = 'SETDENS'
         zoaCmds(527)%execFunc => setPlotDensity     
         zoaCmds(528)%cmd = 'SETZERNC'

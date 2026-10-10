@@ -116,6 +116,66 @@ contains
     !## category: Optimization
     !## desc:     Transverse coma merit entry.
     !##
+    !## cmd:      UMX
+    !## syntax:   UMX [Sk] [Wm] [Zn] = v | UMX [Sk] [Wm] [Zn] v [w]
+    !## category: Optimization
+    !## desc:     X-Z paraxial marginal ray exit angle merit entry (default image surface, reference wavelength).
+    !##
+    !## cmd:      UMY
+    !## syntax:   UMY [Sk] [Wm] [Zn] = v | UMY [Sk] [Wm] [Zn] v [w]
+    !## category: Optimization
+    !## desc:     Y-Z paraxial marginal ray exit angle merit entry (default image surface, reference wavelength).
+    !##
+    !## cmd:      HMX
+    !## syntax:   HMX [Sk] [Wm] [Zn] = v | HMX [Sk] [Wm] [Zn] v [w]
+    !## category: Optimization
+    !## desc:     X-Z paraxial marginal ray height merit entry (default image surface, reference wavelength).
+    !##
+    !## cmd:      HMY
+    !## syntax:   HMY [Sk] [Wm] [Zn] = v | HMY [Sk] [Wm] [Zn] v [w]
+    !## category: Optimization
+    !## desc:     Y-Z paraxial marginal ray height merit entry (default image surface, reference wavelength).
+    !##
+    !## cmd:      IMX
+    !## syntax:   IMX [Sk] [Wm] [Zn] = v | IMX [Sk] [Wm] [Zn] v [w]
+    !## category: Optimization
+    !## desc:     X-Z paraxial marginal ray incidence angle (index*i) merit entry (default image surface, reference wavelength).
+    !##
+    !## cmd:      IMY
+    !## syntax:   IMY [Sk] [Wm] [Zn] = v | IMY [Sk] [Wm] [Zn] v [w]
+    !## category: Optimization
+    !## desc:     Y-Z paraxial marginal ray incidence angle (index*i) merit entry (default image surface, reference wavelength).
+    !##
+    !## cmd:      UCX
+    !## syntax:   UCX [Sk] [Wm] [Zn] = v | UCX [Sk] [Wm] [Zn] v [w]
+    !## category: Optimization
+    !## desc:     X-Z paraxial chief ray exit angle merit entry (default image surface, reference wavelength).
+    !##
+    !## cmd:      UCY
+    !## syntax:   UCY [Sk] [Wm] [Zn] = v | UCY [Sk] [Wm] [Zn] v [w]
+    !## category: Optimization
+    !## desc:     Y-Z paraxial chief ray exit angle merit entry (default image surface, reference wavelength).
+    !##
+    !## cmd:      HCX
+    !## syntax:   HCX [Sk] [Wm] [Zn] = v | HCX [Sk] [Wm] [Zn] v [w]
+    !## category: Optimization
+    !## desc:     X-Z paraxial chief ray height merit entry (default image surface, reference wavelength).
+    !##
+    !## cmd:      HCY
+    !## syntax:   HCY [Sk] [Wm] [Zn] = v | HCY [Sk] [Wm] [Zn] v [w]
+    !## category: Optimization
+    !## desc:     Y-Z paraxial chief ray height merit entry (default image surface, reference wavelength).
+    !##
+    !## cmd:      ICX
+    !## syntax:   ICX [Sk] [Wm] [Zn] = v | ICX [Sk] [Wm] [Zn] v [w]
+    !## category: Optimization
+    !## desc:     X-Z paraxial chief ray incidence angle (index*i) merit entry (default image surface, reference wavelength).
+    !##
+    !## cmd:      ICY
+    !## syntax:   ICY [Sk] [Wm] [Zn] = v | ICY [Sk] [Wm] [Zn] v [w]
+    !## category: Optimization
+    !## desc:     Y-Z paraxial chief ray incidence angle (index*i) merit entry (default image surface, reference wavelength).
+    !##
     module procedure updateConstraint
         use command_utils, only : isInputNumber
         use mod_lens_data_manager
@@ -127,6 +187,8 @@ contains
         character(len=256) :: normalStr
         integer :: ci, ni
         real(long) :: w
+        integer :: qS, qW, qZ
+        logical :: qOk
 
         if (cmd_loop == AUT_LOOP .OR. cmd_loop == TAR_LOOP .OR. cmd_loop == CON_UPDATE_LOOP) then
             normalStr = ''
@@ -143,14 +205,21 @@ contains
             end do
             call parse(trim(normalStr), ' ', tokens, numTokens)
 
+            ! [Sk] [Wm] [Zn] qualifiers (paraxial ray operands) come right
+            ! after the name; take them out so the forms below are unchanged.
+            call takeMeritQualifiers(tokens, numTokens, qS, qW, qZ, qOk)
+            if (.not. qOk) return
+
             if (numTokens == 3 .AND. .not. isInputNumber(trim(tokens(2)))) then
                 ! Constraint form: NAME <op> value
                 if ((trim(tokens(2)) == '=' .OR. trim(tokens(2)) == '>' .OR. trim(tokens(2)) == '<') &
                 &   .AND. isInputNumber(trim(tokens(3)))) then
                     if (cmd_loop == CON_UPDATE_LOOP) then
-                        call addConstraint(trim(tokens(1)), str2real8(tokens(3)), trim(tokens(2)), idxConUpdate)
+                        call addConstraint(trim(tokens(1)), str2real8(tokens(3)), trim(tokens(2)), idxConUpdate, &
+                        &                  iS=qS, iW=qW, iZ=qZ)
                     else
-                        call addConstraint(trim(tokens(1)), str2real8(tokens(3)), trim(tokens(2)))
+                        call addConstraint(trim(tokens(1)), str2real8(tokens(3)), trim(tokens(2)), &
+                        &                  iS=qS, iW=qW, iZ=qZ)
                     end if
                 else
                     call zoa_emit("Error:  Expect NAME = value (or > <), or NAME target [weight]", "red")
@@ -161,9 +230,10 @@ contains
                 if (numTokens >= 3 .AND. isInputNumber(trim(tokens(3)))) w = str2real8(tokens(3))
                 if (cmd_loop == CON_UPDATE_LOOP) then
                     call addMeritEntry(trim(tokens(1)), ID_ROLE_OBJECTIVE, str2real8(tokens(2)), &
-                    &                  weight=w, idxToUpdate=idxConUpdate)
+                    &                  weight=w, idxToUpdate=idxConUpdate, iS=qS, iW=qW, iZ=qZ)
                 else
-                    call addMeritEntry(trim(tokens(1)), ID_ROLE_OBJECTIVE, str2real8(tokens(2)), weight=w)
+                    call addMeritEntry(trim(tokens(1)), ID_ROLE_OBJECTIVE, str2real8(tokens(2)), weight=w, &
+                    &                  iS=qS, iW=qW, iZ=qZ)
                 end if
             else
                 call zoa_emit("Error:  Expect NAME = value (or > <), or NAME target [weight]", "red")
@@ -172,6 +242,81 @@ contains
             call zoa_emit("Error:  Can only set constraint in AUT loop! ", "red")
         end if
     end procedure updateConstraint
+
+    ! Removes the [Sk] [Wm] [Zn] qualifier tokens following the merit-entry
+    ! name (tokens(1)) and returns them: qS = -1 (image), qW = 0 (reference
+    ! wavelength), qZ = 0 (active zoom position) when absent.  Only the
+    ! paraxial ray operands take qualifiers.  ok = .false. after an error.
+    subroutine takeMeritQualifiers(tokens, numTokens, qS, qW, qZ, ok)
+        use command_utils, only : isInputNumber
+        use optim_types, only: isParaxialOperand
+        use mod_lens_data_manager, only: ldm
+        use global_widgets, only: sysConfig
+        use zoom_manager, only: zoom_num_configs, zoom_current_config
+        character(len=80), intent(inout) :: tokens(:)
+        integer, intent(inout) :: numTokens
+        integer, intent(out) :: qS, qW, qZ
+        logical, intent(out) :: ok
+        character(len=80) :: t
+        integer :: v
+
+        qS = -1; qW = 0; qZ = 0
+        ok = .true.
+        do while (numTokens >= 2)
+            t = tokens(2)
+            if (len_trim(t) < 2) exit
+            if (.not. (t(1:1) == 'S' .or. t(1:1) == 'W' .or. t(1:1) == 'Z')) exit
+            if (.not. (isInputNumber(trim(t(2:))) .or. trim(t) == 'SI' .or. trim(t) == 'SO')) exit
+
+            if (.not. isParaxialOperand(trim(tokens(1)))) then
+                call zoa_emit("Error:  "//trim(tokens(1))//" takes no "//trim(t)//" qualifier", "red")
+                ok = .false.; return
+            end if
+
+            select case (t(1:1))
+            case ('S')
+                if (trim(t) == 'SI') then
+                    v = ldm%getLastSurf()
+                else if (trim(t) == 'SO') then
+                    v = 0
+                else
+                    v = str2int(trim(t(2:)))
+                end if
+                if (v < 0 .or. v > ldm%getLastSurf()) then
+                    call zoa_emit("Error:  surface "//trim(t)//" is not in the lens (S0..S"// &
+                    &  trim(int2str(ldm%getLastSurf()))//")", "red")
+                    ok = .false.; return
+                end if
+                qS = v
+            case ('W')
+                v = str2int(trim(t(2:)))
+                if (v < 1 .or. v > sysConfig%numWavelengths) then
+                    call zoa_emit("Error:  wavelength "//trim(t)//" is not defined (W1..W"// &
+                    &  trim(int2str(sysConfig%numWavelengths))//")", "red")
+                    ok = .false.; return
+                end if
+                qW = v
+            case ('Z')
+                v = str2int(trim(t(2:)))
+                if (v < 1 .or. v > max(1, zoom_num_configs())) then
+                    call zoa_emit("Error:  zoom position "//trim(t)//" is not defined", "red")
+                    ok = .false.; return
+                end if
+                ! The optimizer works on the active zoom position only (no
+                ! multi-position optimization yet), so Zn must name it.
+                if (v /= max(1, zoom_current_config())) then
+                    call zoa_emit("Error:  "//trim(t)//" is not the active zoom position (POS "// &
+                    &  trim(int2str(max(1, zoom_current_config())))// &
+                    &  "); optimizing other positions is not supported yet", "red")
+                    ok = .false.; return
+                end if
+                qZ = v
+            end select
+
+            tokens(2:numTokens-1) = tokens(3:numTokens)
+            numTokens = numTokens - 1
+        end do
+    end subroutine
 
     !## cmd:      NBR
     !## syntax:   NBR ELE Si..j
@@ -249,7 +394,7 @@ contains
         real(long) :: v
         logical :: setIt
 
-        if (cmd_loop /= AUT_LOOP .AND. cmd_loop /= TAR_LOOP) then
+        if (cmd_loop /= AUT_LOOP .AND. cmd_loop /= TAR_LOOP .AND. cmd_loop /= CON_UPDATE_LOOP) then
             call zoa_emit("Error:  General constraints (MXT/MNT/MNE/MNA/MAE) are set inside the AUT loop", "red")
             return
         end if
@@ -309,7 +454,7 @@ contains
         character(len=80) :: tokens(40)
         integer :: numTokens
 
-        if (cmd_loop /= AUT_LOOP .AND. cmd_loop /= TAR_LOOP) then
+        if (cmd_loop /= AUT_LOOP .AND. cmd_loop /= TAR_LOOP .AND. cmd_loop /= CON_UPDATE_LOOP) then
             call zoa_emit("Error:  GENCON is set inside the AUT loop (or UPD CON)", "red")
             return
         end if
@@ -978,6 +1123,11 @@ contains
             select case(trim(tokens(2)))
             case('CON')
                 cmd_loop = CON_UPDATE_LOOP
+                ! No row chosen yet: without CHA n an entry is appended.
+                block
+                    use optim_types, only: idxConUpdate
+                    idxConUpdate = 0
+                end block
             end select
         end if
     end procedure updateDatabase
@@ -1062,7 +1212,7 @@ contains
     !## desc:     List the current merit operands and constraints.
     !##
     module procedure listConstraints
-        use optim_types, only: nM, meritInUse
+        use optim_types, only: nM, meritInUse, meritNameField
         use type_utils, only: real2str
         use kdp_utils, only: OUTKDP
         implicit none
@@ -1090,8 +1240,8 @@ contains
                 conTypeStr = ' '
                 weightStr = trim(real2str(meritInUse(i)%weight))
             end if
-            write(outStr, '(I3, 3X, A4, 3X, A10, 3X, A1, 3X, A14, 3X, A)') &
-            &  i, meritInUse(i)%name, roleStr, conTypeStr, &
+            write(outStr, '(I3, 3X, A, 3X, A10, 3X, A1, 3X, A14, 3X, A)') &
+            &  i, meritNameField(meritInUse(i)), roleStr, conTypeStr, &
             &  trim(real2str(meritInUse(i)%targ)), trim(weightStr)
             call OUTKDP(trim(outStr))
         end do

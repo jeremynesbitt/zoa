@@ -19,6 +19,10 @@ module optim_types
         real(long) :: val = 0.0_long         ! last computed value (display)
         ! Evaluator inputs (used by field/pupil-sampled evaluators like SPO)
         integer :: iW = 0, iF = 0, density = 0
+        ! Surface / zoom qualifiers (paraxial ray operands UMY, HCX, ...):
+        ! iS = -1 means the image surface (CODE V's default), iW = 0 the
+        ! reference wavelength, iZ = 0 the active zoom position.
+        integer :: iS = -1, iZ = 0
         real(long) :: px = 0.0_long, py = 0.0_long, hx = 0.0_long, hy = 0.0_long
         procedure (meritFunc), pointer :: func
         contains
@@ -86,6 +90,10 @@ module optim_types
             class(merit_entry) :: self
             real(long) :: res
         end function
+        module function getParaxialRayConstraint(self) result(res)
+            class(merit_entry) :: self
+            real(long) :: res
+        end function
         module function getTransverseAstigmatismConstraint(self) result(res)
             class(merit_entry) :: self
             real(long) :: res
@@ -118,6 +126,12 @@ module optim_types
         real(long) :: val = 0.0_long     ! last computed edge (report)
     end type
 
+    ! Paraxial ray operands (CODE V names).  U = exit angle (slope), H = height,
+    ! I = incidence angle times the index before the surface; M = marginal,
+    ! C = chief ray; X/Y = XZ/YZ plane.
+    character(len=3), parameter :: PARAXIAL_OPERANDS(12) = &
+    &   ['UMX', 'UMY', 'HMX', 'HMY', 'IMX', 'IMY', 'UCX', 'UCY', 'HCX', 'HCY', 'ICX', 'ICY']
+
     type(gen_constraint) :: genConstraints(100)
     integer :: nGen = 0
 
@@ -143,6 +157,7 @@ module optim_types
     contains
 
     subroutine initializeOptimizer()
+        integer :: i
 
         nV = 0 ! Num variables is 0
         nM = 0 ! no merit entries in use
@@ -170,6 +185,11 @@ module optim_types
         evaluators(7)%func => getSphericalConstraint
         evaluators(8)%name = 'PTZ'
         evaluators(8)%func => getPetzvalCurvatureConstraint
+        ! Paraxial ray trace data at a surface: [Sk] [Wm] [Zn] qualifiers.
+        do i = 1, size(PARAXIAL_OPERANDS)
+            evaluators(8+i)%name = PARAXIAL_OPERANDS(i)
+            evaluators(8+i)%func => getParaxialRayConstraint
+        end do
 
 
     end subroutine
@@ -229,13 +249,14 @@ module optim_types
 
     ! Add (or update, via idxToUpdate) a merit entry.  role selects objective
     ! term vs constraint; conType/weight apply to the matching role only.
-    subroutine addMeritEntry(name, role, targ, conType, weight, idxToUpdate)
+    subroutine addMeritEntry(name, role, targ, conType, weight, idxToUpdate, iS, iW, iZ)
         character(len=*) :: name
         integer, intent(in) :: role
         real(long), intent(in) :: targ
         integer, intent(in), optional :: conType
         real(long), intent(in), optional :: weight
         integer, intent(in), optional :: idxToUpdate ! UPD CON; CHA n / UI edit path
+        integer, intent(in), optional :: iS, iW, iZ  ! surface / wavelength / zoom
         integer :: idx, ii
 
         idx = isNameInEvaluatorList(name)
@@ -261,8 +282,43 @@ module optim_types
         meritInUse(ii)%targ = targ
         if (present(conType)) meritInUse(ii)%conType = conType
         if (present(weight))  meritInUse(ii)%weight  = weight
+        if (present(iS)) meritInUse(ii)%iS = iS
+        if (present(iW)) meritInUse(ii)%iW = iW
+        if (present(iZ)) meritInUse(ii)%iZ = iZ
 
     end subroutine
+
+    ! Name as shown in LCON / the optimization report: the 4-wide name column,
+    ! or the name plus its qualifiers ("UMY S3 W2") when it has any.
+    function meritNameField(e) result(f)
+        type(merit_entry), intent(in) :: e
+        character(len=:), allocatable :: f
+        character(len=24) :: q
+        q = meritQualText(e)
+        if (len_trim(q) == 0) then
+            f = e%name
+        else
+            f = trim(e%name)//trim(q)
+        end if
+    end function
+
+    logical function isParaxialOperand(name)
+        character(len=*), intent(in) :: name
+        isParaxialOperand = any(PARAXIAL_OPERANDS == name)
+    end function
+
+    ! The qualifiers of a merit entry as typed (" S3 W2 Z1"), blank when it
+    ! uses the defaults -- for LCON, the save file, the report and the UI.
+    function meritQualText(e) result(q)
+        use type_utils, only: int2str
+        type(merit_entry), intent(in) :: e
+        character(len=24) :: q
+        q = ''
+        if (.not. isParaxialOperand(trim(e%name))) return
+        if (e%iS >= 0) q = trim(q)//' S'//trim(int2str(e%iS))
+        if (e%iW > 0)  q = trim(q)//' W'//trim(int2str(e%iW))
+        if (e%iZ > 0)  q = trim(q)//' Z'//trim(int2str(e%iZ))
+    end function
 
     ! Back-compat wrapper: add an objective term (the old "operand").
     subroutine addOperand(name, targ)
@@ -277,11 +333,12 @@ module optim_types
     end subroutine
 
     ! Back-compat wrapper: add/update a constraint from its CLI spelling.
-    subroutine addConstraint(name, val, strType, idxToUpdate)
+    subroutine addConstraint(name, val, strType, idxToUpdate, iS, iW, iZ)
         character(len=*) :: name
         real(long) :: val
         character(len=1) :: strType ! Either >, < =
         integer, optional :: idxToUpdate
+        integer, intent(in), optional :: iS, iW, iZ
         integer :: conType
 
         select case (strType)
@@ -296,11 +353,8 @@ module optim_types
             return
         end select
 
-        if (present(idxToUpdate)) then
-            call addMeritEntry(name, ID_ROLE_CONSTRAINT, val, conType=conType, idxToUpdate=idxToUpdate)
-        else
-            call addMeritEntry(name, ID_ROLE_CONSTRAINT, val, conType=conType)
-        end if
+        call addMeritEntry(name, ID_ROLE_CONSTRAINT, val, conType=conType, &
+        &                  idxToUpdate=idxToUpdate, iS=iS, iW=iW, iZ=iZ)
 
     end subroutine
 
@@ -598,14 +652,15 @@ module optim_types
             ! so pre-weight files still load).
             do i=1,nM
                 if (meritInUse(i)%role == ID_ROLE_OBJECTIVE) then
-                  write(fID, *) meritInUse(i)%name//" "//real2str(meritInUse(i)%targ)// &
-                  &  " "//real2str(meritInUse(i)%weight)
+                  write(fID, *) trim(meritInUse(i)%name)//trim(meritQualText(meritInUse(i)))// &
+                  &  " "//real2str(meritInUse(i)%targ)//" "//real2str(meritInUse(i)%weight)
                 end if
             end do
             do i=1,nM
                 if (meritInUse(i)%role == ID_ROLE_CONSTRAINT) then
                     q = meritInUse(i)%getConstraintTypeAsText()
-                    write(fID,*) trim(meritInUse(i)%name)//" "//q//" "//real2str(meritInUse(i)%targ)
+                    write(fID,*) trim(meritInUse(i)%name)//trim(meritQualText(meritInUse(i)))// &
+                    &  " "//q//" "//real2str(meritInUse(i)%targ)
                 end if
             end do
             ! Non-default general-constraint settings (loop commands).

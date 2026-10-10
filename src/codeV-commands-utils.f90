@@ -30,6 +30,10 @@ contains
             ! loop.  Without this the loop state leaked past the command and
             ! every later input still ran "inside" UPD CON.
             cmd_loop = 0
+            block
+                use optim_types, only: idxConUpdate
+                idxConUpdate = 0
+            end block
             return
         end if
         if (cmd_loop == TOW_LOOP) then
