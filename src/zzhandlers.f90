@@ -1220,14 +1220,41 @@ end subroutine
     call zoatabMgr%exportActivePlotPng(trim(path), ok)
   end subroutine
 
+  ! The separate windows open right now, each as the command that opens it.
+  ! The glass manager and lens library have neither a command nor a tracked
+  ! window, so they are not included.
+  subroutine collect_open_windows(cmds, n)
+    use global_widgets, only: lens_editor_window, sys_config_window, &
+                              optimizer_window, macro_ui_window, preferences_window
+    character(len=*), intent(out) :: cmds(:)
+    integer, intent(out) :: n
+    n = 0
+    if (c_associated(lens_editor_window)) call add('EDIT')
+    if (c_associated(sys_config_window))  call add('SYSCON')
+    if (c_associated(optimizer_window))   call add('AUTUI')
+    if (c_associated(macro_ui_window))    call add('MACROUI')
+    if (c_associated(preferences_window)) call add('EDI PREF')
+  contains
+    subroutine add(c)
+      character(len=*), intent(in) :: c
+      if (n >= size(cmds)) return
+      n = n + 1
+      cmds(n) = c
+    end subroutine
+  end subroutine
+
   subroutine gui_save_zin(path)
     use zoa_file_handler, only: doesFileExist, delete_file, getFileNameFromPath
     use zoa_output, only: zoa_emit
+    use mod_zin_io, only: zin_write_windows
     character(len=*), intent(in) :: path
-    integer :: u, ios
-    ! With no plots open, a stale .zin beside the lens would resurrect old plots
-    ! on the next load: remove it rather than write an empty file.
-    if (zoatabMgr%tabNum == 0) then
+    integer :: u, ios, nWin
+    character(len=16) :: winCmds(8)
+    call collect_open_windows(winCmds, nWin)
+    ! With no plots or windows open, a stale .zin beside the lens would
+    ! resurrect old ones on the next load: remove it rather than write an
+    ! empty file.
+    if (zoatabMgr%tabNum == 0 .and. nWin == 0) then
       if (doesFileExist(trim(path))) call delete_file(trim(path))
       return
     end if
@@ -1238,14 +1265,17 @@ end subroutine
       return
     end if
     call zoatabMgr%saveTabsToZin(u)
+    call zin_write_windows(u, winCmds, nWin)
     close(u)
   end subroutine
 
   subroutine gui_load_zin(path)
     use zoa_file_handler, only: getFileNameFromPath
     use zoa_output, only: zoa_emit
+    use mod_zin_io, only: zin_read_windows
     character(len=*), intent(in) :: path
-    integer :: u, ios
+    integer :: u, ios, i, nWin
+    character(len=16) :: winCmds(8)
     open(newunit=u, file=trim(path), access='stream', form='unformatted', &
          status='old', action='read', iostat=ios)
     if (ios /= 0) then
@@ -1255,7 +1285,13 @@ end subroutine
     ! The .zin is authoritative for this lens: start from an empty notebook.
     call zoatabMgr%closeAllTabsSilent()
     call zoatabMgr%restoreTabsFromZin(u)
+    ! Reopen the windows that were open when it was saved. Windows already
+    ! open stay open (their command just brings them forward).
+    call zin_read_windows(u, winCmds, nWin)
     close(u)
+    do i = 1, nWin
+      call PROCESKDP(trim(winCmds(i)))
+    end do
   end subroutine
 
   ! Startup: restore the plots saved with the auto-saved lens INITKDP reloads

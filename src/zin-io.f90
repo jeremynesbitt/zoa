@@ -26,6 +26,13 @@ module mod_zin_io
   public :: zin_write_str, zin_read_str, zin_read_str_alloc
   public :: zin_write_logical, zin_read_logical
   public :: zin_write_header, zin_read_header
+  public :: zin_write_windows, zin_read_windows
+
+  ! Trailer after the tab records: the separate windows (lens editor, System
+  ! Configuration, ...) open at save time, each stored as the command that
+  ! opens it. Readers that predate it stop after the tab records and never
+  ! see it, so the format version is unchanged.
+  character(len=8), parameter, public :: ZIN_WINDOWS_MAGIC = 'ZINWINS '
 
 contains
 
@@ -181,5 +188,41 @@ contains
     numTabs = int(nt)
     ok = .true.
   end subroutine zin_read_header
+
+  ! Writes the window trailer: ZIN_WINDOWS_MAGIC, int32 count, then one
+  ! length-prefixed opening command per window.
+  subroutine zin_write_windows(unit, cmds, n)
+    integer, intent(in) :: unit, n
+    character(len=*), intent(in) :: cmds(:)
+    integer :: i
+
+    write(unit) ZIN_WINDOWS_MAGIC
+    write(unit) int(n, int32)
+    do i = 1, n
+      call zin_write_str(unit, trim(cmds(i)))
+    end do
+  end subroutine zin_write_windows
+
+  ! Reads the window trailer from the current position. A file without one
+  ! (older .zin, or a tab restore that stopped early) gives n = 0 silently.
+  subroutine zin_read_windows(unit, cmds, n)
+    integer, intent(in) :: unit
+    character(len=*), intent(out) :: cmds(:)
+    integer, intent(out) :: n
+    character(len=8) :: magic
+    integer(int32) :: nw
+    integer :: i, ios
+
+    n = 0
+    read(unit, iostat=ios) magic
+    if (ios /= 0 .or. magic /= ZIN_WINDOWS_MAGIC) return
+    read(unit, iostat=ios) nw
+    if (ios /= 0 .or. nw < 0) return
+    do i = 1, min(int(nw), size(cmds))
+      call zin_read_str(unit, cmds(i), ios)
+      if (ios /= 0) return
+      n = i
+    end do
+  end subroutine zin_read_windows
 
 end module mod_zin_io
