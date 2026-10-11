@@ -14,6 +14,9 @@ struct _ConstraintItem
    int conType;
    double targ;
    double weight; // objective terms only
+   // Operand parameters (Par 1..5), as shown/typed: e.g. UCY's surface,
+   // wavelength and zoom position.  "" = not used / the default.
+   char *par[5];
 };
 
 struct _ConstraintItemClass
@@ -36,9 +39,13 @@ static ConstraintItem * constraint_item_new(const char *constraintName,
     int role,
     int conType,
     double targ,
-    double weight)
+    double weight,
+    const char *par1, const char *par2, const char *par3,
+    const char *par4, const char *par5)
 {
    ConstraintItem  *item = g_object_new(CONSTRAINT_TYPE_ITEM, NULL);
+   const char *pars[5] = {par1, par2, par3, par4, par5};
+   for (int i = 0; i < 5; i++) item->par[i] = g_strdup(pars[i] ? pars[i] : "");
     // g_strdup (copy), NOT g_strup: g_strup uppercases IN PLACE and returns
     // the same pointer -- with a Fortran-owned, non-null-terminated buffer
     // that mutated caller memory and stored a pointer whose "string" ran into
@@ -58,7 +65,9 @@ GListModel * append_constraint_model(GListStore *store,
    int role,
    int conType,
    double targ,
-   double weight)
+   double weight,
+   const char *par1, const char *par2, const char *par3,
+   const char *par4, const char *par5)
 {
 
 g_list_store_append(store, constraint_item_new(
@@ -67,7 +76,8 @@ g_list_store_append(store, constraint_item_new(
     role,
     conType,
     targ,
-    weight));
+    weight,
+    par1, par2, par3, par4, par5));
 return G_LIST_MODEL(store);
 }
 
@@ -101,6 +111,14 @@ double constraint_item_get_weight(ConstraintItem *item)
    return item->weight;
 }
 
+// One getter per parameter column (the Fortran column table takes a
+// single-argument getter).
+const char* constraint_item_get_par1(ConstraintItem *item) { return item->par[0]; }
+const char* constraint_item_get_par2(ConstraintItem *item) { return item->par[1]; }
+const char* constraint_item_get_par3(ConstraintItem *item) { return item->par[2]; }
+const char* constraint_item_get_par4(ConstraintItem *item) { return item->par[3]; }
+const char* constraint_item_get_par5(ConstraintItem *item) { return item->par[4]; }
+
 // Total objective f = sum weight*(value-target)^2 over the operand rows, set
 // from Fortran (buildConstraintTable) before the table binds so the
 // contribution column can be shown as a percentage.
@@ -126,6 +144,7 @@ GListModel * append_blank_constraint(GListStore *store)
       0,
       1,
       0.0,
-      1.0));
+      1.0,
+      "", "", "", "", ""));
    return G_LIST_MODEL(store);
 }

@@ -132,6 +132,8 @@ module optim_types
     character(len=3), parameter :: PARAXIAL_OPERANDS(12) = &
     &   ['UMX', 'UMY', 'HMX', 'HMY', 'IMX', 'IMY', 'UCX', 'UCY', 'HCX', 'HCY', 'ICX', 'ICY']
 
+    integer, parameter :: MERIT_NPAR = 5   ! parameter columns in the Merit table
+
     type(gen_constraint) :: genConstraints(100)
     integer :: nGen = 0
 
@@ -300,6 +302,58 @@ module optim_types
         else
             f = trim(e%name)//trim(q)
         end if
+    end function
+
+    ! Operand parameters as shown in the optimizer's Merit table (Par 1..5,
+    ! headers named for the selected row's operand, like the lens editor's
+    ! surface-type columns).  Blank name = parameter not used by this operand.
+    function meritParamNames(name) result(names)
+        character(len=*), intent(in) :: name
+        character(len=16) :: names(MERIT_NPAR)
+        names = ''
+        if (isParaxialOperand(name)) then
+            names(1) = 'Surface'
+            names(2) = 'Wavelength'
+            names(3) = 'Zoom'
+        end if
+    end function
+
+    ! Cell text for parameter j of entry e: the value as set, or blank when it
+    ! is the default (image surface, reference wavelength, active position).
+    function meritParamText(e, j) result(t)
+        use type_utils, only: int2str
+        type(merit_entry), intent(in) :: e
+        integer, intent(in) :: j
+        character(len=16) :: t
+        t = ''
+        if (.not. isParaxialOperand(trim(e%name))) return
+        select case (j)
+        case (1); if (e%iS >= 0) t = int2str(e%iS)
+        case (2); if (e%iW > 0)  t = int2str(e%iW)
+        case (3); if (e%iZ > 0)  t = int2str(e%iZ)
+        end select
+    end function
+
+    ! The qualifier text (" S5 W2") for the parameter cells pars(1..5) of an
+    ! operand -- the inverse of meritParamText, used to build the UPD CON
+    ! command when a Merit-table cell is edited.  A cell may be typed with or
+    ! without its letter ("5" or "S5", "I" or "SI"); the command parser
+    ! validates the values.
+    function meritQualFromParams(name, pars) result(q)
+        character(len=*), intent(in) :: name
+        character(len=*), intent(in) :: pars(:)
+        character(len=40) :: q
+        character(len=1), parameter :: letters(3) = ['S', 'W', 'Z']
+        character(len=40) :: p
+        integer :: j
+        q = ''
+        if (.not. isParaxialOperand(name)) return
+        do j = 1, min(3, size(pars))
+            p = adjustl(pars(j))
+            if (len_trim(p) == 0) cycle
+            if (p(1:1) == letters(j) .or. p(1:1) == achar(iachar(letters(j))+32)) p = p(2:)
+            q = trim(q)//' '//letters(j)//trim(p)
+        end do
     end function
 
     logical function isParaxialOperand(name)

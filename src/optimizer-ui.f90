@@ -21,11 +21,12 @@ module optimizer_ui
 ! Merit entries (historically "constraints"; the table now holds both
 ! objective terms and constraints, distinguished by role)
       function append_constraint_model(store, constraintName, conValue, role, contype,  &
-        & targ, weight) bind(c)
+        & targ, weight, par1, par2, par3, par4, par5) bind(c)
         import c_ptr, c_char, c_int, c_double
         implicit none
         type(c_ptr), value    :: store
         character(kind=c_char), dimension(*) :: constraintName
+        character(kind=c_char), dimension(*) :: par1, par2, par3, par4, par5
         type(c_ptr)    :: append_constraint_model
         integer(c_int), value :: role, contype
         real(c_double), value :: conValue, targ, weight
@@ -41,6 +42,31 @@ module optimizer_ui
         import :: c_ptr
         type(c_ptr), value :: item
         type(c_ptr) :: constraint_item_get_name
+      end function
+      function constraint_item_get_par1(item) bind(c)
+        import :: c_ptr
+        type(c_ptr), value :: item
+        type(c_ptr) :: constraint_item_get_par1
+      end function
+      function constraint_item_get_par2(item) bind(c)
+        import :: c_ptr
+        type(c_ptr), value :: item
+        type(c_ptr) :: constraint_item_get_par2
+      end function
+      function constraint_item_get_par3(item) bind(c)
+        import :: c_ptr
+        type(c_ptr), value :: item
+        type(c_ptr) :: constraint_item_get_par3
+      end function
+      function constraint_item_get_par4(item) bind(c)
+        import :: c_ptr
+        type(c_ptr), value :: item
+        type(c_ptr) :: constraint_item_get_par4
+      end function
+      function constraint_item_get_par5(item) bind(c)
+        import :: c_ptr
+        type(c_ptr), value :: item
+        type(c_ptr) :: constraint_item_get_par5
       end function
        function constraint_item_get_value(item) bind(c)
         import :: c_ptr, c_double
@@ -129,12 +155,17 @@ module optimizer_ui
     integer, parameter :: ID_CONSTRAINT_NAME_COL = 1
     integer, parameter :: ID_CONSTRAINT_ROLE_COL = 2
     integer, parameter :: ID_CONSTRAINT_TYPE_COL = 3
-    integer, parameter :: ID_CONSTRAINT_TARGET_COL = 4
-    integer, parameter :: ID_CONSTRAINT_WEIGHT_COL = 5
-    integer, parameter :: ID_CONSTRAINT_VALUE_COL = 6
-    integer, parameter :: ID_CONSTRAINT_CONTRIB_COL = 7
+    ! Par 1..5: operand parameters (e.g. UCY's surface); headers follow the
+    ! selected row's operand (meritParamNames).
+    integer, parameter :: ID_CONSTRAINT_PAR1_COL = 4
+    integer, parameter :: ID_CONSTRAINT_TARGET_COL = 9
+    integer, parameter :: ID_CONSTRAINT_WEIGHT_COL = 10
+    integer, parameter :: ID_CONSTRAINT_VALUE_COL = 11
+    integer, parameter :: ID_CONSTRAINT_CONTRIB_COL = 12
 
-    type(uiTableColumnInfo) :: constraintColInfo(7)
+    type(uiTableColumnInfo) :: constraintColInfo(12)
+    ! The Merit column view (its headers are retitled on row selection).
+    type(c_ptr) :: meritCV = c_null_ptr
 
     ! Guard: .TRUE. while bind_constraint_cb programmatically sets dropdown
     ! selections.  gtk fires 'notify::selected' on programmatic changes too,
@@ -439,9 +470,11 @@ module optimizer_ui
         optimizer_window = c_null_ptr
         genCheck = c_null_ptr
         genEntries = c_null_ptr
+        meritCV = c_null_ptr
     end subroutine
 
     subroutine initConstraintColInfo()
+        integer :: ii
 
         ! Build merit-table info: Name | Role | Type | Target | Weight | Value.
         ! Type applies to constraints; Weight applies to objective terms
@@ -460,6 +493,17 @@ module optimizer_ui
         constraintColInfo(ID_CONSTRAINT_TYPE_COL)%colType = ID_WIDGET_TYPE_DROPDOWN
         constraintColInfo(ID_CONSTRAINT_TYPE_COL)%dataType = ID_DATATYPE_INT
         constraintColInfo(ID_CONSTRAINT_TYPE_COL)%getFunc_int => constraint_item_get_contype
+
+        do ii = 0, MERIT_NPAR-1
+            constraintColInfo(ID_CONSTRAINT_PAR1_COL+ii)%colName = "Par "//achar(iachar('1')+ii)
+            constraintColInfo(ID_CONSTRAINT_PAR1_COL+ii)%colType = ID_WIDGET_TYPE_ENTRY
+            constraintColInfo(ID_CONSTRAINT_PAR1_COL+ii)%dataType = ID_DATATYPE_STR
+        end do
+        constraintColInfo(ID_CONSTRAINT_PAR1_COL)%getFunc_str   => constraint_item_get_par1
+        constraintColInfo(ID_CONSTRAINT_PAR1_COL+1)%getFunc_str => constraint_item_get_par2
+        constraintColInfo(ID_CONSTRAINT_PAR1_COL+2)%getFunc_str => constraint_item_get_par3
+        constraintColInfo(ID_CONSTRAINT_PAR1_COL+3)%getFunc_str => constraint_item_get_par4
+        constraintColInfo(ID_CONSTRAINT_PAR1_COL+4)%getFunc_str => constraint_item_get_par5
 
         constraintColInfo(ID_CONSTRAINT_TARGET_COL)%colName = "Target"
         constraintColInfo(ID_CONSTRAINT_TARGET_COL)%colType = ID_WIDGET_TYPE_ENTRY
@@ -532,6 +576,7 @@ module optimizer_ui
         cv = gtk_column_view_new(selection)
 
         call gtk_widget_set_name(cv, "Constraint"//c_null_char)
+        meritCV = cv
         call createConstraintToolbar(toolBox, cv)
         call gtk_box_append(boxNew, toolBox)      
 
@@ -610,7 +655,10 @@ module optimizer_ui
             ! the AUTUI name-dropdown crash).
             ! This did not work without () on the %func but did not throw and error.  Annoying
             store = append_constraint_model(store, trim(meritInUse(i)%name)//c_null_char, meritInUse(i)%func(),  &
-            & meritInUse(i)%role, meritInUse(i)%conType, meritInUse(i)%targ, meritInUse(i)%weight)
+            & meritInUse(i)%role, meritInUse(i)%conType, meritInUse(i)%targ, meritInUse(i)%weight, &
+            & trim(meritParamText(meritInUse(i),1))//c_null_char, trim(meritParamText(meritInUse(i),2))//c_null_char, &
+            & trim(meritParamText(meritInUse(i),3))//c_null_char, trim(meritParamText(meritInUse(i),4))//c_null_char, &
+            & trim(meritParamText(meritInUse(i),5))//c_null_char)
           end do
           do i=nM+1,numRows
             store = append_blank_constraint(store)
@@ -905,7 +953,7 @@ module optimizer_ui
                 return
             end if
             call PROCESKDP('DEL CON '//trim(int2str(currRow+1)))
-            call rebuildTable(gdata, buildConstraintTable(), setConstraintColumns)
+            call rebuildMeritTable(gdata)
 
         end subroutine
      
@@ -915,20 +963,50 @@ module optimizer_ui
               integer(kind=c_int) :: currRow
         end subroutine
 
+        ! Row selection: retitle the Par 1..5 headers for the selected row's
+        ! operand (lens-editor / Zemax MFE style).
         subroutine constraint_row_selected(widget, position, n_items, userdata) bind(c)
             type(c_ptr), value ::  widget, userdata
             integer(c_int) :: position, n_items
-            type(c_ptr) :: listitem, cStr
-            character(len=100) :: ftext
-            print *, "Row selected! "
-            !listitem = gtk_single_selection_get_selected_item(widget)
-            ! cStr = lens_item_get_surface_type(listitem)
-            ! call convert_c_string(cStr, ftext)   
-            ! print *, "Surf type is ", trim(ftext)
-            !call updateColumnHeadersIfNeeded(trim(ftext))
-            call gtk_widget_set_sensitive(userdata, TRUE)
-            !call gtk_widget_set_sensitive(ibut, TRUE)
-          end subroutine      
+            call updateMeritParamHeaders()
+          end subroutine
+
+        ! Headers Par 1..5 become the selected row's parameter names (blank
+        ! names keep the generic "Par n").
+        subroutine updateMeritParamHeaders()
+            type(c_ptr) :: cols, col
+            integer :: row, jp
+            character(len=16) :: names(MERIT_NPAR)
+            character(len=16) :: title
+
+            if (.not. c_associated(meritCV)) return
+            names = ''
+            row = getCurrentTableRow(meritCV)
+            if (row >= 0 .and. row+1 <= nM) names = meritParamNames(trim(meritInUse(row+1)%name))
+
+            cols = gtk_column_view_get_columns(meritCV)
+            do jp = 1, MERIT_NPAR
+                ! Columns are appended in ID order, so Par j sits at index ID-1.
+                col = g_list_model_get_object(cols, int(ID_CONSTRAINT_PAR1_COL+jp-2, c_int))
+                if (.not. c_associated(col)) cycle
+                title = names(jp)
+                if (len_trim(title) == 0) title = "Par "//achar(iachar('0')+jp)
+                call gtk_column_view_column_set_title(col, trim(title)//c_null_char)
+                call g_object_unref(col)
+            end do
+        end subroutine
+
+        ! Rebuild the Merit table from meritInUse.  rebuildTable recreates the
+        ! columns and the selection model, so reconnect row selection and
+        ! re-title the Par headers for the (restored) selected row.
+        subroutine rebuildMeritTable(cv)
+            type(c_ptr) :: cv
+            call rebuildTable(cv, buildConstraintTable(), setConstraintColumns)
+            meritCV = cv
+            call g_signal_connect(gtk_column_view_get_model(cv), 'selection-changed'//c_null_char, &
+                & c_funloc(constraint_row_selected), c_null_ptr)
+            call updateMeritParamHeaders()
+        end subroutine
           
         !   subroutine rebuildConstraintTable(cv)
         !     type(c_ptr), value :: cv ! column view
@@ -1054,7 +1132,7 @@ module optimizer_ui
             implicit none
             type(c_ptr), value :: widget, event, gdata
            
-            call rebuildTable(gdata, buildConstraintTable(), setConstraintColumns)
+            call rebuildMeritTable(gdata)
         end subroutine      
         
         subroutine helpWindow(widget, event, gdata) bind(c)
@@ -1147,7 +1225,7 @@ module optimizer_ui
 
           print *, "update cmd is ", trim(cmd)
           call PROCESKDP("UPD CON ; CHA "//trim(int2str(row+1))//" ; "//trim(cmd)//'; GO')
-          call rebuildTable(getColumnViewFromWidget(widget, "Constraint"), buildConstraintTable(), setConstraintColumns)
+          call rebuildMeritTable(getColumnViewFromWidget(widget, "Constraint"))
         end subroutine       
           
           subroutine constraintDropDownChanged(widget, gdata) bind(c)
@@ -1184,7 +1262,7 @@ module optimizer_ui
             cmd = getConstraintChangeCommand(model, row, col, trim(ftext))
             print *, "cmd is ", cmd
             call PROCESKDP("UPD CON ; CHA "//trim(int2str(row+1))//" ; "//trim(cmd)//'; GO')
-            call rebuildTable(getColumnViewFromWidget(widget, "Constraint"), buildConstraintTable(), setConstraintColumns)
+            call rebuildMeritTable(getColumnViewFromWidget(widget, "Constraint"))
     
         end subroutine
 
@@ -1228,6 +1306,8 @@ module optimizer_ui
             character(len=*) :: colText
             character(len=200) :: outStr
             character(len=240) :: nameStr, targStr, weightStr
+            character(len=240) :: parStr(MERIT_NPAR)
+            integer :: jp
             character(len=10), dimension(2) :: roleNames
             character(len=1) :: conStr
             type(c_ptr) :: item
@@ -1237,6 +1317,9 @@ module optimizer_ui
 
             ! Gather every field, taking the edited column's new value from
             ! colText (dropdown edits arrive as display text).
+            do jp = 1, MERIT_NPAR
+                parStr(jp) = getColValueAsStr(item, constraintColInfo(ID_CONSTRAINT_PAR1_COL+jp-1))
+            end do
             nameStr   = getColValueAsStr(item, constraintColInfo(ID_CONSTRAINT_NAME_COL))
             targStr   = getColValueAsStr(item, constraintColInfo(ID_CONSTRAINT_TARGET_COL))
             weightStr = getColValueAsStr(item, constraintColInfo(ID_CONSTRAINT_WEIGHT_COL))
@@ -1264,14 +1347,12 @@ module optimizer_ui
                 targStr = colText
             case (ID_CONSTRAINT_WEIGHT_COL)
                 weightStr = colText
+            case (ID_CONSTRAINT_PAR1_COL:ID_CONSTRAINT_PAR1_COL+MERIT_NPAR-1)
+                parStr(col-ID_CONSTRAINT_PAR1_COL+1) = colText
             end select
 
-            ! The table has no qualifier column: keep the row's [Sk] [Wm] [Zn]
-            ! (paraxial ray operands) so editing its target or role does not
-            ! silently move it back to the image surface / reference wavelength.
-            if (row+1 <= nM .AND. isParaxialOperand(trim(nameStr))) then
-                nameStr = trim(nameStr)//trim(meritQualText(meritInUse(row+1)))
-            end if
+            ! The Par columns become the command's qualifiers (" S5 W2").
+            nameStr = trim(nameStr)//trim(meritQualFromParams(trim(nameStr), parStr))
 
             if (role == ID_ROLE_CONSTRAINT) then
                 select case (conType)
