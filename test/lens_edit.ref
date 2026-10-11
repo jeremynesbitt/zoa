@@ -266,3 +266,30 @@ STO:    15.30883    2.37287               N-BK7_SCH2000  100     100     100
 006:    38.47108    0.00000               N-SK16_SCH2000 100     100     100
 007:    -24.020    74.99226                              100     100     100
 IMG:    INFINITY    0.00000                              100     100     100
+All constraints removed
+
+
+
+
+
+
+Field Weights Command WTF     100     100     100 Not supported
+          RDY          THI     RMD          GLA          CCY     THC     GLC
+OBJ:    INFINITY    INFINITY                              100     100     100
+001:    15.00000    3.50000               N-SK16_SCH2000 100     100     100
+STO:    -37.530    1.50000               N-F2_SCH2000   100     100     100
+003:    14.08000    5.00000                              100     100     100
+004:    50.26000    3.50000               N-SK16_SCH2000 100     100     100
+005:    -31.380    5.42497                              100     100     100
+IMG:    INFINITY    0.00000                              100     100     100
+          RDY          THI     RMD          GLA          CCY     THC     GLC
+OBJ:    INFINITY    INFINITY                              100     100     100
+001:    15.00000    3.50000               N-SK16_SCH2000 100     100     100
+STO:    -37.530    1.50000               N-F2_SCH2000   100     100     100
+003:    14.08000    5.00000                              100     100     100
+IMG:    INFINITY    0.00000                              100     100     100
+Error:  can only delete surfaces S1..S3 (not the object or image surface)
+Error:  can only delete surfaces S1..S3 (not the object or image surface)
+Error:  can only delete surfaces S1..S3 (not the object or image surface)
+Error:  bad surface SX.  Expect DEL Sk or DEL Si..j
+Unknown DEL option FOO.  Expect DEL Sk, DEL Si..j, DEL CON n, DEL SOL, DEL PIM, DEL VIG or DEL APE SA

@@ -42,3 +42,18 @@ SUR SA
 ! GCONVERT is destructive (converts glass to model glass) - keep last
 GCONVERT 2
 SUR SA
+
+! ---- DEL Sk / DEL Si..j: delete surfaces (CODE V) ----
+! A range is deleted highest-first, so Si..j names the surfaces as listed
+! before the command.  The object and image surfaces cannot be deleted;
+! a malformed surface or unknown DEL option is reported (was silent).
+RES osdtriplet
+DEL S2
+SUR SA
+DEL S4..5
+SUR SA
+DEL S0
+DEL S5
+DEL S2..9
+DEL SX
+DEL FOO

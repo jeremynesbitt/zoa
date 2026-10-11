@@ -649,8 +649,58 @@ contains
                 else
                     call zoa_emit("Expected 'DEL APE SA'", "red")
                 end if
+            case default
+                ! DEL Sk / DEL Si..j: delete surfaces (CODE V).  Highest first
+                ! so the lower numbers in a range still name the same surfaces.
+                if (tokens(2)(1:1) == 'S' .and. len_trim(tokens(2)) > 1) then
+                    call deleteSurfaces(trim(tokens(2)(2:)))
+                else
+                    call zoa_emit("Unknown DEL option "//trim(tokens(2))// &
+                    &  ".  Expect DEL Sk, DEL Si..j, DEL CON n, DEL SOL, DEL PIM, DEL VIG or DEL APE SA", "red")
+                end if
             end select
+        else
+            call zoa_emit("Expect DEL Sk, DEL Si..j, DEL CON n, DEL SOL, DEL PIM, DEL VIG or DEL APE SA", "red")
         end if
+
+    contains
+
+        subroutine deleteSurfaces(spec)
+            use iso_fortran_env, only: real64
+            character(len=*), intent(in) :: spec
+            integer, allocatable :: surfs(:)
+            integer :: i, s0, s1, lastSurf
+
+            if (index(spec, '..') > 0) then
+                if (.not. cmd_parser_get_integer_range(spec, surfs)) then
+                    call zoa_emit("Error:  bad surface range S"//spec//".  Expect DEL Si..j", "red")
+                    return
+                end if
+                s0 = minval(surfs); s1 = maxval(surfs)
+            else if (isInputNumber(spec)) then
+                s0 = str2int(spec); s1 = s0
+            else
+                call zoa_emit("Error:  bad surface S"//spec//".  Expect DEL Sk or DEL Si..j", "red")
+                return
+            end if
+
+            lastSurf = ldm%getLastSurf()
+            if (s0 < 1 .or. s1 > lastSurf-1) then
+                call zoa_emit("Error:  can only delete surfaces S1..S"//trim(int2str(lastSurf-1))// &
+                &  " (not the object or image surface)", "red")
+                return
+            end if
+
+            call kdp_silent_begin()
+            call kdp_lens_begin()
+            do i = s1, s0, -1
+                call kdp_chg(i)
+                call kdp_lens_cmd('DELK')
+            end do
+            call kdp_lens_end()
+            call kdp_silent_end()
+        end subroutine
+
     end procedure deleteStuff
 
     !## cmd:      EPD
