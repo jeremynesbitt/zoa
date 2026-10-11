@@ -57,3 +57,32 @@ DEL S5
 DEL S2..9
 DEL SX
 DEL FOO
+
+! ---- Surface insert/delete keeps surface references attached ----
+! Optimizer variables, zoom operands and merit-entry surface qualifiers
+! follow their surfaces on DEL/INS (and anything on a deleted surface goes
+! with it); pickup sources are renumbered on insertion (S6's RDY keeps
+! picking up the 50.26 surface) and a pickup whose source is deleted is
+! dropped with its value frozen.
+RES osdtriplet
+CCY S5 0
+THC S4 0
+ZOO 2
+ZOO THI S4 5 6
+TAR
+UCY S5 = 0.1
+HMY S6 = 1
+GO
+PIK RDY S6 S5 -1 0
+DEL S2
+SUR SA
+ZOO
+LCON
+INS S3
+SUR SA
+ZOO
+LCON
+DEL S5
+SUR SA
+ZOO
+LCON

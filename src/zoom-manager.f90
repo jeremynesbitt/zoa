@@ -21,6 +21,7 @@ module zoom_manager
   public :: zoom_set_count, zoom_define_operand, zoom_switch, zoom_reset
   public :: zoom_num_configs, zoom_current_config, zoom_genSaveOutputText
   public :: zoom_list
+  public :: zoom_surfaces_shifted
 
   ! Operand kinds
   integer, parameter :: ZK_NUMERIC = 1   ! THI/RDY/CUY/K
@@ -116,6 +117,37 @@ contains
       end if
     end do
   end function find_operand
+
+  ! Keep operand surface numbers attached to their surfaces when one is
+  ! inserted (delta = +1: surfaces k.. move up) or deleted (delta = -1:
+  ! surface k is gone, k+1.. move down).  An operand on a deleted surface is
+  ! removed.  Solve operands (PIM) carry no surface.
+  subroutine zoom_surfaces_shifted(k, delta)
+    use zoa_output, only: zoa_emit
+    use type_utils, only: int2str
+    integer, intent(in) :: k, delta
+    type(zoom_operand), allocatable :: kept(:)
+    integer :: i, n
+    if (.not. allocated(operands)) return
+    allocate(kept(size(operands)))
+    n = 0
+    do i = 1, size(operands)
+      if (operands(i)%kind /= ZK_SOLVE) then
+        if (delta < 0 .and. operands(i)%surf == k) then
+          call zoa_emit("Zoom operand "//trim(operands(i)%param)//" S"//trim(int2str(k))// &
+          &  " removed: its surface was deleted", "black")
+          cycle
+        end if
+        if (operands(i)%surf >= k .and. delta > 0) operands(i)%surf = operands(i)%surf + 1
+        if (operands(i)%surf >  k .and. delta < 0) operands(i)%surf = operands(i)%surf - 1
+      end if
+      n = n + 1
+      kept(n) = operands(i)
+    end do
+    deallocate(operands)
+    allocate(operands(n))
+    operands(1:n) = kept(1:n)
+  end subroutine zoom_surfaces_shifted
 
   ! Append an empty operand slot and return its index.
   integer function add_operand_slot()

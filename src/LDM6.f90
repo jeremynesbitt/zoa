@@ -3082,40 +3082,19 @@ SUBROUTINE SINS
          END DO
 !
 !     L IS THE NEW FINAL SURFACE OF THE LENS
-         DO J=0,L
+!     RENUMBER EVERY ACTIVE PIKUP WHOSE SOURCE SURFACE IS AT OR AFTER THE
+!     INSERTION POINT K.  PIKUP IS NOT SHIFTED YET, SO SURFACE M'S PIKUPS
+!     ARE STILL IN PIKUP(:,M,:) FOR THE ORIGINAL SURFACES M=0..L-1.
+!     (THIS USED TO GATE ON THE ALENS PIKUP COUNT, WHICH IS NO LONGER SET
+!     WHEN PIKUPS ARE ADDED, SO SOURCES WERE NEVER RENUMBERED.)
+         DO J=0,L-1
             DO I=1,PSIZ
-               IF(I.NE.32) THEN
-!     NOT THOAL
-!       IF THE SURFACE NUMBER OF THE SURFACE BEING INSERTED IS
-!       NUMERICALLY LESS THAN OR EQUAL TO SURFACE NUMBER REFERENCED
-!       BY THE PIKUP (PIKUP(2,J,I) THEN
-                  IF(surf_pickup_count(J) /= 0) THEN
-!     THERE IS A PIKUP ON SURFACE J
-                     IF(K.LE.INT(PIKUP(2,J-1,I))) THEN
-                        PIKUP(2,J-1,I)=PIKUP(2,J-1,I)+1.0D0
-                     ELSE
-!       SURFACE BEING INSERTED AFTER THE SURFACE REFERENCED BY
-!       THE PIKUP
-                     END IF
+               IF(PIKUP(1,J,I).EQ.1.0D0) THEN
+                  IF(K.LE.INT(PIKUP(2,J,I))) PIKUP(2,J,I)=PIKUP(2,J,I)+1.0D0
+!     THOAL (32) ALSO CARRIES A SECOND SURFACE
+                  IF(I.EQ.32) THEN
+                     IF(K.LE.INT(PIKUP(3,J,I))) PIKUP(3,J,I)=PIKUP(3,J,I)+1.0D0
                   END IF
-               ELSE
-!     THOAL
-                  IF(surf_pickup_count(J) /= 0) THEN
-!     THERE IS A PIKUP ON SURFACE J
-                     IF(K.LE.INT(PIKUP(2,J-1,I))) THEN
-                        PIKUP(2,J-1,I)=PIKUP(2,J-1,I)+1.0D0
-                     ELSE
-!       SURFACE BEING INSERTED AFTER THE SURFACE REFERENCED BY
-!       THE PIKUP
-                     END IF
-                     IF(K.LE.INT(PIKUP(3,J-1,I))) THEN
-                        PIKUP(3,J-1,I)=PIKUP(3,J-1,I)+1.0D0
-                     ELSE
-!       SURFACE BEING INSERTED AFTER THE SURFACE REFERENCED BY
-!       THE PIKUP
-                     END IF
-                  END IF
-
                END IF
             END DO
          END DO
@@ -3160,6 +3139,9 @@ SUBROUTINE SINS
             IF((surf_ret_surf_num(I)).GE.SURF) call set_surf_ret_surf_num(I, surf_ret_surf_num(I) + 1)
          END IF
       END DO
+!     TYPED STORES (OPTIMIZER VARIABLES, EDGE APERTURES, ZOOM OPERANDS,
+!     MERIT SURFACE QUALIFIERS) FOLLOW THE INSERTION TOO
+      CALL typed_surface_inserted(SURF)
    END DO
 
    RETURN
@@ -3365,7 +3347,9 @@ SUBROUTINE SDEL
 !
 !       FIRST SOLVES
 !
-      IF(surf_pickup_count(SURF) /= 0) THEN
+!     (PIKUP(1,s,kind)=1 MARKS AN ACTIVE PIKUP; THE ALENS PIKUP COUNT
+!     IS NO LONGER MAINTAINED WHEN PIKUPS ARE ADDED, SO DO NOT GATE ON IT)
+      IF(ANY(PIKUP(1,SURF,1:PSIZ).EQ.1.0D0)) THEN
          OUTLYNE='PIKUP DATA BEING DELETED WITH SURFACE DELETION'
          CALL SHOWIT(1)
       END IF
@@ -3390,7 +3374,7 @@ SUBROUTINE SDEL
 !       surf_pickup_count(FOR THE SURFACE WITH PIKUPS) IS SET TO ZERO
 !
       DO J=0,INT(sys_last_surf())
-         IF(surf_pickup_count(J).NE.0D0) THEN
+         IF(ANY(PIKUP(1,J,1:PSIZ).EQ.1.0D0)) THEN
 !       FOUND A SURFACE WITH PIKUPS
             DO I=1,PSIZ
                IF(PIKUP(1,J,I).EQ.1) THEN
@@ -3505,6 +3489,9 @@ SUBROUTINE SDEL
             IF((surf_ret_surf_num(I)).GE.SURF) call set_surf_ret_surf_num(I, surf_ret_surf_num(I) - 1)
          END IF
       END DO
+!     TYPED STORES (OPTIMIZER VARIABLES, EDGE APERTURES, ZOOM OPERANDS,
+!     MERIT SURFACE QUALIFIERS) FOLLOW THE DELETION TOO
+      CALL typed_surface_deleted(SURF)
    END DO
    RETURN
 END

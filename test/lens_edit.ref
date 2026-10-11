@@ -293,3 +293,58 @@ Error:  can only delete surfaces S1..S3 (not the object or image surface)
 Error:  can only delete surfaces S1..S3 (not the object or image surface)
 Error:  bad surface SX.  Expect DEL Sk or DEL Si..j
 Unknown DEL option FOO.  Expect DEL Sk, DEL Si..j, DEL CON n, DEL SOL, DEL PIM, DEL VIG or DEL APE SA
+All constraints removed
+
+
+
+
+
+
+Field Weights Command WTF     100     100     100 Not supported
+Number of zoom configurations set to 2
+          RDY          THI     RMD          GLA          CCY     THC     GLC
+OBJ:    INFINITY    INFINITY                              100     100     100
+001:    15.00000    3.50000               N-SK16_SCH2000 100     100     100
+STO:    -37.530    1.50000               N-F2_SCH2000   100     100     100
+003:    14.08000    5.00000                              100     0       100
+004:    50.26000    3.50000               N-SK16_SCH2000 0       100     100
+005:    -50.260    4.78421                              100     100     100
+IMG:    INFINITY    0.00000                              100     100     100
+Zoom configurations: 2   active: 1
+  THI S3  5.000000  6.000000
+  #   NAME   ROLE         TYPE        TARGET   WEIGHT
+  -   ----   ----------   ----   -----------   ------
+  1   UCY S4   Constraint   =          0.10000
+  2   HMY S5   Constraint   =          1.00000
+General (variable thicknesses): MXT 12.00000  MNT 2.00000  MNE 2.00000  MNA 0.10000  MAE 0.00250
+          RDY          THI     RMD          GLA          CCY     THC     GLC
+OBJ:    INFINITY    INFINITY                              100     100     100
+001:    15.00000    3.50000               N-SK16_SCH2000 100     100     100
+STO:    -37.530    1.50000               N-F2_SCH2000   100     100     100
+003:    INFINITY    0.00000                              100     100     100
+004:    14.08000    5.00000                              100     0       100
+005:    50.26000    3.50000               N-SK16_SCH2000 0       100     100
+006:    -50.260    9.88736                              100     100     100
+IMG:    INFINITY    0.00000                              100     100     100
+Zoom configurations: 2   active: 1
+  THI S4  5.000000  6.000000
+  #   NAME   ROLE         TYPE        TARGET   WEIGHT
+  -   ----   ----------   ----   -----------   ------
+  1   UCY S5   Constraint   =          0.10000
+  2   HMY S6   Constraint   =          1.00000
+General (variable thicknesses): MXT 12.00000  MNT 2.00000  MNE 2.00000  MNA 0.10000  MAE 0.00250
+Merit entry UCY S5 removed: its surface was deleted
+          RDY          THI     RMD          GLA          CCY     THC     GLC
+OBJ:    INFINITY    INFINITY                              100     100     100
+001:    15.00000    3.50000               N-SK16_SCH2000 100     100     100
+STO:    -37.530    1.50000               N-F2_SCH2000   100     100     100
+003:    INFINITY    0.00000                              100     100     100
+004:    14.08000    5.00000                              100     0       100
+005:    -50.260    16.08711                              100     100     100
+IMG:    INFINITY    0.00000                              100     100     100
+Zoom configurations: 2   active: 1
+  THI S4  5.000000  6.000000
+  #   NAME   ROLE         TYPE        TARGET   WEIGHT
+  -   ----   ----------   ----   -----------   ------
+  1   HMY S5   Constraint   =          1.00000
+General (variable thicknesses): MXT 12.00000  MNT 2.00000  MNE 2.00000  MNA 0.10000  MAE 0.00250
