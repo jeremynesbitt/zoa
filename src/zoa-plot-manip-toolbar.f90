@@ -61,7 +61,6 @@ module zoa_plot_manip_toolbar
      cstr= gtk_widget_get_name(p1) 
      call convert_c_string(cstr, winName)
     
-     call LogTermFOR("Parent Windown name is "// trim(winName))
    
      p2 = gtk_widget_get_parent(p1)
      cstr= gtk_widget_get_name(p2) 
@@ -71,8 +70,6 @@ module zoa_plot_manip_toolbar
      cstr= gtk_widget_get_name(p3) 
      call convert_c_string(cstr, winName)
 
-     call LogTermFOR("Parent Windown name is "// trim(winName))
-     print *, "Parent Windown name is ", trim(winName)
      tabIdx = str2int(winName)
    
     

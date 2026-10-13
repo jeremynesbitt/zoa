@@ -113,6 +113,9 @@ end function
 
   type(c_ptr) :: win_modal_solve
   type(c_ptr) :: refRadio
+  ! Set while bind_cb sets the Ref radio from the lens, so its "toggled"
+  ! handler does not treat a redraw as the user choosing a new stop.
+  logical :: binding_ref_radio = .false.
 
   logical :: mod_update
   type(c_ptr) :: cv, curr_btn
@@ -1245,6 +1248,42 @@ subroutine enableVar(act, avalue, btn) bind(c)
 
 end subroutine
 
+! The Ref column's radio marks the aperture stop.  Selecting another surface
+! sends the CODE V command STO Sk (it used to do nothing: no handler was
+! connected, so the stop could not be moved from the editor).
+! A Yes/No confirmation comes first; No puts the radio back on the stop.
+subroutine refRadioToggled(widget, gdata) bind(c)
+  use type_utils, only: int2str
+  use mod_lens_data_manager, only: ldm
+  use gtk_hl_dialog, only: hl_gtk_message_dialog_show
+  type(c_ptr), value, intent(in) :: widget, gdata
+  character(len=100) :: rcCode
+  character(len=60), dimension(2) :: msg
+  integer :: surfIdx, oldStop
+  integer(c_int) :: resp
+
+  if (binding_ref_radio) return
+  if (gtk_check_button_get_active(widget) == 0) return   ! the radio being cleared
+  call convert_c_string(gtk_widget_get_name(widget), rcCode)
+  if (index(rcCode, 'R') == 0 .or. index(rcCode, 'C') == 0) return
+  surfIdx = getSurfaceIndexFromRowColumnCode(trim(rcCode))
+  oldStop = ldm%getStopSurf()
+  if (surfIdx == oldStop) return
+
+  msg(1) = "Move the aperture stop from S"//trim(int2str(oldStop))// &
+  &        " to S"//trim(int2str(surfIdx))//"?"
+  msg(2) = "(STO S"//trim(int2str(surfIdx))//")"
+  resp = hl_gtk_message_dialog_show(msg, GTK_BUTTONS_YES_NO, &
+       & "Change Aperture Stop"//c_null_char, parent=lens_editor_window)
+
+  if (resp == GTK_RESPONSE_YES) then
+    call PROCESKDP("STO S"//trim(int2str(surfIdx)))
+    call notify_replot_flush()
+  end if
+  ! Yes: show the new stop.  No (or closed): put the radio back on the stop.
+  call rebuildLensEditorTable()
+end subroutine
+
 subroutine removeVar(act, avalue, btn) bind(c)
   use type_utils
   type(c_ptr), value :: act, avalue, btn
@@ -1532,9 +1571,11 @@ subroutine bind_cb(factory,listitem, gdata) bind(c)
     colName = trim(int2str(lens_item_get_surface_number(item)))//c_null_char
     call gtk_label_set_text(label, trim(colName)//c_null_char)
    case(2)
+    binding_ref_radio = .true.
     if (lens_item_get_ref_surf(item) == 1_c_int) then
       call gtk_check_button_set_active(label, 1_c_int)
     end if
+    binding_ref_radio = .false.
     !colName = trim(int2str(lens_item_get_ref_surf(item)))//c_null_char
     !call gtk_label_set_text(label, trim(colName)//c_null_char)
    case(3)
@@ -1662,6 +1703,15 @@ subroutine bind_cb(factory,listitem, gdata) bind(c)
 
      if (ID_COL == 4) then 
      call g_signal_connect(label, "notify::selected"//c_null_char, c_funloc(updateSurfaceType), c_null_ptr)
+     end if
+
+     ! Ref (aperture stop) radio: choosing a surface moves the stop there.
+     ! Connect once per widget -- list items are recycled and bind repeats.
+     if (ID_COL == 2) then
+       if (.not. c_associated(g_object_get_data(label, "zoa-ref-connected"//c_null_char))) then
+         call g_signal_connect(label, "toggled"//c_null_char, c_funloc(refRadioToggled), c_null_ptr)
+         call g_object_set_data(label, "zoa-ref-connected"//c_null_char, label)
+       end if
      end if
 
      !print *, "Testing... ", lens_item_get_extra_param(item, 0_c_int)
