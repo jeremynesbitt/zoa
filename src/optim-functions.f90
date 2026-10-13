@@ -47,6 +47,9 @@ subroutine aut_go()
     ! No variables -> nothing to optimize.  Bail out with a clear message
     ! instead of handing the solver an empty variable vector (slsqp init
     ! fails and the old code hit an ERROR STOP, killing the whole program).
+    ! The count comes from the variable flags as they are now (the lens
+    ! editor or CLI may have removed one since the last run).
+    call recountOptimVars()
     if (nV < 1) then
         call zoa_emit("AUT: no variables are defined; nothing to optimize.", "red")
         call zoa_emit("Set at least one variable first (e.g. CCY S2 0, THC S3 0, "// &

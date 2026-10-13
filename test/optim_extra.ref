@@ -1298,3 +1298,337 @@ STO   0.26677  -0.19328   0.14003  -0.12797   0.03660  -0.48065   0.34823
 IMG   0.00000   0.00000   0.00000   0.00000   0.00000  -0.00000   0.00000
 SUM  -0.03188  -0.00062   0.00005  -0.00286  -0.03350   0.02312  -0.01327
 All constraints removed
+All constraints removed
+
+
+AUT: no operand defined; minimizing spot size (SPO)
+
+                                                          l
+CYCLE NUMBER 0
+   ERROR FUNCTION = 0.78961
+          RDY          THI     RMD          GLA          CCY     THC     GLC
+OBJ:    INFINITY    INFINITY                              100     100     100
+STO:    120.00000    5.00000               N-BK7_SCH2000  100     0       100
+002:    -32.218    48.99672                              0       100     100
+IMG:    INFINITY    0.00000                              100     100     100
+                                                          l
+Name  Role        Typ  Target              Value               diff
+EFL   Constraint  =   60.0000000000000000  49.8285000510554141 -10.1714999489445859
+SPO   Operand          0.0000000000000000   0.8948277887308429   0.8948277887308429
+MNE           S1  >    2.0000000000000000   2.9967646811722899   0.9967646811722899
+                                                          l
+CYCLE NUMBER 1
+   ERROR FUNCTION = 0.43721
+          RDY          THI     RMD          GLA          CCY     THC     GLC
+OBJ:    INFINITY    INFINITY                              100     100     100
+STO:    120.00000    5.00224               N-BK7_SCH2000  100     0       100
+002:    -37.026    54.56562                              0       100     100
+IMG:    INFINITY    0.00000                              100     100     100
+                                                          l
+Name  Role        Typ  Target              Value               diff
+EFL   Constraint  =   60.0000000000000000  55.5083046920952654  -4.4916953079047346
+SPO   Operand          0.0000000000000000   0.6663322844769030   0.6663322844769030
+MNE           S1  >    2.0000000000000000   3.2141549903895781   1.2141549903895781
+                                                          l
+CYCLE NUMBER 2
+   ERROR FUNCTION = 0.34887
+          RDY          THI     RMD          GLA          CCY     THC     GLC
+OBJ:    INFINITY    INFINITY                              100     100     100
+STO:    120.00000    5.00371               N-BK7_SCH2000  100     0       100
+002:    -39.103    56.86616                              0       100     100
+IMG:    INFINITY    0.00000                              100     100     100
+                                                          l
+Name  Role        Typ  Target              Value               diff
+EFL   Constraint  =   60.0000000000000000  57.8557378617201010  -2.1442621382798990
+SPO   Operand          0.0000000000000000   0.5954039759849519   0.5954039759849519
+MNE           S1  >    2.0000000000000000   3.2912829392953240   1.2912829392953240
+                                                          l
+CYCLE NUMBER 3
+   ERROR FUNCTION = 0.31497
+          RDY          THI     RMD          GLA          CCY     THC     GLC
+OBJ:    INFINITY    INFINITY                              100     100     100
+STO:    120.00000    5.00525               N-BK7_SCH2000  100     0       100
+002:    -40.091    57.93959                              0       100     100
+IMG:    INFINITY    0.00000                              100     100     100
+                                                          l
+Name  Role        Typ  Target              Value               diff
+EFL   Constraint  =   60.0000000000000000  58.9513870801271693  -1.0486129198728307
+SPO   Operand          0.0000000000000000   0.5658287302342674   0.5658287302342674
+MNE           S1  >    2.0000000000000000   3.3259159775996974   1.3259159775996974
+                                                          l
+CYCLE NUMBER 4
+   ERROR FUNCTION = 0.29997
+          RDY          THI     RMD          GLA          CCY     THC     GLC
+OBJ:    INFINITY    INFINITY                              100     100     100
+STO:    120.00000    5.00700               N-BK7_SCH2000  100     0       100
+002:    -40.574    58.45923                              0       100     100
+IMG:    INFINITY    0.00000                              100     100     100
+                                                          l
+Name  Role        Typ  Target              Value               diff
+EFL   Constraint  =   60.0000000000000000  59.4819982114602723  -0.5180017885397277
+SPO   Operand          0.0000000000000000   0.5522244222109551   0.5522244222109551
+MNE           S1  >    2.0000000000000000   3.3432278873917416   1.3432278873917416
+                                                          l
+CYCLE NUMBER 5
+   ERROR FUNCTION = 0.29290
+          RDY          THI     RMD          GLA          CCY     THC     GLC
+OBJ:    INFINITY    INFINITY                              100     100     100
+STO:    120.00000    5.00890               N-BK7_SCH2000  100     0       100
+002:    -40.813    58.71456                              0       100     100
+IMG:    INFINITY    0.00000                              100     100     100
+                                                          l
+Name  Role        Typ  Target              Value               diff
+EFL   Constraint  =   60.0000000000000000  59.7429213736661779  -0.2570786263338221
+SPO   Operand          0.0000000000000000   0.5456965492138981   0.5456965492138981
+MNE           S1  >    2.0000000000000000   3.3526678729578050   1.3526678729578050
+                                                          l
+CYCLE NUMBER 6
+   ERROR FUNCTION = 0.28946
+          RDY          THI     RMD          GLA          CCY     THC     GLC
+OBJ:    INFINITY    INFINITY                              100     100     100
+STO:    120.00000    5.01089               N-BK7_SCH2000  100     0       100
+002:    -40.931    58.84083                              0       100     100
+IMG:    INFINITY    0.00000                              100     100     100
+                                                          l
+Name  Role        Typ  Target              Value               diff
+EFL   Constraint  =   60.0000000000000000  59.8721292336446993  -0.1278707663553007
+SPO   Operand          0.0000000000000000   0.5425012578306920   0.5425012578306920
+MNE           S1  >    2.0000000000000000   3.3583661600566228   1.3583661600566228
+                                                          l
+CYCLE NUMBER 7
+   ERROR FUNCTION = 0.28778
+          RDY          THI     RMD          GLA          CCY     THC     GLC
+OBJ:    INFINITY    INFINITY                              100     100     100
+STO:    120.00000    5.01296               N-BK7_SCH2000  100     0       100
+002:    -40.990    58.90338                              0       100     100
+IMG:    INFINITY    0.00000                              100     100     100
+                                                          l
+Name  Role        Typ  Target              Value               diff
+EFL   Constraint  =   60.0000000000000000  59.9363272054947700  -0.0636727945052300
+SPO   Operand          0.0000000000000000   0.5409214410052304   0.5409214410052304
+MNE           S1  >    2.0000000000000000   3.3622644014538761   1.3622644014538761
+                                                          l
+CYCLE NUMBER 8
+   ERROR FUNCTION = 0.28694
+          RDY          THI     RMD          GLA          CCY     THC     GLC
+OBJ:    INFINITY    INFINITY                              100     100     100
+STO:    120.00000    5.01515               N-BK7_SCH2000  100     0       100
+002:    -41.019    58.93431                              0       100     100
+IMG:    INFINITY    0.00000                              100     100     100
+                                                          l
+Name  Role        Typ  Target              Value               diff
+EFL   Constraint  =   60.0000000000000000  59.9682767781948272  -0.0317232218051728
+SPO   Operand          0.0000000000000000   0.5401357245859402   0.5401357245859402
+MNE           S1  >    2.0000000000000000   3.3653602194909924   1.3653602194909924
+                                                          l
+CYCLE NUMBER 9
+   ERROR FUNCTION = 0.28652
+          RDY          THI     RMD          GLA          CCY     THC     GLC
+OBJ:    INFINITY    INFINITY                              100     100     100
+STO:    120.00000    5.01779               N-BK7_SCH2000  100     0       100
+002:    -41.033    58.94945                              0       100     100
+IMG:    INFINITY    0.00000                              100     100     100
+                                                          l
+Name  Role        Typ  Target              Value               diff
+EFL   Constraint  =   60.0000000000000000  59.9841899182969982  -0.0158100817030018
+SPO   Operand          0.0000000000000000   0.5397425428427383   0.5397425428427383
+MNE           S1  >    2.0000000000000000   3.3684413459709073   1.3684413459709073
+                                                          l
+CYCLE NUMBER 10
+   ERROR FUNCTION = 0.28630
+          RDY          THI     RMD          GLA          CCY     THC     GLC
+OBJ:    INFINITY    INFINITY                              100     100     100
+STO:    120.00000    5.02335               N-BK7_SCH2000  100     0       100
+002:    -41.040    58.95628                              0       100     100
+IMG:    INFINITY    0.00000                              100     100     100
+                                                          l
+Name  Role        Typ  Target              Value               diff
+EFL   Constraint  =   60.0000000000000000  59.9921178685781058  -0.0078821314218942
+SPO   Operand          0.0000000000000000   0.5395401517219618   0.5395401517219618
+MNE           S1  >    2.0000000000000000   3.3742122579514353   1.3742122579514353
+                                                          l
+CYCLE NUMBER 11
+   ERROR FUNCTION = 0.28630
+          RDY          THI     RMD          GLA          CCY     THC     GLC
+OBJ:    INFINITY    INFINITY                              100     100     100
+STO:    120.00000    5.02335               N-BK7_SCH2000  100     0       100
+002:    -41.040    58.95628                              0       100     100
+IMG:    INFINITY    0.00000                              100     100     100
+                                                          l
+Name  Role        Typ  Target              Value               diff
+EFL   Constraint  =   60.0000000000000000  59.9921178685781058  -0.0078821314218942
+SPO   Operand          0.0000000000000000   0.5395401517219618   0.5395401517219618
+MNE           S1  >    2.0000000000000000   3.3742122579514353   1.3742122579514353
+AUT: done after 11 iterations, status: Required accuracy for solution obtained
+All constraints removed
+AUT: no operand defined; minimizing spot size (SPO)
+                                                          l
+CYCLE NUMBER 0
+   ERROR FUNCTION = 0.28630
+          RDY          THI     RMD          GLA          CCY     THC     GLC
+OBJ:    INFINITY    INFINITY                              100     100     100
+STO:    120.00000    5.02335               N-BK7_SCH2000  100     100     100
+002:    -41.040    58.95628                              0       100     100
+IMG:    INFINITY    0.00000                              100     100     100
+                                                          l
+Name  Role        Typ  Target              Value               diff
+EFL   Constraint  =   70.0000000000000000  59.9921178685781058 -10.0078821314218942
+SPO   Operand          0.0000000000000000   0.5395401517219618   0.5395401517219618
+                                                          l
+CYCLE NUMBER 1
+   ERROR FUNCTION = 0.17772
+          RDY          THI     RMD          GLA          CCY     THC     GLC
+OBJ:    INFINITY    INFINITY                              100     100     100
+STO:    120.00000    5.02335               N-BK7_SCH2000  100     100     100
+002:    -46.234    64.32132                              0       100     100
+IMG:    INFINITY    0.00000                              100     100     100
+                                                          l
+Name  Role        Typ  Target              Value               diff
+EFL   Constraint  =   70.0000000000000000  65.4696270464309720  -4.5303729535690280
+SPO   Operand          0.0000000000000000   0.4254206010089949   0.4254206010089949
+                                                          l
+CYCLE NUMBER 2
+   ERROR FUNCTION = 0.14643
+          RDY          THI     RMD          GLA          CCY     THC     GLC
+OBJ:    INFINITY    INFINITY                              100     100     100
+STO:    120.00000    5.02335               N-BK7_SCH2000  100     100     100
+002:    -48.571    66.62653                              0       100     100
+IMG:    INFINITY    0.00000                              100     100     100
+                                                          l
+Name  Role        Typ  Target              Value               diff
+EFL   Constraint  =   70.0000000000000000  67.8241027025340628  -2.1758972974659372
+SPO   Operand          0.0000000000000000   0.3863034499746122   0.3863034499746122
+                                                          l
+CYCLE NUMBER 3
+   ERROR FUNCTION = 0.13394
+          RDY          THI     RMD          GLA          CCY     THC     GLC
+OBJ:    INFINITY    INFINITY                              100     100     100
+STO:    120.00000    5.02335               N-BK7_SCH2000  100     100     100
+002:    -49.696    67.71269                              0       100     100
+IMG:    INFINITY    0.00000                              100     100     100
+                                                          l
+Name  Role        Typ  Target              Value               diff
+EFL   Constraint  =   70.0000000000000000  68.9336701605364794  -1.0663298394635206
+SPO   Operand          0.0000000000000000   0.3695259315746177   0.3695259315746177
+                                                          l
+CYCLE NUMBER 4
+   ERROR FUNCTION = 0.12832
+          RDY          THI     RMD          GLA          CCY     THC     GLC
+OBJ:    INFINITY    INFINITY                              100     100     100
+STO:    120.00000    5.02335               N-BK7_SCH2000  100     100     100
+002:    -50.248    68.24050                              0       100     100
+IMG:    INFINITY    0.00000                              100     100     100
+                                                          l
+Name  Role        Typ  Target              Value               diff
+EFL   Constraint  =   70.0000000000000000  69.4728926273930796  -0.5271073726069204
+SPO   Operand          0.0000000000000000   0.3617213721999852   0.3617213721999852
+                                                          l
+CYCLE NUMBER 5
+   ERROR FUNCTION = 0.12566
+          RDY          THI     RMD          GLA          CCY     THC     GLC
+OBJ:    INFINITY    INFINITY                              100     100     100
+STO:    120.00000    5.02335               N-BK7_SCH2000  100     100     100
+002:    -50.521    68.50036                              0       100     100
+IMG:    INFINITY    0.00000                              100     100     100
+                                                          l
+Name  Role        Typ  Target              Value               diff
+EFL   Constraint  =   70.0000000000000000  69.7383898297201767  -0.2616101702798233
+SPO   Operand          0.0000000000000000   0.3579588921902693   0.3579588921902693
+                                                          l
+CYCLE NUMBER 6
+   ERROR FUNCTION = 0.12436
+          RDY          THI     RMD          GLA          CCY     THC     GLC
+OBJ:    INFINITY    INFINITY                              100     100     100
+STO:    120.00000    5.02335               N-BK7_SCH2000  100     100     100
+002:    -50.656    68.62909                              0       100     100
+IMG:    INFINITY    0.00000                              100     100     100
+                                                          l
+Name  Role        Typ  Target              Value               diff
+EFL   Constraint  =   70.0000000000000000  69.8699071803271607  -0.1300928196728393
+SPO   Operand          0.0000000000000000   0.3561143035914895   0.3561143035914895
+                                                          l
+CYCLE NUMBER 7
+   ERROR FUNCTION = 0.12372
+          RDY          THI     RMD          GLA          CCY     THC     GLC
+OBJ:    INFINITY    INFINITY                              100     100     100
+STO:    120.00000    5.02335               N-BK7_SCH2000  100     100     100
+002:    -50.724    68.69304                              0       100     100
+IMG:    INFINITY    0.00000                              100     100     100
+                                                          l
+Name  Role        Typ  Target              Value               diff
+EFL   Constraint  =   70.0000000000000000  69.9352461595560442  -0.0647538404439558
+SPO   Operand          0.0000000000000000   0.3552025772042456   0.3552025772042456
+                                                          l
+CYCLE NUMBER 8
+   ERROR FUNCTION = 0.12341
+          RDY          THI     RMD          GLA          CCY     THC     GLC
+OBJ:    INFINITY    INFINITY                              100     100     100
+STO:    120.00000    5.02335               N-BK7_SCH2000  100     100     100
+002:    -50.757    68.72485                              0       100     100
+IMG:    INFINITY    0.00000                              100     100     100
+                                                          l
+Name  Role        Typ  Target              Value               diff
+EFL   Constraint  =   70.0000000000000000  69.9677535322570066  -0.0322464677429934
+SPO   Operand          0.0000000000000000   0.3547501279008952   0.3547501279008952
+                                                          l
+CYCLE NUMBER 9
+   ERROR FUNCTION = 0.12325
+          RDY          THI     RMD          GLA          CCY     THC     GLC
+OBJ:    INFINITY    INFINITY                              100     100     100
+STO:    120.00000    5.02335               N-BK7_SCH2000  100     100     100
+002:    -50.774    68.74069                              0       100     100
+IMG:    INFINITY    0.00000                              100     100     100
+                                                          l
+Name  Role        Typ  Target              Value               diff
+EFL   Constraint  =   70.0000000000000000  69.9839379779473063  -0.0160620220526937
+SPO   Operand          0.0000000000000000   0.3545251515920020   0.3545251515920020
+                                                          l
+CYCLE NUMBER 10
+   ERROR FUNCTION = 0.12317
+          RDY          THI     RMD          GLA          CCY     THC     GLC
+OBJ:    INFINITY    INFINITY                              100     100     100
+STO:    120.00000    5.02335               N-BK7_SCH2000  100     100     100
+002:    -50.782    68.74858                              0       100     100
+IMG:    INFINITY    0.00000                              100     100     100
+                                                          l
+Name  Role        Typ  Target              Value               diff
+EFL   Constraint  =   70.0000000000000000  69.9919985493002343  -0.0080014506997657
+SPO   Operand          0.0000000000000000   0.3544131739127685   0.3544131739127685
+                                                          l
+CYCLE NUMBER 11
+   ERROR FUNCTION = 0.12317
+          RDY          THI     RMD          GLA          CCY     THC     GLC
+OBJ:    INFINITY    INFINITY                              100     100     100
+STO:    120.00000    5.02335               N-BK7_SCH2000  100     100     100
+002:    -50.782    68.74858                              0       100     100
+IMG:    INFINITY    0.00000                              100     100     100
+                                                          l
+Name  Role        Typ  Target              Value               diff
+EFL   Constraint  =   70.0000000000000000  69.9919985493002343  -0.0080014506997657
+SPO   Operand          0.0000000000000000   0.3544131739127685   0.3544131739127685
+AUT: done after 11 iterations, status: Required accuracy for solution obtained
+          RDY          THI     RMD          GLA          CCY     THC     GLC
+OBJ:    INFINITY    INFINITY                              100     100     100
+STO:    120.00000    5.02335               N-BK7_SCH2000  100     100     100
+002:    -51.042    68.99371                              0       100     100
+IMG:    INFINITY    0.00000                              100     100     100
+ENTRANCE PUPIL
+DIA       20.0000
+THI       0.0000
+INFINITE CONJUGATES
+EFL       69.9920
+BFL       68.9937
+FFL       -67.6450
+FNO       3.4996
+IMG DIS   68.9937
+OAL       5.0234
+PARAXIAL IMAGE
+ HT      -0.0000
+ANG       -0.0000 DEG
+ENTRANCE PUPIL
+DIA       20.0000
+THI       0.0000
+EXIT PUPIL
+DIA       20.6939
+THI       -3.4267
+All constraints removed

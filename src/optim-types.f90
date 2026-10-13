@@ -249,10 +249,29 @@ module optim_types
         implicit none
         integer :: surf, int_code
 
-        ! For better or worse, I changed this to increment the variable counter.
-        ! If / when the variables are actually used, they are refound from where
-        nV = nV + 1
+        ! The variable list is rebuilt from ldm%vars when it is used
+        ! (gatherVariableData); nV is recounted from the same flags, so setting
+        ! a variable twice does not count it twice.
+        call recountOptimVars()
 
+    end subroutine
+
+    ! nV = the optimizer variables flagged in ldm%vars (0 = variable).  The
+    ! single source of truth for the count: recounted whenever variables
+    ! change and at AUT;GO.  Previously nV was only ever incremented, so a
+    ! variable removed in the lens editor (THC S1 100) still counted and the
+    ! next run reused its stale VARS entry.  GLC (VAR_GLA) is bookkeeping, not
+    ! an optimizer variable (see updateOptimVarsNew).
+    subroutine recountOptimVars()
+        use mod_lens_data_manager, only: ldm
+        integer :: j, last
+        last = min(ldm%getLastSurf(), ubound(ldm%vars, 1))
+        nV = 0
+        if (last < 0) return
+        do j = 1, ubound(ldm%vars, 2)
+            if (j == VAR_GLA) cycle
+            nV = nV + count(ldm%vars(0:last, j) == 0)
+        end do
     end subroutine
 
     ! Add (or update, via idxToUpdate) a merit entry.  role selects objective
@@ -558,6 +577,8 @@ module optim_types
             end if
 
         end select
+        ! Any code (0 = vary, 100 = remove): the count follows ldm%vars.
+        call recountOptimVars()
     end subroutine
 
 
@@ -797,6 +818,7 @@ module optim_types
 
         do i=0,ldm%getLastSurf()
             do j=1,ubound(ldm%vars,dim=2)
+                if (j == VAR_GLA) cycle   ! not an optimizer variable (matches nV)
                 if (ldm%vars(i,j) == 0) then
                     ctr = ctr + 1
                     VARS(ctr,1) = i

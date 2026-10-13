@@ -66,18 +66,10 @@ subroutine typed_surface_deleted(k)
   call recount_optim_vars()
 end subroutine typed_surface_deleted
 
-! nV (the optimizer's variable count) = the variable flags now set in
-! ldm%vars.  GLC (VAR_GLA) is bookkeeping only and is not an optimizer
-! variable, matching updateOptimVarsNew.
+! nV (the optimizer's variable count) is recounted from ldm%vars by
+! optim_types' recountOptimVars.
 subroutine recount_optim_vars()
-  use mod_lens_data_manager, only: ldm
-  use optim_types, only: nV
-  use zoa_ui, only: VAR_GLA
+  use optim_types, only: recountOptimVars
   implicit none
-  integer :: j
-  nV = 0
-  do j = 1, ubound(ldm%vars, 2)
-    if (j == VAR_GLA) cycle
-    nV = nV + count(ldm%vars(:, j) == 0)
-  end do
+  call recountOptimVars()
 end subroutine recount_optim_vars

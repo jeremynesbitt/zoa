@@ -200,3 +200,23 @@ AST3 = 0
 GO
 THO
 DCON ALL
+
+! ---- Removing a variable takes it out of the next run ----
+! Regression: nV was only ever incremented, so after THC S1 100 (the lens
+! editor's "remove variable") the next AUT;GO still had two variables and
+! reused the stale thickness entry (the run diverged: RDY S2 -> infinity).
+! Now the thickness stays as the first run left it and EFL converges.
+RES OsdSinglet
+CCY S2 0
+THC S1 0
+AUT
+EFL = 60
+GO
+DCON ALL
+THC S1 100
+AUT
+EFL = 70
+GO
+SUR SA
+FIR
+DCON ALL
