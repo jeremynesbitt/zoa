@@ -336,7 +336,8 @@ General-constraint (MXT/MNT/MNE/MNA/MAE) deferrals:
   constraint smooth); a large aperture growth during optimization is not
   re-captured.
 - Zoom positions: constraints evaluate config 1 only (zoom v1).
-- AUTUI has no display/edit of the five settings yet (CLI + LCON footer).
+- AUTUI shows and edits the five settings in its General Constraints tab
+  (GENCON on/off + values, 2026-10-10); also CLI + LCON footer.
 - Solver tuning: max_iter is 25 and alphamin/alphamax cap line-search steps,
   so long runs report "More than max_iter iterations"; acc comes from
   optim%imp (0.01). (The old toldf=0.05 cutoff — which stopped every run
@@ -721,3 +722,33 @@ test or platform problem, fix its *format*, not its content.
 **To do:** go through each plot's Data tab, list what it prints against what the
 plot draws, and report gaps before changing anything. The test capture now keeps
 lines of any length (cb39c27), so long matrix rows are no obstacle to testing.
+
+---
+
+## TODO: Optimizer treats a constraint as met when it is within IMP of its target (2026-10-13)
+
+**Symptom:** a constraint whose residual is already smaller than the accuracy
+setting is ignored. `AUT; AST3 = 0; GO` on osdtriplet (AST3 starts at
+0.0064) stops after one iteration with the lens unchanged: "Required accuracy
+for solution obtained". With `IMP 0.0001` in the loop the same run drives
+AST3 from 0.0064 to 0.00005 in 9 iterations. The `UMY = -0.08` singlet
+example (stopped at -0.0875) and MNE attainment are probably the same effect.
+
+**Cause:** the solver (`slsqp/`, jacobwilliams SLSQP) takes one accuracy
+`acc` (= `optim%imp`, default 0.01, set by `AUT`; `IMP` changes it) and uses it
+both for convergence of f and as the tolerance on the summed constraint
+violation (`h3 < acc` in `check_convergence`, `slsqp_module.f90`). There is no
+separate constraint tolerance. So any constraint within 0.01 of its target
+(in its own units) counts as satisfied -- small-valued operands (AST3, UMY,
+paraxial angles, ...) are the most affected.
+
+**Options (undecided -- ask the user before changing):**
+1. Separate constraint tolerance: scale the constraint residuals passed to the
+   solver (e.g. by 1/tolcon with tolcon ~1e-6, or per-operand scales) so a
+   constraint counts as met only when much closer, while IMP keeps controlling
+   when improvement stops. Changes results of existing constrained runs
+   (test refs) -- show the diffs before regenerating.
+2. Smaller default IMP: simpler, but every optimization runs longer.
+3. Leave it: users tighten IMP when targets are small (what the AST3 test in
+   `optim_extra.zoa` does).
+
