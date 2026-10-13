@@ -654,6 +654,8 @@ module codeV_commands
                 zoaCmds(748+ip)%execFunc => updateConstraint
             end do
         end block
+        zoaCmds(761)%cmd = 'AST3'
+        zoaCmds(761)%execFunc => updateConstraint
         zoaCmds(527)%cmd = 'SETDENS'
         zoaCmds(527)%execFunc => setPlotDensity     
         zoaCmds(528)%cmd = 'SETZERNC'

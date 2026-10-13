@@ -94,6 +94,10 @@ module optim_types
             class(merit_entry) :: self
             real(long) :: res
         end function
+        module function getSeidelAST3Constraint(self) result(res)
+            class(merit_entry) :: self
+            real(long) :: res
+        end function
         module function getTransverseAstigmatismConstraint(self) result(res)
             class(merit_entry) :: self
             real(long) :: res
@@ -192,6 +196,8 @@ module optim_types
             evaluators(8+i)%name = PARAXIAL_OPERANDS(i)
             evaluators(8+i)%func => getParaxialRayConstraint
         end do
+        evaluators(9+size(PARAXIAL_OPERANDS))%name = 'AST3'
+        evaluators(9+size(PARAXIAL_OPERANDS))%func => getSeidelAST3Constraint
 
 
     end subroutine

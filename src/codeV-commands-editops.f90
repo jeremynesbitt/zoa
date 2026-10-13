@@ -111,6 +111,11 @@ contains
     !## category: Optimization
     !## desc:     Tangential-astigmatism merit entry.
     !##
+    !## cmd:      AST3
+    !## syntax:   AST3 = v | AST3 v [w]
+    !## category: Optimization
+    !## desc:     Third-order astigmatism sum merit entry (the AST3 SUM shown by THO).
+    !##
     !## cmd:      TCO
     !## syntax:   TCO = v | TCO v [w]
     !## category: Optimization

@@ -140,6 +140,15 @@ contains
 
     end function
 
+    ! AST3: third-order astigmatism sum, the AST3 SUM that THO prints.
+    module function getSeidelAST3Constraint(self) result(res)
+        use mod_analysis_manager
+        class(merit_entry) :: self
+        real(long) :: res
+
+        res = am%getSeidelAST3()
+    end function
+
     module function getTransverseAstigmatismConstraint(self) result(res)
         use mod_analysis_manager
         class(merit_entry) :: self

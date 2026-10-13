@@ -13,7 +13,7 @@ module mod_analysis_manager
    
     contains
      procedure :: getTransverseComa, getTransverseAstigmatism, getPetzvalBlur, getTransverseSpherical
-     procedure :: getPetzvalSum, getPetzvalCurvature
+     procedure :: getPetzvalSum, getPetzvalCurvature, getSeidelAST3
      procedure :: getPSF, getImgNA
 
     end type
@@ -61,6 +61,18 @@ module mod_analysis_manager
         res = curr_par_ray_trace%CSeidel(1,ubound(curr_par_ray_trace%CSeidel, dim=2))
 
     end function    
+
+    ! AST3: the third-order astigmatism SUM exactly as THO prints it (same
+    ! MMAB3_NEW call at the reference wavelength, table output off).  Unlike
+    ! TAS this is the raw Seidel AST3 column, not the CODE V transverse form.
+    function getSeidelAST3(self) result (res)
+        implicit none
+        class(analysis_manager) :: self
+        real(long) :: res
+
+        call MMAB3_NEW(.TRUE., sysConfig%refWavelengthIndex, .FALSE.)
+        res = curr_par_ray_trace%CSeidel(3,ubound(curr_par_ray_trace%CSeidel, dim=2))
+    end function
 
     ! TODO - refactor with Coma (pass first index to single func)
     function getTransverseAstigmatism(self) result (res)

@@ -187,3 +187,16 @@ UMY = -0.08
 GO
 FIR
 DCON ALL
+
+! ---- AST3: third-order astigmatism sum, as THO's SUM row ----
+! The operand's value at cycle 0 equals THO's AST3 SUM; driven to 0 with the
+! S5 curvature (IMP tightened: the solver treats a residual below IMP as met).
+RES osdtriplet
+THO
+CCY S5 0
+AUT
+IMP 0.0001
+AST3 = 0
+GO
+THO
+DCON ALL
