@@ -391,7 +391,7 @@ end function
 
   case default
     n = 1.0
-    call LogTermFOR("Data for Glass Name "//trim(self%currName)//" not found!")
+    call LogTermUser("Data for Glass Name "//trim(self%currName)//" not found!")
 
   end select
 
@@ -504,7 +504,7 @@ end function
     END DO
     close(unit=36)  ! close whether or not the glass was found
   ELSE
-    call LogTermFOR("Warning:  Unable to open "//trim(candCatalog)//".  Moving to next catalog")
+    call LogTermUser("Warning:  Unable to open "//trim(candCatalog)//".  Moving to next catalog")
   END IF
   end if
 
@@ -615,7 +615,7 @@ end function
         end if
       end DO
     ELSE 
-      call LogTermFOR("Unable to open "//trim(LIBGLA)//gdb%catalogFileNames(i))
+      call LogTermUser("Unable to open "//trim(LIBGLA)//gdb%catalogFileNames(i))
     END IF
   end if ! Check if name is empty
     end do

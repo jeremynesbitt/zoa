@@ -6,7 +6,6 @@ All constraints removed
 
 
 Field Weights Command WTF     100     100     100 Not supported
-Calling check_clear_apetures
 
        Y-FAN     X-FAN
   1  5.87276     4.90032
@@ -33,14 +32,6 @@ NO MIRROR THICKNESS DATA
 "RAYS" IS CURRENTLY SET TO COLOR NUMBER  12
  CURRENT SPOT DIAGRAM DETECTOR SETTINGS:
  DETECTOR WILL NOT BE DRAWN
-RSI fields are 1
-RSI wavelengths are 1
-Relative X Aperture is 0.00000
-Relative Y Aperture is 0.70000
-RSI fields are 1
-RSI wavelengths are 1
-Relative X Aperture is 0.00000
-Relative Y Aperture is 0.70000
 "FINDGLAS" SEARCHES FOR GLASSES CLOSE TO A "MODEL" GLASS
 RE-ENTER COMMAND
 GLASS IS NOT A "MODEL" GLASS

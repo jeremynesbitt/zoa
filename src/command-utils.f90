@@ -312,7 +312,7 @@ contains
       if (numValidTypes > 1) then
         goodInput = .FALSE.
         ! TODO:  Add some 
-        call LogTermFOR("Error:  Mixing of command types.  Please enter command again")
+        call LogTermUser("Error:  Mixing of command types.  Please enter command again")
         return
       end if
     else
@@ -333,10 +333,10 @@ contains
         if (numValidTypes.EQ.0) then 
           goodInput = .FALSE.
           if((present(qual_only_err_msg))) then
-            call LogTermFOR(trim(qual_only_err_msg))
+            call LogTermUser(trim(qual_only_err_msg))
           else
-            call LogTermFOR("No valid qualifier words found.")
-            call LogTermFOR("Please reenter command")
+            call LogTermUser("No valid qualifier words found.")
+            call LogTermUser("Please reenter command")
           end if
           RETURN
         end if
@@ -351,27 +351,27 @@ contains
       case (1)
         if(SST.EQ.1.OR.S2.EQ.1.OR.S3.EQ.1.OR.S4.EQ.1.OR.S5.EQ.1) then
           goodInput = .FALSE.
-          call LogTermFOR("Command takes no string or > 1 numeric input ")
+          call LogTermUser("Command takes no string or > 1 numeric input ")
           RETURN        
         end if
 
       case (2)
         if(SST.EQ.1.OR.S3.EQ.1.OR.S4.EQ.1.OR.S5.EQ.1) then
           goodInput = .FALSE.
-          call LogTermFOR("Command takes no string or > 2 numeric input ")
+          call LogTermUser("Command takes no string or > 2 numeric input ")
           RETURN        
         end if
 
       case (3)
         if(SST.EQ.1.OR.S4.EQ.1.OR.S5.EQ.1) then
           goodInput = .FALSE.
-          call LogTermFOR("Command takes no string or > 3 numeric input ")
+          call LogTermUser("Command takes no string or > 3 numeric input ")
           RETURN        
         end if  
       case (4)
         if(SST.EQ.1.OR.S5.EQ.1) then
           goodInput = .FALSE.
-          call LogTermFOR("Command takes no string or > 4 numeric input ")
+          call LogTermUser("Command takes no string or > 4 numeric input ")
           RETURN        
         end if   
       end select

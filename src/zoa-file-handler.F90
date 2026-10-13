@@ -401,7 +401,7 @@ module zoa_file_handler
             if (len_trim(line) == 0) cycle
 
             if (present(printOnly)) then
-              call LogTermFOR(trim(line))
+              call LogTermUser(trim(line))
             else
               call PROCESKDP(trim(line))
             end if

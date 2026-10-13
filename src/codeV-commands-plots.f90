@@ -44,7 +44,7 @@ contains
         call tstBrent()
 
         result = brent(-50*1d0, 0*1d0, 50*1d0, adjustImageFocus, 1E-6*1d0, newThi)
-        call LogTermFOR("RMS at best image focus is "//real2str(result,3))
+        call LogTermUser("RMS at best image focus is "//real2str(result,3))
         call PROCESKDP('THI SI '//real2str(newThi))
     end procedure findBestFocus
 

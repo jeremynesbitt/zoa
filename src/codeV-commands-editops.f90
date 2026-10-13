@@ -1203,7 +1203,7 @@ contains
         end if
         if (present(logResult)) then
             if (logResult) then
-                call LogTermFOR(real2str(res))
+                call LogTermUser(real2str(res))
             end if
         end if
     end procedure evalFunc

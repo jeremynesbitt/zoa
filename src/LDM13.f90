@@ -1449,7 +1449,7 @@ SUBROUTINE GLASSP
 !     OPEN THE APPROPRIATE CATALOG AND DISPLAY THE GLASS NAMES
 !     AND NUMBERS
       IF(gdb%isNameInCatalog(trim(WQ)).EQV..FALSE.) THEN
-         call LogTermFOR("Not in .bin files!")
+         call LogTermUser("Not in .bin files!")
          if(WQ.EQ.'MATL') then
             call LogTermFOR("Matl entered!")
          end if

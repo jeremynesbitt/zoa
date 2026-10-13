@@ -288,7 +288,7 @@ module optim_types
 
         idx = isNameInEvaluatorList(name)
         if (idx == 0) then
-            call LogTermFOR("Error in addMeritEntry!  Could not find "//name//" as a valid option")
+            call LogTermUser("Error in addMeritEntry!  Could not find "//name//" as a valid option")
             return
         end if
 
@@ -428,7 +428,7 @@ module optim_types
         case('<')
             conType = ID_CON_LESS_THAN
         case default
-            call LogTermFOR("Error in addConstraint type!  Only support =, >, < at this type")
+            call LogTermUser("Error in addConstraint type!  Only support =, >, < at this type")
             return
         end select
 

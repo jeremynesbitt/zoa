@@ -49,7 +49,7 @@ module data_registers
             data1d = regData1d
         else
             data1d = 0.0_long
-            if (.not. present(ok)) call LogTermFOR("Error! cmd did not update register "//strCmd)
+            if (.not. present(ok)) call LogTermUser("Error! cmd did not update register "//strCmd)
         end if
         if (present(ok)) ok = updated
     end subroutine

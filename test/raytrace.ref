@@ -2,12 +2,6 @@ All constraints removed
 
 
 
-RSI fields are 1
-RSI fields are 2
-RSI fields are 3
-RSI wavelengths are 1
-Relative X Aperture is 0.00000
-Relative Y Aperture is 0.00000
 RAYTRACE DATA (XZ AND YZ-PLANE) - (CFG # 1)
 ANGULAR OUTPUT MODE IS DEGREES
 SLOPES/ANGLES  MEASURED WITH RESPECT TO THE Z-AXIS
@@ -209,12 +203,6 @@ SURF      X              Y              Z             XANG           YANG
  59    0.00000       -9.78352       0.144187        0.00000       0.946279E-01
  60    0.00000       -9.76951        0.00000        0.00000       0.946279E-01
  61    0.00000       -9.76951        0.00000        0.00000       0.946279E-01
-RSI fields are 1
-RSI fields are 2
-RSI fields are 3
-RSI wavelengths are 1
-Relative X Aperture is 1.00000
-Relative Y Aperture is 1.00000
 RAYTRACE DATA (XZ AND YZ-PLANE) - (CFG # 1)
 ANGULAR OUTPUT MODE IS DEGREES
 SLOPES/ANGLES  MEASURED WITH RESPECT TO THE Z-AXIS
@@ -416,12 +404,6 @@ SURF      X              Y              Z             XANG           YANG
  59   -2416.89       -2361.78        0.00000       -87.1676       -87.0896
  60   -2591.28       -2531.49        0.00000       -87.1676       -87.0896
  61   -2591.28       -2531.49        0.00000       -87.1676       -87.0896
-RSI fields are 1
-RSI fields are 2
-RSI fields are 3
-RSI wavelengths are 1
-Relative X Aperture is 1.00000
-Relative Y Aperture is 0.00000
 RAYTRACE DATA (XZ AND YZ-PLANE) - (CFG # 1)
 ANGULAR OUTPUT MODE IS DEGREES
 SLOPES/ANGLES  MEASURED WITH RESPECT TO THE Z-AXIS
@@ -623,12 +605,6 @@ SURF      X              Y              Z             XANG           YANG
  59    9.52230       -10.1109       0.290653       -48.7964        2.34467
  60  -0.343127E-03   -9.76950        0.00000       -48.7964        2.34467
  61  -0.343127E-03   -9.76950        0.00000       -48.7964        2.34467
-RSI fields are 1
-RSI fields are 2
-RSI fields are 3
-RSI wavelengths are 1
-Relative X Aperture is 0.00000
-Relative Y Aperture is 1.00000
 RAYTRACE DATA (XZ AND YZ-PLANE) - (CFG # 1)
 ANGULAR OUTPUT MODE IS DEGREES
 SLOPES/ANGLES  MEASURED WITH RESPECT TO THE Z-AXIS
@@ -830,12 +806,6 @@ SURF      X              Y              Z             XANG           YANG
  59    0.00000      -0.400053       0.241033E-03    0.00000       -47.3598
  60    0.00000       -9.76963        0.00000        0.00000       -47.3598
  61    0.00000       -9.76963        0.00000        0.00000       -47.3598
-RSI fields are 1
-RSI fields are 2
-RSI fields are 3
-RSI wavelengths are 1
-Relative X Aperture is -1.00000
-Relative Y Aperture is -1.00000
 RAYTRACE DATA (XZ AND YZ-PLANE) - (CFG # 1)
 ANGULAR OUTPUT MODE IS DEGREES
 SLOPES/ANGLES  MEASURED WITH RESPECT TO THE Z-AXIS
@@ -913,14 +883,6 @@ All constraints removed
 
 
 
-RSI fields are 1
-RSI fields are 2
-RSI fields are 3
-RSI wavelengths are 1
-RSI wavelengths are 2
-RSI wavelengths are 3
-Relative X Aperture is 0.00000
-Relative Y Aperture is 0.00000
 RAYTRACE DATA (XZ AND YZ-PLANE) - (CFG # 1)
 ANGULAR OUTPUT MODE IS DEGREES
 SLOPES/ANGLES  MEASURED WITH RESPECT TO THE Z-AXIS
@@ -1092,14 +1054,6 @@ SURF      X              Y              Z             XANG           YANG
  11    0.00000        11.9254       -1.06747        0.00000        12.2070
  12    0.00000        24.5952        0.00000        0.00000        12.2070
  13    0.00000        24.5555        0.00000        0.00000        12.2070
-RSI fields are 1
-RSI fields are 2
-RSI fields are 3
-RSI wavelengths are 1
-RSI wavelengths are 2
-RSI wavelengths are 3
-Relative X Aperture is 1.00000
-Relative Y Aperture is 1.00000
 RAYTRACE DATA (XZ AND YZ-PLANE) - (CFG # 1)
 ANGULAR OUTPUT MODE IS DEGREES
 SLOPES/ANGLES  MEASURED WITH RESPECT TO THE Z-AXIS
@@ -1271,14 +1225,6 @@ SURF      X              Y              Z             XANG           YANG
  11    10.5669        21.7017       -4.48838       -9.58942        2.76198
  12   0.944591E-01    24.6921        0.00000       -9.58942        2.76198
  13   0.125449        24.6832        0.00000       -9.58942        2.76198
-RSI fields are 1
-RSI fields are 2
-RSI fields are 3
-RSI wavelengths are 1
-RSI wavelengths are 2
-RSI wavelengths are 3
-Relative X Aperture is 1.00000
-Relative Y Aperture is 0.00000
 RAYTRACE DATA (XZ AND YZ-PLANE) - (CFG # 1)
 ANGULAR OUTPUT MODE IS DEGREES
 SLOPES/ANGLES  MEASURED WITH RESPECT TO THE Z-AXIS
@@ -1450,14 +1396,6 @@ SURF      X              Y              Z             XANG           YANG
  11    10.0287        11.7412       -1.79954       -9.60846        12.2228
  12  -0.971706E-02    24.5865        0.00000       -9.60846        12.2228
  13   0.213357E-01    24.5467        0.00000       -9.60846        12.2228
-RSI fields are 1
-RSI fields are 2
-RSI fields are 3
-RSI wavelengths are 1
-RSI wavelengths are 2
-RSI wavelengths are 3
-Relative X Aperture is 0.00000
-Relative Y Aperture is 1.00000
 RAYTRACE DATA (XZ AND YZ-PLANE) - (CFG # 1)
 ANGULAR OUTPUT MODE IS DEGREES
 SLOPES/ANGLES  MEASURED WITH RESPECT TO THE Z-AXIS
@@ -1629,14 +1567,6 @@ SURF      X              Y              Z             XANG           YANG
  11    0.00000        21.4786       -3.52787        0.00000        2.90116
  12    0.00000        24.5713        0.00000        0.00000        2.90116
  13    0.00000        24.5620        0.00000        0.00000        2.90116
-RSI fields are 1
-RSI fields are 2
-RSI fields are 3
-RSI wavelengths are 1
-RSI wavelengths are 2
-RSI wavelengths are 3
-Relative X Aperture is -1.00000
-Relative Y Aperture is -1.00000
 RAYTRACE DATA (XZ AND YZ-PLANE) - (CFG # 1)
 ANGULAR OUTPUT MODE IS DEGREES
 SLOPES/ANGLES  MEASURED WITH RESPECT TO THE Z-AXIS

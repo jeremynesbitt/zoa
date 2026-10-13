@@ -2028,7 +2028,7 @@ end subroutine cmap1_init
       ! number of curves should clamp before they get here so they can say
       ! something more specific to the user.
       if (self%numSeries >= MAX_PLOT_SERIES) then
-        call LogTermFOR("Plot supports at most "//trim(int2str(MAX_PLOT_SERIES))// &
+        call LogTermUser("Plot supports at most "//trim(int2str(MAX_PLOT_SERIES))// &
         & " curves; extra series ignored")
         return
       end if

@@ -191,9 +191,21 @@ subroutine LogTermDebug(newTxt)
 end subroutine
 
 
+! Developer trace: goes to the log file only (it used to print in blue in
+! the console, which filled it with internal chatter such as "Parent Window
+! name is ...").  Messages the user needs use LogTermUser.
 subroutine LogTermFOR(newTxt)
+   use GLOBALS, only: logger
+   implicit none
+   character(len=*) :: newTxt
+   call logger%logText(newTxt)
+
+end subroutine
+
+! A message for the user (errors, warnings, results): shown in the console,
+! as LogTermFOR used to do for everything.
+subroutine LogTermUser(newTxt)
    use zoa_output, only : zoa_emit
-   use iso_fortran_env, only: real64
    implicit none
    character(len=*) :: newTxt
    call zoa_emit(newTxt, "blue")
