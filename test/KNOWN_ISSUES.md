@@ -752,3 +752,28 @@ paraxial angles, ...) are the most affected.
 3. Leave it: users tighten IMP when targets are small (what the AST3 test in
    `optim_extra.zoa` does).
 
+
+---
+
+## Seidel Data tab went blank after a lens change -- seen once, not reproducible (2026-10-14)
+
+**Seen:** Seidel Aberrations plot open in the GUI, `THI S4 165` at the CLI: the
+plot redrew but its Data tab (the THO table) was empty. Not reproduced since:
+a traced run (fresh plot, then the same edit) and a run with the plot restored
+from the .zin both refilled the tab (805 characters) on every redraw. Headless
+THO after the same edit prints the full table.
+
+**What the redraw does:** `seidel_go` (plot-functions.f90) clears the Data tab
+(`initializeGoPlot` -> `clearDataTab`), points console output at the tab, and
+MMAB3_NEW prints the table into it.
+
+**Leading suspect (unproven):** `updateTerminalLog` runs `pending_events()`
+for every printed line, so GTK handlers can run in the middle of the table.
+Anything that switches `ioConfig%textView` then sends the rest of the table
+elsewhere. Before 0894ad0, ~50 developer trace messages also went through
+that path (they now go to the log file), which may be why it stopped.
+
+**If it happens again:** `seidel_go` logs `WARNING Seidel Data tab not
+filled: ...` to `zoalogger.log` (in the writable Zoa folder; cleared at each
+launch) with the replot flag, tab, whether output reached the tab, and the
+character count. Read it before restarting Zoa.
