@@ -634,6 +634,7 @@ subroutine seidel_go(psm)
     end if
     call MMAB3_NEW(.TRUE., psm%getWavelengthSetting(), .TRUE.)
     if (.not. HEADLESS_MODE) then
+      call checkSeidelDataTab()
       call ioConfig%setTextView(ID_TERMINAL_DEFAULT)
     end if
 
@@ -680,6 +681,26 @@ subroutine seidel_go(psm)
     
      call finalizeGoPlot_new(mplt, psm, replot, objIdx)
      !call finalizeGoPlot(mplt, psm, ID_PLOTTYPE_SEIDEL, "Seidel Aberrations")
+
+  contains
+
+    ! The Seidel Data tab was once seen blank after a lens change, but the
+    ! failure could not be reproduced.  Leave a trace in the log file (only)
+    ! if it happens: the table should be in the tab once MMAB3 has printed.
+    subroutine checkSeidelDataTab()
+      use gtk, only: gtk_text_view_get_buffer, gtk_text_buffer_get_char_count
+      type(c_ptr) :: tv
+      integer :: nch
+      character(len=160) :: ln
+      tv = getTabTextView(objIdx)
+      nch = -1
+      if (c_associated(tv)) nch = gtk_text_buffer_get_char_count(gtk_text_view_get_buffer(tv))
+      if (nch > 0 .and. c_associated(ioConfig%textView, tv)) return
+      write(ln,'(A,L1,A,I0,A,L1,A,L1,A,I0)') 'WARNING Seidel Data tab not filled: replot=', replot, &
+      &  ' objIdx=', objIdx, ' tabTV=', c_associated(tv), &
+      &  ' outputToTab=', c_associated(ioConfig%textView, tv), ' chars=', nch
+      call LogTermFOR(trim(ln))
+    end subroutine
   
     
 
