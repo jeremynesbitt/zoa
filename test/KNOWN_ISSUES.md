@@ -755,7 +755,21 @@ paraxial angles, ...) are the most affected.
 
 ---
 
-## Seidel Data tab went blank after a lens change -- seen once, not reproducible (2026-10-14)
+## Seidel Data tab went blank after a lens change (2026-10-14; caught 2026-10-15)
+
+**Update 2026-10-15 -- caught in a traced GUI session:** two consecutive
+redraws logged `ioIsTab=T chars=0` after MMAB3 printed: output WAS pointed at
+the tab, yet nothing was written (earlier redraws in the same session wrote
+953 characters). With the view correct, the only things that drop every line
+are the two mute flags: `ioConfig%dumpText` (SHOWIT skips zoa_emit when set)
+and zoa_output's `suppressed`. `setTextViewFromPtr` -- the redirect every
+plot uses for its Data tab -- changed the view but never cleared a stale
+`dumpText`, so a flag left set by an earlier silent section muted the whole
+table. Fixed: a redirect to a real view clears `dumpText`. Not proven to be
+the flag responsible (`suppressed` is always restored by its two users, so it
+is the less likely one); the log warning now records both flags.
+
+**Original report:**
 
 **Seen:** Seidel Aberrations plot open in the GUI, `THI S4 165` at the CLI: the
 plot redrew but its Data tab (the THO table) was empty. Not reproduced since:

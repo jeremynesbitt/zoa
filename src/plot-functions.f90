@@ -689,6 +689,7 @@ subroutine seidel_go(psm)
     ! if it happens: the table should be in the tab once MMAB3 has printed.
     subroutine checkSeidelDataTab()
       use gtk, only: gtk_text_view_get_buffer, gtk_text_buffer_get_char_count
+      use zoa_output, only: zoa_output_is_suppressed
       type(c_ptr) :: tv
       integer :: nch
       character(len=160) :: ln
@@ -696,9 +697,10 @@ subroutine seidel_go(psm)
       nch = -1
       if (c_associated(tv)) nch = gtk_text_buffer_get_char_count(gtk_text_view_get_buffer(tv))
       if (nch > 0 .and. c_associated(ioConfig%textView, tv)) return
-      write(ln,'(A,L1,A,I0,A,L1,A,L1,A,I0)') 'WARNING Seidel Data tab not filled: replot=', replot, &
+      write(ln,'(A,L1,A,I0,A,L1,A,L1,A,I0,A,L1,A,L1)') 'WARNING Seidel Data tab not filled: replot=', replot, &
       &  ' objIdx=', objIdx, ' tabTV=', c_associated(tv), &
-      &  ' outputToTab=', c_associated(ioConfig%textView, tv), ' chars=', nch
+      &  ' outputToTab=', c_associated(ioConfig%textView, tv), ' chars=', nch, &
+      &  ' dumpText=', ioConfig%dumpText, ' suppressed=', zoa_output_is_suppressed()
       call LogTermFOR(trim(ln))
     end subroutine
   

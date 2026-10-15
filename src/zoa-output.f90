@@ -12,7 +12,7 @@ module zoa_output
   public :: zoa_emit, zoa_set_output_handler, zoa_output_to_stdout
   public :: output_handler_iface
   public :: zoa_set_replot_flush_hook, zoa_invoke_replot_flush
-  public :: zoa_suppress_output
+  public :: zoa_suppress_output, zoa_output_is_suppressed
 
   abstract interface
     subroutine output_handler_iface(text, color)
@@ -44,6 +44,10 @@ contains
     if (suppressed) return
     call output_handler(text, color)
   end subroutine
+
+  logical function zoa_output_is_suppressed()
+    zoa_output_is_suppressed = suppressed
+  end function
 
   ! Toggle global output suppression. Returns the previous state so callers can
   ! restore it (supports safe nesting).

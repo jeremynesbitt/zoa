@@ -610,10 +610,16 @@ subroutine returnToTextView(self, tv)
 end subroutine
 
 subroutine setTextViewFromPtr(self, newtextview)
+  use iso_c_binding, only: c_associated
   class(io_config) :: self
   type(c_ptr) :: newtextview
   self%prev_textView = self%textView
   self%textView = newtextview
+  ! A redirect to a real view (a plot's Data tab) must print: clear a stale
+  ! "hidden dump" flag left by an earlier silent section, or SHOWIT drops
+  ! every line -- the Seidel Data tab was seen redrawn empty (output pointed
+  ! at the tab, 0 characters written).
+  if (c_associated(newtextview)) self%dumpText = .false.
 end subroutine
 
 
