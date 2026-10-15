@@ -61,8 +61,7 @@ contains
         call parse(trim(iptStr), ' ', tokens, numTokens)
 
         if (numTokens == 2) then
-            print *, "Tokens(2) is ", trim(tokens(2))
-            call processZoaFileInput(trim(tokens(2)))
+            call processZoaFileInput(trim(rawCommandWord(2, tokens(2))))
         else
             call zoa_emit("Error!  Expect two inputs, eg RES file or RES macro:file", "red")
         end if
@@ -338,7 +337,7 @@ contains
             fName = getCurrentLensFileName()
             call saveLensSystem(trim(fName), dirName=getTempDirectory(), overwrite=.TRUE.)
         case (2)
-            fName = trim(tokens(2))
+            fName = trim(rawCommandWord(2, tokens(2)))
             locDot = index(fName, '.')
             if (locDot == 0) fName = trim(fName)//'.zoa'
             call saveLensSystem(trim(fName))

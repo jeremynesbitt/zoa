@@ -19,7 +19,7 @@ OBJ DIS   40.4256
 TT        808.5117
 IMG DIS   0.0000
 OAL       768.0862
-File name to save is NATEST.zoa
+File name to save is natest.zoa
 All constraints removed
 
 
@@ -126,7 +126,7 @@ THI       6.7224
 EXIT PUPIL
 DIA       7.4747
 THI       -10.2334
-File name to save is FLTEST.zoa
+File name to save is fltest.zoa
 All constraints removed
 
 

@@ -1143,6 +1143,25 @@ module codeV_commands
     
     end subroutine
 
+    ! Word i of the command as the user typed it (case kept), for file names:
+    ! the front door folds the whole line to upper case, so SAV/RES of
+    ! 'shafGauss_3' used to write/look for SHAFGAUSS_3.ZOA (wrong on a
+    ! case-sensitive file system, and not what was typed).  Uses
+    ! currentCommandRaw only when it is this command (its word i folds to
+    ! the token the handler parsed); otherwise returns the folded token.
+    function rawCommandWord(i, folded) result(w)
+        integer, intent(in) :: i
+        character(len=*), intent(in) :: folded
+        character(len=256) :: w
+        character(len=256) :: rt(40)
+        integer :: n
+        w = folded
+        call parse(trim(currentCommandRaw), ' ', rt, n)
+        if (n >= i) then
+            if (trim(uppercase(trim(rt(i)))) == trim(folded)) w = rt(i)
+        end if
+    end function
+
     function cmd_parser_get_integer_range(iptStr, intArr) result(goodResult)
         use command_utils, only: isInputNumber
         implicit none
