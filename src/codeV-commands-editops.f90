@@ -1048,7 +1048,7 @@ contains
     !## cmd:      IMP
     !## syntax:   IMP X
     !## category: Optimization
-    !## desc:     Set the optimizer improvement goal.
+    !## desc:     Set the optimizer improvement goal (solver accuracy, default 0.01); kept until changed or a lens is loaded.
     !##
     module procedure updateOptimImprovementGoal
         use command_utils
@@ -1059,8 +1059,18 @@ contains
         logical :: boolResult
 
         call parse(trim(iptStr), ' ', tokens, numTokens)
-        if (numTokens == 2 .AND. isInputNumber(trim(tokens(2)))) then
-            optim%imp = str2real8(trim(tokens(2)))
+        if (numTokens == 1) then
+            block
+                character(len=20) :: impTxt
+                write(impTxt, '(ES12.4)') optim%imp
+                call zoa_emit('IMP (improvement goal) = '//trim(adjustl(impTxt)), "black")
+            end block
+        else if (numTokens == 2 .AND. isInputNumber(trim(tokens(2)))) then
+            if (str2real8(trim(tokens(2))) <= 0.0_long) then
+                call zoa_emit('Error:  IMP must be greater than 0', "red")
+            else
+                optim%imp = str2real8(trim(tokens(2)))
+            end if
         else
             call zoa_emit('Error:  Expect IMP r, where r is a number', "red")
         end if

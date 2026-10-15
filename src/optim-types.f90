@@ -36,9 +36,12 @@ module optim_types
     real(kind=long), parameter :: GEN_MNE_DEFAULT = 2.0_long
     real(kind=long), parameter :: GEN_MNA_DEFAULT = 0.1_long
     real(kind=long), parameter :: GEN_MAE_DEFAULT = 0.0025_long
+    ! Improvement goal (IMP): the solver's accuracy (acc).  Kept until changed
+    ! or a lens is loaded; saved with the lens when not the default.
+    real(kind=long), parameter :: IMP_DEFAULT = 0.01_long
 
     type optimizer
-        real(kind=long) :: imp
+        real(kind=long) :: imp = IMP_DEFAULT
         ! General constraints (CODE V-style): global limits applied
         ! automatically to every VARIABLE thickness during AUT (set inside the
         ! loop, e.g. "AUT; MXT 14.0; GO").  Center-thickness limits become
@@ -208,7 +211,8 @@ module optim_types
         logical :: modified
         modified = (optim%mxt /= GEN_MXT_DEFAULT) .OR. (optim%mnt /= GEN_MNT_DEFAULT) .OR. &
         &          (optim%mne /= GEN_MNE_DEFAULT) .OR. (optim%mna /= GEN_MNA_DEFAULT) .OR. &
-        &          (optim%mae /= GEN_MAE_DEFAULT) .OR. (.not. optim%genConOn)
+        &          (optim%mae /= GEN_MAE_DEFAULT) .OR. (.not. optim%genConOn) .OR. &
+        &          (optim%imp /= IMP_DEFAULT)
     end function
 
     ! Counts by role, derived from the merit list (no separate counters to drift).
@@ -751,6 +755,7 @@ module optim_types
             if (optim%mna /= GEN_MNA_DEFAULT) write(fID,*) "MNA "//real2str(optim%mna)
             if (optim%mae /= GEN_MAE_DEFAULT) write(fID,*) "MAE "//real2str(optim%mae)
             if (.not. optim%genConOn)     write(fID,*) "GENCON NO"
+            if (optim%imp /= IMP_DEFAULT) write(fID,'(A,ES15.8)') " IMP ", optim%imp
             write(fID, *) "GO"
         end if
         end if
@@ -798,6 +803,7 @@ module optim_types
         self%mna = GEN_MNA_DEFAULT
         self%mae = GEN_MAE_DEFAULT
         self%genConOn = .true.
+        self%imp = IMP_DEFAULT
 
     end subroutine removeAllConstraints
 

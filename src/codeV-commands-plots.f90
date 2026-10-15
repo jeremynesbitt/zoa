@@ -351,7 +351,9 @@ contains
 
         if (cmd_loop == 0) then
             cmd_loop = AUT_LOOP
-            optim%imp = .01_long
+            ! IMP is NOT reset here (it was: a value set with IMP or the
+            ! optimizer window's General Settings tab was lost at every
+            ! AUT;GO).  It returns to IMP_DEFAULT when a lens is loaded.
         else
             call zoa_emit("Cannot enter AUT loop as in another command loop", "red")
         end if

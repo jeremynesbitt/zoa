@@ -178,6 +178,7 @@ module optimizer_ui
     ! blocks the toggled handler while the tab is being refreshed from optim.
     type(c_ptr) :: genCheck = c_null_ptr
     type(c_ptr) :: genEntries(5) = c_null_ptr
+    type(c_ptr) :: impEntry = c_null_ptr     ! IMP (improvement goal)
     logical :: genRefreshing = .FALSE.
     integer(c_int), target :: genIdx(5) = [1, 2, 3, 4, 5]
     character(len=3), parameter :: GEN_NAMES(5) = ['MXT', 'MNT', 'MNE', 'MNA', 'MAE']
@@ -245,7 +246,7 @@ module optimizer_ui
         SolveLabel = gtk_label_new_with_mnemonic("_Optimize"//c_null_char)
         pageIdx = gtk_notebook_append_page(nbk, optimize_create_objects(), SolveLabel)
 
-        conLabel = gtk_label_new_with_mnemonic("_General Constraints"//c_null_char)
+        conLabel = gtk_label_new_with_mnemonic("_General Settings"//c_null_char)
         pageIdx = gtk_notebook_append_page(nbk, general_constraints_create(), conLabel)
         ! A GENCON/MXT/... typed at the command line while the window is open
         ! shows up the next time the tab is selected.
@@ -345,9 +346,25 @@ module optimizer_ui
             call gtk_label_set_xalign(lbl, 0.0_c_float)
             call gtk_grid_attach(grid, lbl, 3_c_int, int(i, c_int), 1_c_int, 1_c_int)
         end do
+
+        ! Optimizer setting: the improvement goal (IMP), the solver's
+        ! accuracy.  Independent of GENCON.
+        lbl = gtk_label_new('IMP'//c_null_char)
+        call gtk_label_set_xalign(lbl, 0.0_c_float)
+        call gtk_grid_attach(grid, lbl, 0_c_int, 7_c_int, 1_c_int, 1_c_int)
+        lbl = gtk_label_new('Improvement goal (solver accuracy)'//c_null_char)
+        call gtk_label_set_xalign(lbl, 0.0_c_float)
+        call gtk_grid_attach(grid, lbl, 1_c_int, 7_c_int, 1_c_int, 1_c_int)
+        impEntry = hl_gtk_entry_new(editable=TRUE, activate=c_funloc(imp_entered_cb))
+        call gtk_widget_set_tooltip_text(impEntry, &
+            & 'Press Enter to apply (IMP value).  A constraint closer than this to its target counts as met.'//c_null_char)
+        call gtk_grid_attach(grid, impEntry, 2_c_int, 7_c_int, 1_c_int, 1_c_int)
+        lbl = gtk_label_new(trim(gen_fmt(IMP_DEFAULT))//c_null_char)
+        call gtk_label_set_xalign(lbl, 0.0_c_float)
+        call gtk_grid_attach(grid, lbl, 3_c_int, 7_c_int, 1_c_int, 1_c_int)
         call gtk_box_append(boxGen, grid)
 
-        note = gtk_label_new('Applied at AUT; GO to variable thicknesses only (lens units).'// &
+        note = gtk_label_new('General constraints apply at AUT; GO to variable thicknesses only (lens units).'// &
             & '  If MNE and MXT conflict, MNE wins.'//c_null_char)
         call gtk_label_set_wrap(note, TRUE)
         call gtk_label_set_xalign(note, 0.0_c_float)
@@ -386,6 +403,8 @@ module optimizer_ui
             call gtk_check_button_set_active(genCheck, FALSE)
         end if
         vals = [optim%mxt, optim%mnt, optim%mne, optim%mna, optim%mae]
+        if (c_associated(impEntry)) call gtk_entry_buffer_set_text(gtk_entry_get_buffer(impEntry), &
+            & trim(adjustl(imp_fmt(optim%imp)))//c_null_char, -1_c_int)
         do i = 1, 5
             call gtk_entry_buffer_set_text(gtk_entry_get_buffer(genEntries(i)), &
                 & trim(gen_fmt(vals(i)))//c_null_char, -1_c_int)
@@ -422,6 +441,28 @@ module optimizer_ui
             call PROCESKDP('UPD CON; '//GEN_NAMES(idx)//' '//trim(adjustl(text))//'; GO')
         else
             call zoa_emit(GEN_NAMES(idx)//': "'//trim(adjustl(text))//'" is not a number', "red")
+        end if
+        call gen_refresh()
+    end subroutine
+
+    ! IMP can be well below the 5 decimals real2str shows (e.g. 1e-6).
+    function imp_fmt(v) result(s)
+        real(long), intent(in) :: v
+        character(len=40) :: s
+        write(s, '(G0.6)') v
+    end function
+
+    subroutine imp_entered_cb(widget, gdata) bind(c)
+        use gtk_sup, only: c_f_string_copy
+        use command_utils, only: isInputNumber
+        use zoa_output, only: zoa_emit
+        type(c_ptr), value, intent(in) :: widget, gdata
+        character(len=80) :: text
+        call c_f_string_copy(gtk_entry_buffer_get_text(gtk_entry_get_buffer(widget)), text)
+        if (isInputNumber(trim(adjustl(text)))) then
+            call PROCESKDP('IMP '//trim(adjustl(text)))
+        else
+            call zoa_emit('IMP: "'//trim(adjustl(text))//'" is not a number', "red")
         end if
         call gen_refresh()
     end subroutine
@@ -470,6 +511,7 @@ module optimizer_ui
         optimizer_window = c_null_ptr
         genCheck = c_null_ptr
         genEntries = c_null_ptr
+        impEntry = c_null_ptr
         meritCV = c_null_ptr
     end subroutine
 

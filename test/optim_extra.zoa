@@ -220,3 +220,20 @@ GO
 SUR SA
 FIR
 DCON ALL
+
+! ---- IMP (improvement goal) persists until changed or a lens is loaded ----
+! AUT used to reset it to 0.01, so a value set before AUT (or in the optimizer
+! window's General Settings tab) was lost.  Bare IMP queries; a value <= 0 is
+! refused; a non-default value is saved with the lens and restored with it.
+RES osdtriplet
+IMP
+IMP 1e-6
+AUT
+GO
+IMP
+IMP 0
+SAV imptest
+RES osdtriplet
+IMP
+RES imptest
+IMP
