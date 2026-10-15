@@ -735,7 +735,8 @@ AST3 from 0.0064 to 0.00005 in 9 iterations. The `UMY = -0.08` singlet
 example (stopped at -0.0875) and MNE attainment are probably the same effect.
 
 **Cause:** the solver (`slsqp/`, jacobwilliams SLSQP) takes one accuracy
-`acc` (= `optim%imp`, default 0.01, set by `AUT`; `IMP` changes it) and uses it
+`acc` (= `optim%imp`, default 0.01; set with `IMP` or the optimizer window's
+General Settings tab, kept until a lens is loaded) and uses it
 both for convergence of f and as the tolerance on the summed constraint
 violation (`h3 < acc` in `check_convergence`, `slsqp_module.f90`). There is no
 separate constraint tolerance. So any constraint within 0.01 of its target
