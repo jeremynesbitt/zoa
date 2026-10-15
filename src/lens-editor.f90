@@ -914,14 +914,17 @@ function buildLensEditTable() result(store)
     call gtk_grid_attach(table, lblScale, 0_c_int, 1_c_int, 1_c_int, 1_c_int)
     call gtk_grid_attach(table, lblOffset, 0_c_int, 2_c_int, 1_c_int, 1_c_int)
 
+    ! Solve target: 5 decimals like the lens editor's cells (was 3, which
+    ! rounded e.g. a chief-ray slope as it was typed), and a range wide
+    ! enough for heights and clear apertures.
     sbScale = gtk_spin_button_new (gtk_adjustment_new( &
     & value=sData%param1*1d0, &
-    & lower=-1000*1d0, &
-    & upper=1000*1d0, &
-    & step_increment=1d0, &
-    & page_increment=1d0, &
+    & lower=-1d6, &
+    & upper=1d6, &
+    & step_increment=0.01d0, &
+    & page_increment=0.1d0, &
     & page_size=0d0),climb_rate=2d0, &
-    & digits=3_c_int)
+    & digits=5_c_int)
 
     sbOffset = gtk_spin_button_new (gtk_adjustment_new( &
     & value=sData%param2*1d0, &
@@ -934,6 +937,11 @@ function buildLensEditTable() result(store)
 
     call gtk_grid_attach(table, sbScale, 1_c_int, 1_c_int, 1_c_int, 1_c_int)
     call gtk_grid_attach(table, sbOffset, 1_c_int, 2_c_int, 1_c_int, 1_c_int)
+    ! No solve takes a second parameter: its row only ever said "Not Used",
+    ! right under the real target -- hide it.
+    call gtk_widget_set_visible(lblOffset, FALSE)
+    call gtk_widget_set_visible(sbOffset, FALSE)
+    call setSolveTargetSensitivity(sData%param1Name)
 
   ! Now make a single column list with multiple selections enabled
 
@@ -979,17 +987,30 @@ subroutine solveTypeChanged(widget, gdata) bind(c)
     selection = gtk_drop_down_get_selected(dropDown)+1 ! Since it starts from 0 in gtk
     call gtk_label_set_label(lblScale, trim(thick_solves(selection)%param1Name)//c_null_char)
     call gtk_label_set_label(lblOffset, trim(thick_solves(selection)%param2Name)//c_null_char)
+    call setSolveTargetSensitivity(thick_solves(selection)%param1Name)
 
   case(ID_PICKUP_RAD)
 
     selection = gtk_drop_down_get_selected(dropDown)+1 ! Since it starts from 0 in gtk
     call gtk_label_set_label(lblScale, trim(curv_solves(selection)%param1Name)//c_null_char)
     call gtk_label_set_label(lblOffset, trim(curv_solves(selection)%param2Name)//c_null_char)
+    call setSolveTargetSensitivity(curv_solves(selection)%param1Name)
 
   end select
 
 
 end subroutine  
+
+! The target box is only editable for a solve that takes a target (not
+! None, not the aplanatic solves).
+subroutine setSolveTargetSensitivity(paramName)
+  character(len=*), intent(in) :: paramName
+  if (trim(paramName) == 'Not Used') then
+    call gtk_widget_set_sensitive(sbScale, FALSE)
+  else
+    call gtk_widget_set_sensitive(sbScale, TRUE)
+  end if
+end subroutine
 
 subroutine solveUpdate_click(widget, gdata) bind(c)
   use type_utils, only: int2str
@@ -1022,10 +1043,31 @@ subroutine solveUpdate_click(widget, gdata) bind(c)
     & trim(solve_remove_cmd(merge(SLV_YZ_THI_SLOT, SLV_YZ_CURV_SLOT, &
     &      ID_SETTING == ID_PICKUP_THIC), sData%surf))//';EOS')
   else
-  ! It's time to update the pickup
-    CALL PROCESKDP('U L ; CHG, '//trim(int2str(sData%surf)) &
-    & //"; "//trim(solve_set_cmd(solve_kind_from_cmd(sData%cmd_kdp), sData%param1))//";EOS")
+    ! Set the solve through the typed KDP API: the target goes in as the
+    ! exact real64 (the old 'U L; CHG; <solve> v; EOS' text was formatted
+    ! to 4 decimals, truncating e.g. a chief-ray slope).
+    block
+      use mod_kdp_api, only: kdp_silent_begin, kdp_silent_end, kdp_lens_begin, &
+                             kdp_lens_end, kdp_chg, kdp_lens_cmd
+      use solve_manager, only: SOLVE_KINDS
+      use iso_fortran_env, only: real64
+      integer :: k
+      k = solve_kind_from_cmd(sData%cmd_kdp)
+      if (k >= 1) then
+        call kdp_silent_begin()
+        call kdp_lens_begin()
+        call kdp_chg(sData%surf)
+        if (SOLVE_KINDS(k)%nparams > 0) then
+          call kdp_lens_cmd(trim(SOLVE_KINDS(k)%kdp_cmd), w1=real(sData%param1, real64))
+        else
+          call kdp_lens_cmd(trim(SOLVE_KINDS(k)%kdp_cmd))
+        end if
+        call kdp_lens_end(refreshSurf=sData%surf)
+        call kdp_silent_end()
+      end if
+    end block
   end if
+  call notify_replot_flush()
   
 
 

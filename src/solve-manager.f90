@@ -197,7 +197,7 @@ contains
     if (SOLVE_KINDS(kindIdx)%nparams == 0) then
       cmd = trim(SOLVE_KINDS(kindIdx)%kdp_cmd)
     else
-      cmd = trim(SOLVE_KINDS(kindIdx)%kdp_cmd)//" "//trim(real2str(target, 4))
+      cmd = trim(SOLVE_KINDS(kindIdx)%kdp_cmd)//" "//trim(real2str(target, SOLVE_SAVE_DECIMALS))
     end if
   end function
 
