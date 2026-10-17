@@ -54,6 +54,7 @@ srcs += files(
   'mod_kdp_api.f90',
   'cmd-loop-state.f90',
   'surface-renumber.f90',
+  'lens-draw-apertures.f90',
   'mod_DATSPD.f90',
   'mod_DATSUB.f90',
   'mod_DATCFG.f90',

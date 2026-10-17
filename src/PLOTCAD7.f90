@@ -2656,6 +2656,7 @@ SUBROUTINE CAOJK(YMIN,XMIN,YMAX,XMAX,&
    use DATLEN
    use DATMAI
    use mod_lens_data_manager, only: ldm
+   use lens_draw_apertures, only: lensDrawAutoSemi, lensDrawOwnSemi, lensDrawElementSemi
    use global_widgets, only: sysConfig
    use mod_surface, only: surf_clap_type, surf_clap_dim, surf_clap_tilt, &
                           surf_special_type, surf_curvature
@@ -2675,6 +2676,7 @@ SUBROUTINE CAOJK(YMIN,XMIN,YMAX,XMAX,&
 !
    COMMON/CLPLOC/CLPLCX,CLPLCY
    real(real64) :: dF   ! system default edge-aperture scale factor
+   real(real64) :: EAX, EAY   ! element (drawn) semi-apertures
 !
 !
    ZDELZ=0.0D0
@@ -2702,38 +2704,25 @@ SUBROUTINE CAOJK(YMIN,XMIN,YMAX,XMAX,&
 !     chief height = field angle x ~infinite distance); drop it when it is
 !     non-physically large AND utterly dominates the marginal, so such a surface
 !     does not draw enormously and wreck the plot autoscale.
-         APX=DABS(PXTRAX(1,I))
-         APY=DABS(PXTRAY(1,I))
-         CHX=DABS(PXTRAX(5,I))
-         CHY=DABS(PXTRAY(5,I))
-         IF(CHX.GT.1.0D10.AND.CHX.GT.1.0D6*APX) CHX=0.0D0
-         IF(CHY.GT.1.0D10.AND.CHY.GT.1.0D6*APY) CHY=0.0D0
-         APX=APX+CHX
-         APY=APY+CHY
-!     Prefer the ray-traced footprint (display-only auto clear aperture, filled by
-!     check_clear_apertures) when it is larger, so the drawn surface always covers
-!     the rays that hit it -- the paraxial estimate underestimates fast/aberrated
-!     surfaces (e.g. a Cassegrain secondary with no defined clear aperture).
-         APX=MAX(APX, DABS(ldm%getSurfAutoSemiX(I)))
-         APY=MAX(APY, DABS(ldm%getSurfAutoSemiY(I)))
-!     Edge (physical) aperture: an explicit CIR EDG value overrides the extent;
-!     otherwise the system default edge factor scales the auto/paraxial extent.
-         IF(ldm%getEdgeSemiAperture(I).GT.0.0D0) THEN
-            APX=ldm%getEdgeSemiAperture(I)
-            APY=ldm%getEdgeSemiAperture(I)
-         ELSE
-            APX=APX*dF
-            APY=APY*dF
-         END IF
-         XMAX=(APX*DCOS(THETA))+CLPLCX(I)
-         YMAX=(APY*DSIN(THETA))+CLPLCY(I)
-         XMIN=(APX*DCOS(THETA2))+CLPLCX(I)
-         YMIN=(APY*DSIN(THETA2))+CLPLCY(I)
+!     (paraxial |marginal|+|chief| with the infinite-conjugate guard, at least
+!     the ray-traced footprint, then CIR EDG or the edge factor:
+!     lensDrawAutoSemi, shared with CAO so profile ends and element edges meet.)
+         APX=lensDrawAutoSemi(I,2)
+         APY=lensDrawAutoSemi(I,1)
+!     Element diameter: the profile runs out to the element's semi-aperture
+!     (XMAX..), the sag no further than this surface's own (XMAX2..), so a
+!     smaller surface ends in a flat ring out to the element edge.
+         EAX=lensDrawElementSemi(I,2)
+         EAY=lensDrawElementSemi(I,1)
+         XMAX=(EAX*DCOS(THETA))+CLPLCX(I)
+         YMAX=(EAY*DSIN(THETA))+CLPLCY(I)
+         XMIN=(EAX*DCOS(THETA2))+CLPLCX(I)
+         YMIN=(EAY*DSIN(THETA2))+CLPLCY(I)
 !
-         XMIN2=XMIN
-         YMIN2=YMIN
-         XMAX2=XMAX
-         YMAX2=YMAX
+         XMIN2=(APX*DCOS(THETA2))+CLPLCX(I)
+         YMIN2=(APY*DSIN(THETA2))+CLPLCY(I)
+         XMAX2=(APX*DCOS(THETA))+CLPLCX(I)
+         YMAX2=(APY*DSIN(THETA))+CLPLCY(I)
       ELSE
 !       CAFLG NOT 0
       END IF
@@ -2742,16 +2731,19 @@ SUBROUTINE CAOJK(YMIN,XMIN,YMAX,XMAX,&
       IF(CAFLG.EQ.1) THEN
 !
          PEEPEE=DABS(ldm%getClearApertureForLensDraw(I,1,dF))
+!     Element diameter (centred circular clap only; see lensDrawElementSemi)
+         EAY=PEEPEE
+         IF(lensDrawOwnSemi(I,1).GT.0.0D0) EAY=lensDrawElementSemi(I,1)
 !
 !       RIGHT POINT
-         XMAX=((PEEPEE)*DCOS(THETA))+surf_clap_dim(I,4)
-         YMAX=((PEEPEE)*DSIN(THETA))+surf_clap_dim(I,3)
-         XMIN=((PEEPEE)*DCOS(THETA2))+surf_clap_dim(I,4)
-         YMIN=((PEEPEE)*DSIN(THETA2))+surf_clap_dim(I,3)
-         XMAX2=XMAX
-         YMAX2=YMAX
-         XMIN2=XMIN
-         YMIN2=YMIN
+         XMAX=((EAY)*DCOS(THETA))+surf_clap_dim(I,4)
+         YMAX=((EAY)*DSIN(THETA))+surf_clap_dim(I,3)
+         XMIN=((EAY)*DCOS(THETA2))+surf_clap_dim(I,4)
+         YMIN=((EAY)*DSIN(THETA2))+surf_clap_dim(I,3)
+         XMAX2=((PEEPEE)*DCOS(THETA))+surf_clap_dim(I,4)
+         YMAX2=((PEEPEE)*DSIN(THETA))+surf_clap_dim(I,3)
+         XMIN2=((PEEPEE)*DCOS(THETA2))+surf_clap_dim(I,4)
+         YMIN2=((PEEPEE)*DSIN(THETA2))+surf_clap_dim(I,3)
       ELSE
 !       CAFLG NOT 1
       END IF
@@ -3301,6 +3293,7 @@ SUBROUTINE CAO(YLFT,XLFT,YRHT,XRHT,XTOP,YTOP,XBOT,YBOT,&
    use DATMAI
    use iso_fortran_env, only: real64
    use mod_lens_data_manager, only: ldm
+   use lens_draw_apertures, only: lensDrawAutoSemi, lensDrawOwnSemi, lensDrawElementSemi
    use global_widgets, only: sysConfig
    use mod_surface, only: surf_clap_type, surf_clap_dim, surf_clap_tilt, &
                           surf_special_type, surf_curvature
@@ -3319,6 +3312,7 @@ SUBROUTINE CAO(YLFT,XLFT,YRHT,XRHT,XTOP,YTOP,XBOT,YBOT,&
 !
    COMMON/CLPLOC/CLPLCX,CLPLCY
    real(real64) :: dF   ! system default edge-aperture scale factor
+   ! (lens_draw_apertures: element-diameter drawing)
 !
    ZDELZ=0.0D0
    dF = sysConfig%defaultEdgeScaleFactor
@@ -3338,15 +3332,11 @@ SUBROUTINE CAO(YLFT,XLFT,YRHT,XRHT,XTOP,YTOP,XBOT,YBOT,&
 !     Auto (paraxial) aperture with no explicit clear aperture.  Apply the edge
 !     (physical) size: an explicit CIR EDG value overrides the extent; otherwise
 !     the system default edge factor scales the paraxial extent.
-         X=(DABS(PXTRAX(1,I))+DABS(PXTRAX(5,I)))
-         Y=(DABS(PXTRAY(1,I))+DABS(PXTRAY(5,I)))
-         IF(ldm%getEdgeSemiAperture(I).GT.0.0D0) THEN
-            X=ldm%getEdgeSemiAperture(I)
-            Y=ldm%getEdgeSemiAperture(I)
-         ELSE
-            X=X*dF
-            Y=Y*dF
-         END IF
+!     Same extent as the profile (CAOJK): lensDrawAutoSemi.  Edge points at
+!     the element semi-aperture; sag points ("2") at this surface's own, so the
+!     element edge meets the profile's flat ring (see lens_draw_apertures).
+         X=lensDrawElementSemi(I,2)
+         Y=lensDrawElementSemi(I,1)
 !     COORDINATES OF THE END POINTS FOR PROFX
          XRHT=( X)+CLPLCX(I)
          YRHT=0.0D0+CLPLCY(I)
@@ -3357,14 +3347,16 @@ SUBROUTINE CAO(YLFT,XLFT,YRHT,XRHT,XTOP,YTOP,XBOT,YBOT,&
          YTOP=( Y)+CLPLCY(I)
          XBOT=0.0D0+CLPLCX(I)
          YBOT=(-Y)+CLPLCY(I)
-         XTOP2=XTOP
-         YTOP2=YTOP
-         XBOT2=XBOT
-         YBOT2=YBOT
-         XRHT2=XRHT
-         YRHT2=YRHT
-         XLFT2=XLFT
-         YLFT2=YLFT
+         X=lensDrawAutoSemi(I,2)
+         Y=lensDrawAutoSemi(I,1)
+         XTOP2=0.0D0+CLPLCX(I)
+         YTOP2=( Y)+CLPLCY(I)
+         XBOT2=0.0D0+CLPLCX(I)
+         YBOT2=(-Y)+CLPLCY(I)
+         XRHT2=( X)+CLPLCX(I)
+         YRHT2=0.0D0+CLPLCY(I)
+         XLFT2=(-X)+CLPLCX(I)
+         YLFT2=0.0D0+CLPLCY(I)
       ELSE
 !       CAFLG NOT 0
       END IF
@@ -3373,6 +3365,9 @@ SUBROUTINE CAO(YLFT,XLFT,YRHT,XRHT,XTOP,YTOP,XBOT,YBOT,&
       IF(CAFLG.EQ.1) THEN
 !
          PEEPEE=DABS(ldm%getClearApertureForLensDraw(I,1,dF))
+!     Edge points at the element semi-aperture (centred circular clap only;
+!     the sag points set below stay at this surface's own).
+         IF(lensDrawOwnSemi(I,1).GT.0.0D0) PEEPEE=lensDrawElementSemi(I,1)
 !
 !       RIGHT POINT
          XRHT=(PEEPEE)+surf_clap_dim(I,4)
