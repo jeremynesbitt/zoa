@@ -671,13 +671,34 @@ end function
     if (tabInfoIndex < 1 .or. tabInfoIndex > size(self%tabInfo)) return
     if (.not. allocated(self%tabInfo(tabInfoIndex)%tabObj)) return
 
-    ! To account for tab being detached, use tabObj Notebook
-      call gtk_notebook_remove_page(self%tabInfo(tabInfoIndex)%tabObj%notebook, tabIndex)
-   
-    !    
-    if (tabIndex==0) then
-      call gtk_window_close(gtk_widget_get_ancestor(self%tabInfo(tabInfoIndex)%tabObj%notebook, gtk_window_get_type()))
-    end if
+    ! Remove the tab's OWN page from its OWN notebook (the main one, or an
+    ! undocked window's).  The page is found by the tab's label: callers'
+    ! indices are unreliable -- closeAllTabs[Silent] pass 1 for every tab, and
+    ! tabNum goes stale as other tabs close or move.  With index 1, an
+    ! undocked tab (page 0 of its window's notebook) was never removed: after a
+    ! lens restore its window kept the old drawing, no longer tracked.
+    block
+      type(c_ptr) :: nb, pg
+      integer(c_int) :: p, idx
+      nb = self%tabInfo(tabInfoIndex)%tabObj%notebook
+      idx = -1
+      do p = 0, gtk_notebook_get_n_pages(nb) - 1
+        pg = gtk_notebook_get_nth_page(nb, p)
+        if (c_associated(gtk_notebook_get_tab_label(nb, pg), &
+        &                self%tabInfo(tabInfoIndex)%tabObj%tab_label)) then
+          idx = p
+          exit
+        end if
+      end do
+      if (idx < 0) idx = int(tabIndex, c_int)
+      call gtk_notebook_remove_page(nb, idx)
+      ! An undocked window with no plots left is closed (never the main one).
+      if (.not. c_associated(nb, self%notebook)) then
+        if (gtk_notebook_get_n_pages(nb) == 0) then
+          call gtk_window_close(gtk_widget_get_ancestor(nb, gtk_window_get_type()))
+        end if
+      end if
+    end block
     
 
     !call gtk_notebook_remove_page(self%notebook, tabIndex)
