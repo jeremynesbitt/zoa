@@ -178,15 +178,13 @@ subroutine refreshLensDataStruct()
 end subroutine
 
  !TODO:  Check for release flag and don't display if false
+! Developer debug trace (undock/drag-and-drop/tab bookkeeping...): log file
+! only, like LogTermFOR -- it used to print in red in the console.
 subroutine LogTermDebug(newTxt)
-
-   use zoa_output, only : zoa_emit
-   use iso_fortran_env, only: real64
+   use GLOBALS, only: logger
    implicit none
    character(len=*) :: newTxt
-   call zoa_emit(newTxt, "red")
-   ! Also PRint
-   PRINT *, newTxt
+   call logger%logText(newTxt)
 
 end subroutine
 
