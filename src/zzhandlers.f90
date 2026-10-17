@@ -1253,7 +1253,7 @@ end subroutine
   subroutine gui_save_zin(path)
     use zoa_file_handler, only: doesFileExist, delete_file, getFileNameFromPath
     use zoa_output, only: zoa_emit
-    use mod_zin_io, only: zin_write_windows
+    use mod_zin_io, only: zin_write_windows, zin_write_undocked
     character(len=*), intent(in) :: path
     integer :: u, ios, nWin
     character(len=16) :: winCmds(8)
@@ -1273,16 +1273,19 @@ end subroutine
     end if
     call zoatabMgr%saveTabsToZin(u)
     call zin_write_windows(u, winCmds, nWin)
+    call save_undocked_plots(u)
     close(u)
   end subroutine
 
   subroutine gui_load_zin(path)
     use zoa_file_handler, only: getFileNameFromPath
     use zoa_output, only: zoa_emit
-    use mod_zin_io, only: zin_read_windows
+    use mod_zin_io, only: zin_read_windows, zin_read_undocked
     character(len=*), intent(in) :: path
-    integer :: u, ios, i, nWin
+    integer :: u, ios, i, nWin, nUnd
     character(len=16) :: winCmds(8)
+    character(len=100) :: undTitles(50)
+    integer :: undW(50), undH(50)
     open(newunit=u, file=trim(path), access='stream', form='unformatted', &
          status='old', action='read', iostat=ios)
     if (ios /= 0) then
@@ -1295,9 +1298,68 @@ end subroutine
     ! Reopen the windows that were open when it was saved. Windows already
     ! open stay open (their command just brings them forward).
     call zin_read_windows(u, winCmds, nWin)
+    call zin_read_undocked(u, undTitles, undW, undH, nUnd)
     close(u)
     do i = 1, nWin
       call PROCESKDP(trim(winCmds(i)))
+    end do
+    ! Put the plots that were undocked back in their own windows.
+    do i = 1, nUnd
+      call undock_plot_by_title(trim(undTitles(i)), undW(i), undH(i))
+    end do
+  end subroutine
+
+  ! Undocked plots, for the .zin: a plot is undocked when its notebook is not
+  ! the main one.  Recorded by tab title with its window's current size.
+  subroutine save_undocked_plots(u)
+    use mod_zin_io, only: zin_write_undocked
+    integer, intent(in) :: u
+    character(len=100) :: titles(50)
+    integer :: widths(50), heights(50), n, i
+    type(c_ptr) :: win
+    n = 0
+    do i = 1, zoatabMgr%tabNum
+      if (.not. allocated(zoatabMgr%tabInfo(i)%tabObj)) cycle
+      if (c_associated(zoatabMgr%tabInfo(i)%tabObj%notebook, zoatabMgr%notebook)) cycle
+      if (n >= size(titles)) exit
+      n = n + 1
+      titles(n) = zoatabMgr%getTabTitle(i)
+      win = gtk_widget_get_ancestor(zoatabMgr%tabInfo(i)%tabObj%notebook, gtk_window_get_type())
+      widths(n) = 0; heights(n) = 0
+      if (c_associated(win)) then
+        widths(n) = gtk_widget_get_width(win)
+        heights(n) = gtk_widget_get_height(win)
+      end if
+    end do
+    call zin_write_undocked(u, titles, widths, heights, n)
+  end subroutine
+
+  ! Undock the plot titled `title` (the Window > UnDock menu action) and size
+  ! its window.  A title no longer present is skipped.
+  subroutine undock_plot_by_title(title, w, h)
+    character(len=*), intent(in) :: title
+    integer, intent(in) :: w, h
+    character(len=100), target, save :: tabName
+    integer :: i
+    type(c_ptr) :: win
+    interface
+      subroutine undock_Window(act, param, gdata) bind(c)
+        import :: c_ptr
+        type(c_ptr), value, intent(in) :: act, param, gdata
+      end subroutine
+    end interface
+
+    do i = 1, zoatabMgr%tabNum
+      if (.not. allocated(zoatabMgr%tabInfo(i)%tabObj)) cycle
+      if (trim(zoatabMgr%getTabTitle(i)) /= trim(title)) cycle
+      if (.not. c_associated(zoatabMgr%tabInfo(i)%tabObj%notebook, zoatabMgr%notebook)) return
+      tabName = title
+      call undock_Window(c_null_ptr, c_null_ptr, c_loc(tabName))
+      if (w > 0 .and. h > 0) then
+        win = gtk_widget_get_ancestor(zoatabMgr%tabInfo(i)%tabObj%notebook, gtk_window_get_type())
+        if (c_associated(win)) call gtk_window_set_default_size(win, int(w, c_int), int(h, c_int))
+      end if
+      return
     end do
   end subroutine
 

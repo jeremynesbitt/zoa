@@ -27,12 +27,16 @@ module mod_zin_io
   public :: zin_write_logical, zin_read_logical
   public :: zin_write_header, zin_read_header
   public :: zin_write_windows, zin_read_windows
+  public :: zin_write_undocked, zin_read_undocked
 
   ! Trailer after the tab records: the separate windows (lens editor, System
   ! Configuration, ...) open at save time, each stored as the command that
   ! opens it. Readers that predate it stop after the tab records and never
   ! see it, so the format version is unchanged.
   character(len=8), parameter, public :: ZIN_WINDOWS_MAGIC = 'ZINWINS '
+  ! Second trailer (after the windows one): the plots that were undocked into
+  ! their own windows, by tab title, with each window's size.
+  character(len=8), parameter, public :: ZIN_UNDOCKED_MAGIC = 'ZINUNDK '
 
 contains
 
@@ -224,5 +228,47 @@ contains
       n = i
     end do
   end subroutine zin_read_windows
+
+  ! Undocked-plot trailer: ZIN_UNDOCKED_MAGIC, int32 count, then per plot its
+  ! tab title (length-prefixed) and window width, height (int32).
+  subroutine zin_write_undocked(unit, titles, widths, heights, n)
+    integer, intent(in) :: unit, n
+    character(len=*), intent(in) :: titles(:)
+    integer, intent(in) :: widths(:), heights(:)
+    integer :: i
+
+    write(unit) ZIN_UNDOCKED_MAGIC
+    write(unit) int(n, int32)
+    do i = 1, n
+      call zin_write_str(unit, trim(titles(i)))
+      write(unit) int(widths(i), int32), int(heights(i), int32)
+    end do
+  end subroutine zin_write_undocked
+
+  ! Reads the undocked-plot trailer from the current position; n = 0 when
+  ! the file has none (older .zin).
+  subroutine zin_read_undocked(unit, titles, widths, heights, n)
+    integer, intent(in) :: unit
+    character(len=*), intent(out) :: titles(:)
+    integer, intent(out) :: widths(:), heights(:)
+    integer, intent(out) :: n
+    character(len=8) :: magic
+    integer(int32) :: nu, w32, h32
+    integer :: i, ios
+
+    n = 0
+    read(unit, iostat=ios) magic
+    if (ios /= 0 .or. magic /= ZIN_UNDOCKED_MAGIC) return
+    read(unit, iostat=ios) nu
+    if (ios /= 0 .or. nu < 0) return
+    do i = 1, min(int(nu), size(titles))
+      call zin_read_str(unit, titles(i), ios)
+      if (ios /= 0) return
+      read(unit, iostat=ios) w32, h32
+      if (ios /= 0) return
+      widths(i) = int(w32); heights(i) = int(h32)
+      n = i
+    end do
+  end subroutine zin_read_undocked
 
 end module mod_zin_io
