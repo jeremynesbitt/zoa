@@ -440,6 +440,101 @@ contains
         end if
     end procedure getRayData
 
+    !## cmd:      RECMACRO
+    !## syntax:   RECMACRO 1 | RECMACRO 0 [file] | RECMACRO
+    !## category: Macros
+    !## desc:     Record a macro: 1 starts recording the commands you issue; 0 file stops and saves them (macro folder if no directory, .zoa added); 0 alone asks for the file (GUI); bare reports the status.
+    !##
+    module procedure execRECMACRO
+        use macro_recorder, only: rec_start, rec_stop, rec_is_recording, rec_count
+        use zoa_file_handler, only: getTempDirectory, getMacroDir, getFileSep, &
+                                    addFileSepIfNeeded, getFileNameFromPath
+        use zoa_ui_callbacks, only: query_save_file
+        use GLOBALS, only: HEADLESS_MODE
+        implicit none
+        character(len=80) :: tokens(40)
+        character(len=1024) :: fname, dir, dest
+        character(len=120) :: header
+        integer :: numTokens
+        logical :: ok, selected
+
+        call parse(trim(iptStr), ' ', tokens, numTokens)
+
+        if (numTokens == 1) then
+            if (rec_is_recording()) then
+                call zoa_emit("RECMACRO: recording ("//trim(int2str(rec_count()))// &
+                &  " commands so far).  RECMACRO 0 [file] stops and saves.", "black")
+            else
+                call zoa_emit("RECMACRO: not recording.  RECMACRO 1 starts.", "black")
+            end if
+            return
+        end if
+
+        select case (trim(tokens(2)))
+        case ('1')
+            if (rec_is_recording()) then
+                call zoa_emit("RECMACRO: already recording", "red")
+                return
+            end if
+            call rec_start(trim(addFileSepIfNeeded(trim(getTempDirectory())))// &
+            &              'recording_macro.tmp', ok)
+            if (ok) then
+                call zoa_emit("RECMACRO: recording started.  RECMACRO 0 [file] stops and saves.", "black")
+            else
+                call zoa_emit("RECMACRO: could not create the temporary recording file", "red")
+            end if
+
+        case ('0')
+            if (.not. rec_is_recording()) then
+                call zoa_emit("RECMACRO: not recording (RECMACRO 1 starts)", "red")
+                return
+            end if
+            if (numTokens >= 3) then
+                ! Keep the file name's case (the line is folded to upper case).
+                fname = rawCommandWord(3, tokens(3))
+                if (index(fname, getFileSep()) == 0) then
+                    dest = trim(addFileSepIfNeeded(trim(getMacroDir())))//trim(fname)
+                else
+                    dest = fname
+                end if
+            else if (HEADLESS_MODE) then
+                call zoa_emit("RECMACRO 0: give a file name (still recording)", "red")
+                return
+            else
+                fname = ''
+                call query_save_file(fname, dir, trim(getMacroDir()), "*.zoa", &
+                &                    "Zoa Macro", selected)
+                if (.not. selected) then
+                    call zoa_emit("RECMACRO: not saved -- still recording", "black")
+                    return
+                end if
+                dest = fname
+            end if
+            if (index(dest(index(dest, getFileSep(), back=.true.)+1:), '.') == 0) &
+            &  dest = trim(dest)//'.zoa'
+
+            header = '! Macro recorded by Zoa ('//trim(int2str(rec_count()))//' commands)'
+            call rec_stop(trim(dest), trim(header), ok)
+            if (ok) then
+                ! Full path in the GUI; just the name headless (captured test
+                ! output must not contain machine-specific absolute paths).
+                if (HEADLESS_MODE) then
+                    call zoa_emit("RECMACRO: saved "//trim(int2str(rec_count()))// &
+                    &  " commands to "//trim(getFileNameFromPath(dest)), "black")
+                else
+                    call zoa_emit("RECMACRO: saved "//trim(int2str(rec_count()))// &
+                    &  " commands to "//trim(dest), "black")
+                end if
+            else
+                call zoa_emit("RECMACRO: recording stopped, but could not write "// &
+                &  trim(dest), "red")
+            end if
+
+        case default
+            call zoa_emit("Error:  Expect RECMACRO 1, RECMACRO 0 [file], or RECMACRO", "red")
+        end select
+    end procedure execRECMACRO
+
     !## cmd:      TERM
     !## syntax:   TERM
     !## category: Utilities

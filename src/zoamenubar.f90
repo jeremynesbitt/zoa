@@ -125,6 +125,10 @@ contains
     character(len=100), target :: drawCmd = "VIE; GO"
     character(len=100), target :: seidelCmd = "PLOTTHO; GO"
     character(len=100), target :: macroCmd = "MACROUI"
+    ! Macro recording: Stop uses a bare RECMACRO 0 so a save dialog asks for
+    ! the file (default: the macro folder).
+    character(len=100), target :: recMacroStartCmd = "RECMACRO 1"
+    character(len=100), target :: recMacroStopCmd = "RECMACRO 0"
     character(len=100), target :: zernFldCmd = "ZRNFLD; GO"
     character(len=100), target :: opdPltCmd = "PMA; GO"    
     
@@ -180,6 +184,10 @@ contains
 
     call addCommandMenuItem(menu_macro, "Macro Operations", &
     & "MacroOperations", macroCmd, win)
+    call addCommandMenuItem(menu_macro, "Record Macro", &
+    & "RecordMacro", recMacroStartCmd, win)
+    call addCommandMenuItem(menu_macro, "Stop Recording...", &
+    & "StopRecordingMacro", recMacroStopCmd, win)
 
     !call g_menu_append_item (menu_macro, menu_item_macrooperations)
 

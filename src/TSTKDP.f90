@@ -288,11 +288,15 @@ END SUBROUTINE
 SUBROUTINE PROCESKDP(ftext)
    use DATMAI, only: INPUT
    use codeV_commands, only: dispatchCodeVSegment
+   use macro_recorder, only: rec_enter, rec_leave
    use iso_fortran_env, only: real64
    IMPLICIT NONE
 
    character(len=*), intent(in) :: ftext
    integer :: stIdx, scIdx, nLen
+
+   ! Macro recording (RECMACRO): a top-level call is a command the user issued.
+   call rec_enter(ftext)
 
    ! Split the line on ';' and route each segment.  The CodeV front door
    ! (dispatchCodeVSegment) handles a registered new command directly -- it
@@ -315,6 +319,7 @@ SUBROUTINE PROCESKDP(ftext)
          stIdx = stIdx + scIdx
       end if
    end do
+   call rec_leave()
 
 contains
 

@@ -376,6 +376,9 @@ module codeV_commands
    module subroutine execEDI(iptStr)
     character(len=*) :: iptStr
    end subroutine execEDI
+   module subroutine execRECMACRO(iptStr)
+    character(len=*) :: iptStr
+   end subroutine execRECMACRO
    module subroutine execGENCON(iptStr)
     character(len=*) :: iptStr
    end subroutine execGENCON
@@ -656,6 +659,8 @@ module codeV_commands
         end block
         zoaCmds(761)%cmd = 'AST3'
         zoaCmds(761)%execFunc => updateConstraint
+        zoaCmds(762)%cmd = 'RECMACRO'
+        zoaCmds(762)%execFunc => execRECMACRO
         zoaCmds(527)%cmd = 'SETDENS'
         zoaCmds(527)%execFunc => setPlotDensity     
         zoaCmds(528)%cmd = 'SETZERNC'

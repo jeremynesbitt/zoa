@@ -547,6 +547,11 @@ test('lens_edit', test_runner,
             meson.project_source_root() / 'test/lens_edit.ref'],
      timeout: 120)
 
+test('recmacro', test_runner,
+     args: [meson.project_source_root() / 'test/recmacro.zoa',
+            meson.project_source_root() / 'test/recmacro.ref'],
+     timeout: 60)
+
 test('tilts_decenters', test_runner,
      args: [meson.project_source_root() / 'test/tilts_decenters.zoa',
             meson.project_source_root() / 'test/tilts_decenters.ref'],

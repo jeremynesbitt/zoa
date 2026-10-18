@@ -1,0 +1,26 @@
+! RECMACRO: record the commands the user issues into a macro.
+! RECMACRO 1 starts; RECMACRO 0 file stops and saves (macro folder when the
+! name has no directory, .zoa added); bare RECMACRO reports the status;
+! RECMACRO 0 with no file is a GUI save dialog, an error headless.
+! Only top-level commands are recorded: Zoa's own redraw / reference-ray
+! work and the lines of a running macro or lens file are not.
+RECMACRO
+RECMACRO 0 nothing
+RECMACRO 1
+RECMACRO 1
+RES osdtriplet
+THI S6 40
+RDY S1 16
+VIE
+GO
+RECMACRO
+RECMACRO 0
+RECMACRO 0 recTest
+RECMACRO
+RECMACRO 2
+PRT zoa_macro:recTest
+! Replaying it on the original lens reproduces the edits.
+RES osdtriplet
+SUR SA
+RES macro:recTest
+SUR SA

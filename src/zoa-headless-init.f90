@@ -28,8 +28,10 @@ contains
     use undo_manager, only: undo_snapshot
     use mod_reference_rays, only: refRays
     use zoa_file_handler, only: zoa_file_depth
+    use macro_recorder, only: rec_suppress_begin, rec_suppress_end
     if (lens_dirty) then
       lens_dirty = .false.
+      call rec_suppress_begin()   ! Zoa's own work, not a recorded command
       call undo_snapshot()
       ! Retrace the per-field reference rays for the new lens (CODE V behaviour),
       ! but only for settled top-level edits -- not for the transient intermediate
@@ -40,6 +42,7 @@ contains
         call refRays%populate()
         lens_dirty = .false.
       end if
+      call rec_suppress_end()
     end if
   end subroutine
 

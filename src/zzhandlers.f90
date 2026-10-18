@@ -1090,6 +1090,7 @@ end subroutine
     use undo_manager, only: undo_snapshot
     use mod_reference_rays, only: refRays
     use zoa_file_handler, only: zoa_file_depth
+    use macro_recorder, only: rec_suppress_begin, rec_suppress_end
     use cmd_loop_state, only: cmd_loop
     ! Not while a command loop (AUT, TAR, UPD CON, a plot's settings) is
     ! open: redrawing a plot runs its own "VIE ...; GO" loop, which replaced
@@ -1099,6 +1100,9 @@ end subroutine
     if (cmd_loop /= 0) return
     if (replot_deferred) then
       replot_deferred = .false.
+      ! Redraws, the undo snapshot and the reference-ray refresh are Zoa's own
+      ! work, not commands for a recorded macro.
+      call rec_suppress_begin()
       call zoatabMgr%rePlotIfNeeded()
       ! replot_deferred set => the lens changed at top level; record an undo
       ! snapshot (no-op while restoring or for a suppressed snapshot).
@@ -1112,6 +1116,7 @@ end subroutine
         call refRays%populate()
         replot_deferred = .false.
       end if
+      call rec_suppress_end()
     end if
   end subroutine
 
@@ -1281,6 +1286,7 @@ end subroutine
     use zoa_file_handler, only: getFileNameFromPath
     use zoa_output, only: zoa_emit
     use mod_zin_io, only: zin_read_windows, zin_read_undocked
+    use macro_recorder, only: rec_suppress_begin, rec_suppress_end
     character(len=*), intent(in) :: path
     integer :: u, ios, i, nWin, nUnd
     character(len=16) :: winCmds(8)
@@ -1293,6 +1299,8 @@ end subroutine
       return
     end if
     ! The .zin is authoritative for this lens: start from an empty notebook.
+    ! Replaying its plots and windows is Zoa's work, not a recorded command.
+    call rec_suppress_begin()
     call zoatabMgr%closeAllTabsSilent()
     call zoatabMgr%restoreTabsFromZin(u)
     ! Reopen the windows that were open when it was saved. Windows already
@@ -1307,6 +1315,7 @@ end subroutine
     do i = 1, nUnd
       call undock_plot_by_title(trim(undTitles(i)), undW(i), undH(i))
     end do
+    call rec_suppress_end()
   end subroutine
 
   ! Undocked plots, for the .zin: a plot is undocked when its notebook is not
