@@ -710,6 +710,9 @@ contains
         ! the default edge aperture belongs to the lens (saved as DDR EDG):
         ! a new or loaded lens starts with no margin
         sysConfig%defaultEdgeScaleFactor = 1.0_long
+        ! Field weights belong to the lens (saved as WTF): a lens file without
+        ! WTF (e.g. a CODE V import) must not inherit the previous lens's.
+        sysConfig%fieldWeights = 1.0_long
         ! newunit (not a hardcoded unit): this also runs nested inside
         ! process_zoa_file when a script line triggers a lens load.
         ! The template: the macro folder, then the search path, then the
@@ -809,9 +812,104 @@ contains
     !## category: Fields & Wavelengths
     !## desc:     Set the field weights.
     !##
+    ! WTF w1 [w2 ...] : field weights for fields 1..n (CODE V; relative,
+    ! default 1.0).   WTF Fk w : the weight of field k.
     module procedure setFieldWeights
-        call zoa_emit("Field Weights Command "//trim(iptStr)//" Not supported", "black")
+        use global_widgets, only: sysConfig
+        use zoa_ui_callbacks, only: notify_replot
+        implicit none
+        character(len=80) :: tokens(40)
+        integer :: numTokens, i, k
+        real(real64) :: w(10)
+        logical :: ok
+
+        call parse(trim(iptStr), ' ', tokens, numTokens)
+        call parseFieldList(tokens, numTokens, 'WTF', w, k, i, ok)
+        if (.not. ok) return
+        if (k > 0) then
+            sysConfig%fieldWeights(k) = w(1)
+        else
+            sysConfig%fieldWeights(1:i) = w(1:i)
+        end if
+        call notify_replot()
     end procedure setFieldWeights
+
+    ! VUY / VLY / VUX / VLX f1 [f2 ...] : vignetting factor (fraction of the
+    ! entrance-pupil radius clipped off at +Y / -Y / +X / -X) for fields 1..n
+    ! (CODE V).   VUY Fk f : field k only.
+    module procedure setVignettingList
+        use global_widgets, only: sysConfig
+        use zoa_ui_callbacks, only: notify_replot
+        implicit none
+        character(len=80) :: tokens(40)
+        integer :: numTokens, i, k, r
+        real(real64) :: v(10)
+        logical :: ok
+
+        call parse(trim(iptStr), ' ', tokens, numTokens)
+        select case (trim(tokens(1)))
+        case ('VUY'); r = 1
+        case ('VLY'); r = 2
+        case ('VUX'); r = 3
+        case default; r = 4
+        end select
+        call parseFieldList(tokens, numTokens, trim(tokens(1)), v, k, i, ok)
+        if (.not. ok) return
+        if (k > 0) then
+            sysConfig%vignetting(r, k) = v(1)
+        else
+            sysConfig%vignetting(r, 1:i) = v(1:i)
+        end if
+        call notify_replot()
+    end procedure setVignettingList
+
+    ! Shared parsing for per-field value lists: "<cmd> v1 [v2 ...]" (n values,
+    ! n <= number of fields) or "<cmd> Fk v" (k > 0 returned).
+    subroutine parseFieldList(tokens, numTokens, cmd, vals, k, n, ok)
+        use command_utils, only: isInputNumber
+        use global_widgets, only: sysConfig
+        character(len=80), intent(in) :: tokens(:)
+        integer, intent(in) :: numTokens
+        character(len=*), intent(in) :: cmd
+        real(real64), intent(out) :: vals(10)
+        integer, intent(out) :: k, n
+        logical, intent(out) :: ok
+        integer :: i
+
+        ok = .false.; k = 0; n = 0; vals = 0.0_real64
+        if (numTokens < 2) then
+            call zoa_emit("Error:  Expect "//cmd//" v1 [v2 ...] (one per field) or "//cmd//" Fk v", "red")
+            return
+        end if
+        if (tokens(2)(1:1) == 'F' .and. isInputNumber(trim(tokens(2)(2:)))) then
+            k = str2int(trim(tokens(2)(2:)))
+            if (k < 1 .or. k > sysConfig%numFields .or. numTokens < 3) then
+                call zoa_emit("Error:  "//cmd//": field "//trim(tokens(2))//" out of range or no value", "red")
+                return
+            end if
+            if (.not. isInputNumber(trim(tokens(3)))) then
+                call zoa_emit("Error:  "//cmd//": "//trim(tokens(3))//" is not a number", "red")
+                return
+            end if
+            vals(1) = str2real8(trim(tokens(3)))
+            ok = .true.
+            return
+        end if
+        n = numTokens - 1
+        if (n > sysConfig%numFields) then
+            call zoa_emit("Error:  "//cmd//": "//trim(int2str(n))//" values for "// &
+            &  trim(int2str(sysConfig%numFields))//" fields", "red")
+            return
+        end if
+        do i = 1, n
+            if (.not. isInputNumber(trim(tokens(i+1)))) then
+                call zoa_emit("Error:  "//cmd//": "//trim(tokens(i+1))//" is not a number", "red")
+                return
+            end if
+            vals(i) = str2real8(trim(tokens(i+1)))
+        end do
+        ok = .true.
+    end subroutine
 
     !## cmd:      WTW
     !## syntax:   WTW s1 [s2 ...]
@@ -887,7 +985,7 @@ contains
     !## cmd:      WL
     !## syntax:   WL w1 [w2 ...]
     !## category: Fields & Wavelengths
-    !## desc:     Set the system wavelengths (nm); up to 5 values.
+    !## desc:     Set the system wavelengths (nm); up to 10 values.
     !##
     module procedure setWavelength
         use global_widgets, only: sysConfig
@@ -898,13 +996,18 @@ contains
         integer :: numTokens
         real(kind=real64) :: wvReal
         logical :: CVERROR
-        real(kind=real64) :: wv(5)
+        real(kind=real64) :: wv(10)
         character(len=32)  :: wvStr
 
         call parse(trim(iptStr), ' ', tokens, numTokens)
         numWavelengths = numTokens-1
 
-        if (numTokens <= 6) then
+        ! Up to 10 wavelengths (KDP WV holds 1-5, WV2 6-10).
+        if (numTokens > 11) then
+            call zoa_emit("Error:  WL takes at most 10 wavelengths", "red")
+            return
+        end if
+        if (numTokens <= 11) then
             wv = 0.0_real64
             do i=2,numTokens
                 call ATODCODEV(tokens(i)(1:23), wvReal, CVERROR)
@@ -919,6 +1022,8 @@ contains
             call kdp_silent_begin()
             call kdp_lens_begin()
             call kdp_lens_cmd('WV', w1=wv(1), w2=wv(2), w3=wv(3), w4=wv(4), w5=wv(5))
+            if (numWavelengths > 5) &
+            &  call kdp_lens_cmd('WV2', w1=wv(6), w2=wv(7), w3=wv(8), w4=wv(9), w5=wv(10))
             call kdp_lens_end()
             call kdp_silent_end()
         end if

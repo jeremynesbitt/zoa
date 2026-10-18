@@ -86,6 +86,8 @@ type sys_config
  ! Per-field CODE V vignetting factors, column = field index.
  ! Rows: 1=VUY (upper-y), 2=VLY (lower-y), 3=VUX (+x), 4=VLX (-x). 0 = no vignetting.
  real(kind=real64), dimension(4,10) :: vignetting = 0.0_real64
+ ! Field weights (CODE V WTF), relative; default 1.0.
+ real(kind=real64), dimension(10) :: fieldWeights = 1.0_real64
  ! Default edge (physical) aperture scale factor for lens drawing: physical size
  ! = clear aperture * this, used when a surface has no explicit CIR EDG value.
  ! Exposed in the GUI as a margin percentage (factor = 1 + margin/100); default
@@ -1180,6 +1182,12 @@ subroutine setNumFields(self, numFields)
   use DATLEN
   class(sys_config), intent(inout) :: self
   integer, intent(in) :: numFields
+  integer :: nFieldsBefore
+  nFieldsBefore = self%numFields
+  ! Added fields take the last field's weight (lenses saved with WTF 100 ...
+  ! keep a consistent scale).
+  if (nFieldsBefore >= 1 .and. nFieldsBefore <= 10 .and. numFields > nFieldsBefore) &
+  &  self%fieldWeights(nFieldsBefore+1:min(numFields,10)) = self%fieldWeights(nFieldsBefore)
   CFLDCNT = numFields
   self%numFields = numFields
 
@@ -1288,7 +1296,7 @@ end subroutine
 ! whose pupil floats with the stop is written as its current EPD).
 subroutine genSaveOutputText(self, fID, forCodeV)
   use mod_system, only: sys_say
-  use type_utils, only: real2str, blankStr, int2str
+  use type_utils, only: real2str, blankStr, int2str, compactReal
   use GLOBALS, only: zoaVersion
   class(sys_config) :: self
   integer :: fID
@@ -1340,7 +1348,9 @@ subroutine genSaveOutputText(self, fID, forCodeV)
   if(self%numWavelengths > 1 ) then 
     strWLwgt = 'WTW'
     do ii=1,self%numWavelengths
-      strWLwgt = trim(strWLwgt)//blankStr(1)//real2str(100.0*self%spectralWeights(ii),4)
+      ! The weights as stored (WTW loads them as given; writing 100x them
+      ! made every save/load cycle multiply the weights by 100).
+      strWLwgt = trim(strWLwgt)//blankStr(1)//trim(compactReal(self%spectralWeights(ii)))
     end do
     write(fID, '(A)') trim(strWLwgt)
   end if
@@ -1357,7 +1367,13 @@ subroutine genSaveOutputText(self, fID, forCodeV)
     case(FIELD_OBJECT_HEIGHT)
        strXFLD = 'XOB'
        strYFLD = 'YOB'
-
+    case(FIELD_PARAX_IMAGE_HEIGHT)
+       ! (Was missing: a lens with image-height fields saved no field lines.)
+       strXFLD = 'XIM'
+       strYFLD = 'YIM'
+    case default
+       strXFLD = 'YAN'
+       strYFLD = 'YAN'
     end select
 
 
@@ -1369,24 +1385,28 @@ subroutine genSaveOutputText(self, fID, forCodeV)
        write(fID, '(A)') trim(strYFLD)
 
 
-    ! Field weights not supported, so for now just output all 100s
+    ! Field weights (CODE V WTF).
     strFLDWGT = 'WTF'
     do ii=1,self%numFields
-      strFLDWGT = trim(strFLDWGT)//blankStr(5)//'100'
+      strFLDWGT = trim(strFLDWGT)//blankStr(1)//trim(compactReal(self%fieldWeights(ii)))
     end do
     write(fID, '(A)') trim(strFLDWGT)
 
-    ! Per-field vignetting factors (only emit fields that have any set, so a lens
-    ! with no vignetting saves identically to before this feature).
-    do ii=1,self%numFields
-      if (any(self%vignetting(:,ii) /= 0.0_real64)) then
-        write(fID, '(A)') "SET VIG "//trim(int2str(ii))//blankStr(1)// &
-          real2str(self%vignetting(1,ii),4)//blankStr(1)// &
-          real2str(self%vignetting(2,ii),4)//blankStr(1)// &
-          real2str(self%vignetting(3,ii),4)//blankStr(1)// &
-          real2str(self%vignetting(4,ii),4)
-      end if
-    end do
+    ! Vignetting factors (CODE V VUY/VLY/VUX/VLX, one value per field); only a
+    ! lens that has any vignetting writes them.
+    if (any(self%vignetting(:,1:self%numFields) /= 0.0_real64)) then
+      block
+        character(len=3), parameter :: vigCmd(4) = ['VUY', 'VLY', 'VUX', 'VLX']
+        integer :: r
+        do r = 1, 4
+          strFLDWGT = vigCmd(r)
+          do ii=1,self%numFields
+            strFLDWGT = trim(strFLDWGT)//blankStr(1)//trim(compactReal(self%vignetting(r,ii)))
+          end do
+          write(fID, '(A)') trim(strFLDWGT)
+        end do
+      end block
+    end if
 
 
 

@@ -15,11 +15,11 @@ MODULE globals
    character(len=256) :: writePath
    type(zoaLogger) :: logger
    character(len=140)  :: rawCommands(20)
-   character(len=140)  :: currentCommand
+   character(len=1024) :: currentCommand
    ! Same segment with its original case.  The front door case-folds
    ! currentCommand for the command-word lookup, which mangles anything
    ! case-sensitive in the arguments -- notably file paths.
-   character(len=140)  :: currentCommandRaw
+   character(len=1024) :: currentCommandRaw
 
    logical :: TEST_MODE = .FALSE.
    logical :: HEADLESS_MODE = .FALSE.

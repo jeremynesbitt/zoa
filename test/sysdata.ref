@@ -5,7 +5,6 @@ All constraints removed
 
 
 
-Field Weights Command WTF     100     100     100 Not supported
 System Data
 Title: New Lens From Template
 
@@ -124,7 +123,6 @@ All constraints removed
 
 
 
-Field Weights Command WTF     100     100     100 Not supported
 System Data
 Title: New Lens From Template
 
@@ -180,3 +178,153 @@ Units: um
  3       0.656270     100.000000
  4       0.435840     100.000000
  5       0.706520     100.000000
+All constraints removed
+
+
+
+
+
+
+
+
+
+
+File name to save is sysconf1.zoa
+LEN
+TIT 'New Lens From Template'
+DIM M
+EPD 10.0000
+WL 656.3000 587.6000 486.1000 435.8000 400.0000 700.0000
+WTW 1 2 3 4 5 6
+REF 3
+XAN 0.0000 0.0000 0.0000 0.0000
+YAN 0.0000 7.0000 10.0000 14.0000
+WTF 1 2 2 0.25
+VUY 0 0.1 0.2 0.3
+VLY 0 0.1 0.2 0.35
+VUX 0 0 0.05 0.1
+VLX 0 0 0.05 0.15
+SO   0.000000000000000D+00   0.999999982796800D+13
+S   0.150000000000000D+02   0.350000000000000D+01 N-SK16
+S   0.000000000000000D+00   0.310000000000000D+01
+S  -0.375300000000000D+02   0.150000000000000D+01 N-F2
+  STO
+S   0.140800000000000D+02   0.500000000000000D+01
+S   0.502600000000000D+02   0.350000000000000D+01 N-SK16
+S  -0.313800000000000D+02   0.385320338025205D+02
+PIM
+SI  0.0000     0.000000000000000D+00
+GO
+System Data
+Title: New Lens From Template
+
+GENERAL LENS DATA:
+
+Surfaces                  : 7
+Stop                      : 3
+System Aperture           : Entrance Pupil Diameter (EPD) = 10.00000
+Ray Aiming                : Off
+Telecentric Object Space  : Off
+Afocal Image Space        : Off
+Effective Focal Length    : 50.05025
+Back Focal Length         : 38.53203
+Front Focal Length        : -44.63346
+Total Track               : 55.13203
+Image Space F/#           : 5.005025
+Paraxial Working F/#      : 5.005025
+Image Space NA            : 0.09940480
+Object Space NA           : 5.000000E-013
+Stop Radius               : 3.901675
+Paraxial Image Height     : 12.47893
+Paraxial Magnification    : -5.005025E-012
+Entrance Pupil Diameter   : 10.00000
+Entrance Pupil Position   : 6.728468
+Exit Pupil Diameter       : 9.744622
+Exit Pupil Position       : -10.24005
+Field Type                : Angle in degrees
+Maximum Radial Field      : 14.00000
+Primary Wavelength [um]   : 0.4861000
+Lens Units                : Millimeters
+Angular Magnification     : 1.026207
+Petzval Sum               : 0.007839360
+Petzval Radius            : -127.5614
+
+Fields                    : 4
+Field Type: Angle in degrees
+ #        X-Value        Y-Value
+ 1       0.000000       0.000000
+ 2       0.000000       7.000000
+ 3       0.000000      10.000000
+ 4       0.000000      14.000000
+
+Vignetting Factors
+ #       VUY       VLY       VUX       VLX
+ 1   0.00000   0.00000   0.00000   0.00000
+ 2   0.10000   0.10000   0.00000   0.00000
+ 3   0.20000   0.20000   0.05000   0.05000
+ 4   0.30000   0.35000   0.10000   0.15000
+
+Wavelengths               : 6
+Units: um
+ #          Value         Weight
+ 1       0.656300       1.000000
+ 2       0.587600       2.000000
+ 3       0.486100       3.000000  (primary)
+ 4       0.435800       4.000000
+ 5       0.400000       5.000000
+ 6       0.700000       6.000000
+
+
+File name to save is sysconf2.zoa
+LEN
+TIT 'New Lens From Template'
+DIM M
+EPD 10.0000
+WL 656.3000 587.6000 486.1000 435.8000 400.0000 700.0000
+WTW 1 2 3 4 5 6
+REF 3
+XOB -0.0000 -0.0000 -0.0000
+YOB 0.0000 1.0000 2.0000
+WTF 1 2 2
+VUY 0 0.1 0.2
+VLY 0 0.1 0.2
+VUX 0 0 0.05
+VLX 0 0 0.05
+SO   0.000000000000000D+00   0.999999982796800D+13
+S   0.150000000000000D+02   0.350000000000000D+01 N-SK16
+S   0.000000000000000D+00   0.310000000000000D+01
+S  -0.375300000000000D+02   0.150000000000000D+01 N-F2
+  STO
+S   0.140800000000000D+02   0.500000000000000D+01
+S   0.502600000000000D+02   0.350000000000000D+01 N-SK16
+S  -0.313800000000000D+02   0.385320338025205D+02
+PIM
+SI  0.0000     0.000000000000000D+00
+GO
+File name to save is sysconf3.zoa
+LEN
+TIT 'New Lens From Template'
+DIM M
+EPD 10.0000
+WL 656.3000 587.6000 486.1000 435.8000 400.0000 700.0000
+WTW 1 2 3 4 5 6
+REF 3
+XIM 0.0000 0.0000
+YIM 0.0000 3.0000
+WTF 1 2
+VUY 0 0.1
+VLY 0 0.1
+VUX 0 0
+VLX 0 0
+SO   0.000000000000000D+00   0.999999982796800D+13
+S   0.150000000000000D+02   0.350000000000000D+01 N-SK16
+S   0.000000000000000D+00   0.310000000000000D+01
+S  -0.375300000000000D+02   0.150000000000000D+01 N-F2
+  STO
+S   0.140800000000000D+02   0.500000000000000D+01
+S   0.502600000000000D+02   0.350000000000000D+01 N-SK16
+S  -0.313800000000000D+02   0.385320338025205D+02
+PIM
+SI  0.0000     0.000000000000000D+00
+GO
+Error:  WTF: 11 values for 2 fields

@@ -5,7 +5,6 @@ All constraints removed
 
 
 
-Field Weights Command WTF     100     100     100 Not supported
 
        Y-FAN     X-FAN
   1  5.87276     4.90032
@@ -53,7 +52,6 @@ All constraints removed
 
 
 
-Field Weights Command WTF     100     100     100 Not supported
           RDY          THI     RMD          GLA          CCY     THC     GLC
 OBJ:    INFINITY    INFINITY                              100     100     100
 001:    15.00000    3.50000               N-SK16_SCH2000 100     100     100
@@ -82,7 +80,6 @@ All constraints removed
 
 
 
-Field Weights Command WTF     100     100     100 Not supported
           RDY          THI     RMD          GLA          CCY     THC     GLC
 OBJ:    INFINITY    INFINITY                              100     100     100
 001:    15.00000    3.50000               N-SK16_SCH2000 100     100     100
@@ -108,7 +105,6 @@ All constraints removed
 
 
 
-Field Weights Command WTF     100     100     100 Not supported
 
 GAP        TYPE      CENTER        EVAL HT       EDGE
 S1-S2  GLASS          3.50000       5.87276       2.30256

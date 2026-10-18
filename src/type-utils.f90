@@ -7,6 +7,54 @@ module type_utils
       end type string    
   
       contains
+
+      ! Compact text for a value in a user-level command or lens file: up to
+      ! 9 significant digits, no trailing zeros ("10", "7.5", "0.30899999",
+      ! "1.2E-07").  Keeps long lists (YAN/WTF/VUY with 10 fields, WL ...)
+      ! short enough for the command line while round-tripping typed values.
+      function compactReal(v) result(s)
+          use iso_fortran_env, only: real64
+          implicit none
+          real(real64), intent(in) :: v
+          character(len=32) :: s
+          integer :: ie, k
+          character(len=32) :: mant, expo
+
+          if (v == 0.0_real64) then
+            s = '0'
+            return
+          end if
+          if (abs(v) >= 1.0d-4 .and. abs(v) < 1.0d9) then
+            write(s, '(F0.9)') v
+            ! keep at most 9 significant digits
+            write(s, '(G0.9)') v
+            s = adjustl(s)
+            if (index(s, 'E') > 0) then
+              write(s, '(F0.9)') v
+            end if
+          else
+            write(s, '(ES16.8E2)') v
+          end if
+          s = adjustl(s)
+          ie = index(s, 'E')
+          if (ie > 0) then
+            mant = s(1:ie-1); expo = s(ie:)
+          else
+            mant = s; expo = ''
+          end if
+          if (index(mant, '.') > 0) then
+            k = len_trim(mant)
+            do while (k > 1 .and. mant(k:k) == '0')
+              k = k - 1
+            end do
+            if (mant(k:k) == '.') k = k - 1
+            mant = mant(1:k)
+          end if
+          if (mant(1:1) == '.') mant = '0'//mant
+          if (mant(1:2) == '-.') mant = '-0'//mant(2:)
+          s = trim(mant)//trim(expo)
+      end function compactReal
+
   
    
       function real2str(val, precision, sci) result(strOut)

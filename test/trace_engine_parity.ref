@@ -5,7 +5,6 @@ All constraints removed
 
 
 
-Field Weights Command WTF     100     100     100 Not supported
 TRACECMP: grid 8x8 (64 rays), wavelength slot 1
 LEGACY: traced 64, ok 64, failed 0
 ENGINE SUPPORTED
@@ -62,7 +61,6 @@ All constraints removed
 
 
 
-Field Weights Command WTF     100     100     100 Not supported
 TRACECMP: grid 8x8 (64 rays), wavelength slot 1
 LEGACY: traced 64, ok 64, failed 0
 ENGINE SUPPORTED
@@ -104,7 +102,6 @@ All constraints removed
 
 
 
-Field Weights Command WTF     100     100     100 Not supported
 
 
 

@@ -27,12 +27,10 @@ All constraints removed
 
 
 
-Field Weights Command WTF     100     100     100 Not supported
 All constraints removed
 
 
 
-Field Weights Command WTF     100     100     100 Not supported
 
 NAO 0.100000
 Saved CODE V file NATEST.SEQ
@@ -43,7 +41,6 @@ All constraints removed
 
 
 
-Field Weights Command WTF     100     100     100 Not supported
 All constraints removed
 
 
@@ -57,7 +54,6 @@ All constraints removed
 
 
 
-Field Weights Command WTF     100     100     100 Not supported
 All constraints removed
 
 
@@ -85,7 +81,6 @@ All constraints removed
 
 
 
-Field Weights Command WTF     100     100     100 Not supported
 Error! NAO needs a finite object distance (the object is at infinity); use EPD or FNO
 Error! NAO must be between 0 and 1
 ENTRANCE PUPIL
@@ -134,12 +129,10 @@ All constraints removed
 
 
 
-Field Weights Command WTF     100     100     100 Not supported
 All constraints removed
 
 
 
-Field Weights Command WTF     100     100     100 Not supported
 
 ENTRANCE PUPIL
 DIA       7.6683
@@ -168,7 +161,6 @@ All constraints removed
 
 
 
-Field Weights Command WTF     100     100     100 Not supported
 All constraints removed
 
 
@@ -196,7 +188,6 @@ All constraints removed
 
 
 
-Field Weights Command WTF     100     100     100 Not supported
 
 Saved CODE V file FLTEST.SEQ
 All constraints removed
@@ -206,7 +197,6 @@ All constraints removed
 
 
 
-Field Weights Command WTF     100     100     100 Not supported
 All constraints removed
 
 
@@ -257,7 +247,6 @@ All constraints removed
 
 
 
-Field Weights Command WTF     100     100     100 Not supported
 SEMI-APERTURE REFERENCE RAY HEIGHT AT SURFACE #1
 SAY(YZ-PLANE IN LENS UNITS) =    0.600000000000000D+01
 

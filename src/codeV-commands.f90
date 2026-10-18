@@ -376,6 +376,9 @@ module codeV_commands
    module subroutine execEDI(iptStr)
     character(len=*) :: iptStr
    end subroutine execEDI
+   module subroutine setVignettingList(iptStr)
+    character(len=*) :: iptStr
+   end subroutine setVignettingList
    module subroutine execRECMACRO(iptStr)
     character(len=*) :: iptStr
    end subroutine execRECMACRO
@@ -661,6 +664,16 @@ module codeV_commands
         zoaCmds(761)%execFunc => updateConstraint
         zoaCmds(762)%cmd = 'RECMACRO'
         zoaCmds(762)%execFunc => execRECMACRO
+        zoaCmds(763)%cmd = 'XIM'
+        zoaCmds(763)%execFunc => setField
+        zoaCmds(764)%cmd = 'VUY'
+        zoaCmds(764)%execFunc => setVignettingList
+        zoaCmds(765)%cmd = 'VLY'
+        zoaCmds(765)%execFunc => setVignettingList
+        zoaCmds(766)%cmd = 'VUX'
+        zoaCmds(766)%execFunc => setVignettingList
+        zoaCmds(767)%cmd = 'VLX'
+        zoaCmds(767)%execFunc => setVignettingList
         zoaCmds(527)%cmd = 'SETDENS'
         zoaCmds(527)%execFunc => setPlotDensity     
         zoaCmds(528)%cmd = 'SETZERNC'
@@ -987,7 +1000,7 @@ module codeV_commands
         use DATMAI, only: F1
         character(len=*), intent(in) :: seg
         logical :: handled
-        character(len=140) :: segU
+        character(len=1024) :: segU
         ! as long as the segment itself: parse stops with a runtime error on a
         ! word longer than its token buffer (a long folder or file name)
         character(len=140) :: tokens(40)

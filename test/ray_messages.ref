@@ -6,7 +6,6 @@ All constraints removed
 
 
 
-Field Weights Command WTF     100     100     100 Not supported
 RAYENGINE counters reset
 RAYENGINE ON
 legacy RAYTRA/RAYTRA2 calls: engine 8, checked 0, mismatches 0
@@ -18,7 +17,6 @@ All constraints removed
 
 
 
-Field Weights Command WTF     100     100     100 Not supported
 RAYENGINE counters reset
  RAY FAILURE OCCURRED AT SURFACE            2
 TOTAL INTERNAL REFLECTION
@@ -38,7 +36,6 @@ All constraints removed
 
 
 
-Field Weights Command WTF     100     100     100 Not supported
 NRAITR   RESET TO     1
 RAYENGINE counters reset
  RAY FAILURE OCCURRED AT SURFACE            3
@@ -60,7 +57,6 @@ All constraints removed
 
 
 
-Field Weights Command WTF     100     100     100 Not supported
 RAYENGINE counters reset
  RAY FAILURE OCCURRED AT SURFACE            2
 TOTAL INTERNAL REFLECTION
@@ -80,7 +76,6 @@ All constraints removed
 
 
 
-Field Weights Command WTF     100     100     100 Not supported
 NRAITR   RESET TO     1
  RAY FAILURE OCCURRED AT SURFACE            3
 RAY FAILED TO CONVERGE TO REFERENCE SURFACE RAY-AIM POINT
@@ -96,7 +91,6 @@ All constraints removed
 
 
 
-Field Weights Command WTF     100     100     100 Not supported
  RAY FAILURE OCCURRED AT SURFACE            0
 RAY CAN NOT BE TRACED AT ZERO WAVELENGTH
  RAY FAILURE OCCURRED AT SURFACE            0
@@ -108,7 +102,6 @@ All constraints removed
 
 
 
-Field Weights Command WTF     100     100     100 Not supported
 
  RAY FAILURE OCCURRED AT SURFACE            2
 RAY BLOCKED BY CIRCULAR CLEAR APERTURE
@@ -121,7 +114,6 @@ All constraints removed
 
 
 
-Field Weights Command WTF     100     100     100 Not supported
 
  RAY FAILURE OCCURRED AT SURFACE            2
 RAY BLOCKED BY RECTANGULAR CLEAR APERTURE
@@ -134,7 +126,6 @@ All constraints removed
 
 
 
-Field Weights Command WTF     100     100     100 Not supported
 
  RAY FAILURE OCCURRED AT SURFACE            2
 RAY BLOCKED BY ELLIPTICAL CLEAR APERTURE
@@ -149,7 +140,6 @@ All constraints removed
 
 
 
-Field Weights Command WTF     100     100     100 Not supported
 
  RAY FAILURE OCCURRED AT SURFACE            2
 RAY BLOCKED BY RACETRACK CLEAR APERTURE
@@ -162,7 +152,6 @@ All constraints removed
 
 
 
-Field Weights Command WTF     100     100     100 Not supported
 
  RAY FAILURE OCCURRED AT SURFACE            2
 RAY BLOCKED BY POLYGON CLEAR APERTURE
@@ -177,7 +166,6 @@ All constraints removed
 
 
 
-Field Weights Command WTF     100     100     100 Not supported
 
  RAY FAILURE OCCURRED AT SURFACE            3
 RAY BLOCKED BY CIRCULAR OBSCURATION
@@ -190,7 +178,6 @@ All constraints removed
 
 
 
-Field Weights Command WTF     100     100     100 Not supported
 
  RAY FAILURE OCCURRED AT SURFACE            3
 RAY BLOCKED BY RECTANGULAR OBSCURATION
@@ -203,7 +190,6 @@ All constraints removed
 
 
 
-Field Weights Command WTF     100     100     100 Not supported
 
  RAY FAILURE OCCURRED AT SURFACE            3
 RAY BLOCKED BY ELLIPTICAL OBSCURATION
@@ -216,7 +202,6 @@ All constraints removed
 
 
 
-Field Weights Command WTF     100     100     100 Not supported
 
  RAY FAILURE OCCURRED AT SURFACE            3
 RAY BLOCKED BY RACETRACK OBSCURATION
@@ -229,7 +214,6 @@ All constraints removed
 
 
 
-Field Weights Command WTF     100     100     100 Not supported
 
  RAY FAILURE OCCURRED AT SURFACE            3
 RAY BLOCKED BY POLYGON OBSCURATION
@@ -242,7 +226,6 @@ All constraints removed
 
 
 
-Field Weights Command WTF     100     100     100 Not supported
 
  RAY FAILURE OCCURRED AT SURFACE            2
 RAY BLOCKED BY CIRCULAR CLEAR APERTURE
@@ -257,7 +240,6 @@ All constraints removed
 
 
 
-Field Weights Command WTF     100     100     100 Not supported
 
  RAY FAILURE OCCURRED AT SURFACE            4
 RAY BLOCKED BY CIRCULAR CLEAR APERTURE
@@ -270,7 +252,6 @@ All constraints removed
 
 
 
-Field Weights Command WTF     100     100     100 Not supported
 
  RAY FAILURE OCCURRED AT SURFACE            5
 RAY BLOCKED BY CIRCULAR CLEAR APERTURE
@@ -287,7 +268,6 @@ All constraints removed
 
 
 
-Field Weights Command WTF     100     100     100 Not supported
 
  RAY FAILURE OCCURRED AT SURFACE            5
 RAY BLOCKED BY CIRCULAR CLEAR APERTURE
@@ -304,7 +284,6 @@ All constraints removed
 
 
 
-Field Weights Command WTF     100     100     100 Not supported
 
  RAY FAILURE OCCURRED AT SURFACE            3
 RAY BLOCKED BY CIRCULAR OBSCURATION
@@ -317,7 +296,6 @@ All constraints removed
 
 
 
-Field Weights Command WTF     100     100     100 Not supported
 
  RAY FAILURE OCCURRED AT SURFACE            1
 RAY BLOCKED BY CIRCULAR CLEAR APERTURE

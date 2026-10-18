@@ -5,7 +5,6 @@ All constraints removed
 
 
 
-Field Weights Command WTF     100     100     100 Not supported
 Optical path difference map, field 1, wavelength 1, 4096 points
         Pupil X          Pupil Y       OPD [waves]
       0.00000000      0.00000000      0.00000000

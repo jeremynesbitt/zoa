@@ -5,7 +5,6 @@ All constraints removed
 
 
 
-Field Weights Command WTF     100     100     100 Not supported
 DDR EDG 1.0000
 DDR EDG 1.1000
 File name to save is ddrtest.zoa
@@ -14,11 +13,11 @@ TIT 'New Lens From Template'
 DIM M
 EPD 10.0000
 WL 587.5600 486.1300 656.2700 435.8400 706.5200
-WTW 10000.000000000000 10000.000000000000 10000.000000000000 10000.000000000000 10000.000000000000
+WTW 100 100 100 100 100
 REF 1
 XAN 0.0000 0.0000 0.0000
 YAN 0.0000 7.0000 10.0000
-WTF     100     100     100
+WTF 100 100 100
 SO   0.000000000000000D+00   0.999999982796800D+13
 S   0.150000000000000D+02   0.350000000000000D+01 N-SK16
 S   0.000000000000000D+00   0.310000000000000D+01
@@ -38,13 +37,11 @@ All constraints removed
 
 
 
-Field Weights Command WTF     100     100     100 Not supported
 DDR EDG 1.0000
 All constraints removed
 
 
 
-Field Weights Command WTF     100     100     100 Not supported
 
 DDR EDG 1.1000
 All constraints removed

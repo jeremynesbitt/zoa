@@ -25,6 +25,7 @@ module ui_sys_config
   use g
   use zoa_ui
   use settings_obj
+  use kdp_data_types, only: FIELD_OBJECT_HEIGHT, FIELD_PARAX_IMAGE_HEIGHT, RAYAIM_PARAX, RAYAIM_REAL, RAYAIM_APLANATIC, RAYAIM_TELE
 
   implicit none
 
@@ -273,9 +274,107 @@ subroutine createFieldSettingsUI(self)
 
 end subroutine
 
+  ! ---- System Configuration edits as CODE V commands ----------------------
+
+  ! CODE V field command for the field type and axis (1 = X, 2 = Y).
+  function fieldCmdName(fieldID, axis) result(nm)
+    integer, intent(in) :: fieldID, axis
+    character(len=3) :: nm
+    select case (fieldID)
+    case (FIELD_OBJECT_HEIGHT);      nm = 'YOB'
+    case (FIELD_PARAX_IMAGE_HEIGHT); nm = 'YIM'
+    case default;                    nm = 'YAN'
+    end select
+    if (axis == 1) nm(1:1) = 'X'
+  end function
+
+  function vigCmdName(r) result(nm)
+    integer, intent(in) :: r
+    character(len=3) :: nm
+    character(len=3), parameter :: names(4) = ['VUY', 'VLY', 'VUX', 'VLX']
+    nm = names(max(1, min(4, r)))
+  end function
+
+  ! "v1 v2 ... vn" in compact form.
+  function valueListText(vals, n) result(txt)
+    use type_utils, only: compactReal
+    real(real64), intent(in) :: vals(:)
+    integer, intent(in) :: n
+    character(len=900) :: txt
+    integer :: i
+    txt = ''
+    do i = 1, n
+      txt = trim(txt)//' '//trim(compactReal(vals(i)))
+    end do
+  end function
+
+  ! Send the X and Y field lists for n fields of type fieldID ("XAN ..; YAN
+  ! .."), optionally with field editIdx on axis editAxis set to editVal
+  ! (editAxis 0 = no edit).  Values not yet defined default to 0.
+  subroutine sendFieldLists(n, fieldID, editAxis, editIdx, editVal)
+    integer, intent(in) :: n, fieldID, editAxis, editIdx
+    real(real64), intent(in) :: editVal
+    real(real64) :: v(10, 2)
+    integer :: ax, i
+    do ax = 1, 2
+      do i = 1, 10
+        v(i, ax) = sysConfig%refFieldValue(ax)*sysConfig%relativeFields(ax, i)
+      end do
+    end do
+    if (editAxis >= 1 .and. editAxis <= 2 .and. editIdx >= 1 .and. editIdx <= 10) &
+    &  v(editIdx, editAxis) = editVal
+    call PROCESKDP(fieldCmdName(fieldID, 1)//trim(valueListText(v(:,1), n))//' ; '// &
+    &              fieldCmdName(fieldID, 2)//trim(valueListText(v(:,2), n)))
+  end subroutine
+
+  ! Send "<cmd> v1 .. vn" from a per-field array with field editIdx set to
+  ! editVal (WTF, VUY/VLY/VUX/VLX).
+  subroutine sendFieldValueList(cmd, vals, n, editIdx, editVal)
+    character(len=*), intent(in) :: cmd
+    real(real64), intent(in) :: vals(:)
+    integer, intent(in) :: n, editIdx
+    real(real64), intent(in) :: editVal
+    real(real64) :: v(10)
+    v = 0.0_real64
+    v(1:min(10,size(vals))) = vals(1:min(10,size(vals)))
+    if (editIdx >= 1 .and. editIdx <= 10) v(editIdx) = editVal
+    call PROCESKDP(cmd//trim(valueListText(v, n)))
+  end subroutine
+
+  ! "WL .. ; WTW .." for n wavelengths (table in micrometres, WL in nm),
+  ! optionally with wavelength / weight editIdx changed.  WTW is always sent
+  ! because WL resets the weights.
+  subroutine sendWavelengthLists(n, editCol, editIdx, editVal)
+    integer, intent(in) :: n, editCol, editIdx
+    real(real64), intent(in) :: editVal
+    real(real64) :: wl(10), wt(10)
+    integer :: i
+    do i = 1, 10
+      wl(i) = 1000.0_real64*sysConfig%getWavelength(i)
+      wt(i) = sysConfig%spectralWeights(i)
+      if (i <= n .and. wt(i) == 0.0_real64) wt(i) = 1.0_real64
+      ! A newly added wavelength starts as a copy of the one before it.
+      if (i <= n .and. wl(i) <= 0.0_real64) then
+        if (i > 1) then
+          wl(i) = wl(i-1)
+        else
+          wl(i) = 587.56_real64
+        end if
+      end if
+    end do
+    if (editIdx >= 1 .and. editIdx <= 10) then
+      if (editCol == 1) wl(editIdx) = 1000.0_real64*editVal
+      if (editCol == 2) wt(editIdx) = editVal
+    end if
+    call PROCESKDP('WL'//trim(valueListText(wl, n))//' ; WTW'//trim(valueListText(wt, n)))
+  end subroutine
+
   subroutine fields_edited(renderer, path, text, gdata) bind(c)
     use hl_gtk_zoa
     use iso_fortran_env, only: real64
+    use type_utils, only: int2str
+    use zoa_output, only: zoa_emit
+    use zoa_ui_callbacks, only: notify_replot_flush
     type(c_ptr), value :: renderer, path, text, gdata
     real(kind=real64) :: cellData, vig(4)
 
@@ -285,32 +384,33 @@ end subroutine
 
     call getRowAndColFromCallback(renderer, path, row, col)
 
-   ! Column dispatch: 1/2 = field X/Y, 4-7 = vignetting +Y/-Y/+X/-X, 3 = color combo.
-   if (col == 1 .or. col == 2) then
-     ! TODO:  Make this into a sub?
-    locallist = g_object_get_data(renderer, "view"//c_null_char)
-    call hl_gtk_listn_set_cell(locallist, row, col, &
-         & svalue=trim(ftext))
-
+   ! Column dispatch: 1/2 = field X/Y, 4-7 = vignetting +Y/-Y/+X/-X,
+   ! 8 = weight, 3 = color combo.  Each edit sends the CODE V command for the
+   ! whole list (XAN/YAN.., VUY/VLY/VUX/VLX, WTF) with the edited value, so it
+   ! is recorded and behaves exactly as if typed.
+   if ((col >= 1 .and. col <= 2) .or. (col >= 4 .and. col <= 8)) then
     call convertCellData(text, ftext, realData=cellData)
-    absFields(col,row+1) = cellData
-    call sysConfig%setAbsoluteFields(reshape(absFields(col,:), [10]), col)
-   else if (col >= 4 .and. col <= 7) then
-    ! Vignetting factor index = col-3:  +Y->VUY(1), -Y->VLY(2), +X->VUX(3), -X->VLX(4)
     locallist = g_object_get_data(renderer, "view"//c_null_char)
-    call convertCellData(text, ftext, realData=cellData)
     call hl_gtk_listn_set_cell(locallist, row, col, svalue=trim(ftext))
-    vig = sysConfig%getVignetting(row+1)
-    vig(col-3) = cellData
-    call sysConfig%setVignetting(row+1, vig(1), vig(2), vig(3), vig(4))
+    if (row+1 > sysConfig%numFields) then
+      call zoa_emit("Field "//trim(int2str(row+1))//" is not defined (set the number of fields first)", "red")
+      return
+    end if
+    select case (col)
+    case (1, 2)
+      call sendFieldLists(sysConfig%numFields, sysConfig%currFieldID, col, row+1, cellData)
+    case (4:7)
+      call sendFieldValueList(vigCmdName(col-3), sysConfig%vignetting(col-3,:), &
+      &                       sysConfig%numFields, row+1, cellData)
+    case (8)
+      call sendFieldValueList('WTF', sysConfig%fieldWeights, sysConfig%numFields, row+1, cellData)
+    end select
+    call notify_replot_flush()
    else
     call hl_gtk_listn_combo_set_by_list_id(uiFieldSettings%ihlist, row, 3_c_int, &
     & targetValue=sysConfig%fieldColorCodes(row+1))
 
   end if
-  
-
-  
 
   end subroutine
 
@@ -570,7 +670,7 @@ function createFieldPointSelectionTable(self) result(base)
   character(len=35) :: line
   integer(c_int) :: i, ltr
   integer(c_int), target :: fmt_col = 2
-    integer, parameter :: ncols = 8, nrows=10
+    integer, parameter :: ncols = 9, nrows=10
     integer(type_kind), dimension(ncols) :: ctypes
     character(len=20), dimension(ncols) :: titles, renderers
     integer(c_int), dimension(ncols) :: sortable, editable
@@ -598,11 +698,12 @@ function createFieldPointSelectionTable(self) result(base)
   ! Now make a multi column list with multiple selections enabled.
   ! Columns 5-8 are the per-field CODE V vignetting factors:
   !   +Y = VUY (upper-y), -Y = VLY (lower-y), +X = VUX, -X = VLX.
+  ! Column 9 is the field weight (CODE V WTF).
   ctypes = [ G_TYPE_INT, G_TYPE_FLOAT, G_TYPE_FLOAT, G_TYPE_STRING, &
-       & G_TYPE_FLOAT, G_TYPE_FLOAT, G_TYPE_FLOAT, G_TYPE_FLOAT]
-  sortable = [ FALSE, FALSE, FALSE, FALSE, FALSE, FALSE, FALSE, FALSE ]
-  editable = [ FALSE, TRUE, TRUE, TRUE, TRUE, TRUE, TRUE, TRUE ]
-  widths = [-1,-1,-1,-1,-1,-1,-1,-1] !Fixed width needed when adding pixbuf
+       & G_TYPE_FLOAT, G_TYPE_FLOAT, G_TYPE_FLOAT, G_TYPE_FLOAT, G_TYPE_FLOAT]
+  sortable = [ FALSE, FALSE, FALSE, FALSE, FALSE, FALSE, FALSE, FALSE, FALSE ]
+  editable = [ FALSE, TRUE, TRUE, TRUE, TRUE, TRUE, TRUE, TRUE, TRUE ]
+  widths = [-1,-1,-1,-1,-1,-1,-1,-1,-1] !Fixed width needed when adding pixbuf
 
   titles(1) = "Point"
   titles(2) = "X"
@@ -612,13 +713,14 @@ function createFieldPointSelectionTable(self) result(base)
   titles(6) = "-Y"
   titles(7) = "+X"
   titles(8) = "-X"
+  titles(9) = "Weight"
 
 
 ! Now make a multi column list with multiple selections enabled
 
 renderers = [ hl_gtk_cell_text, hl_gtk_cell_text, hl_gtk_cell_text, &
      & hl_gtk_cell_combo, hl_gtk_cell_text, hl_gtk_cell_text, &
-     & hl_gtk_cell_text, hl_gtk_cell_text] !, hl_gtk_cell_pixbuf ]
+     & hl_gtk_cell_text, hl_gtk_cell_text, hl_gtk_cell_text]
 
 
 self%ihlist = hl_gtk_listn_new(types=ctypes, &
@@ -661,6 +763,8 @@ do i=1,nrows
         & fvalue=REAL(sysConfig%vignetting(3,i),4))
    call hl_gtk_listn_set_cell(self%ihlist, i-1_c_int, 7_c_int, &
         & fvalue=REAL(sysConfig%vignetting(4,i),4))
+   call hl_gtk_listn_set_cell(self%ihlist, i-1_c_int, 8_c_int, &
+        & fvalue=REAL(sysConfig%fieldWeights(i),4))
 end do
 
 
@@ -907,6 +1011,7 @@ subroutine callback_sys_config_settings (widget, gdata ) bind(c)
    use zoa_ui
    use iso_fortran_env, only: real64
    use zoa_ui_callbacks, only: notify_replot, notify_replot_flush
+   use type_utils, only: int2str
    implicit none
    type(c_ptr), value, intent(in) :: widget, gdata
    integer :: int_value
@@ -934,9 +1039,16 @@ subroutine callback_sys_config_settings (widget, gdata ) bind(c)
      end if
 
   case (ID_SYSCON_RAYAIM)
+      ! No CODE V commands exist for paraxial / real / aplanatic aiming: the
+      ! Zoa (KDP) commands AIMRAY and AIMAPL, and CODE V's TEL.
       int_value = hl_zoa_combo_get_selected_list2_id(widget)
       if (int_value.NE.sysConfig%currRayAimID) THEN
-         call sysConfig%updateRayAimSelectionByCode(int_value)
+         select case (int_value)
+         case (RAYAIM_PARAX);     call PROCESKDP('TEL NO ; AIMAPL OFF ; AIMRAY OFF')
+         case (RAYAIM_REAL);      call PROCESKDP('TEL NO ; AIMAPL OFF ; AIMRAY ON')
+         case (RAYAIM_APLANATIC); call PROCESKDP('TEL NO ; AIMRAY OFF ; AIMAPL ON')
+         case (RAYAIM_TELE);      call PROCESKDP('AIMAPL OFF ; AIMRAY OFF ; TEL YES')
+         end select
        end if
 
   case (ID_SYSCON_EDGE_FACTOR)
@@ -958,17 +1070,35 @@ case (ID_SYSCON_Y_APERTURE)
     call sysConfig%updateApertureSelectionByCode(sysConfig%currApertureID, apValue)
 
   case (ID_SYSCON_FIELDTYPE)
+    ! Same field values under the new type's CODE V names (XAN/YAN, XOB/YOB,
+    ! XIM/YIM).
     int_value = hl_zoa_combo_get_selected_list2_id(widget)
     if (int_value.NE.sysConfig%currFieldID) THEN
-       call sysConfig%updateFieldSelectionByCode(int_value)
+       call sendFieldLists(sysConfig%numFields, int_value, 0, 0, 0.0_real64)
     end if
 
-
   case (ID_SYSCON_FIELD_NUM)
-       call sysConfig%setNumFields(INT(gtk_spin_button_get_value (spinButton_numFields)))
+       ! The field lists with the new count (CODE V sets the number of fields
+       ! by the number of values), and the weights to match.
+       block
+         use type_utils, only: compactReal
+         integer :: n
+         n = INT(gtk_spin_button_get_value (spinButton_numFields))
+         if (n /= sysConfig%numFields) then
+           call sendFieldLists(n, sysConfig%currFieldID, 0, 0, 0.0_real64)
+           call sendFieldValueList('WTF', sysConfig%fieldWeights, n, 0, 0.0_real64)
+         end if
+       end block
 
   case (ID_SYSCON_WAVELENGTH_REF)
-       call sysConfig%setRefWavelengthIndex(INT(gtk_spin_button_get_value (spinButton_refWavelength)))
+       call PROCESKDP('REF '//trim(int2str(INT(gtk_spin_button_get_value (spinButton_refWavelength)))))
+
+  case (ID_SYSCON_WAVELENGTH_NUM)
+       block
+         integer :: n
+         n = INT(gtk_spin_button_get_value (spinButton_numWavelengths))
+         if (n /= sysConfig%numWavelengths) call sendWavelengthLists(n, 0, 0, 0.0_real64)
+       end block
 
 
 
@@ -1120,6 +1250,7 @@ end function
   subroutine wavelength_edited(renderer, path, text, gdata) bind(c)
     use hl_gtk_zoa
     use iso_fortran_env, only: real64
+    use zoa_ui_callbacks, only: notify_replot_flush
     type(c_ptr), value :: renderer, path, text, gdata
     real(kind=real64) :: cellData
     character(len=200) :: ftext
@@ -1138,12 +1269,11 @@ end function
 
 
    select case (col)
-   case (1)
-     call sysConfig%setWavelengths(row+1,real(cellData,8))
-     !sysConfig%wavelengths(irow+1) = cellData
-   case (2)
-     call sysConfig%setSpectralWeights(row+1,real(cellData,8))
-     !sysConfig%spectralWeights(irow+1) = cellData
+   case (1, 2)
+     ! WL / WTW (CODE V) for the whole list, with this wavelength (um in the
+     ! table, nm in WL) or weight changed.
+     call sendWavelengthLists(max(sysConfig%numWavelengths, row+1), col, row+1, real(cellData,8))
+     call notify_replot_flush()
    case(3)
     call hl_gtk_listn_combo_set_by_list_id(uiWavelengthSettings%ihlist, row, 3_c_int, &
     & targetValue=sysConfig%wavelengthColorCodes(row+1)) 

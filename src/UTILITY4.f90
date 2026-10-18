@@ -3725,13 +3725,9 @@ SUBROUTINE ATODCODEV(AVL,VL,CVERROR)
 !
    CVERROR=.FALSE.
 !
-!     IS THERE A MISSING DECIMAL
-   NODEC=.TRUE.
-   DO I=1,23
-      IF(AVL(I:I).EQ.'.') NODEC=.FALSE.
-   END DO
-   IF(NODEC) AVL(1:23)=AVL(2:23)//'.'
-!
+!     A list-directed read takes integers ("400") as they are.  (This used
+!     to drop the first character and append a '.', which only worked for
+!     right-justified fields: a left-justified "400" read as 0.)
    WRITE(B,110,ERR=98) AVL
    READ(B,*,ERR=98) VL
 10 CONTINUE

@@ -13,3 +13,28 @@ SYSDATA
 RES osdtriplet
 FNO 4
 SYSDATA
+! ---- System Configuration window commands (what its edits send) ----
+! Field values and weights, vignetting factors, wavelengths (more than 5,
+! whole-number nm), reference wavelength; then the field type changed to
+! object height and paraxial image height (same values, new names).
+RES osdtriplet
+YAN 0 7 10 14 ; XAN 0 0 0 0
+WTF 1 2 2 0.5
+WTF F4 0.25
+VUY 0 0.1 0.2 0.3
+VLY 0 0.1 0.2 0.35
+VUX 0 0 0.05 0.1
+VLX 0 0 0.05 0.15
+WL 656.3 587.6 486.1 435.8 400 700 ; WTW 1 2 3 4 5 6
+REF 3
+SAV sysconf1
+PRT sysconf1
+SYSDATA
+YOB 0 1 2 ; XOB 0 0 0
+SAV sysconf2
+PRT sysconf2
+YIM 0 3 ; XIM 0 0
+SAV sysconf3
+PRT sysconf3
+! Error: more values than fields
+WTF 1 2 3 4 5 6 7 8 9 10 11
