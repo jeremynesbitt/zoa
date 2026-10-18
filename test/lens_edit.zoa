@@ -86,3 +86,31 @@ DEL S5
 SUR SA
 ZOO
 LCON
+
+! ---- Lens editor actions are user-level commands ----
+! The editor sends what a user would type: INS Sn / DEL Sn for rows,
+! PIK <param> Sk <param> Sj A B for pickups (10-decimal A, B), the CODE V
+! solve form (THI Sk HMY v, CUY Sk UCY v), DEL SOL THI|CUY Sk and
+! DEL PIK <param> Sk to remove them.  DEL PIK (CODE V) also takes no
+! parameter (all pickups) and a surface range.  A marginal-height solve with
+! a nonzero target used to be saved as PIM (target lost on reload).
+RES osdtriplet
+INS S3
+SUR SA
+DEL S3
+PIK RDY S6 RDY S5 -1.0000000000 0.0000000000
+PIK GLA S5 S1
+CUY S4 UCY 0.10000000
+THI S2 HMY 4.00000000
+SUR SA
+SAV editorcmds
+RES editorcmds
+SUR SA
+DEL PIK RDY S6
+DEL SOL CUY S4
+DEL SOL THI S2
+DEL PIK S1..6
+DEL PIK
+DEL PIK FOO
+DEL PIK Z1
+SUR SA

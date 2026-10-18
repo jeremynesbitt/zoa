@@ -40,7 +40,7 @@ module solve_manager
   public :: solve_code, solve_target
   public :: surf_has_thi_solve, surf_has_curv_solve, surf_has_any_solve
   public :: solve_set_cmd, solve_remove_cmd, solve_del_cmd
-  public :: solve_kdp_from_codev, solve_save_line
+  public :: solve_kdp_from_codev, solve_save_line, solve_ui_cmd
 
   ! The four type-code slots (each has a partner target slot, see slot layout).
   integer, parameter :: SLV_YZ_THI_SLOT  = 6,  SLV_YZ_THI_TGT  = 7
@@ -274,8 +274,11 @@ contains
 
     valTxt = trim(real2str(target, SOLVE_SAVE_DECIMALS))
 
-    ! PY -> the PIM shortcut (matches existing lens-file convention).
-    if (trim(SOLVE_KINDS(kindIdx)%kdp_cmd) == 'PY') then
+    ! PY with a 0 target -> the PIM shortcut (matches the existing lens-file
+    ! convention; PIM solves the surface just built).  A nonzero target was
+    ! also written as PIM and came back as 0 -- it now takes the general
+    ! 'THI Sk HMY v' form below.
+    if (trim(SOLVE_KINDS(kindIdx)%kdp_cmd) == 'PY' .and. target == 0.0_real64) then
       line = 'PIM'
       return
     end if
@@ -289,6 +292,40 @@ contains
     line = trim(SOLVE_KINDS(kindIdx)%codev_cmd)//' S'//trim(int2str(surfNum))// &
     &      ' '//trim(SOLVE_KINDS(kindIdx)%codev_qual)
     if (SOLVE_KINDS(kindIdx)%nparams > 0) line = trim(line)//' '//valTxt
+  end function
+
+  ! The user-level command that sets solve kind kindIdx on surface surfNum
+  ! (what a UI action sends): the CODE V form 'THI Sk HMY v' / 'CUY Sk UCY v'
+  ! / 'CUY Sk AMY' / 'RED v' -- unlike solve_save_line, PY stays
+  ! 'THI Sk HMY v' (PIM is only the 0-height image case).  Kinds with no CODE V
+  ! spelling (clear-aperture CAY/CAX, concentric COCY/COCX) get their KDP
+  ! lens-update line 'U L ; CHG k ; <kdp> v ; EOS'.
+  function solve_ui_cmd(surfNum, kindIdx, target) result(cmd)
+    use type_utils, only: int2str, real2str
+    integer, intent(in) :: surfNum, kindIdx
+    real(real64), intent(in) :: target
+    character(len=200) :: cmd
+    character(len=:), allocatable :: valTxt
+
+    cmd = ''
+    if (kindIdx < 1 .or. kindIdx > NUM_SOLVE_KINDS) return
+    valTxt = trim(real2str(target, SOLVE_SAVE_DECIMALS))
+
+    if (len_trim(SOLVE_KINDS(kindIdx)%codev_cmd) == 0 .or. &
+    &   len_trim(SOLVE_KINDS(kindIdx)%codev_qual) == 0 .and. &
+    &   trim(SOLVE_KINDS(kindIdx)%codev_cmd) /= 'RED') then
+      cmd = 'U L ; CHG '//trim(int2str(surfNum))//' ; '//trim(SOLVE_KINDS(kindIdx)%kdp_cmd)
+      if (SOLVE_KINDS(kindIdx)%nparams > 0) cmd = trim(cmd)//' '//valTxt
+      cmd = trim(cmd)//' ; EOS'
+      return
+    end if
+    if (trim(SOLVE_KINDS(kindIdx)%codev_cmd) == 'RED') then
+      cmd = 'RED '//valTxt
+      return
+    end if
+    cmd = trim(SOLVE_KINDS(kindIdx)%codev_cmd)//' S'//trim(int2str(surfNum))// &
+    &     ' '//trim(SOLVE_KINDS(kindIdx)%codev_qual)
+    if (SOLVE_KINDS(kindIdx)%nparams > 0) cmd = trim(cmd)//' '//valTxt
   end function
 
 end module solve_manager

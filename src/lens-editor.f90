@@ -228,7 +228,7 @@ end subroutine lens_editor_replot
 
     ! new code
     currRow = getCurrentLensEditorRow()
-    call PROCESKDP('U L ; CHG '//trim(int2str(currRow))//' ; INSK ; EOS')
+    call PROCESKDP('INS S'//trim(int2str(currRow)))
     call rebuildLensEditorTable()
     call notify_replot()
     call notify_replot_flush()
@@ -253,7 +253,7 @@ end subroutine lens_editor_replot
     return
   END IF
   
-  call PROCESKDP('U L ; CHG '//trim(int2str(currRow))//' ; DELK ; EOS')
+  call PROCESKDP('DEL S'//trim(int2str(currRow)))
   call rebuildLensEditorTable()
   call notify_replot()
   call notify_replot_flush()
@@ -772,7 +772,8 @@ function buildLensEditTable() result(store)
 
   subroutine pickupUpdate_click(widget, gdata) bind(c)
     use type_utils, only: int2str
-    use pickup_manager, only: pickup_set_cmd
+    use pickup_manager, only: pickup_set_cmd, pickup_codev_cmd
+    use iso_fortran_env, only: real64
     type(c_ptr), value, intent(in) :: widget, gdata
 
     PRINT *, "Button clicked!"
@@ -781,14 +782,19 @@ function buildLensEditTable() result(store)
     pData%surf_ref = gtk_drop_down_get_selected(dropDown)
 
 
-    ! It's time to update the pickup (command built by the pickup manager)
-    CALL PROCESKDP('U L')
-    CALL PROCESKDP("CHG, "//trim(int2str(pData%surf)))
-
-    call PROCESKDP(trim(pickup_set_cmd(pData%ID_type, pData%surf_ref, &
-    &                                  pData%scale, pData%offset)))
-
-    CALL PROCESKDP('EOS')
+    ! Set the pickup with its user-level command: 'PIK RDY S6 RDY S5 -1 0'
+    ! (CODE V); a kind with no CODE V name uses its KDP lens-update line.
+    block
+      character(len=200) :: pikCmd
+      pikCmd = pickup_codev_cmd(pData%ID_type, pData%surf, pData%surf_ref, &
+      &                         real(pData%scale, real64), real(pData%offset, real64))
+      if (len_trim(pikCmd) == 0) then
+        pikCmd = 'U L ; CHG '//trim(int2str(pData%surf))//' ; '// &
+        &  trim(pickup_set_cmd(pData%ID_type, pData%surf_ref, &
+        &       real(pData%scale, real64), real(pData%offset, real64)))//' ; EOS'
+      end if
+      call PROCESKDP(trim(pikCmd))
+    end block
     mod_update = .TRUE.
     call refreshLensDataStruct()
     call notify_replot()
@@ -1036,35 +1042,21 @@ subroutine solveUpdate_click(widget, gdata) bind(c)
     call sData%setSolveText(curv_solves)
   end select
 
-  ! Update is either a solve or none.  If none, delete solve
-  ! on surface
+  ! Update is either a solve or none (delete the solve), always through the
+  ! user-level command: 'DEL SOL THI|CUY Sk', or the solve's CODE V form
+  ! 'THI Sk HMY v' / 'CUY Sk UCY v' / ... (solve_ui_cmd).
   if (sData%ID_solve == ID_SOLVE_NONE) then
-    CALL PROCESKDP('U L ; '// &
-    & trim(solve_remove_cmd(merge(SLV_YZ_THI_SLOT, SLV_YZ_CURV_SLOT, &
-    &      ID_SETTING == ID_PICKUP_THIC), sData%surf))//';EOS')
+    if (ID_SETTING == ID_PICKUP_THIC) then
+      call PROCESKDP('DEL SOL THI S'//trim(int2str(sData%surf)))
+    else
+      call PROCESKDP('DEL SOL CUY S'//trim(int2str(sData%surf)))
+    end if
   else
-    ! Set the solve through the typed KDP API: the target goes in as the
-    ! exact real64 (the old 'U L; CHG; <solve> v; EOS' text was formatted
-    ! to 4 decimals, truncating e.g. a chief-ray slope).
     block
-      use mod_kdp_api, only: kdp_silent_begin, kdp_silent_end, kdp_lens_begin, &
-                             kdp_lens_end, kdp_chg, kdp_lens_cmd
-      use solve_manager, only: SOLVE_KINDS
+      use solve_manager, only: solve_ui_cmd
       use iso_fortran_env, only: real64
-      integer :: k
-      k = solve_kind_from_cmd(sData%cmd_kdp)
-      if (k >= 1) then
-        call kdp_silent_begin()
-        call kdp_lens_begin()
-        call kdp_chg(sData%surf)
-        if (SOLVE_KINDS(k)%nparams > 0) then
-          call kdp_lens_cmd(trim(SOLVE_KINDS(k)%kdp_cmd), w1=real(sData%param1, real64))
-        else
-          call kdp_lens_cmd(trim(SOLVE_KINDS(k)%kdp_cmd))
-        end if
-        call kdp_lens_end(refreshSurf=sData%surf)
-        call kdp_silent_end()
-      end if
+      call PROCESKDP(trim(solve_ui_cmd(sData%surf, solve_kind_from_cmd(sData%cmd_kdp), &
+      &                                real(sData%param1, real64))))
     end block
   end if
   call notify_replot_flush()
@@ -1167,6 +1159,7 @@ end subroutine
 
 subroutine removeSolve(act, avalue, btn) bind(c)
   use solve_manager, only: solve_remove_cmd, SLV_YZ_THI_SLOT, SLV_YZ_CURV_SLOT
+  use type_utils, only: int2str
   type(c_ptr), value :: act, avalue, btn
   type(c_ptr) :: cStr
   character(len=100) :: rcCode
@@ -1185,16 +1178,18 @@ subroutine removeSolve(act, avalue, btn) bind(c)
   case(ID_COL_THICKNESS)
     sData%solve_type = ID_PICKUP_THIC
   end select
-  print *, "Hook working!"
-  CALL PROCESKDP('U L ; '// &
-  & trim(solve_remove_cmd(merge(SLV_YZ_THI_SLOT, SLV_YZ_CURV_SLOT, &
-  &      sData%solve_type == ID_PICKUP_THIC), sData%surf))//';EOS')
+  if (sData%solve_type == ID_PICKUP_THIC) then
+    call PROCESKDP('DEL SOL THI S'//trim(int2str(sData%surf)))
+  else
+    call PROCESKDP('DEL SOL CUY S'//trim(int2str(sData%surf)))
+  end if
   call rebuildLensEditorTable()
 
 end subroutine
 
 subroutine removePickup(act, avalue, btn) bind(c)
-  use pickup_manager, only: pickup_remove_cmd
+  use pickup_manager, only: pickup_remove_cmd, pickup_cli_from_j
+  use type_utils, only: int2str
   type(c_ptr), value :: act, avalue, btn
   type(c_ptr) :: cStr
   character(len=100) :: rcCode
@@ -1208,8 +1203,13 @@ subroutine removePickup(act, avalue, btn) bind(c)
   ! PIKD command built by the pickup manager from the column's kind
   jIdx = colToPikupJ(surfIdx, colIdx)
   if (jIdx == 0) return
-  CALL PROCESKDP('U L ; '// &
-  & trim(pickup_remove_cmd(jIdx, surfIdx))//';EOS')
+  ! CODE V 'DEL PIK <param> Sk'; a kind with no CODE V name: KDP PIKD line.
+  if (len_trim(pickup_cli_from_j(jIdx)) > 0) then
+    call PROCESKDP('DEL PIK '//trim(pickup_cli_from_j(jIdx))//' S'//trim(int2str(surfIdx)))
+  else
+    call PROCESKDP('U L ; CHG '//trim(int2str(surfIdx))//' ; '// &
+    &  trim(pickup_remove_cmd(jIdx, surfIdx))//' ; EOS')
+  end if
   call rebuildLensEditorTable()
 
 end subroutine

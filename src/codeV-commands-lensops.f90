@@ -648,6 +648,8 @@ contains
                 else
                     call zoa_emit("Expected 'DEL APE SA'", "red")
                 end if
+            case('PIK')
+                call deletePickups()
             case default
                 ! DEL Sk / DEL Si..j: delete surfaces (CODE V).  Highest first
                 ! so the lower numbers in a range still name the same surfaces.
@@ -663,6 +665,72 @@ contains
         end if
 
     contains
+
+        ! DEL PIK [XXX] [Sk|Si..j] (CODE V): delete all pickups, or those for
+        ! parameter XXX, on the given surfaces (default all).  Zoom (Zk) and
+        ! coefficient (Ck) ranges are not supported (no zoom pickups in Zoa).
+        subroutine deletePickups()
+            use pickup_manager, only: PIKUP_KINDS, NUM_PICKUP_KINDS, &
+                                      pickup_j_from_cli, pickup_on_surf
+            use iso_fortran_env, only: real64
+            integer, allocatable :: surfs(:)
+            integer :: k, it, s, j, jWant, s0, s1, nDel
+            character(len=80) :: t
+
+            jWant = 0
+            s0 = 0; s1 = ldm%getLastSurf()
+            do it = 3, numTokens
+                t = tokens(it)
+                if (t(1:1) == 'S' .and. len_trim(t) > 1 .and. &
+                &   (isInputNumber(t(2:2)) .or. trim(t) == 'SI' .or. trim(t) == 'SO')) then
+                    if (trim(t) == 'SI') then
+                        s0 = ldm%getLastSurf(); s1 = s0
+                    else if (trim(t) == 'SO') then
+                        s0 = 0; s1 = 0
+                    else if (index(t, '..') > 0) then
+                        if (.not. cmd_parser_get_integer_range(trim(t(2:)), surfs)) then
+                            call zoa_emit("Error:  bad surface range "//trim(t), "red")
+                            return
+                        end if
+                        s0 = minval(surfs); s1 = maxval(surfs)
+                    else if (isInputNumber(trim(t(2:)))) then
+                        s0 = str2int(trim(t(2:))); s1 = s0
+                    else
+                        call zoa_emit("Error:  bad surface "//trim(t), "red")
+                        return
+                    end if
+                else if (t(1:1) == 'Z' .or. t(1:1) == 'C') then
+                    call zoa_emit("DEL PIK: zoom/coefficient ranges ("//trim(t)// &
+                    &  ") are not supported", "red")
+                    return
+                else
+                    jWant = pickup_j_from_cli(trim(t))
+                    if (jWant == 0) then
+                        call zoa_emit("Error:  "//trim(t)//" is not a pickup parameter", "red")
+                        return
+                    end if
+                end if
+            end do
+            s0 = max(s0, 0); s1 = min(s1, ldm%getLastSurf())
+
+            nDel = 0
+            call kdp_silent_begin()
+            call kdp_lens_begin()
+            do s = s0, s1
+                do k = 1, NUM_PICKUP_KINDS
+                    j = PIKUP_KINDS(k)%j
+                    if (jWant /= 0 .and. j /= jWant) cycle
+                    if (.not. pickup_on_surf(s, j)) cycle
+                    call kdp_chg(s)
+                    call kdp_lens_cmd('PIKD', wq=trim(PIKUP_KINDS(k)%qual), &
+                    &                 w1=real(s, real64))
+                    nDel = nDel + 1
+                end do
+            end do
+            call kdp_lens_end()
+            call kdp_silent_end()
+            if (nDel == 0) call zoa_emit("DEL PIK: no matching pickups", "black")
+        end subroutine
 
         subroutine deleteSurfaces(spec)
             use iso_fortran_env, only: real64

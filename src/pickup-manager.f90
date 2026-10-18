@@ -32,7 +32,7 @@ module pickup_manager
   public :: pickup_j_from_qual, pickup_qual_from_j
   public :: pickup_j_from_cli, pickup_cli_from_j
   public :: pickup_on_surf, surf_has_pickups
-  public :: pickup_get, pickup_set_cmd, pickup_remove_cmd
+  public :: pickup_get, pickup_set_cmd, pickup_remove_cmd, pickup_codev_cmd
   public :: pickup_genSaveOutputText
 
   type :: pickup_kind
@@ -168,6 +168,30 @@ contains
     else
       cmd = 'PIKUP '//trim(PIKUP_KINDS(j)%qual)//','//trim(int2str(src))//','// &
       &     trim(real2str(scale))//','//trim(real2str(offset))
+    end if
+  end function
+
+  ! The user-level (CODE V) command that sets a pickup of kind j on surface
+  ! s from surface src: 'PIK <param> Sk <param> Sj A B' ('PIK GLA Sk Sj' for
+  ! glass).  A and B carry 10 decimals.  Blank for kinds without a CODE V
+  ! parameter name -- the caller then uses the KDP form (pickup_set_cmd).
+  function pickup_codev_cmd(j, s, src, scale, offset) result(cmd)
+    use type_utils, only: int2str, real2str
+    integer,      intent(in) :: j, s, src
+    real(real64), intent(in) :: scale, offset
+    character(len=120) :: cmd
+    character(len=4) :: cli
+
+    cmd = ' '
+    if (j < 1 .or. j > NUM_PICKUP_KINDS) return
+    cli = PIKUP_KINDS(j)%cli
+    if (len_trim(cli) == 0) return
+    if (trim(cli) == 'GLA') then
+      cmd = 'PIK GLA S'//trim(int2str(s))//' S'//trim(int2str(src))
+    else
+      cmd = 'PIK '//trim(cli)//' S'//trim(int2str(s))//' '//trim(cli)// &
+      &     ' S'//trim(int2str(src))//' '//trim(real2str(scale, 10))// &
+      &     ' '//trim(real2str(offset, 10))
     end if
   end function
 

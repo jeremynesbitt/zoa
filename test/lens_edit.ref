@@ -348,3 +348,59 @@ Zoom configurations: 2   active: 1
   -   ----   ----------   ----   -----------   ------
   1   HMY S5   Constraint   =          1.00000
 General (variable thicknesses): MXT 12.00000  MNT 2.00000  MNE 2.00000  MNA 0.10000  MAE 0.00250
+All constraints removed
+
+
+
+
+
+
+Field Weights Command WTF     100     100     100 Not supported
+          RDY          THI     RMD          GLA          CCY     THC     GLC
+OBJ:    INFINITY    INFINITY                              100     100     100
+001:    15.00000    3.50000               N-SK16_SCH2000 100     100     100
+002:    INFINITY    3.10000                              100     100     100
+003:    INFINITY    0.00000                              100     100     100
+STO:    -37.530    1.50000               N-F2_SCH2000   100     100     100
+005:    14.08000    5.00000                              100     100     100
+006:    50.26000    3.50000               N-SK16_SCH2000 100     100     100
+007:    -31.380    38.51522                              100     100     100
+IMG:    INFINITY    0.00000                              100     100     100
+          RDY          THI     RMD          GLA          CCY     THC     GLC
+OBJ:    INFINITY    INFINITY                              100     100     100
+001:    15.00000    3.50000               N-SK16_SCH2000 100     100     100
+002:    INFINITY    2.67556                              100     100     100
+STO:    -37.530    1.50000               N-F2_SCH2000   100     100     100
+004:    -1.051    5.00000                              100     100     100
+005:    50.26000    3.50000               N-SK16_SCH2000 100     100     100
+006:    -50.260    -6.146                              100     100     100
+IMG:    INFINITY    0.00000                              100     100     100
+File name to save is editorcmds.zoa
+All constraints removed
+
+
+
+Field Weights Command WTF     100     100     100 Not supported
+          RDY          THI     RMD          GLA          CCY     THC     GLC
+OBJ:    INFINITY    INFINITY                              100     100     100
+001:    15.00000    3.50000               N-SK16_SCH2000 100     100     100
+002:    INFINITY    2.67556                              100     100     100
+STO:    -37.530    1.50000               N-F2_SCH2000   100     100     100
+004:    -1.051    5.00000                              100     100     100
+005:    50.26000    3.50000               N-SK16_SCH2000 100     100     100
+006:    -50.260    -6.146                              100     100     100
+IMG:    INFINITY    0.00000                              100     100     100
+Deleting Solve
+Deleting Solve
+DEL PIK: no matching pickups
+Error:  FOO is not a pickup parameter
+DEL PIK: zoom/coefficient ranges (Z1) are not supported
+          RDY          THI     RMD          GLA          CCY     THC     GLC
+OBJ:    INFINITY    INFINITY                              100     100     100
+001:    15.00000    3.50000               N-SK16_SCH2000 100     100     100
+002:    INFINITY    2.67556                              100     100     100
+STO:    -37.530    1.50000               N-F2_SCH2000   100     100     100
+004:    -1.051    5.00000                              100     100     100
+005:    50.26000    3.50000               N-SK16_SCH2000 100     100     100
+006:    -50.260    -6.146                              100     100     100
+IMG:    INFINITY    0.00000                              100     100     100
