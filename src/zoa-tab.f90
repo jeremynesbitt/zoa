@@ -7,6 +7,15 @@ module settings_obj
   use zoa_plot
   use plot_setting_manager, only: zoaplot_setting_manager, plot_setting
 
+  ! A GTK widget pointer as stored in the generic (class(*)) label/widget
+  ! lists.  Wrapped because gfortran 16 references, but never defines, the
+  ! type descriptor of iso_c_binding's c_ptr when a type(c_ptr) is passed to
+  ! a class(*) argument inside a module (link error: undefined
+  ! ___iso_c_binding_MOD___vtab___iso_c_binding_C_ptr).
+  type widget_ref
+     type(c_ptr) :: ptr
+  end type
+
   type zoa_settings_obj
 
      type(c_ptr) :: expander, table, list
@@ -185,8 +194,8 @@ subroutine addLabelandWidget_new(self, newlabel, newwidget, SETTING_CODE)
 
   ! Update settings
   self%numSettings = self%numSettings + 1
-  call self%labels%set(self%numSettings, newlabel)
-  call self%widgets%set(self%numSettings, newwidget)
+  call self%labels%set(self%numSettings, widget_ref(newlabel))
+  call self%widgets%set(self%numSettings, widget_ref(newwidget))
   self%settingCodes(self%numSettings) = SETTING_CODE
 
 end subroutine
@@ -198,8 +207,8 @@ subroutine addLabelandWidget(self, newlabel, newwidget)
 
   ! Update settings
   self%numSettings = self%numSettings + 1
-  call self%labels%set(self%numSettings, newlabel)
-  call self%widgets%set(self%numSettings, newwidget)
+  call self%labels%set(self%numSettings, widget_ref(newlabel))
+  call self%widgets%set(self%numSettings, widget_ref(newwidget))
 
 end subroutine
 
@@ -313,11 +322,10 @@ end subroutine
          end if
 
         select type (item)
-        !class is (c_ptr)
-        !
+        type is (widget_ref)
+            c_object => item%ptr
         class default
-            c_object => item
-            !nullify(c_object)
+            nullify(c_object)
         end select
 
     end function
@@ -332,11 +340,10 @@ function getWidget(self, ind) result(widget)
         !PRINT *, "Index to get widget is ", ind
         item => self%widgets%get(ind)
         select type (item)
-        !class is (c_ptr)
-        !    widget => item
+        type is (widget_ref)
+            widget => item%ptr
         class default
-            widget => item
-            !nullify(widget)
+            nullify(widget)
         end select
         !widget = self%settingobj_get(ind, 1)
 

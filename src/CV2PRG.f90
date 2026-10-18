@@ -623,7 +623,7 @@ SUBROUTINE CV2PRG
                WRITE(OUTLYNE2,2004) MAX
 2004           FORMAT('SCY FANG,',D23.15)
                SAVE_KDP(1)=SAVEINPT(1)
-               INPUT(1:SUB)=OUTLYNE2(1:SUB)
+               INPUT(1:MIN(SUB,LEN(INPUT)))=OUTLYNE2(1:MIN(SUB,LEN(INPUT)))
                IF(INPUT(1:20).NE.AA) CALL PROCES
                REST_KDP(1)=RESTINPT(1)
                TEMPC(I)(1:1024)=BL1024(1:1024)
@@ -2135,7 +2135,9 @@ SUBROUTINE UPDATECV2INPUTANDPROCESCOMMAND(OUTLYNE2, SUB)
 
 
    SAVE_KDP(1)=SAVEINPT(1)
-   INPUT(1:SUB)=OUTLYNE2(1:SUB)
+!  INPUT is 140 characters; SUB can be longer (e.g. 256), which wrote past
+!  the end of INPUT (caught by gfortran 16's bounds checking).
+   INPUT(1:MIN(SUB,LEN(INPUT)))=OUTLYNE2(1:MIN(SUB,LEN(INPUT)))
    IF(INPUT(1:20).NE.AA) CALL PROCES
    REST_KDP(1)=RESTINPT(1)
 
