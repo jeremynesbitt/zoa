@@ -187,7 +187,8 @@ contains
         use kdp_data_types, only: FIELD_OBJECT_ANGLE_DEG, FIELD_OBJECT_HEIGHT, APER_IMAGE_FNO, &
                                   APER_OBJECT_NA, APER_STOP_SURFACE
         use mod_system, only: sys_say
-        use zoa_output, only: zoa_emit
+         use zoa_output, only: zoa_emit
+         use type_utils, only: compactReal
         use iso_fortran_env, only: real64
 
         character(len=256) :: fName
@@ -259,11 +260,29 @@ contains
             write(fID, '(1X,G16.8)', advance='no') fieldY * sysConfig%relativeFields(2,ii)
         end do
         write(fID, '()')
+        ! Field weights: FWGT (older OpticStudio) and FWGN (newer); Zemax
+        ! files carry both.
+        write(fID, '(A)', advance='no') 'FWGT'
+        do ii = 1, sysConfig%numFields
+            write(fID, '(1X,A)', advance='no') trim(compactReal(sysConfig%fieldWeights(ii)))
+        end do
+        write(fID, '()')
+        write(fID, '(A)', advance='no') 'FWGN'
+        do ii = 1, sysConfig%numFields
+            write(fID, '(1X,A)', advance='no') trim(compactReal(sysConfig%fieldWeights(ii)))
+        end do
+        write(fID, '()')
 
         ! Wavelengths (in µm — that's already what wavelengths() stores)
         write(fID, '(A)', advance='no') 'WAVL'
         do ii = 1, sysConfig%numWavelengths
             write(fID, '(1X,G14.7)', advance='no') sysConfig%wavelengths(ii)
+        end do
+        write(fID, '()')
+        ! Wavelength weights
+        write(fID, '(A)', advance='no') 'WWGT'
+        do ii = 1, sysConfig%numWavelengths
+            write(fID, '(1X,A)', advance='no') trim(compactReal(sysConfig%spectralWeights(ii)))
         end do
         write(fID, '()')
 
