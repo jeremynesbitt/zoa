@@ -482,7 +482,7 @@ module codeV_commands
 
 
     character(len=4), dimension(500) :: surfCmds
-    type(zoa_cmd), dimension(800) :: zoaCmds
+    type(zoa_cmd), dimension(1000) :: zoaCmds
 
     type(zoaplot_setting_manager)  :: curr_psm
     character(len=10024) :: cmdTOW
