@@ -462,6 +462,9 @@ module codeV_commands
    module subroutine listGlobalSurfaces(iptStr)
     character(len=*) :: iptStr
    end subroutine listGlobalSurfaces
+   module subroutine setRefSphereLocation(iptStr)
+    character(len=*) :: iptStr
+   end subroutine setRefSphereLocation
     end interface
 
 
@@ -772,6 +775,8 @@ module codeV_commands
         zoaCmds(797)%execFunc => dezoom
         zoaCmds(798)%cmd = 'GSC'
         zoaCmds(798)%execFunc => listGlobalSurfaces
+        zoaCmds(799)%cmd = 'RSL'
+        zoaCmds(799)%execFunc => setRefSphereLocation
         zoaCmds(527)%cmd = 'SETDENS'
         zoaCmds(527)%execFunc => setPlotDensity     
         zoaCmds(528)%cmd = 'SETZERNC'

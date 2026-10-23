@@ -36,3 +36,15 @@ RSI f1 w1 0 -0.7
 ADX S3 1
 REX S2
 REX S99 1
+! ---- RSL: OPD reference sphere (DEF = from the exit pupil, as before;
+! INF = flat; value = that radius), saved with the lens
+RES osdtriplet
+RSL
+RSL INF
+BES
+RSL 200
+SAV rslsave
+RES rslsave
+RSL
+RSL DEF
+RSL 0

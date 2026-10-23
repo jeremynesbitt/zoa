@@ -1754,4 +1754,50 @@ contains
         end function
     end procedure listGlobalSurfaces
 
+    !## cmd:      RSL
+    !## syntax:   RSL [INF | DEF | radius]
+    !## category: System Data
+    !## desc:     OPD reference sphere: DEF (default) radius from the exit pupil for each
+    !##           field; INF flat reference; radius = that radius for every field (positive:
+    !##           sphere before the image).  Bare RSL shows the setting.
+    !##
+    module procedure setRefSphereLocation
+        use ref_sphere_settings, only: rsl_set, rsl_mode, rsl_value, RSL_MODE_DEF, RSL_MODE_INF, RSL_MODE_VALUE
+        use command_utils, only: isInputNumber
+        use type_utils, only: compactReal
+        use zoa_ui_callbacks, only: notify_replot
+        implicit none
+        character(len=80) :: tokens(40)
+        integer :: numTokens
+
+        call parse(trim(iptStr), ' ', tokens, numTokens)
+        if (numTokens == 1) then
+            select case (rsl_mode())
+            case (RSL_MODE_INF);   call zoa_emit("RSL INF", "black")
+            case (RSL_MODE_VALUE); call zoa_emit("RSL "//trim(compactReal(rsl_value(), 15)), "black")
+            case default;     call zoa_emit("RSL DEF", "black")
+            end select
+            return
+        end if
+        if (numTokens > 2) then
+            call zoa_emit("Error:  expected RSL [INF|DEF|radius]", "red")
+            return
+        end if
+        select case (trim(tokens(2)))
+        case ('INF'); call rsl_set(RSL_MODE_INF)
+        case ('DEF'); call rsl_set(RSL_MODE_DEF)
+        case default
+            if (.not. isInputNumber(trim(tokens(2)))) then
+                call zoa_emit("Error:  expected RSL [INF|DEF|radius]", "red")
+                return
+            end if
+            if (str2real8(trim(tokens(2))) == 0.0_real64) then
+                call zoa_emit("Error:  RSL radius must not be zero", "red")
+                return
+            end if
+            call rsl_set(RSL_MODE_VALUE, str2real8(trim(tokens(2))))
+        end select
+        call notify_replot()
+    end procedure setRefSphereLocation
+
 end submodule mod_codev_lensops

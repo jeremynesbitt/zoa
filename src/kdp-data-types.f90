@@ -1376,9 +1376,14 @@ subroutine genSaveOutputText(self, fID, forCodeV)
     ! "U" (user-defined) modes only in .zoa files.
     block
       use mod_system, only: sys_mode
+      use ref_sphere_settings, only: rsl_mode, rsl_value, RSL_MODE_INF, RSL_MODE_VALUE
       logical :: cv
       cv = .false.
       if (present(forCodeV)) cv = forCodeV
+      select case (rsl_mode())
+      case (RSL_MODE_INF);   write(fID, '(A)') 'RSL INF'
+      case (RSL_MODE_VALUE); write(fID, '(A)') 'RSL '//trim(compactReal(rsl_value(), 15))
+      end select
       select case (nint(sys_mode()))
       case (3); write(fID, '(A)') 'AFC YES'
       case (2); if (.not. cv) write(fID, '(A)') 'MODE UFOCAL'

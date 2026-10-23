@@ -99,6 +99,16 @@ contains
 
         end select
 
+        ! RSL INF: reference sphere at infinity (closed-form limit).
+        block
+          use ref_sphere_settings, only: rsl_mode, rsl_inf_ocor, RSL_MODE_INF
+          if (rsl_mode() == RSL_MODE_INF) then
+            RCOR = 0.0D0
+            OCOR = rsl_inf_ocor(DSPOT(1:3), DSPOT(22:24), REFRY(1:3,NEWIMG), REFRY(6,NEWIMG))
+            REFERR = .FALSE.
+          end if
+        end block
+
 !     NOT FOCAL
       END IF
 
@@ -271,6 +281,7 @@ subroutine updateRefSphereParaxialPupil(REFERR)
         use DATMAI
         use mod_surface, only: surf_thickness
    use iso_fortran_env, only: real64
+        use ref_sphere_settings, only: rsl_radius
         IMPLICIT NONE
 
         real(real64) XREFI,XO,XOOY,XOOX,YO,YOOX,YOOY,ZO,ZOOX,ZOOY, &
@@ -338,6 +349,9 @@ subroutine updateRefSphereParaxialPupil(REFERR)
 !       OF THE REFERENCE RAY WITH THE FINAL SURFACE IS RCOR=RAD
 !       REFERENCE RAY INTERSECTION WITH THE TANGENT PLANE IS:
 !
+        ! RSL: the user-chosen reference sphere (DEF keeps RAD).
+        RAD=rsl_radius(RAD)
+        RREF=RAD
         RCOR=RAD
 !
 !       THE LENGTH FROM THE REFERENCE SPHERE
@@ -429,6 +443,7 @@ subroutine updateRefSphereRealPupil(REFERR)
         use DATMAI
         use mod_surface, only: surf_thickness
    use iso_fortran_env, only: real64
+        use ref_sphere_settings, only: rsl_radius
         IMPLICIT NONE
 
         real(real64) XREFI,XO,XOOY,XOOX,YO,YOOX,YOOY,ZO,ZOOX,ZOOY, &
@@ -524,6 +539,9 @@ subroutine updateRefSphereRealPupil(REFERR)
 !       OF THE REFERENCE RAY WITH THE FINAL SURFACE IS RCOR=RAD
 !       REFERENCE RAY INTERSECTION WITH THE TANGENT PLANE IS:
 !
+        ! RSL: the user-chosen reference sphere (DEF keeps RAD).
+        RAD=rsl_radius(RAD)
+        RREF=RAD
         RCOR=RAD
 !
 !       THE LENGTH FROM THE REFERENCE SPHERE

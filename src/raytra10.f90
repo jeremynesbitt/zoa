@@ -2103,6 +2103,7 @@ SUBROUTINE LOPD
    use mod_surface, only: surf_thickness
    use mod_system, only: sys_last_surf, sys_mode
    use iso_fortran_env, only: real64
+   use ref_sphere_settings, only: rsl_radius, rsl_mode, rsl_inf_ocor, RSL_MODE_INF
    IMPLICIT NONE
 !
 !       THIS IS SUBROUTINE LOPD.FOR. THIS SUBROUTINE IS
@@ -2304,6 +2305,8 @@ SUBROUTINE LOPD
 !       OF THE REFERENCE RAY WITH THE FINAL SURFACE IS RCOR=RAD
 !       REFERENCE RAY INTERSECTION WITH THE TANGENT PLANE IS:
 !
+         ! RSL: the user-chosen reference sphere (DEF keeps RAD).
+         RAD=rsl_radius(RAD)
          RCOR=RAD
 !
 !       THE LENGTH FROM THE REFERENCE SPHERE
@@ -2450,6 +2453,8 @@ SUBROUTINE LOPD
 !       OF THE REFERENCE RAY WITH THE FINAL SURFACE IS RCOR=RAD
 !       REFERENCE RAY INTERSECTION WITH THE TANGENT PLANE IS:
 !
+         ! RSL: the user-chosen reference sphere (DEF keeps RAD).
+         RAD=rsl_radius(RAD)
          RCOR=RAD
 !
 !       THE LENGTH FROM THE REFERENCE SPHERE
@@ -2526,6 +2531,13 @@ SUBROUTINE LOPD
 !     NOT FOCAL
    END IF
 900 CONTINUE
+   ! RSL INF: reference sphere at infinity (closed-form limit), focal only.
+   IF(sys_mode().EQ.1.0D0.OR.sys_mode().EQ.2.0D0) THEN
+      IF(rsl_mode().EQ.RSL_MODE_INF) THEN
+         RCOR=0.0D0
+         OCOR=rsl_inf_ocor(RAYRAY(1:3,NEWIMG), RAYRAY(19:21,NEWIMG), REFRY(1:3,NEWIMG), REFRY(6,NEWIMG))
+      END IF
+   END IF
    IF(DABS(RCOR).GT.1.0D10.OR.DABS(OCOR).GT.1.0D10) THEN
 !     INFINITE REFERENCE SPHERE
       RCOR=0.0D0

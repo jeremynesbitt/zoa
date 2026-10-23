@@ -707,6 +707,10 @@ contains
         ! (Per-field vignetting is cleared by the DEL VIG line in newlens.zoa;
         ! clear + edge apertures by its DEL APE SA; constraints by DCON ALL.)
         call zoom_reset()
+        block
+            use ref_sphere_settings, only: rsl_reset
+            call rsl_reset()
+        end block
         ! the default edge aperture belongs to the lens (saved as DDR EDG):
         ! a new or loaded lens starts with no margin
         sysConfig%defaultEdgeScaleFactor = 1.0_long
