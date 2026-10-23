@@ -9,6 +9,7 @@ contains
         implicit none
         class(merit_entry) :: self
         real(long), dimension(2,sysConfig%numFields) :: rmsxyData
+        real(long), dimension(sysConfig%numFields) :: wt
         real(long) :: res
         integer :: i
         integer :: nRect , iLambda
@@ -16,13 +17,25 @@ contains
         iLambda = sysConfig%refWavelengthIndex
         nRect = 20
 
+        ! Field weights (WTF), relative: scaled so the largest is 1, which
+        ! keeps equal weights exactly the plain average.  A weight-0 field is
+        ! not traced.  No positive weight at all -> equal weights.
+        wt = max(sysConfig%fieldWeights(1:sysConfig%numFields), 0.0_long)
+        if (maxval(wt) > 0.0_long) then
+           wt = wt/maxval(wt)
+        else
+           wt = 1.0_long
+        end if
+
+        rmsxyData = 0.0_long
         do i=1,sysConfig%numFields
+           if (wt(i) == 0.0_long) cycle
            call PROCESSILENT(trim(getKDPSpotPlotCommand(i, iLambda, ID_SPOT_RECT, nRect, -1, -1)))
-           rmsxyData(1,i) = RMSX
-           rmsxyData(2,i) = RMSY
+           rmsxyData(1,i) = wt(i)*RMSX
+           rmsxyData(2,i) = wt(i)*RMSY
         end do
 
-        res = sum(rmsxyData)/size(rmsxyData)
+        res = sum(rmsxyData)/(2.0_long*sum(wt))
     end function
 
     module function getEFLConstraint(self) result(res)

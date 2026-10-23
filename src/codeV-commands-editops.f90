@@ -808,9 +808,9 @@ contains
     end procedure processFileComment
 
     !## cmd:      WTF
-    !## syntax:   WTF s1 [s2 ...]
+    !## syntax:   WTF w1 [w2 ...] | WTF Fk w
     !## category: Fields & Wavelengths
-    !## desc:     Set the field weights.
+    !## desc:     Set the field weights (relative; used by the SPO optimizer operand, 0 drops a field).
     !##
     ! WTF w1 [w2 ...] : field weights for fields 1..n (CODE V; relative,
     ! default 1.0).   WTF Fk w : the weight of field k.

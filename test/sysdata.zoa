@@ -38,3 +38,15 @@ SAV sysconf3
 PRT sysconf3
 ! Error: more values than fields
 WTF 1 2 3 4 5 6 7 8 9 10 11
+! ---- Field weights (WTF) in the SPO operand: weighted mean of the per-field
+! RMS spot; weight 0 drops a field, equal weights = the plain mean.
+RES osdtriplet
+EVA SPO
+WTF 1 0 0
+EVA SPO
+WTF 0 0 1
+EVA SPO
+WTF 1 1 2
+EVA SPO
+WTF 3 3 3
+EVA SPO
