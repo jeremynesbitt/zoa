@@ -429,6 +429,12 @@ module codeV_commands
    module subroutine execZINTEST(iptStr)
     character(len=*) :: iptStr
    end subroutine execZINTEST
+   module subroutine setDecenterValue(iptStr)
+    character(len=*) :: iptStr
+   end subroutine setDecenterValue
+   module subroutine setDecenterType(iptStr)
+    character(len=*) :: iptStr
+   end subroutine setDecenterType
     end interface
 
 
@@ -674,6 +680,33 @@ module codeV_commands
         zoaCmds(766)%execFunc => setVignettingList
         zoaCmds(767)%cmd = 'VLX'
         zoaCmds(767)%execFunc => setVignettingList
+        ! Tilts and decenters (CODE V): values, then the decenter types.
+        zoaCmds(768)%cmd = 'XDE'
+        zoaCmds(768)%execFunc => setDecenterValue
+        zoaCmds(769)%cmd = 'YDE'
+        zoaCmds(769)%execFunc => setDecenterValue
+        zoaCmds(770)%cmd = 'ZDE'
+        zoaCmds(770)%execFunc => setDecenterValue
+        zoaCmds(771)%cmd = 'ADE'
+        zoaCmds(771)%execFunc => setDecenterValue
+        zoaCmds(772)%cmd = 'BDE'
+        zoaCmds(772)%execFunc => setDecenterValue
+        zoaCmds(773)%cmd = 'CDE'
+        zoaCmds(773)%execFunc => setDecenterValue
+        zoaCmds(774)%cmd = 'DAR'
+        zoaCmds(774)%execFunc => setDecenterType
+        zoaCmds(775)%cmd = 'BEN'
+        zoaCmds(775)%execFunc => setDecenterType
+        zoaCmds(776)%cmd = 'REV'
+        zoaCmds(776)%execFunc => setDecenterType
+        zoaCmds(777)%cmd = 'RET'
+        zoaCmds(777)%execFunc => setDecenterType
+        zoaCmds(778)%cmd = 'XOD'
+        zoaCmds(778)%execFunc => setDecenterValue
+        zoaCmds(779)%cmd = 'YOD'
+        zoaCmds(779)%execFunc => setDecenterValue
+        zoaCmds(780)%cmd = 'ZOD'
+        zoaCmds(780)%execFunc => setDecenterValue
         zoaCmds(527)%cmd = 'SETDENS'
         zoaCmds(527)%execFunc => setPlotDensity     
         zoaCmds(528)%cmd = 'SETZERNC'
@@ -1601,6 +1634,48 @@ module codeV_commands
 
       ! Utility command implementations live in codeV-commands-utils.f90
 
+      ! A surface spec -- Sk, SO/S0, SI, or a range Si..j -- as the first and
+      ! last surface (s0 <= s1).  Emits an error and returns .false. if bad.
+      logical function parseSurfaceSpec(tok, s0, s1) result(ok)
+        use mod_lens_data_manager, only: ldm
+        use command_utils, only: isInputNumber
+        use zoa_output, only: zoa_emit
+        character(len=*), intent(in) :: tok
+        integer, intent(out) :: s0, s1
+        integer, allocatable :: surfs(:)
+        character(len=80) :: t
+
+        ok = .false.
+        s0 = -1; s1 = -1
+        t = adjustl(tok)
+        if (t(1:1) /= 'S' .or. len_trim(t) < 2) then
+            call zoa_emit("Error:  expected a surface (Sk, SI or Si..j), got "//trim(t), "red")
+            return
+        end if
+        if (trim(t) == 'SO') then
+            s0 = 0
+        else if (trim(t) == 'SI') then
+            s0 = ldm%getLastSurf()
+        else if (index(t, '..') > 0) then
+            if (.not. cmd_parser_get_integer_range(trim(t(2:)), surfs)) then
+                call zoa_emit("Error:  bad surface range "//trim(t), "red")
+                return
+            end if
+            s0 = minval(surfs); s1 = maxval(surfs)
+        else if (isInputNumber(trim(t(2:)))) then
+            s0 = nint(str2real8(trim(t(2:))))
+        else
+            call zoa_emit("Error:  bad surface "//trim(t), "red")
+            return
+        end if
+        if (s1 < 0) s1 = s0
+        if (s0 < 0 .or. s1 > ldm%getLastSurf()) then
+            call zoa_emit("Error:  surface "//trim(t)//" does not exist", "red")
+            return
+        end if
+        ok = .true.
+      end function
+
       function isSurfCommand(tstCmd) result(boolResult)
         implicit none
         character(len=*) :: tstCmd
@@ -1814,7 +1889,9 @@ module codeV_commands
             end if
             if (iptCmd(2:2).EQ.'I') then ! CMD is SI
                 surfNum = curr_lens_data%num_surfaces-1 ! Not sure thsi is correct
-                !call LogTermFOR("DEBUG:  Setting SurfNum to "//int2str(surfNum))
+                ! Following modifiers without Sk (e.g. ADE, XDE in a .zoa)
+                ! act on the image surface.
+                call ldm%setSurfacePointer(surfNum)
                 return
             end if
         end if

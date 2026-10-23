@@ -669,6 +669,8 @@ contains
                 end if
             case('PIK')
                 call deletePickups()
+            case('DDA', 'DAR', 'BEN', 'REV')
+                call deleteDecenters()
             case default
                 ! DEL Sk / DEL Si..j: delete surfaces (CODE V).  Highest first
                 ! so the lower numbers in a range still name the same surfaces.
@@ -684,6 +686,40 @@ contains
         end if
 
     contains
+
+        ! DEL DDA Sk|Si..j: remove the decenters and tilts.  DEL DAR|BEN|REV
+        ! Sk|Si..j: make a decenter-and-return / bend / reversed surface a
+        ! plain decentered one (values kept).
+        subroutine deleteDecenters()
+            use mod_surface, only: surf_tilt_flag
+            integer :: s, s0, s1, want
+            if (numTokens /= 3) then
+                call zoa_emit("Expected DEL "//trim(tokens(2))//" Sk|Si..j", "red")
+                return
+            end if
+            if (.not. parseSurfaceSpec(tokens(3), s0, s1)) return
+            select case (trim(tokens(2)))
+            case ('DAR'); want = 5
+            case ('BEN'); want = 4
+            case ('REV'); want = 7
+            case default; want = 0
+            end select
+            call kdp_silent_begin()
+            call kdp_lens_begin()
+            do s = max(s0, 1), s1
+                if (want == 0) then
+                    call kdp_chg(s)
+                    if (surf_tilt_flag(s) /= 0) call kdp_lens_cmd('TILTD')
+                    call kdp_lens_cmd('DEC', w1=0.0_real64, w2=0.0_real64, w3=0.0_real64)
+                else if (surf_tilt_flag(s) == want) then
+                    call kdp_chg(s)
+                    call kdp_lens_cmd('TILT')
+                end if
+            end do
+            call kdp_lens_end()
+            call kdp_silent_end()
+            call notify_replot()
+        end subroutine
 
         ! DEL PIK [XXX] [Sk|Si..j] (CODE V): delete all pickups, or those for
         ! parameter XXX, on the given surfaces (default all).  Zoom (Zk) and
@@ -1137,5 +1173,171 @@ contains
         ! same state the same way as every other lens-load path.
         call loadLensFromZoaPath(trim(fullPath))
     end procedure execRESAUTO
+
+    !## cmd:      XDE
+    !## syntax:   XDE|YDE|ZDE|ADE|BDE|CDE|XOD|YOD|ZOD [Sk|Si..j] value
+    !## category: Tilts and Decenters
+    !## desc:     Decenter (XDE/YDE/ZDE, lens units) or tilt (ADE/BDE/CDE, degrees) of the
+    !##           new axis at surface Sk (default: the current surface).  CODE V order:
+    !##           decenters first, then ADE, BDE, CDE.  XOD/YOD/ZOD: the point (relative
+    !##           to the surface origin) the tilt is applied about.
+    !##
+    module procedure setDecenterValue
+        use command_utils, only: isInputNumber
+        use mod_lens_data_manager, only: ldm
+        use zoa_ui_callbacks, only: notify_replot
+        implicit none
+
+        character(len=80) :: tokens(40)
+        integer :: numTokens, s, s0, s1
+        character(len=8) :: kdpWord
+        real(kind=real64) :: v
+        logical :: hasSurf
+
+        call parse(trim(iptStr), ' ', tokens, numTokens)
+        select case (trim(tokens(1)))
+        case ('XDE'); kdpWord = 'XD'
+        case ('YDE'); kdpWord = 'YD'
+        case ('ZDE'); kdpWord = 'ZD'
+        case ('ADE'); kdpWord = 'ALPHA'
+        case ('BDE'); kdpWord = 'BETA'
+        case ('CDE'); kdpWord = 'GAMMA'
+        case default; kdpWord = 'PIVOT'     ! XOD/YOD/ZOD
+        end select
+
+        hasSurf = (numTokens == 3)
+        if (numTokens < 2 .or. numTokens > 3) then
+            call zoa_emit("Error:  expected "//trim(tokens(1))//" [Sk|Si..j] value", "red")
+            return
+        end if
+        if (.not. isInputNumber(trim(tokens(numTokens)))) then
+            call zoa_emit("Error:  "//trim(tokens(1))//": bad value "//trim(tokens(numTokens)), "red")
+            return
+        end if
+        v = str2real8(trim(tokens(numTokens)))
+        if (hasSurf) then
+            if (.not. parseSurfaceSpec(tokens(2), s0, s1)) return
+        end if
+
+        call kdp_silent_begin()
+        call kdp_lens_begin()
+        if (hasSurf) then
+            do s = s0, s1
+                call kdp_chg(s)
+                call applyValue(s)
+            end do
+        else
+            ! No Sk: the current surface (the one being built in a .zoa).
+            call kdp_chg(ldm%getSurfacePointer())
+            call applyValue(ldm%getSurfacePointer())
+        end if
+        call kdp_lens_end()
+        call kdp_silent_end()
+        call notify_replot()
+
+    contains
+
+        subroutine applyValue(sk)
+            use mod_surface, only: surf_pivot_x, surf_pivot_y, surf_pivot_z, &
+            &                      surf_focus_dx, surf_focus_dy, surf_focus_dz
+            integer, intent(in) :: sk
+            real(kind=real64) :: p(3), d(3)
+            if (trim(kdpWord) /= 'PIVOT') then
+                call kdp_lens_cmd(trim(kdpWord), w1=v)
+                return
+            end if
+            ! KDP's PIVOT sets all three coordinates and clears the surface's
+            ! decenters: change one coordinate, then put the decenters back.
+            p = [surf_pivot_x(sk), surf_pivot_y(sk), surf_pivot_z(sk)]
+            d = [surf_focus_dx(sk), surf_focus_dy(sk), surf_focus_dz(sk)]
+            select case (trim(tokens(1)))
+            case ('XOD'); p(1) = v
+            case ('YOD'); p(2) = v
+            case default; p(3) = v
+            end select
+            call kdp_lens_cmd('PIVOT', w1=p(1), w2=p(2), w3=p(3))
+            if (d(1) /= 0.0_real64) call kdp_lens_cmd('XD', w1=d(1))
+            if (d(2) /= 0.0_real64) call kdp_lens_cmd('YD', w1=d(2))
+            if (d(3) /= 0.0_real64) call kdp_lens_cmd('ZD', w1=d(3))
+        end subroutine
+    end procedure setDecenterValue
+
+    !## cmd:      DAR
+    !## syntax:   DAR|BEN|REV [Sk|Si..j] | RET [Sk] Sj
+    !## category: Tilts and Decenters
+    !## desc:     Decenter type of surface Sk (default: the current surface):
+    !##           DAR decenter-and-return, BEN decenter-and-bend (mirrors), REV reversed
+    !##           decenter, RET return to the coordinate system of surface Sj.
+    !##           DEL DDA|DAR|BEN|REV Sk|Si..j removes them.
+    !##
+    module procedure setDecenterType
+        use command_utils, only: isInputNumber
+        use mod_lens_data_manager, only: ldm
+        use zoa_ui_callbacks, only: notify_replot
+        implicit none
+
+        character(len=80) :: tokens(40)
+        integer :: numTokens, s, s0, s1, retSurf
+        logical :: hasSurf
+
+        call parse(trim(iptStr), ' ', tokens, numTokens)
+
+        retSurf = -1
+        if (trim(tokens(1)) == 'RET') then
+            ! RET [Sk] Sj
+            if (numTokens < 2 .or. numTokens > 3) then
+                call zoa_emit("Error:  expected RET [Sk] Sj", "red")
+                return
+            end if
+            block
+                integer :: r0, r1
+                if (.not. parseSurfaceSpec(tokens(numTokens), r0, r1)) return
+                if (r0 /= r1) then
+                    call zoa_emit("Error:  RET returns to a single surface Sj", "red")
+                    return
+                end if
+                retSurf = r0
+            end block
+            hasSurf = (numTokens == 3)
+            if (hasSurf) then
+                if (.not. parseSurfaceSpec(tokens(2), s0, s1)) return
+            end if
+        else
+            if (numTokens > 2) then
+                call zoa_emit("Error:  expected "//trim(tokens(1))//" [Sk|Si..j]", "red")
+                return
+            end if
+            hasSurf = (numTokens == 2)
+            if (hasSurf) then
+                if (.not. parseSurfaceSpec(tokens(2), s0, s1)) return
+            end if
+        end if
+
+        call kdp_silent_begin()
+        call kdp_lens_begin()
+        if (hasSurf) then
+            do s = s0, s1
+                call kdp_chg(s)
+                call applyType()
+            end do
+        else
+            call kdp_chg(ldm%getSurfacePointer())
+            call applyType()
+        end if
+        call kdp_lens_end()
+        call kdp_silent_end()
+        call notify_replot()
+
+    contains
+
+        ! KDP's TILT with a qualifier and no values keeps the surface's angles.
+        subroutine applyType()
+            if (retSurf >= 0) then
+                call kdp_lens_cmd('TILT', wq='RET', w1=real(retSurf, real64))
+            else
+                call kdp_lens_cmd('TILT', wq=trim(tokens(1)))
+            end if
+        end subroutine
+    end procedure setDecenterType
 
 end submodule mod_codev_lensops

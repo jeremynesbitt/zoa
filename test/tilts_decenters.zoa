@@ -15,3 +15,64 @@ DISP 2 4 0.1 0 0
 FIR
 RES osdtriplet
 PIVAXIS ALL
+! ---- CODE V tilt/decenter commands, saved and restored ----
+! YDE must move the ray in Y (X and Y decenters were swapped after EOS).
+RES osdtriplet
+YDE S2 1
+RSI f1 w1 0 0
+! Every decenter type and value; the save writes them as CODE V lines and
+! the restored lens must trace identically.
+RES osdtriplet
+YDE S2 0.3
+XDE S2 -0.1
+ADE S2 1.5
+BDE S2 0.25
+CDE S2 3
+DAR S4
+YDE S4 0.2
+ADE S4 -0.7
+ZDE S5 0.05
+BDE S5 0.4
+YOD S5 1.5
+REV S6
+YDE S6 0.1
+YDE SI 0.05
+ADE SI 1
+RSI f2 w1 0.3 0.7
+SAV tdsave
+PRT tdsave
+RES tdsave
+RSI f2 w1 0.3 0.7
+! RET, and the DISP construct (return + global offset)
+RES osdtriplet
+ADE S2 2
+YDE S2 0.4
+RET S4 S2
+RSI f2 w1 0 0.7
+SAV tdret
+PRT tdret
+RES tdret
+RSI f2 w1 0 0.7
+RES osdtriplet
+DISP 2 4 0.1 0 0
+RSI f2 w1 0 0.7
+SAV tddisp
+RES tddisp
+RSI f2 w1 0 0.7
+! DEL DAR keeps the values; DEL DDA removes them
+RES osdtriplet
+DAR S4
+ADE S4 1
+YDE S4 0.2
+REV S5
+BDE S5 0.3
+DEL DAR S4
+DEL DDA S5
+SAV tddel
+PRT tddel
+! Errors
+XDE
+XDE S99 1
+XDE S2 abc
+RET S3 S1..2
+DEL DDA

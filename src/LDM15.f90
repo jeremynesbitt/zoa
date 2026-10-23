@@ -59,8 +59,10 @@ SUBROUTINE LNSEOS
    IF(sys_last_surf().GT.DBLE(MAXSUR)) call sys_set_last_surf(DBLE(MAXSUR))
    I=INT(sys_last_surf())
    ALENS(29,1:I) = 0.0D0
-   ALENS(30,1:I) = ALENS(114,1:I)
-   ALENS(31,1:I) = ALENS(115,1:I)
+   ! X decenter (31) from the X copy (114), Y (30) from the Y copy (115).
+   ! (The ALENS migration had these crossed, swapping X and Y decenters.)
+   ALENS(31,1:I) = ALENS(114,1:I)
+   ALENS(30,1:I) = ALENS(115,1:I)
    ALENS(69,1:I) = ALENS(116,1:I)
    ALENS(26,1:I) = ALENS(118,1:I)
    ALENS(27,1:I) = ALENS(119,1:I)

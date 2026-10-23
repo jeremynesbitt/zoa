@@ -1064,7 +1064,8 @@ module mod_lens_data_manager
             ! mid-build (PY -> the historical "PIM" line; PCY/etc. now too).
             ! Curvature solves are deferred to a post-"GO" pass (see below).
             call writeSolveSaveLine(fID, curr_lens_data, ii, SLV_YZ_THI_SLOT)
-          
+            call writeDecenterSaveLines(fID, ii-1)
+
         end do
       
         ! Do Image SUrface.  
@@ -1090,6 +1091,7 @@ module mod_lens_data_manager
             end if
           end if
         end if
+        call writeDecenterSaveLines(fID, curr_lens_data%num_surfaces-1)
       
       
         ! Gen pickup data
@@ -1111,6 +1113,87 @@ module mod_lens_data_manager
           call writeSolveSaveLine(fID, curr_lens_data, ii, SLV_YZ_CURV_SLOT)
         end do
 
+      end subroutine
+
+      ! Write surface s's decenter/tilt as CODE V lines with no surface
+      ! qualifier (they attach to the surface being built): the decenter
+      ! type first (DAR/BEN/REV/RET Sj -- KDP's TILT keeps any angles), then
+      ! XDE/YDE/ZDE, then ADE/BDE/CDE.  KDP-only tilt kinds (RTILT, TILT
+      ! AUTO/AUTOM) are written as their KDP command.
+      subroutine writeDecenterSaveLines(fID, s)
+        use mod_surface, only: surf_tilt_flag, surf_decenter_flag, surf_ret_surf_num, &
+        &                      surf_tilt_return_flag, surf_global_dx, surf_global_dy, &
+        &                      surf_global_dz, surf_global_alpha, surf_global_beta, &
+        &                      surf_global_gamma, surf_pivot_flag, surf_pivot_axis, &
+        &                      surf_pivot_x, surf_pivot_y, surf_pivot_z, &
+        &                      surf_focus_dx, surf_focus_dy, surf_focus_dz, &
+        &                      surf_decenter_x, surf_decenter_y, surf_decenter_z, &
+        &                      surf_alpha, surf_beta, surf_gamma
+        use type_utils, only: compactReal, int2str
+        integer, intent(in) :: fID, s
+        integer :: tf
+        logical :: hasGlobal
+
+        tf = surf_tilt_flag(s)
+        ! A TILT RET is held resolved (tilt 1 + return flag, with the angles
+        ! and decenters computed from surface Sj): save it as RET Sj alone.
+        if (tf == 6 .or. (tf == 1 .and. surf_tilt_return_flag(s) == 1)) then
+          write(fID, '(A)') '  RET S'//trim(int2str(surf_ret_surf_num(s)))
+          return
+        end if
+        select case (tf)
+        case (-1); write(fID, '(A)') '  RTILT'
+        case (2);  write(fID, '(A)') '  TILT AUTO'
+        case (3);  write(fID, '(A)') '  TILT AUTOM'
+        case (4);  write(fID, '(A)') '  BEN'
+        case (5);  write(fID, '(A)') '  DAR'
+        case (7);  write(fID, '(A)') '  REV'
+        end select
+        if (surf_pivot_flag(s) == 1) then
+          ! Tilt pivot point (KDP PIVOT = CODE V XOD/YOD/ZOD).  It goes
+          ! before the decenters: setting it clears them.  On a pivoted
+          ! surface the decenters in use are derived from the pivot; the
+          ! entered ones are the "focus" copies.
+          call valueLine('XOD', surf_pivot_x(s))
+          call valueLine('YOD', surf_pivot_y(s))
+          call valueLine('ZOD', surf_pivot_z(s))
+          if (surf_pivot_axis(s) == 1) write(fID, '(A)') '  PIVAXIS NORMAL'
+          call valueLine('XDE', surf_focus_dx(s))
+          call valueLine('YDE', surf_focus_dy(s))
+          call valueLine('ZDE', surf_focus_dz(s))
+        else if (surf_decenter_flag(s) /= 0) then
+          call valueLine('XDE', surf_decenter_x(s))
+          call valueLine('YDE', surf_decenter_y(s))
+          call valueLine('ZDE', surf_decenter_z(s))
+        end if
+        hasGlobal = surf_global_dx(s) /= 0.0_real64 .or. surf_global_dy(s) /= 0.0_real64 .or. &
+        &           surf_global_dz(s) /= 0.0_real64 .or. surf_global_alpha(s) /= 0.0_real64 .or. &
+        &           surf_global_beta(s) /= 0.0_real64 .or. surf_global_gamma(s) /= 0.0_real64
+        if (tf /= 0 .and. tf /= 2 .and. tf /= 3) then
+          ! (TILT AUTO/AUTOM compute their own angles.)
+          call valueLine('ADE', surf_alpha(s))
+          call valueLine('BDE', surf_beta(s))
+          call valueLine('CDE', surf_gamma(s))
+          ! KDP accepts global data only on a tilted surface: make sure the
+          ! tilt is restored even when every angle is zero.
+          if (hasGlobal .and. surf_alpha(s) == 0.0_real64 .and. surf_beta(s) == 0.0_real64 &
+          &   .and. surf_gamma(s) == 0.0_real64) write(fID, '(A)') '  ADE 0'
+          ! Global offsets (KDP; no CODE V equivalent -- CODE V's GLB differs).
+          call valueLine('GDX', surf_global_dx(s))
+          call valueLine('GDY', surf_global_dy(s))
+          call valueLine('GDZ', surf_global_dz(s))
+          call valueLine('GALPHA', surf_global_alpha(s))
+          call valueLine('GBETA', surf_global_beta(s))
+          call valueLine('GGAMMA', surf_global_gamma(s))
+        end if
+
+      contains
+
+        subroutine valueLine(nm, v)
+          character(len=*), intent(in) :: nm
+          real(real64), intent(in) :: v
+          if (v /= 0.0_real64) write(fID, '(A)') '  '//nm//' '//trim(compactReal(v, 15))
+        end subroutine
       end subroutine
 
       ! Write the CODE V save line for the solve (if any) held in type-slot

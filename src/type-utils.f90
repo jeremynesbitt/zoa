@@ -12,28 +12,36 @@ module type_utils
       ! 9 significant digits, no trailing zeros ("10", "7.5", "0.30899999",
       ! "1.2E-07").  Keeps long lists (YAN/WTF/VUY with 10 fields, WL ...)
       ! short enough for the command line while round-tripping typed values.
-      function compactReal(v) result(s)
+      ! digits: significant digits kept (default 9; 15 for values that must
+      ! survive a save/load exactly enough).
+      function compactReal(v, digits) result(s)
           use iso_fortran_env, only: real64
           implicit none
           real(real64), intent(in) :: v
+          integer, intent(in), optional :: digits
           character(len=32) :: s
-          integer :: ie, k
+          integer :: ie, k, nd
           character(len=32) :: mant, expo
+          character(len=16) :: fmt
 
+          nd = 9
+          if (present(digits)) nd = max(1, min(17, digits))
           if (v == 0.0_real64) then
             s = '0'
             return
           end if
           if (abs(v) >= 1.0d-4 .and. abs(v) < 1.0d9) then
-            write(s, '(F0.9)') v
-            ! keep at most 9 significant digits
-            write(s, '(G0.9)') v
+            ! keep at most nd significant digits
+            write(fmt, '(A,I0,A)') '(G0.', nd, ')'
+            write(s, fmt) v
             s = adjustl(s)
             if (index(s, 'E') > 0) then
-              write(s, '(F0.9)') v
+              write(fmt, '(A,I0,A)') '(F0.', nd, ')'
+              write(s, fmt) v
             end if
           else
-            write(s, '(ES16.8E2)') v
+            write(fmt, '(A,I0,A,I0,A)') '(ES', nd+8, '.', nd-1, 'E2)'
+            write(s, fmt) v
           end if
           s = adjustl(s)
           ie = index(s, 'E')
