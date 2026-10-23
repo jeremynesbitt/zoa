@@ -438,6 +438,30 @@ module codeV_commands
    module subroutine setApertureValue(iptStr)
     character(len=*) :: iptStr
    end subroutine setApertureValue
+   module subroutine incrementSurfValue(iptStr)
+    character(len=*) :: iptStr
+   end subroutine incrementSurfValue
+   module subroutine breakSurface(iptStr)
+    character(len=*) :: iptStr
+   end subroutine breakSurface
+   module subroutine setAfocal(iptStr)
+    character(len=*) :: iptStr
+   end subroutine setAfocal
+   module subroutine writeLensSeq(iptStr)
+    character(len=*) :: iptStr
+   end subroutine writeLensSeq
+   module subroutine listPickups(iptStr)
+    character(len=*) :: iptStr
+   end subroutine listPickups
+   module subroutine listZoom(iptStr)
+    character(len=*) :: iptStr
+   end subroutine listZoom
+   module subroutine dezoom(iptStr)
+    character(len=*) :: iptStr
+   end subroutine dezoom
+   module subroutine listGlobalSurfaces(iptStr)
+    character(len=*) :: iptStr
+   end subroutine listGlobalSurfaces
     end interface
 
 
@@ -730,6 +754,24 @@ module codeV_commands
         zoaCmds(788)%execFunc => setField
         zoaCmds(789)%cmd = 'YRI'
         zoaCmds(789)%execFunc => setField
+        zoaCmds(790)%cmd = 'TIN'
+        zoaCmds(790)%execFunc => incrementSurfValue
+        zoaCmds(791)%cmd = 'CIY'
+        zoaCmds(791)%execFunc => incrementSurfValue
+        zoaCmds(792)%cmd = 'BRE'
+        zoaCmds(792)%execFunc => breakSurface
+        zoaCmds(793)%cmd = 'AFC'
+        zoaCmds(793)%execFunc => setAfocal
+        zoaCmds(794)%cmd = 'WRL'
+        zoaCmds(794)%execFunc => writeLensSeq
+        zoaCmds(795)%cmd = 'PKL'
+        zoaCmds(795)%execFunc => listPickups
+        zoaCmds(796)%cmd = 'ZLI'
+        zoaCmds(796)%execFunc => listZoom
+        zoaCmds(797)%cmd = 'DEZ'
+        zoaCmds(797)%execFunc => dezoom
+        zoaCmds(798)%cmd = 'GSC'
+        zoaCmds(798)%execFunc => listGlobalSurfaces
         zoaCmds(527)%cmd = 'SETDENS'
         zoaCmds(527)%execFunc => setPlotDensity     
         zoaCmds(528)%cmd = 'SETZERNC'

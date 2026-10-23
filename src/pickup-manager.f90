@@ -213,7 +213,7 @@ contains
   ! GLA uses the short no-scale form 'PIK GLA Starget Ssource' (glass pickups
   ! take no scale/offset; they were historically dropped from saves entirely).
   subroutine pickup_genSaveOutputText(fID)
-    use type_utils, only: int2str, real2str
+    use type_utils, only: int2str, compactReal
     use mod_system, only: sys_last_surf
     integer, intent(in) :: fID
     integer :: s, k, src
@@ -228,7 +228,7 @@ contains
         else
           write(fID, *) 'PIK '//trim(PIKUP_KINDS(k)%cli)//' S'//trim(int2str(s))// &
           &  ' '//trim(PIKUP_KINDS(k)%cli)//' S'//trim(int2str(src))// &
-          &  ' '//trim(real2str(scale,4))//' '//trim(real2str(offset,4))
+          &  ' '//trim(compactReal(scale, 15))//' '//trim(compactReal(offset, 15))
         end if
       end do
     end do

@@ -400,7 +400,34 @@ module procedure execSUR
             aspKDP = 'AL'
 
         end select
-        call execTranslatedSurfCmd(iptStr, aspKDP)
+
+        ! A..H apply to aspheric surfaces only (CODE V).  KDP stores the
+        ! coefficient without marking the surface aspheric, so the term was
+        ! silently ignored by the tracer until something else (K /= 0, or the
+        ! ASP line of a saved file) set the flag: make the surface an ASP first.
+        block
+            use mod_lens_data_manager, only: ldm
+            use mod_surface, only: surf_is_asphere
+            use command_utils, only: isInputNumber
+            use type_utils, only: str2real8
+            integer :: sTarget
+            logical :: nonzero
+            sTarget = -1
+            nonzero = .false.
+            if (numTokens == 3 .and. isSurfCommand(trim(tokens(2)))) then
+                sTarget = getSurfNumFromSurfCommand(trim(tokens(2)))
+                if (isInputNumber(trim(tokens(3)))) nonzero = str2real8(trim(tokens(3))) /= 0.0_real64
+            else if (numTokens == 2 .and. isInputNumber(trim(tokens(2)))) then
+                sTarget = ldm%getSurfacePointer()
+                nonzero = str2real8(trim(tokens(2))) /= 0.0_real64
+            end if
+            if (sTarget >= 1 .and. nonzero) then
+                if (.not. surf_is_asphere(sTarget)) call ldm%setSurfaceType(sTarget, 'ASP')
+            end if
+            call execTranslatedSurfCmd(iptStr, aspKDP)
+            ! The tracer's typed copy of the surface takes the new term.
+            if (sTarget >= 0) call ldm%refresh_typed_surf_asphere(sTarget)
+        end block
     end procedure   
     
     ! Format

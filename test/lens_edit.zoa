@@ -114,3 +114,50 @@ DEL PIK
 DEL PIK FOO
 DEL PIK Z1
 SUR SA
+! ---- CODE V surface/system commands, batch 2 ----
+! TIN / CIY increments
+RES osdtriplet
+TIN S2 0.5
+CIY S1 0.001
+SUR SA
+! An A term traces without K (it was ignored until a K or a save/restore)
+RES osdtriplet
+RSI f2 w1 0 0.7
+A S3 1e-5
+RSI f2 w1 0 0.7
+! BRE: a zero air gap between identical shapes leaves the trace unchanged
+K S3 -0.5
+RSI f2 w1 0 0.7
+BRE S3
+RSI f2 w1 0 0.7
+SUR SA
+! AFC is saved
+RES osdtriplet
+AFC YES
+SAV afcsave
+RES afcsave
+AFC
+AFC NO
+! PKL lists pickups (full precision)
+PIK RDY S5 RDY S3 -0.333333333333 0.1
+PIK THI S4 THI S2 2 0
+PKL
+PKL S5
+! ZLI / DEZ
+ZOO 2
+ZOO THI S4 5 7
+ZLI
+DEZ 2
+ZLI
+SUR S4
+! GSC: global positions and orientations
+RES osdtriplet
+ADE S3 2
+YDE S3 0.5
+GSC
+GSC S3
+! Errors
+TIN
+BRE S0
+DEZ 5
+AFC MAYBE

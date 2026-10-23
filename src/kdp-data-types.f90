@@ -1371,6 +1371,20 @@ subroutine genSaveOutputText(self, fID, forCodeV)
     ! Print Ref wavelength
     strOutLine = "REF "// int2str(self%refWavelengthIndex)
     write(fID, '(A)') trim(strOutLine)
+
+    ! Evaluation mode (was not saved): afocal as CODE V's AFC; KDP's
+    ! "U" (user-defined) modes only in .zoa files.
+    block
+      use mod_system, only: sys_mode
+      logical :: cv
+      cv = .false.
+      if (present(forCodeV)) cv = forCodeV
+      select case (nint(sys_mode()))
+      case (3); write(fID, '(A)') 'AFC YES'
+      case (2); if (.not. cv) write(fID, '(A)') 'MODE UFOCAL'
+      case (4); if (.not. cv) write(fID, '(A)') 'MODE UAFOCAL'
+      end select
+    end block
        
   ! Store Field
     select case(self%currFieldID)

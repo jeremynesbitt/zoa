@@ -66,6 +66,7 @@ module mod_lens_data_manager
      procedure :: isGlassSurf
      procedure :: getGlassName
      procedure :: updateOptimVars
+     procedure :: refresh_typed_surf_asphere
      procedure :: setVarOnSurf
      procedure :: isSolveOnSurf, isPikupOnSurf, isPikupOnSurfJ, isVarOnSurf
      procedure :: getCCYCodeAsStr, getTHCCodeAsStr, getGLCCodeAsStr
@@ -1663,7 +1664,74 @@ module mod_lens_data_manager
         self%surfaces(s)%s%cv        = surf_curvature(s)   ! exact, authoritative
         self%surfaces(s)%s%thickness = surf_thickness(s)
         self%surfaces(s)%s%conic     = surf_conic(s)
+        call self%refresh_typed_surf_asphere(s)
       end subroutine refresh_typed_surf_geom
+
+      ! Bring surface s's typed asphere data current: coefficients updated in
+      ! place, and the slot swapped between sphere and asphere when the
+      ! asphere flag changed.  (Without this, A..H or ASP on a surface left the
+      ! tracer on the stale copy -- the term was ignored until a full
+      ! rebuild, e.g. a K command or a save/restore.)  Indices and the
+      ! aperture are carried over, not recomputed.
+      subroutine refresh_typed_surf_asphere(self, s)
+        use mod_surface_type, only: make_sphere, make_asphere
+        use mod_surface, only: surf_radius, surf_is_asphere, surf_conic, &
+                               surf_thickness, surf_asphere_coeff, surf_curvature
+        use DATLEN, only: GLANAM
+        use clear_apertures, only: clear_aperture
+        class(lens_data_manager), intent(inout) :: self
+        integer, intent(in) :: s
+        real(real64) :: coeffs(10), npre(10), npost(10)
+        type(clear_aperture) :: clap
+        logical :: wantAsp, isAsp
+        integer :: i
+
+        if (.not. allocated(self%surfaces)) return
+        if (s < lbound(self%surfaces,1) .or. s > ubound(self%surfaces,1)) return
+        if (.not. allocated(self%surfaces(s)%s)) return
+
+        do i = 1, 9
+          coeffs(i) = surf_asphere_coeff(s, 2*i + 2)     ! A4..A20
+        end do
+        coeffs(10) = surf_asphere_coeff(s, 2)
+        wantAsp = surf_is_asphere(s)
+        isAsp = .false.
+        select type (item => self%surfaces(s)%s)
+        type is (asphere_surface)
+          isAsp = .true.
+          if (wantAsp) then
+            item%data(1)    = surf_conic(s)
+            item%data(2:10) = coeffs(1:9)
+            item%data(11)   = coeffs(10)
+            return
+          end if
+        end select
+        if (wantAsp .eqv. isAsp) return
+
+        npre  = self%surfaces(s)%s%n_pre
+        npost = self%surfaces(s)%s%n_post
+        clap  = self%surfaces(s)%s%clap
+        deallocate(self%surfaces(s)%s)
+        if (wantAsp) then
+          allocate(asphere_surface :: self%surfaces(s)%s)
+          select type (item => self%surfaces(s)%s)
+          type is (asphere_surface)
+            item = make_asphere(surf_radius(s), surf_thickness(s), surf_conic(s), &
+                                trim(GLANAM(s,2)), trim(GLANAM(s,1)), coeffs)
+          end select
+        else
+          allocate(sphere_surface :: self%surfaces(s)%s)
+          select type (item => self%surfaces(s)%s)
+          type is (sphere_surface)
+            item = make_sphere(surf_radius(s), surf_thickness(s), surf_conic(s), &
+                               trim(GLANAM(s,2)), trim(GLANAM(s,1)))
+          end select
+        end if
+        self%surfaces(s)%s%cv     = surf_curvature(s)
+        self%surfaces(s)%s%n_pre  = npre
+        self%surfaces(s)%s%n_post = npost
+        self%surfaces(s)%s%clap   = clap
+      end subroutine refresh_typed_surf_asphere
 
 
       ! Change surface s to asphere type (sets flag in ALENS, rebuilds surfaces(:)).

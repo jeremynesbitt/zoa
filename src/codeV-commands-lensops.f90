@@ -1464,4 +1464,294 @@ contains
         end subroutine
     end procedure setApertureValue
 
+    !## cmd:      TIN
+    !## syntax:   TIN|CIY [Sk|Si..j] increment
+    !## category: Surface Parameters
+    !## desc:     Add increment to the thickness (TIN) or Y curvature (CIY) of surface Sk
+    !##           (default: the current surface).
+    !##
+    module procedure incrementSurfValue
+        use command_utils, only: isInputNumber
+        use mod_lens_data_manager, only: ldm
+        use mod_surface, only: surf_toric_flag
+        use zoa_ui_callbacks, only: notify_replot
+        implicit none
+        character(len=80) :: tokens(40)
+        integer :: numTokens, s, s0, s1
+        real(kind=real64) :: v
+
+        call parse(trim(iptStr), ' ', tokens, numTokens)
+        if (numTokens < 2 .or. numTokens > 3) then
+            call zoa_emit("Error:  expected "//trim(tokens(1))//" [Sk|Si..j] increment", "red")
+            return
+        end if
+        if (.not. isInputNumber(trim(tokens(numTokens)))) then
+            call zoa_emit("Error:  "//trim(tokens(1))//": bad value "//trim(tokens(numTokens)), "red")
+            return
+        end if
+        v = str2real8(trim(tokens(numTokens)))
+        if (numTokens == 3) then
+            if (.not. parseSurfaceSpec(tokens(2), s0, s1)) return
+        else
+            s0 = ldm%getSurfacePointer(); s1 = s0
+        end if
+        call kdp_silent_begin()
+        call kdp_lens_begin()
+        do s = s0, s1
+            if (trim(tokens(1)) == 'CIY' .and. surf_toric_flag(s) /= 0) then
+                call zoa_emit("Error:  CIY: surface "//trim(int2str(s))//" is toric (not supported)", "red")
+                cycle
+            end if
+            call kdp_chg(s)
+            if (trim(tokens(1)) == 'TIN') then
+                call kdp_lens_cmd('TH', wq='DELT', w1=v)
+            else
+                call kdp_lens_cmd('CV', wq='DELT', w1=v)
+            end if
+        end do
+        call kdp_lens_end()
+        call kdp_silent_end()
+        call notify_replot()
+    end procedure incrementSurfValue
+
+    !## cmd:      BRE
+    !## syntax:   BRE Sk
+    !## category: Surface Parameters
+    !## desc:     Break the cemented interface at Sk: insert, ahead of Sk, a surface of the
+    !##           same shape (curvature, conic, asphere) with zero air space after it.
+    !##
+    module procedure breakSurface
+        use mod_surface, only: surf_curvature, surf_conic, surf_asphere_coeff
+        use mod_lens_data_manager, only: ldm
+        use zoa_ui_callbacks, only: notify_replot
+        use type_utils, only: compactReal
+        implicit none
+        character(len=80) :: tokens(40)
+        integer :: numTokens, k, s0, s1, i
+        real(kind=real64) :: cv, cc, a(10)
+        character(len=16) :: sk
+        ! CODE V letters for orders 4..18 (index = order/2)
+        character(len=1), parameter :: aLetter(10) = [' ', 'A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', ' ']
+
+        call parse(trim(iptStr), ' ', tokens, numTokens)
+        if (numTokens /= 2) then
+            call zoa_emit("Error:  expected BRE Sk", "red")
+            return
+        end if
+        if (.not. parseSurfaceSpec(tokens(2), s0, s1)) return
+        k = s0
+        if (s0 /= s1 .or. k < 1 .or. k >= ldm%getLastSurf()) then
+            call zoa_emit("Error:  BRE needs one surface between S1 and the last surface", "red")
+            return
+        end if
+        cv = surf_curvature(k)
+        cc = surf_conic(k)
+        do i = 1, 10
+            a(i) = surf_asphere_coeff(k, 2*i)
+        end do
+        ! INS Sk: a new air surface, zero thickness, ahead of Sk (pickups,
+        ! solves and zoom data renumber as for INS).
+        call insertSurf('INS S'//trim(int2str(k)))
+        call kdp_silent_begin()
+        call kdp_lens_begin()
+        call kdp_chg(k)
+        call kdp_lens_cmd('CV', w1=cv)
+        call kdp_lens_end(refreshSurf=k)
+        call kdp_silent_end()
+        ! Conic and asphere terms through their own commands (they also set
+        ! KDP's asphere flag; bare AD/CCK leave the terms untraced).
+        sk = ' S'//trim(int2str(k))//' '
+        if (cc /= 0.0_real64) call updateConicConstant('K'//trim(sk)//' '//trim(compactReal(cc, 17)))
+        do i = 2, 9
+            if (a(i) /= 0.0_real64) call updateAsphereTerms(aLetter(i)//trim(sk)//' '// &
+            &  trim(compactReal(a(i), 17)))
+        end do
+        if (a(1) /= 0.0_real64 .or. a(10) /= 0.0_real64) call zoa_emit( &
+        &  "Warning:  BRE: 2nd/20th-order asphere terms are not copied", "red")
+        call notify_replot()
+    end procedure breakSurface
+
+    !## cmd:      AFC
+    !## syntax:   AFC [Yes|No]
+    !## category: System Data
+    !## desc:     Afocal (Yes) or focal (No) evaluation mode; bare AFC shows the mode.
+    !##
+    module procedure setAfocal
+        use mod_system, only: sys_mode
+        use zoa_ui_callbacks, only: notify_replot
+        implicit none
+        character(len=80) :: tokens(40)
+        integer :: numTokens
+        character(len=8) :: q
+
+        call parse(trim(iptStr), ' ', tokens, numTokens)
+        if (numTokens == 1) then
+            if (nint(sys_mode()) == 3 .or. nint(sys_mode()) == 4) then
+                call zoa_emit("AFC YES (afocal)", "black")
+            else
+                call zoa_emit("AFC NO (focal)", "black")
+            end if
+            return
+        end if
+        select case (trim(tokens(2)))
+        case ('YES', 'Y'); q = 'AFOCAL'
+        case ('NO', 'N');  q = 'FOCAL'
+        case default
+            call zoa_emit("Error:  expected AFC Yes|No", "red")
+            return
+        end select
+        call kdp_silent_begin()
+        call kdp_lens_begin()
+        call kdp_lens_cmd('MODE', wq=trim(q))
+        call kdp_lens_end()
+        call kdp_silent_end()
+        call notify_replot()
+    end procedure setAfocal
+
+    !## cmd:      WRL
+    !## syntax:   WRL [filename]
+    !## category: Lens Files
+    !## desc:     Write the lens as CODE V commands (filename.seq); same as ZOA2CV.
+    !##
+    module procedure writeLensSeq
+        implicit none
+        character(len=80) :: tokens(40)
+        integer :: numTokens
+        call parse(trim(iptStr), ' ', tokens, numTokens)
+        if (numTokens >= 2) then
+            call exportLensToCodeV('ZOA2CV '//trim(iptStr(index(iptStr, ' ')+1:)))
+        else
+            call exportLensToCodeV('ZOA2CV')
+        end if
+    end procedure writeLensSeq
+
+    !## cmd:      PKL
+    !## syntax:   PKL [Sk|Si..j]
+    !## category: Surface Parameters
+    !## desc:     List the pickups on the given surfaces (default all).
+    !##
+    module procedure listPickups
+        use pickup_manager, only: PIKUP_KINDS, NUM_PICKUP_KINDS, pickup_get
+        use mod_lens_data_manager, only: ldm
+        use type_utils, only: compactReal
+        implicit none
+        character(len=80) :: tokens(40)
+        integer :: numTokens, s, s0, s1, k, src, n
+        real(kind=real64) :: scale, offset
+        character(len=200) :: line
+        character(len=8) :: nm
+        character(len=32) :: sc
+
+        call parse(trim(iptStr), ' ', tokens, numTokens)
+        s0 = 0; s1 = ldm%getLastSurf()
+        if (numTokens >= 2) then
+            if (.not. parseSurfaceSpec(tokens(2), s0, s1)) return
+        end if
+        n = 0
+        do s = s0, s1
+            do k = 1, NUM_PICKUP_KINDS
+                if (.not. pickup_get(s, PIKUP_KINDS(k)%j, src, scale, offset)) cycle
+                if (n == 0) call zoa_emit("Surf  Param     From   Scale            Offset", "black")
+                n = n + 1
+                nm = PIKUP_KINDS(k)%cli
+                if (len_trim(nm) == 0) nm = PIKUP_KINDS(k)%qual
+                write(line, '(A4,2X,A8,2X,A5)') 'S'//trim(int2str(s)), nm, 'S'//trim(int2str(src))
+                if (trim(nm) /= 'GLA') then
+                    sc = compactReal(scale, 15)
+                    line = trim(line)//'  '//sc(1:16)//' '//trim(compactReal(offset, 15))
+                end if
+                call zoa_emit(trim(line), "black")
+            end do
+        end do
+        if (n == 0) call zoa_emit("No pickups", "black")
+    end procedure listPickups
+
+    !## cmd:      ZLI
+    !## syntax:   ZLI
+    !## category: Zoom
+    !## desc:     List the zoom (multi-configuration) data; same as a bare ZOO.
+    !##
+    module procedure listZoom
+        use zoom_manager, only: zoom_list
+        implicit none
+        call zoom_list()
+    end procedure listZoom
+
+    !## cmd:      DEZ
+    !## syntax:   DEZ k
+    !## category: Zoom
+    !## desc:     Dezoom: keep zoom position k as the (single-configuration) lens and
+    !##           remove the zoom data.
+    !##
+    module procedure dezoom
+        use zoom_manager, only: zoom_switch, zoom_reset, zoom_num_configs, zoom_current_config
+        use command_utils, only: isInputNumber
+        implicit none
+        character(len=80) :: tokens(40)
+        integer :: numTokens, k
+
+        call parse(trim(iptStr), ' ', tokens, numTokens)
+        if (numTokens /= 2 .or. .not. isInputNumber(trim(tokens(2)))) then
+            call zoa_emit("Error:  expected DEZ k", "red")
+            return
+        end if
+        k = str2int(trim(tokens(2)))
+        if (k < 1 .or. k > zoom_num_configs()) then
+            call zoa_emit("Error:  DEZ: position "//trim(int2str(k))//" out of range (1.."// &
+            &  trim(int2str(zoom_num_configs()))//")", "red")
+            return
+        end if
+        if (k /= zoom_current_config()) call zoom_switch(k)
+        call zoom_reset()
+        call zoa_emit("Dezoomed to position "//trim(int2str(k)), "black")
+    end procedure dezoom
+
+    !## cmd:      GSC
+    !## syntax:   GSC [Sj]
+    !## category: Tilts and Decenters
+    !## desc:     List every surface's global position (X Y Z) and orientation (ADE BDE CDE,
+    !##           degrees) relative to surface Sj (default S1).
+    !##
+    module procedure listGlobalSurfaces
+        use DATLEN, only: VERTEX
+        use mod_lens_data_manager, only: ldm
+        implicit none
+        character(len=80) :: tokens(40)
+        integer :: numTokens, s, j, j1
+        real(kind=real64) :: d(3,3), al, be, ga, cb
+        real(kind=real64), parameter :: r2d = 57.29577951308232_real64
+        character(len=200) :: line
+
+        call parse(trim(iptStr), ' ', tokens, numTokens)
+        j = 1
+        if (numTokens >= 2) then
+            if (.not. parseSurfaceSpec(tokens(2), j, j1)) return
+        end if
+        call PROCESKDP('GLOBAL '//trim(int2str(j)))
+        call zoa_emit("Global coordinates relative to surface "//trim(int2str(j)), "black")
+        call zoa_emit("Surf          X               Y               Z         ADE        BDE        CDE", "black")
+        do s = 0, ldm%getLastSurf()
+            d = reshape(VERTEX(4:12, s), [3, 3], order=[2, 1])
+            ! Angles from the rotation matrix, as KDP's DISP does.
+            be = asin(max(-1.0_real64, min(1.0_real64, -d(3,1))))
+            cb = cos(be)
+            if (abs(cb) > 1.0e-12_real64) then
+                al = atan2(d(3,2)/cb, d(3,3)/cb)
+                ga = atan2(-d(2,1)/cb, d(1,1)/cb)
+            else
+                al = atan2(d(1,2), d(1,3)); ga = 0.0_real64
+            end if
+            write(line, '(A4,3F16.6,3F11.5)') 'S'//trim(int2str(s)), clean(VERTEX(1, s)), &
+            &  clean(VERTEX(2, s)), clean(VERTEX(3, s)), clean(al*r2d), clean(be*r2d), clean(ga*r2d)
+            call zoa_emit(trim(line), "black")
+        end do
+    contains
+        ! No "-0.000000" for round-off.
+        real(kind=real64) function clean(x)
+            real(kind=real64), intent(in) :: x
+            clean = x
+            if (abs(x) < 5.0e-7_real64) clean = 0.0_real64
+        end function
+    end procedure listGlobalSurfaces
+
 end submodule mod_codev_lensops
