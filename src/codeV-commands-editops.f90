@@ -950,6 +950,11 @@ contains
     !## category: Fields & Wavelengths
     !## desc:     Set the Y paraxial image heights (field specification).
     !##
+    !## cmd:      YRI
+    !## syntax:   YRI h1 [h2 ...]   (XRI for X)
+    !## category: Fields & Wavelengths
+    !## desc:     Set the Y real image heights (field specification).
+    !##
     !## cmd:      YOB
     !## syntax:   YOB h1 [h2 ...]
     !## category: Fields & Wavelengths
@@ -969,8 +974,8 @@ contains
         integer :: FLD_COL
 
         call parse(trim(iptStr), ' ', tokens, numTokens)
-        if (tokens(1).EQ.'YAN'.OR.tokens(1).EQ.'YOB'.OR.tokens(1).EQ.'YIM') FLD_COL = Y_COL
-        if (tokens(1).EQ.'XAN'.OR.tokens(1).EQ.'XOB'.OR.tokens(1).EQ.'XIM') FLD_COL = X_COL
+        if (tokens(1)(1:1) == 'Y') FLD_COL = Y_COL     ! YAN YOB YIM YRI
+        if (tokens(1)(1:1) == 'X') FLD_COL = X_COL     ! XAN XOB XIM XRI
 
         call sysConfig%setFieldTypeFromString(trim(tokens(1)))
         numFields = numTokens-1

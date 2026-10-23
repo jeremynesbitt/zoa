@@ -1032,11 +1032,7 @@ module mod_lens_data_manager
           if (allocated(ldm%surfaces)) then
             if (ii-1 <= ubound(ldm%surfaces,1)) then
               if (allocated(ldm%surfaces(ii-1)%s)) then
-                if (ldm%surfaces(ii-1)%s%clap%is_set()) then
-                  strSurfLine = blankStr(2)//'CIR '// &
-                  & trim(real2str(ldm%surfaces(ii-1)%s%clap%dim1, 10))
-                  write(fID, '(A)') trim(strSurfLine)
-                end if
+                call writeApertureSaveLines(fID, ii-1)
                 ! Explicit edge (physical) aperture, if set.  Emitted without a
                 ! surface qualifier so it attaches to the current surface being
                 ! built (the surface pointer), like the CIR clear aperture above.
@@ -1078,19 +1074,7 @@ module mod_lens_data_manager
           & trim(strTHI)//blankStr(3)//curr_lens_data%glassnames(curr_lens_data%num_surfaces)  
         end if
         write(fID, '(A)') trim(strSurfLine)
-        if (allocated(ldm%surfaces)) then
-          if (curr_lens_data%num_surfaces-1 <= ubound(ldm%surfaces,1)) then
-            if (allocated(ldm%surfaces(curr_lens_data%num_surfaces-1)%s)) then
-              if (ldm%surfaces(curr_lens_data%num_surfaces-1)%s%clap%is_set()) then
-                ! NOTE: previously wrote the surface COUNT here (a bug); now writes
-                ! the image-surface aperture radius from the typed clap.
-                strSurfLine = blankStr(2)//'CIR '// &
-                & trim(real2str(ldm%surfaces(curr_lens_data%num_surfaces-1)%s%clap%dim1, 10))
-                write(fID, '(A)') trim(strSurfLine)
-              end if
-            end if
-          end if
-        end if
+        call writeApertureSaveLines(fID, curr_lens_data%num_surfaces-1)
         call writeDecenterSaveLines(fID, curr_lens_data%num_surfaces-1)
       
       
@@ -1113,6 +1097,72 @@ module mod_lens_data_manager
           call writeSolveSaveLine(fID, curr_lens_data, ii, SLV_YZ_CURV_SLOT)
         end do
 
+      end subroutine
+
+      ! Surface s's clear aperture (obs = .false.) or obscuration (.true.)
+      ! as KDP stores it: shape 0 none, 1 circle, 2 rectangle, 3 ellipse
+      ! (4+ racetrack/polygons); Y and X semi-widths (a circle's radius in
+      ! ys), Y and X decenters, rotation in degrees.
+      subroutine get_aperture_spec(s, obs, shape, ys, xs, yd, xd, tilt)
+        use mod_surface, only: surf_clap_type, surf_clap_dim, surf_clap_tilt, &
+        &                      surf_coat_type, surf_cobs_poly
+        integer, intent(in) :: s
+        logical, intent(in) :: obs
+        integer, intent(out) :: shape
+        real(real64), intent(out) :: ys, xs, yd, xd, tilt
+        if (obs) then
+          ! COBS: type in ALENS 16 (accessor named for coatings), data 17..22
+          shape = surf_coat_type(s)
+          ys = surf_cobs_poly(s, 1); xs = surf_cobs_poly(s, 2)
+          yd = surf_cobs_poly(s, 3); xd = surf_cobs_poly(s, 4)
+          tilt = surf_cobs_poly(s, 6)
+        else
+          shape = surf_clap_type(s)
+          ys = surf_clap_dim(s, 1); xs = surf_clap_dim(s, 2)
+          yd = surf_clap_dim(s, 3); xd = surf_clap_dim(s, 4)
+          tilt = surf_clap_tilt(s)
+        end if
+      end subroutine
+
+      ! Surface s's clear aperture and obscuration as CODE V lines (no
+      ! surface qualifier: they attach to the surface being built).
+      ! Racetrack and polygon apertures have no CODE V form here and are not
+      ! written.
+      subroutine writeApertureSaveLines(fID, s)
+        use type_utils, only: compactReal
+        integer, intent(in) :: fID, s
+        integer :: shape, k
+        real(real64) :: ys, xs, yd, xd, tilt
+        character(len=5) :: q
+
+        do k = 1, 2
+          call get_aperture_spec(s, k == 2, shape, ys, xs, yd, xd, tilt)
+          q = ''
+          if (k == 2) q = ' OBS'
+          select case (shape)
+          case (1)
+            call line('CIR'//trim(q), ys)
+          case (2)
+            call line('REX'//trim(q), xs)
+            call line('REY'//trim(q), ys)
+          case (3)
+            call line('ELX'//trim(q), xs)
+            call line('ELY'//trim(q), ys)
+          case default
+            cycle
+          end select
+          if (xd /= 0.0_real64) call line('ADX'//trim(q), xd)
+          if (yd /= 0.0_real64) call line('ADY'//trim(q), yd)
+          if (tilt /= 0.0_real64) call line('ARO'//trim(q), tilt)
+        end do
+
+      contains
+
+        subroutine line(nm, v)
+          character(len=*), intent(in) :: nm
+          real(real64), intent(in) :: v
+          write(fID, '(A)') '  '//nm//' '//trim(compactReal(v, 15))
+        end subroutine
       end subroutine
 
       ! Write surface s's decenter/tilt as CODE V lines with no surface

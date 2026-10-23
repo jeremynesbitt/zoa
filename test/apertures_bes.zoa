@@ -6,3 +6,33 @@ SET CAP
 BES
 FIR
 VIE ; GO
+! ---- CODE V aperture commands: rectangle/ellipse, decenter, rotation,
+! obscurations; saved and restored (the listing must not change).
+RES osdtriplet
+CIR S1 6
+ADY S1 0.11
+ADX S1 0.22
+REX S2 4
+REY S2 2
+ARO S2 15
+ELY OBS S4 1
+ELX OBS S4 0.5
+ADY OBS S4 0.2
+CIR OBS S5 0.7
+ADX OBS S5 0.02
+CIR SI 9
+SAV apsave
+PRT apsave
+RES apsave
+SAV apsave2
+PRT apsave2
+! A +Y aperture decenter on the stop moves the pupil +Y
+RES osdtriplet
+CIR S3 2.5
+ADY S3 1.5
+RSI f1 w1 0 0.7
+RSI f1 w1 0 -0.7
+! Errors
+ADX S3 1
+REX S2
+REX S99 1

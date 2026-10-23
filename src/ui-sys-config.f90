@@ -25,7 +25,7 @@ module ui_sys_config
   use g
   use zoa_ui
   use settings_obj
-  use kdp_data_types, only: FIELD_OBJECT_HEIGHT, FIELD_PARAX_IMAGE_HEIGHT, RAYAIM_PARAX, RAYAIM_REAL, RAYAIM_APLANATIC, RAYAIM_TELE
+  use kdp_data_types, only: FIELD_OBJECT_HEIGHT, FIELD_PARAX_IMAGE_HEIGHT, FIELD_REAL_IMAGE_HEIGHT, RAYAIM_PARAX, RAYAIM_REAL, RAYAIM_APLANATIC, RAYAIM_TELE
 
   implicit none
 
@@ -283,6 +283,7 @@ end subroutine
     select case (fieldID)
     case (FIELD_OBJECT_HEIGHT);      nm = 'YOB'
     case (FIELD_PARAX_IMAGE_HEIGHT); nm = 'YIM'
+    case (FIELD_REAL_IMAGE_HEIGHT);  nm = 'YRI'
     case default;                    nm = 'YAN'
     end select
     if (axis == 1) nm(1:1) = 'X'

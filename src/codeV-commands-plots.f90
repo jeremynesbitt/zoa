@@ -462,6 +462,12 @@ contains
 
         call parse(trim(iptStr), ' ', tokens, numTokens)
 
+        ! Obscuration: CIR OBS [Sk] r -- shared with REX/ELX/ADX/...
+        if (any(tokens(2:max(2,numTokens)) == 'OBS')) then
+            call setApertureValue(iptStr)
+            return
+        end if
+
         ! Edge (physical) aperture.  Two forms, mirroring CIR:
         !   CIR EDG <value>      -> current surface (surface pointer), used in .zoa
         !   CIR EDG Sk <value>   -> explicit surface k
@@ -492,8 +498,11 @@ contains
         select case (numTokens)
         case (2)
             if (isInputNumber(trim(tokens(2)))) then
+                ! No Sk: the current surface (the one being built in a .zoa;
+                ! KDP's own SURF lags behind after an SI line).
                 call kdp_silent_begin()
                 call kdp_lens_begin()
+                call kdp_chg(ldm%getSurfacePointer())
                 call kdp_lens_cmd('CLAP', w1=str2real8(trim(tokens(2))), w2=0.0d0, &
                 &                 w3=0.0d0, w4=str2real8(trim(tokens(2))))
                 call kdp_lens_end()

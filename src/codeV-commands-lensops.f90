@@ -1340,4 +1340,128 @@ contains
         end subroutine
     end procedure setDecenterType
 
+    !## cmd:      REX
+    !## syntax:   REX|REY|ELX|ELY|ADX|ADY|ARO [OBS] [Sk|Si..j] value
+    !## category: Apertures
+    !## desc:     Clear aperture (or, with OBS, obscuration) of surface Sk (default: the
+    !##           current surface): REX/REY rectangle and ELX/ELY ellipse X/Y semi-widths,
+    !##           ADX/ADY its decenter, ARO its rotation (degrees).  CIR OBS r is a
+    !##           circular obscuration.
+    !##
+    module procedure setApertureValue
+        use command_utils, only: isInputNumber
+        use mod_lens_data_manager, only: ldm, get_aperture_spec
+        use zoa_ui_callbacks, only: notify_replot
+        implicit none
+
+        character(len=80) :: tokens(40), cmd
+        integer :: numTokens, i, s, s0, s1, nArg
+        character(len=80) :: args(3)
+        logical :: obs, hasSurf
+        real(kind=real64) :: v
+
+        call parse(trim(iptStr), ' ', tokens, numTokens)
+        cmd = tokens(1)
+        obs = .false.
+        nArg = 0
+        do i = 2, numTokens
+            if (trim(tokens(i)) == 'OBS') then
+                obs = .true.
+            else if (nArg < 3) then
+                nArg = nArg + 1
+                args(nArg) = tokens(i)
+            else
+                nArg = 4
+            end if
+        end do
+        if (nArg < 1 .or. nArg > 2) then
+            call zoa_emit("Error:  expected "//trim(cmd)//" [OBS] [Sk|Si..j] value", "red")
+            return
+        end if
+        if (.not. isInputNumber(trim(args(nArg)))) then
+            call zoa_emit("Error:  "//trim(cmd)//": bad value "//trim(args(nArg)), "red")
+            return
+        end if
+        v = str2real8(trim(args(nArg)))
+        hasSurf = (nArg == 2)
+        if (hasSurf) then
+            if (.not. parseSurfaceSpec(args(1), s0, s1)) return
+        else
+            s0 = ldm%getSurfacePointer(); s1 = s0
+        end if
+        if (s0 < 1 .and. s1 < 1) then
+            call zoa_emit("Error:  the object surface takes no aperture", "red")
+            return
+        end if
+
+        call kdp_silent_begin()
+        call kdp_lens_begin()
+        do s = max(s0, 1), s1
+            call applyAperture(s)
+        end do
+        call kdp_lens_end()
+        call kdp_silent_end()
+        call notify_replot()
+
+    contains
+
+        ! Change one property of surface sk's aperture and re-send the whole
+        ! KDP CLAP/COBS (it takes every value at once).
+        subroutine applyAperture(sk)
+            integer, intent(in) :: sk
+            integer :: shape
+            real(kind=real64) :: ys, xs, yd, xd, tilt
+            character(len=4) :: word
+
+            call get_aperture_spec(sk, obs, shape, ys, xs, yd, xd, tilt)
+            select case (trim(cmd))
+            case ('CIR')
+                shape = 1; ys = v; xs = v
+            case ('REX', 'REY', 'ELX', 'ELY')
+                ! A new rectangle/ellipse starts square/round from this value.
+                if ((cmd(1:1) == 'R' .and. shape /= 2) .or. (cmd(1:1) == 'E' .and. shape /= 3)) then
+                    if (shape == 1) then
+                        xs = ys
+                    else
+                        xs = v; ys = v
+                    end if
+                end if
+                shape = merge(2, 3, cmd(1:1) == 'R')
+                if (cmd(3:3) == 'X') then
+                    xs = v
+                else
+                    ys = v
+                end if
+            case default
+                if (shape < 1 .or. shape > 3) then
+                    call zoa_emit("Error:  "//trim(cmd)//": surface "//trim(int2str(sk))// &
+                    &  " has no circular, rectangular or elliptical "// &
+                    &  trim(merge('obscuration', 'aperture   ', obs)), "red")
+                    return
+                end if
+                select case (trim(cmd))
+                case ('ADX'); xd = v
+                case ('ADY'); yd = v
+                case default; tilt = v
+                end select
+            end select
+
+            word = merge('COBS', 'CLAP', obs)
+            call kdp_chg(sk)
+            select case (shape)
+            case (1)
+                if (obs) then
+                    call kdp_lens_cmd(word, w1=ys, w2=yd, w3=xd)
+                else
+                    call kdp_lens_cmd(word, w1=ys, w2=yd, w3=xd, w4=ys)
+                end if
+            case (2)
+                call kdp_lens_cmd(word, wq='RECT', w1=ys, w2=xs, w3=yd, w4=xd)
+            case (3)
+                call kdp_lens_cmd(word, wq='ELIP', w1=ys, w2=xs, w3=yd, w4=xd)
+            end select
+            call kdp_lens_cmd(word, wq='TILT', w1=tilt)
+        end subroutine
+    end procedure setApertureValue
+
 end submodule mod_codev_lensops

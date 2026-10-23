@@ -435,6 +435,9 @@ module codeV_commands
    module subroutine setDecenterType(iptStr)
     character(len=*) :: iptStr
    end subroutine setDecenterType
+   module subroutine setApertureValue(iptStr)
+    character(len=*) :: iptStr
+   end subroutine setApertureValue
     end interface
 
 
@@ -707,6 +710,26 @@ module codeV_commands
         zoaCmds(779)%execFunc => setDecenterValue
         zoaCmds(780)%cmd = 'ZOD'
         zoaCmds(780)%execFunc => setDecenterValue
+        ! Rectangular / elliptical apertures, aperture decenter and rotation
+        ! (CIR is execCIR, which hands CIR OBS to setApertureValue).
+        zoaCmds(781)%cmd = 'REX'
+        zoaCmds(781)%execFunc => setApertureValue
+        zoaCmds(782)%cmd = 'REY'
+        zoaCmds(782)%execFunc => setApertureValue
+        zoaCmds(783)%cmd = 'ELX'
+        zoaCmds(783)%execFunc => setApertureValue
+        zoaCmds(784)%cmd = 'ELY'
+        zoaCmds(784)%execFunc => setApertureValue
+        zoaCmds(785)%cmd = 'ADX'
+        zoaCmds(785)%execFunc => setApertureValue
+        zoaCmds(786)%cmd = 'ADY'
+        zoaCmds(786)%execFunc => setApertureValue
+        zoaCmds(787)%cmd = 'ARO'
+        zoaCmds(787)%execFunc => setApertureValue
+        zoaCmds(788)%cmd = 'XRI'
+        zoaCmds(788)%execFunc => setField
+        zoaCmds(789)%cmd = 'YRI'
+        zoaCmds(789)%execFunc => setField
         zoaCmds(527)%cmd = 'SETDENS'
         zoaCmds(527)%execFunc => setPlotDensity     
         zoaCmds(528)%cmd = 'SETZERNC'

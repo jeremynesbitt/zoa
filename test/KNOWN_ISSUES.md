@@ -792,3 +792,22 @@ that path (they now go to the log file), which may be why it stopped.
 filled: ...` to `zoalogger.log` (in the writable Zoa folder; cleared at each
 launch) with the replot flag, tab, whether output reached the tab, and the
 character count. Read it before restarting Zoa.
+
+## Toric / cylindrical / anamorphic surfaces are not traced correctly (2026-10-23)
+**Found while** adding the CODE V shape commands (YTO, XTO, CYL, RDX, KX/KY,
+AAS with AR..DR/AP..DP), which the .seq importer translates to KDP
+YTORIC/XTORIC + RDTOR/CVTOR + CCTOR/ADTOR..AGTOR.
+
+- The legacy intersection (HITSUR typed path) ignores the toric flag and
+  intersects a toric as rotationally symmetric (surface-interaction.f90:154);
+  the global-free engine declines torics for that reason.
+- YTORIC + RDTOR changes the X fan only partly (refraction step); XTORIC +
+  RDTOR changes nothing at all, in real or paraxial traces (osdtriplet S1,
+  RDTOR 30: identical RSI and FIR).  The data is stored (LIS shows it).
+- Torics are not written by the .zoa save either.
+- CV2PRG's toric asphere terms test `TEMPC(I)(2:2).EQ.'A '` (wrong column),
+  so A..D on a YTO/XTO surface are dropped on import; only K maps.
+
+**Plan:** a toric/anamorphic `surface_type` (sag, intersection, normal) in the
+engine, then the CODE V commands + save.  Until then the shape commands are
+deliberately not exposed.

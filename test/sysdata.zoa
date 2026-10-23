@@ -50,3 +50,14 @@ WTF 1 1 2
 EVA SPO
 WTF 3 3 3
 EVA SPO
+! ---- Image-height fields are traced (YIM was stored but ignored; YRI was
+! not a command): the chief ray of the last field lands at that height.
+RES osdtriplet
+YIM 0 5 8 ; XIM 0 0 0
+RSI f3 w1 0 0
+YRI 0 5 8 ; XRI 0 0 0
+RSI f3 w1 0 0
+SAV yrisave
+PRT yrisave
+RES yrisave
+RSI f3 w1 0 0

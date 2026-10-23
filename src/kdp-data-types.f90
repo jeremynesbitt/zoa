@@ -469,7 +469,7 @@ type(sys_config) function sys_config_constructor() result(self)
 
   use DATLEN
   allocate(idText :: self%aperOptions(4))
-  allocate(idText :: self%refFieldOptions(3))
+  allocate(idText :: self%refFieldOptions(4))
   allocate(idText :: self%lensUnits(4))
   allocate(idText :: self%rayAimOptions(4))
 
@@ -506,6 +506,9 @@ type(sys_config) function sys_config_constructor() result(self)
 
   self%refFieldOptions(3)%text = "Paraxial Image Height"
   self%refFieldOptions(3)%id = FIELD_PARAX_IMAGE_HEIGHT
+
+  self%refFieldOptions(4)%text = "Real Image Height"
+  self%refFieldOptions(4)%id = FIELD_REAL_IMAGE_HEIGHT
 
   self%lensUnits(1)%text = "inches"
   self%lensUnits(1)%id = LENS_UNITS_INCHES
@@ -823,20 +826,24 @@ subroutine setRefFieldKDP(self)
     call kdp_lens_cmd('SCX', w1=self%refFieldValue(1), wq='FANG')
     call kdp_lens_end()
 
-  case (FIELD_PARAX_IMAGE_HEIGHT)
-        call sys_set_pxim( self%refFieldValue(1))
-        call sys_set_pyim( self%refFieldValue(2))
+  ! Image-height fields go through KDP's own commands, as the CODE V
+  ! importer does: setting the stored values alone left KDP on its previous
+  ! field definition (YIM/XIM were saved and shown but never traced).
+  case (FIELD_PARAX_IMAGE_HEIGHT, FIELD_PARAX_IMAGE_SLOPE_TAN)
+    call kdp_lens_begin()
+    call kdp_lens_cmd('PYIM', w1=self%refFieldValue(2))
+    call kdp_lens_end()
+    call kdp_lens_begin()
+    call kdp_lens_cmd('PXIM', w1=self%refFieldValue(1))
+    call kdp_lens_end()
 
-  case (FIELD_PARAX_IMAGE_SLOPE_TAN)
-        call sys_set_pxim( self%refFieldValue(1))
-        call sys_set_pyim( self%refFieldValue(2))
-
-  case (FIELD_REAL_IMAGE_HEIGHT)
-        call sys_set_rxim( self%refFieldValue(1))
-        call sys_set_ryim( self%refFieldValue(2))
-  case (FIELD_REAL_IMAGE_HEIGHT_DEG)
-        call sys_set_rxim( self%refFieldValue(1))
-        call sys_set_ryim( self%refFieldValue(2))
+  case (FIELD_REAL_IMAGE_HEIGHT, FIELD_REAL_IMAGE_HEIGHT_DEG)
+    call kdp_lens_begin()
+    call kdp_lens_cmd('RYIM', w1=self%refFieldValue(2))
+    call kdp_lens_end()
+    call kdp_lens_begin()
+    call kdp_lens_cmd('RXIM', w1=self%refFieldValue(1))
+    call kdp_lens_end()
 
   end select ! Reference Field
 
@@ -890,6 +897,8 @@ select case(iptStr)
     self%currFieldID = FIELD_PARAX_IMAGE_HEIGHT
   case('XIM')
     self%currFieldID = FIELD_PARAX_IMAGE_HEIGHT    
+  case('YRI', 'XRI')
+    self%currFieldID = FIELD_REAL_IMAGE_HEIGHT
 end select
 
 
@@ -927,7 +936,11 @@ subroutine getFieldRefFromSystemArr(self)
     & sys_ryim_fang_set, sys_scy_fang_set
   use DATLEN
   class(sys_config), intent(inout) :: self
-     if (sys_scy_fang_set().EQ.0.AND.sys_pxim_fang_set().EQ.0.AND.sys_pyim_fang_set().EQ.0) THEN
+     ! Real image height first: its flags are not part of the object-height
+     ! test below, which otherwise claimed it (fields then traced on axis).
+     if (sys_rxim_fang_set().EQ.-1.AND.sys_ryim_fang_set().EQ.-1) THEN
+       self%currFieldID = FIELD_REAL_IMAGE_HEIGHT
+     else if (sys_scy_fang_set().EQ.0.AND.sys_pxim_fang_set().EQ.0.AND.sys_pyim_fang_set().EQ.0) THEN
        self%currFieldID = FIELD_OBJECT_HEIGHT
        !self%currApertureName = "Object Height"
      else if (sys_scy_fang_set().EQ.1.AND.sys_pxim_fang_set().EQ.0.AND.sys_pyim_fang_set().EQ.0) THEN
@@ -1371,8 +1384,11 @@ subroutine genSaveOutputText(self, fID, forCodeV)
        ! (Was missing: a lens with image-height fields saved no field lines.)
        strXFLD = 'XIM'
        strYFLD = 'YIM'
+    case(FIELD_REAL_IMAGE_HEIGHT)
+       strXFLD = 'XRI'
+       strYFLD = 'YRI'
     case default
-       strXFLD = 'YAN'
+       strXFLD = 'XAN'
        strYFLD = 'YAN'
     end select
 
@@ -1625,22 +1641,12 @@ subroutine updateFieldSelectionByCode(self, ID_SELECTION)
    call sys_set_scx_fang( 0.0D0)
    SYSTEM(96:97) = 0.0D0  
 
- case (FIELD_REAL_IMAGE_HEIGHT)
-   call sys_set_rxim( self%refFieldValue(1))
-   call sys_set_ryim(  self%refFieldValue(2))
-   call sys_set_scy( 0.0D0)
-   call sys_set_scx( 0.0D0)
-   call sys_set_scy_fang( 0.0D0)
-   call sys_set_scx_fang( 0.0D0)
-   SYSTEM(92:93) = 0.0D0    
- case (FIELD_REAL_IMAGE_HEIGHT_DEG)
+ case (FIELD_REAL_IMAGE_HEIGHT, FIELD_REAL_IMAGE_HEIGHT_DEG)
+   ! KDP's RXIM/RYIM (setRefFieldKDP) set the mode.  The object-side field
+   ! is left alone: KDP's real-image-height search starts from it, and
+   ! zeroing it made every ray fail at the object.
    call sys_set_rxim( self%refFieldValue(1))
    call sys_set_ryim( self%refFieldValue(2))
-   call sys_set_scy( 0.0D0)
-   call sys_set_scx( 0.0D0)
-   call sys_set_scy_fang( 0.0D0)
-   call sys_set_scx_fang( 0.0D0)
-   SYSTEM(92:93) = 0.0D0  
  end select 
 
 end subroutine
@@ -1698,7 +1704,7 @@ function getFieldText(self) result(fldText)
     fldText = "Object Height ["//trim(self%getLensUnitsText())//"]"
   end if
   if (self%currFieldID.EQ.FIELD_REAL_IMAGE_HEIGHT) then 
-    fldText = "Image Height ["//trim(self%getLensUnitsText())//"]"
+    fldText = "Real Image Height ["//trim(self%getLensUnitsText())//"]"
   end if 
   if (self%currFieldID.EQ.FIELD_PARAX_IMAGE_HEIGHT) then 
     fldText = "Paraxial Image Height ["//trim(self%getLensUnitsText())//"]"
