@@ -1207,23 +1207,30 @@ contains
     ! distance from the energy-weighted centroid and read off the radius that
     ! encloses each percentage of the energy (linear interpolation).
     module procedure runRAD
-        use DATSP1, only: ITOT
+        use DATSP1, only: ITOT, SPDTYPE, NRECT
         use GLOBALS, only: DSPOTT
         use global_widgets, only: sysConfig
         use type_utils, only: real2str
         implicit none
         real(long), allocatable :: r(:), w(:)
         real(long) :: cx, cy, wsum, acc, target, rads(10, 10)
-        integer :: f, n, i, j, k, nf
+        integer :: f, n, i, j, k, nf, savedSpdType, savedNRect
         integer, allocatable :: order(:)
         character(len=1024) :: line
         character(len=12) :: cell
 
         nf = sysConfig%numFields
         rads = 0.0_long
+        ! Pin the spot sampling (rectangular grid, NRD across) for this run
+        ! and put the KDP globals back after, so neither RAD nor a later spot
+        ! diagram inherits the other's sampling (as RMS vs Field does).
+        savedSpdType = SPDTYPE
+        savedNRect   = NRECT
+        SPDTYPE = 1
+        NRECT   = radNRD
         do f = 1, nf
-            write(line, '(A,F0.6,1X,F0.6,A,I0,A)') 'FOB ', sysConfig%relativeFields(2,f), &
-            &  sysConfig%relativeFields(1,f), '; SPOT RECT; RECT ', radNRD, '; SPD'
+            write(line, '(A,F0.6,1X,F0.6,A)') 'FOB ', sysConfig%relativeFields(2,f), &
+            &  sysConfig%relativeFields(1,f), '; SPD'
             call PROCESSILENT(trim(line))
             n = 0
             if (allocated(DSPOTT)) then
@@ -1281,6 +1288,8 @@ contains
             end do
             deallocate(r, w, order)
         end do
+        SPDTYPE = savedSpdType
+        NRECT   = savedNRect
 
         call zoa_emit("GEOMETRIC RADIAL ENERGY (polychromatic, about the spot centroid; NRD "// &
         &  trim(int2str(radNRD))//")", "black")

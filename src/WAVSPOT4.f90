@@ -476,7 +476,9 @@ SUBROUTINE REDPAK(LARGER,M1,N1,IIRED)
          J=J+1
       END IF
    END DO
-   JRED=J
+   ! J ends one past the last packed entry (it overran LARGER2 when every
+   ! entry was non-zero).
+   JRED=J-1
    LARGER(1:M1,1:N1)=0.0D0
    LARGER(1:JRED,1:N1)=LARGER2(1:JRED,1:N1)
    IF(JRED.LT.IRED) THEN
