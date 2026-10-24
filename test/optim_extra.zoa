@@ -284,3 +284,37 @@ CT = 3
 EFY S9..12 = 1
 CT S1 W2 = 3
 EOS
+! ---- CODE V constraints, batches 2-3: AX LAT DIX DIY AOI AOR MXA XCN YCN ----
+RES osdtriplet
+EVA AX
+EVA AX W2 W3
+EVA LAT W2 W3
+EVA DIY F3
+EVA DIY F2
+EVA DIX F3
+RSI f3 w1 0 0
+EVA AOI S2 F3
+EVA AOR S2 F3
+EVA AOI S2 R2 F3
+EVA MXA
+EVA YCN F3
+EVA YCN F3 W2
+EVA XCN F3
+! Hold the distortion and lateral colour while optimizing.  These values
+! are far below the default IMP (0.01), which the optimizer treats as close
+! enough (see KNOWN_ISSUES), so tighten IMP.
+CCY S1 0
+CCY S6 0
+IMP 0.000001
+AUT
+DIY F3 < 0.0004
+LAT W2 W3 = 0.003
+SPO 0 1
+GO
+EVA DIY F3
+EVA LAT W2 W3
+EOS
+! Errors
+EVA AOI F3
+EVA AOI S2 R7
+EVA DIY F9

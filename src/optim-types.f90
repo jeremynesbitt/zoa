@@ -112,6 +112,22 @@ module optim_types
             class(merit_entry) :: self
             real(long) :: res
         end function
+        module function getColorConstraint(self) result(res)
+            class(merit_entry) :: self
+            real(long) :: res
+        end function
+        module function getDistortionConstraint(self) result(res)
+            class(merit_entry) :: self
+            real(long) :: res
+        end function
+        module function getRayAngleConstraint(self) result(res)
+            class(merit_entry) :: self
+            real(long) :: res
+        end function
+        module function getCentroidConstraint(self) result(res)
+            class(merit_entry) :: self
+            real(long) :: res
+        end function
         module function getTransverseAstigmatismConstraint(self) result(res)
             class(merit_entry) :: self
             real(long) :: res
@@ -225,6 +241,15 @@ module optim_types
         call reg('TT',  getFirstOrderConstraint)
         call reg('ENP', getFirstOrderConstraint)
         call reg('EXP', getFirstOrderConstraint)
+        call reg('AX',  getColorConstraint)
+        call reg('LAT', getColorConstraint)
+        call reg('DIX', getDistortionConstraint)
+        call reg('DIY', getDistortionConstraint)
+        call reg('AOI', getRayAngleConstraint)
+        call reg('AOR', getRayAngleConstraint)
+        call reg('MXA', getRayAngleConstraint)
+        call reg('XCN', getCentroidConstraint)
+        call reg('YCN', getCentroidConstraint)
 
     contains
 
@@ -413,8 +438,9 @@ module optim_types
         case ('CT', 'ET', 'SD', 'ATC', 'ATE'); lay = 'S'
         case ('OAL', 'EFY', 'EFX');           lay = 'G'
         case ('AX', 'LAT');                   lay = 'WV'
-        case ('DIX', 'DIY', 'XCN', 'YCN');    lay = 'FW'
-        case ('AOI', 'AOR');                  lay = 'SRFW'
+        case ('DIX', 'DIY');                  lay = 'F'
+        case ('XCN', 'YCN');                  lay = 'FW'
+        case ('AOI', 'AOR');                  lay = 'SRF'
         end select
     end function
 

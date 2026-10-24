@@ -116,40 +116,7 @@ contains
             end if
         end function
 
-        ! Marginal (1:4) and chief (5:8) ray at surface k: height, slope,
-        ! incidence slope, refracted incidence slope.
-        subroutine paraxialRayAt(k, lam, useX, ray)
-            use paraxial_ray_trace_test, only: traNextSurf
-            integer, intent(in) :: k, lam
-            logical, intent(in) :: useX
-            real(long), intent(out) :: ray(8)
-            real(long) :: p0(8), p1(8)
-            integer :: L
 
-            if (useX) then
-                p0 = PXTRAX(1:8, 0); p1 = PXTRAX(1:8, 1)
-                if (lam == int(sys_wl_ref())) then
-                    ray = PXTRAX(1:8, k); return
-                end if
-            else
-                p0 = PXTRAY(1:8, 0); p1 = PXTRAY(1:8, 1)
-                if (lam == int(sys_wl_ref())) then
-                    ray = PXTRAY(1:8, k); return
-                end if
-            end if
-
-            if (k == 0) then
-                ray = p0; return
-            end if
-            ! Surface 1: same height as the reference trace (object space is
-            ! wavelength independent), refracted at this wavelength.
-            ray(1:4) = traNextSurf(p0(1:4), 1, lam, useX, overridePos=p1(1))
-            ray(5:8) = traNextSurf(p0(5:8), 1, lam, useX, overridePos=p1(5))
-            do L = 2, k
-                ray(1:4) = traNextSurf(ray(1:4), L, lam, useX)
-                ray(5:8) = traNextSurf(ray(5:8), L, lam, useX)
-            end do
-        end subroutine
 
     end function
 
@@ -322,6 +289,173 @@ contains
                 res = 1.0e20_long        ! afocal group
             end if
         end select
+    end function
+
+    ! Marginal (1:4) and chief (5:8) ray at surface k: height, slope,
+    ! incidence slope, refracted incidence slope.
+    subroutine paraxialRayAt(k, lam, useX, ray)
+        use paraxial_ray_trace_test, only: traNextSurf
+        use DATLEN, only: PXTRAY, PXTRAX
+        use mod_system, only: sys_wl_ref
+        integer, intent(in) :: k, lam
+        logical, intent(in) :: useX
+        real(long), intent(out) :: ray(8)
+        real(long) :: p0(8), p1(8)
+        integer :: L
+
+        if (useX) then
+            p0 = PXTRAX(1:8, 0); p1 = PXTRAX(1:8, 1)
+            if (lam == int(sys_wl_ref())) then
+                ray = PXTRAX(1:8, k); return
+            end if
+        else
+            p0 = PXTRAY(1:8, 0); p1 = PXTRAY(1:8, 1)
+            if (lam == int(sys_wl_ref())) then
+                ray = PXTRAY(1:8, k); return
+            end if
+        end if
+
+        if (k == 0) then
+            ray = p0; return
+        end if
+        ! Surface 1: same height as the reference trace (object space is
+        ! wavelength independent), refracted at this wavelength.
+        ray(1:4) = traNextSurf(p0(1:4), 1, lam, useX, overridePos=p1(1))
+        ray(5:8) = traNextSurf(p0(5:8), 1, lam, useX, overridePos=p1(5))
+        do L = 2, k
+            ray(1:4) = traNextSurf(ray(1:4), L, lam, useX)
+            ray(5:8) = traNextSurf(ray(5:8), L, lam, useX)
+        end do
+    end subroutine
+
+    ! AX / LAT [Wj] [Wm] (CODE V, paraxial): axial colour = paraxial image
+    ! distance (from the last surface) at Wj minus at Wm; lateral colour =
+    ! paraxial chief ray height on the image at Wj minus at Wm.  Default Wj =
+    ! W1, Wm = the last wavelength (CODE V's defaults).
+    module function getColorConstraint(self) result(res)
+        use mod_lens_data_manager
+        use global_widgets, only: sysConfig
+        class(merit_entry) :: self
+        real(long) :: res
+        integer :: w1, w2, kLast
+        real(long) :: r1(8), r2(8)
+
+        w1 = merge(self%iW, 1, self%iW > 0)
+        w2 = merge(self%iW2, sysConfig%numWavelengths, self%iW2 > 0)
+        if (trim(self%name) == 'AX') then
+            kLast = ldm%getLastSurf() - 1
+            call paraxialRayAt(kLast, w1, .false., r1)
+            call paraxialRayAt(kLast, w2, .false., r2)
+            res = imageDistance(r1) - imageDistance(r2)
+        else
+            kLast = ldm%getLastSurf()
+            call paraxialRayAt(kLast, w1, .false., r1)
+            call paraxialRayAt(kLast, w2, .false., r2)
+            res = r1(5) - r2(5)
+        end if
+
+    contains
+
+        ! Where the marginal ray leaving the last surface crosses the axis.
+        real(long) function imageDistance(r)
+            real(long), intent(in) :: r(8)
+            if (r(2) /= 0.0_long) then
+                imageDistance = -r(1)/r(2)
+            else
+                imageDistance = 1.0e20_long
+            end if
+        end function
+    end function
+
+    ! DIX / DIY [Fk] (CODE V): distortion fraction of field k (default the
+    ! last field) -- (real chief ray image height - ideal) / ideal, ideal =
+    ! EFL*tan(object-space chief ray angle) for an infinite object, or
+    ! magnification * object height for a finite one.  0.05 is 5%.
+    module function getDistortionConstraint(self) result(res)
+        use mod_reference_rays, only: refRays, R1_CHIEF
+        use global_widgets, only: curr_par_ray_trace, sysConfig
+        use mod_surface, only: surf_thickness
+        class(merit_entry) :: self
+        real(long) :: res
+        integer :: f, c, o, im
+        real(long) :: real_h, ideal
+
+        res = 0.0_long
+        f = merge(self%iF, sysConfig%numFields, self%iF > 0)
+        call refRays%populate()
+        if (.not. refRays%valid .or. f > refRays%getNumFields()) return
+        if (.not. refRays%fields(f)%ray(R1_CHIEF)%traced_ok) return
+        o  = refRays%fields(f)%ray(R1_CHIEF)%obj_surf
+        im = refRays%fields(f)%ray(R1_CHIEF)%img_surf
+        c = merge(1, 2, trim(self%name) == 'DIX')      ! X or Y coordinate
+        associate (d => refRays%fields(f)%ray(R1_CHIEF)%data)
+            real_h = d(c, im)
+            if (abs(surf_thickness(o)) >= 1.0e10_long) then
+                if (d(6, o) == 0.0_long) return
+                ideal = curr_par_ray_trace%EFL*d(3+c, o)/d(6, o)
+            else
+                ideal = curr_par_ray_trace%t_mag*d(c, o)
+            end if
+        end associate
+        if (ideal /= 0.0_long) res = (real_h - ideal)/ideal
+    end function
+
+    ! AOI / AOR Sk [Ri] [Fk], MXA (CODE V), in degrees, from the reference
+    ! rays (refreshed here, as the optimizer changes the lens):
+    !   AOI / AOR  angle of incidence / refraction of ray Ri (default R1, the
+    !              chief ray) of field k (default F1) at surface Sk;
+    !   MXA        the largest angle of incidence of any reference ray of any
+    !              field at any surface.
+    module function getRayAngleConstraint(self) result(res)
+        use mod_reference_rays, only: refRays, NUM_REF_RAYS
+        class(merit_entry) :: self
+        real(long) :: res
+        real(long), parameter :: r2d = 57.29577951308232_long
+        integer :: f, r, s, row
+
+        res = 0.0_long
+        call refRays%populate()
+        if (.not. refRays%valid) return
+        if (trim(self%name) == 'MXA') then
+            do f = 1, refRays%getNumFields()
+                do r = 1, NUM_REF_RAYS
+                    if (.not. refRays%fields(f)%ray(r)%traced_ok) cycle
+                    associate (rec => refRays%fields(f)%ray(r))
+                        do s = rec%obj_surf + 1, rec%img_surf
+                            res = max(res, r2d*acos(min(1.0_long, abs(rec%data(9, s)))))
+                        end do
+                    end associate
+                end do
+            end do
+            return
+        end if
+        f = merge(self%iF, 1, self%iF > 0)
+        r = merge(self%iR, 1, self%iR > 0)
+        if (f > refRays%getNumFields()) return
+        if (.not. refRays%fields(f)%ray(r)%traced_ok) return
+        row = merge(9, 10, trim(self%name) == 'AOI')
+        associate (rec => refRays%fields(f)%ray(r))
+            s = self%iS
+            if (s < rec%obj_surf .or. s > rec%img_surf) return
+            res = r2d*acos(min(1.0_long, abs(rec%data(row, s))))
+        end associate
+    end function
+
+    ! XCN / YCN [Fk] [Wm] (CODE V): X / Y centroid of the spot of field k
+    ! (default F1) at wavelength m (default the reference wavelength) on the
+    ! image surface -- the same rectangular-grid spot SPO uses.
+    module function getCentroidConstraint(self) result(res)
+        use DATSPD, only: CENTX, CENTY
+        use plot_command_utils, only: getKDPSpotPlotCommand
+        use mod_system, only: sys_wl_ref
+        class(merit_entry) :: self
+        real(long) :: res
+        integer :: f, lam
+
+        f = merge(self%iF, 1, self%iF > 0)
+        lam = merge(self%iW, int(sys_wl_ref()), self%iW > 0)
+        call PROCESSILENT(trim(getKDPSpotPlotCommand(f, lam, ID_SPOT_RECT, 20, -1, -1)))
+        res = merge(CENTX, CENTY, trim(self%name) == 'XCN')
     end function
 
 end submodule optim_types_callbacks

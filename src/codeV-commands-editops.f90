@@ -181,6 +181,91 @@ contains
     !## category: Optimization
     !## desc:     Y-Z paraxial chief ray incidence angle (index*i) merit entry (default image surface, reference wavelength).
     !##
+    !## cmd:      CT
+    !## syntax:   CT Sk = v | CT Sk v [w]
+    !## category: Optimization
+    !## desc:     Center thickness after surface Sk.
+    !##
+    !## cmd:      ET
+    !## syntax:   ET Sk = v | ET Sk v [w]
+    !## category: Optimization
+    !## desc:     Edge thickness after surface Sk, at the larger of the two semi-diameters.
+    !##
+    !## cmd:      SD
+    !## syntax:   SD Sk = v | SD Sk v [w]
+    !## category: Optimization
+    !## desc:     Semi-diameter of surface Sk (assigned clear aperture, else the ray-traced extent).
+    !##
+    !## cmd:      ATC
+    !## syntax:   ATC Sk = v | ATC Sk v [w]
+    !## category: Optimization
+    !## desc:     Center thickness after Sk divided by the diameter.
+    !##
+    !## cmd:      ATE
+    !## syntax:   ATE Sk = v | ATE Sk v [w]
+    !## category: Optimization
+    !## desc:     Edge thickness after Sk divided by the diameter.
+    !##
+    !## cmd:      OAL
+    !## syntax:   OAL [Si..j] = v | OAL [Si..j] v [w]
+    !## category: Optimization
+    !## desc:     Distance from Si to Sj (thicknesses Si..j-1; default S1 to the last surface before the image).
+    !##
+    !## cmd:      EFY
+    !## syntax:   EFY [Si..j] = v | EFY [Si..j] v [w]
+    !## category: Optimization
+    !## desc:     Effective focal length of the system or of surfaces Si..j (Y-Z plane).
+    !##
+    !## cmd:      EFX
+    !## syntax:   EFX [Si..j] = v | EFX [Si..j] v [w]
+    !## category: Optimization
+    !## desc:     Effective focal length in the X-Z plane (equal to EFY: torics are not traced).
+    !##
+    !## cmd:      TT
+    !## syntax:   TT = v | TT v [w]
+    !## category: Optimization
+    !## desc:     Total track, object to image.
+    !##
+    !## cmd:      ENP
+    !## syntax:   ENP = v | ENP v [w]
+    !## category: Optimization
+    !## desc:     Paraxial entrance pupil position from S1.
+    !##
+    !## cmd:      EXP
+    !## syntax:   EXP = v | EXP v [w]
+    !## category: Optimization
+    !## desc:     Paraxial exit pupil position from the last surface before the image.
+    !##
+    !## cmd:      AX
+    !## syntax:   AX [Wj] [Wm] = v | AX [Wj] [Wm] v [w]
+    !## category: Optimization
+    !## desc:     Axial colour: paraxial image distance at Wj minus at Wm (default W1 and the last wavelength).
+    !##
+    !## cmd:      LAT
+    !## syntax:   LAT [Wj] [Wm] = v | LAT [Wj] [Wm] v [w]
+    !## category: Optimization
+    !## desc:     Lateral colour: paraxial chief ray image height at Wj minus at Wm.
+    !##
+    !## cmd:      DIY
+    !## syntax:   DIY [Fk] = v | DIY [Fk] v [w]
+    !## category: Optimization
+    !## desc:     Distortion fraction (0.05 = 5%) of field k, Y coordinate (default the last field). DIX for X.
+    !##
+    !## cmd:      AOI
+    !## syntax:   AOI Sk [Ri] [Fk] = v | AOI Sk [Ri] [Fk] v [w]
+    !## category: Optimization
+    !## desc:     Angle of incidence (deg) of reference ray Ri (default R1) of field k (default F1) at Sk. AOR: angle of refraction.
+    !##
+    !## cmd:      MXA
+    !## syntax:   MXA = v | MXA v [w]
+    !## category: Optimization
+    !## desc:     Largest angle of incidence (deg) of any reference ray at any surface.
+    !##
+    !## cmd:      YCN
+    !## syntax:   YCN [Fk] [Wm] = v | YCN [Fk] [Wm] v [w]
+    !## category: Optimization
+    !## desc:     Y centroid of the spot of field k (default F1) at wavelength m. XCN for X.
+    !##
     module procedure updateConstraint
         use command_utils, only : isInputNumber
         use mod_lens_data_manager
