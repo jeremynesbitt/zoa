@@ -149,8 +149,9 @@ SPOT RECT
 RECT 20
 SPD
 REDK CENT
-! Errors
+! Errors; CAN closes the option without plotting
 RAD
 PER 120
-FOO 3
+NRD 1
+CAN
 CAN

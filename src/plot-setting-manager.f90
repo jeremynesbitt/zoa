@@ -36,6 +36,9 @@ module plot_setting_manager
     integer, parameter :: SETTING_RSPH = 1758
     ! Spot diagram: overlay the Airy disk
     integer, parameter :: SETTING_AIRY = 1759
+    ! RAD (radial energy): rays across the pupil, and the percentages listed.
+    integer, parameter :: SETTING_RAD_NRD = 1760
+    integer, parameter :: SETTING_RAD_PER = 1761
     integer, parameter :: SETTING_ZERNIKE = 4
 
 
@@ -45,7 +48,7 @@ module plot_setting_manager
       character(len=3) :: prefix !For command parsing
       type(idText), allocatable :: set(:) ! options for a combo box
       character(len=80) :: label
-      character(len=10) :: defaultStr
+      character(len=80) :: defaultStr   ! (.zin stores it length-prefixed)
       character(len=80) :: cmd ! The Command used to change the value.  Eg SETWV or SETDENS
       character(len=80) :: fullCmd ! command + value to change.  eg SETWV 1
 
@@ -119,6 +122,7 @@ module plot_setting_manager
 
     !RMS Settings
     procedure, public, pass(self) :: addRMSFieldSettings
+    procedure, public, pass(self) :: addRADSettings, getRADSettings
     procedure, public, pass(self) :: getRMSFieldSettings
     procedure, public, pass(self) :: getRSPHSetting
     procedure, public, pass(self) :: getAirySetting
@@ -611,6 +615,46 @@ contains
       if (nZern < 1) nZern = 1
       if (nZern > PMA_MAX_ZERN) nZern = PMA_MAX_ZERN
 
+    end subroutine
+
+    ! RAD: NRD rays across the pupil (default 20) and the energy percentages
+    ! tabulated (PER, default 10 20 .. 100).
+    subroutine addRADSettings(self)
+      class (zoaplot_setting_manager) :: self
+      self%numSettings = self%numSettings + 1
+      call self%ps(self%numSettings)%initialize(SETTING_RAD_NRD, &
+      & "Rays Across Pupil", real(20.0),2.0,200.0, &
+      & "NRD ", "NRD 20", UITYPE_SPINBUTTON)
+      self%numSettings = self%numSettings + 1
+      call self%ps(self%numSettings)%initializeStr(SETTING_RAD_PER, &
+      & "Energy Percentages", "10 20 30 40 50 60 70 80 90 100", "PER", UITYPE_ENTRY)
+    end subroutine
+
+    subroutine getRADSettings(self, nrd, per, nper)
+      use strings, only: parse
+      use command_utils, only: isInputNumber
+      use type_utils, only: str2real8
+      class (zoaplot_setting_manager) :: self
+      integer, intent(out) :: nrd, nper
+      real(kind=kind(1.0d0)), intent(out) :: per(10)
+      character(len=80) :: tk(40), txt
+      integer :: i, nt
+      nrd = int(self%getSettingValueByCode(SETTING_RAD_NRD))
+      nper = 0
+      do i = 1, self%numSettings
+        if (self%ps(i)%ID /= SETTING_RAD_PER) cycle
+        txt = self%ps(i)%defaultStr
+        call parse(trim(txt), ' ', tk, nt)
+        do nper = 0, min(nt, 10) - 1
+          if (.not. isInputNumber(trim(tk(nper+1)))) exit
+          per(nper+1) = str2real8(trim(tk(nper+1)))
+        end do
+        nper = min(nper, 10)
+      end do
+      if (nper == 0) then
+        nper = 10
+        per = [(10.0d0*i, i = 1, 10)]
+      end if
     end subroutine
 
     subroutine addRMSFieldSettings(self)

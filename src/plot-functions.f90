@@ -1277,6 +1277,212 @@ call mplt%set(1,1,xyscat)
 call finalizeGoPlot_new(mplt, psm, replot, objIdx)
 end subroutine
 
+! RAD -- geometric radial (encircled) energy, CODE V's RAD option.  For each
+! field: trace the polychromatic spot (rectangular grid, NRD rays across the
+! pupil, wavelength-weighted), sort the rays by distance from the energy-
+! weighted centroid, and accumulate their energy.  Plots the enclosed energy
+! (%) vs radius per field; the Data tab holds those curves on a common radius
+! grid (paste into MATLAB/Python as columns); the radius enclosing each PER
+! percentage is listed in the terminal.
+subroutine rad_go(psm)
+  USE GLOBALS
+  use global_widgets, only: sysConfig, ioConfig
+  use kdp_utils, only: OUTKDP
+  use type_utils, only: int2str
+  use DATSP1, only: ITOT, SPDTYPE, NRECT
+  use zoa_output, only: zoa_emit
+  use plplot, PI => PL_PI
+  use plplot_extra
+  use iso_c_binding, only: c_ptr, c_null_ptr
+  use iso_fortran_env, only: real64
+  implicit none
+  type(zoaplot_setting_manager) :: psm
+  type(zoaplot) :: xyscat
+  type(multiplot) :: mplt
+  type(c_ptr) :: canvas
+  logical :: replot
+  integer :: objIdx, nrd, nper, nf, f, i, j, k, n, savedSpdType, savedNRect
+  integer, parameter :: NGRID = 101
+  real(real64) :: per(10), cx, cy, wsum, acc, target, rmax
+  real(real64), allocatable :: r(:,:), w(:,:), rads(:,:), grid(:), enc(:,:)
+  integer, allocatable :: nRays(:), order(:)
+  character(len=1024) :: line
+  character(len=16) :: cell
+  character(len=30), allocatable :: legend(:)
+  integer, parameter :: colors(6) = [PL_PLOT_BLUE, PL_PLOT_RED, PL_PLOT_GREEN, &
+  &                                  PL_PLOT_BLACK, PL_PLOT_MAGENTA, PL_PLOT_CYAN]
+
+  call initializeGoPlot(psm, ID_PLOTTYPE_RAD, "Radial Energy", replot, objIdx)
+  call psm%getRADSettings(nrd, per, nper)
+  nf = sysConfig%numFields
+
+  ! Pin the spot sampling for this plot and restore it after (as RMS vs
+  ! Field does), so neither this plot nor a later spot diagram inherits the
+  ! other's sampling.
+  savedSpdType = SPDTYPE
+  savedNRect   = NRECT
+  SPDTYPE = 1
+  NRECT   = nrd
+
+  allocate(nRays(nf), rads(10, nf))
+  nRays = 0
+  rads = 0.0d0
+  allocate(r(1, nf), w(1, nf))
+  r = 0.0d0; w = 0.0d0
+  do f = 1, nf
+    write(line, '(A,F0.6,1X,F0.6,A)') 'FOB ', sysConfig%relativeFields(2,f), &
+    &  sysConfig%relativeFields(1,f), '; SPD'
+    call PROCESSILENT(trim(line))
+    if (.not. allocated(DSPOTT)) cycle
+    if (size(r, 1) < ITOT) then
+      ! grow the per-field ray storage (fields share one array)
+      block
+        real(real64), allocatable :: r2(:,:), w2(:,:)
+        allocate(r2(ITOT, nf), w2(ITOT, nf))
+        r2 = 0.0d0; w2 = 0.0d0
+        r2(1:size(r,1), :) = r; w2(1:size(w,1), :) = w
+        call move_alloc(r2, r); call move_alloc(w2, w)
+      end block
+    end if
+    cx = 0.0d0; cy = 0.0d0; wsum = 0.0d0
+    do i = 1, ITOT - 1
+      if (DSPOTT(17,i) == 0.0d0 .or. DSPOTT(12,i) == 0.0d0) cycle
+      wsum = wsum + DSPOTT(12,i)
+      cx = cx + DSPOTT(12,i)*DSPOTT(1,i)
+      cy = cy + DSPOTT(12,i)*DSPOTT(2,i)
+    end do
+    if (wsum <= 0.0d0) cycle
+    cx = cx/wsum; cy = cy/wsum
+    n = 0
+    do i = 1, ITOT - 1
+      if (DSPOTT(17,i) == 0.0d0 .or. DSPOTT(12,i) == 0.0d0) cycle
+      n = n + 1
+      r(n, f) = hypot(DSPOTT(1,i) - cx, DSPOTT(2,i) - cy)
+      w(n, f) = DSPOTT(12,i)/wsum
+    end do
+    ! sort this field's rays by radius (insertion sort; a few thousand rays)
+    allocate(order(n))
+    order = [(i, i = 1, n)]
+    do i = 2, n
+      k = order(i); j = i - 1
+      do while (j >= 1)
+        if (r(order(j), f) <= r(k, f)) exit
+        order(j+1) = order(j); j = j - 1
+      end do
+      order(j+1) = k
+    end do
+    r(1:n, f) = r(order, f)
+    w(1:n, f) = w(order, f)
+    deallocate(order)
+    nRays(f) = n
+    ! radius enclosing each percentage (linear within a ray's energy share)
+    do k = 1, nper
+      target = per(k)/100.0d0
+      acc = 0.0d0
+      rads(k, f) = r(n, f)
+      do i = 1, n
+        if (acc + w(i, f) >= target - 1.0d-12) then
+          if (i == 1) then
+            rads(k, f) = r(1, f)*target/max(w(1, f), tiny(1.0d0))
+          else
+            rads(k, f) = r(i-1, f) + (r(i, f) - r(i-1, f))*(target - acc)/max(w(i, f), tiny(1.0d0))
+          end if
+          exit
+        end if
+        acc = acc + w(i, f)
+      end do
+    end do
+  end do
+  SPDTYPE = savedSpdType
+  NRECT   = savedNRect
+
+  ! Enclosed energy (%) on a common radius grid, for the plot and Data tab.
+  rmax = 0.0d0
+  do f = 1, nf
+    if (nRays(f) > 0) rmax = max(rmax, r(nRays(f), f))
+  end do
+  if (rmax <= 0.0d0) then
+    call zoa_emit("RAD: no rays reached the image", "red")
+    return
+  end if
+  allocate(grid(NGRID), enc(NGRID, nf))
+  grid = [((rmax*(i-1))/(NGRID-1), i = 1, NGRID)]
+  enc = 0.0d0
+  do f = 1, nf
+    acc = 0.0d0
+    j = 1
+    do i = 1, NGRID
+      do while (j <= nRays(f))
+        if (r(j, f) > grid(i)) exit
+        acc = acc + w(j, f)
+        j = j + 1
+      end do
+      enc(i, f) = 100.0d0*min(acc, 1.0d0)
+    end do
+  end do
+
+  ! Terminal: the percentage table (CODE V's RAD listing).
+  call zoa_emit("GEOMETRIC RADIAL ENERGY (polychromatic, about the spot centroid; NRD "// &
+  &  trim(int2str(nrd))//")", "black")
+  call zoa_emit("Radius enclosing the energy, "//trim(sysConfig%getLensUnitsText()), "black")
+  line = '  Energy %'
+  do f = 1, nf
+    write(cell, '(A,I0)') 'F', f
+    line = trim(line)//repeat(' ', 12 - len_trim(cell))//trim(cell)
+  end do
+  call zoa_emit(trim(line), "black")
+  do k = 1, nper
+    write(line, '(F10.1)') per(k)
+    do f = 1, nf
+      write(cell, '(ES12.4)') rads(k, f)
+      line = trim(line)//cell(1:12)
+    end do
+    call zoa_emit(trim(line), "black")
+  end do
+
+  ! Data tab: radius and enclosed energy (%) per field, as columns.
+  if (.not. HEADLESS_MODE) call ioConfig%setTextViewFromPtr(getTabTextView(objIdx))
+  line = '    Radius['//trim(sysConfig%getLensUnitsText())//']'
+  do f = 1, nf
+    write(cell, '(A,I0,A)') 'F', f, '[%]'
+    line = trim(line)//repeat(' ', 12 - len_trim(cell))//trim(cell)
+  end do
+  call OUTKDP(trim(line))
+  do i = 1, NGRID
+    write(line, '(ES14.6)') grid(i)
+    do f = 1, nf
+      write(cell, '(F12.4)') enc(i, f)
+      line = trim(line)//cell(1:12)
+    end do
+    call OUTKDP(trim(line))
+  end do
+  if (.not. HEADLESS_MODE) call ioConfig%setTextView(ID_TERMINAL_DEFAULT)
+
+  if (HEADLESS_MODE) then
+    canvas = c_null_ptr
+  else
+    canvas = hl_gtk_drawing_area_new(size=[1200,800], has_alpha=FALSE)
+  end if
+  call mplt%initialize(canvas, 1, 1)
+  call xyscat%initialize(c_null_ptr, real(grid), real(enc(:,1)), &
+  & xlabel='Radius ['//trim(sysConfig%getLensUnitsText())//']'//c_null_char, &
+  & ylabel='Enclosed Energy [%]'//c_null_char, &
+  & title='Geometric Radial Energy'//c_null_char)
+  call xyscat%setDataColorCode(colors(1))
+  allocate(legend(nf))
+  do f = 1, nf
+    write(legend(f), '(A,I0)') 'F', f
+    if (f > 1) then
+      ! (setDataColorCode colours the most recently added series)
+      call xyscat%addXYPlot(real(grid), real(enc(:,f)))
+      call xyscat%setDataColorCode(colors(mod(f-1, size(colors)) + 1))
+    end if
+  end do
+  call xyscat%addLegend(legend)
+  call mplt%set(1, 1, xyscat)
+  call finalizeGoPlot_new(mplt, psm, replot, objIdx)
+end subroutine rad_go
+
 ! FFT/image plot implementations live in plot-functions-fft.f90
 
 ! Rebuild a plot base command with exactly ONE trailing plot-number token.
