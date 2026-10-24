@@ -237,3 +237,50 @@ RES osdtriplet
 IMP
 RES imptest
 IMP
+! ---- CODE V constraints, batch 1: CT ET SD ATC ATE OAL EFY EFX TT ENP EXP ----
+RES osdtriplet
+EVA CT S1
+EVA SD S1
+EVA ET S1
+EVA ATC S1
+EVA ATE S1
+EVA OAL
+EVA OAL S1..3
+EVA EFY
+EVA EFY S1..2
+EVA EFX
+EVA ENP
+EVA EXP
+CIR S1 6
+EVA SD S1
+! An optimization holding EFY, a center thickness and an edge ratio
+RES osdtriplet
+CCY S1 0
+CCY S6 0
+THC S1 0
+THC S3 0
+AUT
+EFY = 50
+CT S1 = 4.2
+ATE S5 > 0.15
+SPO 0 1
+GO
+EVA EFY
+EVA CT S1
+EVA ATE S5
+! Qualifiers are saved with the merit function
+RES osdtriplet
+AUT
+OAL S1..3 = 6
+EFY S1..2 > 20
+CT S1 = 4
+EOS
+SAV conqual
+RES conqual
+AUT
+LCON
+! Errors
+CT = 3
+EFY S9..12 = 1
+CT S1 W2 = 3
+EOS

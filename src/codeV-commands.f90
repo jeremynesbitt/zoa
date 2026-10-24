@@ -1033,6 +1033,20 @@ module codeV_commands
         end if
         end do
 
+        ! Inside AUT / TAR / UPD CON, any optimizer operand name is a merit
+        ! entry (CT S3 > 2, OAL S1..5 = 20, ...).  Outside those loops such
+        ! words (OAL, EXP, ...) keep their legacy meaning.
+        if (cmd_loop == AUT_LOOP .or. cmd_loop == TAR_LOOP .or. cmd_loop == CON_UPDATE_LOOP) then
+            block
+                use optim_types, only: isNameInEvaluatorList
+                if (isNameInEvaluatorList(trim(iptCmd)) > 0) then
+                    call updateConstraint(currentCommand)
+                    boolResult = .TRUE.
+                    return
+                end if
+            end block
+        end if
+
         select case (iptCmd)
            
         case('GO')
@@ -1740,7 +1754,8 @@ module codeV_commands
         end if
         if (s1 < 0) s1 = s0
         if (s0 < 0 .or. s1 > ldm%getLastSurf()) then
-            call zoa_emit("Error:  surface "//trim(t)//" does not exist", "red")
+            call zoa_emit("Error:  surface "//trim(t)//" is not in the lens (S0..S"// &
+            &  trim(int2str(ldm%getLastSurf()))//")", "red")
             return
         end if
         ok = .true.

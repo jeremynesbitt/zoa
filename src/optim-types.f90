@@ -23,6 +23,9 @@ module optim_types
         ! iS = -1 means the image surface (CODE V's default), iW = 0 the
         ! reference wavelength, iZ = 0 the active zoom position.
         integer :: iS = -1, iZ = 0
+        ! Range end (Si..j: iS..iS2; -1 = none), second wavelength (AX/LAT
+        ! Wj Wm), reference ray Ri (AOI/AOR: 1 = chief .. 5).
+        integer :: iS2 = -1, iW2 = 0, iR = 0
         real(long) :: px = 0.0_long, py = 0.0_long, hx = 0.0_long, hy = 0.0_long
         procedure (meritFunc), pointer :: func
         contains
@@ -98,6 +101,14 @@ module optim_types
             real(long) :: res
         end function
         module function getSeidelAST3Constraint(self) result(res)
+            class(merit_entry) :: self
+            real(long) :: res
+        end function
+        module function getSurfaceGeomConstraint(self) result(res)
+            class(merit_entry) :: self
+            real(long) :: res
+        end function
+        module function getFirstOrderConstraint(self) result(res)
             class(merit_entry) :: self
             real(long) :: res
         end function
@@ -201,6 +212,29 @@ module optim_types
         end do
         evaluators(9+size(PARAXIAL_OPERANDS))%name = 'AST3'
         evaluators(9+size(PARAXIAL_OPERANDS))%func => getSeidelAST3Constraint
+        ! CODE V constraints: surface geometry (Sk / Si..j) and first order.
+        i = 10 + size(PARAXIAL_OPERANDS)
+        call reg('CT',  getSurfaceGeomConstraint)
+        call reg('ET',  getSurfaceGeomConstraint)
+        call reg('SD',  getSurfaceGeomConstraint)
+        call reg('ATC', getSurfaceGeomConstraint)
+        call reg('ATE', getSurfaceGeomConstraint)
+        call reg('OAL', getSurfaceGeomConstraint)
+        call reg('EFY', getFirstOrderConstraint)
+        call reg('EFX', getFirstOrderConstraint)
+        call reg('TT',  getFirstOrderConstraint)
+        call reg('ENP', getFirstOrderConstraint)
+        call reg('EXP', getFirstOrderConstraint)
+
+    contains
+
+        subroutine reg(nm, f)
+            character(len=*), intent(in) :: nm
+            procedure(meritFunc) :: f
+            evaluators(i)%name = nm
+            evaluators(i)%func => f
+            i = i + 1
+        end subroutine
 
 
     end subroutine
@@ -280,7 +314,8 @@ module optim_types
 
     ! Add (or update, via idxToUpdate) a merit entry.  role selects objective
     ! term vs constraint; conType/weight apply to the matching role only.
-    subroutine addMeritEntry(name, role, targ, conType, weight, idxToUpdate, iS, iW, iZ)
+    subroutine addMeritEntry(name, role, targ, conType, weight, idxToUpdate, iS, iW, iZ, &
+    &                        iS2, iW2, iF, iR)
         character(len=*) :: name
         integer, intent(in) :: role
         real(long), intent(in) :: targ
@@ -288,6 +323,7 @@ module optim_types
         real(long), intent(in), optional :: weight
         integer, intent(in), optional :: idxToUpdate ! UPD CON; CHA n / UI edit path
         integer, intent(in), optional :: iS, iW, iZ  ! surface / wavelength / zoom
+        integer, intent(in), optional :: iS2, iW2, iF, iR
         integer :: idx, ii
 
         idx = isNameInEvaluatorList(name)
@@ -316,6 +352,10 @@ module optim_types
         if (present(iS)) meritInUse(ii)%iS = iS
         if (present(iW)) meritInUse(ii)%iW = iW
         if (present(iZ)) meritInUse(ii)%iZ = iZ
+        if (present(iS2)) meritInUse(ii)%iS2 = iS2
+        if (present(iW2)) meritInUse(ii)%iW2 = iW2
+        if (present(iF))  meritInUse(ii)%iF  = iF
+        if (present(iR))  meritInUse(ii)%iR  = iR
 
     end subroutine
 
@@ -339,12 +379,53 @@ module optim_types
     function meritParamNames(name) result(names)
         character(len=*), intent(in) :: name
         character(len=16) :: names(MERIT_NPAR)
+        character(len=MERIT_NPAR) :: lay
+        integer :: j
         names = ''
+        lay = meritQualLayout(name)
+        do j = 1, len_trim(lay)
+            select case (lay(j:j))
+            case ('S'); names(j) = 'Surface'
+            case ('G'); names(j) = 'Surfaces'
+            case ('W'); names(j) = 'Wavelength'
+            case ('V'); names(j) = 'Wavelength 2'
+            case ('F'); names(j) = 'Field'
+            case ('R'); names(j) = 'Ray'
+            case ('Z'); names(j) = 'Zoom'
+            end select
+        end do
+    end function
+
+    ! Qualifier layout of an operand: one letter per Merit-table parameter
+    ! column, in the order they are typed after the name.  S surface (Sk),
+    ! G surface range (Si..j), W wavelength (Wm), V second wavelength (a
+    ! second Wm), F field (Fk), R reference ray (Ri), Z zoom position (Zn).
+    ! Blank: the operand takes no qualifiers.
+    function meritQualLayout(name) result(lay)
+        character(len=*), intent(in) :: name
+        character(len=MERIT_NPAR) :: lay
+        lay = ''
         if (isParaxialOperand(name)) then
-            names(1) = 'Surface'
-            names(2) = 'Wavelength'
-            names(3) = 'Zoom'
+            lay = 'SWZ'
+            return
         end if
+        select case (trim(name))
+        case ('CT', 'ET', 'SD', 'ATC', 'ATE'); lay = 'S'
+        case ('OAL', 'EFY', 'EFX');           lay = 'G'
+        case ('AX', 'LAT');                   lay = 'WV'
+        case ('DIX', 'DIY', 'XCN', 'YCN');    lay = 'FW'
+        case ('AOI', 'AOR');                  lay = 'SRFW'
+        end select
+    end function
+
+    ! Qualifiers an operand cannot do without (letters as in the layout).
+    function meritQualRequired(name) result(req)
+        character(len=*), intent(in) :: name
+        character(len=MERIT_NPAR) :: req
+        req = ''
+        select case (trim(name))
+        case ('CT', 'ET', 'SD', 'ATC', 'ATE', 'AOI', 'AOR'); req = 'S'
+        end select
     end function
 
     ! Cell text for parameter j of entry e: the value as set, or blank when it
@@ -354,12 +435,20 @@ module optim_types
         type(merit_entry), intent(in) :: e
         integer, intent(in) :: j
         character(len=16) :: t
+        character(len=MERIT_NPAR) :: lay
         t = ''
-        if (.not. isParaxialOperand(trim(e%name))) return
-        select case (j)
-        case (1); if (e%iS >= 0) t = int2str(e%iS)
-        case (2); if (e%iW > 0)  t = int2str(e%iW)
-        case (3); if (e%iZ > 0)  t = int2str(e%iZ)
+        lay = meritQualLayout(trim(e%name))
+        if (j < 1 .or. j > len_trim(lay)) return
+        select case (lay(j:j))
+        case ('S'); if (e%iS >= 0) t = int2str(e%iS)
+        case ('G')
+            if (e%iS >= 0) t = int2str(e%iS)
+            if (e%iS >= 0 .and. e%iS2 >= 0) t = trim(t)//'..'//trim(int2str(e%iS2))
+        case ('W'); if (e%iW > 0)  t = int2str(e%iW)
+        case ('V'); if (e%iW2 > 0) t = int2str(e%iW2)
+        case ('F'); if (e%iF > 0)  t = int2str(e%iF)
+        case ('R'); if (e%iR > 0)  t = int2str(e%iR)
+        case ('Z'); if (e%iZ > 0)  t = int2str(e%iZ)
         end select
     end function
 
@@ -371,17 +460,23 @@ module optim_types
     function meritQualFromParams(name, pars) result(q)
         character(len=*), intent(in) :: name
         character(len=*), intent(in) :: pars(:)
-        character(len=40) :: q
-        character(len=1), parameter :: letters(3) = ['S', 'W', 'Z']
+        character(len=60) :: q
+        character(len=MERIT_NPAR) :: lay
         character(len=40) :: p
+        character(len=1) :: letter
         integer :: j
         q = ''
-        if (.not. isParaxialOperand(name)) return
-        do j = 1, min(3, size(pars))
+        lay = meritQualLayout(name)
+        do j = 1, min(len_trim(lay), size(pars))
             p = adjustl(pars(j))
             if (len_trim(p) == 0) cycle
-            if (p(1:1) == letters(j) .or. p(1:1) == achar(iachar(letters(j))+32)) p = p(2:)
-            q = trim(q)//' '//letters(j)//trim(p)
+            select case (lay(j:j))
+            case ('G'); letter = 'S'
+            case ('V'); letter = 'W'
+            case default; letter = lay(j:j)
+            end select
+            if (p(1:1) == letter .or. p(1:1) == achar(iachar(letter)+32)) p = p(2:)
+            q = trim(q)//' '//letter//trim(p)
         end do
     end function
 
@@ -396,11 +491,23 @@ module optim_types
         use type_utils, only: int2str
         type(merit_entry), intent(in) :: e
         character(len=24) :: q
+        character(len=MERIT_NPAR) :: lay
+        integer :: j
         q = ''
-        if (.not. isParaxialOperand(trim(e%name))) return
-        if (e%iS >= 0) q = trim(q)//' S'//trim(int2str(e%iS))
-        if (e%iW > 0)  q = trim(q)//' W'//trim(int2str(e%iW))
-        if (e%iZ > 0)  q = trim(q)//' Z'//trim(int2str(e%iZ))
+        lay = meritQualLayout(trim(e%name))
+        do j = 1, len_trim(lay)
+            select case (lay(j:j))
+            case ('S', 'G')
+                if (e%iS >= 0) q = trim(q)//' S'//trim(int2str(e%iS))
+                if (lay(j:j) == 'G' .and. e%iS >= 0 .and. e%iS2 >= 0) &
+                &  q = trim(q)//'..'//trim(int2str(e%iS2))
+            case ('W'); if (e%iW > 0)  q = trim(q)//' W'//trim(int2str(e%iW))
+            case ('V'); if (e%iW2 > 0) q = trim(q)//' W'//trim(int2str(e%iW2))
+            case ('F'); if (e%iF > 0)  q = trim(q)//' F'//trim(int2str(e%iF))
+            case ('R'); if (e%iR > 0)  q = trim(q)//' R'//trim(int2str(e%iR))
+            case ('Z'); if (e%iZ > 0)  q = trim(q)//' Z'//trim(int2str(e%iZ))
+            end select
+        end do
     end function
 
     ! Back-compat wrapper: add an objective term (the old "operand").
@@ -416,12 +523,12 @@ module optim_types
     end subroutine
 
     ! Back-compat wrapper: add/update a constraint from its CLI spelling.
-    subroutine addConstraint(name, val, strType, idxToUpdate, iS, iW, iZ)
+    subroutine addConstraint(name, val, strType, idxToUpdate, iS, iW, iZ, iS2, iW2, iF, iR)
         character(len=*) :: name
         real(long) :: val
         character(len=1) :: strType ! Either >, < =
         integer, optional :: idxToUpdate
-        integer, intent(in), optional :: iS, iW, iZ
+        integer, intent(in), optional :: iS, iW, iZ, iS2, iW2, iF, iR
         integer :: conType
 
         select case (strType)
@@ -437,7 +544,8 @@ module optim_types
         end select
 
         call addMeritEntry(name, ID_ROLE_CONSTRAINT, val, conType=conType, &
-        &                  idxToUpdate=idxToUpdate, iS=iS, iW=iW, iZ=iZ)
+        &                  idxToUpdate=idxToUpdate, iS=iS, iW=iW, iZ=iZ, &
+        &                  iS2=iS2, iW2=iW2, iF=iF, iR=iR)
 
     end subroutine
 

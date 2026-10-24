@@ -28,6 +28,7 @@ subroutine typed_surface_inserted(k)
 
   do i = 1, nM
     if (meritInUse(i)%iS >= k) meritInUse(i)%iS = meritInUse(i)%iS + 1
+    if (meritInUse(i)%iS2 >= k) meritInUse(i)%iS2 = meritInUse(i)%iS2 + 1
   end do
   call zoom_surfaces_shifted(k, +1)
   call recount_optim_vars()
@@ -53,6 +54,14 @@ subroutine typed_surface_deleted(k)
 
   i = 1
   do while (i <= nM)
+    ! A surface range (Si..j) shrinks around a deleted surface.
+    if (meritInUse(i)%iS2 >= 0) then
+      if (meritInUse(i)%iS2 >= k) meritInUse(i)%iS2 = meritInUse(i)%iS2 - 1
+      if (meritInUse(i)%iS > k) meritInUse(i)%iS = meritInUse(i)%iS - 1
+      if (meritInUse(i)%iS2 <= meritInUse(i)%iS) meritInUse(i)%iS2 = -1
+      i = i + 1
+      cycle
+    end if
     if (meritInUse(i)%iS == k) then
       call zoa_emit("Merit entry "//meritNameField(meritInUse(i))// &
       &  " removed: its surface was deleted", "black")

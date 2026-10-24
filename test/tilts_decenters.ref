@@ -361,7 +361,7 @@ PIM
 SI  0.0000     0.000000000000000D+00
 GO
 Error:  expected XDE [Sk|Si..j] value
-Error:  surface S99 does not exist
+Error:  surface S99 is not in the lens (S0..S7)
 Error:  XDE: bad value ABC
 Error:  RET returns to a single surface Sj
 Expected DEL DDA Sk|Si..j

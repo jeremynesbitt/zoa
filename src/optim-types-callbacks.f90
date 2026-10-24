@@ -205,4 +205,123 @@ contains
         end select
     end function
 
+    ! CT / ET / SD / ATC / ATE Sk, OAL [Si..j] (CODE V).
+    !   CT  center thickness after Sk;  ET  edge thickness of that gap at the
+    !   larger of the two semi-diameters (as MNE/MAE);  SD  semi-diameter of
+    !   Sk (clear aperture if set, else the ray-traced extent);  ATC / ATE
+    !   center / edge thickness divided by the diameter;  OAL  distance from
+    !   Si to Sj, the thicknesses Si..j-1 (default S1 to the last surface
+    !   before the image, so the image distance is not included).
+    module function getSurfaceGeomConstraint(self) result(res)
+        use mod_lens_data_manager
+        use mod_surface, only: surf_thickness
+        class(merit_entry) :: self
+        real(long) :: res
+        integer :: k, s0, s1, s
+        real(long) :: semi
+
+        res = 0.0_long
+        k = self%iS
+        ! The ray-traced semi-diameters must be current for the current lens.
+        select case (trim(self%name))
+        case ('SD', 'ET', 'ATC', 'ATE')
+            block
+                use kdp_data_types, only: check_clear_apertures
+                use global_widgets, only: curr_lens_data
+                call check_clear_apertures(curr_lens_data, ldm%surfaces)
+            end block
+        end select
+        select case (trim(self%name))
+        case ('OAL')
+            ! Thicknesses Si .. Sj-1 (Sj's own thickness not included).
+            s0 = merge(self%iS, 1, self%iS >= 0)
+            s1 = merge(self%iS2, ldm%getLastSurf() - 1, self%iS2 >= 0)
+            do s = s0, s1 - 1
+                res = res + surf_thickness(s)
+            end do
+        case ('CT')
+            res = surf_thickness(k)
+        case ('SD')
+            res = semiDia(k)
+        case ('ET', 'ATC', 'ATE')
+            semi = max(semiDia(k), semiDia(k+1))
+            if (trim(self%name) == 'ATC') then
+                res = surf_thickness(k)
+            else
+                res = ldm%edge_thickness(k, semi)
+            end if
+            if (trim(self%name) /= 'ET') then
+                if (semi > 0.0_long) then
+                    res = res/(2.0_long*semi)
+                else
+                    res = 0.0_long
+                end if
+            end if
+        end select
+
+    contains
+
+        ! An assigned clear aperture (its Y semi-width, read live: the typed
+        ! copy is not refreshed after CIR/REX/...), else the ray-traced extent.
+        real(long) function semiDia(s)
+            use mod_surface, only: surf_clap_type, surf_clap_dim
+            integer, intent(in) :: s
+            semiDia = 0.0_long
+            if (surf_clap_type(s) >= 1 .and. surf_clap_type(s) <= 3) then
+                semiDia = surf_clap_dim(s, 1)
+                return
+            end if
+            if (.not. allocated(ldm%surfaces)) return
+            if (s < lbound(ldm%surfaces,1) .or. s > ubound(ldm%surfaces,1)) return
+            if (.not. allocated(ldm%surfaces(s)%s)) return
+            semiDia = ldm%surfaces(s)%s%clap%display_semi_y()
+        end function
+    end function
+
+    ! EFY / EFX [Si..j], TT, ENP, EXP (CODE V, paraxial).
+    !   EFY  effective focal length of the whole system, or of surfaces
+    !        Si..j (an axial ray traced through the group alone, reference
+    !        wavelength: -1/(n'u') for unit height); EFX the same in X-Z
+    !        (equal to EFY: torics are not traced);
+    !   TT   total track, object to image;  ENP  entrance pupil position from
+    !   S1;  EXP  exit pupil position from the last surface before the image.
+    module function getFirstOrderConstraint(self) result(res)
+        use global_widgets, only: curr_par_ray_trace
+        use mod_lens_data_manager
+        use mod_surface, only: surf_curvature, surf_thickness
+        use mod_system, only: sys_wl_ref
+        class(merit_entry) :: self
+        real(long) :: res
+        integer :: s, s0, s1, lam
+        real(long) :: y, nu, n, np
+
+        res = 0.0_long
+        select case (trim(self%name))
+        case ('TT');  res = curr_par_ray_trace%TT
+        case ('ENP'); res = curr_par_ray_trace%ENPUPPOS
+        case ('EXP'); res = curr_par_ray_trace%EXPUPPOS
+        case ('EFY', 'EFX')
+            if (self%iS < 0) then
+                res = curr_par_ray_trace%EFL
+                return
+            end if
+            s0 = self%iS
+            s1 = merge(self%iS2, ldm%getLastSurf() - 1, self%iS2 >= 0)
+            lam = int(sys_wl_ref())
+            y = 1.0_long
+            nu = 0.0_long
+            do s = s0, s1
+                n  = ldm%getSurfIndex(s-1, lam)
+                np = ldm%getSurfIndex(s, lam)
+                nu = nu - y*surf_curvature(s)*(np - n)
+                if (s < s1) y = y + surf_thickness(s)*nu/np
+            end do
+            if (nu /= 0.0_long) then
+                res = -1.0_long/nu
+            else
+                res = 1.0e20_long        ! afocal group
+            end if
+        end select
+    end function
+
 end submodule optim_types_callbacks

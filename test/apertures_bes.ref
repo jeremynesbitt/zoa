@@ -753,7 +753,7 @@ SURF      X              Y              Z             XANG           YANG
   6    0.00000      -0.246054      -0.964682E-03    0.00000       0.366027
   7    0.00000       0.544650E-05    0.00000        0.00000       0.366027
 Error:  REX: bad value S2
-Error:  surface S99 does not exist
+Error:  surface S99 is not in the lens (S0..S7)
 All constraints removed
 
 

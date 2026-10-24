@@ -192,7 +192,7 @@ contains
         character(len=256) :: normalStr
         integer :: ci, ni
         real(long) :: w
-        integer :: qS, qW, qZ
+        type(merit_entry) :: q
         logical :: qOk
 
         if (cmd_loop == AUT_LOOP .OR. cmd_loop == TAR_LOOP .OR. cmd_loop == CON_UPDATE_LOOP) then
@@ -212,7 +212,7 @@ contains
 
             ! [Sk] [Wm] [Zn] qualifiers (paraxial ray operands) come right
             ! after the name; take them out so the forms below are unchanged.
-            call takeMeritQualifiers(tokens, numTokens, qS, qW, qZ, qOk)
+            call takeMeritQualifiers(tokens, numTokens, q, qOk)
             if (.not. qOk) return
 
             if (numTokens == 3 .AND. .not. isInputNumber(trim(tokens(2)))) then
@@ -221,10 +221,10 @@ contains
                 &   .AND. isInputNumber(trim(tokens(3)))) then
                     if (cmd_loop == CON_UPDATE_LOOP) then
                         call addConstraint(trim(tokens(1)), str2real8(tokens(3)), trim(tokens(2)), idxConUpdate, &
-                        &                  iS=qS, iW=qW, iZ=qZ)
+                        &                  iS=q%iS, iW=q%iW, iZ=q%iZ, iS2=q%iS2, iW2=q%iW2, iF=q%iF, iR=q%iR)
                     else
                         call addConstraint(trim(tokens(1)), str2real8(tokens(3)), trim(tokens(2)), &
-                        &                  iS=qS, iW=qW, iZ=qZ)
+                        &                  iS=q%iS, iW=q%iW, iZ=q%iZ, iS2=q%iS2, iW2=q%iW2, iF=q%iF, iR=q%iR)
                     end if
                 else
                     call zoa_emit("Error:  Expect NAME = value (or > <), or NAME target [weight]", "red")
@@ -235,10 +235,11 @@ contains
                 if (numTokens >= 3 .AND. isInputNumber(trim(tokens(3)))) w = str2real8(tokens(3))
                 if (cmd_loop == CON_UPDATE_LOOP) then
                     call addMeritEntry(trim(tokens(1)), ID_ROLE_OBJECTIVE, str2real8(tokens(2)), &
-                    &                  weight=w, idxToUpdate=idxConUpdate, iS=qS, iW=qW, iZ=qZ)
+                    &                  weight=w, idxToUpdate=idxConUpdate, iS=q%iS, iW=q%iW, iZ=q%iZ, &
+                    &                  iS2=q%iS2, iW2=q%iW2, iF=q%iF, iR=q%iR)
                 else
                     call addMeritEntry(trim(tokens(1)), ID_ROLE_OBJECTIVE, str2real8(tokens(2)), weight=w, &
-                    &                  iS=qS, iW=qW, iZ=qZ)
+                    &                  iS=q%iS, iW=q%iW, iZ=q%iZ, iS2=q%iS2, iW2=q%iW2, iF=q%iF, iR=q%iR)
                 end if
             else
                 call zoa_emit("Error:  Expect NAME = value (or > <), or NAME target [weight]", "red")
@@ -248,51 +249,58 @@ contains
         end if
     end procedure updateConstraint
 
-    ! Removes the [Sk] [Wm] [Zn] qualifier tokens following the merit-entry
-    ! name (tokens(1)) and returns them: qS = -1 (image), qW = 0 (reference
-    ! wavelength), qZ = 0 (active zoom position) when absent.  Only the
-    ! paraxial ray operands take qualifiers.  ok = .false. after an error.
-    subroutine takeMeritQualifiers(tokens, numTokens, qS, qW, qZ, ok)
+    ! Removes the qualifier tokens following the merit-entry name (tokens(1))
+    ! and returns them in q (a merit_entry used only for its qualifier
+    ! fields).  Which qualifiers an operand takes, and in what order they
+    ! fill its fields, comes from meritQualLayout: Sk (or Si..j), Wm (a second
+    ! Wm for AX/LAT), Fk, Ri, Zn.  Defaults (absent): image surface,
+    ! reference wavelength, field/ray unset, active zoom position.
+    ! ok = .false. after an error.
+    subroutine takeMeritQualifiers(tokens, numTokens, q, ok)
         use command_utils, only : isInputNumber
-        use optim_types, only: isParaxialOperand
+        use optim_types, only: merit_entry, meritQualLayout, meritQualRequired, MERIT_NPAR
         use mod_lens_data_manager, only: ldm
         use global_widgets, only: sysConfig
         use zoom_manager, only: zoom_num_configs, zoom_current_config
         character(len=80), intent(inout) :: tokens(:)
         integer, intent(inout) :: numTokens
-        integer, intent(out) :: qS, qW, qZ
+        type(merit_entry), intent(out) :: q
         logical, intent(out) :: ok
         character(len=80) :: t
-        integer :: v
+        character(len=MERIT_NPAR) :: lay, req
+        integer :: v, s0, s1, nW
+        logical :: seenS
 
-        qS = -1; qW = 0; qZ = 0
+        q%iS = -1; q%iS2 = -1; q%iW = 0; q%iW2 = 0; q%iZ = 0; q%iF = 0; q%iR = 0
         ok = .true.
+        lay = meritQualLayout(trim(tokens(1)))
+        req = meritQualRequired(trim(tokens(1)))
+        nW = 0
+        seenS = .false.
         do while (numTokens >= 2)
             t = tokens(2)
             if (len_trim(t) < 2) exit
-            if (.not. (t(1:1) == 'S' .or. t(1:1) == 'W' .or. t(1:1) == 'Z')) exit
-            if (.not. (isInputNumber(trim(t(2:))) .or. trim(t) == 'SI' .or. trim(t) == 'SO')) exit
+            if (index('SWZFR', t(1:1)) == 0) exit
+            if (.not. (isInputNumber(trim(t(2:))) .or. trim(t) == 'SI' .or. trim(t) == 'SO' &
+            &          .or. (t(1:1) == 'S' .and. index(t, '..') > 0))) exit
 
-            if (.not. isParaxialOperand(trim(tokens(1)))) then
+            if (.not. takes(t(1:1))) then
                 call zoa_emit("Error:  "//trim(tokens(1))//" takes no "//trim(t)//" qualifier", "red")
                 ok = .false.; return
             end if
 
             select case (t(1:1))
             case ('S')
-                if (trim(t) == 'SI') then
-                    v = ldm%getLastSurf()
-                else if (trim(t) == 'SO') then
-                    v = 0
-                else
-                    v = str2int(trim(t(2:)))
-                end if
-                if (v < 0 .or. v > ldm%getLastSurf()) then
-                    call zoa_emit("Error:  surface "//trim(t)//" is not in the lens (S0..S"// &
-                    &  trim(int2str(ldm%getLastSurf()))//")", "red")
+                if (index(t, '..') > 0 .and. index(lay, 'G') == 0) then
+                    call zoa_emit("Error:  "//trim(tokens(1))//" takes one surface, not "//trim(t), "red")
                     ok = .false.; return
                 end if
-                qS = v
+                if (.not. parseSurfaceSpec(trim(t), s0, s1)) then
+                    ok = .false.; return
+                end if
+                q%iS = s0
+                if (s1 /= s0) q%iS2 = s1
+                seenS = .true.
             case ('W')
                 v = str2int(trim(t(2:)))
                 if (v < 1 .or. v > sysConfig%numWavelengths) then
@@ -300,7 +308,30 @@ contains
                     &  trim(int2str(sysConfig%numWavelengths))//")", "red")
                     ok = .false.; return
                 end if
-                qW = v
+                nW = nW + 1
+                if (nW == 1) then
+                    q%iW = v
+                else if (index(lay, 'V') > 0 .and. nW == 2) then
+                    q%iW2 = v
+                else
+                    call zoa_emit("Error:  "//trim(tokens(1))//": too many wavelengths", "red")
+                    ok = .false.; return
+                end if
+            case ('F')
+                v = str2int(trim(t(2:)))
+                if (v < 1 .or. v > sysConfig%numFields) then
+                    call zoa_emit("Error:  field "//trim(t)//" is not defined (F1..F"// &
+                    &  trim(int2str(sysConfig%numFields))//")", "red")
+                    ok = .false.; return
+                end if
+                q%iF = v
+            case ('R')
+                v = str2int(trim(t(2:)))
+                if (v < 1 .or. v > 5) then
+                    call zoa_emit("Error:  ray "//trim(t)//" is not a reference ray (R1..R5)", "red")
+                    ok = .false.; return
+                end if
+                q%iR = v
             case ('Z')
                 v = str2int(trim(t(2:)))
                 if (v < 1 .or. v > max(1, zoom_num_configs())) then
@@ -315,12 +346,27 @@ contains
                     &  "); optimizing other positions is not supported yet", "red")
                     ok = .false.; return
                 end if
-                qZ = v
+                q%iZ = v
             end select
 
             tokens(2:numTokens-1) = tokens(3:numTokens)
             numTokens = numTokens - 1
         end do
+        if (index(req, 'S') > 0 .and. .not. seenS) then
+            call zoa_emit("Error:  "//trim(tokens(1))//" needs a surface (Sk)", "red")
+            ok = .false.; return
+        end if
+
+    contains
+
+        logical function takes(letter)
+            character(len=1), intent(in) :: letter
+            select case (letter)
+            case ('S'); takes = index(lay, 'S') > 0 .or. index(lay, 'G') > 0
+            case ('W'); takes = index(lay, 'W') > 0
+            case default; takes = index(lay, letter) > 0
+            end select
+        end function
     end subroutine
 
     !## cmd:      NBR
@@ -1287,9 +1333,10 @@ contains
     end procedure changeDatabase
 
     !## cmd:      EVA
-    !## syntax:   EVA name
+    !## syntax:   EVA name [qualifiers]
     !## category: Analysis
-    !## desc:     Evaluate a merit operand by name and print its value.
+    !## desc:     Evaluate a merit operand (with its Sk/Si..j/Wm/Fk/Ri/Zn qualifiers, as in AUT)
+    !##           and print its value.
     !##
     module procedure evaluateCmd
         real(kind=long) :: result
@@ -1312,9 +1359,34 @@ contains
         what = trim(adjustl(iptStr))
         res = 0.0_long
         idx = 0
-        if (len(what) > 0) idx = isNameInEvaluatorList(uppercase(what))
+        ! "NAME [qualifiers]": a merit operand with its Sk / Si..j / Wm / Fk /
+        ! Ri / Zn qualifiers, as in AUT.
+        if (len(what) > 0) then
+            block
+                character(len=80) :: tk(40)
+                integer :: nt
+                call parse(uppercase(what), ' ', tk, nt)
+                if (nt >= 1) idx = isNameInEvaluatorList(trim(tk(1)))
+                if (idx > 0) then
+                    block
+                        use optim_types, only: merit_entry
+                        type(merit_entry) :: e, q
+                        logical :: qOk
+                        call takeMeritQualifiers(tk, nt, q, qOk)
+                        if (.not. qOk) return
+                        if (nt > 1) then
+                            call zoa_emit("Error:  EVA: unexpected '"//trim(tk(2))//"'", "red")
+                            return
+                        end if
+                        e = evaluators(idx)
+                        e%iS = q%iS; e%iS2 = q%iS2; e%iW = q%iW; e%iW2 = q%iW2
+                        e%iZ = q%iZ; e%iF = q%iF; e%iR = q%iR
+                        res = e%func()
+                    end block
+                end if
+            end block
+        end if
         if (idx > 0) then
-            res = evaluators(idx)%func()
             ok = .true.
         else if (len(what) > 0) then
             call getData(what, res, ok)
