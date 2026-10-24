@@ -42,6 +42,16 @@ module optim_types
     ! Improvement goal (IMP): the solver's accuracy (acc).  Kept until changed
     ! or a lens is loaded; saved with the lens when not the default.
     real(kind=long), parameter :: IMP_DEFAULT = 0.01_long
+    ! Constraint tolerance: a constraint is met when its residual (in its own
+    ! units) is below this -- independent of IMP.  SLSQP has a single
+    ! accuracy (acc = IMP) that also bounds the summed constraint violation,
+    ! so the residuals it sees are scaled by conScale = acc/CON_TOL (>= 1);
+    ! otherwise any constraint within IMP (0.01) of its target counted as met.
+    real(kind=long), parameter :: CON_TOL = 1.0e-6_long
+    real(kind=long) :: conScale = 1.0_long
+    ! Per-variable scale (see setVariableScales): the solver's variables are
+    ! the lens values divided by these.
+    real(kind=long), allocatable :: varScale(:)
 
     type optimizer
         real(kind=long) :: imp = IMP_DEFAULT
@@ -612,7 +622,7 @@ module optim_types
         call kdp_lens_begin()
         do i=1,nV
             call kdp_chg(VARS(i,1))
-            call kdp_lens_cmd(trim(getVarKdpCmd(VARS(i,2))), w1=x(i))
+            call kdp_lens_cmd(trim(getVarKdpCmd(VARS(i,2))), w1=x(i)*varScaleOf(i))
         end do
 
         ! CRITICAL: refreshAll rebuilds the typed surface store from the
@@ -628,6 +638,38 @@ module optim_types
         call kdp_silent_end()
 
     end subroutine
+
+    ! Scale of each variable: its starting magnitude, but at least a typical
+    ! size for its kind (curvature 1e-3 = a 1 m radius, thickness 1, conic
+    ! 0.1, asphere term of order 2m: 1e-3**m).
+    subroutine setVariableScales(x)
+        use zoa_ui, only: VAR_CURV, VAR_THI, VAR_K, VAR_A4, VAR_A20
+        real(long), dimension(:), intent(in) :: x
+        real(long) :: floorV
+        integer :: i, m
+        if (allocated(varScale)) deallocate(varScale)
+        allocate(varScale(nV))
+        do i = 1, nV
+            select case (VARS(i,2))
+            case (VAR_CURV); floorV = 1.0e-3_long
+            case (VAR_THI);  floorV = 1.0_long
+            case (VAR_K);    floorV = 0.1_long
+            case (VAR_A4:VAR_A20)
+                m = VARS(i,2) - VAR_A4 + 2          ! A4 -> m=2 (order 4)
+                floorV = (1.0e-3_long)**m
+            case default;    floorV = 1.0_long
+            end select
+            varScale(i) = max(abs(x(i)), floorV)
+        end do
+    end subroutine
+
+    real(long) function varScaleOf(i)
+        integer, intent(in) :: i
+        varScaleOf = 1.0_long
+        if (allocated(varScale)) then
+            if (i <= size(varScale)) varScaleOf = varScale(i)
+        end if
+    end function
 
     function getLowerBounds() result(lbArr)
         real(long), dimension(nV) :: lbArr

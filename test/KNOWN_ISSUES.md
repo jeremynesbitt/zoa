@@ -725,7 +725,30 @@ lines of any length (cb39c27), so long matrix rows are no obstacle to testing.
 
 ---
 
-## TODO: Optimizer treats a constraint as met when it is within IMP of its target (2026-10-13)
+## RESOLVED (2026-10-23): Optimizer treated a constraint as met when within IMP of its target
+
+**Fix (three parts, optim-functions.f90 / optim-types.f90):**
+- Constraint tolerance: residuals are scaled by `conScale = IMP/CON_TOL`
+  (CON_TOL = 1e-6, in each operand's own units), so a constraint is met only
+  when within 1e-6; IMP still decides when improvement stops.
+- Central-difference gradients (`gradient_mode = 3`): the backward
+  differences had a first-order error that stalled constrained runs a few
+  thousandths from target (EFL = 50 with a SPO objective stuck at 49.994).
+- Variable scaling (`setVariableScales`): the solver works on x/s, s = the
+  variable's start magnitude with a per-kind floor, so the 1e-4 difference
+  step is relative (it was 4% of a 0.003 curvature).  Also `alphamax` 0.5 ->
+  1.0 (SLSQP default; 0.5 capped every step at half, halving the residual per
+  iteration).
+- Effect: optim_extra / macro_ex1 / asph_modifiers / fieldflattener refs
+  updated -- constraints now met to ~1e-7, in fewer iterations; spot sizes
+  equal or better, a few slightly larger where a constraint is now really
+  held; fieldflattener (an infeasible EFL target) 15 s -> 5 s.
+
+Note: asph_modifiers' image-surface INR (~5e-12, a zero) differs in the 5th
+digit between meson runs and direct zoa_test runs (thread-count dependent
+summation); the ref keeps the meson value.
+
+### Original report (2026-10-13)
 
 **Symptom:** a constraint whose residual is already smaller than the accuracy
 setting is ignored. `AUT; AST3 = 0; GO` on osdtriplet (AST3 starts at

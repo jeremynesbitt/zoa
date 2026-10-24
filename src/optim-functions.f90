@@ -34,7 +34,10 @@ subroutine aut_go()
     real(long)              :: acc           !! tolerance
     real(long),parameter              :: gradient_delta = 1.0e-4_wp 
     integer,parameter               :: linesearch_mode = 1      !! use inexact linesearch.
-    integer, parameter :: gradient_mode = 1
+    ! Central differences: the backward differences used before had a
+    ! first-order error that stalled constrained runs a few thousandths
+    ! from their targets (e.g. EFL = 50 with a spot-size objective).
+    integer, parameter :: gradient_mode = 3
     real(long),dimension(nV) :: x           !! optimization variable vector
     integer               :: istat       !! for solver status check
     logical               :: status_ok   !! for initialization status check
@@ -72,6 +75,7 @@ subroutine aut_go()
 
     ! This is the improvement factor during optimization
     acc = optim%imp
+    conScale = max(1.0_long, acc/CON_TOL)
     ! Eventually add more vars to this.  For now use this interface to evaluate
 
     ! Move these to a type?  eg optimizer%getLowerBounds  Some type that does gathering.
@@ -88,6 +92,17 @@ subroutine aut_go()
     ! become internal inequality constraints (genConstraints).
     call expandGeneralConstraints(x, xl, xu)
 
+    ! Variable scaling: the solver works on x/s with s ~ each variable's own
+    ! magnitude, so its finite-difference step (gradient_delta) and line
+    ! search act relative to the variable.  Unscaled, a 1e-4 step was 4% of
+    ! a typical curvature (0.003) yet negligible for a thickness, and the
+    ! curvature derivatives were too poor to satisfy tight constraints.
+    ! updateLensDuringOptimization applies x*s to the lens.
+    call setVariableScales(x)
+    x  = x/varScale
+    where (abs(xl) < 1.0e30_long) xl = xl/varScale
+    where (abs(xu) < 1.0e30_long) xu = xu/varScale
+
     meq = getNumberofEqualityConstraints()
 
     print *, "nV is ", nV
@@ -97,7 +112,7 @@ subroutine aut_go()
     call solver%initialize(nV,numConstraints()+nGen,meq,max_iter,acc,optimizerFunc,dummy_grad,&
                            xl,xu,linesearch_mode=linesearch_mode,status_ok=status_ok,&
                            report=report_iteration,&
-                           alphamin=0.1_long, alphamax=0.5_long, &
+                           alphamin=0.1_long, alphamax=1.0_long, &
                            gradient_mode=gradient_mode, gradient_delta=gradient_delta)
 
     if (status_ok) then
@@ -119,7 +134,7 @@ subroutine aut_go()
             ! view (the user needed the TERM backdoor to get output back).
             call ioConfig%setTextView(ID_TERMINAL_DEFAULT)
             write(*,*) ''
-            write(*,*) 'solution   :', x
+            write(*,*) 'solution   :', x*varScale
             write(*,*) 'istat      :', istat
             write(*,*) 'iterations :', iterations
             write(*,*) ''
@@ -283,8 +298,8 @@ subroutine optimizerFunc(me, x,f,c)
         end select
     end do
 
-    c(1:ieq) = ceq(1:ieq)
-    if (ineq.ne.0) c(ieq+1:ineq+ieq) = cneq(1:ineq)
+    c(1:ieq) = conScale*ceq(1:ieq)
+    if (ineq.ne.0) c(ieq+1:ineq+ieq) = conScale*cneq(1:ineq)
 
     ! Internal edge-thickness constraints from the general-constraint
     ! expansion (all inequalities: edge - limit >= 0), appended after the
@@ -302,7 +317,7 @@ subroutine optimizerFunc(me, x,f,c)
             call ldm%refresh_typed_surf_geom(k+1)
             val = ldm%edge_thickness(k, genConstraints(i)%rho)
             genConstraints(i)%val = val
-            c(ieq+ineq+i) = val - genConstraints(i)%limit
+            c(ieq+ineq+i) = conScale*(val - genConstraints(i)%limit)
         end do
     end block
 
@@ -363,15 +378,15 @@ subroutine report_iteration(me,iter,x,f,c)
                     case (ID_CON_EXACT)
                         jeq = jeq + 1
                         idx = jeq
-                        val = meritInUse(i)%targ + c(idx)
+                        val = meritInUse(i)%targ + c(idx)/conScale
                     case (ID_CON_GREATER_THAN)
                         jineq = jineq + 1
                         idx = meq_r + jineq
-                        val = meritInUse(i)%targ + c(idx)
+                        val = meritInUse(i)%targ + c(idx)/conScale
                     case (ID_CON_LESS_THAN)
                         jineq = jineq + 1
                         idx = meq_r + jineq
-                        val = meritInUse(i)%targ - c(idx)
+                        val = meritInUse(i)%targ - c(idx)/conScale
                     end select
                 else
                     roleTxt = 'Operand'
@@ -389,10 +404,10 @@ subroutine report_iteration(me,iter,x,f,c)
             ! (packed after the user inequalities in c(:)).
             do i = 1, nGen
                 idx = meq_r + (numConstraints() - meq_r) + i
-                val = genConstraints(i)%limit + c(idx)
+                val = genConstraints(i)%limit + c(idx)/conScale
                 write(output_line,'(A4,2X,A10,2X,A1,2X,*(F20.16,1X))') &
                 &  genConstraints(i)%name, 'S'//trim(int2str(genConstraints(i)%surf)), '>', &
-                &  genConstraints(i)%limit, val, c(idx)
+                &  genConstraints(i)%limit, val, c(idx)/conScale
                 call OUTKDP(trim(output_line))
             end do
         end block
