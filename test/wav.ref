@@ -1,0 +1,63 @@
+All constraints removed
+
+
+
+
+
+
+WAVEFRONT ANALYSIS (NRD 20; RMS in waves, piston and tilt removed; Strehl = exp(-(2 pi RMS)^2))
+NOMINAL FOCUS
+FIELD   X FLD   Y FLD     RMS W1     RMS W2     RMS W3     RMS W4     RMS W5   RMS POLY     STREHL
+    1   0.000   0.000    0.15120    0.07068    0.08906    0.30663    0.03913    0.16208     0.5847
+    2   0.000   0.700    0.35461    0.29367    0.33155    0.41364    0.31327    0.34385     0.0150
+    3   0.000   1.000    0.53182    0.50088    0.50811    0.61232    0.48692    0.52989     0.0000
+BEST COMPOSITE FOCUS
+FIELD   X FLD   Y FLD     RMS W1     RMS W2     RMS W3     RMS W4     RMS W5   RMS POLY     STREHL
+    1   0.000   0.000    0.03990    0.07307    0.03140    0.46377    0.07172    0.21361     0.7055
+    2   0.000   0.700    0.26981    0.19855    0.27879    0.48186    0.28287    0.31691     0.0713
+    3   0.000   1.000    0.45199    0.40670    0.45353    0.62146    0.44895    0.48232     0.0005
+Focus shift = -0.049441 mm
+WAVEFRONT ANALYSIS (NRD 20; RMS in waves, piston and tilt removed; Strehl = exp(-(2 pi RMS)^2))
+BEST COMPOSITE FOCUS
+FIELD   X FLD   Y FLD     RMS W1     RMS W2     RMS W3     RMS W4     RMS W5   RMS POLY     STREHL
+    1   0.000   0.000    0.16456    0.08680    0.10069    0.28848    0.04817    0.16143     0.5412
+    2   0.000   0.700    0.36552    0.30692    0.33916    0.40889    0.31847    0.34970     0.0119
+    3   0.000   1.000    0.54187    0.51311    0.51538    0.61380    0.49232    0.53696     0.0000
+Focus shift = 0.005714 mm
+WAVEFRONT ANALYSIS (NRD 16; RMS in waves, piston and tilt removed; Strehl = exp(-(2 pi RMS)^2))
+BEST COMPOSITE FOCUS
+FIELD   X FLD   Y FLD     RMS W1     RMS W2     RMS W3     RMS W4     RMS W5   RMS POLY     STREHL
+    1   0.000   0.000    0.16918    0.08828    0.10414    0.29715    0.05031    0.16619     0.5291
+    2   0.000   0.700    0.23896    0.17810    0.26714    0.54818    0.28329    0.32892     0.0985
+    3   0.000   1.000    0.42242    0.37369    0.43818    0.65573    0.44253    0.47663     0.0012
+Group 1 focus shift = 0.005625 mm
+Group 2 focus shift = -0.076796 mm
+WAVEFRONT ANALYSIS (NRD 20; RMS in waves, piston and tilt removed; Strehl = exp(-(2 pi RMS)^2))
+BEST COMPOSITE FOCUS
+FIELD   X FLD   Y FLD     RMS W1     RMS W2     RMS W3     RMS W4     RMS W5   RMS POLY     STREHL
+    1   0.000   0.000    0.03990    0.07307    0.03140    0.46377    0.07172    0.21361     0.7055
+    2   0.000   0.700    0.26981    0.19855    0.27879    0.48186    0.28287    0.31691     0.0713
+    3   0.000   1.000    0.45199    0.40670    0.45353    0.62146    0.44895    0.48232     0.0005
+Focus shift = -0.049441 mm
+WAV: RFO not applied, THI S6 has a solve
+Deleting PIM
+WAVEFRONT ANALYSIS (NRD 20; RMS in waves, piston and tilt removed; Strehl = exp(-(2 pi RMS)^2))
+BEST COMPOSITE FOCUS
+FIELD   X FLD   Y FLD     RMS W1     RMS W2     RMS W3     RMS W4     RMS W5   RMS POLY     STREHL
+    1   0.000   0.000    0.03990    0.07307    0.03140    0.46377    0.07172    0.21361     0.7055
+    2   0.000   0.700    0.26981    0.19855    0.27879    0.48186    0.28287    0.31691     0.0713
+    3   0.000   1.000    0.45199    0.40670    0.45353    0.62146    0.44895    0.48232     0.0005
+Focus shift = -0.049441 mm
+RFO: THI S6 = 38.465776
+WAVEFRONT ANALYSIS (NRD 20; RMS in waves, piston and tilt removed; Strehl = exp(-(2 pi RMS)^2))
+NOMINAL FOCUS
+FIELD   X FLD   Y FLD     RMS W1     RMS W2     RMS W3     RMS W4     RMS W5   RMS POLY     STREHL
+    1   0.000   0.000    0.04014    0.07310    0.03131    0.46474    0.07164    0.21403     0.7054
+    2   0.000   0.700    0.27035    0.19897    0.27924    0.48273    0.28326    0.31747     0.0707
+    3   0.000   1.000    0.45284    0.40749    0.45429    0.62251    0.44964    0.48316     0.0005
+Error:  WAV: NRD must be 4..512
+Error:  WAV: expected NOM Y|N
+Error:  WAV: bad value X
+Error:  WAV: CPL groups are numbered from 1
+Option cancelled
+Error:  expected WAV (then its options and GO)

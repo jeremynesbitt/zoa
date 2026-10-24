@@ -58,6 +58,13 @@ contains
             call rad_go(curr_psm)
             cmd_loop = 0
         end if
+        if (cmd_loop == WAV_LOOP) then
+            cmd_loop = 0
+            block
+                use wavefront_analysis, only: wav_go
+                call wav_go()
+            end block
+        end if
         if (cmd_loop == ID_PLOTTYPE_SEIDEL) then
             call seidel_go(curr_psm)
             cmd_loop = 0

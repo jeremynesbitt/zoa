@@ -1210,6 +1210,91 @@ contains
         call curr_psm%updateSetting(SETTING_RAD_NRD, str2int(trim(tokens(2))))
     end procedure radSetNRD
 
+    !## cmd:      WAV
+    !## syntax:   WAV; [NOM Y] [BES Y] [RFO Y] [NRD n] [WTF w1 ..] [CPL g1 ..]; GO
+    !## category: Analysis
+    !## desc:     RMS wavefront error and Strehl ratio per field, at nominal and/or best composite focus (CODE V WAV).
+    !##
+    module procedure execWAV
+        use wavefront_analysis, only: wav_reset
+        implicit none
+        character(len=80) :: tokens(40)
+        integer :: numTokens
+
+        call parse(trim(iptStr), ' ', tokens, numTokens)
+        if (numTokens > 1) then
+            call zoa_emit("Error:  expected WAV (then its options and GO)", "red"); return
+        end if
+        call wav_reset()
+        cmd_loop = WAV_LOOP
+    end procedure execWAV
+
+    ! The WAV options (claimed by the dispatcher only inside WAV).
+    module procedure wavSetOption
+        use command_utils, only: isInputNumber
+        use wavefront_analysis, only: wav_set_mode, wav_set_rfo, wav_set_nrd, &
+                                      wav_set_wtf, wav_set_cpl
+        implicit none
+        character(len=80) :: tokens(40)
+        integer :: numTokens, i, ivals(40)
+        real(long) :: vals(40)
+        logical :: on
+
+        call parse(trim(iptStr), ' ', tokens, numTokens)
+        select case (trim(tokens(1)))
+        case ('BES', 'NOM', 'THR', 'RFO')
+            on = .true.
+            if (numTokens >= 2) then
+                select case (trim(tokens(2)))
+                case ('Y', 'YES'); on = .true.
+                case ('N', 'NO');  on = .false.
+                case default
+                    call zoa_emit("Error:  WAV: expected "//trim(tokens(1))//" Y|N", "red"); return
+                end select
+            end if
+            if (numTokens > 2) then
+                call zoa_emit("Error:  WAV: expected "//trim(tokens(1))//" Y|N", "red"); return
+            end if
+            if (tokens(1) == 'RFO') then
+                call wav_set_rfo(on)
+            else
+                call wav_set_mode(trim(tokens(1)), on)
+            end if
+        case ('NRD')
+            if (numTokens /= 2 .or. .not. isInputNumber(trim(tokens(2)))) then
+                call zoa_emit("Error:  WAV: expected NRD n", "red"); return
+            end if
+            i = str2int(trim(tokens(2)))
+            if (i < 4 .or. i > 512) then
+                call zoa_emit("Error:  WAV: NRD must be 4..512", "red"); return
+            end if
+            call wav_set_nrd(i)
+        case ('WTF', 'CPL')
+            if (numTokens < 2) then
+                call zoa_emit("Error:  WAV: expected "//trim(tokens(1))//" v1 [v2 ..] (one per field)", "red")
+                return
+            end if
+            do i = 2, numTokens
+                if (.not. isInputNumber(trim(tokens(i)))) then
+                    call zoa_emit("Error:  WAV: bad value "//trim(tokens(i)), "red"); return
+                end if
+                vals(i-1) = str2real8(trim(tokens(i)))
+                ivals(i-1) = nint(vals(i-1))
+            end do
+            if (tokens(1) == 'WTF') then
+                if (any(vals(1:numTokens-1) < 0.0_long)) then
+                    call zoa_emit("Error:  WAV: field weights must be >= 0", "red"); return
+                end if
+                call wav_set_wtf(vals, numTokens-1)
+            else
+                if (any(ivals(1:numTokens-1) < 1)) then
+                    call zoa_emit("Error:  WAV: CPL groups are numbered from 1", "red"); return
+                end if
+                call wav_set_cpl(ivals, numTokens-1)
+            end if
+        end select
+    end procedure wavSetOption
+
     !## cmd:      CAN
     !## syntax:   CAN
     !## category: Utilities

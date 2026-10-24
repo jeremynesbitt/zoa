@@ -1,0 +1,34 @@
+RES osdtriplet
+! WAV: RMS wavefront / Strehl at nominal and best composite focus
+WAV
+NOM Y
+GO
+! per-field weights and focus groups
+WAV
+WTF 1 0 0
+GO
+WAV
+CPL 1 2 2
+NRD 16
+GO
+! RFO refuses a solved image distance
+WAV
+RFO Y
+GO
+! without the PIM solve RFO refocuses; NOM afterwards ~ the BES values
+DEL PIM
+WAV
+RFO Y
+GO
+WAV
+NOM Y
+BES N
+GO
+! bad input
+WAV
+NRD 2
+NOM MAYBE
+WTF 1 x
+CPL 0
+CAN
+WAV 3

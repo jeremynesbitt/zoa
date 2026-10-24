@@ -55,6 +55,7 @@ srcs += files(
   'cmd-loop-state.f90',
   'macro-recorder.f90',
   'ref-sphere-settings.f90',
+  'wavefront-analysis.f90',
   'surface-renumber.f90',
   'lens-draw-apertures.f90',
   'mod_DATSPD.f90',

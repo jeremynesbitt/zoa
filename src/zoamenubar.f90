@@ -119,6 +119,7 @@ contains
     !character(len=100), target :: pltSPR = "SPR"
     character(len=100), target :: pltSPR = "PLTRMS; RMSDATA SPOT; GO"
     character(len=100), target :: pltRAD = "RAD; GO"
+    character(len=100), target :: anaWAV = "WAV; NOM Y; GO"
 
     character(len=100), target :: syscon = "SYSCON"
     character(len=100), target :: undoCmd = "UNDO"
@@ -237,6 +238,9 @@ contains
 
     call addCommandMenuItem(menu_imagEval, "Radial Energy (RAD)", &
     & "PltRAD", pltRAD, win)
+
+    call addCommandMenuItem(menu_imagEval, "Wavefront Analysis (WAV)", &
+    & "AnaWAV", anaWAV, win)
 
     ! Lens Menu
     call g_menu_append_submenu (menubar, "Lens"//c_null_char, menu_lens)

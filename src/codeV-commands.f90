@@ -477,6 +477,12 @@ module codeV_commands
    module subroutine cancelOption(iptStr)
     character(len=*) :: iptStr
    end subroutine cancelOption
+   module subroutine execWAV(iptStr)
+    character(len=*) :: iptStr
+   end subroutine execWAV
+   module subroutine wavSetOption(iptStr)
+    character(len=*) :: iptStr
+   end subroutine wavSetOption
     end interface
 
 
@@ -530,6 +536,7 @@ module codeV_commands
     ! block was read as UPD CON edits, so after any CHA n every loaded entry
     ! overwrote row n and only the last one survived.
     integer, parameter :: CON_UPDATE_LOOP = 8
+    integer, parameter :: WAV_LOOP = 9
 
 
     ! Views saved by nested kdp_silent_begin calls (see kdpApiSilenceOn).
@@ -794,6 +801,8 @@ module codeV_commands
         zoaCmds(809)%execFunc => execRAD
         zoaCmds(810)%cmd = 'CAN'
         zoaCmds(810)%execFunc => cancelOption
+        zoaCmds(811)%cmd = 'WAV'
+        zoaCmds(811)%execFunc => execWAV
         ! Tilt / decenter / pivot control codes (CODE V XDC..CDC, XOC..ZOC).
         block
             use zoa_ui, only: TILT_VAR_NAMES
@@ -1041,6 +1050,15 @@ module codeV_commands
                 call radSetNRD(currentCommand); boolResult = .TRUE.; return
             case ('PER')
                 call radSetPER(currentCommand); boolResult = .TRUE.; return
+            end select
+        end if
+
+        ! WAV options.  BES/NRD/WTF mean other things outside WAV, so they
+        ! are claimed only while the option is open.
+        if (cmd_loop == WAV_LOOP) then
+            select case (trim(iptCmd))
+            case ('BES', 'NOM', 'THR', 'RFO', 'NRD', 'WTF', 'CPL')
+                call wavSetOption(currentCommand); boolResult = .TRUE.; return
             end select
         end if
 

@@ -617,6 +617,11 @@ test('spot_engine', test_runner,
             meson.project_source_root() / 'test/spot_engine.ref'],
      timeout: 120, priority: 10)
 
+test('wav', test_runner,
+     args: [meson.project_source_root() / 'test/wav.zoa',
+            meson.project_source_root() / 'test/wav.ref'],
+     timeout: 120)
+
 test('engine_units', test_runner,
      args: [meson.project_source_root() / 'test/engine_units.zoa',
             meson.project_source_root() / 'test/engine_units.ref'],
