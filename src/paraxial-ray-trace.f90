@@ -1453,6 +1453,7 @@ end subroutine
 !Not sure how this should go to LDM so for now abstract here
 subroutine resolveSolve(L)
     use DATLEN, only: SOLVE
+    use mod_lens_data_manager, only: ldm
     integer :: L
 
     INTEGER SLV1,SLV2
@@ -1463,12 +1464,14 @@ subroutine resolveSolve(L)
     SLV2=1
     IF(SOLVE(6,L).NE.0.0D0 .OR. &
     SOLVE(8,L).NE.0.0D0) CALL SLVRS
-    ! NB: we deliberately do NOT refresh the typed store here.  A thickness solve
-    ! (SOLVE(6)) does not change the surface's radius, and the trace already reads
-    ! thickness live (getSurfThi -> surf_thickness).  Refreshing here also proved
-    ! unsafe when the store layout is stale relative to ALENS (e.g. mid-INS), which
-    ! corrupted the just-inserted lens.  Curvature-solve-after-edit is handled by
-    ! the edit-point refresh (setRadius etc.), not here.
+    ! A curvature solve (SOLVE(8)) rewrites surface L's curvature in ALENS:
+    ! bring the typed surface current, as resolvePikup does, or the real-ray
+    ! trace (and every later paraxial pass) keeps the pre-solve curvature until
+    ! a full rebuild (save/restore).  A thickness solve (SOLVE(6)) needs no
+    ! refresh -- the traces read thickness live.  (The stale-layout corruption
+    ! that once ruled this out came from INS, which now rebuilds the whole
+    ! store before its EOS.)
+    IF(SOLVE(8,L).NE.0.0D0) call ldm%refresh_typed_surf_geom(L)
 
 end subroutine
 

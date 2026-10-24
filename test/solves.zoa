@@ -41,3 +41,18 @@ RES solvetest
 SLV ALL
 DEL SOL THI S5
 SLV ALL
+! ---- A curvature solve reaches the real-ray trace at once (it used to wait
+! for a save/restore): the live trace must equal the restored one, and PIM
+! must use the solved curvature.
+RES osdtriplet
+CUY S6 UCY 0
+PIM
+SUR S6
+RSI f3 w1 0 0
+RDY S5 60
+SUR S6
+RSI f3 w1 0 0
+SAV slvlive
+RES slvlive
+SUR S6
+RSI f3 w1 0 0
