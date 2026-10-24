@@ -1765,7 +1765,7 @@ contains
         use ref_sphere_settings, only: rsl_set, rsl_mode, rsl_value, RSL_MODE_DEF, RSL_MODE_INF, RSL_MODE_VALUE
         use command_utils, only: isInputNumber
         use type_utils, only: compactReal
-        use zoa_ui_callbacks, only: notify_replot
+        use zoa_ui_callbacks, only: notify_replot, notify_refresh_sysconfig
         implicit none
         character(len=80) :: tokens(40)
         integer :: numTokens
@@ -1798,6 +1798,9 @@ contains
             call rsl_set(RSL_MODE_VALUE, str2real8(trim(tokens(2))))
         end select
         call notify_replot()
+        ! Not a lens update, so the System Config panel is not refreshed by
+        ! the usual end-of-update hook: refresh it here (no-op if closed).
+        call notify_refresh_sysconfig()
     end procedure setRefSphereLocation
 
 end submodule mod_codev_lensops

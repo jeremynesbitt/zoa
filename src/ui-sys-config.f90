@@ -25,7 +25,8 @@ module ui_sys_config
   use g
   use zoa_ui
   use settings_obj
-  use kdp_data_types, only: FIELD_OBJECT_HEIGHT, FIELD_PARAX_IMAGE_HEIGHT, FIELD_REAL_IMAGE_HEIGHT, RAYAIM_PARAX, RAYAIM_REAL, RAYAIM_APLANATIC, RAYAIM_TELE
+  use ref_sphere_settings, only: rsl_mode, rsl_value, RSL_MODE_DEF, RSL_MODE_INF, RSL_MODE_VALUE
+  use kdp_data_types, only: idText, FIELD_OBJECT_HEIGHT, FIELD_PARAX_IMAGE_HEIGHT, FIELD_REAL_IMAGE_HEIGHT, RAYAIM_PARAX, RAYAIM_REAL, RAYAIM_APLANATIC, RAYAIM_TELE
 
   implicit none
 
@@ -65,6 +66,7 @@ end type
 type, extends(zoa_settings_obj) :: ui_rayaim_settings
 
   type(c_ptr) :: rayAimType
+  type(c_ptr) :: rslType      ! OPD reference sphere (RSL) dropdown
 
 contains
   procedure, public, pass(self) :: createUI => createRayAimSettingsUI
@@ -101,9 +103,11 @@ end type
   integer, parameter :: ID_SYSCON_Y_APERTURE = 7050
   integer, parameter :: ID_SYSCON_RAYAIM = 7052
   integer, parameter :: ID_SYSCON_EDGE_FACTOR = 7053
+  integer, parameter :: ID_SYSCON_RSL = 7054
+  integer, parameter :: ID_SYSCON_RSL_RADIUS = 7055
 
 
-  type(c_ptr) :: spinButton_yAperture, spinButton_edgeFactor
+  type(c_ptr) :: spinButton_yAperture, spinButton_edgeFactor, spinButton_rslRadius
 
   type(c_ptr) :: spinButton_numFields, spinButton_numWavelengths, spinButton_refWavelength
 
@@ -175,7 +179,9 @@ contains
     class(ui_rayaim_settings) :: self
 
     integer, target :: TARGET_RAYAIM = ID_SYSCON_RAYAIM
- 
+    integer, target :: TARGET_RSL = ID_SYSCON_RSL
+    integer, target :: TARGET_RSL_RADIUS = ID_SYSCON_RSL_RADIUS
+    type(idText) :: rslOptions(3)
 
     call self%addListBoxTextID("Ray Aiming Method ",  &
     & sysConfig%rayAimOptions, c_funloc(callback_sys_config_settings), &
@@ -183,6 +189,21 @@ contains
 
     ! TODO:  Find a better way of doing this (too risky if parent changes)
     self%rayAimType = self%getWidget(self%numSettings)
+
+    ! OPD reference sphere (CODE V RSL): from the exit pupil, at infinity, or
+    ! a given radius.  Both controls send RSL commands.
+    rslOptions(1) = idText(RSL_MODE_DEF,   "From Exit Pupil (Default)")
+    rslOptions(2) = idText(RSL_MODE_INF,   "Infinite")
+    rslOptions(3) = idText(RSL_MODE_VALUE, "Radius")
+    call self%addListBoxTextID("OPD Reference Sphere ", rslOptions, &
+    & c_funloc(callback_sys_config_settings), c_loc(TARGET_RSL))
+    self%rslType = self%getWidget(self%numSettings)
+    spinButton_rslRadius = gtk_spin_button_new (gtk_adjustment_new( &
+                                    & value=rslRadiusShown(), lower=-1d9, upper=1d9, &
+                                    & step_increment=1d0, page_increment=10d0, &
+                                    & page_size=0d0), climb_rate=2d0, digits=4_c_int)
+    call self%addSpinBox("Reference Sphere Radius", spinButton_rslRadius, &
+    & c_funloc(callback_sys_config_settings), c_loc(TARGET_RSL_RADIUS), ID_SYSCON_RSL_RADIUS)
 
   end subroutine
 
@@ -202,8 +223,15 @@ contains
 
     !call hl_zoa_combo_set_selected_by_list2_id(self%apertureType, sysConfig%currApertureID)
     call hl_zoa_combo_set_selected_by_list2_id(self%getWidget(1), sysConfig%currRayAimID)
+    call hl_zoa_combo_set_selected_by_list2_id(self%rslType, rsl_mode())
 
   end subroutine
+
+  ! Radius shown in the RSL spin box: the set radius, else a starting value.
+  real(real64) function rslRadiusShown()
+    rslRadiusShown = 100.0_real64
+    if (rsl_mode() == RSL_MODE_VALUE) rslRadiusShown = rsl_value()
+  end function
 
   ! Push current sysConfig values back into the open System Config panel, so it
   ! reflects changes made elsewhere (e.g. an EPD/aperture change from the CLI).
@@ -233,8 +261,9 @@ contains
     call gtk_spin_button_set_value(spinButton_refWavelength, sysConfig%refWavelengthIndex*1d0)
     call gtk_spin_button_set_value(spinButton_numWavelengths, sysConfig%numWavelengths*1d0)
 
-    ! Ray aiming
+    ! Ray aiming, OPD reference sphere
     call uiRayAimSettings%updateSettings()
+    call gtk_spin_button_set_value(spinButton_rslRadius, rslRadiusShown())
 
     sysconfig_updating = .false.
   end subroutine
@@ -1051,6 +1080,33 @@ subroutine callback_sys_config_settings (widget, gdata ) bind(c)
          case (RAYAIM_TELE);      call PROCESKDP('AIMAPL OFF ; AIMRAY OFF ; TEL YES')
          end select
        end if
+
+  case (ID_SYSCON_RSL)
+      block
+        use type_utils, only: compactReal
+        select case (hl_zoa_combo_get_selected_list2_id(widget))
+        case (RSL_MODE_INF);   call PROCESKDP('RSL INF')
+        case (RSL_MODE_VALUE)
+          call PROCESKDP('RSL '//trim(compactReal(real(gtk_spin_button_get_value(spinButton_rslRadius), real64), 15)))
+        case default;          call PROCESKDP('RSL DEF')
+        end select
+        call notify_replot_flush()
+      end block
+
+  case (ID_SYSCON_RSL_RADIUS)
+      ! A radius edit selects the Radius setting.
+      block
+        use type_utils, only: compactReal
+        real(real64) :: r
+        r = real(gtk_spin_button_get_value(spinButton_rslRadius), real64)
+        if (r /= 0.0_real64) then
+          call PROCESKDP('RSL '//trim(compactReal(r, 15)))
+          sysconfig_updating = .true.
+          call hl_zoa_combo_set_selected_by_list2_id(uiRayAimSettings%rslType, RSL_MODE_VALUE)
+          sysconfig_updating = .false.
+          call notify_replot_flush()
+        end if
+      end block
 
   case (ID_SYSCON_EDGE_FACTOR)
       ! Spin shows a margin percentage; store the scale factor (1 + margin/100).
