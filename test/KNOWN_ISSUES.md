@@ -834,3 +834,12 @@ YTORIC/XTORIC + RDTOR/CVTOR + CCTOR/ADTOR..AGTOR.
 **Plan:** a toric/anamorphic `surface_type` (sag, intersection, normal) in the
 engine, then the CODE V commands + save.  Until then the shape commands are
 deliberately not exposed.
+
+## TODO: Lens Editor -- tilt/decenter variables and pickups (2026-10-23)
+- The optimizer variables XDC/YDC/ZDC, ADC/BDC/CDC and XOC/YOC/ZOC (commit
+  5e97ddd) are command-only: the Lens Editor's Set Variable menu offers only
+  curvature, thickness, conic and asphere terms.  Add the tilt/decenter
+  codes there (and a way to see which surfaces carry them), sending the
+  same commands (e.g. `YDC S4 0`).
+- Related: pickups on tilts/decenters (KDP pickup kinds without a CODE V
+  name) are still not written by the .zoa save.
