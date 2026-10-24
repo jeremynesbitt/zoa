@@ -54,6 +54,10 @@ contains
             call spo_go(curr_psm)
             cmd_loop = 0
         end if
+        if (cmd_loop == RAD_LOOP) then
+            cmd_loop = 0
+            call runRAD()
+        end if
         if (cmd_loop == ID_PLOTTYPE_SEIDEL) then
             call seidel_go(curr_psm)
             cmd_loop = 0

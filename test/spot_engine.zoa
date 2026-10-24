@@ -135,3 +135,22 @@ SPD
 RAYENGINE OFF
 SPD
 RAYENGINE ON
+! ---- RAD (CODE V radial energy): radius enclosing each energy fraction ----
+RES osdtriplet
+RAD
+GO
+RAD
+NRD 40
+PER 50 80 90
+GO
+! Same spot through KDP's own radial energy, for comparison (field 2)
+FOB 0.7
+SPOT RECT
+RECT 20
+SPD
+REDK CENT
+! Errors
+RAD
+PER 120
+FOO 3
+CAN

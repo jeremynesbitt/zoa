@@ -1145,4 +1145,160 @@ contains
 
     end procedure execZINTEST
 
+    !## cmd:      RAD
+    !## syntax:   RAD ; [NRD n] ; [PER p1 p2 ...] ; GO
+    !## category: Analysis
+    !## desc:     Geometric radial (encircled) energy, CODE V's RAD option: for each field, the
+    !##           radius enclosing each percentage of the polychromatic spot's energy, measured
+    !##           from the spot centroid.  NRD rays across the pupil (default 20), PER up to 10
+    !##           percentages (default 10, 20, .. 100).
+    !##
+    module procedure execRAD
+        implicit none
+        radNRD = 20
+        radNPer = 10
+        radPer = [10.0_long, 20.0_long, 30.0_long, 40.0_long, 50.0_long, &
+        &         60.0_long, 70.0_long, 80.0_long, 90.0_long, 100.0_long]
+        cmd_loop = RAD_LOOP
+    end procedure execRAD
+
+    module procedure radLoopCommand
+        use command_utils, only: isInputNumber
+        implicit none
+        character(len=80) :: tokens(40)
+        integer :: numTokens, i
+        real(long) :: v(10)
+
+        call parse(trim(iptStr), ' ', tokens, numTokens)
+        select case (trim(tokens(1)))
+        case ('NRD')
+            if (numTokens /= 2 .or. .not. isInputNumber(trim(tokens(2)))) then
+                call zoa_emit("Error:  RAD: expected NRD n", "red"); return
+            end if
+            if (str2int(trim(tokens(2))) < 2) then
+                call zoa_emit("Error:  RAD: NRD must be at least 2", "red"); return
+            end if
+            radNRD = str2int(trim(tokens(2)))
+        case ('PER')
+            if (numTokens < 2 .or. numTokens > 11) then
+                call zoa_emit("Error:  RAD: expected PER p1 [p2 ...] (up to 10)", "red"); return
+            end if
+            do i = 2, numTokens
+                if (.not. isInputNumber(trim(tokens(i)))) then
+                    call zoa_emit("Error:  RAD: bad percentage "//trim(tokens(i)), "red"); return
+                end if
+                v(i-1) = str2real8(trim(tokens(i)))
+                if (v(i-1) <= 0.0_long .or. v(i-1) > 100.0_long) then
+                    call zoa_emit("Error:  RAD: percentages must be in (0, 100]", "red"); return
+                end if
+            end do
+            radNPer = numTokens - 1
+            radPer(1:radNPer) = v(1:radNPer)
+        case ('CAN')
+            cmd_loop = 0
+        case default
+            call zoa_emit("Error:  RAD: unknown setting "//trim(tokens(1))// &
+            &  " (NRD, PER, GO; CAN cancels)", "red")
+        end select
+    end procedure radLoopCommand
+
+    ! For each field: trace the polychromatic spot (rectangular grid of NRD
+    ! rays across the pupil, wavelength-weighted), then sort the rays by
+    ! distance from the energy-weighted centroid and read off the radius that
+    ! encloses each percentage of the energy (linear interpolation).
+    module procedure runRAD
+        use DATSP1, only: ITOT
+        use GLOBALS, only: DSPOTT
+        use global_widgets, only: sysConfig
+        use type_utils, only: real2str
+        implicit none
+        real(long), allocatable :: r(:), w(:)
+        real(long) :: cx, cy, wsum, acc, target, rads(10, 10)
+        integer :: f, n, i, j, k, nf
+        integer, allocatable :: order(:)
+        character(len=1024) :: line
+        character(len=12) :: cell
+
+        nf = sysConfig%numFields
+        rads = 0.0_long
+        do f = 1, nf
+            write(line, '(A,F0.6,1X,F0.6,A,I0,A)') 'FOB ', sysConfig%relativeFields(2,f), &
+            &  sysConfig%relativeFields(1,f), '; SPOT RECT; RECT ', radNRD, '; SPD'
+            call PROCESSILENT(trim(line))
+            n = 0
+            if (allocated(DSPOTT)) then
+                allocate(r(ITOT), w(ITOT))
+                cx = 0.0_long; cy = 0.0_long; wsum = 0.0_long
+                do i = 1, ITOT - 1
+                    if (DSPOTT(17,i) == 0.0_long .or. DSPOTT(12,i) == 0.0_long) cycle
+                    wsum = wsum + DSPOTT(12,i)
+                    cx = cx + DSPOTT(12,i)*DSPOTT(1,i)
+                    cy = cy + DSPOTT(12,i)*DSPOTT(2,i)
+                end do
+                if (wsum > 0.0_long) then
+                    cx = cx/wsum; cy = cy/wsum
+                    do i = 1, ITOT - 1
+                        if (DSPOTT(17,i) == 0.0_long .or. DSPOTT(12,i) == 0.0_long) cycle
+                        n = n + 1
+                        r(n) = hypot(DSPOTT(1,i) - cx, DSPOTT(2,i) - cy)
+                        w(n) = DSPOTT(12,i)
+                    end do
+                end if
+            end if
+            if (n == 0) then
+                call zoa_emit("RAD: no rays reached the image for field "//trim(int2str(f)), "red")
+                if (allocated(r)) deallocate(r, w)
+                cycle
+            end if
+            ! Insertion sort by radius (spot sizes are a few thousand rays).
+            allocate(order(n))
+            order = [(i, i = 1, n)]
+            do i = 2, n
+                k = order(i); j = i - 1
+                do while (j >= 1)
+                    if (r(order(j)) <= r(k)) exit
+                    order(j+1) = order(j); j = j - 1
+                end do
+                order(j+1) = k
+            end do
+            do k = 1, radNPer
+                target = radPer(k)/100.0_long*wsum
+                acc = 0.0_long
+                rads(k, f) = r(order(n))
+                do i = 1, n
+                    if (acc + w(order(i)) >= target) then
+                        ! Interpolate within this ray's share of the energy.
+                        if (i == 1) then
+                            rads(k, f) = r(order(1))*target/max(w(order(1)), tiny(1.0_long))
+                        else
+                            rads(k, f) = r(order(i-1)) + (r(order(i)) - r(order(i-1)))* &
+                            &  (target - acc)/max(w(order(i)), tiny(1.0_long))
+                        end if
+                        exit
+                    end if
+                    acc = acc + w(order(i))
+                end do
+            end do
+            deallocate(r, w, order)
+        end do
+
+        call zoa_emit("GEOMETRIC RADIAL ENERGY (polychromatic, about the spot centroid; NRD "// &
+        &  trim(int2str(radNRD))//")", "black")
+        call zoa_emit("Radius enclosing the energy, "//trim(sysConfig%getLensUnitsText()), "black")
+        line = '  Energy %'
+        do f = 1, nf
+            write(cell, '(A,I0)') 'F', f
+            line = trim(line)//repeat(' ', 12 - len_trim(cell))//trim(cell)
+        end do
+        call zoa_emit(trim(line), "black")
+        do k = 1, radNPer
+            write(line, '(F10.1)') radPer(k)
+            do f = 1, nf
+                write(cell, '(ES12.4)') rads(k, f)
+                line = trim(line)//cell
+            end do
+            call zoa_emit(trim(line), "black")
+        end do
+    end procedure runRAD
+
 end submodule mod_codev_plots

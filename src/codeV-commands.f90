@@ -465,6 +465,14 @@ module codeV_commands
    module subroutine setRefSphereLocation(iptStr)
     character(len=*) :: iptStr
    end subroutine setRefSphereLocation
+   module subroutine execRAD(iptStr)
+    character(len=*) :: iptStr
+   end subroutine execRAD
+   module subroutine radLoopCommand(iptStr)
+    character(len=*) :: iptStr
+   end subroutine radLoopCommand
+   module subroutine runRAD()
+   end subroutine runRAD
     end interface
 
 
@@ -518,6 +526,12 @@ module codeV_commands
     ! block was read as UPD CON edits, so after any CHA n every loaded entry
     ! overwrote row n and only the last one survived.
     integer, parameter :: CON_UPDATE_LOOP = 8
+    ! RAD option loop (CODE V Radial Energy): settings until GO.
+    integer, parameter :: RAD_LOOP = 9
+    integer :: radNRD = 20
+    integer :: radNPer = 10
+    real(long) :: radPer(10) = [10.0_long, 20.0_long, 30.0_long, 40.0_long, 50.0_long, &
+    &                           60.0_long, 70.0_long, 80.0_long, 90.0_long, 100.0_long]
 
     ! Views saved by nested kdp_silent_begin calls (see kdpApiSilenceOn).
     type(c_ptr), private :: silenceSaved(32)
@@ -777,6 +791,8 @@ module codeV_commands
         zoaCmds(798)%execFunc => listGlobalSurfaces
         zoaCmds(799)%cmd = 'RSL'
         zoaCmds(799)%execFunc => setRefSphereLocation
+        zoaCmds(809)%cmd = 'RAD'
+        zoaCmds(809)%execFunc => execRAD
         ! Tilt / decenter / pivot control codes (CODE V XDC..CDC, XOC..ZOC).
         block
             use zoa_ui, only: TILT_VAR_NAMES
@@ -1014,6 +1030,13 @@ module codeV_commands
         character(len=40) :: valStr
 
         boolResult = .FALSE.
+
+        ! Inside the RAD option every word but GO is a RAD setting.
+        if (cmd_loop == RAD_LOOP .and. trim(iptCmd) /= 'GO') then
+            call radLoopCommand(currentCommand)
+            boolResult = .TRUE.
+            return
+        end if
 
         ! (VIE-loop setting subcommands NUMRAYS/DRAWSI/DRAWSF/ELEV/AZI/ORIENT are
         !  now registered CodeV commands routed to adjustVieSettings, below.)
