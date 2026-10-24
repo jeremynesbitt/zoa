@@ -622,7 +622,7 @@ module optim_types
         call kdp_lens_begin()
         do i=1,nV
             call kdp_chg(VARS(i,1))
-            call kdp_lens_cmd(trim(getVarKdpCmd(VARS(i,2))), w1=x(i)*varScaleOf(i))
+            call applyVariable(VARS(i,1), VARS(i,2), x(i)*varScaleOf(i))
         end do
 
         ! CRITICAL: refreshAll rebuilds the typed surface store from the
@@ -639,11 +639,60 @@ module optim_types
 
     end subroutine
 
+    ! Apply one variable's value at lens-update level (CHG already done).
+    ! Tilt/decenter values use the KDP words XD/YD/ZD/ALPHA/BETA/GAMMA; a
+    ! pivot coordinate re-sends the whole PIVOT (KDP takes all three) and
+    ! puts back the decenters, which PIVOT clears.
+    subroutine applyVariable(s, code, v)
+        use mod_kdp_api, only: kdp_lens_cmd
+        use mod_surface, only: surf_pivot_x, surf_pivot_y, surf_pivot_z, &
+        &                      surf_focus_dx, surf_focus_dy, surf_focus_dz
+        integer, intent(in) :: s, code
+        real(long), intent(in) :: v
+        real(long) :: p(3), d(3)
+        select case (code)
+        case (VAR_ADE); call kdp_lens_cmd('ALPHA', w1=v)
+        case (VAR_CDE); call kdp_lens_cmd('GAMMA', w1=v)
+        case (VAR_XOD:VAR_ZOD)
+            p = [surf_pivot_x(s), surf_pivot_y(s), surf_pivot_z(s)]
+            d = [surf_focus_dx(s), surf_focus_dy(s), surf_focus_dz(s)]
+            p(code - VAR_XOD + 1) = v
+            call kdp_lens_cmd('PIVOT', w1=p(1), w2=p(2), w3=p(3))
+            if (d(1) /= 0.0_long) call kdp_lens_cmd('XD', w1=d(1))
+            if (d(2) /= 0.0_long) call kdp_lens_cmd('YD', w1=d(2))
+            if (d(3) /= 0.0_long) call kdp_lens_cmd('ZD', w1=d(3))
+        case default
+            call kdp_lens_cmd(trim(getVarKdpCmd(code)), w1=v)
+        end select
+    end subroutine
+
+    ! Current value of a tilt/decenter/pivot variable on surface s.  The
+    ! decenters are the entered ("focus") copies: on a pivoted surface the
+    ! decenters in use are derived from the pivot.
+    real(long) function tiltVarValue(s, code)
+        use mod_surface, only: surf_focus_dx, surf_focus_dy, surf_focus_dz, &
+        &                      surf_alpha, surf_beta, surf_gamma, &
+        &                      surf_pivot_x, surf_pivot_y, surf_pivot_z
+        integer, intent(in) :: s, code
+        select case (code)
+        case (VAR_XDE); tiltVarValue = surf_focus_dx(s)
+        case (VAR_YDE); tiltVarValue = surf_focus_dy(s)
+        case (VAR_ZDE); tiltVarValue = surf_focus_dz(s)
+        case (VAR_ADE); tiltVarValue = surf_alpha(s)
+        case (VAR_BDE); tiltVarValue = surf_beta(s)
+        case (VAR_CDE); tiltVarValue = surf_gamma(s)
+        case (VAR_XOD); tiltVarValue = surf_pivot_x(s)
+        case (VAR_YOD); tiltVarValue = surf_pivot_y(s)
+        case (VAR_ZOD); tiltVarValue = surf_pivot_z(s)
+        case default;   tiltVarValue = 0.0_long
+        end select
+    end function
+
     ! Scale of each variable: its starting magnitude, but at least a typical
     ! size for its kind (curvature 1e-3 = a 1 m radius, thickness 1, conic
     ! 0.1, asphere term of order 2m: 1e-3**m).
     subroutine setVariableScales(x)
-        use zoa_ui, only: VAR_CURV, VAR_THI, VAR_K, VAR_A4, VAR_A20
+        use zoa_ui, only: VAR_CURV, VAR_THI, VAR_K, VAR_A4, VAR_A20, VAR_XDE, VAR_ZOD
         real(long), dimension(:), intent(in) :: x
         real(long) :: floorV
         integer :: i, m
@@ -654,6 +703,7 @@ module optim_types
             case (VAR_CURV); floorV = 1.0e-3_long
             case (VAR_THI);  floorV = 1.0_long
             case (VAR_K);    floorV = 0.1_long
+            case (VAR_XDE:VAR_ZOD); floorV = 1.0_long   ! 1 lens unit / 1 degree
             case (VAR_A4:VAR_A20)
                 m = VARS(i,2) - VAR_A4 + 2          ! A4 -> m=2 (order 4)
                 floorV = (1.0e-3_long)**m
@@ -734,6 +784,8 @@ module optim_types
             VAR_CODE = VAR_A16
         case('HC')
             VAR_CODE = VAR_A18
+        case('XDC', 'YDC', 'ZDC', 'ADC', 'BDC', 'CDC', 'XOC', 'YOC', 'ZOC')
+            VAR_CODE = VAR_XDE + findloc(TILT_VAR_NAMES, varName, dim=1) - 1
         case('IC')
             VAR_CODE = VAR_A20
         ! NOTE: 'GLC' (glass variable, VAR_GLA) is deliberately NOT mapped here:
@@ -857,6 +909,8 @@ module optim_types
             outCmd = 'KC'
         case(VAR_A4:VAR_A20)
             outCmd = asphVarCmds(int_code - VAR_A4 + 1)
+        case(VAR_XDE:VAR_ZOD)
+            outCmd = TILT_VAR_NAMES(int_code - VAR_XDE + 1)
         end select
 
     end function
@@ -879,6 +933,12 @@ module optim_types
             outCmd = 'CCK'
         case(VAR_A4:VAR_A20)
             outCmd = asphKdpCmds(int_code - VAR_A4 + 1)
+        case(VAR_XDE); outCmd = 'XD'
+        case(VAR_YDE); outCmd = 'YD'
+        case(VAR_ZDE); outCmd = 'ZD'
+        case(VAR_ADE); outCmd = 'ALPH'      ! see applyVariable: ALPHA
+        case(VAR_BDE); outCmd = 'BETA'
+        case(VAR_CDE); outCmd = 'GAMM'      ! see applyVariable: GAMMA
         end select
 
     end function
@@ -1022,6 +1082,10 @@ module optim_types
                     case(VAR_A4:VAR_A20)
                         ! Asphere coefficient A(2n): order = 4,6,..,20
                         VARDATA(ctr,1) = surf_asphere_coeff(i, 4 + 2*(j - VAR_A4))
+                        VARDATA(ctr,2) = -0.1*huge(0.0_long)
+                        VARDATA(ctr,3) = 0.1*huge(0.0_long)
+                    case(VAR_XDE:VAR_ZOD)
+                        VARDATA(ctr,1) = tiltVarValue(i, j)
                         VARDATA(ctr,2) = -0.1*huge(0.0_long)
                         VARDATA(ctr,3) = 0.1*huge(0.0_long)
                 end select

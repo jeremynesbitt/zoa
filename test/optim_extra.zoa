@@ -318,3 +318,41 @@ EOS
 EVA AOI F3
 EVA AOI S2 R7
 EVA DIY F9
+! ---- Tilt / decenter / pivot variables (XDC..CDC, XOC..ZOC) ----
+! A decentered element is re-centred by holding the on-axis spot centroid.
+RES osdtriplet
+DAR S4
+YDE S4 0.2
+EVA YCN F1
+YDC S4 0
+AUT
+YCN F1 = 0
+SPO 0 1
+GO
+EOS
+EVA YCN F1
+SAV tdvar
+PRT tdvar
+! A tilt variable
+RES osdtriplet
+DAR S4
+ADE S4 1
+ADC S4 0
+AUT
+YCN F1 = 0
+SPO 0 1
+GO
+EOS
+EVA YCN F1
+! A pivot variable with the tilt held
+RES osdtriplet
+DAR S4
+ADE S4 1
+YOD S4 2
+YOC S4 0
+AUT
+YCN F1 = 0.01
+SPO 0 1
+GO
+EOS
+EVA YCN F1

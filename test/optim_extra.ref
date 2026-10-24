@@ -1817,3 +1817,287 @@ INVALID CMD LEVEL COMMAND
 Error:  AOI needs a surface (Sk)
 Error:  ray R7 is not a reference ray (R1..R5)
 Error:  field F9 is not defined (F1..F3)
+All constraints removed
+
+
+
+
+
+
+-0.34459
+                                                          l
+CYCLE NUMBER 0
+   ERROR FUNCTION = 0.00093
+          RDY          THI     RMD          GLA          CCY     THC     GLC
+OBJ:    INFINITY    INFINITY                              100     100     100
+001:    15.00000    3.50000               N-SK16_SCH2000 100     100     100
+002:    INFINITY    3.10000                              100     100     100
+STO:    -37.530    1.50000               N-F2_SCH2000   100     100     100
+004:    14.08000    5.00000                              100     100     100
+005:    50.26000    3.50000               N-SK16_SCH2000 100     100     100
+006:    -31.380    38.51522                              100     100     100
+IMG:    INFINITY    0.00000                              100     100     100
+                                                          l
+Name  Role        Typ  Target              Value               diff
+YCN F1  Constraint  =    0.0000000000000000  -0.3445925214291688  -0.3445925214291688
+SPO   Operand          0.0000000000000000   0.0305626474512641   0.0305626474512641
+                                                          l
+CYCLE NUMBER 1
+   ERROR FUNCTION = 0.00014
+          RDY          THI     RMD          GLA          CCY     THC     GLC
+OBJ:    INFINITY    INFINITY                              100     100     100
+001:    15.00000    3.50000               N-SK16_SCH2000 100     100     100
+002:    INFINITY    3.10000                              100     100     100
+STO:    -37.530    1.50000               N-F2_SCH2000   100     100     100
+004:    14.08000    5.00000                              100     100     100
+005:    50.26000    3.50000               N-SK16_SCH2000 100     100     100
+006:    -31.380    38.51522                              100     100     100
+IMG:    INFINITY    0.00000                              100     100     100
+                                                          l
+Name  Role        Typ  Target              Value               diff
+YCN F1  Constraint  =    0.0000000000000000  -0.0001423979952605  -0.0001423979952605
+SPO   Operand          0.0000000000000000   0.0116958485051029   0.0116958485051029
+                                                          l
+CYCLE NUMBER 2
+   ERROR FUNCTION = 0.00014
+          RDY          THI     RMD          GLA          CCY     THC     GLC
+OBJ:    INFINITY    INFINITY                              100     100     100
+001:    15.00000    3.50000               N-SK16_SCH2000 100     100     100
+002:    INFINITY    3.10000                              100     100     100
+STO:    -37.530    1.50000               N-F2_SCH2000   100     100     100
+004:    14.08000    5.00000                              100     100     100
+005:    50.26000    3.50000               N-SK16_SCH2000 100     100     100
+006:    -31.380    38.51522                              100     100     100
+IMG:    INFINITY    0.00000                              100     100     100
+                                                          l
+Name  Role        Typ  Target              Value               diff
+YCN F1  Constraint  =    0.0000000000000000   0.0000000000000000   0.0000000000000000
+SPO   Operand          0.0000000000000000   0.0116897698257411   0.0116897698257411
+                                                          l
+CYCLE NUMBER 3
+   ERROR FUNCTION = 0.00014
+          RDY          THI     RMD          GLA          CCY     THC     GLC
+OBJ:    INFINITY    INFINITY                              100     100     100
+001:    15.00000    3.50000               N-SK16_SCH2000 100     100     100
+002:    INFINITY    3.10000                              100     100     100
+STO:    -37.530    1.50000               N-F2_SCH2000   100     100     100
+004:    14.08000    5.00000                              100     100     100
+005:    50.26000    3.50000               N-SK16_SCH2000 100     100     100
+006:    -31.380    38.51522                              100     100     100
+IMG:    INFINITY    0.00000                              100     100     100
+                                                          l
+Name  Role        Typ  Target              Value               diff
+YCN F1  Constraint  =    0.0000000000000000   0.0000000000000000   0.0000000000000000
+SPO   Operand          0.0000000000000000   0.0116897698257411   0.0116897698257411
+AUT: done after 3 iterations, status: Required accuracy for solution obtained
+INVALID CMD LEVEL COMMAND
+0.00000
+File name to save is tdvar.zoa
+LEN
+TIT 'New Lens From Template'
+DIM M
+EPD 10.0000
+WL 587.5600 486.1300 656.2700 435.8400 706.5200
+WTW 100 100 100 100 100
+REF 1
+XAN 0.0000 0.0000 0.0000
+YAN 0.0000 7.0000 10.0000
+WTF 100 100 100
+SO   0.000000000000000D+00   0.999999982796800D+13
+S   0.150000000000000D+02   0.350000000000000D+01 N-SK16
+S   0.000000000000000D+00   0.310000000000000D+01
+S  -0.375300000000000D+02   0.150000000000000D+01 N-F2
+  STO
+S   0.140800000000000D+02   0.500000000000000D+01
+  DAR
+  YDE 4.54362025434363E-16
+S   0.502600000000000D+02   0.350000000000000D+01 N-SK16
+S  -0.313800000000000D+02   0.385152169975528D+02
+PIM
+SI  0.0000     0.000000000000000D+00
+GO
+ YDC S4 0
+ TAR
+ SPO 0.00000                 1.00000
+ YCN F1 = 0.00000
+ GO
+All constraints removed
+
+
+
+
+
+
+                                                          l
+CYCLE NUMBER 0
+   ERROR FUNCTION = 0.00122
+          RDY          THI     RMD          GLA          CCY     THC     GLC
+OBJ:    INFINITY    INFINITY                              100     100     100
+001:    15.00000    3.50000               N-SK16_SCH2000 100     100     100
+002:    INFINITY    3.10000                              100     100     100
+STO:    -37.530    1.50000               N-F2_SCH2000   100     100     100
+004:    14.08000    5.00000                              100     100     100
+005:    50.26000    3.50000               N-SK16_SCH2000 100     100     100
+006:    -31.380    38.51522                              100     100     100
+IMG:    INFINITY    0.00000                              100     100     100
+                                                          l
+Name  Role        Typ  Target              Value               diff
+YCN F1  Constraint  =    0.0000000000000000  -0.4234235756662115  -0.4234235756662115
+SPO   Operand          0.0000000000000000   0.0348863139547413   0.0348863139547413
+                                                          l
+CYCLE NUMBER 1
+   ERROR FUNCTION = 0.00014
+          RDY          THI     RMD          GLA          CCY     THC     GLC
+OBJ:    INFINITY    INFINITY                              100     100     100
+001:    15.00000    3.50000               N-SK16_SCH2000 100     100     100
+002:    INFINITY    3.10000                              100     100     100
+STO:    -37.530    1.50000               N-F2_SCH2000   100     100     100
+004:    14.08000    5.00000                              100     100     100
+005:    50.26000    3.50000               N-SK16_SCH2000 100     100     100
+006:    -31.380    38.51522                              100     100     100
+IMG:    INFINITY    0.00000                              100     100     100
+                                                          l
+Name  Role        Typ  Target              Value               diff
+YCN F1  Constraint  =    0.0000000000000000  -0.0002123105176253  -0.0002123105176253
+SPO   Operand          0.0000000000000000   0.0117043886195265   0.0117043886195265
+                                                          l
+CYCLE NUMBER 2
+   ERROR FUNCTION = 0.00014
+          RDY          THI     RMD          GLA          CCY     THC     GLC
+OBJ:    INFINITY    INFINITY                              100     100     100
+001:    15.00000    3.50000               N-SK16_SCH2000 100     100     100
+002:    INFINITY    3.10000                              100     100     100
+STO:    -37.530    1.50000               N-F2_SCH2000   100     100     100
+004:    14.08000    5.00000                              100     100     100
+005:    50.26000    3.50000               N-SK16_SCH2000 100     100     100
+006:    -31.380    38.51522                              100     100     100
+IMG:    INFINITY    0.00000                              100     100     100
+                                                          l
+Name  Role        Typ  Target              Value               diff
+YCN F1  Constraint  =    0.0000000000000000   0.0000000000000000   0.0000000000000000
+SPO   Operand          0.0000000000000000   0.0116953160015703   0.0116953160015703
+                                                          l
+CYCLE NUMBER 3
+   ERROR FUNCTION = 0.00014
+          RDY          THI     RMD          GLA          CCY     THC     GLC
+OBJ:    INFINITY    INFINITY                              100     100     100
+001:    15.00000    3.50000               N-SK16_SCH2000 100     100     100
+002:    INFINITY    3.10000                              100     100     100
+STO:    -37.530    1.50000               N-F2_SCH2000   100     100     100
+004:    14.08000    5.00000                              100     100     100
+005:    50.26000    3.50000               N-SK16_SCH2000 100     100     100
+006:    -31.380    38.51522                              100     100     100
+IMG:    INFINITY    0.00000                              100     100     100
+                                                          l
+Name  Role        Typ  Target              Value               diff
+YCN F1  Constraint  =    0.0000000000000000   0.0000000000000000   0.0000000000000000
+SPO   Operand          0.0000000000000000   0.0116953160015703   0.0116953160015703
+AUT: done after 3 iterations, status: Required accuracy for solution obtained
+INVALID CMD LEVEL COMMAND
+0.00000
+All constraints removed
+
+
+
+
+
+
+                                                          l
+CYCLE NUMBER 0
+   ERROR FUNCTION = 0.00143
+          RDY          THI     RMD          GLA          CCY     THC     GLC
+OBJ:    INFINITY    INFINITY                              100     100     100
+001:    15.00000    3.50000               N-SK16_SCH2000 100     100     100
+002:    INFINITY    3.10000                              100     100     100
+STO:    -37.530    1.50000               N-F2_SCH2000   100     100     100
+004:    14.08000    5.00000                              100     100     100
+005:    50.26000    3.50000               N-SK16_SCH2000 100     100     100
+006:    -31.380    38.51522                              100     100     100
+IMG:    INFINITY    0.00000                              100     100     100
+                                                          l
+Name  Role        Typ  Target              Value               diff
+YCN F1  Constraint  =    0.0100000000000000  -0.4240210909796706  -0.4340210909796706
+SPO   Operand          0.0000000000000000   0.0378781183377841   0.0378781183377841
+                                                          l
+CYCLE NUMBER 1
+   ERROR FUNCTION = 3.71111
+          RDY          THI     RMD          GLA          CCY     THC     GLC
+OBJ:    INFINITY    INFINITY                              100     100     100
+001:    15.00000    3.50000               N-SK16_SCH2000 100     100     100
+002:    INFINITY    3.10000                              100     100     100
+STO:    -37.530    1.50000               N-F2_SCH2000   100     100     100
+004:    14.08000    5.00000                              100     100     100
+005:    50.26000    3.50000               N-SK16_SCH2000 100     100     100
+006:    -31.380    38.51522                              100     100     100
+IMG:    INFINITY    0.00000                              100     100     100
+                                                          l
+Name  Role        Typ  Target              Value               diff
+YCN F1  Constraint  =    0.0100000000000000  -0.0342644769427087  -0.0442644769427087
+SPO   Operand          0.0000000000000000   1.9264239944705788   1.9264239944705788
+                                                          l
+CYCLE NUMBER 2
+   ERROR FUNCTION = 3.09474
+          RDY          THI     RMD          GLA          CCY     THC     GLC
+OBJ:    INFINITY    INFINITY                              100     100     100
+001:    15.00000    3.50000               N-SK16_SCH2000 100     100     100
+002:    INFINITY    3.10000                              100     100     100
+STO:    -37.530    1.50000               N-F2_SCH2000   100     100     100
+004:    14.08000    5.00000                              100     100     100
+005:    50.26000    3.50000               N-SK16_SCH2000 100     100     100
+006:    -31.380    38.51522                              100     100     100
+IMG:    INFINITY    0.00000                              100     100     100
+                                                          l
+Name  Role        Typ  Target              Value               diff
+YCN F1  Constraint  =    0.0100000000000000   0.0066143910420411  -0.0033856089579589
+SPO   Operand          0.0000000000000000   1.7591880111813136   1.7591880111813136
+                                                          l
+CYCLE NUMBER 3
+   ERROR FUNCTION = 3.00250
+          RDY          THI     RMD          GLA          CCY     THC     GLC
+OBJ:    INFINITY    INFINITY                              100     100     100
+001:    15.00000    3.50000               N-SK16_SCH2000 100     100     100
+002:    INFINITY    3.10000                              100     100     100
+STO:    -37.530    1.50000               N-F2_SCH2000   100     100     100
+004:    14.08000    5.00000                              100     100     100
+005:    50.26000    3.50000               N-SK16_SCH2000 100     100     100
+006:    -31.380    38.51522                              100     100     100
+IMG:    INFINITY    0.00000                              100     100     100
+                                                          l
+Name  Role        Typ  Target              Value               diff
+YCN F1  Constraint  =    0.0100000000000000   0.0099538705508976  -0.0000461294491024
+SPO   Operand          0.0000000000000000   1.7327711931663234   1.7327711931663234
+                                                          l
+CYCLE NUMBER 4
+   ERROR FUNCTION = 3.00120
+          RDY          THI     RMD          GLA          CCY     THC     GLC
+OBJ:    INFINITY    INFINITY                              100     100     100
+001:    15.00000    3.50000               N-SK16_SCH2000 100     100     100
+002:    INFINITY    3.10000                              100     100     100
+STO:    -37.530    1.50000               N-F2_SCH2000   100     100     100
+004:    14.08000    5.00000                              100     100     100
+005:    50.26000    3.50000               N-SK16_SCH2000 100     100     100
+006:    -31.380    38.51522                              100     100     100
+IMG:    INFINITY    0.00000                              100     100     100
+                                                          l
+Name  Role        Typ  Target              Value               diff
+YCN F1  Constraint  =    0.0100000000000000   0.0099999904370326  -0.0000000095629674
+SPO   Operand          0.0000000000000000   1.7323964480283038   1.7323964480283038
+                                                          l
+CYCLE NUMBER 5
+   ERROR FUNCTION = 3.00120
+          RDY          THI     RMD          GLA          CCY     THC     GLC
+OBJ:    INFINITY    INFINITY                              100     100     100
+001:    15.00000    3.50000               N-SK16_SCH2000 100     100     100
+002:    INFINITY    3.10000                              100     100     100
+STO:    -37.530    1.50000               N-F2_SCH2000   100     100     100
+004:    14.08000    5.00000                              100     100     100
+005:    50.26000    3.50000               N-SK16_SCH2000 100     100     100
+006:    -31.380    38.51522                              100     100     100
+IMG:    INFINITY    0.00000                              100     100     100
+                                                          l
+Name  Role        Typ  Target              Value               diff
+YCN F1  Constraint  =    0.0100000000000000   0.0099999904370326  -0.0000000095629674
+SPO   Operand          0.0000000000000000   1.7323964480283038   1.7323964480283038
+AUT: done after 5 iterations, status: Required accuracy for solution obtained
+INVALID CMD LEVEL COMMAND
+0.01000

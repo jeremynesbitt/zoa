@@ -223,7 +223,20 @@ integer, parameter :: VAR_A16 = 10  ! GC
 integer, parameter :: VAR_A18 = 11  ! HC
 integer, parameter :: VAR_A20 = 12  ! IC
 integer, parameter :: VAR_GLA = 13  ! GLC (glass variable; optimizer support TBD)
-integer, parameter :: NUM_VAR_CODES = 13
+! Tilts and decenters (CODE V XDC..CDC) and the tilt pivot point (XOC..ZOC).
+integer, parameter :: VAR_XDE = 14
+integer, parameter :: VAR_YDE = 15
+integer, parameter :: VAR_ZDE = 16
+integer, parameter :: VAR_ADE = 17
+integer, parameter :: VAR_BDE = 18
+integer, parameter :: VAR_CDE = 19
+integer, parameter :: VAR_XOD = 20
+integer, parameter :: VAR_YOD = 21
+integer, parameter :: VAR_ZOD = 22
+integer, parameter :: NUM_VAR_CODES = 22
+! CODE V control-code names for VAR_XDE..VAR_ZOD, in code order.
+character(len=3), parameter :: TILT_VAR_NAMES(9) = &
+  ['XDC', 'YDC', 'ZDC', 'ADC', 'BDC', 'CDC', 'XOC', 'YOC', 'ZOC']
 
 
 ! Constraints

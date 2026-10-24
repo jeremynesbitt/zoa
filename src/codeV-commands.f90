@@ -777,6 +777,14 @@ module codeV_commands
         zoaCmds(798)%execFunc => listGlobalSurfaces
         zoaCmds(799)%cmd = 'RSL'
         zoaCmds(799)%execFunc => setRefSphereLocation
+        ! Tilt / decenter / pivot control codes (CODE V XDC..CDC, XOC..ZOC).
+        block
+            use zoa_ui, only: TILT_VAR_NAMES
+            do i = 1, size(TILT_VAR_NAMES)
+                zoaCmds(799+i)%cmd = TILT_VAR_NAMES(i)
+                zoaCmds(799+i)%execFunc => updateVarCodes
+            end do
+        end block
         zoaCmds(527)%cmd = 'SETDENS'
         zoaCmds(527)%execFunc => setPlotDensity     
         zoaCmds(528)%cmd = 'SETZERNC'

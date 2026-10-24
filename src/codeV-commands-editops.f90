@@ -25,6 +25,12 @@ contains
     !## category: Optimization
     !## desc:     Set the thickness variable code on surface(s).
     !##
+    !## cmd:      XDC
+    !## syntax:   XDC|YDC|ZDC|ADC|BDC|CDC|XOC|YOC|ZOC Sk|Si..j 0|100
+    !## category: Optimization
+    !## desc:     Vary (0) or freeze (100) the decenter (XDC/YDC/ZDC), tilt (ADC/BDC/CDC) or
+    !##           tilt pivot point (XOC/YOC/ZOC) of surface Sk in AUT.
+    !##
     module procedure updateVarCodes
         use command_utils, only : isInputNumber
         use mod_lens_data_manager

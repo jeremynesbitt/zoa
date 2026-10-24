@@ -737,6 +737,8 @@ module mod_lens_data_manager
             VAR_CODE = VAR_A16
         case('HC')
             VAR_CODE = VAR_A18
+        case('XDC', 'YDC', 'ZDC', 'ADC', 'BDC', 'CDC', 'XOC', 'YOC', 'ZOC')
+            VAR_CODE = VAR_XDE + findloc(TILT_VAR_NAMES, varName, dim=1) - 1
         case('IC')
             VAR_CODE = VAR_A20
         case('GLC')
