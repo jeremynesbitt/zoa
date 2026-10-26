@@ -66,6 +66,13 @@ contains
             call foo_go(curr_psm)
             cmd_loop = 0
         end if
+        if (cmd_loop == FAB_LOOP) then
+            cmd_loop = 0
+            block
+                use fab_data, only: fab_go
+                call fab_go()
+            end block
+        end if
         if (cmd_loop == WAV_LOOP) then
             cmd_loop = 0
             block

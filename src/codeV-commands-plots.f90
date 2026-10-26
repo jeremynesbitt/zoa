@@ -1506,6 +1506,91 @@ contains
         end select
     end procedure fooSetOption
 
+    !## cmd:      FAB
+    !## syntax:   FAB; [SUR Y] [IND Y] [SPA Y] [SAG [Sk] [max incr ref delta min]] [BES Y] [FRI Y] [SLO Y]; GO
+    !## category: Analysis
+    !## desc:     Fabrication data: element (or surface) listing, index and spacer tables, aspheric sag tables (CODE V FAB).
+    !##
+    module procedure execFAB
+        use fab_data, only: fab_reset
+        implicit none
+        character(len=80) :: tokens(40)
+        integer :: numTokens
+
+        call parse(trim(iptStr), ' ', tokens, numTokens)
+        if (numTokens > 1) then
+            call zoa_emit("Error:  expected FAB (then its options and GO)", "red"); return
+        end if
+        call fab_reset()
+        cmd_loop = FAB_LOOP
+    end procedure execFAB
+
+    ! The FAB options (claimed by the dispatcher only inside FAB).  SAG's
+    ! numbers are max_ht incr_ht ref_curv delta_excess min_ht, each a value
+    ! or No (keep the default).
+    module procedure fabSetOption
+        use command_utils, only: isInputNumber
+        use fab_data, only: fab_set_flag, fab_set_sag
+        use mod_lens_data_manager, only: ldm
+        implicit none
+        character(len=80) :: tokens(40)
+        integer :: numTokens, i, k, s0, s1, surf
+        real(kind=real64) :: par(5)
+        logical :: has(5), on
+
+        call parse(trim(iptStr), ' ', tokens, numTokens)
+        select case (trim(tokens(1)))
+        case ('SUR', 'IND', 'SPA', 'BES', 'FRI', 'SLO')
+            on = .true.
+            if (numTokens == 2) then
+                select case (trim(tokens(2)))
+                case ('Y', 'YES'); on = .true.
+                case ('N', 'NO');  on = .false.
+                case default
+                    call zoa_emit("Error:  FAB: expected "//trim(tokens(1))//" Y|N", "red"); return
+                end select
+            else if (numTokens > 2) then
+                call zoa_emit("Error:  FAB: expected "//trim(tokens(1))//" Y|N", "red"); return
+            end if
+            call fab_set_flag(trim(tokens(1)), on)
+        case ('SAG')
+            surf = -1
+            i = 2
+            if (numTokens >= 2) then
+                if (tokens(2)(1:1) == 'S') then
+                    if (.not. parseSurfaceSpec(trim(tokens(2)), s0, s1)) return
+                    if (s1 /= s0) then
+                        call zoa_emit("Error:  FAB: SAG takes one surface", "red"); return
+                    end if
+                    if (s0 < 1 .or. s0 >= ldm%getLastSurf()) then
+                        call zoa_emit("Error:  FAB: SAG needs a surface between S1 and SI-1", "red"); return
+                    end if
+                    surf = s0
+                    i = 3
+                end if
+            end if
+            par = 0.0_real64; has = .false.
+            if (numTokens - i + 1 > 5) then
+                call zoa_emit("Error:  FAB: SAG [Sk] [max incr ref delta min]", "red"); return
+            end if
+            do k = 1, numTokens - i + 1
+                if (tokens(i+k-1) == 'NO' .or. tokens(i+k-1) == 'N') cycle
+                if (.not. isInputNumber(trim(tokens(i+k-1)))) then
+                    call zoa_emit("Error:  FAB: bad SAG value "//trim(tokens(i+k-1)), "red"); return
+                end if
+                par(k) = str2real8(trim(tokens(i+k-1)))
+                has(k) = .true.
+            end do
+            if ((has(1) .and. par(1) <= 0.0_real64) .or. (has(2) .and. par(2) <= 0.0_real64) .or. &
+            &   (has(5) .and. par(5) < 0.0_real64)) then
+                call zoa_emit("Error:  FAB: SAG heights and increment must be positive", "red"); return
+            end if
+            call fab_set_sag(surf, par, has)
+        case default
+            call zoa_emit("Error:  FAB: "//trim(tokens(1))//" is not available yet", "red")
+        end select
+    end procedure fabSetOption
+
     !## cmd:      CAN
     !## syntax:   CAN
     !## category: Utilities

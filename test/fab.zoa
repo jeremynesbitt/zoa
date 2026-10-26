@@ -1,0 +1,26 @@
+RES osdtriplet
+! FAB: element listing with index, spacer and sag tables (conic + A on S5)
+K S5 -0.8
+A S5 1e-6
+FAB
+IND Y
+SPA Y
+SAG
+FRI Y
+SLO Y
+GO
+FAB
+SUR Y
+SAG S5 4 1 No 0 1
+BES Y
+GO
+! bad input
+FAB
+SUR MAYBE
+SAG S0
+SAG S5 4 1 No 0 1 7
+SAG S5 -4
+SAG S5 x
+ZLI Y
+CAN
+FAB 3

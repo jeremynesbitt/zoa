@@ -58,6 +58,7 @@ srcs += files(
   'wavefront-analysis.f90',
   'field-map.f90',
   'footprint.f90',
+  'fabrication-data.f90',
   'surface-renumber.f90',
   'lens-draw-apertures.f90',
   'mod_DATSPD.f90',

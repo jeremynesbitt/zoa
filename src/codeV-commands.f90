@@ -495,6 +495,12 @@ module codeV_commands
    module subroutine fooSetOption(iptStr)
     character(len=*) :: iptStr
    end subroutine fooSetOption
+   module subroutine execFAB(iptStr)
+    character(len=*) :: iptStr
+   end subroutine execFAB
+   module subroutine fabSetOption(iptStr)
+    character(len=*) :: iptStr
+   end subroutine fabSetOption
     end interface
 
 
@@ -549,6 +555,7 @@ module codeV_commands
     ! overwrote row n and only the last one survived.
     integer, parameter :: CON_UPDATE_LOOP = 8
     integer, parameter :: WAV_LOOP = 9
+    integer, parameter :: FAB_LOOP = 10
 
 
     ! Views saved by nested kdp_silent_begin calls (see kdpApiSilenceOn).
@@ -819,6 +826,8 @@ module codeV_commands
         zoaCmds(812)%execFunc => execFMA
         zoaCmds(813)%cmd = 'FOO'
         zoaCmds(813)%execFunc => execFOO
+        zoaCmds(814)%cmd = 'FAB'
+        zoaCmds(814)%execFunc => execFAB
         ! Tilt / decenter / pivot control codes (CODE V XDC..CDC, XOC..ZOC).
         block
             use zoa_ui, only: TILT_VAR_NAMES
@@ -1084,6 +1093,14 @@ module codeV_commands
             &     'CLE', 'OBS', 'SKI', 'FUL', 'LST', 'LEG', 'DOT', 'DSI', 'SSI', &
             &     'SF', 'SFX', 'SFY', 'FLD', 'SNB', 'SLB', 'LLA', 'SAP', 'WED')
                 call fooSetOption(currentCommand); boolResult = .TRUE.; return
+            end select
+        end if
+
+        ! FAB options (SUR, SAG, BES, ... mean other things outside FAB).
+        if (cmd_loop == FAB_LOOP) then
+            select case (trim(iptCmd))
+            case ('SUR', 'IND', 'SPA', 'SAG', 'BES', 'FRI', 'SLO', 'ZLI', 'GSC')
+                call fabSetOption(currentCommand); boolResult = .TRUE.; return
             end select
         end if
 
