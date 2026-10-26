@@ -109,6 +109,9 @@ type :: zoaplot
   character(len=15) :: xPlotCodes, yPlotcodes
 
   logical :: drawScale = .false.
+  ! Equal X and Y scales (a square box for equal ranges), for plots of
+  ! physical shapes (FOO footprints).
+  logical :: isotropic = .false.
   real :: scaleRatio = 0.0
   integer :: scalePos = 0
 
@@ -135,6 +138,7 @@ contains
   procedure :: setYScale, setXScale
   procedure :: removeGrids, removeLabels
   procedure :: addScaleBar, drawScaleBar
+  procedure :: setIsotropic
   procedure, public, pass(self) :: savePlotToBinary => zp_save_binary
   procedure, public, pass(self) :: loadPlotFromBinary => zp_load_binary
 
@@ -914,6 +918,17 @@ end subroutine
     xmax = self%xScale
  end if    
 
+  ! Isotropic: the largest box of the right aspect inside the viewport
+  ! mp_draw chose (the legend's room below it kept).
+  if (self%isotropic .and. xmax > xmin) then
+    if (self%useLegend) then
+      call plvpas(0.25_pl_test_flt, 0.9_pl_test_flt, 0.2_pl_test_flt, 0.8_pl_test_flt, &
+      &           real((ymax - ymin)/(xmax - xmin), pl_test_flt))
+    else
+      call plvpas(0.25_pl_test_flt, 0.95_pl_test_flt, 0.12_pl_test_flt, 0.9_pl_test_flt, &
+      &           real((ymax - ymin)/(xmax - xmin), pl_test_flt))
+    end if
+  end if
   call plwind(xmin, xmax, ymin, ymax)
   ! Set high number of max digits to avoid plplot using scientific notation on tick labels
   call plsyax(7, 0)
@@ -1065,6 +1080,11 @@ end subroutine
 
     end subroutine
   
+
+  subroutine setIsotropic(self)
+    class(zoaplot) :: self
+    self%isotropic = .true.
+  end subroutine
 
   subroutine setYScale(self, yScale)
     class(zoaplot) :: self
@@ -2468,6 +2488,7 @@ end subroutine
     call zin_write_logical(unit, self%drawScale)
     write(unit) self%scaleRatio
     write(unit) int(self%scalePos, int32)
+    call zin_write_logical(unit, self%isotropic)
   end subroutine zp_save_binary
 
   subroutine zp_load_binary(self, unit, ios)
@@ -2559,6 +2580,10 @@ end subroutine
     read(unit, iostat=ios) self%scaleRatio; if (ios /= 0) return
     read(unit, iostat=ios) n32; if (ios /= 0) return
     self%scalePos = int(n32)
+    self%isotropic = .false.
+    if (zin_read_version >= 2) then
+      call zin_read_logical(unit, self%isotropic, ios); if (ios /= 0) return
+    end if
   end subroutine zp_load_binary
 
   ! plotdata3d%x/y are axis-coordinate arrays (length xpts or ypts) while %z

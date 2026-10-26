@@ -1388,6 +1388,124 @@ contains
         end select
     end procedure fmaSetOption
 
+    !## cmd:      FOO
+    !## syntax:   FOO; [SUR Sk|Si..j] [BOU Y|N] [NRD n] [RAR f] [AZI min max incr] [DAP Y|N] [ORI x y] [LIS Y]; GO
+    !## category: Analysis
+    !## desc:     Footprint plot: every field's beam where it crosses the designated surfaces, with the aperture outline (CODE V FOO).
+    !##
+    module procedure execFOO
+        implicit none
+        logical :: boolResult
+        type(zoaplot_setting_manager) :: psm
+        call psm%initialize(trim(iptStr))
+        call psm%addFOOSettings()
+        boolResult = initiatePlotLoop(iptStr, ID_PLOTTYPE_FOO, psm)
+        if (.not. boolResult) call zoa_emit("Error:  expected FOO", "red")
+    end procedure execFOO
+
+    ! The FOO options (claimed by the dispatcher only inside FOO).  Combo
+    ! settings arrive from the settings panel as their ids (BOU 2, DAP 1).
+    module procedure fooSetOption
+        use command_utils, only: isInputNumber
+        use plot_setting_manager, only: SETTING_FOO_SUR, SETTING_FOO_BOU, SETTING_FOO_NRD, &
+            SETTING_FOO_RAR, SETTING_FOO_DAP, SETTING_FOO_LIS, SETTING_FOO_ORI, SETTING_FOO_AZI
+        implicit none
+        character(len=80) :: tokens(40)
+        integer :: numTokens, n, i, s0, s1, code
+        real(kind=real64) :: v(3)
+
+        call parse(trim(iptStr), ' ', tokens, numTokens)
+        select case (trim(tokens(1)))
+        case ('SUR')
+            if (numTokens /= 2) then
+                call zoa_emit("Error:  FOO: expected SUR Sk or SUR Si..j", "red"); return
+            end if
+            if (.not. parseSurfaceSpec(trim(tokens(2)), s0, s1)) return
+            call curr_psm%updateSetting(SETTING_FOO_SUR, trim(tokens(2)))
+        case ('BOU', 'DAP', 'LIS')
+            n = 0
+            if (numTokens == 1) n = 2
+            if (numTokens == 2) then
+                select case (trim(tokens(2)))
+                case ('Y', 'YES'); n = 2
+                case ('N', 'NO');  n = 3
+                case ('1', '1.0'); n = 1
+                case ('2', '2.0'); n = 2
+                case ('3', '3.0'); n = 3
+                end select
+            end if
+            ! DAP and LIS are No/Yes combos (ids 1/2); BOU has Default/Yes/No
+            if (tokens(1) /= 'BOU' .and. n == 3) then
+                if (tokens(2)(1:1) == 'N') then
+                    n = 1
+                else
+                    n = 0
+                end if
+            end if
+            if (n == 0) then
+                call zoa_emit("Error:  FOO: expected "//trim(tokens(1))//" Y|N", "red"); return
+            end if
+            select case (trim(tokens(1)))
+            case ('BOU'); code = SETTING_FOO_BOU
+            case ('DAP'); code = SETTING_FOO_DAP
+            case default; code = SETTING_FOO_LIS
+            end select
+            call curr_psm%updateSetting(code, n)
+        case ('NRD')
+            if (numTokens /= 2) then
+                call zoa_emit("Error:  FOO: expected NRD n|AUTO", "red"); return
+            end if
+            if (tokens(2) /= 'AUTO') then
+                if (.not. isInputNumber(trim(tokens(2)))) then
+                    call zoa_emit("Error:  FOO: expected NRD n|AUTO", "red"); return
+                end if
+                n = nint(str2real8(trim(tokens(2))))
+                if (n < 2 .or. n > 200) then
+                    call zoa_emit("Error:  FOO: NRD must be 2..200", "red"); return
+                end if
+                tokens(2) = int2str(n)
+            end if
+            call curr_psm%updateSetting(SETTING_FOO_NRD, trim(tokens(2)))
+        case ('RAR')
+            if (numTokens /= 2 .or. .not. isInputNumber(trim(tokens(2)))) then
+                call zoa_emit("Error:  FOO: expected RAR fraction", "red"); return
+            end if
+            v(1) = str2real8(trim(tokens(2)))
+            if (v(1) <= 0.0_real64 .or. v(1) > 0.1_real64) then
+                call zoa_emit("Error:  FOO: RAR must be in (0, 0.1]", "red"); return
+            end if
+            call curr_psm%updateSetting(SETTING_FOO_RAR, trim(tokens(2)))
+        case ('AZI', 'ORI')
+            n = merge(3, 2, tokens(1) == 'AZI')
+            if (numTokens /= n + 1) then
+                if (n == 3) then
+                    call zoa_emit("Error:  FOO: expected AZI min max increment (degrees)", "red")
+                else
+                    call zoa_emit("Error:  FOO: expected ORI x y", "red")
+                end if
+                return
+            end if
+            do i = 1, n
+                if (.not. isInputNumber(trim(tokens(i+1)))) then
+                    call zoa_emit("Error:  FOO: bad value "//trim(tokens(i+1)), "red"); return
+                end if
+                v(i) = str2real8(trim(tokens(i+1)))
+            end do
+            if (n == 3) then
+                if (v(3) <= 0.0_real64 .or. v(2) <= v(1) .or. (v(2) - v(1))/v(3) > 3600.0_real64) then
+                    call zoa_emit("Error:  FOO: AZI needs max > min and 0 < increment (at most 3600 azimuths)", "red")
+                    return
+                end if
+                call curr_psm%updateSetting(SETTING_FOO_AZI, &
+                &  trim(tokens(2))//' '//trim(tokens(3))//' '//trim(tokens(4)))
+            else
+                call curr_psm%updateSetting(SETTING_FOO_ORI, trim(tokens(2))//' '//trim(tokens(3)))
+            end if
+        case default
+            call zoa_emit("Error:  FOO: "//trim(tokens(1))//" is not available yet", "red")
+        end select
+    end procedure fooSetOption
+
     !## cmd:      CAN
     !## syntax:   CAN
     !## category: Utilities

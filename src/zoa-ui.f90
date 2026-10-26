@@ -23,6 +23,7 @@ integer, parameter :: ID_PLOTTYPE_RIM     = 1029
 integer, parameter :: ID_PLOTTYPE_PSF     = 1030
 integer, parameter :: ID_PLOTTYPE_RAD     = 1019
 integer, parameter :: ID_PLOTTYPE_FMA     = 1020
+integer, parameter :: ID_PLOTTYPE_FOO     = 1021
 integer, parameter :: ID_PLOTTYPE_MTF     = 1031
 
 

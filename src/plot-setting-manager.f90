@@ -49,6 +49,16 @@ module plot_setting_manager
     integer, parameter :: SETTING_FMA_YMI = 1768
     integer, parameter :: SETTING_FMA_YMA = 1769
     integer, parameter :: SETTING_FMA_LIS = 1770
+    ! FOO (footprint): surfaces, boundary/grid, pupil rays, boundary search,
+    ! aperture outline, listing, plot origin.
+    integer, parameter :: SETTING_FOO_SUR = 1771
+    integer, parameter :: SETTING_FOO_BOU = 1772
+    integer, parameter :: SETTING_FOO_NRD = 1773
+    integer, parameter :: SETTING_FOO_RAR = 1774
+    integer, parameter :: SETTING_FOO_DAP = 1775
+    integer, parameter :: SETTING_FOO_LIS = 1776
+    integer, parameter :: SETTING_FOO_ORI = 1777
+    integer, parameter :: SETTING_FOO_AZI = 1778
     integer, parameter :: SETTING_ZERNIKE = 4
 
 
@@ -134,6 +144,7 @@ module plot_setting_manager
     procedure, public, pass(self) :: addRMSFieldSettings
     procedure, public, pass(self) :: addRADSettings, getRADSettings
     procedure, public, pass(self) :: addFMASettings, getFMASettings
+    procedure, public, pass(self) :: addFOOSettings, getFOOSettings
     procedure, public, pass(self) :: getRMSFieldSettings
     procedure, public, pass(self) :: getRSPHSetting
     procedure, public, pass(self) :: getAirySetting
@@ -726,6 +737,78 @@ contains
             hasLim(k) = .true.
           end if
         end do
+      end do
+    end subroutine
+
+    ! FOO.  BOU: 1 = CODE V's default (No for an obscured lens, else Yes),
+    ! 2 = Yes, 3 = No.  NRD AUTO = CODE V's 20*sqrt(wvMax/wvSum).
+    subroutine addFOOSettings(self)
+      class (zoaplot_setting_manager) :: self
+      type(idText) :: bou(3), yn(2)
+      bou(1)%text = "Default"; bou(1)%id = 1
+      bou(2)%text = "Yes (boundary)"; bou(2)%id = 2
+      bou(3)%text = "No (ray grid)";  bou(3)%id = 3
+      yn(1)%text = "No";  yn(1)%id = 1
+      yn(2)%text = "Yes"; yn(2)%id = 2
+      self%numSettings = self%numSettings + 1
+      call self%ps(self%numSettings)%initializeStr(SETTING_FOO_SUR, "Surfaces", "SI", "SUR", UITYPE_ENTRY)
+      self%numSettings = self%numSettings + 1
+      call self%ps(self%numSettings)%initialize(SETTING_FOO_BOU, &
+      & "Beam Boundary", real(1),0.0,0.0, "BOU ", "BOU 1", UITYPE_COMBO, set=bou)
+      self%numSettings = self%numSettings + 1
+      call self%ps(self%numSettings)%initializeStr(SETTING_FOO_NRD, "Rays Across Pupil (BOU N)", "AUTO", "NRD", UITYPE_ENTRY)
+      self%numSettings = self%numSettings + 1
+      call self%ps(self%numSettings)%initializeStr(SETTING_FOO_RAR, "Boundary Resolution (BOU Y)", "0.001", "RAR", UITYPE_ENTRY)
+      self%numSettings = self%numSettings + 1
+      call self%ps(self%numSettings)%initializeStr(SETTING_FOO_AZI, "Boundary Azimuths (BOU Y)", "-90 270 3", "AZI", UITYPE_ENTRY)
+      self%numSettings = self%numSettings + 1
+      call self%ps(self%numSettings)%initialize(SETTING_FOO_DAP, &
+      & "Draw Aperture", real(1),0.0,0.0, "DAP ", "DAP N", UITYPE_COMBO, set=yn)
+      self%numSettings = self%numSettings + 1
+      call self%ps(self%numSettings)%initializeStr(SETTING_FOO_ORI, "Plot Origin (x y)", "0 0", "ORI", UITYPE_ENTRY)
+      self%numSettings = self%numSettings + 1
+      call self%ps(self%numSettings)%initialize(SETTING_FOO_LIS, &
+      & "List Rays in Terminal", real(1),0.0,0.0, "LIS ", "LIS N", UITYPE_COMBO, set=yn)
+    end subroutine
+
+    ! nrd = 0 for AUTO; azi = first last increment; ori = x y.
+    subroutine getFOOSettings(self, sur, bou, nrd, rar, azi, dap, ori, lis)
+      use strings, only: parse
+      use command_utils, only: isInputNumber
+      use type_utils, only: str2real8
+      class (zoaplot_setting_manager) :: self
+      character(len=*), intent(out) :: sur
+      integer, intent(out) :: bou, nrd
+      real(kind=kind(1.0d0)), intent(out) :: rar, azi(3), ori(2)
+      logical, intent(out) :: dap, lis
+      character(len=80) :: tk(40), txt
+      integer :: i, k, nt
+      sur = 'SI'; nrd = 0; rar = 1.0d-3; azi = [-90.0d0, 270.0d0, 3.0d0]; ori = 0.0d0
+      bou = int(self%getSettingValueByCode(SETTING_FOO_BOU))
+      dap = int(self%getSettingValueByCode(SETTING_FOO_DAP)) == 2
+      lis = int(self%getSettingValueByCode(SETTING_FOO_LIS)) == 2
+      do i = 1, self%numSettings
+        txt = self%ps(i)%defaultStr
+        select case (self%ps(i)%ID)
+        case (SETTING_FOO_SUR)
+          sur = trim(adjustl(txt))
+        case (SETTING_FOO_NRD)
+          if (isInputNumber(trim(txt))) nrd = nint(str2real8(trim(txt)))
+        case (SETTING_FOO_RAR)
+          if (isInputNumber(trim(txt))) rar = str2real8(trim(txt))
+        case (SETTING_FOO_AZI)
+          call parse(trim(txt), ' ', tk, nt)
+          if (nt == 3) then
+            do k = 1, 3
+              if (isInputNumber(trim(tk(k)))) azi(k) = str2real8(trim(tk(k)))
+            end do
+          end if
+        case (SETTING_FOO_ORI)
+          call parse(trim(txt), ' ', tk, nt)
+          do k = 1, min(nt, 2)
+            if (isInputNumber(trim(tk(k)))) ori(k) = str2real8(trim(tk(k)))
+          end do
+        end select
       end do
     end subroutine
 

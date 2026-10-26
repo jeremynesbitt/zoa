@@ -10,7 +10,10 @@ module mod_zin_io
   private
 
   character(len=8), parameter, public :: ZIN_MAGIC = 'ZOAZIN  '
-  integer(int32), parameter, public :: ZIN_FORMAT_VERSION = 1_int32
+  ! 2: zoaplot records end with the isotropic flag.  Version 1 files are
+  ! still read (zin_read_version tells the record readers which layout).
+  integer(int32), parameter, public :: ZIN_FORMAT_VERSION = 2_int32
+  integer(int32), public :: zin_read_version = ZIN_FORMAT_VERSION
 
   ! Top-level record kind tags
   integer(int32), parameter, public :: ZIN_KIND_DATA   = 1
@@ -171,7 +174,7 @@ contains
       call zoa_emit("ZIN: cannot read format version", "red")
       return
     end if
-    if (fv /= ZIN_FORMAT_VERSION) then
+    if (fv < 1_int32 .or. fv > ZIN_FORMAT_VERSION) then
       write(numStr, '(I0)') fv
       call zoa_emit("ZIN: unsupported .zin format version "//trim(numStr), "red")
       return
@@ -190,6 +193,7 @@ contains
     end if
 
     numTabs = int(nt)
+    zin_read_version = fv
     ok = .true.
   end subroutine zin_read_header
 

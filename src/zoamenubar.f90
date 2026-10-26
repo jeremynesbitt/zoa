@@ -121,6 +121,7 @@ contains
     character(len=100), target :: pltRAD = "RAD; GO"
     character(len=100), target :: anaWAV = "WAV; NOM Y; GO"
     character(len=100), target :: pltFMA = "FMA; GO"
+    character(len=100), target :: pltFOO = "FOO; DAP Y; GO"
 
     character(len=100), target :: syscon = "SYSCON"
     character(len=100), target :: undoCmd = "UNDO"
@@ -245,6 +246,9 @@ contains
 
     call addCommandMenuItem(menu_imagEval, "Field Map (FMA)", &
     & "PltFMA", pltFMA, win)
+
+    call addCommandMenuItem(menu_imagEval, "Footprint (FOO)", &
+    & "PltFOO", pltFOO, win)
 
     ! Lens Menu
     call g_menu_append_submenu (menubar, "Lens"//c_null_char, menu_lens)

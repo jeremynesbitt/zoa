@@ -1,0 +1,40 @@
+RES osdtriplet
+! FOO footprints: beam boundary on a surface range, aperture outline
+FOO
+SUR S1..3
+DAP Y
+AZI -90 270 45
+GO
+! a clear aperture on S1 vignettes the off-axis beams (boundary at r = 4.5)
+CIR S1 4.5
+FOO
+SUR S1
+DAP Y
+LIS Y
+AZI -90 90 30
+GO
+! an obscuration makes the ray grid the default (central hole on S2)
+CIR OBS S2 1.5
+FOO
+SUR S2
+NRD 4
+DAP Y
+LIS Y
+ORI 0.5 0
+GO
+FOO
+SUR SI
+BOU Y
+AZI 0 360 90
+GO
+! bad input
+FOO
+SUR S99
+SUR X3
+BOU MAYBE
+NRD 1
+RAR 0.5
+AZI 10 5 1
+ORI 1
+CLE Y
+CAN

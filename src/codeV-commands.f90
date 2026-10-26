@@ -489,6 +489,12 @@ module codeV_commands
    module subroutine fmaSetOption(iptStr)
     character(len=*) :: iptStr
    end subroutine fmaSetOption
+   module subroutine execFOO(iptStr)
+    character(len=*) :: iptStr
+   end subroutine execFOO
+   module subroutine fooSetOption(iptStr)
+    character(len=*) :: iptStr
+   end subroutine fooSetOption
     end interface
 
 
@@ -811,6 +817,8 @@ module codeV_commands
         zoaCmds(811)%execFunc => execWAV
         zoaCmds(812)%cmd = 'FMA'
         zoaCmds(812)%execFunc => execFMA
+        zoaCmds(813)%cmd = 'FOO'
+        zoaCmds(813)%execFunc => execFOO
         ! Tilt / decenter / pivot control codes (CODE V XDC..CDC, XOC..ZOC).
         block
             use zoa_ui, only: TILT_VAR_NAMES
@@ -1066,6 +1074,16 @@ module codeV_commands
             select case (trim(iptCmd))
             case ('FFD', 'NFX', 'NFY', 'NRD', 'XMI', 'XMA', 'YMI', 'YMA', 'LIS')
                 call fmaSetOption(currentCommand); boolResult = .TRUE.; return
+            end select
+        end if
+
+        ! FOO options (NRD and AZI are commands outside FOO).
+        if (cmd_loop == ID_PLOTTYPE_FOO) then
+            select case (trim(iptCmd))
+            case ('SUR', 'BOU', 'NRD', 'RAR', 'AZI', 'DAP', 'ORI', 'LIS', &
+            &     'CLE', 'OBS', 'SKI', 'FUL', 'LST', 'LEG', 'DOT', 'DSI', 'SSI', &
+            &     'SF', 'SFX', 'SFY', 'FLD', 'SNB', 'SLB', 'LLA', 'SAP', 'WED')
+                call fooSetOption(currentCommand); boolResult = .TRUE.; return
             end select
         end if
 

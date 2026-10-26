@@ -1621,6 +1621,194 @@ subroutine fma_go(psm)
   call finalizeGoPlot_new(mplt, psm, replot, objIdx)
 end subroutine fma_go
 
+! FOO (CODE V footprint): each field's beam where it crosses the designated
+! surfaces, in surface coordinates -- one panel per surface, one colour per
+! field, the aperture outline with DAP Y.  Terminal: each beam's extent per
+! surface (and every ray with LIS Y); Data tab: one row per ray and surface.
+subroutine foo_go(psm)
+  USE GLOBALS
+  use global_widgets, only: sysConfig, ioConfig
+  use kdp_utils, only: OUTKDP
+  use type_utils, only: int2str, real2str
+  use zoa_output, only: zoa_emit
+  use footprint, only: foo_beam, foo_trace, foo_default_nrd, foo_lens_obscured, &
+                       foo_resolve_surfaces, foo_aperture_outline
+  use plplot, PI => PL_PI
+  use plplot_extra
+  use iso_c_binding, only: c_ptr, c_null_ptr
+  use iso_fortran_env, only: real64
+  implicit none
+  type(zoaplot_setting_manager) :: psm
+  type(zoaplot), allocatable :: panel(:)
+  type(multiplot) :: mplt
+  type(c_ptr) :: canvas
+  type(foo_beam), allocatable :: beam(:)
+  logical :: replot, boundary, dap, lis, first
+  logical, allocatable :: fok(:)
+  integer :: objIdx, bou, nrd, s0, s1, ns, nf, f, j, k, n, nrow, ncol, na, nser
+  real(real64) :: rar, azi(3), ori(2), e, lo(2), hi(2), rbeam
+  real(real64), allocatable :: ax(:), ay(:)
+  real, allocatable :: px(:), py(:)
+  integer, allocatable :: surfs(:)
+  character(len=80) :: sur, alabel
+  character(len=1024) :: line
+  character(len=30) :: legend(12)
+  character(len=20) :: units
+  integer, parameter :: colors(6) = [PL_PLOT_BLUE, PL_PLOT_RED, PL_PLOT_GREEN, &
+  &                                  PL_PLOT_BLACK, PL_PLOT_MAGENTA, PL_PLOT_CYAN]
+  integer, parameter :: MAXSURF = 16
+
+  call initializeGoPlot(psm, ID_PLOTTYPE_FOO, "Footprint", replot, objIdx)
+  call psm%getFOOSettings(sur, bou, nrd, rar, azi, dap, ori, lis)
+  if (.not. foo_resolve_surfaces(sur, s0, s1)) then
+    call zoa_emit("FOO: bad surface "//trim(sur), "red"); return
+  end if
+  ns = s1 - s0 + 1
+  if (ns > MAXSURF) then
+    call zoa_emit("FOO: at most "//trim(int2str(MAXSURF))//" surfaces at once", "red"); return
+  end if
+  surfs = [(s0 + j - 1, j = 1, ns)]
+  select case (bou)
+  case (2);      boundary = .true.
+  case (3);      boundary = .false.
+  case default;  boundary = .not. foo_lens_obscured()
+  end select
+  if (nrd <= 0) nrd = foo_default_nrd()
+  nf = sysConfig%numFields
+  units = sysConfig%getLensUnitsText()
+
+  allocate(beam(nf), fok(nf))
+  do f = 1, nf
+    call foo_trace(f, surfs, boundary, nrd, rar, azi, beam(f), fok(f))
+  end do
+  if (.not. any(fok)) then
+    call zoa_emit("FOO: no ray reached the image", "red"); return
+  end if
+
+  ! Terminal: each beam's extent on each surface.
+  if (boundary) then
+    line = "FOOTPRINT (beam boundary, reference wavelength; RAR "//trim(real2str(rar, 4))//")"
+  else
+    line = "FOOTPRINT (ray grid, NRD "//trim(int2str(nrd))//", all weighted wavelengths)"
+  end if
+  call zoa_emit(trim(line), "black")
+  call zoa_emit("Beam extent in surface coordinates, "//trim(units), "black")
+  call zoa_emit("  Surf Field       X min       X max       Y min       Y max   Rays", "black")
+  do j = 1, ns
+    do f = 1, nf
+      if (.not. fok(f)) then
+        write(line, '(I6,A,I0,A)') surfs(j), '    F', f, '   no ray reached the image'
+        call zoa_emit(trim(line), "red"); cycle
+      end if
+      n = beam(f)%n
+      lo = minval(beam(f)%xy(:, 1:n, j), dim=2) - ori
+      hi = maxval(beam(f)%xy(:, 1:n, j), dim=2) - ori
+      write(line, '(I6,A,I0,4F12.5,I7)') surfs(j), '    F', f, lo(1), hi(1), lo(2), hi(2), n
+      call zoa_emit(trim(line), "black")
+    end do
+  end do
+  if (lis) then
+    call zoa_emit("  Surf Field  W     Pupil X     Pupil Y           X           Y", "black")
+    do j = 1, ns
+      do f = 1, nf
+        do k = 1, beam(f)%n
+          write(line, '(I6,A,I0,I4,4F12.5)') surfs(j), '    F', f, beam(f)%iw(k), &
+          &  beam(f)%pupil(:, k), beam(f)%xy(:, k, j) - ori
+          call zoa_emit(trim(line), "black")
+        end do
+      end do
+    end do
+  end if
+
+  ! Data tab: one row per ray and surface.
+  if (.not. HEADLESS_MODE) call ioConfig%setTextViewFromPtr(getTabTextView(objIdx))
+  call OUTKDP('  Surf Field Wave      PupilX      PupilY       X['//trim(units)// &
+  &  ']       Y['//trim(units)//']')
+  do j = 1, ns
+    do f = 1, nf
+      do k = 1, beam(f)%n
+        write(line, '(I6,I6,I5,2F12.6,2ES14.6)') surfs(j), f, beam(f)%iw(k), &
+        &  beam(f)%pupil(:, k), beam(f)%xy(:, k, j) - ori
+        call OUTKDP(trim(line))
+      end do
+    end do
+  end do
+  if (.not. HEADLESS_MODE) call ioConfig%setTextView(ID_TERMINAL_DEFAULT)
+
+  ! One panel per surface, the same scale in X and Y.  The grid must be
+  ! full (multiplot cannot draw an empty cell): the most nearly square
+  ! rows x columns that is exactly ns.
+  ncol = ceiling(sqrt(real(ns)) - 1.0e-6)
+  do while (mod(ns, ncol) /= 0)
+    ncol = ncol + 1
+  end do
+  nrow = ns/ncol
+  if (HEADLESS_MODE) then
+    canvas = c_null_ptr
+  else
+    canvas = hl_gtk_drawing_area_new(size=[1000,1000], has_alpha=FALSE)
+  end if
+  call mplt%initialize(canvas, nrow, ncol)
+  allocate(panel(ns))
+  do j = 1, ns
+    e = 0.0_real64
+    first = .true.
+    nser = 0
+    do f = 1, nf
+      if (.not. fok(f)) cycle
+      n = beam(f)%n
+      if (boundary) then
+        ! close the outline
+        px = [real(beam(f)%xy(1, 1:n, j) - ori(1)), real(beam(f)%xy(1, 1, j) - ori(1))]
+        py = [real(beam(f)%xy(2, 1:n, j) - ori(2)), real(beam(f)%xy(2, 1, j) - ori(2))]
+      else
+        px = real(beam(f)%xy(1, 1:n, j) - ori(1))
+        py = real(beam(f)%xy(2, 1:n, j) - ori(2))
+      end if
+      e = max(e, real(maxval(abs(px)), real64), real(maxval(abs(py)), real64))
+      if (first) then
+        call panel(j)%initialize(c_null_ptr, px, py, &
+        & xlabel='X ['//trim(units)//']'//c_null_char, &
+        & ylabel='Y ['//trim(units)//']'//c_null_char, &
+        & title='Footprint S'//trim(int2str(surfs(j)))//c_null_char)
+        first = .false.
+      else
+        call panel(j)%addXYPlot(px, py)
+      end if
+      call panel(j)%setDataColorCode(colors(mod(f-1, size(colors)) + 1))
+      if (.not. boundary) call panel(j)%setLineStyleCode(-1)
+      nser = nser + 1
+      if (nser <= size(legend)) write(legend(nser), '(A,I0)') 'F', f
+    end do
+    if (dap) then
+      rbeam = 0.0_real64
+      do f = 1, nf
+        if (fok(f)) rbeam = max(rbeam, maxval(hypot(beam(f)%xy(1, 1:beam(f)%n, j), &
+        &                                          beam(f)%xy(2, 1:beam(f)%n, j))))
+      end do
+      call foo_aperture_outline(surfs(j), rbeam, ax, ay, na, alabel)
+      if (na > 1) then
+        call panel(j)%addXYPlot(real(ax(1:na) - ori(1)), real(ay(1:na) - ori(2)))
+        call panel(j)%setDataColorCode(PL_PLOT_BLACK)
+        call panel(j)%setLineStyleCode(2)
+        e = max(e, maxval(abs(ax(1:na) - ori(1))), maxval(abs(ay(1:na) - ori(2))))
+        nser = nser + 1
+        if (nser <= size(legend)) legend(nser) = alabel
+      else
+        call zoa_emit("FOO: S"//trim(int2str(surfs(j)))// &
+        &  ": aperture outline not drawn (polygon aperture)", "black")
+      end if
+    end if
+    if (e <= 0.0_real64) e = 1.0_real64
+    call panel(j)%setIsotropic()
+    call panel(j)%setXScale(real(1.08_real64*e, 8))
+    call panel(j)%setYScale(real(1.08_real64*e, 8))
+    if (j == 1) call panel(j)%addLegend(legend(1:min(nser, size(legend))))
+    call mplt%set((j-1)/ncol + 1, mod(j-1, ncol) + 1, panel(j))
+  end do
+  call finalizeGoPlot_new(mplt, psm, replot, objIdx)
+end subroutine foo_go
+
 ! FFT/image plot implementations live in plot-functions-fft.f90
 
 ! Rebuild a plot base command with exactly ONE trailing plot-number token.
