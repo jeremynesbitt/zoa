@@ -405,6 +405,10 @@ SUBROUTINE REDSOR(N,LARGER,M1,N1,IIRED)
 !
    DIMENSION LARGER(M1,N1)
 !
+!     The callers allocate IRED rows but only IRED-1 rays are copied in;
+!     REDPAK then scans all IRED rows, so the last one must not be left
+!     uninitialized (it was read as an extra ray of garbage energy/radius).
+   LARGER(1:M1,1:N1)=0.0D0
    DO I=2,IRED
       LARGER(I-1,1)=REDDAT1(I)
       LARGER(I-1,2)=REDDAT2(I)
