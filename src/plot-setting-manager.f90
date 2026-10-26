@@ -39,6 +39,16 @@ module plot_setting_manager
     ! RAD (radial energy): rays across the pupil, and the percentages listed.
     integer, parameter :: SETTING_RAD_NRD = 1760
     integer, parameter :: SETTING_RAD_PER = 1761
+    ! FMA (field map): metric, grid, pupil rays, field range, listing.
+    integer, parameter :: SETTING_FMA_FFD = 1762
+    integer, parameter :: SETTING_FMA_NFX = 1763
+    integer, parameter :: SETTING_FMA_NFY = 1764
+    integer, parameter :: SETTING_FMA_NRD = 1765
+    integer, parameter :: SETTING_FMA_XMI = 1766
+    integer, parameter :: SETTING_FMA_XMA = 1767
+    integer, parameter :: SETTING_FMA_YMI = 1768
+    integer, parameter :: SETTING_FMA_YMA = 1769
+    integer, parameter :: SETTING_FMA_LIS = 1770
     integer, parameter :: SETTING_ZERNIKE = 4
 
 
@@ -123,6 +133,7 @@ module plot_setting_manager
     !RMS Settings
     procedure, public, pass(self) :: addRMSFieldSettings
     procedure, public, pass(self) :: addRADSettings, getRADSettings
+    procedure, public, pass(self) :: addFMASettings, getFMASettings
     procedure, public, pass(self) :: getRMSFieldSettings
     procedure, public, pass(self) :: getRSPHSetting
     procedure, public, pass(self) :: getAirySetting
@@ -655,6 +666,67 @@ contains
         nper = 10
         per = [(10.0d0*i, i = 1, 10)]
       end if
+    end subroutine
+
+    ! FMA metric ids are field_map's FMA_RWE/RSD/DST (1/2/3).
+    subroutine addFMASettings(self)
+      class (zoaplot_setting_manager) :: self
+      type(idText) :: met(3), yn(2)
+      met(1)%text = "RMS Wavefront Error (RWE)"; met(1)%id = 1
+      met(2)%text = "RMS Spot Diameter (RSD)";   met(2)%id = 2
+      met(3)%text = "Distortion (DST)";          met(3)%id = 3
+      yn(1)%text = "No";  yn(1)%id = 1
+      yn(2)%text = "Yes"; yn(2)%id = 2
+      self%numSettings = self%numSettings + 1
+      call self%ps(self%numSettings)%initialize(SETTING_FMA_FFD, &
+      & "Metric", real(1),0.0,0.0, "FFD ", "FFD RWE", UITYPE_COMBO, set=met)
+      self%numSettings = self%numSettings + 1
+      call self%ps(self%numSettings)%initialize(SETTING_FMA_NFX, &
+      & "Points Across X", real(11.0),2.0,41.0, "NFX ", "NFX 11", UITYPE_SPINBUTTON)
+      self%numSettings = self%numSettings + 1
+      call self%ps(self%numSettings)%initialize(SETTING_FMA_NFY, &
+      & "Points Across Y", real(11.0),2.0,41.0, "NFY ", "NFY 11", UITYPE_SPINBUTTON)
+      self%numSettings = self%numSettings + 1
+      call self%ps(self%numSettings)%initialize(SETTING_FMA_NRD, &
+      & "Rays Across Pupil", real(20.0),4.0,128.0, "NRD ", "NRD 20", UITYPE_SPINBUTTON)
+      self%numSettings = self%numSettings + 1
+      call self%ps(self%numSettings)%initializeStr(SETTING_FMA_XMI, "Lowest X Field", "AUTO", "XMI", UITYPE_ENTRY)
+      self%numSettings = self%numSettings + 1
+      call self%ps(self%numSettings)%initializeStr(SETTING_FMA_XMA, "Highest X Field", "AUTO", "XMA", UITYPE_ENTRY)
+      self%numSettings = self%numSettings + 1
+      call self%ps(self%numSettings)%initializeStr(SETTING_FMA_YMI, "Lowest Y Field", "AUTO", "YMI", UITYPE_ENTRY)
+      self%numSettings = self%numSettings + 1
+      call self%ps(self%numSettings)%initializeStr(SETTING_FMA_YMA, "Highest Y Field", "AUTO", "YMA", UITYPE_ENTRY)
+      self%numSettings = self%numSettings + 1
+      call self%ps(self%numSettings)%initialize(SETTING_FMA_LIS, &
+      & "List in Terminal", real(1),0.0,0.0, "LIS ", "LIS N", UITYPE_COMBO, set=yn)
+    end subroutine
+
+    ! lim = XMI XMA YMI YMA; hasLim(k) false where the entry is AUTO.
+    subroutine getFMASettings(self, metric, nfx, nfy, nrd, lim, hasLim, lis)
+      use command_utils, only: isInputNumber
+      use type_utils, only: str2real8
+      class (zoaplot_setting_manager) :: self
+      integer, intent(out) :: metric, nfx, nfy, nrd
+      real(kind=kind(1.0d0)), intent(out) :: lim(4)
+      logical, intent(out) :: hasLim(4), lis
+      integer :: i, k
+      integer, parameter :: ids(4) = [SETTING_FMA_XMI, SETTING_FMA_XMA, SETTING_FMA_YMI, SETTING_FMA_YMA]
+      metric = int(self%getSettingValueByCode(SETTING_FMA_FFD))
+      nfx = int(self%getSettingValueByCode(SETTING_FMA_NFX))
+      nfy = int(self%getSettingValueByCode(SETTING_FMA_NFY))
+      nrd = int(self%getSettingValueByCode(SETTING_FMA_NRD))
+      lis = int(self%getSettingValueByCode(SETTING_FMA_LIS)) == 2
+      lim = 0.0d0; hasLim = .false.
+      do k = 1, 4
+        do i = 1, self%numSettings
+          if (self%ps(i)%ID /= ids(k)) cycle
+          if (isInputNumber(trim(self%ps(i)%defaultStr))) then
+            lim(k) = str2real8(trim(self%ps(i)%defaultStr))
+            hasLim(k) = .true.
+          end if
+        end do
+      end do
     end subroutine
 
     subroutine addRMSFieldSettings(self)

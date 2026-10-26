@@ -622,6 +622,11 @@ test('wav', test_runner,
             meson.project_source_root() / 'test/wav.ref'],
      timeout: 120)
 
+test('fma', test_runner,
+     args: [meson.project_source_root() / 'test/fma.zoa',
+            meson.project_source_root() / 'test/fma.ref'],
+     timeout: 120)
+
 test('engine_units', test_runner,
      args: [meson.project_source_root() / 'test/engine_units.zoa',
             meson.project_source_root() / 'test/engine_units.ref'],

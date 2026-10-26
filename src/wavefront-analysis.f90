@@ -17,7 +17,7 @@ module wavefront_analysis
   implicit none
   private
   public :: wav_reset, wav_set_mode, wav_set_rfo, wav_set_nrd, wav_set_wtf, &
-            wav_set_cpl, wav_go
+            wav_set_cpl, wav_go, wav_point_rms
 
   integer, parameter :: MAXF = 25, MAXW = 10
   real(real64), parameter :: TWOPI = 6.283185307179586_real64
@@ -28,6 +28,13 @@ module wavefront_analysis
   integer :: nWtf = 0, nCpl = 0
   real(real64) :: wtfOpt(MAXF) = 1.0_real64
   integer :: cplOpt(MAXF) = 1
+
+  ! One field's rays: OPD (waves) and fit basis (n/lambda) k, piston removed.
+  type field_rays
+    integer :: n = 0
+    integer, allocatable :: iw(:)
+    real(real64), allocatable :: W(:), b(:,:)
+  end type
 
 contains
 
@@ -82,14 +89,146 @@ contains
     end select
   end function
 
-  subroutine wav_go()
+  ! The weighted wavelengths: lam (lens units), weights sw, last used nw,
+  ! weight sum S.  ok = .false. if there are none.
+  subroutine spectral_setup(lam, sw, nw, S, ok)
+    use mod_system, only: sys_wavelength, sys_wl_weight
+    real(real64), intent(out) :: lam(MAXW), sw(MAXW), S
+    integer, intent(out) :: nw
+    logical, intent(out) :: ok
+    real(real64) :: scale
+    integer :: w
+    scale = lens_units_per_micron()
+    nw = 0
+    do w = 1, MAXW
+      lam(w) = sys_wavelength(w)*scale
+      sw(w) = sys_wl_weight(w)
+      if (lam(w) <= 0.0_real64) sw(w) = 0.0_real64
+      if (sw(w) > 0.0_real64) nw = w
+    end do
+    S = 0.0_real64
+    if (nw > 0) S = sum(sw(1:nw))
+    ok = nw > 0 .and. S > 0.0_real64
+  end subroutine
+
+  ! CAPFN at relative field (fy, fx) with nrd rays across the pupil, then
+  ! piston removed per wavelength and the normal equations of the field's
+  ! tilt/focus fit (weights s_w/(S m_w)) accumulated in G, h.  The caller
+  ! saves/restores the CAPFN grid globals.
+  subroutine capture_field(fy, fx, nrd, lam, sw, nw, S, fr, G, h, ok)
     use GLOBALS, only: DSPOTT
     use DATSP1, only: ITOT
+    use DATLEN, only: NEWIMG
+    use mod_lens_data_manager, only: ldm
+    real(real64), intent(in) :: fy, fx, lam(MAXW), sw(MAXW), S
+    integer, intent(in) :: nrd, nw
+    type(field_rays), intent(inout) :: fr
+    real(real64), intent(out) :: G(3,3), h(3)
+    logical, intent(out) :: ok
+    character(len=200) :: line
+    integer :: i, w, m(MAXW)
+    real(real64) :: nImg, meanW(MAXW), meanB(3,MAXW), omega(MAXW)
+
+    G = 0.0_real64; h = 0.0_real64; ok = .false.
+    fr%n = 0
+    if (allocated(fr%iw)) deallocate(fr%iw, fr%W, fr%b)
+    write(line, '(A,F0.8,1X,F0.8,A,I0)') 'FOB ', fy, fx, '; CAPFN, ', nrd
+    call PROCESSILENT(trim(line))
+    if (.not. allocated(DSPOTT)) return
+    allocate(fr%iw(ITOT), fr%W(ITOT), fr%b(3,ITOT))
+    do i = 1, ITOT - 1
+      if (DSPOTT(7,i) /= 0.0_real64 .or. DSPOTT(12,i) == 0.0_real64) cycle
+      w = nint(DSPOTT(16,i))
+      if (w < 1 .or. w > nw) cycle
+      if (sw(w) <= 0.0_real64) cycle
+      nImg = ldm%getSurfIndex(NEWIMG-1, w)
+      fr%n = fr%n + 1
+      fr%iw(fr%n) = w
+      fr%W(fr%n) = DSPOTT(4,i)/TWOPI
+      fr%b(:,fr%n) = (nImg/lam(w))*DSPOTT(22:24,i)
+    end do
+    if (fr%n < 3) return
+
+    m = 0; meanW = 0.0_real64; meanB = 0.0_real64
+    do i = 1, fr%n
+      w = fr%iw(i)
+      m(w) = m(w) + 1
+      meanW(w) = meanW(w) + fr%W(i)
+      meanB(:,w) = meanB(:,w) + fr%b(:,i)
+    end do
+    omega = 0.0_real64
+    do w = 1, nw
+      if (m(w) == 0) cycle
+      meanW(w) = meanW(w)/m(w); meanB(:,w) = meanB(:,w)/m(w)
+      omega(w) = sw(w)/(S*m(w))
+    end do
+    do i = 1, fr%n
+      w = fr%iw(i)
+      fr%W(i) = fr%W(i) - meanW(w)
+      fr%b(:,i) = fr%b(:,i) - meanB(:,w)
+      G = G + omega(w)*spread(fr%b(:,i),2,3)*spread(fr%b(:,i),1,3)
+      h = h + omega(w)*fr%b(:,i)*fr%W(i)
+    end do
+    ok = abs(det2(G)) > 1.0d-30*max(1.0_real64, G(1,1)*G(2,2))
+  end subroutine
+
+  real(real64) function det2(G)
+    real(real64), intent(in) :: G(3,3)
+    det2 = G(1,1)*G(2,2) - G(1,2)*G(2,1)
+  end function
+
+  ! Per-wavelength wavefront variance (waves^2) at focus shift dz, the
+  ! tilt solved for that focus (G2 t = h2 - g dz).
+  subroutine residual_var(fr, G, h, dz, nw, var)
+    type(field_rays), intent(in) :: fr
+    real(real64), intent(in) :: G(3,3), h(3), dz
+    integer, intent(in) :: nw
+    real(real64), intent(out) :: var(MAXW)
+    real(real64) :: d(3), inv(2,2), r, cnt(MAXW)
+    integer :: i, w
+    inv = reshape([G(2,2), -G(2,1), -G(1,2), G(1,1)], [2,2])/det2(G)
+    d(3) = dz
+    d(1:2) = matmul(inv, h(1:2) - G(1:2,3)*dz)
+    var = 0.0_real64; cnt = 0.0_real64
+    do i = 1, fr%n
+      w = fr%iw(i)
+      r = fr%W(i) - dot_product(fr%b(:,i), d)
+      var(w) = var(w) + r*r
+      cnt(w) = cnt(w) + 1.0_real64
+    end do
+    do w = 1, nw
+      if (cnt(w) > 0.0_real64) var(w) = var(w)/cnt(w)
+    end do
+  end subroutine
+
+  ! Polychromatic RMS wavefront error (waves; piston and tilt removed, at
+  ! the nominal focus) at relative field (fy, fx), for the field map.
+  ! Leaves the CAPFN grid globals as it found them.
+  subroutine wav_point_rms(fy, fx, nrd, rms, ok)
+    use DATSPD, only: CAPDEF, NRD_G => NRD, TGR, PGR
+    real(real64), intent(in) :: fy, fx
+    integer, intent(in) :: nrd
+    real(real64), intent(out) :: rms
+    logical, intent(out) :: ok
+    type(field_rays) :: fr
+    real(real64) :: lam(MAXW), sw(MAXW), S, G(3,3), h(3), var(MAXW), savedCapdef
+    integer :: nw, savedNrd, savedTgr, savedPgr
+    rms = 0.0_real64
+    call spectral_setup(lam, sw, nw, S, ok)
+    if (.not. ok) return
+    savedCapdef = CAPDEF; savedNrd = NRD_G; savedTgr = TGR; savedPgr = PGR
+    call capture_field(fy, fx, nrd, lam, sw, nw, S, fr, G, h, ok)
+    CAPDEF = savedCapdef; NRD_G = savedNrd; TGR = savedTgr; PGR = savedPgr
+    if (.not. ok) return
+    call residual_var(fr, G, h, 0.0_real64, nw, var)
+    rms = sqrt(sum(sw(1:nw)*var(1:nw))/S)
+  end subroutine
+
+  subroutine wav_go()
     use DATSPD, only: CAPDEF, NRD, TGR, PGR
     use DATLEN, only: NEWIMG
     use global_widgets, only: sysConfig
     use mod_lens_data_manager, only: ldm
-    use mod_system, only: sys_wavelength, sys_wl_weight
     use solve_manager, only: surf_has_thi_solve
     use mod_kdp_api, only: kdp_silent_begin, kdp_silent_end, kdp_lens_begin, &
                            kdp_chg, kdp_lens_cmd, kdp_lens_end
@@ -97,32 +236,19 @@ contains
     use type_utils, only: int2str, real2str
     implicit none
 
-    type field_rays
-      integer :: n = 0
-      integer, allocatable :: iw(:)
-      real(real64), allocatable :: W(:), b(:,:)   ! OPD (waves), basis (waves/unit)
-    end type
     type(field_rays) :: fr(MAXF)
-    integer :: nf, nw, f, i, w, g, ng, savedNrd, savedTgr, savedPgr, surf
-    integer :: grp(MAXF), m(MAXW)
-    real(real64) :: savedCapdef, lam(MAXW), sw(MAXW), S, scale, nImg
-    real(real64) :: wf(MAXF), A(MAXF), B(MAXF), G2(2,2), gv(2), h2(2), det, inv(2,2)
+    integer :: nf, nw, f, g, ng, savedNrd, savedTgr, savedPgr, surf
+    integer :: grp(MAXF)
+    real(real64) :: savedCapdef, lam(MAXW), sw(MAXW), S
+    real(real64) :: wf(MAXF), A(MAXF), B(MAXF), gv(2), h2(2), inv(2,2)
     real(real64) :: Gm(3,3,MAXF), hv(3,MAXF), dz(MAXF), dzg, sa, sb, thi
-    real(real64) :: meanW(MAXW), meanB(3,MAXW), omega(MAXW)
     character(len=1024) :: line
     character(len=16) :: cell
-    logical :: ok(MAXF)
+    logical :: ok(MAXF), okw
 
     nf = min(sysConfig%numFields, MAXF)
-    scale = lens_units_per_micron()
-    nw = 0
-    do w = 1, MAXW
-      lam(w) = sys_wavelength(w)*scale
-      sw(w) = sys_wl_weight(w)
-      if (sw(w) > 0.0_real64 .and. lam(w) > 0.0_real64) nw = w
-    end do
-    S = sum(sw(1:max(nw,1)), mask=lam(1:max(nw,1)) > 0.0_real64)
-    if (nw == 0 .or. S <= 0.0_real64) then
+    call spectral_setup(lam, sw, nw, S, okw)
+    if (.not. okw) then
       call zoa_emit("WAV: no weighted wavelengths", "red"); return
     end if
     do f = 1, nf
@@ -135,65 +261,19 @@ contains
       if (f <= nCpl) grp(f) = cplOpt(f)
     end do
 
-    ! One CAPFN per field (restoring the CAPFN grid globals after).
+    ! One CAPFN per field (restoring the CAPFN grid globals after).  With
+    ! the tilt solved out, each field's J_f(dz) = A dz^2 - 2 B dz + const.
     savedCapdef = CAPDEF; savedNrd = NRD; savedTgr = TGR; savedPgr = PGR
-    ok = .false.
     do f = 1, nf
-      write(line, '(A,F0.6,1X,F0.6,A,I0)') 'FOB ', sysConfig%relativeFields(2,f), &
-      &  sysConfig%relativeFields(1,f), '; CAPFN, ', nrdOpt
-      call PROCESSILENT(trim(line))
-      if (.not. allocated(DSPOTT)) cycle
-      allocate(fr(f)%iw(ITOT), fr(f)%W(ITOT), fr(f)%b(3,ITOT))
-      do i = 1, ITOT - 1
-        if (DSPOTT(7,i) /= 0.0_real64 .or. DSPOTT(12,i) == 0.0_real64) cycle
-        w = nint(DSPOTT(16,i))
-        if (w < 1 .or. w > nw) cycle
-        if (sw(w) <= 0.0_real64) cycle
-        nImg = ldm%getSurfIndex(NEWIMG-1, w)
-        fr(f)%n = fr(f)%n + 1
-        fr(f)%iw(fr(f)%n) = w
-        fr(f)%W(fr(f)%n) = DSPOTT(4,i)/TWOPI
-        fr(f)%b(:,fr(f)%n) = (nImg/lam(w))*DSPOTT(22:24,i)
-      end do
-      ok(f) = fr(f)%n >= 3
-    end do
-    CAPDEF = savedCapdef; NRD = savedNrd; TGR = savedTgr; PGR = savedPgr
-
-    ! Piston: centre each wavelength's rays; then the normal equations of
-    ! the field's tilt/focus fit, weighted s_w/(S m_w).
-    Gm = 0.0_real64; hv = 0.0_real64
-    do f = 1, nf
+      call capture_field(sysConfig%relativeFields(2,f), sysConfig%relativeFields(1,f), &
+      &  nrdOpt, lam, sw, nw, S, fr(f), Gm(:,:,f), hv(:,f), ok(f))
       if (.not. ok(f)) cycle
-      m = 0; meanW = 0.0_real64; meanB = 0.0_real64
-      do i = 1, fr(f)%n
-        w = fr(f)%iw(i)
-        m(w) = m(w) + 1
-        meanW(w) = meanW(w) + fr(f)%W(i)
-        meanB(:,w) = meanB(:,w) + fr(f)%b(:,i)
-      end do
-      omega = 0.0_real64
-      do w = 1, nw
-        if (m(w) == 0) cycle
-        meanW(w) = meanW(w)/m(w); meanB(:,w) = meanB(:,w)/m(w)
-        omega(w) = sw(w)/(S*m(w))
-      end do
-      do i = 1, fr(f)%n
-        w = fr(f)%iw(i)
-        fr(f)%W(i) = fr(f)%W(i) - meanW(w)
-        fr(f)%b(:,i) = fr(f)%b(:,i) - meanB(:,w)
-        Gm(:,:,f) = Gm(:,:,f) + omega(w)*spread(fr(f)%b(:,i),2,3)*spread(fr(f)%b(:,i),1,3)
-        hv(:,f) = hv(:,f) + omega(w)*fr(f)%b(:,i)*fr(f)%W(i)
-      end do
-      ! J_f(dz) = A dz^2 - 2 B dz + const after the tilt is solved out.
-      G2 = Gm(1:2,1:2,f); gv = Gm(1:2,3,f); h2 = hv(1:2,f)
-      det = G2(1,1)*G2(2,2) - G2(1,2)*G2(2,1)
-      if (abs(det) <= 1.0d-30*max(1.0_real64, G2(1,1)*G2(2,2))) then
-        ok(f) = .false.; cycle
-      end if
-      inv = reshape([G2(2,2), -G2(2,1), -G2(1,2), G2(1,1)], [2,2])/det
+      inv = reshape([Gm(2,2,f), -Gm(2,1,f), -Gm(1,2,f), Gm(1,1,f)], [2,2])/det2(Gm(:,:,f))
+      gv = Gm(1:2,3,f); h2 = hv(1:2,f)
       A(f) = Gm(3,3,f) - dot_product(gv, matmul(inv, gv))
       B(f) = hv(3,f) - dot_product(gv, matmul(inv, h2))
     end do
+    CAPDEF = savedCapdef; NRD = savedNrd; TGR = savedTgr; PGR = savedPgr
     if (.not. any(ok(1:nf))) then
       call zoa_emit("WAV: no rays reached the image", "red"); return
     end if
@@ -264,8 +344,8 @@ contains
     subroutine report(title, atBest)
       character(len=*), intent(in) :: title
       logical, intent(in) :: atBest
-      real(real64) :: d(3), r, var(MAXW), cnt(MAXW), strehl, poly
-      integer :: ff, ii, ww
+      real(real64) :: var(MAXW), strehl, poly, d
+      integer :: ff, ww
 
       call zoa_emit(title, "black")
       line = 'FIELD   X FLD   Y FLD'
@@ -281,24 +361,12 @@ contains
         if (.not. ok(ff)) then
           call zoa_emit(trim(line)//'   (no rays)', "black"); cycle
         end if
-        ! Tilt for this focus: G2 t = h2 - g dz.
-        d(3) = 0.0_real64
-        if (atBest) d(3) = dz(ff)
-        G2 = Gm(1:2,1:2,ff)
-        det = G2(1,1)*G2(2,2) - G2(1,2)*G2(2,1)
-        inv = reshape([G2(2,2), -G2(2,1), -G2(1,2), G2(1,1)], [2,2])/det
-        d(1:2) = matmul(inv, hv(1:2,ff) - Gm(1:2,3,ff)*d(3))
-        var = 0.0_real64; cnt = 0.0_real64
-        do ii = 1, fr(ff)%n
-          ww = fr(ff)%iw(ii)
-          r = fr(ff)%W(ii) - dot_product(fr(ff)%b(:,ii), d)
-          var(ww) = var(ww) + r*r
-          cnt(ww) = cnt(ww) + 1.0_real64
-        end do
+        d = 0.0_real64
+        if (atBest) d = dz(ff)
+        call residual_var(fr(ff), Gm(:,:,ff), hv(:,ff), d, nw, var)
         poly = 0.0_real64; strehl = 0.0_real64
         do ww = 1, nw
           if (sw(ww) <= 0.0_real64) cycle
-          if (cnt(ww) > 0.0_real64) var(ww) = var(ww)/cnt(ww)
           poly = poly + sw(ww)*var(ww)/S
           strehl = strehl + sw(ww)*exp(-(TWOPI**2)*var(ww))/S
           write(cell, '(F11.5)') sqrt(var(ww))

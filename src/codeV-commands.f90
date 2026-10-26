@@ -483,6 +483,12 @@ module codeV_commands
    module subroutine wavSetOption(iptStr)
     character(len=*) :: iptStr
    end subroutine wavSetOption
+   module subroutine execFMA(iptStr)
+    character(len=*) :: iptStr
+   end subroutine execFMA
+   module subroutine fmaSetOption(iptStr)
+    character(len=*) :: iptStr
+   end subroutine fmaSetOption
     end interface
 
 
@@ -803,6 +809,8 @@ module codeV_commands
         zoaCmds(810)%execFunc => cancelOption
         zoaCmds(811)%cmd = 'WAV'
         zoaCmds(811)%execFunc => execWAV
+        zoaCmds(812)%cmd = 'FMA'
+        zoaCmds(812)%execFunc => execFMA
         ! Tilt / decenter / pivot control codes (CODE V XDC..CDC, XOC..ZOC).
         block
             use zoa_ui, only: TILT_VAR_NAMES
@@ -1050,6 +1058,14 @@ module codeV_commands
                 call radSetNRD(currentCommand); boolResult = .TRUE.; return
             case ('PER')
                 call radSetPER(currentCommand); boolResult = .TRUE.; return
+            end select
+        end if
+
+        ! FMA options (NRD is also a legacy command; see RAD above).
+        if (cmd_loop == ID_PLOTTYPE_FMA) then
+            select case (trim(iptCmd))
+            case ('FFD', 'NFX', 'NFY', 'NRD', 'XMI', 'XMA', 'YMI', 'YMA', 'LIS')
+                call fmaSetOption(currentCommand); boolResult = .TRUE.; return
             end select
         end if
 

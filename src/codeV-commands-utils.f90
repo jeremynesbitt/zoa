@@ -5,7 +5,7 @@ contains
     module procedure executeGo
         use global_widgets, only: ioConfig
         use kdp_utils, only: inLensUpdateLevel
-        use plot_functions, only: mtf_go, psf_go, vie_go, spo_go, seidel_go, ast_go, pma_go, rayaberration_go, rmsfield_go, zern_go, rad_go
+        use plot_functions, only: mtf_go, psf_go, vie_go, spo_go, seidel_go, ast_go, pma_go, rayaberration_go, rmsfield_go, zern_go, rad_go, fma_go
         use optim_functions, only: aut_go
         use tow_functions, only: tow_go
 
@@ -56,6 +56,10 @@ contains
         end if
         if (cmd_loop == ID_PLOTTYPE_RAD) then
             call rad_go(curr_psm)
+            cmd_loop = 0
+        end if
+        if (cmd_loop == ID_PLOTTYPE_FMA) then
+            call fma_go(curr_psm)
             cmd_loop = 0
         end if
         if (cmd_loop == WAV_LOOP) then

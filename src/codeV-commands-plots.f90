@@ -1295,6 +1295,99 @@ contains
         end select
     end procedure wavSetOption
 
+    !## cmd:      FMA
+    !## syntax:   FMA; [FFD RWE|RSD|DST [Y]] [NFX n] [NFY n] [XMI v] [XMA v] [YMI v] [YMA v] [NRD n] [LIS Y]; GO
+    !## category: Analysis
+    !## desc:     Field map: RMS wavefront, RMS spot diameter or distortion on a grid of field points (CODE V FMA FFD).
+    !##
+    module procedure execFMA
+        implicit none
+        logical :: boolResult
+        type(zoaplot_setting_manager) :: psm
+        call psm%initialize(trim(iptStr))
+        call psm%addFMASettings()
+        boolResult = initiatePlotLoop(iptStr, ID_PLOTTYPE_FMA, psm)
+        if (.not. boolResult) call zoa_emit("Error:  expected FMA", "red")
+    end procedure execFMA
+
+    ! The FMA options (claimed by the dispatcher only inside FMA).  The
+    ! settings panel sends combo choices as their ids (FFD 2, LIS 1), so
+    ! those are accepted too.
+    module procedure fmaSetOption
+        use command_utils, only: isInputNumber
+        use plot_setting_manager, only: SETTING_FMA_FFD, SETTING_FMA_NFX, SETTING_FMA_NFY, &
+            SETTING_FMA_NRD, SETTING_FMA_XMI, SETTING_FMA_XMA, SETTING_FMA_YMI, &
+            SETTING_FMA_YMA, SETTING_FMA_LIS
+        implicit none
+        character(len=80) :: tokens(40)
+        integer :: numTokens, n, code, lo, hi
+
+        call parse(trim(iptStr), ' ', tokens, numTokens)
+        select case (trim(tokens(1)))
+        case ('FFD')
+            n = 0
+            if (numTokens >= 2) then
+                select case (trim(tokens(2)))
+                case ('RWE', '1', '1.0'); n = 1
+                case ('RSD', '2', '2.0'); n = 2
+                case ('DST', '3', '3.0'); n = 3
+                case ('AST', 'DSC', 'BDE', 'WPO', 'CTD', 'CCD', 'MTF', 'MTQ', 'GMT', 'GMQ')
+                    call zoa_emit("Error:  FMA: FFD "//trim(tokens(2))// &
+                    &  " is not available yet (RWE, RSD or DST)", "red"); return
+                end select
+            end if
+            if (numTokens >= 3) then
+                if (tokens(3) /= 'Y' .and. tokens(3) /= 'YES') n = 0
+            end if
+            if (n == 0 .or. numTokens > 3) then
+                call zoa_emit("Error:  FMA: expected FFD RWE|RSD|DST [Y]", "red"); return
+            end if
+            call curr_psm%updateSetting(SETTING_FMA_FFD, n)
+        case ('LIS')
+            n = 0
+            if (numTokens == 1) n = 2
+            if (numTokens == 2) then
+                select case (trim(tokens(2)))
+                case ('Y', 'YES', '2', '2.0'); n = 2
+                case ('N', 'NO', '1', '1.0');  n = 1
+                end select
+            end if
+            if (n == 0) then
+                call zoa_emit("Error:  FMA: expected LIS Y|N", "red"); return
+            end if
+            call curr_psm%updateSetting(SETTING_FMA_LIS, n)
+        case ('NFX', 'NFY', 'NRD')
+            if (numTokens /= 2 .or. .not. isInputNumber(trim(tokens(2)))) then
+                call zoa_emit("Error:  FMA: expected "//trim(tokens(1))//" n", "red"); return
+            end if
+            n = nint(str2real8(trim(tokens(2))))
+            select case (trim(tokens(1)))
+            case ('NFX'); code = SETTING_FMA_NFX; lo = 2; hi = 41
+            case ('NFY'); code = SETTING_FMA_NFY; lo = 2; hi = 41
+            case default; code = SETTING_FMA_NRD; lo = 4; hi = 128
+            end select
+            if (n < lo .or. n > hi) then
+                call zoa_emit("Error:  FMA: "//trim(tokens(1))//" must be "// &
+                &  trim(int2str(lo))//".."//trim(int2str(hi)), "red"); return
+            end if
+            call curr_psm%updateSetting(code, n)
+        case ('XMI', 'XMA', 'YMI', 'YMA')
+            if (numTokens /= 2) then
+                call zoa_emit("Error:  FMA: expected "//trim(tokens(1))//" value|AUTO", "red"); return
+            end if
+            if (.not. isInputNumber(trim(tokens(2))) .and. tokens(2) /= 'AUTO') then
+                call zoa_emit("Error:  FMA: bad value "//trim(tokens(2)), "red"); return
+            end if
+            select case (trim(tokens(1)))
+            case ('XMI'); code = SETTING_FMA_XMI
+            case ('XMA'); code = SETTING_FMA_XMA
+            case ('YMI'); code = SETTING_FMA_YMI
+            case default; code = SETTING_FMA_YMA
+            end select
+            call curr_psm%updateSetting(code, trim(tokens(2)))
+        end select
+    end procedure fmaSetOption
+
     !## cmd:      CAN
     !## syntax:   CAN
     !## category: Utilities

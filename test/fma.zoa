@@ -1,0 +1,43 @@
+RES osdtriplet
+! FMA full-field display: distortion, RMS wavefront, RMS spot diameter
+FMA
+FFD DST
+NFX 5
+NFY 5
+LIS Y
+GO
+FMA
+NFX 3
+NFY 3
+GO
+FMA
+FFD RSD Y
+NFX 3
+NFY 3
+NRD 16
+GO
+! explicit field range (one quadrant)
+FMA
+FFD DST
+XMI 0
+XMA 10
+YMI 0
+YMA 10
+NFX 3
+NFY 3
+GO
+! the X reference field is restored afterwards (still 0)
+SHO SCX
+! bad input
+FMA
+FFD AST
+FFD XYZ
+NFX 1
+NRD 500
+XMI abc
+LIS MAYBE
+CAN
+FMA
+XMI 5
+XMA 1
+GO

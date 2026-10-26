@@ -1483,6 +1483,144 @@ subroutine rad_go(psm)
   call finalizeGoPlot_new(mplt, psm, replot, objIdx)
 end subroutine rad_go
 
+! FMA (CODE V field map, full-field display): one metric on a grid of field
+! points -- terminal summary (and table with LIS Y), a Data tab of
+! X field, Y field, value (plus the real/ideal image points for DST), and a
+! colour map.
+subroutine fma_go(psm)
+  USE GLOBALS
+  use global_widgets, only: sysConfig, ioConfig
+  use kdp_utils, only: OUTKDP
+  use type_utils, only: int2str, real2str
+  use zoa_output, only: zoa_emit
+  use field_map, only: FMA_DST, fma_metric_name, fma_metric_unit, fma_evaluate
+  use plplot, PI => PL_PI
+  use plplot_extra
+  use iso_c_binding, only: c_ptr, c_null_ptr
+  use iso_fortran_env, only: real64
+  implicit none
+  type(zoaplot_setting_manager) :: psm
+  type(zoaPlotImg) :: zimg
+  type(multiplot) :: mplt
+  type(c_ptr) :: canvas
+  logical :: replot, lis
+  logical :: hasLim(4)
+  integer :: objIdx, metric, nfx, nfy, nrd, i, j, k, nOk
+  real(real64) :: lim(4), fmax, vmin, vmax, vrms, vmaxAbs, at(2)
+  real(real64), allocatable :: xs(:), ys(:), val(:,:), img(:,:,:)
+  logical, allocatable :: ok(:,:)
+  real, allocatable :: px(:), py(:), pz(:)
+  character(len=1024) :: line
+  character(len=20) :: unit
+  character(len=3) :: mname
+
+  call initializeGoPlot(psm, ID_PLOTTYPE_FMA, "Field Map", replot, objIdx)
+  call psm%getFMASettings(metric, nfx, nfy, nrd, lim, hasLim, lis)
+  mname = fma_metric_name(metric)
+  unit = fma_metric_unit(metric)
+
+  ! Default range: +/- the largest reference field, both directions.
+  fmax = max(abs(sysConfig%refFieldValue(1)), abs(sysConfig%refFieldValue(2)))
+  if (.not. hasLim(1)) lim(1) = -fmax
+  if (.not. hasLim(2)) lim(2) =  fmax
+  if (.not. hasLim(3)) lim(3) = -fmax
+  if (.not. hasLim(4)) lim(4) =  fmax
+  if (fmax == 0.0_real64 .and. .not. all(hasLim)) then
+    call zoa_emit("FMA: the lens has no field defined", "red"); return
+  end if
+  if (lim(2) <= lim(1) .or. lim(4) <= lim(3)) then
+    call zoa_emit("FMA: XMA/YMA must be above XMI/YMI", "red"); return
+  end if
+
+  allocate(xs(nfx), ys(nfy), val(nfx,nfy), img(4,nfx,nfy), ok(nfx,nfy))
+  xs = [(lim(1) + (lim(2) - lim(1))*(i-1)/real(nfx-1, real64), i = 1, nfx)]
+  ys = [(lim(3) + (lim(4) - lim(3))*(j-1)/real(nfy-1, real64), j = 1, nfy)]
+  call fma_evaluate(metric, nrd, xs, ys, val, ok, img)
+  nOk = count(ok)
+  if (nOk == 0) then
+    call zoa_emit("FMA: no field point could be traced", "red"); return
+  end if
+  vmin = minval(val, mask=ok); vmax = maxval(val, mask=ok)
+  vrms = sqrt(sum(val**2, mask=ok)/nOk)
+  vmaxAbs = 0.0_real64; at = 0.0_real64
+  do j = 1, nfy
+    do i = 1, nfx
+      if (ok(i,j) .and. abs(val(i,j)) >= vmaxAbs) then
+        vmaxAbs = abs(val(i,j)); at = [xs(i), ys(j)]
+      end if
+    end do
+  end do
+
+  ! Terminal: summary (and the grid with LIS Y).
+  line = "FIELD MAP ("//mname//", "//trim(unit)//"; "//trim(int2str(nfx))//" x "// &
+  &  trim(int2str(nfy))//" field points"
+  if (metric /= FMA_DST) line = trim(line)//"; NRD "//trim(int2str(nrd))
+  call zoa_emit(trim(line)//")", "black")
+  call zoa_emit("Field: "//trim(sysConfig%getFieldText()), "black")
+  write(line, '(A,ES12.4,A,ES12.4,A,ES12.4)') 'Min ', vmin, '   Max ', vmax, '   RMS ', vrms
+  call zoa_emit(trim(line), "black")
+  write(line, '(A,ES12.4,A,F0.4,A,F0.4,A)') 'Largest |value| ', vmaxAbs, ' at X ', at(1), ', Y ', at(2), ''
+  call zoa_emit(trim(line), "black")
+  if (nOk < nfx*nfy) call zoa_emit(trim(int2str(nfx*nfy - nOk))//" field point(s) failed", "red")
+  if (lis) then
+    line = '   Y \ X'
+    do i = 1, nfx
+      write(line(len_trim(line)+1:), '(F10.4)') xs(i)
+    end do
+    call zoa_emit(trim(line), "black")
+    do j = nfy, 1, -1
+      write(line, '(F8.4)') ys(j)
+      do i = 1, nfx
+        if (ok(i,j)) then
+          write(line(len_trim(line)+1:), '(ES10.2)') val(i,j)
+        else
+          line = trim(line)//'      FAIL'
+        end if
+      end do
+      call zoa_emit(trim(line), "black")
+    end do
+  end if
+
+  ! Data tab: one row per field point (failed points omitted).
+  if (.not. HEADLESS_MODE) call ioConfig%setTextViewFromPtr(getTabTextView(objIdx))
+  line = '        XField        YField   '//mname//'['//trim(unit)//']'
+  if (metric == FMA_DST) line = trim(line)//'        RealX         RealY        IdealX        IdealY'
+  call OUTKDP(trim(line))
+  do j = 1, nfy
+    do i = 1, nfx
+      if (.not. ok(i,j)) cycle
+      write(line, '(3ES14.6)') xs(i), ys(j), val(i,j)
+      if (metric == FMA_DST) write(line(len_trim(line)+1:), '(4ES14.6)') (img(k,i,j), k = 1, 4)
+      call OUTKDP(trim(line))
+    end do
+  end do
+  if (.not. HEADLESS_MODE) call ioConfig%setTextView(ID_TERMINAL_DEFAULT)
+
+  ! Colour map (x fastest); failed points drawn at the minimum.
+  allocate(px(nfx*nfy), py(nfx*nfy), pz(nfx*nfy))
+  k = 0
+  do j = 1, nfy
+    do i = 1, nfx
+      k = k + 1
+      px(k) = real(xs(i)); py(k) = real(ys(j))
+      pz(k) = real(merge(val(i,j), vmin, ok(i,j)))
+    end do
+  end do
+  if (HEADLESS_MODE) then
+    canvas = c_null_ptr
+  else
+    canvas = hl_gtk_drawing_area_new(size=[800,800], has_alpha=FALSE)
+  end if
+  call mplt%initialize(canvas, 1, 1)
+  call zimg%init3d(c_null_ptr, px, py, pz, nfx, nfy, &
+  & xlabel='X '//trim(sysConfig%getFieldText())//c_null_char, &
+  & ylabel='Y '//trim(sysConfig%getFieldText())//c_null_char, &
+  & title='Field Map: '//mname//' ['//trim(unit)//'], '//trim(real2str(vmin, 4))// &
+  & ' to '//trim(real2str(vmax, 4))//c_null_char)
+  call mplt%set(1, 1, zimg)
+  call finalizeGoPlot_new(mplt, psm, replot, objIdx)
+end subroutine fma_go
+
 ! FFT/image plot implementations live in plot-functions-fft.f90
 
 ! Rebuild a plot base command with exactly ONE trailing plot-number token.
