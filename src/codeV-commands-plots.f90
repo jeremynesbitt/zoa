@@ -1211,9 +1211,9 @@ contains
     end procedure radSetNRD
 
     !## cmd:      WAV
-    !## syntax:   WAV; [NOM Y] [BES Y] [RFO Y] [NRD n] [WTF w1 ..] [CPL g1 ..]; GO
+    !## syntax:   WAV; [NOM Y] [BES Y] [THR Y] [RFO Y] [NRD n] [WTF w1 ..] [CPL g1 ..]; GO
     !## category: Analysis
-    !## desc:     RMS wavefront error and Strehl ratio per field, at nominal and/or best composite focus (CODE V WAV).
+    !## desc:     RMS wavefront error and Strehl ratio per field, at nominal and/or best composite focus, and through focus (CODE V WAV).
     !##
     module procedure execWAV
         use wavefront_analysis, only: wav_reset

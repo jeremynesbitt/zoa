@@ -20,6 +20,24 @@ Focus shift = -0.049441 mm
 WAVEFRONT ANALYSIS (NRD 20; RMS in waves, piston and tilt removed; Strehl = exp(-(2 pi RMS)^2))
 BEST COMPOSITE FOCUS
 FIELD   X FLD   Y FLD     RMS W1     RMS W2     RMS W3     RMS W4     RMS W5   RMS POLY     STREHL
+    1   0.000   0.000    0.03990    0.07307    0.03140    0.46377    0.07172    0.21361     0.7055
+    2   0.000   0.700    0.26981    0.19855    0.27879    0.48186    0.28287    0.31691     0.0713
+    3   0.000   1.000    0.45199    0.40670    0.45353    0.62146    0.44895    0.48232     0.0005
+Focus shift = -0.049441 mm
+THROUGH FOCUS (polychromatic RMS, waves; defocus from best focus, step lambda F^2 = 0.014695 mm)
+    DEFOCUS         F1         F2         F3    WTD RMS
+  -0.058781    0.33102    0.34596    0.46399    0.38495
+  -0.044086    0.29903    0.33280    0.46428    0.37226
+  -0.029391    0.26841    0.32337    0.46748    0.36293
+  -0.014695    0.23968    0.31801    0.47353    0.35721
+   0.000000    0.21361    0.31691    0.48232    0.35529
+   0.014695    0.19128    0.32012    0.49370    0.35721
+   0.029391    0.17415    0.32752    0.50750    0.36293
+   0.044086    0.16385    0.33882    0.52354    0.37226
+   0.058781    0.16169    0.35367    0.54160    0.38495
+WAVEFRONT ANALYSIS (NRD 20; RMS in waves, piston and tilt removed; Strehl = exp(-(2 pi RMS)^2))
+BEST COMPOSITE FOCUS
+FIELD   X FLD   Y FLD     RMS W1     RMS W2     RMS W3     RMS W4     RMS W5   RMS POLY     STREHL
     1   0.000   0.000    0.16456    0.08680    0.10069    0.28848    0.04817    0.16143     0.5412
     2   0.000   0.700    0.36552    0.30692    0.33916    0.40889    0.31847    0.34970     0.0119
     3   0.000   1.000    0.54187    0.51311    0.51538    0.61380    0.49232    0.53696     0.0000

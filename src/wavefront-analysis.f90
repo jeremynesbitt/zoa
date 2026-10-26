@@ -1,5 +1,5 @@
 ! CODE V WAV: RMS wavefront error and Strehl ratio per field, at nominal
-! focus and/or at the best composite focus.
+! focus and/or at the best composite focus, and through focus (THR).
 !
 ! For each field a CAPFN (NRD rays across the pupil) gives every ray's OPD
 ! (waves) and its image-space direction k.  Moving the reference point by d
@@ -315,7 +315,7 @@ contains
         end do
       end do
     end if
-    if (showThr) call zoa_emit("WAV: THR (through-focus) is not available yet", "red")
+    if (showThr) call through_focus()
 
     ! RFO Y: refocus the image (THI of the last surface before the image).
     if (rfo) then
@@ -340,6 +340,57 @@ contains
     end if
 
   contains
+
+    ! THR: polychromatic RMS per field (and the field-weighted RMS) at 9
+    ! focus positions about each field's best focus, in steps of lambda F^2
+    ! (half the Rayleigh depth 2 lambda F^2; reference wavelength, working
+    ! F-number), from the same first-order focus model as BES.
+    subroutine through_focus()
+      use global_widgets, only: curr_par_ray_trace
+      integer, parameter :: NSTEP = 4
+      real(real64) :: var(MAXW), step, fno, d, poly, wsum, wrms
+      integer :: k, ff, ww, iref
+
+      iref = sysConfig%getRefWavelengthIndex()
+      if (iref < 1 .or. iref > MAXW) iref = 1
+      fno = abs(curr_par_ray_trace%FNUM)
+      step = lam(iref)*fno*fno
+      if (step <= 0.0_real64) then
+        call zoa_emit("WAV: THR needs a finite working F-number", "red"); return
+      end if
+      call zoa_emit("THROUGH FOCUS (polychromatic RMS, waves; defocus from best focus, step "// &
+      &  "lambda F^2 = "//trim(real2str(step, 6))//" "//trim(sysConfig%getLensUnitsText())//")", "black")
+      line = '    DEFOCUS'
+      do ff = 1, nf
+        write(cell, '(A,I0)') 'F', ff
+        line = trim(line)//repeat(' ', 11 - len_trim(cell))//trim(cell)
+      end do
+      line = trim(line)//'    WTD RMS'
+      call zoa_emit(trim(line), "black")
+      do k = -NSTEP, NSTEP
+        d = k*step
+        write(line, '(F11.6)') d
+        wrms = 0.0_real64; wsum = 0.0_real64
+        do ff = 1, nf
+          if (.not. ok(ff)) then
+            line = trim(line)//'         --'; cycle
+          end if
+          call residual_var(fr(ff), Gm(:,:,ff), hv(:,ff), dz(ff) + d, nw, var)
+          poly = 0.0_real64
+          do ww = 1, nw
+            if (sw(ww) > 0.0_real64) poly = poly + sw(ww)*var(ww)/S
+          end do
+          write(cell, '(F11.5)') sqrt(poly)
+          line = trim(line)//cell(1:11)
+          wrms = wrms + wf(ff)*poly; wsum = wsum + wf(ff)
+        end do
+        if (wsum > 0.0_real64) then
+          write(cell, '(F11.5)') sqrt(wrms/wsum)
+          line = trim(line)//cell(1:11)
+        end if
+        call zoa_emit(trim(line), "black")
+      end do
+    end subroutine through_focus
 
     subroutine report(title, atBest)
       character(len=*), intent(in) :: title

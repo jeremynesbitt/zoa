@@ -3,6 +3,10 @@ RES osdtriplet
 WAV
 NOM Y
 GO
+! through focus about the best composite focus
+WAV
+THR Y
+GO
 ! per-field weights and focus groups
 WAV
 WTF 1 0 0
