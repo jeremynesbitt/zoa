@@ -7,29 +7,29 @@ All constraints removed
 
           RDY          THI     RMD          GLA          CCY     THC     GLC
 OBJ:    INFINITY    INFINITY                              100     100     100
-001:    15.00000    3.50000               N-SK16_SCH2000 100     100     100
+001:    15.00000    3.50000               N-SK16_SCHOTT  100     100     100
 002:    INFINITY    3.10000                              100     100     100
-STO:    -37.530    1.50000               N-F2_SCH2000   100     100     100
+STO:    -37.530    1.50000               N-F2_SCHOTT    100     100     100
 004:    14.08000    5.00000                              100     100     100
-005:    50.26000    3.50000               N-SK16_SCH2000 100     100     100
+005:    50.26000    3.50000               N-SK16_SCHOTT  100     100     100
 006:    -31.380    38.51522                              100     100     100
 IMG:    INFINITY    0.00000                              100     100     100
           RDY          THI     RMD          GLA          CCY     THC     GLC
 OBJ:    INFINITY    INFINITY                              100     100     100
-001:    45.00000    3.50000               N-SK16_SCH2000 100     100     100
+001:    45.00000    3.50000               N-SK16_SCHOTT  100     100     100
 002:    INFINITY    3.10000                              100     100     100
-STO:    45.00000    1.50000               N-F2_SCH2000   100     100     100
+STO:    45.00000    1.50000               N-F2_SCHOTT    100     100     100
 004:    14.08000    5.00000                              100     100     100
-005:    50.26000    3.50000               N-SK16_SCH2000 100     100     100
+005:    50.26000    3.50000               N-SK16_SCHOTT  100     100     100
 006:    -31.380    54.05466                              100     100     100
 IMG:    INFINITY    0.00000                              100     100     100
           RDY          THI     RMD          GLA          CCY     THC     GLC
 OBJ:    INFINITY    INFINITY                              100     100     100
-001:    45.00000    3.50000               N-SK16_SCH2000 100     100     100
+001:    45.00000    3.50000               N-SK16_SCHOTT  100     100     100
 002:    INFINITY    4.00000                              100     100     100
-STO:    45.00000    1.50000               N-F2_SCH2000   100     100     100
+STO:    45.00000    1.50000               N-F2_SCHOTT    100     100     100
 004:    14.08000    8.00000                              100     100     100
-005:    50.26000    3.50000               N-SK16_SCH2000 100     100     100
+005:    50.26000    3.50000               N-SK16_SCHOTT  100     100     100
 006:    -31.380    52.07698                              100     100     100
 IMG:    INFINITY    0.00000                              100     100     100
 Error!  Cannot parse parameter CUY to known surface parameter
@@ -41,11 +41,11 @@ All constraints removed
 
           RDY          THI     RMD          GLA          CCY     THC     GLC
 OBJ:    INFINITY    INFINITY                              100     100     100
-001:    40.00000    3.50000               N-SK16_SCH2000 100     100     100
+001:    40.00000    3.50000               N-SK16_SCHOTT  100     100     100
 002:    INFINITY    5.00000                              100     100     100
-STO:    40.00000    1.50000               N-F2_SCH2000   100     100     100
+STO:    40.00000    1.50000               N-F2_SCHOTT    100     100     100
 004:    14.08000    10.00000                              100     100     100
-005:    50.26000    3.50000               N-SK16_SCH2000 100     100     100
+005:    50.26000    3.50000               N-SK16_SCHOTT  100     100     100
 006:    -31.380    43.47149                              100     100     100
 IMG:    INFINITY    0.00000                              100     100     100
  SURFACE           3  RD       :PIKUP DELETED
@@ -53,11 +53,11 @@ IMG:    INFINITY    0.00000                              100     100     100
 
           RDY          THI     RMD          GLA          CCY     THC     GLC
 OBJ:    INFINITY    INFINITY                              100     100     100
-001:    60.00000    3.50000               N-SK16_SCH2000 100     100     100
+001:    60.00000    3.50000               N-SK16_SCHOTT  100     100     100
 002:    INFINITY    7.00000                              100     100     100
-STO:    40.00000    1.50000               N-F2_SCH2000   100     100     100
+STO:    40.00000    1.50000               N-F2_SCHOTT    100     100     100
 004:    14.08000    10.00000                              100     100     100
-005:    50.26000    3.50000               N-SK16_SCH2000 100     100     100
+005:    50.26000    3.50000               N-SK16_SCHOTT  100     100     100
 006:    -31.380    55.51581                              100     100     100
 IMG:    INFINITY    0.00000                              100     100     100
 All constraints removed
@@ -69,11 +69,11 @@ All constraints removed
 
           RDY          THI     RMD          GLA          CCY     THC     GLC
 OBJ:    INFINITY    INFINITY                              100     100     100
-001:    15.00000    3.50000               N-SK16_SCH2000 100     100     100
+001:    15.00000    3.50000               N-SK16_SCHOTT  100     100     100
 002:    INFINITY    3.10000                              100     100     100
-STO:    -37.530    1.50000               N-F2_SCH2000   100     100     100
-004:    14.08000    5.00000               N-SK16_SCH2000 100     100     100
-005:    50.26000    3.50000               N-SK16_SCH2000 100     100     100
+STO:    -37.530    1.50000               N-F2_SCHOTT    100     100     100
+004:    14.08000    5.00000               N-SK16_SCHOTT  100     100     100
+005:    50.26000    3.50000               N-SK16_SCHOTT  100     100     100
 006:    -31.380    15.00256                              100     100     100
 IMG:    INFINITY    0.00000                              100     100     100
 File name to save is pickuptest.zoa
@@ -84,21 +84,21 @@ All constraints removed
 
           RDY          THI     RMD          GLA          CCY     THC     GLC
 OBJ:    INFINITY    INFINITY                              100     100     100
-001:    15.00000    3.50000               N-F2_SCH2000   100     100     100
+001:    15.00000    3.50000               N-F2_SCHOTT    100     100     100
 002:    INFINITY    3.10000                              100     100     100
-STO:    -37.530    1.50000               N-F2_SCH2000   100     100     100
-004:    14.08000    5.00000               N-F2_SCH2000   100     100     100
-005:    50.26000    3.50000               N-SK16_SCH2000 100     100     100
+STO:    -37.530    1.50000               N-F2_SCHOTT    100     100     100
+004:    14.08000    5.00000               N-F2_SCHOTT    100     100     100
+005:    50.26000    3.50000               N-SK16_SCHOTT  100     100     100
 006:    -31.380    15.02320                              100     100     100
 IMG:    INFINITY    0.00000                              100     100     100
  SURFACE           4  GLASS    :PIKUP DELETED
 
           RDY          THI     RMD          GLA          CCY     THC     GLC
 OBJ:    INFINITY    INFINITY                              100     100     100
-001:    15.00000    3.50000               N-SK16_SCH2000 100     100     100
+001:    15.00000    3.50000               N-SK16_SCHOTT  100     100     100
 002:    INFINITY    3.10000                              100     100     100
-STO:    -37.530    1.50000               N-F2_SCH2000   100     100     100
-004:    14.08000    5.00000               N-F2_SCH2000   100     100     100
-005:    50.26000    3.50000               N-SK16_SCH2000 100     100     100
+STO:    -37.530    1.50000               N-F2_SCHOTT    100     100     100
+004:    14.08000    5.00000               N-F2_SCHOTT    100     100     100
+005:    50.26000    3.50000               N-SK16_SCHOTT  100     100     100
 006:    -31.380    15.00915                              100     100     100
 IMG:    INFINITY    0.00000                              100     100     100

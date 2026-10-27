@@ -326,14 +326,15 @@ SUBROUTINE GLSCAT
    use DATMAI
    use mod_system, only: sys_last_surf, sys_set_last_surf
    use mod_lens_data_manager, only: ldm
+   use glass_manager, only: gdb
    use iso_fortran_env, only: real64
    IMPLICIT NONE
 !
-!       THIS IS SUBROUTINE GLSCAT WHICH IMPLEMENTS THE SCHOTT
-!       SCH2000,GLASS,OHARA,HOYA,CHANCE,CORNIN,PLASTIC,RADHARD,GLCAT
-!       HIKARI AND USER COMMAND AT THE LENS OF UPDATE LENS LEVEL.
+!       THIS IS SUBROUTINE GLSCAT WHICH IMPLEMENTS THE CATALOG-NAME
+!       COMMANDS (SCHOTT, OHARA, ... -- ANY GLASS CATALOG), GLASS, PLASTIC,
+!       GLCAT AND USER AT THE LENS OF UPDATE LENS LEVEL.
 !
-   INTEGER PIKCNT,I
+   INTEGER PIKCNT,I,ICAT
 !
 !
 !       THIS IS A SURFACE TERMINAL COMMAND. IN THE LENS INPUT
@@ -364,6 +365,12 @@ SUBROUTINE GLSCAT
 !
    call ldm%initRefractiveIndices(SURF)
    GLANAM(SURF,1)=WC(1:8)//'   '
+!       A CATALOG ALIAS (glass-aliases.txt, E.G. SCH2000) IS STORED AS THE
+!       CATALOG IT NAMES
+   ICAT=0
+   IF(gdb%isNameInCatalog(trim(WC), ICAT)) THEN
+      IF(ICAT.GT.0) GLANAM(SURF,1)=gdb%catalogs(ICAT)(1:13)
+   END IF
    GLANAM(SURF,2)= WS(1:13)
 
    F22=1

@@ -1015,12 +1015,14 @@ contains
     module function getSetGlassText(strInput) result(strOut)
         use command_utils, only : isInputNumber
         use glass_manager, only: parseModelGlassEntry, gdb
+        use glass_catalog, only: gc_glass_alias, gc_glass, glass_record
         use zoa_output, only: zoa_emit
 
         character(len=*) :: strInput
         character(len=1024) :: strOut
         real(kind=real64) :: nd, vd
-        integer :: colonLoc, underscoreLoc, catalogIdx
+        integer :: colonLoc, underscoreLoc, catalogIdx, aliasCat, aliasGlass
+        type(glass_record) :: aliasRec
         character(len=20) :: modelLabel
         character(len=40) :: glassName, catalogName, altGlassName
 
@@ -1044,6 +1046,8 @@ contains
             glassName   = strInput(1:underscoreLoc-1)
             catalogName = strInput(underscoreLoc+1:len_trim(strInput))
             if (gdb%isNameInCatalog(trim(catalogName), catalogIdx)) then
+                ! the catalog's own name, for a catalog alias (SCH2000)
+                catalogName = gdb%catalogs(catalogIdx)
                 if (gdb%isGlassInCatalog(trim(glassName), catalogIdx)) then
                     strOut = trim(catalogName)//' '//trim(glassName)
                 else if (glassName(1:1) == 'N' .and. &
@@ -1067,13 +1071,13 @@ contains
                 strOut = 'GLAK '//trim(strInput)
             end if
         else
-            ! Plain glass name.  A legacy Schott name (SK16, F2, BK7, ...) that has
-            ! a modern N- equivalent resolves to that SCH2000 entry -- the
-            ! long-standing behavior (SK16 -> N-SK16_SCH2000) -- rather than to
-            ! the first catalog in search order, which is the obsolete SCHOTT table.
-            if (gdb%isNameInCatalog('SCH2000', catalogIdx) .and. &
-                gdb%isGlassInCatalog('N-'//trim(strInput), catalogIdx)) then
-                strOut = 'SCH2000 N-'//trim(strInput)
+            ! Plain glass name.  A glass alias (glass-aliases.txt) comes first:
+            ! the shipped file keeps the long-standing SK16 -> N-SK16 (an old
+            ! Schott name meaning its modern N- equivalent); otherwise the first
+            ! catalog in search order holding the name.
+            if (gc_glass_alias(trim(strInput), aliasCat, aliasGlass)) then
+                aliasRec = gc_glass(aliasCat, aliasGlass)
+                strOut = trim(gdb%catalogs(aliasCat))//' '//trim(aliasRec%name)
             ! Otherwise, if it starts with N, also try the N-xxx spelling
             else if (strInput(1:1) == 'N' .and. &
                 .not. gdb%isGlassInAnyCatalog(trim(strInput)) .and. &

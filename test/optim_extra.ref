@@ -13,11 +13,11 @@ CYCLE NUMBER 0
    ERROR FUNCTION = 0.00015
           RDY          THI     RMD          GLA          CCY     THC     GLC
 OBJ:    INFINITY    INFINITY                              100     100     100
-001:    15.00000    3.50000               N-SK16_SCH2000 100     100     100
+001:    15.00000    3.50000               N-SK16_SCHOTT  100     100     100
 002:    INFINITY    3.10000                              100     100     100
-STO:    -37.530    1.99980               N-F2_SCH2000   0       0       100
+STO:    -37.530    1.99980               N-F2_SCHOTT    0       0       100
 004:    14.08000    5.00000                              100     100     100
-005:    50.26000    3.50000               N-SK16_SCH2000 100     100     100
+005:    50.26000    3.50000               N-SK16_SCHOTT  100     100     100
 006:    -31.380    37.89239                              100     100     100
 IMG:    INFINITY    0.00000                              100     100     100
                                                           l
@@ -31,11 +31,11 @@ CYCLE NUMBER 1
    ERROR FUNCTION = 0.00015
           RDY          THI     RMD          GLA          CCY     THC     GLC
 OBJ:    INFINITY    INFINITY                              100     100     100
-001:    15.00000    3.50000               N-SK16_SCH2000 100     100     100
+001:    15.00000    3.50000               N-SK16_SCHOTT  100     100     100
 002:    INFINITY    3.10000                              100     100     100
-STO:    -37.529    1.99980               N-F2_SCH2000   0       0       100
+STO:    -37.529    1.99980               N-F2_SCHOTT    0       0       100
 004:    14.08000    5.00000                              100     100     100
-005:    50.26000    3.50000               N-SK16_SCH2000 100     100     100
+005:    50.26000    3.50000               N-SK16_SCHOTT  100     100     100
 006:    -31.380    37.89286                              100     100     100
 IMG:    INFINITY    0.00000                              100     100     100
                                                           l
@@ -49,11 +49,11 @@ CYCLE NUMBER 2
    ERROR FUNCTION = 0.00015
           RDY          THI     RMD          GLA          CCY     THC     GLC
 OBJ:    INFINITY    INFINITY                              100     100     100
-001:    15.00000    3.50000               N-SK16_SCH2000 100     100     100
+001:    15.00000    3.50000               N-SK16_SCHOTT  100     100     100
 002:    INFINITY    3.10000                              100     100     100
-STO:    -37.528    1.99980               N-F2_SCH2000   0       0       100
+STO:    -37.528    1.99980               N-F2_SCHOTT    0       0       100
 004:    14.08000    5.00000                              100     100     100
-005:    50.26000    3.50000               N-SK16_SCH2000 100     100     100
+005:    50.26000    3.50000               N-SK16_SCHOTT  100     100     100
 006:    -31.380    37.89343                              100     100     100
 IMG:    INFINITY    0.00000                              100     100     100
                                                           l
@@ -67,11 +67,11 @@ CYCLE NUMBER 3
    ERROR FUNCTION = 0.00015
           RDY          THI     RMD          GLA          CCY     THC     GLC
 OBJ:    INFINITY    INFINITY                              100     100     100
-001:    15.00000    3.50000               N-SK16_SCH2000 100     100     100
+001:    15.00000    3.50000               N-SK16_SCHOTT  100     100     100
 002:    INFINITY    3.10000                              100     100     100
-STO:    -37.528    1.99980               N-F2_SCH2000   0       0       100
+STO:    -37.528    1.99980               N-F2_SCHOTT    0       0       100
 004:    14.08000    5.00000                              100     100     100
-005:    50.26000    3.50000               N-SK16_SCH2000 100     100     100
+005:    50.26000    3.50000               N-SK16_SCHOTT  100     100     100
 006:    -31.380    37.89395                              100     100     100
 IMG:    INFINITY    0.00000                              100     100     100
                                                           l
@@ -85,11 +85,11 @@ CYCLE NUMBER 4
    ERROR FUNCTION = 0.00015
           RDY          THI     RMD          GLA          CCY     THC     GLC
 OBJ:    INFINITY    INFINITY                              100     100     100
-001:    15.00000    3.50000               N-SK16_SCH2000 100     100     100
+001:    15.00000    3.50000               N-SK16_SCHOTT  100     100     100
 002:    INFINITY    3.10000                              100     100     100
-STO:    -37.527    1.99980               N-F2_SCH2000   0       0       100
+STO:    -37.527    1.99980               N-F2_SCHOTT    0       0       100
 004:    14.08000    5.00000                              100     100     100
-005:    50.26000    3.50000               N-SK16_SCH2000 100     100     100
+005:    50.26000    3.50000               N-SK16_SCHOTT  100     100     100
 006:    -31.380    37.89445                              100     100     100
 IMG:    INFINITY    0.00000                              100     100     100
                                                           l
@@ -103,11 +103,11 @@ CYCLE NUMBER 5
    ERROR FUNCTION = 0.00015
           RDY          THI     RMD          GLA          CCY     THC     GLC
 OBJ:    INFINITY    INFINITY                              100     100     100
-001:    15.00000    3.50000               N-SK16_SCH2000 100     100     100
+001:    15.00000    3.50000               N-SK16_SCHOTT  100     100     100
 002:    INFINITY    3.10000                              100     100     100
-STO:    -37.526    1.99980               N-F2_SCH2000   0       0       100
+STO:    -37.526    1.99980               N-F2_SCHOTT    0       0       100
 004:    14.08000    5.00000                              100     100     100
-005:    50.26000    3.50000               N-SK16_SCH2000 100     100     100
+005:    50.26000    3.50000               N-SK16_SCHOTT  100     100     100
 006:    -31.380    37.89495                              100     100     100
 IMG:    INFINITY    0.00000                              100     100     100
                                                           l
@@ -121,11 +121,11 @@ CYCLE NUMBER 6
    ERROR FUNCTION = 0.00015
           RDY          THI     RMD          GLA          CCY     THC     GLC
 OBJ:    INFINITY    INFINITY                              100     100     100
-001:    15.00000    3.50000               N-SK16_SCH2000 100     100     100
+001:    15.00000    3.50000               N-SK16_SCHOTT  100     100     100
 002:    INFINITY    3.10000                              100     100     100
-STO:    -37.525    1.99980               N-F2_SCH2000   0       0       100
+STO:    -37.525    1.99980               N-F2_SCHOTT    0       0       100
 004:    14.08000    5.00000                              100     100     100
-005:    50.26000    3.50000               N-SK16_SCH2000 100     100     100
+005:    50.26000    3.50000               N-SK16_SCHOTT  100     100     100
 006:    -31.380    37.89544                              100     100     100
 IMG:    INFINITY    0.00000                              100     100     100
                                                           l
@@ -139,11 +139,11 @@ CYCLE NUMBER 7
    ERROR FUNCTION = 0.00015
           RDY          THI     RMD          GLA          CCY     THC     GLC
 OBJ:    INFINITY    INFINITY                              100     100     100
-001:    15.00000    3.50000               N-SK16_SCH2000 100     100     100
+001:    15.00000    3.50000               N-SK16_SCHOTT  100     100     100
 002:    INFINITY    3.10000                              100     100     100
-STO:    -37.525    1.99980               N-F2_SCH2000   0       0       100
+STO:    -37.525    1.99980               N-F2_SCHOTT    0       0       100
 004:    14.08000    5.00000                              100     100     100
-005:    50.26000    3.50000               N-SK16_SCH2000 100     100     100
+005:    50.26000    3.50000               N-SK16_SCHOTT  100     100     100
 006:    -31.380    37.89594                              100     100     100
 IMG:    INFINITY    0.00000                              100     100     100
                                                           l
@@ -157,11 +157,11 @@ CYCLE NUMBER 8
    ERROR FUNCTION = 0.00015
           RDY          THI     RMD          GLA          CCY     THC     GLC
 OBJ:    INFINITY    INFINITY                              100     100     100
-001:    15.00000    3.50000               N-SK16_SCH2000 100     100     100
+001:    15.00000    3.50000               N-SK16_SCHOTT  100     100     100
 002:    INFINITY    3.10000                              100     100     100
-STO:    -37.524    1.99980               N-F2_SCH2000   0       0       100
+STO:    -37.524    1.99980               N-F2_SCHOTT    0       0       100
 004:    14.08000    5.00000                              100     100     100
-005:    50.26000    3.50000               N-SK16_SCH2000 100     100     100
+005:    50.26000    3.50000               N-SK16_SCHOTT  100     100     100
 006:    -31.380    37.89644                              100     100     100
 IMG:    INFINITY    0.00000                              100     100     100
                                                           l
@@ -175,11 +175,11 @@ CYCLE NUMBER 9
    ERROR FUNCTION = 0.00015
           RDY          THI     RMD          GLA          CCY     THC     GLC
 OBJ:    INFINITY    INFINITY                              100     100     100
-001:    15.00000    3.50000               N-SK16_SCH2000 100     100     100
+001:    15.00000    3.50000               N-SK16_SCHOTT  100     100     100
 002:    INFINITY    3.10000                              100     100     100
-STO:    -37.523    1.99980               N-F2_SCH2000   0       0       100
+STO:    -37.523    1.99980               N-F2_SCHOTT    0       0       100
 004:    14.08000    5.00000                              100     100     100
-005:    50.26000    3.50000               N-SK16_SCH2000 100     100     100
+005:    50.26000    3.50000               N-SK16_SCHOTT  100     100     100
 006:    -31.380    37.89693                              100     100     100
 IMG:    INFINITY    0.00000                              100     100     100
                                                           l
@@ -193,11 +193,11 @@ CYCLE NUMBER 10
    ERROR FUNCTION = 0.00015
           RDY          THI     RMD          GLA          CCY     THC     GLC
 OBJ:    INFINITY    INFINITY                              100     100     100
-001:    15.00000    3.50000               N-SK16_SCH2000 100     100     100
+001:    15.00000    3.50000               N-SK16_SCHOTT  100     100     100
 002:    INFINITY    3.10000                              100     100     100
-STO:    -37.523    1.99980               N-F2_SCH2000   0       0       100
+STO:    -37.523    1.99980               N-F2_SCHOTT    0       0       100
 004:    14.08000    5.00000                              100     100     100
-005:    50.26000    3.50000               N-SK16_SCH2000 100     100     100
+005:    50.26000    3.50000               N-SK16_SCHOTT  100     100     100
 006:    -31.380    37.89743                              100     100     100
 IMG:    INFINITY    0.00000                              100     100     100
                                                           l
@@ -211,11 +211,11 @@ CYCLE NUMBER 11
    ERROR FUNCTION = 0.00015
           RDY          THI     RMD          GLA          CCY     THC     GLC
 OBJ:    INFINITY    INFINITY                              100     100     100
-001:    15.00000    3.50000               N-SK16_SCH2000 100     100     100
+001:    15.00000    3.50000               N-SK16_SCHOTT  100     100     100
 002:    INFINITY    3.10000                              100     100     100
-STO:    -37.522    1.99980               N-F2_SCH2000   0       0       100
+STO:    -37.522    1.99980               N-F2_SCHOTT    0       0       100
 004:    14.08000    5.00000                              100     100     100
-005:    50.26000    3.50000               N-SK16_SCH2000 100     100     100
+005:    50.26000    3.50000               N-SK16_SCHOTT  100     100     100
 006:    -31.380    37.89793                              100     100     100
 IMG:    INFINITY    0.00000                              100     100     100
                                                           l
@@ -229,11 +229,11 @@ CYCLE NUMBER 12
    ERROR FUNCTION = 0.00015
           RDY          THI     RMD          GLA          CCY     THC     GLC
 OBJ:    INFINITY    INFINITY                              100     100     100
-001:    15.00000    3.50000               N-SK16_SCH2000 100     100     100
+001:    15.00000    3.50000               N-SK16_SCHOTT  100     100     100
 002:    INFINITY    3.10000                              100     100     100
-STO:    -37.521    1.99980               N-F2_SCH2000   0       0       100
+STO:    -37.521    1.99980               N-F2_SCHOTT    0       0       100
 004:    14.08000    5.00000                              100     100     100
-005:    50.26000    3.50000               N-SK16_SCH2000 100     100     100
+005:    50.26000    3.50000               N-SK16_SCHOTT  100     100     100
 006:    -31.380    37.89843                              100     100     100
 IMG:    INFINITY    0.00000                              100     100     100
                                                           l
@@ -247,11 +247,11 @@ CYCLE NUMBER 13
    ERROR FUNCTION = 0.00015
           RDY          THI     RMD          GLA          CCY     THC     GLC
 OBJ:    INFINITY    INFINITY                              100     100     100
-001:    15.00000    3.50000               N-SK16_SCH2000 100     100     100
+001:    15.00000    3.50000               N-SK16_SCHOTT  100     100     100
 002:    INFINITY    3.10000                              100     100     100
-STO:    -37.520    1.99980               N-F2_SCH2000   0       0       100
+STO:    -37.520    1.99980               N-F2_SCHOTT    0       0       100
 004:    14.08000    5.00000                              100     100     100
-005:    50.26000    3.50000               N-SK16_SCH2000 100     100     100
+005:    50.26000    3.50000               N-SK16_SCHOTT  100     100     100
 006:    -31.380    37.89892                              100     100     100
 IMG:    INFINITY    0.00000                              100     100     100
                                                           l
@@ -265,11 +265,11 @@ CYCLE NUMBER 14
    ERROR FUNCTION = 0.00015
           RDY          THI     RMD          GLA          CCY     THC     GLC
 OBJ:    INFINITY    INFINITY                              100     100     100
-001:    15.00000    3.50000               N-SK16_SCH2000 100     100     100
+001:    15.00000    3.50000               N-SK16_SCHOTT  100     100     100
 002:    INFINITY    3.10000                              100     100     100
-STO:    -37.520    1.99980               N-F2_SCH2000   0       0       100
+STO:    -37.520    1.99980               N-F2_SCHOTT    0       0       100
 004:    14.08000    5.00000                              100     100     100
-005:    50.26000    3.50000               N-SK16_SCH2000 100     100     100
+005:    50.26000    3.50000               N-SK16_SCHOTT  100     100     100
 006:    -31.380    37.89942                              100     100     100
 IMG:    INFINITY    0.00000                              100     100     100
                                                           l
@@ -283,11 +283,11 @@ CYCLE NUMBER 15
    ERROR FUNCTION = 0.00015
           RDY          THI     RMD          GLA          CCY     THC     GLC
 OBJ:    INFINITY    INFINITY                              100     100     100
-001:    15.00000    3.50000               N-SK16_SCH2000 100     100     100
+001:    15.00000    3.50000               N-SK16_SCHOTT  100     100     100
 002:    INFINITY    3.10000                              100     100     100
-STO:    -37.519    1.99980               N-F2_SCH2000   0       0       100
+STO:    -37.519    1.99980               N-F2_SCHOTT    0       0       100
 004:    14.08000    5.00000                              100     100     100
-005:    50.26000    3.50000               N-SK16_SCH2000 100     100     100
+005:    50.26000    3.50000               N-SK16_SCHOTT  100     100     100
 006:    -31.380    37.89992                              100     100     100
 IMG:    INFINITY    0.00000                              100     100     100
                                                           l
@@ -301,11 +301,11 @@ CYCLE NUMBER 16
    ERROR FUNCTION = 0.00015
           RDY          THI     RMD          GLA          CCY     THC     GLC
 OBJ:    INFINITY    INFINITY                              100     100     100
-001:    15.00000    3.50000               N-SK16_SCH2000 100     100     100
+001:    15.00000    3.50000               N-SK16_SCHOTT  100     100     100
 002:    INFINITY    3.10000                              100     100     100
-STO:    -37.518    1.99980               N-F2_SCH2000   0       0       100
+STO:    -37.518    1.99980               N-F2_SCHOTT    0       0       100
 004:    14.08000    5.00000                              100     100     100
-005:    50.26000    3.50000               N-SK16_SCH2000 100     100     100
+005:    50.26000    3.50000               N-SK16_SCHOTT  100     100     100
 006:    -31.380    37.90042                              100     100     100
 IMG:    INFINITY    0.00000                              100     100     100
                                                           l
@@ -319,11 +319,11 @@ CYCLE NUMBER 17
    ERROR FUNCTION = 0.00015
           RDY          THI     RMD          GLA          CCY     THC     GLC
 OBJ:    INFINITY    INFINITY                              100     100     100
-001:    15.00000    3.50000               N-SK16_SCH2000 100     100     100
+001:    15.00000    3.50000               N-SK16_SCHOTT  100     100     100
 002:    INFINITY    3.10000                              100     100     100
-STO:    -37.517    1.99980               N-F2_SCH2000   0       0       100
+STO:    -37.517    1.99980               N-F2_SCHOTT    0       0       100
 004:    14.08000    5.00000                              100     100     100
-005:    50.26000    3.50000               N-SK16_SCH2000 100     100     100
+005:    50.26000    3.50000               N-SK16_SCHOTT  100     100     100
 006:    -31.380    37.90092                              100     100     100
 IMG:    INFINITY    0.00000                              100     100     100
                                                           l
@@ -337,11 +337,11 @@ CYCLE NUMBER 18
    ERROR FUNCTION = 0.00015
           RDY          THI     RMD          GLA          CCY     THC     GLC
 OBJ:    INFINITY    INFINITY                              100     100     100
-001:    15.00000    3.50000               N-SK16_SCH2000 100     100     100
+001:    15.00000    3.50000               N-SK16_SCHOTT  100     100     100
 002:    INFINITY    3.10000                              100     100     100
-STO:    -37.517    1.99980               N-F2_SCH2000   0       0       100
+STO:    -37.517    1.99980               N-F2_SCHOTT    0       0       100
 004:    14.08000    5.00000                              100     100     100
-005:    50.26000    3.50000               N-SK16_SCH2000 100     100     100
+005:    50.26000    3.50000               N-SK16_SCHOTT  100     100     100
 006:    -31.380    37.90141                              100     100     100
 IMG:    INFINITY    0.00000                              100     100     100
                                                           l
@@ -355,11 +355,11 @@ CYCLE NUMBER 19
    ERROR FUNCTION = 0.00015
           RDY          THI     RMD          GLA          CCY     THC     GLC
 OBJ:    INFINITY    INFINITY                              100     100     100
-001:    15.00000    3.50000               N-SK16_SCH2000 100     100     100
+001:    15.00000    3.50000               N-SK16_SCHOTT  100     100     100
 002:    INFINITY    3.10000                              100     100     100
-STO:    -37.516    1.99980               N-F2_SCH2000   0       0       100
+STO:    -37.516    1.99980               N-F2_SCHOTT    0       0       100
 004:    14.08000    5.00000                              100     100     100
-005:    50.26000    3.50000               N-SK16_SCH2000 100     100     100
+005:    50.26000    3.50000               N-SK16_SCHOTT  100     100     100
 006:    -31.380    37.90191                              100     100     100
 IMG:    INFINITY    0.00000                              100     100     100
                                                           l
@@ -373,11 +373,11 @@ CYCLE NUMBER 20
    ERROR FUNCTION = 0.00015
           RDY          THI     RMD          GLA          CCY     THC     GLC
 OBJ:    INFINITY    INFINITY                              100     100     100
-001:    15.00000    3.50000               N-SK16_SCH2000 100     100     100
+001:    15.00000    3.50000               N-SK16_SCHOTT  100     100     100
 002:    INFINITY    3.10000                              100     100     100
-STO:    -37.515    1.99980               N-F2_SCH2000   0       0       100
+STO:    -37.515    1.99980               N-F2_SCHOTT    0       0       100
 004:    14.08000    5.00000                              100     100     100
-005:    50.26000    3.50000               N-SK16_SCH2000 100     100     100
+005:    50.26000    3.50000               N-SK16_SCHOTT  100     100     100
 006:    -31.380    37.90241                              100     100     100
 IMG:    INFINITY    0.00000                              100     100     100
                                                           l
@@ -391,11 +391,11 @@ CYCLE NUMBER 21
    ERROR FUNCTION = 0.00015
           RDY          THI     RMD          GLA          CCY     THC     GLC
 OBJ:    INFINITY    INFINITY                              100     100     100
-001:    15.00000    3.50000               N-SK16_SCH2000 100     100     100
+001:    15.00000    3.50000               N-SK16_SCHOTT  100     100     100
 002:    INFINITY    3.10000                              100     100     100
-STO:    -37.514    1.99980               N-F2_SCH2000   0       0       100
+STO:    -37.514    1.99980               N-F2_SCHOTT    0       0       100
 004:    14.08000    5.00000                              100     100     100
-005:    50.26000    3.50000               N-SK16_SCH2000 100     100     100
+005:    50.26000    3.50000               N-SK16_SCHOTT  100     100     100
 006:    -31.380    37.90291                              100     100     100
 IMG:    INFINITY    0.00000                              100     100     100
                                                           l
@@ -409,11 +409,11 @@ CYCLE NUMBER 22
    ERROR FUNCTION = 0.00015
           RDY          THI     RMD          GLA          CCY     THC     GLC
 OBJ:    INFINITY    INFINITY                              100     100     100
-001:    15.00000    3.50000               N-SK16_SCH2000 100     100     100
+001:    15.00000    3.50000               N-SK16_SCHOTT  100     100     100
 002:    INFINITY    3.10000                              100     100     100
-STO:    -37.514    1.99980               N-F2_SCH2000   0       0       100
+STO:    -37.514    1.99980               N-F2_SCHOTT    0       0       100
 004:    14.08000    5.00000                              100     100     100
-005:    50.26000    3.50000               N-SK16_SCH2000 100     100     100
+005:    50.26000    3.50000               N-SK16_SCHOTT  100     100     100
 006:    -31.380    37.90341                              100     100     100
 IMG:    INFINITY    0.00000                              100     100     100
                                                           l
@@ -427,11 +427,11 @@ CYCLE NUMBER 23
    ERROR FUNCTION = 0.00015
           RDY          THI     RMD          GLA          CCY     THC     GLC
 OBJ:    INFINITY    INFINITY                              100     100     100
-001:    15.00000    3.50000               N-SK16_SCH2000 100     100     100
+001:    15.00000    3.50000               N-SK16_SCHOTT  100     100     100
 002:    INFINITY    3.10000                              100     100     100
-STO:    -37.513    1.99980               N-F2_SCH2000   0       0       100
+STO:    -37.513    1.99980               N-F2_SCHOTT    0       0       100
 004:    14.08000    5.00000                              100     100     100
-005:    50.26000    3.50000               N-SK16_SCH2000 100     100     100
+005:    50.26000    3.50000               N-SK16_SCHOTT  100     100     100
 006:    -31.380    37.90391                              100     100     100
 IMG:    INFINITY    0.00000                              100     100     100
                                                           l
@@ -445,11 +445,11 @@ CYCLE NUMBER 24
    ERROR FUNCTION = 0.00015
           RDY          THI     RMD          GLA          CCY     THC     GLC
 OBJ:    INFINITY    INFINITY                              100     100     100
-001:    15.00000    3.50000               N-SK16_SCH2000 100     100     100
+001:    15.00000    3.50000               N-SK16_SCHOTT  100     100     100
 002:    INFINITY    3.10000                              100     100     100
-STO:    -37.512    1.99980               N-F2_SCH2000   0       0       100
+STO:    -37.512    1.99980               N-F2_SCHOTT    0       0       100
 004:    14.08000    5.00000                              100     100     100
-005:    50.26000    3.50000               N-SK16_SCH2000 100     100     100
+005:    50.26000    3.50000               N-SK16_SCHOTT  100     100     100
 006:    -31.380    37.90441                              100     100     100
 IMG:    INFINITY    0.00000                              100     100     100
                                                           l
@@ -463,11 +463,11 @@ CYCLE NUMBER 25
    ERROR FUNCTION = 0.00015
           RDY          THI     RMD          GLA          CCY     THC     GLC
 OBJ:    INFINITY    INFINITY                              100     100     100
-001:    15.00000    3.50000               N-SK16_SCH2000 100     100     100
+001:    15.00000    3.50000               N-SK16_SCHOTT  100     100     100
 002:    INFINITY    3.10000                              100     100     100
-STO:    -37.511    1.99980               N-F2_SCH2000   0       0       100
+STO:    -37.511    1.99980               N-F2_SCHOTT    0       0       100
 004:    14.08000    5.00000                              100     100     100
-005:    50.26000    3.50000               N-SK16_SCH2000 100     100     100
+005:    50.26000    3.50000               N-SK16_SCHOTT  100     100     100
 006:    -31.380    37.90491                              100     100     100
 IMG:    INFINITY    0.00000                              100     100     100
                                                           l
@@ -698,11 +698,11 @@ CYCLE NUMBER 0
    ERROR FUNCTION = 0.00014
           RDY          THI     RMD          GLA          CCY     THC     GLC
 OBJ:    INFINITY    INFINITY                              100     100     100
-001:    15.00000    3.49965               N-SK16_SCH2000 100     0       100
+001:    15.00000    3.49965               N-SK16_SCHOTT  100     0       100
 002:    INFINITY    3.10000                              100     100     100
-STO:    -37.530    1.50000               N-F2_SCH2000   100     100     100
+STO:    -37.530    1.50000               N-F2_SCHOTT    100     100     100
 004:    14.08000    5.00000                              100     100     100
-005:    50.26000    3.50000               N-SK16_SCH2000 100     100     100
+005:    50.26000    3.50000               N-SK16_SCHOTT  100     100     100
 006:    -31.380    38.51614                              100     100     100
 IMG:    INFINITY    0.00000                              100     100     100
                                                           l
@@ -714,11 +714,11 @@ CYCLE NUMBER 1
    ERROR FUNCTION = 0.00025
           RDY          THI     RMD          GLA          CCY     THC     GLC
 OBJ:    INFINITY    INFINITY                              100     100     100
-001:    15.00000    3.69709               N-SK16_SCH2000 100     0       100
+001:    15.00000    3.69709               N-SK16_SCHOTT  100     0       100
 002:    INFINITY    3.10000                              100     100     100
-STO:    -37.530    1.50000               N-F2_SCH2000   100     100     100
+STO:    -37.530    1.50000               N-F2_SCHOTT    100     100     100
 004:    14.08000    5.00000                              100     100     100
-005:    50.26000    3.50000               N-SK16_SCH2000 100     100     100
+005:    50.26000    3.50000               N-SK16_SCHOTT  100     100     100
 006:    -31.380    37.99701                              100     100     100
 IMG:    INFINITY    0.00000                              100     100     100
                                                           l
@@ -730,11 +730,11 @@ CYCLE NUMBER 2
    ERROR FUNCTION = 0.00025
           RDY          THI     RMD          GLA          CCY     THC     GLC
 OBJ:    INFINITY    INFINITY                              100     100     100
-001:    15.00000    3.69709               N-SK16_SCH2000 100     0       100
+001:    15.00000    3.69709               N-SK16_SCHOTT  100     0       100
 002:    INFINITY    3.10000                              100     100     100
-STO:    -37.530    1.50000               N-F2_SCH2000   100     100     100
+STO:    -37.530    1.50000               N-F2_SCHOTT    100     100     100
 004:    14.08000    5.00000                              100     100     100
-005:    50.26000    3.50000               N-SK16_SCH2000 100     100     100
+005:    50.26000    3.50000               N-SK16_SCHOTT  100     100     100
 006:    -31.380    37.99701                              100     100     100
 IMG:    INFINITY    0.00000                              100     100     100
                                                           l
@@ -752,11 +752,11 @@ S5-S6  GLASS          3.50000       5.58261       2.68842
 S6-S7  AIR           37.99609       8.79508      39.25383
           RDY          THI     RMD          GLA          CCY     THC     GLC
 OBJ:    INFINITY    INFINITY                              100     100     100
-001:    15.00000    3.69744               N-SK16_SCH2000 100     0       100
+001:    15.00000    3.69744               N-SK16_SCHOTT  100     0       100
 002:    INFINITY    3.10000                              100     100     100
-STO:    -37.530    1.50000               N-F2_SCH2000   100     100     100
+STO:    -37.530    1.50000               N-F2_SCHOTT    100     100     100
 004:    14.08000    5.00000                              100     100     100
-005:    50.26000    3.50000               N-SK16_SCH2000 100     100     100
+005:    50.26000    3.50000               N-SK16_SCHOTT  100     100     100
 006:    -31.380    37.99609                              100     100     100
 IMG:    INFINITY    0.00000                              100     100     100
 All constraints removed
@@ -768,7 +768,7 @@ CYCLE NUMBER 0
    ERROR FUNCTION = 0.78961
           RDY          THI     RMD          GLA          CCY     THC     GLC
 OBJ:    INFINITY    INFINITY                              100     100     100
-STO:    120.01200    5.00000               N-BK7_SCH2000  0       100     100
+STO:    120.01200    5.00000               N-BK7_SCHOTT   0       100     100
 002:    -32.322    49.12218                              100     100     100
 IMG:    INFINITY    0.00000                              100     100     100
                                                           l
@@ -780,7 +780,7 @@ CYCLE NUMBER 1
    ERROR FUNCTION = 0.78737
           RDY          THI     RMD          GLA          CCY     THC     GLC
 OBJ:    INFINITY    INFINITY                              100     100     100
-STO:    122.07913    5.00000               N-BK7_SCH2000  0       100     100
+STO:    122.07913    5.00000               N-BK7_SCHOTT   0       100     100
 002:    -32.322    49.30385                              100     100     100
 IMG:    INFINITY    0.00000                              100     100     100
                                                           l
@@ -792,7 +792,7 @@ CYCLE NUMBER 2
    ERROR FUNCTION = 0.78738
           RDY          THI     RMD          GLA          CCY     THC     GLC
 OBJ:    INFINITY    INFINITY                              100     100     100
-STO:    122.07191    5.00000               N-BK7_SCH2000  0       100     100
+STO:    122.07191    5.00000               N-BK7_SCHOTT   0       100     100
 002:    -32.322    49.30323                              100     100     100
 IMG:    INFINITY    0.00000                              100     100     100
                                                           l
@@ -804,7 +804,7 @@ CYCLE NUMBER 3
    ERROR FUNCTION = 0.78738
           RDY          THI     RMD          GLA          CCY     THC     GLC
 OBJ:    INFINITY    INFINITY                              100     100     100
-STO:    122.07191    5.00000               N-BK7_SCH2000  0       100     100
+STO:    122.07191    5.00000               N-BK7_SCHOTT   0       100     100
 002:    -32.322    49.30323                              100     100     100
 IMG:    INFINITY    0.00000                              100     100     100
                                                           l
@@ -898,7 +898,7 @@ CYCLE NUMBER 0
    ERROR FUNCTION = 0.78961
           RDY          THI     RMD          GLA          CCY     THC     GLC
 OBJ:    INFINITY    INFINITY                              100     100     100
-STO:    120.00000    5.00000               N-BK7_SCH2000  100     100     100
+STO:    120.00000    5.00000               N-BK7_SCHOTT   100     100     100
 002:    -32.319    49.11725                              0       100     100
 IMG:    INFINITY    0.00000                              100     100     100
                                                           l
@@ -910,7 +910,7 @@ CYCLE NUMBER 1
    ERROR FUNCTION = 0.00425
           RDY          THI     RMD          GLA          CCY     THC     GLC
 OBJ:    INFINITY    INFINITY                              100     100     100
-STO:    120.00000    5.00000               N-BK7_SCH2000  100     100     100
+STO:    120.00000    5.00000               N-BK7_SCHOTT   100     100     100
 002:    -137.882    123.20116                              0       100     100
 IMG:    INFINITY    0.00000                              100     100     100
                                                           l
@@ -922,7 +922,7 @@ CYCLE NUMBER 2
    ERROR FUNCTION = 0.00425
           RDY          THI     RMD          GLA          CCY     THC     GLC
 OBJ:    INFINITY    INFINITY                              100     100     100
-STO:    120.00000    5.00000               N-BK7_SCH2000  100     100     100
+STO:    120.00000    5.00000               N-BK7_SCHOTT   100     100     100
 002:    -137.882    123.20116                              0       100     100
 IMG:    INFINITY    0.00000                              100     100     100
                                                           l
@@ -975,11 +975,11 @@ CYCLE NUMBER 0
    ERROR FUNCTION = 0.00014
           RDY          THI     RMD          GLA          CCY     THC     GLC
 OBJ:    INFINITY    INFINITY                              100     100     100
-001:    15.00000    3.50000               N-SK16_SCH2000 100     100     100
+001:    15.00000    3.50000               N-SK16_SCHOTT  100     100     100
 002:    INFINITY    3.10000                              100     100     100
-STO:    -37.530    1.50000               N-F2_SCH2000   100     100     100
+STO:    -37.530    1.50000               N-F2_SCHOTT    100     100     100
 004:    14.08000    5.00000                              100     100     100
-005:    50.26503    3.50000               N-SK16_SCH2000 0       100     100
+005:    50.26503    3.50000               N-SK16_SCHOTT  0       100     100
 006:    -31.380    38.51710                              100     100     100
 IMG:    INFINITY    0.00000                              100     100     100
                                                           l
@@ -991,11 +991,11 @@ CYCLE NUMBER 1
    ERROR FUNCTION = 0.00072
           RDY          THI     RMD          GLA          CCY     THC     GLC
 OBJ:    INFINITY    INFINITY                              100     100     100
-001:    15.00000    3.50000               N-SK16_SCH2000 100     100     100
+001:    15.00000    3.50000               N-SK16_SCHOTT  100     100     100
 002:    INFINITY    3.10000                              100     100     100
-STO:    -37.530    1.50000               N-F2_SCH2000   100     100     100
+STO:    -37.530    1.50000               N-F2_SCHOTT    100     100     100
 004:    14.08000    5.00000                              100     100     100
-005:    42.92526    3.50000               N-SK16_SCH2000 0       100     100
+005:    42.92526    3.50000               N-SK16_SCHOTT  0       100     100
 006:    -31.380    35.53677                              100     100     100
 IMG:    INFINITY    0.00000                              100     100     100
                                                           l
@@ -1007,11 +1007,11 @@ CYCLE NUMBER 2
    ERROR FUNCTION = 0.00077
           RDY          THI     RMD          GLA          CCY     THC     GLC
 OBJ:    INFINITY    INFINITY                              100     100     100
-001:    15.00000    3.50000               N-SK16_SCH2000 100     100     100
+001:    15.00000    3.50000               N-SK16_SCHOTT  100     100     100
 002:    INFINITY    3.10000                              100     100     100
-STO:    -37.530    1.50000               N-F2_SCH2000   100     100     100
+STO:    -37.530    1.50000               N-F2_SCHOTT    100     100     100
 004:    14.08000    5.00000                              100     100     100
-005:    42.53686    3.50000               N-SK16_SCH2000 0       100     100
+005:    42.53686    3.50000               N-SK16_SCHOTT  0       100     100
 006:    -31.380    35.36481                              100     100     100
 IMG:    INFINITY    0.00000                              100     100     100
                                                           l
@@ -1023,11 +1023,11 @@ CYCLE NUMBER 3
    ERROR FUNCTION = 0.00077
           RDY          THI     RMD          GLA          CCY     THC     GLC
 OBJ:    INFINITY    INFINITY                              100     100     100
-001:    15.00000    3.50000               N-SK16_SCH2000 100     100     100
+001:    15.00000    3.50000               N-SK16_SCHOTT  100     100     100
 002:    INFINITY    3.10000                              100     100     100
-STO:    -37.530    1.50000               N-F2_SCH2000   100     100     100
+STO:    -37.530    1.50000               N-F2_SCHOTT    100     100     100
 004:    14.08000    5.00000                              100     100     100
-005:    42.53558    3.50000               N-SK16_SCH2000 0       100     100
+005:    42.53558    3.50000               N-SK16_SCHOTT  0       100     100
 006:    -31.380    35.36425                              100     100     100
 IMG:    INFINITY    0.00000                              100     100     100
                                                           l
@@ -1039,11 +1039,11 @@ CYCLE NUMBER 4
    ERROR FUNCTION = 0.00077
           RDY          THI     RMD          GLA          CCY     THC     GLC
 OBJ:    INFINITY    INFINITY                              100     100     100
-001:    15.00000    3.50000               N-SK16_SCH2000 100     100     100
+001:    15.00000    3.50000               N-SK16_SCHOTT  100     100     100
 002:    INFINITY    3.10000                              100     100     100
-STO:    -37.530    1.50000               N-F2_SCH2000   100     100     100
+STO:    -37.530    1.50000               N-F2_SCHOTT    100     100     100
 004:    14.08000    5.00000                              100     100     100
-005:    42.53558    3.50000               N-SK16_SCH2000 0       100     100
+005:    42.53558    3.50000               N-SK16_SCHOTT  0       100     100
 006:    -31.380    35.36425                              100     100     100
 IMG:    INFINITY    0.00000                              100     100     100
                                                           l
@@ -1074,7 +1074,7 @@ CYCLE NUMBER 0
    ERROR FUNCTION = 0.78961
           RDY          THI     RMD          GLA          CCY     THC     GLC
 OBJ:    INFINITY    INFINITY                              100     100     100
-STO:    120.00000    5.00000               N-BK7_SCH2000  100     0       100
+STO:    120.00000    5.00000               N-BK7_SCHOTT   100     0       100
 002:    -32.319    49.11725                              0       100     100
 IMG:    INFINITY    0.00000                              100     100     100
                                                           l
@@ -1087,7 +1087,7 @@ CYCLE NUMBER 1
    ERROR FUNCTION = 0.22683
           RDY          THI     RMD          GLA          CCY     THC     GLC
 OBJ:    INFINITY    INFINITY                              100     100     100
-STO:    120.00000    5.13253               N-BK7_SCH2000  100     0       100
+STO:    120.00000    5.13253               N-BK7_SCHOTT   100     0       100
 002:    -43.644    61.68435                              0       100     100
 IMG:    INFINITY    0.00000                              100     100     100
                                                           l
@@ -1100,7 +1100,7 @@ CYCLE NUMBER 2
    ERROR FUNCTION = 0.28319
           RDY          THI     RMD          GLA          CCY     THC     GLC
 OBJ:    INFINITY    INFINITY                              100     100     100
-STO:    120.00000    5.15796               N-BK7_SCH2000  100     0       100
+STO:    120.00000    5.15796               N-BK7_SCHOTT   100     0       100
 002:    -41.291    59.21823                              0       100     100
 IMG:    INFINITY    0.00000                              100     100     100
                                                           l
@@ -1113,7 +1113,7 @@ CYCLE NUMBER 3
    ERROR FUNCTION = 0.28580
           RDY          THI     RMD          GLA          CCY     THC     GLC
 OBJ:    INFINITY    INFINITY                              100     100     100
-STO:    120.00000    5.20046               N-BK7_SCH2000  100     0       100
+STO:    120.00000    5.20046               N-BK7_SCHOTT   100     0       100
 002:    -41.190    59.10866                              0       100     100
 IMG:    INFINITY    0.00000                              100     100     100
                                                           l
@@ -1126,7 +1126,7 @@ CYCLE NUMBER 4
    ERROR FUNCTION = 0.28559
           RDY          THI     RMD          GLA          CCY     THC     GLC
 OBJ:    INFINITY    INFINITY                              100     100     100
-STO:    120.00000    5.33266               N-BK7_SCH2000  100     0       100
+STO:    120.00000    5.33266               N-BK7_SCHOTT   100     0       100
 002:    -41.174    59.08596                              0       100     100
 IMG:    INFINITY    0.00000                              100     100     100
                                                           l
@@ -1139,7 +1139,7 @@ CYCLE NUMBER 5
    ERROR FUNCTION = 0.28450
           RDY          THI     RMD          GLA          CCY     THC     GLC
 OBJ:    INFINITY    INFINITY                              100     100     100
-STO:    120.00000    5.99299               N-BK7_SCH2000  100     0       100
+STO:    120.00000    5.99299               N-BK7_SCHOTT   100     0       100
 002:    -41.096    58.97364                              0       100     100
 IMG:    INFINITY    0.00000                              100     100     100
                                                           l
@@ -1152,7 +1152,7 @@ CYCLE NUMBER 6
    ERROR FUNCTION = 0.27902
           RDY          THI     RMD          GLA          CCY     THC     GLC
 OBJ:    INFINITY    INFINITY                              100     100     100
-STO:    120.00000    9.29067               N-BK7_SCH2000  100     0       100
+STO:    120.00000    9.29067               N-BK7_SCHOTT   100     0       100
 002:    -40.708    58.41573                              0       100     100
 IMG:    INFINITY    0.00000                              100     100     100
                                                           l
@@ -1165,7 +1165,7 @@ CYCLE NUMBER 7
    ERROR FUNCTION = 0.27466
           RDY          THI     RMD          GLA          CCY     THC     GLC
 OBJ:    INFINITY    INFINITY                              100     100     100
-STO:    120.00000    12.00000               N-BK7_SCH2000  100     0       100
+STO:    120.00000    12.00000               N-BK7_SCHOTT   100     0       100
 002:    -40.385    57.95304                              0       100     100
 IMG:    INFINITY    0.00000                              100     100     100
                                                           l
@@ -1178,7 +1178,7 @@ CYCLE NUMBER 8
    ERROR FUNCTION = 0.27473
           RDY          THI     RMD          GLA          CCY     THC     GLC
 OBJ:    INFINITY    INFINITY                              100     100     100
-STO:    120.00000    12.00000               N-BK7_SCH2000  100     0       100
+STO:    120.00000    12.00000               N-BK7_SCHOTT   100     0       100
 002:    -40.383    57.95033                              0       100     100
 IMG:    INFINITY    0.00000                              100     100     100
                                                           l
@@ -1191,7 +1191,7 @@ CYCLE NUMBER 9
    ERROR FUNCTION = 0.27473
           RDY          THI     RMD          GLA          CCY     THC     GLC
 OBJ:    INFINITY    INFINITY                              100     100     100
-STO:    120.00000    12.00000               N-BK7_SCH2000  100     0       100
+STO:    120.00000    12.00000               N-BK7_SCHOTT   100     0       100
 002:    -40.383    57.95033                              0       100     100
 IMG:    INFINITY    0.00000                              100     100     100
                                                           l
@@ -1207,7 +1207,7 @@ CYCLE NUMBER 0
    ERROR FUNCTION = 0.27473
           RDY          THI     RMD          GLA          CCY     THC     GLC
 OBJ:    INFINITY    INFINITY                              100     100     100
-STO:    120.00000    12.00000               N-BK7_SCH2000  100     100     100
+STO:    120.00000    12.00000               N-BK7_SCHOTT   100     100     100
 002:    -40.384    57.95140                              0       100     100
 IMG:    INFINITY    0.00000                              100     100     100
                                                           l
@@ -1219,7 +1219,7 @@ CYCLE NUMBER 1
    ERROR FUNCTION = 0.10121
           RDY          THI     RMD          GLA          CCY     THC     GLC
 OBJ:    INFINITY    INFINITY                              100     100     100
-STO:    120.00000    12.00000               N-BK7_SCH2000  100     100     100
+STO:    120.00000    12.00000               N-BK7_SCHOTT   100     100     100
 002:    -52.089    69.54065                              0       100     100
 IMG:    INFINITY    0.00000                              100     100     100
                                                           l
@@ -1231,7 +1231,7 @@ CYCLE NUMBER 2
    ERROR FUNCTION = 0.11772
           RDY          THI     RMD          GLA          CCY     THC     GLC
 OBJ:    INFINITY    INFINITY                              100     100     100
-STO:    120.00000    12.00000               N-BK7_SCH2000  100     100     100
+STO:    120.00000    12.00000               N-BK7_SCHOTT   100     100     100
 002:    -50.073    67.66133                              0       100     100
 IMG:    INFINITY    0.00000                              100     100     100
                                                           l
@@ -1243,7 +1243,7 @@ CYCLE NUMBER 3
    ERROR FUNCTION = 0.11822
           RDY          THI     RMD          GLA          CCY     THC     GLC
 OBJ:    INFINITY    INFINITY                              100     100     100
-STO:    120.00000    12.00000               N-BK7_SCH2000  100     100     100
+STO:    120.00000    12.00000               N-BK7_SCHOTT   100     100     100
 002:    -50.018    67.60917                              0       100     100
 IMG:    INFINITY    0.00000                              100     100     100
                                                           l
@@ -1255,7 +1255,7 @@ CYCLE NUMBER 4
    ERROR FUNCTION = 0.11822
           RDY          THI     RMD          GLA          CCY     THC     GLC
 OBJ:    INFINITY    INFINITY                              100     100     100
-STO:    120.00000    12.00000               N-BK7_SCH2000  100     100     100
+STO:    120.00000    12.00000               N-BK7_SCHOTT   100     100     100
 002:    -50.018    67.60913                              0       100     100
 IMG:    INFINITY    0.00000                              100     100     100
                                                           l
@@ -1267,7 +1267,7 @@ CYCLE NUMBER 5
    ERROR FUNCTION = 0.11822
           RDY          THI     RMD          GLA          CCY     THC     GLC
 OBJ:    INFINITY    INFINITY                              100     100     100
-STO:    120.00000    12.00000               N-BK7_SCH2000  100     100     100
+STO:    120.00000    12.00000               N-BK7_SCHOTT   100     100     100
 002:    -50.018    67.60913                              0       100     100
 IMG:    INFINITY    0.00000                              100     100     100
                                                           l
@@ -1277,7 +1277,7 @@ SPO   Operand          0.0000000000000000   0.3439175178677082   0.3439175178677
 AUT: done after 5 iterations, status: Required accuracy for solution obtained
           RDY          THI     RMD          GLA          CCY     THC     GLC
 OBJ:    INFINITY    INFINITY                              100     100     100
-STO:    120.00000    12.00000               N-BK7_SCH2000  100     100     100
+STO:    120.00000    12.00000               N-BK7_SCHOTT   100     100     100
 002:    -50.024    67.61498                              0       100     100
 IMG:    INFINITY    0.00000                              100     100     100
 ENTRANCE PUPIL
@@ -1375,11 +1375,11 @@ CYCLE NUMBER 0
    ERROR FUNCTION = 0.00015
           RDY          THI     RMD          GLA          CCY     THC     GLC
 OBJ:    INFINITY    INFINITY                              100     100     100
-001:    15.00000    3.50000               N-SK16_SCH2000 0       0       100
+001:    15.00000    3.50000               N-SK16_SCHOTT  0       0       100
 002:    INFINITY    3.10000                              100     100     100
-STO:    -37.530    2.00000               N-F2_SCH2000   100     0       100
+STO:    -37.530    2.00000               N-F2_SCHOTT    100     0       100
 004:    14.08000    5.00000                              100     100     100
-005:    50.26000    3.50000               N-SK16_SCH2000 100     100     100
+005:    50.26000    3.50000               N-SK16_SCHOTT  100     100     100
 006:    -31.377    37.88931                              0       100     100
 IMG:    INFINITY    0.00000                              100     100     100
                                                           l
@@ -1404,11 +1404,11 @@ CYCLE NUMBER 1
    ERROR FUNCTION = 0.00032
           RDY          THI     RMD          GLA          CCY     THC     GLC
 OBJ:    INFINITY    INFINITY                              100     100     100
-001:    15.13811    4.20000               N-SK16_SCH2000 0       0       100
+001:    15.13811    4.20000               N-SK16_SCHOTT  0       0       100
 002:    INFINITY    3.10000                              100     100     100
-STO:    -37.530    2.00000               N-F2_SCH2000   100     0       100
+STO:    -37.530    2.00000               N-F2_SCHOTT    100     0       100
 004:    14.08000    5.00000                              100     100     100
-005:    50.26000    3.50000               N-SK16_SCH2000 100     100     100
+005:    50.26000    3.50000               N-SK16_SCHOTT  100     100     100
 006:    -31.361    36.98931                              0       100     100
 IMG:    INFINITY    0.00000                              100     100     100
                                                           l
@@ -1433,11 +1433,11 @@ CYCLE NUMBER 2
    ERROR FUNCTION = 0.00030
           RDY          THI     RMD          GLA          CCY     THC     GLC
 OBJ:    INFINITY    INFINITY                              100     100     100
-001:    15.16438    4.20000               N-SK16_SCH2000 0       0       100
+001:    15.16438    4.20000               N-SK16_SCHOTT  0       0       100
 002:    INFINITY    3.10000                              100     100     100
-STO:    -37.530    2.00000               N-F2_SCH2000   100     0       100
+STO:    -37.530    2.00000               N-F2_SCHOTT    100     0       100
 004:    14.08000    5.00000                              100     100     100
-005:    50.26000    3.50000               N-SK16_SCH2000 100     100     100
+005:    50.26000    3.50000               N-SK16_SCHOTT  100     100     100
 006:    -31.218    37.04295                              0       100     100
 IMG:    INFINITY    0.00000                              100     100     100
                                                           l
@@ -1462,11 +1462,11 @@ CYCLE NUMBER 3
    ERROR FUNCTION = 0.00023
           RDY          THI     RMD          GLA          CCY     THC     GLC
 OBJ:    INFINITY    INFINITY                              100     100     100
-001:    15.28071    4.20000               N-SK16_SCH2000 0       0       100
+001:    15.28071    4.20000               N-SK16_SCHOTT  0       0       100
 002:    INFINITY    3.10000                              100     100     100
-STO:    -37.530    2.00000               N-F2_SCH2000   100     0       100
+STO:    -37.530    2.00000               N-F2_SCHOTT    100     0       100
 004:    14.08000    5.00000                              100     100     100
-005:    50.26000    3.50000               N-SK16_SCH2000 100     100     100
+005:    50.26000    3.50000               N-SK16_SCHOTT  100     100     100
 006:    -30.637    37.29985                              0       100     100
 IMG:    INFINITY    0.00000                              100     100     100
                                                           l
@@ -1491,11 +1491,11 @@ CYCLE NUMBER 4
    ERROR FUNCTION = 0.00019
           RDY          THI     RMD          GLA          CCY     THC     GLC
 OBJ:    INFINITY    INFINITY                              100     100     100
-001:    15.48441    4.20000               N-SK16_SCH2000 0       0       100
+001:    15.48441    4.20000               N-SK16_SCHOTT  0       0       100
 002:    INFINITY    3.10000                              100     100     100
-STO:    -37.530    2.00000               N-F2_SCH2000   100     0       100
+STO:    -37.530    2.00000               N-F2_SCHOTT    100     0       100
 004:    14.08000    5.00000                              100     100     100
-005:    50.26000    3.50000               N-SK16_SCH2000 100     100     100
+005:    50.26000    3.50000               N-SK16_SCHOTT  100     100     100
 006:    -29.704    37.73929                              0       100     100
 IMG:    INFINITY    0.00000                              100     100     100
                                                           l
@@ -1520,11 +1520,11 @@ CYCLE NUMBER 5
    ERROR FUNCTION = 0.00019
           RDY          THI     RMD          GLA          CCY     THC     GLC
 OBJ:    INFINITY    INFINITY                              100     100     100
-001:    15.49827    4.20000               N-SK16_SCH2000 0       0       100
+001:    15.49827    4.20000               N-SK16_SCHOTT  0       0       100
 002:    INFINITY    3.10000                              100     100     100
-STO:    -37.530    2.00000               N-F2_SCH2000   100     0       100
+STO:    -37.530    2.00000               N-F2_SCHOTT    100     0       100
 004:    14.08000    5.00000                              100     100     100
-005:    50.26000    3.50000               N-SK16_SCH2000 100     100     100
+005:    50.26000    3.50000               N-SK16_SCHOTT  100     100     100
 006:    -29.655    37.77993                              0       100     100
 IMG:    INFINITY    0.00000                              100     100     100
                                                           l
@@ -1549,11 +1549,11 @@ CYCLE NUMBER 6
    ERROR FUNCTION = 0.00019
           RDY          THI     RMD          GLA          CCY     THC     GLC
 OBJ:    INFINITY    INFINITY                              100     100     100
-001:    15.51733    4.20000               N-SK16_SCH2000 0       0       100
+001:    15.51733    4.20000               N-SK16_SCHOTT  0       0       100
 002:    INFINITY    3.10000                              100     100     100
-STO:    -37.530    2.00000               N-F2_SCH2000   100     0       100
+STO:    -37.530    2.00000               N-F2_SCHOTT    100     0       100
 004:    14.08000    5.00000                              100     100     100
-005:    50.26000    3.50000               N-SK16_SCH2000 100     100     100
+005:    50.26000    3.50000               N-SK16_SCHOTT  100     100     100
 006:    -29.574    37.82097                              0       100     100
 IMG:    INFINITY    0.00000                              100     100     100
                                                           l
@@ -1578,11 +1578,11 @@ CYCLE NUMBER 7
    ERROR FUNCTION = 0.00019
           RDY          THI     RMD          GLA          CCY     THC     GLC
 OBJ:    INFINITY    INFINITY                              100     100     100
-001:    15.51952    4.20000               N-SK16_SCH2000 0       0       100
+001:    15.51952    4.20000               N-SK16_SCHOTT  0       0       100
 002:    INFINITY    3.10000                              100     100     100
-STO:    -37.530    2.00000               N-F2_SCH2000   100     0       100
+STO:    -37.530    2.00000               N-F2_SCHOTT    100     0       100
 004:    14.08000    5.00000                              100     100     100
-005:    50.26000    3.50000               N-SK16_SCH2000 100     100     100
+005:    50.26000    3.50000               N-SK16_SCHOTT  100     100     100
 006:    -29.565    37.82577                              0       100     100
 IMG:    INFINITY    0.00000                              100     100     100
                                                           l
@@ -1607,11 +1607,11 @@ CYCLE NUMBER 8
    ERROR FUNCTION = 0.00019
           RDY          THI     RMD          GLA          CCY     THC     GLC
 OBJ:    INFINITY    INFINITY                              100     100     100
-001:    15.51955    4.20000               N-SK16_SCH2000 0       0       100
+001:    15.51955    4.20000               N-SK16_SCHOTT  0       0       100
 002:    INFINITY    3.10000                              100     100     100
-STO:    -37.530    2.00000               N-F2_SCH2000   100     0       100
+STO:    -37.530    2.00000               N-F2_SCHOTT    100     0       100
 004:    14.08000    5.00000                              100     100     100
-005:    50.26000    3.50000               N-SK16_SCH2000 100     100     100
+005:    50.26000    3.50000               N-SK16_SCHOTT  100     100     100
 006:    -29.565    37.82584                              0       100     100
 IMG:    INFINITY    0.00000                              100     100     100
                                                           l
@@ -1627,11 +1627,11 @@ CYCLE NUMBER 9
    ERROR FUNCTION = 0.00019
           RDY          THI     RMD          GLA          CCY     THC     GLC
 OBJ:    INFINITY    INFINITY                              100     100     100
-001:    15.51955    4.20000               N-SK16_SCH2000 0       0       100
+001:    15.51955    4.20000               N-SK16_SCHOTT  0       0       100
 002:    INFINITY    3.10000                              100     100     100
-STO:    -37.530    2.00000               N-F2_SCH2000   100     0       100
+STO:    -37.530    2.00000               N-F2_SCHOTT    100     0       100
 004:    14.08000    5.00000                              100     100     100
-005:    50.26000    3.50000               N-SK16_SCH2000 100     100     100
+005:    50.26000    3.50000               N-SK16_SCHOTT  100     100     100
 006:    -29.565    37.82584                              0       100     100
 IMG:    INFINITY    0.00000                              100     100     100
                                                           l
@@ -1713,11 +1713,11 @@ CYCLE NUMBER 0
    ERROR FUNCTION = 0.00014
           RDY          THI     RMD          GLA          CCY     THC     GLC
 OBJ:    INFINITY    INFINITY                              100     100     100
-001:    15.00000    3.50000               N-SK16_SCH2000 0       100     100
+001:    15.00000    3.50000               N-SK16_SCHOTT  0       100     100
 002:    INFINITY    3.10000                              100     100     100
-STO:    -37.530    1.50000               N-F2_SCH2000   100     100     100
+STO:    -37.530    1.50000               N-F2_SCHOTT    100     100     100
 004:    14.08000    5.00000                              100     100     100
-005:    50.26000    3.50000               N-SK16_SCH2000 100     100     100
+005:    50.26000    3.50000               N-SK16_SCHOTT  100     100     100
 006:    -31.377    38.51228                              0       100     100
 IMG:    INFINITY    0.00000                              100     100     100
                                                           l
@@ -1730,11 +1730,11 @@ CYCLE NUMBER 1
    ERROR FUNCTION = 0.00174
           RDY          THI     RMD          GLA          CCY     THC     GLC
 OBJ:    INFINITY    INFINITY                              100     100     100
-001:    15.83251    3.50000               N-SK16_SCH2000 0       100     100
+001:    15.83251    3.50000               N-SK16_SCHOTT  0       100     100
 002:    INFINITY    3.10000                              100     100     100
-STO:    -37.530    1.50000               N-F2_SCH2000   100     100     100
+STO:    -37.530    1.50000               N-F2_SCHOTT    100     100     100
 004:    14.08000    5.00000                              100     100     100
-005:    50.26000    3.50000               N-SK16_SCH2000 100     100     100
+005:    50.26000    3.50000               N-SK16_SCHOTT  100     100     100
 006:    -30.725    43.71782                              0       100     100
 IMG:    INFINITY    0.00000                              100     100     100
                                                           l
@@ -1747,11 +1747,11 @@ CYCLE NUMBER 2
    ERROR FUNCTION = 0.00033
           RDY          THI     RMD          GLA          CCY     THC     GLC
 OBJ:    INFINITY    INFINITY                              100     100     100
-001:    15.51806    3.50000               N-SK16_SCH2000 0       100     100
+001:    15.51806    3.50000               N-SK16_SCHOTT  0       100     100
 002:    INFINITY    3.10000                              100     100     100
-STO:    -37.530    1.50000               N-F2_SCH2000   100     100     100
+STO:    -37.530    1.50000               N-F2_SCHOTT    100     100     100
 004:    14.08000    5.00000                              100     100     100
-005:    50.26000    3.50000               N-SK16_SCH2000 100     100     100
+005:    50.26000    3.50000               N-SK16_SCHOTT  100     100     100
 006:    -30.045    40.68693                              0       100     100
 IMG:    INFINITY    0.00000                              100     100     100
                                                           l
@@ -1764,11 +1764,11 @@ CYCLE NUMBER 3
    ERROR FUNCTION = 0.00012
           RDY          THI     RMD          GLA          CCY     THC     GLC
 OBJ:    INFINITY    INFINITY                              100     100     100
-001:    15.38372    3.50000               N-SK16_SCH2000 0       100     100
+001:    15.38372    3.50000               N-SK16_SCHOTT  0       100     100
 002:    INFINITY    3.10000                              100     100     100
-STO:    -37.530    1.50000               N-F2_SCH2000   100     100     100
+STO:    -37.530    1.50000               N-F2_SCHOTT    100     100     100
 004:    14.08000    5.00000                              100     100     100
-005:    50.26000    3.50000               N-SK16_SCH2000 100     100     100
+005:    50.26000    3.50000               N-SK16_SCHOTT  100     100     100
 006:    -29.661    39.36117                              0       100     100
 IMG:    INFINITY    0.00000                              100     100     100
                                                           l
@@ -1781,11 +1781,11 @@ CYCLE NUMBER 4
    ERROR FUNCTION = 0.00009
           RDY          THI     RMD          GLA          CCY     THC     GLC
 OBJ:    INFINITY    INFINITY                              100     100     100
-001:    15.32164    3.50000               N-SK16_SCH2000 0       100     100
+001:    15.32164    3.50000               N-SK16_SCHOTT  0       100     100
 002:    INFINITY    3.10000                              100     100     100
-STO:    -37.530    1.50000               N-F2_SCH2000   100     100     100
+STO:    -37.530    1.50000               N-F2_SCHOTT    100     100     100
 004:    14.08000    5.00000                              100     100     100
-005:    50.26000    3.50000               N-SK16_SCH2000 100     100     100
+005:    50.26000    3.50000               N-SK16_SCHOTT  100     100     100
 006:    -29.480    38.76025                              0       100     100
 IMG:    INFINITY    0.00000                              100     100     100
                                                           l
@@ -1798,11 +1798,11 @@ CYCLE NUMBER 5
    ERROR FUNCTION = 0.00009
           RDY          THI     RMD          GLA          CCY     THC     GLC
 OBJ:    INFINITY    INFINITY                              100     100     100
-001:    15.32164    3.50000               N-SK16_SCH2000 0       100     100
+001:    15.32164    3.50000               N-SK16_SCHOTT  0       100     100
 002:    INFINITY    3.10000                              100     100     100
-STO:    -37.530    1.50000               N-F2_SCH2000   100     100     100
+STO:    -37.530    1.50000               N-F2_SCHOTT    100     100     100
 004:    14.08000    5.00000                              100     100     100
-005:    50.26000    3.50000               N-SK16_SCH2000 100     100     100
+005:    50.26000    3.50000               N-SK16_SCHOTT  100     100     100
 006:    -29.480    38.76025                              0       100     100
 IMG:    INFINITY    0.00000                              100     100     100
                                                           l
@@ -1830,11 +1830,11 @@ CYCLE NUMBER 0
    ERROR FUNCTION = 0.00093
           RDY          THI     RMD          GLA          CCY     THC     GLC
 OBJ:    INFINITY    INFINITY                              100     100     100
-001:    15.00000    3.50000               N-SK16_SCH2000 100     100     100
+001:    15.00000    3.50000               N-SK16_SCHOTT  100     100     100
 002:    INFINITY    3.10000                              100     100     100
-STO:    -37.530    1.50000               N-F2_SCH2000   100     100     100
+STO:    -37.530    1.50000               N-F2_SCHOTT    100     100     100
 004:    14.08000    5.00000                              100     100     100
-005:    50.26000    3.50000               N-SK16_SCH2000 100     100     100
+005:    50.26000    3.50000               N-SK16_SCHOTT  100     100     100
 006:    -31.380    38.51522                              100     100     100
 IMG:    INFINITY    0.00000                              100     100     100
                                                           l
@@ -1846,11 +1846,11 @@ CYCLE NUMBER 1
    ERROR FUNCTION = 0.00014
           RDY          THI     RMD          GLA          CCY     THC     GLC
 OBJ:    INFINITY    INFINITY                              100     100     100
-001:    15.00000    3.50000               N-SK16_SCH2000 100     100     100
+001:    15.00000    3.50000               N-SK16_SCHOTT  100     100     100
 002:    INFINITY    3.10000                              100     100     100
-STO:    -37.530    1.50000               N-F2_SCH2000   100     100     100
+STO:    -37.530    1.50000               N-F2_SCHOTT    100     100     100
 004:    14.08000    5.00000                              100     100     100
-005:    50.26000    3.50000               N-SK16_SCH2000 100     100     100
+005:    50.26000    3.50000               N-SK16_SCHOTT  100     100     100
 006:    -31.380    38.51522                              100     100     100
 IMG:    INFINITY    0.00000                              100     100     100
                                                           l
@@ -1862,11 +1862,11 @@ CYCLE NUMBER 2
    ERROR FUNCTION = 0.00014
           RDY          THI     RMD          GLA          CCY     THC     GLC
 OBJ:    INFINITY    INFINITY                              100     100     100
-001:    15.00000    3.50000               N-SK16_SCH2000 100     100     100
+001:    15.00000    3.50000               N-SK16_SCHOTT  100     100     100
 002:    INFINITY    3.10000                              100     100     100
-STO:    -37.530    1.50000               N-F2_SCH2000   100     100     100
+STO:    -37.530    1.50000               N-F2_SCHOTT    100     100     100
 004:    14.08000    5.00000                              100     100     100
-005:    50.26000    3.50000               N-SK16_SCH2000 100     100     100
+005:    50.26000    3.50000               N-SK16_SCHOTT  100     100     100
 006:    -31.380    38.51522                              100     100     100
 IMG:    INFINITY    0.00000                              100     100     100
                                                           l
@@ -1878,11 +1878,11 @@ CYCLE NUMBER 3
    ERROR FUNCTION = 0.00014
           RDY          THI     RMD          GLA          CCY     THC     GLC
 OBJ:    INFINITY    INFINITY                              100     100     100
-001:    15.00000    3.50000               N-SK16_SCH2000 100     100     100
+001:    15.00000    3.50000               N-SK16_SCHOTT  100     100     100
 002:    INFINITY    3.10000                              100     100     100
-STO:    -37.530    1.50000               N-F2_SCH2000   100     100     100
+STO:    -37.530    1.50000               N-F2_SCHOTT    100     100     100
 004:    14.08000    5.00000                              100     100     100
-005:    50.26000    3.50000               N-SK16_SCH2000 100     100     100
+005:    50.26000    3.50000               N-SK16_SCHOTT  100     100     100
 006:    -31.380    38.51522                              100     100     100
 IMG:    INFINITY    0.00000                              100     100     100
                                                           l
@@ -1933,11 +1933,11 @@ CYCLE NUMBER 0
    ERROR FUNCTION = 0.00122
           RDY          THI     RMD          GLA          CCY     THC     GLC
 OBJ:    INFINITY    INFINITY                              100     100     100
-001:    15.00000    3.50000               N-SK16_SCH2000 100     100     100
+001:    15.00000    3.50000               N-SK16_SCHOTT  100     100     100
 002:    INFINITY    3.10000                              100     100     100
-STO:    -37.530    1.50000               N-F2_SCH2000   100     100     100
+STO:    -37.530    1.50000               N-F2_SCHOTT    100     100     100
 004:    14.08000    5.00000                              100     100     100
-005:    50.26000    3.50000               N-SK16_SCH2000 100     100     100
+005:    50.26000    3.50000               N-SK16_SCHOTT  100     100     100
 006:    -31.380    38.51522                              100     100     100
 IMG:    INFINITY    0.00000                              100     100     100
                                                           l
@@ -1949,11 +1949,11 @@ CYCLE NUMBER 1
    ERROR FUNCTION = 0.00014
           RDY          THI     RMD          GLA          CCY     THC     GLC
 OBJ:    INFINITY    INFINITY                              100     100     100
-001:    15.00000    3.50000               N-SK16_SCH2000 100     100     100
+001:    15.00000    3.50000               N-SK16_SCHOTT  100     100     100
 002:    INFINITY    3.10000                              100     100     100
-STO:    -37.530    1.50000               N-F2_SCH2000   100     100     100
+STO:    -37.530    1.50000               N-F2_SCHOTT    100     100     100
 004:    14.08000    5.00000                              100     100     100
-005:    50.26000    3.50000               N-SK16_SCH2000 100     100     100
+005:    50.26000    3.50000               N-SK16_SCHOTT  100     100     100
 006:    -31.380    38.51522                              100     100     100
 IMG:    INFINITY    0.00000                              100     100     100
                                                           l
@@ -1965,11 +1965,11 @@ CYCLE NUMBER 2
    ERROR FUNCTION = 0.00014
           RDY          THI     RMD          GLA          CCY     THC     GLC
 OBJ:    INFINITY    INFINITY                              100     100     100
-001:    15.00000    3.50000               N-SK16_SCH2000 100     100     100
+001:    15.00000    3.50000               N-SK16_SCHOTT  100     100     100
 002:    INFINITY    3.10000                              100     100     100
-STO:    -37.530    1.50000               N-F2_SCH2000   100     100     100
+STO:    -37.530    1.50000               N-F2_SCHOTT    100     100     100
 004:    14.08000    5.00000                              100     100     100
-005:    50.26000    3.50000               N-SK16_SCH2000 100     100     100
+005:    50.26000    3.50000               N-SK16_SCHOTT  100     100     100
 006:    -31.380    38.51522                              100     100     100
 IMG:    INFINITY    0.00000                              100     100     100
                                                           l
@@ -1981,11 +1981,11 @@ CYCLE NUMBER 3
    ERROR FUNCTION = 0.00014
           RDY          THI     RMD          GLA          CCY     THC     GLC
 OBJ:    INFINITY    INFINITY                              100     100     100
-001:    15.00000    3.50000               N-SK16_SCH2000 100     100     100
+001:    15.00000    3.50000               N-SK16_SCHOTT  100     100     100
 002:    INFINITY    3.10000                              100     100     100
-STO:    -37.530    1.50000               N-F2_SCH2000   100     100     100
+STO:    -37.530    1.50000               N-F2_SCHOTT    100     100     100
 004:    14.08000    5.00000                              100     100     100
-005:    50.26000    3.50000               N-SK16_SCH2000 100     100     100
+005:    50.26000    3.50000               N-SK16_SCHOTT  100     100     100
 006:    -31.380    38.51522                              100     100     100
 IMG:    INFINITY    0.00000                              100     100     100
                                                           l
@@ -2007,11 +2007,11 @@ CYCLE NUMBER 0
    ERROR FUNCTION = 0.00143
           RDY          THI     RMD          GLA          CCY     THC     GLC
 OBJ:    INFINITY    INFINITY                              100     100     100
-001:    15.00000    3.50000               N-SK16_SCH2000 100     100     100
+001:    15.00000    3.50000               N-SK16_SCHOTT  100     100     100
 002:    INFINITY    3.10000                              100     100     100
-STO:    -37.530    1.50000               N-F2_SCH2000   100     100     100
+STO:    -37.530    1.50000               N-F2_SCHOTT    100     100     100
 004:    14.08000    5.00000                              100     100     100
-005:    50.26000    3.50000               N-SK16_SCH2000 100     100     100
+005:    50.26000    3.50000               N-SK16_SCHOTT  100     100     100
 006:    -31.380    38.51522                              100     100     100
 IMG:    INFINITY    0.00000                              100     100     100
                                                           l
@@ -2023,11 +2023,11 @@ CYCLE NUMBER 1
    ERROR FUNCTION = 3.71111
           RDY          THI     RMD          GLA          CCY     THC     GLC
 OBJ:    INFINITY    INFINITY                              100     100     100
-001:    15.00000    3.50000               N-SK16_SCH2000 100     100     100
+001:    15.00000    3.50000               N-SK16_SCHOTT  100     100     100
 002:    INFINITY    3.10000                              100     100     100
-STO:    -37.530    1.50000               N-F2_SCH2000   100     100     100
+STO:    -37.530    1.50000               N-F2_SCHOTT    100     100     100
 004:    14.08000    5.00000                              100     100     100
-005:    50.26000    3.50000               N-SK16_SCH2000 100     100     100
+005:    50.26000    3.50000               N-SK16_SCHOTT  100     100     100
 006:    -31.380    38.51522                              100     100     100
 IMG:    INFINITY    0.00000                              100     100     100
                                                           l
@@ -2039,11 +2039,11 @@ CYCLE NUMBER 2
    ERROR FUNCTION = 3.09474
           RDY          THI     RMD          GLA          CCY     THC     GLC
 OBJ:    INFINITY    INFINITY                              100     100     100
-001:    15.00000    3.50000               N-SK16_SCH2000 100     100     100
+001:    15.00000    3.50000               N-SK16_SCHOTT  100     100     100
 002:    INFINITY    3.10000                              100     100     100
-STO:    -37.530    1.50000               N-F2_SCH2000   100     100     100
+STO:    -37.530    1.50000               N-F2_SCHOTT    100     100     100
 004:    14.08000    5.00000                              100     100     100
-005:    50.26000    3.50000               N-SK16_SCH2000 100     100     100
+005:    50.26000    3.50000               N-SK16_SCHOTT  100     100     100
 006:    -31.380    38.51522                              100     100     100
 IMG:    INFINITY    0.00000                              100     100     100
                                                           l
@@ -2055,11 +2055,11 @@ CYCLE NUMBER 3
    ERROR FUNCTION = 3.00250
           RDY          THI     RMD          GLA          CCY     THC     GLC
 OBJ:    INFINITY    INFINITY                              100     100     100
-001:    15.00000    3.50000               N-SK16_SCH2000 100     100     100
+001:    15.00000    3.50000               N-SK16_SCHOTT  100     100     100
 002:    INFINITY    3.10000                              100     100     100
-STO:    -37.530    1.50000               N-F2_SCH2000   100     100     100
+STO:    -37.530    1.50000               N-F2_SCHOTT    100     100     100
 004:    14.08000    5.00000                              100     100     100
-005:    50.26000    3.50000               N-SK16_SCH2000 100     100     100
+005:    50.26000    3.50000               N-SK16_SCHOTT  100     100     100
 006:    -31.380    38.51522                              100     100     100
 IMG:    INFINITY    0.00000                              100     100     100
                                                           l
@@ -2071,11 +2071,11 @@ CYCLE NUMBER 4
    ERROR FUNCTION = 3.00120
           RDY          THI     RMD          GLA          CCY     THC     GLC
 OBJ:    INFINITY    INFINITY                              100     100     100
-001:    15.00000    3.50000               N-SK16_SCH2000 100     100     100
+001:    15.00000    3.50000               N-SK16_SCHOTT  100     100     100
 002:    INFINITY    3.10000                              100     100     100
-STO:    -37.530    1.50000               N-F2_SCH2000   100     100     100
+STO:    -37.530    1.50000               N-F2_SCHOTT    100     100     100
 004:    14.08000    5.00000                              100     100     100
-005:    50.26000    3.50000               N-SK16_SCH2000 100     100     100
+005:    50.26000    3.50000               N-SK16_SCHOTT  100     100     100
 006:    -31.380    38.51522                              100     100     100
 IMG:    INFINITY    0.00000                              100     100     100
                                                           l
@@ -2087,11 +2087,11 @@ CYCLE NUMBER 5
    ERROR FUNCTION = 3.00120
           RDY          THI     RMD          GLA          CCY     THC     GLC
 OBJ:    INFINITY    INFINITY                              100     100     100
-001:    15.00000    3.50000               N-SK16_SCH2000 100     100     100
+001:    15.00000    3.50000               N-SK16_SCHOTT  100     100     100
 002:    INFINITY    3.10000                              100     100     100
-STO:    -37.530    1.50000               N-F2_SCH2000   100     100     100
+STO:    -37.530    1.50000               N-F2_SCHOTT    100     100     100
 004:    14.08000    5.00000                              100     100     100
-005:    50.26000    3.50000               N-SK16_SCH2000 100     100     100
+005:    50.26000    3.50000               N-SK16_SCHOTT  100     100     100
 006:    -31.380    38.51522                              100     100     100
 IMG:    INFINITY    0.00000                              100     100     100
                                                           l

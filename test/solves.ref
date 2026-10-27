@@ -23,11 +23,11 @@ IMG DIS   13.5098
 OAL       16.6000
           RDY          THI     RMD          GLA          CCY     THC     GLC
 OBJ:    INFINITY    -55.438                              100     100     100
-001:    15.00000    3.50000               N-SK16_SCH2000 100     100     100
+001:    15.00000    3.50000               N-SK16_SCHOTT  100     100     100
 002:    INFINITY    3.10000                              100     100     100
-STO:    -37.530    1.50000               N-F2_SCH2000   100     100     100
+STO:    -37.530    1.50000               N-F2_SCHOTT    100     100     100
 004:    14.08000    5.00000                              100     100     100
-005:    50.26000    3.50000               N-SK16_SCH2000 100     100     100
+005:    50.26000    3.50000               N-SK16_SCHOTT  100     100     100
 006:    -31.380    13.50985                              100     100     100
 IMG:    INFINITY    0.00000                              100     100     100
 Deleting PIM
@@ -125,11 +125,11 @@ All constraints removed
 
           RDY          THI     RMD          GLA          CCY     THC     GLC
 OBJ:    INFINITY    INFINITY                              100     100     100
-001:    15.00000    3.50000               N-SK16_SCH2000 100     100     100
+001:    15.00000    3.50000               N-SK16_SCHOTT  100     100     100
 002:    INFINITY    3.10000                              100     100     100
-STO:    -37.530    1.50000               N-F2_SCH2000   100     100     100
+STO:    -37.530    1.50000               N-F2_SCHOTT    100     100     100
 004:    14.08000    5.00000                              100     100     100
-005:    50.26000    3.50000               N-SK16_SCH2000 100     100     100
+005:    50.26000    3.50000               N-SK16_SCHOTT  100     100     100
 006:    -5.281    8.08516                              100     100     100
 IMG:    INFINITY    0.00000                              100     100     100
 RAYTRACE DATA (XZ AND YZ-PLANE) - (CFG # 1)
@@ -147,11 +147,11 @@ SURF      X              Y              Z             XANG           YANG
   7    0.00000        1.75129        0.00000        0.00000      -0.525883
           RDY          THI     RMD          GLA          CCY     THC     GLC
 OBJ:    INFINITY    INFINITY                              100     100     100
-001:    15.00000    3.50000               N-SK16_SCH2000 100     100     100
+001:    15.00000    3.50000               N-SK16_SCHOTT  100     100     100
 002:    INFINITY    3.10000                              100     100     100
-STO:    -37.530    1.50000               N-F2_SCH2000   100     100     100
+STO:    -37.530    1.50000               N-F2_SCHOTT    100     100     100
 004:    14.08000    5.00000                              100     100     100
-005:    60.00000    3.50000               N-SK16_SCH2000 100     100     100
+005:    60.00000    3.50000               N-SK16_SCHOTT  100     100     100
 006:    -5.231    8.14685                              100     100     100
 IMG:    INFINITY    0.00000                              100     100     100
 RAYTRACE DATA (XZ AND YZ-PLANE) - (CFG # 1)
@@ -301,11 +301,11 @@ LIMIT RAY DATA MAY BE IN ERROR, CLAPS NOT ASSIGNED
 CHANGE OBJECT HT. OR REF. AP. HT. AND RE-RUN
           RDY          THI     RMD          GLA          CCY     THC     GLC
 OBJ:    INFINITY    INFINITY                              100     100     100
-001:    15.00000    3.50000               N-SK16_SCH2000 100     100     100
+001:    15.00000    3.50000               N-SK16_SCHOTT  100     100     100
 002:    INFINITY    3.10000                              100     100     100
-STO:    -37.530    1.50000               N-F2_SCH2000   100     100     100
+STO:    -37.530    1.50000               N-F2_SCHOTT    100     100     100
 004:    14.08000    5.00000                              100     100     100
-005:    60.00000    3.50000               N-SK16_SCH2000 100     100     100
+005:    60.00000    3.50000               N-SK16_SCHOTT  100     100     100
 006:    -5.231    8.14685                              100     100     100
 IMG:    INFINITY    0.00000                              100     100     100
 RAYTRACE DATA (XZ AND YZ-PLANE) - (CFG # 1)

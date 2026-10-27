@@ -5,10 +5,10 @@ All constraints removed
 
           RDY          THI     RMD          GLA          CCY     THC     GLC
 OBJ:    INFINITY    INFINITY                              100     100     100
-001:    50.00000    6.00000               N-SK16_SCH2000 100     100     100
+001:    50.00000    6.00000               N-SK16_SCHOTT  100     100     100
 002:    -150.000    18.00000                              100     100     100
 STO:    INFINITY    18.00000                              100     100     100
-004:    150.00000    6.00000               N-SK16_SCH2000 100     100     100
+004:    150.00000    6.00000               N-SK16_SCHOTT  100     100     100
 005:    -60.000    14.27360                              100     100     100
 IMG:    INFINITY    0.00000                              100     100     100
 ___
@@ -58,12 +58,12 @@ BASIC LENS DATA (RADIUS MODE)
 
 SURF  RADIUS        THICKNESS          MATERIAL          INDEX        V-NUM
   0    0.00000      0.100000E+14         AIR
-  1*   50.0000       6.00000     SCH2000 N-SK16          1.62041       0.00
+  1*   50.0000       6.00000     SCHOTT  N-SK16          1.62041       0.00
   1*Conic,Asphere
   2   -150.000       18.0000             AIR
   3*   0.00000       18.0000             AIR
   3*REFS,STOP
-  4*   150.000       6.00000     SCH2000 N-SK16          1.62041       0.00
+  4*   150.000       6.00000     SCHOTT  N-SK16          1.62041       0.00
   4*Conic,Asphere,Special,Pikup
   5*  -60.0000       14.2736             AIR
   5*Solve
@@ -86,13 +86,13 @@ REFRACTIVE INDEX DATA (WAVELENGTHS #1 TO #5)
 SURF    N1             N2             N3             N4             N5
   0               AIR
   0    1.00000        1.00000        1.00000        1.00000        1.00000
-  1 SCH2000       N-SK16
+  1 SCHOTT        N-SK16
   1    1.62041        1.00000        1.00000        1.00000        1.00000
   2               AIR
   2    1.00000        1.00000        1.00000        1.00000        1.00000
   3               AIR
   3    1.00000        1.00000        1.00000        1.00000        1.00000
-  4 SCH2000       N-SK16
+  4 SCHOTT        N-SK16
   4    1.62041        1.00000        1.00000        1.00000        1.00000
   5               AIR
   5    1.00000        1.00000        1.00000        1.00000        1.00000
@@ -103,13 +103,13 @@ REFRACTIVE INDEX DATA (WAVELENGTHS #6 TO #10)
 SURF    N6             N7             N8             N9             N10
   0               AIR
   0    1.00000        1.00000        1.00000        1.00000        1.00000
-  1 SCH2000       N-SK16
+  1 SCHOTT        N-SK16
   1    1.00000        1.00000        1.00000        1.00000        1.00000
   2               AIR
   2    1.00000        1.00000        1.00000        1.00000        1.00000
   3               AIR
   3    1.00000        1.00000        1.00000        1.00000        1.00000
-  4 SCH2000       N-SK16
+  4 SCHOTT        N-SK16
   4    1.00000        1.00000        1.00000        1.00000        1.00000
   5               AIR
   5    1.00000        1.00000        1.00000        1.00000        1.00000
@@ -183,7 +183,7 @@ SURF     "INR" VALUE (IN CURRENT LENS UNITS)
   3             3.2983955
   4             1.8265143
   5             1.4957618
-  6            0.47720142E-11
+  6            0.47713480E-11
 NO MIRROR THICKNESS DATA
 NO PRICE DATA
 SURFACE COATING NUMBER DATA
@@ -266,12 +266,12 @@ BASIC LENS DATA (RADIUS MODE)
 
 SURF  RADIUS        THICKNESS          MATERIAL          INDEX        V-NUM
   0    0.00000      0.100000E+14         AIR
-  1*   50.0000       6.00000     SCH2000 N-SK16          1.62041       0.00
+  1*   50.0000       6.00000     SCHOTT  N-SK16          1.62041       0.00
   1*Conic,Asphere
   2   -150.000       18.0000             AIR
   3*   0.00000       18.0000             AIR
   3*REFS,STOP
-  4*   150.000       6.00000     SCH2000 N-SK16          1.62041       0.00
+  4*   150.000       6.00000     SCHOTT  N-SK16          1.62041       0.00
   4*Conic,Asphere,Special,Pikup
   5*  -60.0000       14.2736             AIR
   5*Solve
@@ -294,13 +294,13 @@ REFRACTIVE INDEX DATA (WAVELENGTHS #1 TO #5)
 SURF    N1             N2             N3             N4             N5
   0               AIR
   0    1.00000        1.00000        1.00000        1.00000        1.00000
-  1 SCH2000       N-SK16
+  1 SCHOTT        N-SK16
   1    1.62041        1.00000        1.00000        1.00000        1.00000
   2               AIR
   2    1.00000        1.00000        1.00000        1.00000        1.00000
   3               AIR
   3    1.00000        1.00000        1.00000        1.00000        1.00000
-  4 SCH2000       N-SK16
+  4 SCHOTT        N-SK16
   4    1.62041        1.00000        1.00000        1.00000        1.00000
   5               AIR
   5    1.00000        1.00000        1.00000        1.00000        1.00000
@@ -311,13 +311,13 @@ REFRACTIVE INDEX DATA (WAVELENGTHS #6 TO #10)
 SURF    N6             N7             N8             N9             N10
   0               AIR
   0    1.00000        1.00000        1.00000        1.00000        1.00000
-  1 SCH2000       N-SK16
+  1 SCHOTT        N-SK16
   1    1.00000        1.00000        1.00000        1.00000        1.00000
   2               AIR
   2    1.00000        1.00000        1.00000        1.00000        1.00000
   3               AIR
   3    1.00000        1.00000        1.00000        1.00000        1.00000
-  4 SCH2000       N-SK16
+  4 SCHOTT        N-SK16
   4    1.00000        1.00000        1.00000        1.00000        1.00000
   5               AIR
   5    1.00000        1.00000        1.00000        1.00000        1.00000
@@ -391,7 +391,7 @@ SURF     "INR" VALUE (IN CURRENT LENS UNITS)
   3             3.2983955
   4             1.8265143
   5             1.4957618
-  6            0.47720142E-11
+  6            0.47713480E-11
 NO MIRROR THICKNESS DATA
 NO PRICE DATA
 SURFACE COATING NUMBER DATA
@@ -442,7 +442,7 @@ CYCLE NUMBER 0
    ERROR FUNCTION = 25.64891
           RDY          THI     RMD          GLA          CCY     THC     GLC
 OBJ:    INFINITY    INFINITY                              100     100     100
-STO:    INFINITY    6.00000               N-BK7_SCH2000  100     100     100
+STO:    INFINITY    6.00000               N-BK7_SCHOTT   100     100     100
 002:    -10.000    19.34984                              100     100     100
 IMG:    INFINITY    0.00000                              100     100     100
 ___
@@ -457,7 +457,7 @@ CYCLE NUMBER 1
    ERROR FUNCTION = 15.79598
           RDY          THI     RMD          GLA          CCY     THC     GLC
 OBJ:    INFINITY    INFINITY                              100     100     100
-STO:    INFINITY    6.00000               N-BK7_SCH2000  100     100     100
+STO:    INFINITY    6.00000               N-BK7_SCHOTT   100     100     100
 002:    -10.000    19.34984                              100     100     100
 IMG:    INFINITY    0.00000                              100     100     100
 ___
@@ -472,7 +472,7 @@ CYCLE NUMBER 2
    ERROR FUNCTION = 15.79598
           RDY          THI     RMD          GLA          CCY     THC     GLC
 OBJ:    INFINITY    INFINITY                              100     100     100
-STO:    INFINITY    6.00000               N-BK7_SCH2000  100     100     100
+STO:    INFINITY    6.00000               N-BK7_SCHOTT   100     100     100
 002:    -10.000    19.34984                              100     100     100
 IMG:    INFINITY    0.00000                              100     100     100
 ___
@@ -524,7 +524,7 @@ BASIC LENS DATA (RADIUS MODE)
 
 SURF  RADIUS        THICKNESS          MATERIAL          INDEX        V-NUM
   0    0.00000      0.100000E+14         AIR
-  1*   0.00000       6.00000     SCH2000 N-BK7           1.51680       0.00
+  1*   0.00000       6.00000     SCHOTT  N-BK7           1.51680       0.00
   1*REFS,STOP
   2*  -10.0000       19.3498             AIR
   2*Asphere,Solve
@@ -546,7 +546,7 @@ REFRACTIVE INDEX DATA (WAVELENGTHS #1 TO #5)
 SURF    N1             N2             N3             N4             N5
   0               AIR
   0    1.00000        1.00000        1.00000        1.00000        1.00000
-  1 SCH2000       N-BK7
+  1 SCHOTT        N-BK7
   1    1.51680        1.00000        1.00000        1.00000        1.00000
   2               AIR
   2    1.00000        1.00000        1.00000        1.00000        1.00000
@@ -557,7 +557,7 @@ REFRACTIVE INDEX DATA (WAVELENGTHS #6 TO #10)
 SURF    N6             N7             N8             N9             N10
   0               AIR
   0    1.00000        1.00000        1.00000        1.00000        1.00000
-  1 SCH2000       N-BK7
+  1 SCHOTT        N-BK7
   1    1.00000        1.00000        1.00000        1.00000        1.00000
   2               AIR
   2    1.00000        1.00000        1.00000        1.00000        1.00000

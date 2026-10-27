@@ -848,9 +848,21 @@ deliberately not exposed.
 
 ---
 
-## Glass catalog overhaul: open items after phase 1 (2026-10-26)
+## Glass catalog overhaul: open items after phase 2 (2026-10-27)
 
-Phase 1 (AGF catalogs, module glass_catalog) is in.  Still to do:
+Phase 1 (AGF catalogs, module glass_catalog) and phase 2 (vendor SCHOTT,
+OHARA and Nikon HIKARI files; SCH2000/SCH2023 as aliases of SCHOTT and the
+SK16 -> N-SK16 rule in Library/LIBGLA/glass-aliases.txt; CHANCE, CORNIN and
+RADHARD dropped) are in.  Still to do:
+- HOYA.AGF is still the conversion of the old binary; replace it with Hoya's
+  own AGF when we have it.
+- Discontinued glasses were dropped with the old tables (user decision): 415
+  Ohara glasses (old non-S names, S-FPL52, S-LAH55, the i-line glasses), 10
+  RADHARD glasses, Schott N-SF6Q2.  The shipped library lenses LIB001 and
+  LIB009 (Library/LIBLEN) use `OHARA SSK4`, which no longer resolves; Schott
+  SSK4A (618551) is the same glass.
+- Ohara's AGF is UTF-16 and kept byte-for-byte as published, so git shows it
+  as binary.
 - `GLA` runs silently, so a glass used outside its wavelength range (AGF
   LD line) gets index 1.0 with no message in the terminal.
 - Hard-coded catalog-name chains remain in CONFIG3/CONFIG4, LDM14, LDM17
@@ -858,9 +870,10 @@ Phase 1 (AGF catalogs, module glass_catalog) is in.  Still to do:
   and NAMES; a user catalog works for GLA/GLASSP/FINDGLAS/index resolution
   but not on those paths yet (phase 4).
 - GLSCAT stores the catalog word as `WC(1:8)`: catalog names longer than 8
-  characters are cut in GLANAM.
-- Formulas 4-13 (Sellmeier 2-5, Conrady, Handbook, Extended*) are coded
-  from their standard definitions but not yet checked against vendor data;
-  1-3 are checked (legacy catalogs, SPECIAL SILICON/DIAMOND).
+  characters are cut in GLANAM (the legacy WC word is 8 characters, which
+  is why the Nikon file ships as HIKARI.AGF, not NIKON-HIKARI.AGF).
+- Formulas 4, 5 and 7-11 are coded from their standard definitions but no
+  shipped file uses them; 1-3, 6, 12 and 13 are checked (every vendor
+  glass's nd/vd within the file's rounding; SPECIAL SILICON/DIAMOND).
 - LAMHILO still supplies the ranges of SPECIAL/MODEL materials.
 

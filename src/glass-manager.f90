@@ -195,8 +195,10 @@ contains
    end do
  end function
 
- ! Is strName a catalog name (case-insensitive)?  gdb_loc = its number.
+ ! Is strName a catalog name or catalog alias (case-insensitive)?  gdb_loc =
+ ! its number; gdb%catalogs(gdb_loc) is then the catalog's own name.
  function isNameInCatalog(self, strName, gdb_loc) result(boolResult)
+  use glass_catalog, only: gc_find_catalog
   class(glassdb) :: self
   character(len=*) :: strName
   integer, intent(inout), optional :: gdb_loc
@@ -214,6 +216,11 @@ contains
       return
     end if
   end do
+  i = gc_find_catalog(u)       ! an alias (catalog numbers are the store's)
+  if (i > 0) then
+    boolResult = .TRUE.
+    if (present(gdb_loc)) gdb_loc = i
+  end if
  end function
 
  ! Catalog of the first catalog holding glassName ('' if none).

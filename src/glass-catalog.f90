@@ -11,13 +11,25 @@
 ! first catalog-order.txt found in those folders -- one catalog name per
 ! line, '!' comments -- then any other catalogs alphabetically.
 !
+! glass-aliases.txt in any of those folders (all are read; the first
+! definition of an alias wins, so a search-path file overrides the shipped
+! one) gives other names for catalogs and glasses, '!' comments:
+!   CAT <alias> <catalog>          e.g. CAT SCH2000 SCHOTT
+!   GLA <alias> <catalog> <glass>  a glass name given without a catalog,
+!                                  e.g. GLA SK16 SCHOTT N-SK16
+! A catalog alias works wherever a catalog name does; glass aliases are
+! applied by the CODE V GLA command (gc_glass_alias).
+!
 ! The whole set is read on first use and again whenever those folders
 ! change.  Lookups are case-insensitive.
 !
 ! AGF records used: CC (catalog comment), NM (name, formula, glass code,
 ! nd, vd, exclude, status), GC (comment), ED, CD (coefficients), TD, OD, LD
 ! (wavelength range, um), IT (internal transmittance: wavelength, tau,
-! thickness mm).  Text files may be ASCII/UTF-8 or UTF-16 (with BOM).
+! thickness mm).  A line that starts with a number continues the record
+! before it (some vendors wrap long CD/TD lines).  A glass code that is
+! not a 6-digit code (some vendors write 1) is made from nd and vd.  Text
+! files may be ASCII/UTF-8 or UTF-16 (with BOM).
 module glass_catalog
   use iso_fortran_env, only: real64, int8
   use iso_c_binding, only: c_ptr, c_char, c_int, c_null_char, c_null_ptr, &
@@ -28,9 +40,11 @@ module glass_catalog
   public :: glass_record, gc_ensure_loaded, gc_reload, gc_num_catalogs, &
             gc_catalog_name, gc_catalog_comment, gc_catalog_path, gc_catalog_size, &
             gc_find_catalog, gc_find_glass, gc_find_glass_any, gc_glass, gc_index, &
-            agf_index, agf_formula_name, gc_generation
+            agf_index, agf_formula_name, agf_formula_ncoef, gc_generation, &
+            gc_glass_alias
 
   integer, parameter :: MAXCD = 10
+  integer, parameter :: MAXALIAS = 2000
 
   type :: glass_record
     character(len=32) :: name = ''
@@ -62,6 +76,13 @@ module glass_catalog
   logical, save :: loaded = .false.
   integer, save :: generation = 0          ! bumped on every (re)load
   character(len=:), allocatable, save :: loadedKey
+
+  ! glass-aliases.txt: catalog aliases (from -> to) and glass aliases
+  ! (name -> catalog, glass), upper case except the target glass
+  integer, save :: ncatAlias = 0, nglaAlias = 0
+  character(len=32), save :: catAliasFrom(MAXALIAS), catAliasTo(MAXALIAS)
+  character(len=32), save :: glaAliasName(MAXALIAS), glaAliasCat(MAXALIAS), &
+                             glaAliasGlass(MAXALIAS)
 
   interface
     function g_dir_open(path, flags, error) bind(c, name='g_dir_open')
@@ -141,8 +162,11 @@ contains
     call glass_dirs(dirs, nd)
     nfound = 0
     nord = 0
+    ncatAlias = 0
+    nglaAlias = 0
     do i = 1, nd
       if (nord == 0) call read_order(trim(dirs(i))//'catalog-order.txt', order, nord)
+      call read_aliases(trim(dirs(i))//'glass-aliases.txt')
       call list_agf(trim(dirs(i)), files, nf)
       do j = 1, nf
         nm = upper(stem(files(j)))
@@ -243,18 +267,51 @@ contains
     end do
   end subroutine
 
+  ! Add the aliases of one glass-aliases.txt; an alias already defined (by
+  ! an earlier folder, or earlier in the file) is kept.
+  subroutine read_aliases(path)
+    character(len=*), intent(in) :: path
+    character(len=:), allocatable :: text
+    character(len=1024) :: line
+    character(len=64) :: tok(5)
+    integer :: pos, nt
+    logical :: ok
+    call read_text(path, text, ok)
+    if (.not. ok) return
+    pos = 1
+    do while (next_line(text, pos, line))
+      line = adjustl(line)
+      if (len_trim(line) == 0 .or. line(1:1) == '!') cycle
+      call tokens(line, tok, nt)
+      select case (upper(tok(1)))
+      case ('CAT')
+        if (nt < 3 .or. ncatAlias >= MAXALIAS) cycle
+        if (any(catAliasFrom(1:ncatAlias) == upper(tok(2)))) cycle
+        ncatAlias = ncatAlias + 1
+        catAliasFrom(ncatAlias) = upper(tok(2))
+        catAliasTo(ncatAlias) = upper(tok(3))
+      case ('GLA')
+        if (nt < 4 .or. nglaAlias >= MAXALIAS) cycle
+        if (any(glaAliasName(1:nglaAlias) == upper(tok(2)))) cycle
+        nglaAlias = nglaAlias + 1
+        glaAliasName(nglaAlias) = upper(tok(2))
+        glaAliasCat(nglaAlias) = upper(tok(3))
+        glaAliasGlass(nglaAlias) = tok(4)
+      end select
+    end do
+  end subroutine
+
   ! ---------------------------------------------------------------- AGF
 
   subroutine read_agf(path, name, cat)
     character(len=*), intent(in) :: path, name
     type(catalog), intent(out) :: cat
     character(len=:), allocatable :: text
-    character(len=1024) :: line, rest
-    character(len=8) :: key
+    character(len=1024) :: line, pend
     type(glass_record), allocatable :: tmp(:)
     real(real64) :: v(12)
     integer :: pos, nv, cur
-    logical :: ok
+    logical :: ok, more
 
     cat%name = name
     cat%path = path
@@ -263,10 +320,30 @@ contains
     cur = 0
     call read_text(path, text, ok)
     if (.not. ok) return
+    ! a record is its line plus any continuation lines after it
+    pend = ''
     pos = 1
-    do while (next_line(text, pos, line))
-      line = adjustl(line)
-      if (len_trim(line) < 2) cycle
+    do
+      more = next_line(text, pos, line)
+      if (more) then
+        line = adjustl(line)
+        if (len_trim(line) == 0) cycle
+        if (len_trim(pend) > 0 .and. index('0123456789+-.', line(1:1)) > 0) then
+          pend = trim(pend)//' '//trim(line)
+          cycle
+        end if
+      end if
+      if (len_trim(pend) >= 2) call record(pend)
+      if (.not. more) exit
+      pend = line
+    end do
+
+  contains
+
+    subroutine record(line)
+      character(len=*), intent(in) :: line
+      character(len=1024) :: rest
+      character(len=8) :: key
       call split_key(line, key, rest)
       select case (key)
       case ('CC')
@@ -316,7 +393,7 @@ contains
           if (nv >= 2) call add_it(cat%g(cur), v(1), v(2), merge(v(3), 0.0_real64, nv >= 3))
         end if
       end select
-    end do
+    end subroutine
   end subroutine
 
   subroutine parse_nm(rest, g)
@@ -338,7 +415,22 @@ contains
       read(tok(7), *, iostat=ios) x
       if (ios == 0) g%status = nint(x)
     end if
+    ! no real glass code (e.g. 1): the usual nnnvvv code from nd and vd
+    if (len_trim(code_digits(g%code)) < 6 .and. g%nd > 1.0_real64 .and. &
+        g%nd < 2.0_real64 .and. g%vd > 0.0_real64 .and. g%vd < 99.95_real64) &
+      write(g%code, '(I3.3,I3.3)') nint((g%nd - 1.0_real64)*1000.0_real64), &
+                                   nint(g%vd*10.0_real64)
   end subroutine
+
+  ! The part of a glass code before any decimal point (520636.252 -> 520636).
+  function code_digits(code) result(s)
+    character(len=*), intent(in) :: code
+    character(len=len(code)) :: s
+    integer :: p
+    s = adjustl(code)
+    p = index(s, '.')
+    if (p > 0) s = s(1:p-1)
+  end function
 
   subroutine add_it(g, lam, tau, thk)
     type(glass_record), intent(inout) :: g
@@ -395,19 +487,45 @@ contains
     if (ic >= 1 .and. ic <= ncat) gc_catalog_size = cats(ic)%n
   end function
 
-  ! Catalog number of a name, 0 if none.
+  ! Catalog number of a name or catalog alias, 0 if none.
   integer function gc_find_catalog(name) result(ic)
     character(len=*), intent(in) :: name
     character(len=32) :: u
+    integer :: a
     call gc_ensure_loaded()
     u = upper(adjustl(name))
     do ic = 1, ncat
       if (cats(ic)%name == u) return
     end do
+    do a = 1, ncatAlias
+      if (catAliasFrom(a) /= u) cycle
+      do ic = 1, ncat
+        if (cats(ic)%name == catAliasTo(a)) return
+      end do
+    end do
     ic = 0
   end function
 
-  ! Glass of a name (or, with byCode, also of a glass code) in catalog ic.
+  ! The catalog glass a glass alias (glass-aliases.txt GLA line) names.
+  logical function gc_glass_alias(name, ic, ig) result(found)
+    character(len=*), intent(in) :: name
+    integer, intent(out) :: ic, ig
+    character(len=32) :: u
+    integer :: a
+    found = .false.; ic = 0; ig = 0
+    call gc_ensure_loaded()
+    u = upper(adjustl(name))
+    do a = 1, nglaAlias
+      if (glaAliasName(a) /= u) cycle
+      ic = gc_find_catalog(glaAliasCat(a))
+      if (ic > 0) found = gc_find_glass(ic, glaAliasGlass(a), ig)
+      if (.not. found) ic = 0
+      return
+    end do
+  end function
+
+  ! Glass of a name (or, with byCode, also of a glass code -- in full or
+  ! its 6 digits, 520636 finding 520636.252) in catalog ic.
   logical function gc_find_glass(ic, name, ig, byCode) result(found)
     integer, intent(in) :: ic
     character(len=*), intent(in) :: name
@@ -426,7 +544,8 @@ contains
         found = .true.; return
       end if
       if (codes) then
-        if (cats(ic)%g(ig)%code == adjustl(name)) then
+        if (cats(ic)%g(ig)%code == adjustl(name) .or. &
+            code_digits(cats(ic)%g(ig)%code) == adjustl(name)) then
           found = .true.; return
         end if
       end if
@@ -539,6 +658,21 @@ contains
     case (12); s = 'Extended 2'
     case (13); s = 'Extended 3'
     case default; s = 'unknown'
+    end select
+  end function
+
+  ! Number of CD coefficients a formula uses (files may write more).
+  integer function agf_formula_ncoef(formula) result(n)
+    integer, intent(in) :: formula
+    select case (formula)
+    case (1, 2, 3); n = 6
+    case (4, 9);    n = 5
+    case (5);       n = 3
+    case (6, 10, 12); n = 8
+    case (7, 8);    n = 4
+    case (11);      n = 10
+    case (13);      n = 9
+    case default;   n = MAXCD
     end select
   end function
 

@@ -564,7 +564,7 @@ END SUBROUTINE
 ! formula and its coefficients.
 SUBROUTINE SHOWAGFGLASS(IC, IG)
    use DATMAI
-   use glass_catalog, only: gc_glass, glass_record, agf_formula_name
+   use glass_catalog, only: gc_glass, glass_record, agf_formula_name, agf_formula_ncoef
    IMPLICIT NONE
    INTEGER, INTENT(IN) :: IC, IG
    type(glass_record) :: g
@@ -590,7 +590,7 @@ SUBROUTINE SHOWAGFGLASS(IC, IG)
    OUTLYNE=trim(agf_formula_name(g%formula))//' DISPERSION FORMULA (AGF FORMULA '// &
    &  CHAR(48+g%formula/10)//CHAR(48+MOD(g%formula,10))//')'
    CALL SHOWIT(0)
-   DO K=1,g%ncd
+   DO K=1,MIN(g%ncd,agf_formula_ncoef(g%formula))
       SELECT CASE (g%formula)
       CASE (1)
          WRITE(LBL,'(10X,A1,I1)') 'A', K-1

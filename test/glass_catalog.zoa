@@ -2,21 +2,28 @@ RES osdtriplet
 ! Glass catalogs are AGF files (Library/LIBGLA, plus LIBGLA/ in each
 ! search-path folder -- this test's TESTCAT.AGF lives in test/data/LIBGLA)
 GLASSP
-GLASSP RADHARD
 GLASSP TESTCAT
-! glass data by name, by glass code, and searched in every catalog
+! glass data by name through a catalog alias (glass-aliases.txt: SCH2000 is
+! now SCHOTT), and searched in every catalog
 GLASSP SCH2000 N-BK7
-GLASSP OHARA 497811
 GLASSP GLAK ZSILICON
-! catalog glasses on a lens: user catalog, a name without a catalog (the
-! catalogs after catalog-order.txt follow alphabetically), lower case, and
-! an old Ohara name that used to contain a space
+! by glass code in a vendor file that writes no codes (made from nd/vd), for
+! a glass whose Extended 3 coefficients wrap onto continuation lines
+GLASSP HIKARI 487703
+! catalog glasses on a lens: catalog alias, user catalog, a name without a
+! catalog (the catalogs after catalog-order.txt follow alphabetically), lower
+! case, and an old Ohara name that used to contain a space
 GLA S1 N-BK7_SCH2000
 GLA S3 ZBK7_TESTCAT
 GLA S5 zbk7
 RTG ALL
 GLA S3 S-FSL5_OHARA
-GLA S5 i-fpl51y
+GLA S5 j-fk5
+RTG ALL
+! glass alias: a plain old Schott name means its N- glass; with the catalog
+! named it is the old glass itself
+GLA S3 SK16
+GLA S5 SK16_SCHOTT
 RTG ALL
 ! out of the glass's wavelength range -> warning, indices 1.0
 GLA S3 ZNARROW_TESTCAT
