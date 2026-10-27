@@ -1,0 +1,12 @@
+! Zoa glass catalog search order: a glass given without a catalog is looked
+! up in these catalogs first, in this order; other catalogs follow
+! alphabetically.  One catalog name per line.
+SCHOTT
+SCH2000
+OHARA
+HOYA
+CHANCE
+CORNIN
+HIKARI
+RADHARD
+SCH2023

@@ -1,0 +1,169 @@
+All constraints removed
+
+
+
+
+
+
+THE CURRENT PROGRAM GLASS CATALOG NAMES ARE:
+SCHOTT        Schott Optical Glass Catalog
+SCH2000       SCHOTT POST-2000 Optical Glass Catalog
+OHARA         OHara Optical Glass Catalog
+HOYA          Hoya Optical Glass Catalog
+CHANCE        Chance-Pilkington Optical Glass Catalog
+CORNIN        Corning-France Optical Glass Catalog
+HIKARI        Hikara Optical Glass Catalog
+RADHARD       Radiation Resistant Optical Materials
+SCH2023       Schott 2023 Preferred Glass Catalog
+TESTCAT       Zoa test catalog (user catalog found through the search path)
+SPECIAL       Special Material Catalog
+          "GLCAT     (Searches all catalogs)
+          "GLASS     (Searches all catalogs)
+                      [specified without giving catalog name]
+                        [but just by glass name or number]
+          "MATL"     (Special IR, UV, Visual Materials and Plastics)
+RADHARD       BK7G18        520637
+RADHARD       BK7G25        521632
+RADHARD       K5G20         523568
+RADHARD       BAK1G12       572576
+RADHARD       SK4G13        612582
+RADHARD       SK5G06        590611
+RADHARD       SK10G10       622572
+RADHARD       SSK5G06       658510
+RADHARD       LAK9G15       691547
+RADHARD       LF5G15        584408
+RADHARD       F2G12         621366
+RADHARD       SF5G10        673323
+RADHARD       SF6G05        809253
+RADHARD       SF8G07        695307
+RADHARD       KZFS4G20      615447
+RADHARD       GG375G34      525564
+TESTCAT       ZBK7          517642
+TESTCAT       ZSILICON      0
+TESTCAT       ZDIAMOND      0
+TESTCAT       ZNARROW       517642
+WAVELENGTH RANGE:
+LOWER WAVELENGTH =  0.31260000     MICRONS
+UPPER WAVELENGTH =   2.3254000     MICRONS
+GLASS NAME   = N-BK7
+GLASS NUMBER = 517642.251
+Sellmeier 1 DISPERSION FORMULA (AGF FORMULA 02)
+          B1 =    1.03961212000000
+          C1 =   0.600069867000000E-02
+          B2 =   0.231792344000000
+          C2 =   0.200179144000000E-01
+          B3 =    1.01046945000000
+          C3 =    103.560653000000
+WAVELENGTH RANGE:
+LOWER WAVELENGTH =   0.0000000     MICRONS
+UPPER WAVELENGTH =  0.10000000E+11 MICRONS
+GLASS NAME   = i-FPL51Y
+GLASS NUMBER = 497811
+Schott DISPERSION FORMULA (AGF FORMULA 01)
+          A0 =    2.21755330000000
+          A1 =  -0.535343730000000E-02
+          A2 =   0.851490620000000E-02
+          A3 =   0.643734150000000E-04
+          A4 =   0.539463320000000E-05
+          A5 =  -0.325577910000000E-06
+WAVELENGTH RANGE:
+LOWER WAVELENGTH =   1.3570000     MICRONS
+UPPER WAVELENGTH =   11.040000     MICRONS
+GLASS NAME   = ZSILICON
+GLASS NUMBER = 0
+Herzberger DISPERSION FORMULA (AGF FORMULA 03)
+       CD01  =    3.41696000000000
+       CD02  =   0.138497000000000
+       CD03  =   0.139240000000000E-01
+       CD04  =  -0.209000000000000E-04
+       CD05  =   0.148000000000000E-06
+       CD06  =    0.00000000000000
+BASIC LENS DATA (RADIUS MODE)
+
+SURF  RADIUS        THICKNESS          MATERIAL          INDEX        V-NUM
+  0    0.00000      0.100000E+14         AIR
+  1    15.0000       3.50000     SCH2000 N-BK7           1.51680       64.2
+  2    0.00000       3.10000             AIR
+  3*  -37.5300       1.50000     TESTCAT ZBK7            1.51680       64.2
+  3*REFS,STOP
+  4    14.0800       5.00000             AIR
+  5    50.2600       3.50000     TESTCAT ZBK7            1.51680       64.2
+  6*  -31.3800       50.6817             AIR
+  6*Solve
+  7    0.00000       0.00000             LAST SURFACE
+BASIC LENS DATA (RADIUS MODE)
+
+SURF  RADIUS        THICKNESS          MATERIAL          INDEX        V-NUM
+  0    0.00000      0.100000E+14         AIR
+  1    15.0000       3.50000     SCH2000 N-BK7           1.51680       64.2
+  2    0.00000       3.10000             AIR
+  3*  -37.5300       1.50000     OHARA   S-FSL5          1.48749       70.2
+  3*REFS,STOP
+  4    14.0800       5.00000             AIR
+  5    50.2600       3.50000     OHARA   I-FPL51Y        1.49700       81.1
+  6*  -31.3800       46.4684             AIR
+  6*Solve
+  7    0.00000       0.00000             LAST SURFACE
+BASIC LENS DATA (RADIUS MODE)
+
+SURF  RADIUS        THICKNESS          MATERIAL          INDEX        V-NUM
+  0    0.00000      0.100000E+14         AIR
+  1    15.0000       3.50000     SCH2000 N-BK7           1.51680       64.2
+  2    0.00000       3.10000             AIR
+  3*  -37.5300       1.50000     TESTCAT ZNARROW         1.00000       0.00
+  3*REFS,STOP
+  4    14.0800       5.00000             AIR
+  5    50.2600       3.50000     OHARA   I-FPL51Y        1.49700       81.1
+  6*  -31.3800       10.2954             AIR
+  6*Solve
+  7    0.00000       0.00000             LAST SURFACE
+BASIC LENS DATA (RADIUS MODE)
+
+SURF  RADIUS        THICKNESS          MATERIAL          INDEX        V-NUM
+  0    0.00000      0.100000E+14         AIR
+  1    15.0000       3.50000     SPECIAL SILICON         3.45263       350.
+  2    0.00000       3.10000             AIR
+  3*  -37.5300       1.50000     TESTCAT ZSILICON        3.45263       350.
+  3*REFS,STOP
+  4    14.0800       5.00000             AIR
+  5    50.2600       3.50000     OHARA   I-FPL51Y        1.48266       37.4
+  6*  -31.3800      -4.99414             AIR
+  6*Solve
+  7    0.00000       0.00000             LAST SURFACE
+BASIC LENS DATA (RADIUS MODE)
+
+SURF  RADIUS        THICKNESS          MATERIAL          INDEX        V-NUM
+  0    0.00000      0.100000E+14         AIR
+  1    15.0000       3.50000     SPECIAL DIAMOND         2.38126      0.187E+04
+  2    0.00000       3.10000             AIR
+  3*  -37.5300       1.50000     TESTCAT ZDIAMOND        2.38126      0.187E+04
+  3*REFS,STOP
+  4    14.0800       5.00000             AIR
+  5    50.2600       3.50000     OHARA   I-FPL51Y        1.48266       37.4
+  6*  -31.3800       13.6409             AIR
+  6*Solve
+  7    0.00000       0.00000             LAST SURFACE
+All constraints removed
+
+
+
+
+
+
+THE CLOSEST   4 CATALOG GLASSES
+FOUND IN THE LAST "FINDGLAS" SEARCH
+FOR SURFACE #  3 ARE:
+  #  CAT. NAME     GLASS NAME         DISTANCE
+   1 SCH2000       N-BK7           0.147679245074310E-03
+   2 SCH2000       K7              0.125352830262441E-01
+   3 SCH2000       N-K5            0.131199310083261E-01
+   4 SCH2000       N-KF9           0.163772589226481E-01
+THE CLOSEST   3 CATALOG GLASSES
+FOUND IN THE LAST "FINDGLAS" SEARCH
+FOR SURFACE #  3 ARE:
+  #  CAT. NAME     GLASS NAME         DISTANCE
+   1 HIKARI        E-BK7           0.130143849591081E-03
+   2 CORNIN        BSCB1664        0.146377889435061E-03
+   3 TESTCAT       ZBK7            0.147679245074310E-03
+INVALID CATALOG NAME ISSUED WITH "FINDGLAS"
+RE-ENTER COMMAND

@@ -1785,172 +1785,14 @@ SUBROUTINE GLSRIN
       IF(FLTP.EQ.'            '.AND.FLNAME.NE.'USER.DAT  ') THEN
 !     REGULAR GLASS CATALOG
 !
-         EXIS36=.FALSE.
-         call logger%logText('Looking for '//trim(LIBGLA)//FLNAME)
-         INQUIRE(FILE=trim(LIBGLA)//FLNAME,EXIST=EXIS36)
-         IF(EXIS36) THEN
-!               PROCEED
-            PRINT *, "About to open ", trim(LIBGLA)//FLNAME
-            call OPENGLASSFILE(trim(LIBGLA)//FLNAME, uG, TOTAL)
-            DO 300 J=2,TOTAL+1
-               READ(UNIT=uG,REC=J)NAME,NUMBER,A0,A1,A2,A3,A4,A5
-               IF(WS.EQ.NAME.OR.WS.EQ.NUMBER) THEN
-!       CALCULATE INDEX THEN RETURN
-                  IF(LAM(1).EQ.0.0D0) THEN
-                     GPREG(1)=1.0D0
-                  ELSE
-!
-                     IF(FLNAME.EQ.'HOYA.BIN')GPREG(1)=PN(LAM(1),A0,A1,A2,A3,A4,A5)
-                     IF(FLNAME.EQ.'HIKARI.BIN')GPREG(1)=PN(LAM(1),A0,A1,A2,A3,A4,A5)
-                     IF(FLNAME.EQ.'CORNIN.BIN')GPREG(1)=PN(LAM(1),A0,A1,A2,A3,A4,A5)
-                     IF(FLNAME.EQ.'CHANCE.BIN')GPREG(1)=PN(LAM(1),A0,A1,A2,A3,A4,A5)
-                     IF(FLNAME.EQ.'RADHARD.BIN')GPREG(1)=PN(LAM(1),A0,A1,A2,A3,A4,A5)
-                     IF(FLNAME.EQ.'OHARA-O.BIN')GPREG(1)=PN(LAM(1),A0,A1,A2,A3,A4,A5)
-!
-                     IF(FLNAME.EQ.'SCHOTT.BIN')GPREG(1)=PNSC(LAM(1),A0,A1,A2,A3,A4,A5)
-                     IF(FLNAME.EQ.'SCH2000.BIN')GPREG(1)=PNSC(LAM(1),A0,A1,A2,A3,A4,A5)
-                     IF(FLNAME.EQ.'OHARA.BIN')GPREG(1)=PNSC(LAM(1),A0,A1,A2,A3,A4,A5)
-                  END IF
-                  IF(LAM(2).EQ.0.0D0) THEN
-                     GPREG(2)=1.0D0
-                  ELSE
-!
-                     IF(FLNAME.EQ.'HOYA.BIN')GPREG(2)=PN(LAM(2),A0,A1,A2,A3,A4,A5)
-                     IF(FLNAME.EQ.'HIKARI.BIN')GPREG(2)=PN(LAM(2),A0,A1,A2,A3,A4,A5)
-                     IF(FLNAME.EQ.'CORNIN.BIN')GPREG(2)=PN(LAM(2),A0,A1,A2,A3,A4,A5)
-                     IF(FLNAME.EQ.'CHANCE.BIN')GPREG(2)=PN(LAM(2),A0,A1,A2,A3,A4,A5)
-                     IF(FLNAME.EQ.'RADHARD.BIN')GPREG(2)=PN(LAM(2),A0,A1,A2,A3,A4,A5)
-                     IF(FLNAME.EQ.'OHARA-O.BIN')GPREG(2)=PN(LAM(2),A0,A1,A2,A3,A4,A5)
-!
-                     IF(FLNAME.EQ.'SCHOTT.BIN')GPREG(2)=PNSC(LAM(2),A0,A1,A2,A3,A4,A5)
-                     IF(FLNAME.EQ.'SCH2000.BIN')GPREG(2)=PNSC(LAM(2),A0,A1,A2,A3,A4,A5)
-                     IF(FLNAME.EQ.'OHARA.BIN')GPREG(2)=PNSC(LAM(2),A0,A1,A2,A3,A4,A5)
-                  END IF
-                  IF(LAM(3).EQ.0.0D0) THEN
-                     GPREG(3)=1.0D0
-                  ELSE
-!
-                     IF(FLNAME.EQ.'HOYA.BIN')GPREG(3)=PN(LAM(3),A0,A1,A2,A3,A4,A5)
-                     IF(FLNAME.EQ.'HIKARI.BIN')GPREG(3)=PN(LAM(3),A0,A1,A2,A3,A4,A5)
-                     IF(FLNAME.EQ.'CORNIN.BIN')GPREG(3)=PN(LAM(3),A0,A1,A2,A3,A4,A5)
-                     IF(FLNAME.EQ.'CHANCE.BIN')GPREG(3)=PN(LAM(3),A0,A1,A2,A3,A4,A5)
-                     IF(FLNAME.EQ.'RADHARD.BIN')GPREG(3)=PN(LAM(3),A0,A1,A2,A3,A4,A5)
-                     IF(FLNAME.EQ.'OHARA-O.BIN')GPREG(3)=PN(LAM(3),A0,A1,A2,A3,A4,A5)
-!
-                     IF(FLNAME.EQ.'SCHOTT.BIN')GPREG(3)=PNSC(LAM(3),A0,A1,A2,A3,A4,A5)
-                     IF(FLNAME.EQ.'SCH2000.BIN')GPREG(3)=PNSC(LAM(3),A0,A1,A2,A3,A4,A5)
-                     IF(FLNAME.EQ.'OHARA.BIN')GPREG(3)=PNSC(LAM(3),A0,A1,A2,A3,A4,A5)
-                  END IF
-                  IF(LAM(4).EQ.0.0D0) THEN
-                     GPREG(4)=1.0D0
-                  ELSE
-!
-                     IF(FLNAME.EQ.'HOYA.BIN')GPREG(4)=PN(LAM(4),A0,A1,A2,A3,A4,A5)
-                     IF(FLNAME.EQ.'HIKARI.BIN')GPREG(4)=PN(LAM(4),A0,A1,A2,A3,A4,A5)
-                     IF(FLNAME.EQ.'CORNIN.BIN')GPREG(4)=PN(LAM(4),A0,A1,A2,A3,A4,A5)
-                     IF(FLNAME.EQ.'CHANCE.BIN')GPREG(4)=PN(LAM(4),A0,A1,A2,A3,A4,A5)
-                     IF(FLNAME.EQ.'RADHARD.BIN')GPREG(4)=PN(LAM(4),A0,A1,A2,A3,A4,A5)
-                     IF(FLNAME.EQ.'OHARA-O.BIN')GPREG(4)=PN(LAM(4),A0,A1,A2,A3,A4,A5)
-!
-                     IF(FLNAME.EQ.'SCHOTT.BIN')GPREG(4)=PNSC(LAM(4),A0,A1,A2,A3,A4,A5)
-                     IF(FLNAME.EQ.'SCH2000.BIN')GPREG(4)=PNSC(LAM(4),A0,A1,A2,A3,A4,A5)
-                     IF(FLNAME.EQ.'OHARA.BIN')GPREG(4)=PNSC(LAM(4),A0,A1,A2,A3,A4,A5)
-                  END IF
-                  IF(LAM(5).EQ.0.0D0) THEN
-                     GPREG(5)=1.0D0
-                  ELSE
-!
-                     IF(FLNAME.EQ.'HOYA.BIN')GPREG(5)=PN(LAM(5),A0,A1,A2,A3,A4,A5)
-                     IF(FLNAME.EQ.'HIKARI.BIN')GPREG(5)=PN(LAM(5),A0,A1,A2,A3,A4,A5)
-                     IF(FLNAME.EQ.'CORNIN.BIN')GPREG(5)=PN(LAM(5),A0,A1,A2,A3,A4,A5)
-                     IF(FLNAME.EQ.'CHANCE.BIN')GPREG(5)=PN(LAM(5),A0,A1,A2,A3,A4,A5)
-                     IF(FLNAME.EQ.'RADHARD.BIN')GPREG(5)=PN(LAM(5),A0,A1,A2,A3,A4,A5)
-                     IF(FLNAME.EQ.'OHARA-O.BIN')GPREG(5)=PN(LAM(5),A0,A1,A2,A3,A4,A5)
-!
-                     IF(FLNAME.EQ.'SCHOTT.BIN')GPREG(5)=PNSC(LAM(5),A0,A1,A2,A3,A4,A5)
-                     IF(FLNAME.EQ.'SCH2000.BIN')GPREG(5)=PNSC(LAM(5),A0,A1,A2,A3,A4,A5)
-                     IF(FLNAME.EQ.'OHARA.BIN')GPREG(5)=PNSC(LAM(5),A0,A1,A2,A3,A4,A5)
-                  END IF
-                  IF(LAM(6).EQ.0.0D0) THEN
-                     GPREG(6)=1.0D0
-                  ELSE
-!
-                     IF(FLNAME.EQ.'HOYA.BIN')GPREG(6)=PN(LAM(6),A0,A1,A2,A3,A4,A5)
-                     IF(FLNAME.EQ.'HIKARI.BIN')GPREG(6)=PN(LAM(6),A0,A1,A2,A3,A4,A5)
-                     IF(FLNAME.EQ.'CORNIN.BIN')GPREG(6)=PN(LAM(6),A0,A1,A2,A3,A4,A5)
-                     IF(FLNAME.EQ.'CHANCE.BIN')GPREG(6)=PN(LAM(6),A0,A1,A2,A3,A4,A5)
-                     IF(FLNAME.EQ.'RADHARD.BIN')GPREG(6)=PN(LAM(6),A0,A1,A2,A3,A4,A5)
-                     IF(FLNAME.EQ.'OHARA-O.BIN')GPREG(6)=PN(LAM(6),A0,A1,A2,A3,A4,A5)
-!
-                     IF(FLNAME.EQ.'SCHOTT.BIN')GPREG(6)=PNSC(LAM(6),A0,A1,A2,A3,A4,A5)
-                     IF(FLNAME.EQ.'SCH2000.BIN')GPREG(6)=PNSC(LAM(6),A0,A1,A2,A3,A4,A5)
-                     IF(FLNAME.EQ.'OHARA.BIN')GPREG(6)=PNSC(LAM(6),A0,A1,A2,A3,A4,A5)
-                  END IF
-                  IF(LAM(7).EQ.0.0D0) THEN
-                     GPREG(7)=1.0D0
-                  ELSE
-!
-                     IF(FLNAME.EQ.'HOYA.BIN')GPREG(7)=PN(LAM(7),A0,A1,A2,A3,A4,A5)
-                     IF(FLNAME.EQ.'HIKARI.BIN')GPREG(7)=PN(LAM(7),A0,A1,A2,A3,A4,A5)
-                     IF(FLNAME.EQ.'CORNIN.BIN')GPREG(7)=PN(LAM(7),A0,A1,A2,A3,A4,A5)
-                     IF(FLNAME.EQ.'CHANCE.BIN')GPREG(7)=PN(LAM(7),A0,A1,A2,A3,A4,A5)
-                     IF(FLNAME.EQ.'RADHARD.BIN')GPREG(7)=PN(LAM(7),A0,A1,A2,A3,A4,A5)
-                     IF(FLNAME.EQ.'OHARA-O.BIN')GPREG(7)=PN(LAM(7),A0,A1,A2,A3,A4,A5)
-!
-                     IF(FLNAME.EQ.'SCHOTT.BIN')GPREG(7)=PNSC(LAM(7),A0,A1,A2,A3,A4,A5)
-                     IF(FLNAME.EQ.'SCH2000.BIN')GPREG(7)=PNSC(LAM(7),A0,A1,A2,A3,A4,A5)
-                     IF(FLNAME.EQ.'OHARA.BIN')GPREG(7)=PNSC(LAM(7),A0,A1,A2,A3,A4,A5)
-                  END IF
-                  IF(LAM(8).EQ.0.0D0) THEN
-                     GPREG(8)=1.0D0
-                  ELSE
-!
-                     IF(FLNAME.EQ.'HOYA.BIN')GPREG(8)=PN(LAM(8),A0,A1,A2,A3,A4,A5)
-                     IF(FLNAME.EQ.'HIKARI.BIN')GPREG(8)=PN(LAM(8),A0,A1,A2,A3,A4,A5)
-                     IF(FLNAME.EQ.'CORNIN.BIN')GPREG(8)=PN(LAM(8),A0,A1,A2,A3,A4,A5)
-                     IF(FLNAME.EQ.'CHANCE.BIN')GPREG(8)=PN(LAM(8),A0,A1,A2,A3,A4,A5)
-                     IF(FLNAME.EQ.'RADHARD.BIN')GPREG(8)=PN(LAM(8),A0,A1,A2,A3,A4,A5)
-                     IF(FLNAME.EQ.'OHARA-O.BIN')GPREG(8)=PN(LAM(8),A0,A1,A2,A3,A4,A5)
-!
-                     IF(FLNAME.EQ.'SCHOTT.BIN')GPREG(8)=PNSC(LAM(8),A0,A1,A2,A3,A4,A5)
-                     IF(FLNAME.EQ.'SCH2000.BIN')GPREG(8)=PNSC(LAM(8),A0,A1,A2,A3,A4,A5)
-                     IF(FLNAME.EQ.'OHARA.BIN')GPREG(8)=PNSC(LAM(8),A0,A1,A2,A3,A4,A5)
-                  END IF
-                  IF(LAM(9).EQ.0.0D0) THEN
-                     GPREG(9)=1.0D0
-                  ELSE
-!
-                     IF(FLNAME.EQ.'HOYA.BIN')GPREG(9)=PN(LAM(9),A0,A1,A2,A3,A4,A5)
-                     IF(FLNAME.EQ.'HIKARI.BIN')GPREG(9)=PN(LAM(9),A0,A1,A2,A3,A4,A5)
-                     IF(FLNAME.EQ.'CORNIN.BIN')GPREG(9)=PN(LAM(9),A0,A1,A2,A3,A4,A5)
-                     IF(FLNAME.EQ.'CHANCE.BIN')GPREG(9)=PN(LAM(9),A0,A1,A2,A3,A4,A5)
-                     IF(FLNAME.EQ.'RADHARD.BIN')GPREG(9)=PN(LAM(9),A0,A1,A2,A3,A4,A5)
-                     IF(FLNAME.EQ.'OHARA-O.BIN')GPREG(9)=PN(LAM(9),A0,A1,A2,A3,A4,A5)
-!
-                     IF(FLNAME.EQ.'SCHOTT.BIN')GPREG(9)=PNSC(LAM(9),A0,A1,A2,A3,A4,A5)
-                     IF(FLNAME.EQ.'SCH2000.BIN')GPREG(9)=PNSC(LAM(9),A0,A1,A2,A3,A4,A5)
-                     IF(FLNAME.EQ.'OHARA.BIN')GPREG(9)=PNSC(LAM(9),A0,A1,A2,A3,A4,A5)
-                  END IF
-                  IF(LAM(10).EQ.0.0D0) THEN
-                     GPREG(10)=1.0D0
-                  ELSE
-!
-                     IF(FLNAME.EQ.'HOYA.BIN')GPREG(10)=PN(LAM(10),A0,A1,A2,A3,A4,A5)
-                     IF(FLNAME.EQ.'HIKARI.BIN')GPREG(10)=PN(LAM(10),A0,A1,A2,A3,A4,A5)
-                     IF(FLNAME.EQ.'CORNIN.BIN')GPREG(10)=PN(LAM(10),A0,A1,A2,A3,A4,A5)
-                     IF(FLNAME.EQ.'CHANCE.BIN')GPREG(10)=PN(LAM(10),A0,A1,A2,A3,A4,A5)
-                     IF(FLNAME.EQ.'RADHARD.BIN')GPREG(10)=PN(LAM(10),A0,A1,A2,A3,A4,A5)
-                     IF(FLNAME.EQ.'OHARA-O.BIN')GPREG(10)=PN(LAM(10),A0,A1,A2,A3,A4,A5)
-!
-                     IF(FLNAME.EQ.'SCHOTT.BIN')GPREG(10)=PNSC(LAM(10),A0,A1,A2,A3,A4,A5)
-                     IF(FLNAME.EQ.'SCH2000.BIN')GPREG(10)=PNSC(LAM(10),A0,A1,A2,A3,A4,A5)
-                     IF(FLNAME.EQ.'OHARA.BIN')GPREG(10)=PNSC(LAM(10),A0,A1,A2,A3,A4,A5)
-                  END IF
-                  RETURN
-               ELSE
-!       KEEP SEARCHING THE CATALOG
-               END IF
-300         CONTINUE
+         IF(gdb%isNameInCatalog(trim(WC), gdb_loc)) THEN
+            IF(gdb%isGlassInCatalog(trim(WS), gdb_loc, byCode=.TRUE.)) THEN
+!       CALCULATE THE INDICES (1.0 AT A ZERO WAVELENGTH) THEN RETURN
+               DO J=1,10
+                  GPREG(J) = gdb%calcIndexForCurrentGlass(LAM(J))
+               END DO
+               RETURN
+            END IF
 !       CAN'T FIND THE GLASS, DO WARNING AND RETURN TO CMD LEVEL
             OUTLYNE='GLASS NOT FOUND IN THE '//WC//' CATALOG'
             CALL SHOWIT(1)
@@ -2330,217 +2172,6 @@ SUBROUTINE GLSRIN
 !                 GPREG(1:5)=1.0D0
 !                         END IF
 !                         END DO ! DO COUNT
-      ELSE
-!     FLTP NOT MULTI
-      END IF
-      IF(FLTP.EQ.'MULTIOHARA  '.AND.FLNAME.NE.'USER.DAT  ') THEN
-!     SEARCH 5 EXISTING CATALOGS
-         LASCNT=0
-         DO COUNT=1,2
-            LASCNT=COUNT
-            IF(COUNT.EQ.1) FLNAME='OHARA.BIN'
-            IF(COUNT.EQ.2) FLNAME='OHARA-O.BIN'
-            WC='OHARA   '
-            EXIS36=.FALSE.
-            INQUIRE(FILE=trim(LIBGLA)//FLNAME,EXIST=EXIS36)
-            IF(EXIS36) THEN
-!               PROCEED
-               PRINT *, "About to open ", trim(LIBGLA)//FLNAME
-               call OPENGLASSFILE(trim(LIBGLA)//FLNAME, uG, TOTAL)
-               READ(UNIT=36,REC=1) TOTAL
-               DO J=2,TOTAL+1
-                  READ(UNIT=36,REC=J)NAME,NUMBER,A0,A1,A2,A3,A4,A5
-                  IF(WS.EQ.NAME.OR.WS.EQ.NUMBER) THEN
-!     FOUND THE GLASS
-                     IF(COUNT.GE.1.AND.COUNT.LE.2) CALL SHOWIT(1)
-!     NOW RECHECK THE WAVELENGTH RANGE
-                     CALL CHECKGLASSCATWAVELENGTHBOUNDS(boolResult, FLNAME)
-                     IF (boolResult) THEN
-
-                     ELSE
-                        GPREG(1)=1.0D0
-                        GPREG(2)=1.0D0
-                        GPREG(3)=1.0D0
-                        GPREG(4)=1.0D0
-                        GPREG(5)=1.0D0
-!         PROCEED
-                     END IF
-!       CALCULATE INDEX THEN RETURN
-                     IF(LAM(1).EQ.0.0D0) THEN
-                        GPREG(1)=1.0D0
-                     ELSE
-!
-                        IF(FLNAME.EQ.'HOYA.BIN')GPREG(1)=PN(LAM(1),A0,A1,A2,A3,A4,A5)
-                        IF(FLNAME.EQ.'HIKARI.BIN')GPREG(1)=PN(LAM(1),A0,A1,A2,A3,A4,A5)
-                        IF(FLNAME.EQ.'CORNIN.BIN')GPREG(1)=PN(LAM(1),A0,A1,A2,A3,A4,A5)
-                        IF(FLNAME.EQ.'CHANCE.BIN')GPREG(1)=PN(LAM(1),A0,A1,A2,A3,A4,A5)
-                        IF(FLNAME.EQ.'RADHARD.BIN')GPREG(1)=PN(LAM(1),A0,A1,A2,A3,A4,A5)
-                        IF(FLNAME.EQ.'OHARA-O.BIN')GPREG(1)=PN(LAM(1),A0,A1,A2,A3,A4,A5)
-!
-                        IF(FLNAME.EQ.'SCHOTT.BIN')GPREG(1)=PNSC(LAM(1),A0,A1,A2,A3,A4,A5)
-                        IF(FLNAME.EQ.'SCH2000.BIN')GPREG(1)=PNSC(LAM(1),A0,A1,A2,A3,A4,A5)
-                        IF(FLNAME.EQ.'OHARA.BIN')GPREG(1)=PNSC(LAM(1),A0,A1,A2,A3,A4,A5)
-                     END IF
-                     IF(LAM(2).EQ.0.0D0) THEN
-                        GPREG(2)=1.0D0
-                     ELSE
-!
-                        IF(FLNAME.EQ.'HOYA.BIN')GPREG(2)=PN(LAM(2),A0,A1,A2,A3,A4,A5)
-                        IF(FLNAME.EQ.'HIKARI.BIN')GPREG(2)=PN(LAM(2),A0,A1,A2,A3,A4,A5)
-                        IF(FLNAME.EQ.'CORNIN.BIN')GPREG(2)=PN(LAM(2),A0,A1,A2,A3,A4,A5)
-                        IF(FLNAME.EQ.'CHANCE.BIN')GPREG(2)=PN(LAM(2),A0,A1,A2,A3,A4,A5)
-                        IF(FLNAME.EQ.'RADHARD.BIN')GPREG(2)=PN(LAM(2),A0,A1,A2,A3,A4,A5)
-                        IF(FLNAME.EQ.'OHARA-O.BIN')GPREG(2)=PN(LAM(2),A0,A1,A2,A3,A4,A5)
-!
-                        IF(FLNAME.EQ.'SCHOTT.BIN')GPREG(2)=PNSC(LAM(2),A0,A1,A2,A3,A4,A5)
-                        IF(FLNAME.EQ.'SCH2000.BIN')GPREG(2)=PNSC(LAM(2),A0,A1,A2,A3,A4,A5)
-                        IF(FLNAME.EQ.'OHARA.BIN')GPREG(2)=PNSC(LAM(2),A0,A1,A2,A3,A4,A5)
-                     END IF
-                     IF(LAM(3).EQ.0.0D0) THEN
-                        GPREG(3)=1.0D0
-                     ELSE
-!
-                        IF(FLNAME.EQ.'HOYA.BIN')GPREG(3)=PN(LAM(3),A0,A1,A2,A3,A4,A5)
-                        IF(FLNAME.EQ.'HIKARI.BIN')GPREG(3)=PN(LAM(3),A0,A1,A2,A3,A4,A5)
-                        IF(FLNAME.EQ.'CORNIN.BIN')GPREG(3)=PN(LAM(3),A0,A1,A2,A3,A4,A5)
-                        IF(FLNAME.EQ.'CHANCE.BIN')GPREG(3)=PN(LAM(3),A0,A1,A2,A3,A4,A5)
-                        IF(FLNAME.EQ.'RADHARD.BIN')GPREG(3)=PN(LAM(3),A0,A1,A2,A3,A4,A5)
-                        IF(FLNAME.EQ.'OHARA-O.BIN')GPREG(3)=PN(LAM(3),A0,A1,A2,A3,A4,A5)
-!
-                        IF(FLNAME.EQ.'SCHOTT.BIN')GPREG(3)=PNSC(LAM(3),A0,A1,A2,A3,A4,A5)
-                        IF(FLNAME.EQ.'SCH2000.BIN')GPREG(3)=PNSC(LAM(3),A0,A1,A2,A3,A4,A5)
-                        IF(FLNAME.EQ.'OHARA.BIN')GPREG(3)=PNSC(LAM(3),A0,A1,A2,A3,A4,A5)
-                     END IF
-                     IF(LAM(4).EQ.0.0D0) THEN
-                        GPREG(4)=1.0D0
-                     ELSE
-!
-                        IF(FLNAME.EQ.'HOYA.BIN')GPREG(4)=PN(LAM(4),A0,A1,A2,A3,A4,A5)
-                        IF(FLNAME.EQ.'HIKARI.BIN')GPREG(4)=PN(LAM(4),A0,A1,A2,A3,A4,A5)
-                        IF(FLNAME.EQ.'CORNIN.BIN')GPREG(4)=PN(LAM(4),A0,A1,A2,A3,A4,A5)
-                        IF(FLNAME.EQ.'CHANCE.BIN')GPREG(4)=PN(LAM(4),A0,A1,A2,A3,A4,A5)
-                        IF(FLNAME.EQ.'RADHARD.BIN')GPREG(4)=PN(LAM(4),A0,A1,A2,A3,A4,A5)
-                        IF(FLNAME.EQ.'OHARA-O.BIN')GPREG(4)=PN(LAM(4),A0,A1,A2,A3,A4,A5)
-!
-                        IF(FLNAME.EQ.'SCHOTT.BIN')GPREG(4)=PNSC(LAM(4),A0,A1,A2,A3,A4,A5)
-                        IF(FLNAME.EQ.'SCH2000.BIN')GPREG(4)=PNSC(LAM(4),A0,A1,A2,A3,A4,A5)
-                        IF(FLNAME.EQ.'OHARA.BIN')GPREG(4)=PNSC(LAM(4),A0,A1,A2,A3,A4,A5)
-                     END IF
-                     IF(LAM(5).EQ.0.0D0) THEN
-                        GPREG(5)=1.0D0
-                     ELSE
-!
-                        IF(FLNAME.EQ.'HOYA.BIN')GPREG(5)=PN(LAM(5),A0,A1,A2,A3,A4,A5)
-                        IF(FLNAME.EQ.'HIKARI.BIN')GPREG(5)=PN(LAM(5),A0,A1,A2,A3,A4,A5)
-                        IF(FLNAME.EQ.'CORNIN.BIN')GPREG(5)=PN(LAM(5),A0,A1,A2,A3,A4,A5)
-                        IF(FLNAME.EQ.'CHANCE.BIN')GPREG(5)=PN(LAM(5),A0,A1,A2,A3,A4,A5)
-                        IF(FLNAME.EQ.'RADHARD.BIN')GPREG(5)=PN(LAM(5),A0,A1,A2,A3,A4,A5)
-                        IF(FLNAME.EQ.'OHARA-O.BIN')GPREG(5)=PN(LAM(5),A0,A1,A2,A3,A4,A5)
-!
-                        IF(FLNAME.EQ.'SCHOTT.BIN')GPREG(5)=PNSC(LAM(5),A0,A1,A2,A3,A4,A5)
-                        IF(FLNAME.EQ.'SCH2000.BIN')GPREG(5)=PNSC(LAM(5),A0,A1,A2,A3,A4,A5)
-                        IF(FLNAME.EQ.'OHARA.BIN')GPREG(5)=PNSC(LAM(5),A0,A1,A2,A3,A4,A5)
-                     END IF
-                     IF(LAM(6).EQ.0.0D0) THEN
-                        GPREG(6)=1.0D0
-                     ELSE
-!
-                        IF(FLNAME.EQ.'HOYA.BIN')GPREG(6)=PN(LAM(6),A0,A1,A2,A3,A4,A5)
-                        IF(FLNAME.EQ.'HIKARI.BIN')GPREG(6)=PN(LAM(6),A0,A1,A2,A3,A4,A5)
-                        IF(FLNAME.EQ.'CORNIN.BIN')GPREG(6)=PN(LAM(6),A0,A1,A2,A3,A4,A5)
-                        IF(FLNAME.EQ.'CHANCE.BIN')GPREG(6)=PN(LAM(6),A0,A1,A2,A3,A4,A5)
-                        IF(FLNAME.EQ.'RADHARD.BIN')GPREG(6)=PN(LAM(6),A0,A1,A2,A3,A4,A5)
-                        IF(FLNAME.EQ.'OHARA-O.BIN')GPREG(6)=PN(LAM(6),A0,A1,A2,A3,A4,A5)
-!
-                        IF(FLNAME.EQ.'SCHOTT.BIN')GPREG(6)=PNSC(LAM(6),A0,A1,A2,A3,A4,A5)
-                        IF(FLNAME.EQ.'SCH2000.BIN')GPREG(6)=PNSC(LAM(6),A0,A1,A2,A3,A4,A5)
-                        IF(FLNAME.EQ.'OHARA.BIN')GPREG(6)=PNSC(LAM(6),A0,A1,A2,A3,A4,A5)
-                     END IF
-                     IF(LAM(7).EQ.0.0D0) THEN
-                        GPREG(7)=1.0D0
-                     ELSE
-!
-                        IF(FLNAME.EQ.'HOYA.BIN')GPREG(7)=PN(LAM(7),A0,A1,A2,A3,A4,A5)
-                        IF(FLNAME.EQ.'HIKARI.BIN')GPREG(7)=PN(LAM(7),A0,A1,A2,A3,A4,A5)
-                        IF(FLNAME.EQ.'CORNIN.BIN')GPREG(7)=PN(LAM(7),A0,A1,A2,A3,A4,A5)
-                        IF(FLNAME.EQ.'CHANCE.BIN')GPREG(7)=PN(LAM(7),A0,A1,A2,A3,A4,A5)
-                        IF(FLNAME.EQ.'RADHARD.BIN')GPREG(7)=PN(LAM(7),A0,A1,A2,A3,A4,A5)
-                        IF(FLNAME.EQ.'OHARA-O.BIN')GPREG(7)=PN(LAM(7),A0,A1,A2,A3,A4,A5)
-!
-                        IF(FLNAME.EQ.'SCHOTT.BIN')GPREG(7)=PNSC(LAM(7),A0,A1,A2,A3,A4,A5)
-                        IF(FLNAME.EQ.'SCH2000.BIN')GPREG(7)=PNSC(LAM(7),A0,A1,A2,A3,A4,A5)
-                        IF(FLNAME.EQ.'OHARA.BIN')GPREG(7)=PNSC(LAM(7),A0,A1,A2,A3,A4,A5)
-                     END IF
-                     IF(LAM(8).EQ.0.0D0) THEN
-                        GPREG(8)=1.0D0
-                     ELSE
-!
-                        IF(FLNAME.EQ.'HOYA.BIN')GPREG(8)=PN(LAM(8),A0,A1,A2,A3,A4,A5)
-                        IF(FLNAME.EQ.'HIKARI.BIN')GPREG(8)=PN(LAM(8),A0,A1,A2,A3,A4,A5)
-                        IF(FLNAME.EQ.'CORNIN.BIN')GPREG(8)=PN(LAM(8),A0,A1,A2,A3,A4,A5)
-                        IF(FLNAME.EQ.'CHANCE.BIN')GPREG(8)=PN(LAM(8),A0,A1,A2,A3,A4,A5)
-                        IF(FLNAME.EQ.'RADHARD.BIN')GPREG(8)=PN(LAM(8),A0,A1,A2,A3,A4,A5)
-                        IF(FLNAME.EQ.'OHARA-O.BIN')GPREG(8)=PN(LAM(8),A0,A1,A2,A3,A4,A5)
-!
-                        IF(FLNAME.EQ.'SCHOTT.BIN')GPREG(8)=PNSC(LAM(8),A0,A1,A2,A3,A4,A5)
-                        IF(FLNAME.EQ.'SCH2000.BIN')GPREG(8)=PNSC(LAM(8),A0,A1,A2,A3,A4,A5)
-                        IF(FLNAME.EQ.'OHARA.BIN')GPREG(8)=PNSC(LAM(8),A0,A1,A2,A3,A4,A5)
-                     END IF
-                     IF(LAM(9).EQ.0.0D0) THEN
-                        GPREG(9)=1.0D0
-                     ELSE
-!
-                        IF(FLNAME.EQ.'HOYA.BIN')GPREG(9)=PN(LAM(9),A0,A1,A2,A3,A4,A5)
-                        IF(FLNAME.EQ.'HIKARI.BIN')GPREG(9)=PN(LAM(9),A0,A1,A2,A3,A4,A5)
-                        IF(FLNAME.EQ.'CORNIN.BIN')GPREG(9)=PN(LAM(9),A0,A1,A2,A3,A4,A5)
-                        IF(FLNAME.EQ.'CHANCE.BIN')GPREG(9)=PN(LAM(9),A0,A1,A2,A3,A4,A5)
-                        IF(FLNAME.EQ.'RADHARD.BIN')GPREG(9)=PN(LAM(9),A0,A1,A2,A3,A4,A5)
-                        IF(FLNAME.EQ.'OHARA-O.BIN')GPREG(9)=PN(LAM(9),A0,A1,A2,A3,A4,A5)
-!
-                        IF(FLNAME.EQ.'SCHOTT.BIN')GPREG(9)=PNSC(LAM(9),A0,A1,A2,A3,A4,A5)
-                        IF(FLNAME.EQ.'SCH2000.BIN')GPREG(9)=PNSC(LAM(9),A0,A1,A2,A3,A4,A5)
-                        IF(FLNAME.EQ.'OHARA.BIN')GPREG(9)=PNSC(LAM(9),A0,A1,A2,A3,A4,A5)
-                     END IF
-                     IF(LAM(10).EQ.0.0D0) THEN
-                        GPREG(10)=1.0D0
-                     ELSE
-!
-                        IF(FLNAME.EQ.'HOYA.BIN')GPREG(10)=PN(LAM(10),A0,A1,A2,A3,A4,A5)
-                        IF(FLNAME.EQ.'HIKARI.BIN')GPREG(10)=PN(LAM(10),A0,A1,A2,A3,A4,A5)
-                        IF(FLNAME.EQ.'CORNIN.BIN')GPREG(10)=PN(LAM(10),A0,A1,A2,A3,A4,A5)
-                        IF(FLNAME.EQ.'CHANCE.BIN')GPREG(10)=PN(LAM(10),A0,A1,A2,A3,A4,A5)
-                        IF(FLNAME.EQ.'RADHARD.BIN')GPREG(10)=PN(LAM(10),A0,A1,A2,A3,A4,A5)
-                        IF(FLNAME.EQ.'OHARA-O.BIN')GPREG(10)=PN(LAM(10),A0,A1,A2,A3,A4,A5)
-!
-                        IF(FLNAME.EQ.'SCHOTT.BIN')GPREG(10)=PNSC(LAM(10),A0,A1,A2,A3,A4,A5)
-                        IF(FLNAME.EQ.'SCH2000.BIN')GPREG(10)=PNSC(LAM(10),A0,A1,A2,A3,A4,A5)
-                        IF(FLNAME.EQ.'OHARA.BIN')GPREG(10)=PNSC(LAM(10),A0,A1,A2,A3,A4,A5)
-                     END IF
-                     RETURN
-                  ELSE
-!       KEEP SEARCHING THE CATALOG
-                  END IF
-               END DO
-!       CAN'T FIND THE GLASS, DO WARNING AND RETURN TO CMD LEVEL
-               IF(LASCNT.EQ.2) THEN
-                  OUTLYNE='GLASS NOT FOUND IN ANY STANDARD OPTICAL GLASS CATALOG'
-                  CALL SHOWIT(1)
-                  OUTLYNE='REFRACTIVE INDICES SET TO 1.0'
-                  CALL SHOWIT(1)
-                  GPREG(1:5)=1.0D0
-               ELSE
-!     LASCNT NOT 2
-               END IF
-!
-            ELSE
-!       CATALOG REQUESTED NOT YET INSTALLED.
-               OUTLYNE=WC//' GLASS CATALOG NOT YET INSTALLED'
-               CALL SHOWIT(1)
-               OUTLYNE='REFRACTIVE INDICES SET TO 1.0'
-               CALL SHOWIT(1)
-               GPREG(1:5)=1.0D0
-            END IF
-         END DO
       ELSE
 !     FLTP NOT MULTI
       END IF
@@ -3648,36 +3279,6 @@ END
 
 
 
-SUBROUTINE OPENGLASSFILE(filePath, fileID, TOTAL)
-   use iso_fortran_env, only: real64
-   character(len=*) :: filePath
-   integer :: TOTAL, fileID, rec11, rec15, tstUnit
-   CHARACTER(len=13) :: NAME,NUMBER
-   real(real64) A0,A1,A2,A3,A4,A5
-   logical :: isFile
-   integer :: ierr
-
-
-   fileID = 36
-   inquire(iolength=rec11) TOTAL
-   inquire(iolength=rec15) NAME,NUMBER,A0,A1,A2,A3,A4,A5
-
-   inquire(FILE=filePath, number=tstUnit, EXIST=isFile)
-   if (tstUnit.EQ.fileID) close(fileID)
-
-   if (isFile) then
-
-      OPEN(UNIT=fileID,ACCESS='DIRECT',FILE=filePath,FORM='UNFORMATTED',RECL=rec11,STATUS='UNKNOWN', iostat=ierr)
-      if(ierr == 0 ) then
-         READ(UNIT=fileID,REC=1) TOTAL
-         CLOSE(UNIT=fileID, STATUS='KEEP')
-
-         OPEN(UNIT=fileID,ACCESS='DIRECT',FILE=filePath,FORM='UNFORMATTED',RECL=rec15,STATUS='UNKNOWN')
-      end if
-   end if
-
-
-END SUBROUTINE
 
  ! This should be refactored with the next one, but
  ! save for another day..
@@ -3697,7 +3298,7 @@ SUBROUTINE CHECKGLSRESWAVELENGTHBOUNDS(boolResult,NAME1, NAME2, FLNAME, LMIN, LM
 
    boolResult = .TRUE.
 
-   CALL LAMHILO(NAME1,NAME2,FLNAME,LAMUPP,LAMLOW)
+   CALL GLASSWAVERANGE(NAME1,NAME2,FLNAME,LAMUPP,LAMLOW)
 !
 !       COMPARE LAMLOW,LAMUPP,LMIN AND LMAX
    IF(LMAX.GT.LAMUPP.AND.LMAX.NE.0.0D0.OR.LMIN.LT.LAMLOW .AND.LMIN.NE.0.0D0) THEN
@@ -3717,6 +3318,38 @@ SUBROUTINE CHECKGLSRESWAVELENGTHBOUNDS(boolResult,NAME1, NAME2, FLNAME, LMIN, LM
    END IF
 
 
+END SUBROUTINE
+
+! Wavelength range (um) of glass NAME2 in catalog NAME1: the LD line of an
+! AGF catalog glass, else (SPECIAL materials, MODEL, a catalog word such as
+! GLAK) the legacy LAMHILO table.
+SUBROUTINE GLASSWAVERANGE(NAME1,NAME2,FLNAME,LAMUPP,LAMLOW)
+   use glass_manager, only: gdb, specCat
+   use iso_fortran_env, only: real64
+   IMPLICIT NONE
+   CHARACTER(len=*) :: NAME1, NAME2, FLNAME
+   real(real64) :: LAMUPP, LAMLOW
+   integer :: loc, savedType, savedCat, savedGlass
+   CHARACTER*13 N1,N2
+   CHARACTER(len=40) :: savedSpecial
+   logical :: found
+
+   ! (the lookup must not change the caller's current glass)
+   savedType = gdb%dataType; savedCat = gdb%curCat; savedGlass = gdb%curGlass
+   savedSpecial = specCat%currName
+   found = .false.
+   loc = 0
+   IF(gdb%isNameInCatalog(trim(NAME1), loc)) THEN
+      IF(gdb%isGlassInCatalog(trim(NAME2), loc)) THEN
+         found = gdb%currentWavelengthRange(LAMLOW, LAMUPP)
+      END IF
+   END IF
+   gdb%dataType = savedType; gdb%curCat = savedCat; gdb%curGlass = savedGlass
+   specCat%currName = savedSpecial
+   IF(found) RETURN
+   N1=NAME1
+   N2=NAME2
+   CALL LAMHILO(N1,N2,FLNAME,LAMUPP,LAMLOW)
 END SUBROUTINE
 
 SUBROUTINE CHECKGLASSCATWAVELENGTHBOUNDS(boolResult, FLNAME)
@@ -3753,11 +3386,8 @@ SUBROUTINE CHECKGLASSCATWAVELENGTHBOUNDS(boolResult, FLNAME)
 !     NOW RECHECK THE WAVELENGTH RANGE
    NAME1=WC//'     '
    NAME2=WS(1:13)
-   !call LogTermFOR("NAME1 is "//NAME1)
-   !call LogTermFOR("FLNAME is "//FLNAME)
-   !call LogTermFOR("NAME2 is "//NAME2)
 
-   CALL LAMHILO(NAME1,NAME2,FLNAME,LAMUPP,LAMLOW)
+   CALL GLASSWAVERANGE(NAME1,NAME2,FLNAME,LAMUPP,LAMLOW)
 
    !call LogTermFOR("LAMUPP is "//trim(real2str(LAMUPP)))
    !call LogTermFOR("LAMLOW is "//trim(real2str(LAMLOW)))

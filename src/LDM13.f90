@@ -7,32 +7,23 @@ SUBROUTINE FNDGLS
    use DATMAI
    use command_utils, only: is_command_query
    use mod_system, only: sys_last_surf, sys_wavelength, sys_wl_weight
+   use mod_surface, only: surf_refractive_index
+   use glass_manager, only: gdb
+   use glass_catalog, only: gc_num_catalogs, gc_catalog_name, gc_catalog_size, &
+                            gc_index, gc_glass, glass_record
    use iso_fortran_env, only: real64
    IMPLICIT NONE
 !
 !       THIS IS SUBROUTINE FNDGLS WHICH IMPLEMENTS THE FINDGLAS
-!       COMMAND AT THE CMD LEVEL.
+!       COMMAND AT THE CMD LEVEL: THE CATALOG GLASSES CLOSEST TO A
+!       "MODEL" GLASS (RMS INDEX DIFFERENCE OVER THE WEIGHTED
+!       WAVELENGTHS), FROM ONE CATALOG OR (ALL) EVERY CATALOG.
 !
-   INTEGER NUMSRCH,ALLOERR,I,J,K,TOTAL,II,JJ,KK
-   real(real64) SORTIT,A0,A1,A2,A3,A4,A5,D,NMOD,NCAT
-   real(real64) LAMBDA,PN,PNSC,SORTIT2
-   DIMENSION SORTIT(:),SORTIT2(:)
-   CHARACTER ASORTIT*13,NAME*13,NUMBER*13,ASORTIT2*13
-   DIMENSION ASORTIT(:,:),ASORTIT2(:,:)
-   ALLOCATABLE :: SORTIT,ASORTIT,SORTIT2,ASORTIT2
-!
-   PN(LAMBDA,A0,A1,A2,A3,A4,A5)=&
-   &DSQRT(A0+(A1*(LAMBDA**2))+(A2*(1.0D0/(LAMBDA**2)))+&
-   &(A3*(1.0D0/(LAMBDA**4)))+(A4*(1.0D0/(LAMBDA**6)))+&
-   &(A5*(1.0D0/(LAMBDA**8))))
-!
-   PNSC(LAMBDA,A0,A1,A2,A3,A4,A5)=&
-   &DSQRT(&
-   &((A0*(LAMBDA**2))/((LAMBDA**2)-A3))+&
-   &((A1*(LAMBDA**2))/((LAMBDA**2)-A4))+&
-   &((A2*(LAMBDA**2))/((LAMBDA**2)-A5))+1.0D0)
-!
-   DEALLOCATE(SORTIT,ASORTIT,SORTIT2,ASORTIT2,STAT=ALLOERR)
+   INTEGER NUMSRCH,I,J,K,IC,IG,NTOT,ISURF,II
+   real(real64) D,NMOD,NCAT
+   real(real64), allocatable :: SORTIT(:)
+   CHARACTER(len=13), allocatable :: ASORTIT(:,:)
+   type(glass_record) :: g
 !
    IF(is_command_query()) THEN
       OUTLYNE='"FINDGLAS" SEARCHES FOR GLASSES CLOSE TO A "MODEL" GLASS'
@@ -49,10 +40,12 @@ SUBROUTINE FNDGLS
       SQ=1
       WQ='ALL'
    END IF
-   IF(WQ.NE.'SCHOTT'.AND.WQ.NE.'HOYA'.AND.WQ.NE.'OHARA'&
-   &.AND.WQ.NE.'CORNIN'.AND.WQ.NE.'CHANCE'.AND.WQ.NE.'ALL'&
-   &.AND.WQ.NE.'HIKARI'.AND.WQ.NE.'SCH2000'.AND.WQ.NE.'SCH2023')&
-   &THEN
+   IC=0
+   IF(WQ.NE.'ALL') THEN
+      IF(.NOT.gdb%isNameInCatalog(trim(WQ), IC)) IC=-1
+      IF(IC.GT.gc_num_catalogs()) IC=-1          ! (SPECIAL)
+   END IF
+   IF(IC.LT.0) THEN
       CALL REPORT_ERROR_AND_FAIL(&
       & 'INVALID CATALOG NAME ISSUED WITH "FINDGLAS"'//'\n'//&
       & 'RE-ENTER COMMAND', 1)
@@ -84,943 +77,39 @@ SUBROUTINE FNDGLS
       RETURN
    END IF
    NUMSRCH=INT(W2)
-   IF(W1.LT.0.0D0.OR.W1.GT.sys_last_surf()) THEN
-      CALL REPORT_ERROR_AND_FAIL('SURFACE NUMBER BEYOND LEGAL BOUNDS'//'\n'//'RE-ENTER COMMAND', 1)
-      RETURN
-   END IF
-   IF(GLANAM(INT(W1),1)(1:5).NE.'MODEL') THEN
+   ISURF=INT(W1)
+   IF(GLANAM(ISURF,1)(1:5).NE.'MODEL') THEN
       CALL REPORT_ERROR_AND_FAIL(&
       & 'GLASS IS NOT A "MODEL" GLASS'//'\n'//&
       & '"FINDGLAS" TOOK NO ACTION', 1)
       RETURN
    END IF
-   ALLOCATE(SORTIT(1:10000),ASORTIT(1:2,1:10000),STAT=ALLOERR)
-   SORTIT(1:10000)=0.0D0
-   ASORTIT(1:2,1:10000)='             '
-!     NOW SEARCH THE CATALOGS AND CALCULATE THE DISTANCE AND TABULATE IT
-   IF(WQ.EQ.'SCHOTT') THEN
-      K=0
-      OPEN(UNIT=99,ACCESS='DIRECT',&
-      &FILE=trim(LIBGLA)//'SCHOTT.BIN',&
-      &FORM='UNFORMATTED',RECL=(NRECL*33),STATUS='UNKNOWN')
-      READ(UNIT=99,REC=1) TOTAL
-      DO J=2,TOTAL+1
-         READ(UNIT=99,REC=J)NAME,NUMBER,A0,A1,A2,A3,A4,A5
-!     CALCULATE DISTANCE AND THEN PLACE IN THE SORTING ARRAY
+!
+!     DISTANCE OF EVERY GLASS OF THE CATALOG(S) FROM THE MODEL GLASS
+   NTOT=0
+   DO I=1,gc_num_catalogs()
+      IF(IC.EQ.0.OR.IC.EQ.I) NTOT=NTOT+gc_catalog_size(I)
+   END DO
+   ALLOCATE(SORTIT(max(NTOT,1)),ASORTIT(2,max(NTOT,1)))
+   K=0
+   DO I=1,gc_num_catalogs()
+      IF(IC.NE.0.AND.IC.NE.I) CYCLE
+      DO IG=1,gc_catalog_size(I)
          D=0.0D0
-         DO I=1,10
-            IF(I.EQ.1)  II=31
-            IF(I.EQ.2)  II=32
-            IF(I.EQ.3)  II=33
-            IF(I.EQ.4)  II=34
-            IF(I.EQ.5)  II=35
-            IF(I.EQ.6)  II=76
-            IF(I.EQ.7)  II=77
-            IF(I.EQ.8)  II=78
-            IF(I.EQ.9)  II=79
-            IF(I.EQ.10) II=80
-            IF(I.EQ.1)  JJ=1
-            IF(I.EQ.2)  JJ=2
-            IF(I.EQ.3)  JJ=3
-            IF(I.EQ.4)  JJ=4
-            IF(I.EQ.5)  JJ=5
-            IF(I.EQ.6)  JJ=71
-            IF(I.EQ.7)  JJ=72
-            IF(I.EQ.8)  JJ=73
-            IF(I.EQ.9)  JJ=74
-            IF(I.EQ.10) JJ=75
-            IF(I.EQ.1)  KK=46
-            IF(I.EQ.2)  KK=47
-            IF(I.EQ.3)  KK=48
-            IF(I.EQ.4)  KK=49
-            IF(I.EQ.5)  KK=50
-            IF(I.EQ.6)  KK=71
-            IF(I.EQ.7)  KK=72
-            IF(I.EQ.8)  KK=73
-            IF(I.EQ.9)  KK=74
-            IF(I.EQ.10) KK=75
-            IF(sys_wl_weight(I).NE.0.0D0) THEN
-!     SPECTRAL WEIGHT NOT ZERO
-               LAMBDA=sys_wavelength(I)
-!     GET INDEX OF MODEL GLASS
-               NMOD=ALENS(KK,INT(W1))
-!     GET INDEX OF CAT GLASS
-               NCAT=PNSC(LAMBDA,A0,A1,A2,A3,A4,A5)
-               D=D+((NMOD-NCAT)**2)
-            END IF
+         DO J=1,10
+            IF(sys_wl_weight(J).EQ.0.0D0) CYCLE
+            NMOD=surf_refractive_index(ISURF,J)
+            NCAT=gc_index(I,IG,sys_wavelength(J))
+            D=D+((NMOD-NCAT)**2)
          END DO
+         g=gc_glass(I,IG)
          K=K+1
-         ASORTIT(1,K)='SCHOTT       '
-         ASORTIT(2,K)=NAME
+         ASORTIT(1,K)=gc_catalog_name(I)
+         ASORTIT(2,K)=g%name
          SORTIT(K)=DSQRT(D)
       END DO
-!     FINISHED LOADING, GO TO THE SORT
-      CALL CLOSE_FILE(99,1)
-      GO TO 999
-   END IF
-   IF(WQ.EQ.'SCH2000') THEN
-      K=0
-      OPEN(UNIT=99,ACCESS='DIRECT',&
-      &FILE=trim(LIBGLA)//'SCH2000.BIN',&
-      &FORM='UNFORMATTED',RECL=(NRECL*33),STATUS='UNKNOWN')
-      READ(UNIT=99,REC=1) TOTAL
-      DO J=2,TOTAL+1
-         READ(UNIT=99,REC=J)NAME,NUMBER,A0,A1,A2,A3,A4,A5
-!     CALCULATE DISTANCE AND THEN PLACE IN THE SORTING ARRAY
-         D=0.0D0
-         DO I=1,10
-            IF(I.EQ.1)  II=31
-            IF(I.EQ.2)  II=32
-            IF(I.EQ.3)  II=33
-            IF(I.EQ.4)  II=34
-            IF(I.EQ.5)  II=35
-            IF(I.EQ.6)  II=76
-            IF(I.EQ.7)  II=77
-            IF(I.EQ.8)  II=78
-            IF(I.EQ.9)  II=79
-            IF(I.EQ.10) II=80
-            IF(I.EQ.1)  JJ=1
-            IF(I.EQ.2)  JJ=2
-            IF(I.EQ.3)  JJ=3
-            IF(I.EQ.4)  JJ=4
-            IF(I.EQ.5)  JJ=5
-            IF(I.EQ.6)  JJ=71
-            IF(I.EQ.7)  JJ=72
-            IF(I.EQ.8)  JJ=73
-            IF(I.EQ.9)  JJ=74
-            IF(I.EQ.10) JJ=75
-            IF(I.EQ.1)  KK=46
-            IF(I.EQ.2)  KK=47
-            IF(I.EQ.3)  KK=48
-            IF(I.EQ.4)  KK=49
-            IF(I.EQ.5)  KK=50
-            IF(I.EQ.6)  KK=71
-            IF(I.EQ.7)  KK=72
-            IF(I.EQ.8)  KK=73
-            IF(I.EQ.9)  KK=74
-            IF(I.EQ.10) KK=75
-            IF(sys_wl_weight(I).NE.0.0D0) THEN
-!     SPECTRAL WEIGHT NOT ZERO
-               LAMBDA=sys_wavelength(I)
-!     GET INDEX OF MODEL GLASS
-               NMOD=ALENS(KK,INT(W1))
-!     GET INDEX OF CAT GLASS
-               NCAT=PNSC(LAMBDA,A0,A1,A2,A3,A4,A5)
-               D=D+((NMOD-NCAT)**2)
-            END IF
-         END DO
-         K=K+1
-         ASORTIT(1,K)='SCH2000      '
-         ASORTIT(2,K)=NAME
-         SORTIT(K)=DSQRT(D)
-      END DO
-!     FINISHED LOADING, GO TO THE SORT
-      CALL CLOSE_FILE(99,1)
-      GO TO 999
-   END IF
-   IF(WQ.EQ.'HOYA') THEN
-      K=0
-      OPEN(UNIT=99,ACCESS='DIRECT',FILE=LIBGLA//'HOYA.BIN',&
-      &FORM='UNFORMATTED',RECL=(NRECL*33),STATUS='UNKNOWN')
-      READ(UNIT=99,REC=1) TOTAL
-      DO J=2,TOTAL+1
-         READ(UNIT=99,REC=J)NAME,NUMBER,A0,A1,A2,A3,A4,A5
-!     CALCULATE DISTANCE AND THEN PLACE IN THE SORTING ARRAY
-         D=0.0D0
-         DO I=1,10
-            IF(I.EQ.1)  II=31
-            IF(I.EQ.2)  II=32
-            IF(I.EQ.3)  II=33
-            IF(I.EQ.4)  II=34
-            IF(I.EQ.5)  II=35
-            IF(I.EQ.6)  II=76
-            IF(I.EQ.7)  II=77
-            IF(I.EQ.8)  II=78
-            IF(I.EQ.9)  II=79
-            IF(I.EQ.10) II=80
-            IF(I.EQ.1)  JJ=1
-            IF(I.EQ.2)  JJ=2
-            IF(I.EQ.3)  JJ=3
-            IF(I.EQ.4)  JJ=4
-            IF(I.EQ.5)  JJ=5
-            IF(I.EQ.6)  JJ=71
-            IF(I.EQ.7)  JJ=72
-            IF(I.EQ.8)  JJ=73
-            IF(I.EQ.9)  JJ=74
-            IF(I.EQ.10) JJ=75
-            IF(I.EQ.1)  KK=46
-            IF(I.EQ.2)  KK=47
-            IF(I.EQ.3)  KK=48
-            IF(I.EQ.4)  KK=49
-            IF(I.EQ.5)  KK=50
-            IF(I.EQ.6)  KK=71
-            IF(I.EQ.7)  KK=72
-            IF(I.EQ.8)  KK=73
-            IF(I.EQ.9)  KK=74
-            IF(I.EQ.10) KK=75
-            IF(sys_wl_weight(I).NE.0.0D0) THEN
-!     SPECTRAL WEIGHT NOT ZERO
-               LAMBDA=sys_wavelength(I)
-!     GET INDEX OF MODEL GLASS
-               NMOD=ALENS(KK,INT(W1))
-!     GET INDEX OF CAT GLASS
-               NCAT=PN(LAMBDA,A0,A1,A2,A3,A4,A5)
-               D=D+((NMOD-NCAT)**2)
-            END IF
-         END DO
-         K=K+1
-         ASORTIT(1,K)='HOYA         '
-         ASORTIT(2,K)=NAME
-         SORTIT(K)=DSQRT(D)
-      END DO
-!     FINISHED LOADING, GO TO THE SORT
-      CALL CLOSE_FILE(99,1)
-      GO TO 999
-   END IF
-   IF(WQ.EQ.'HIKARI') THEN
-      K=0
-      OPEN(UNIT=99,ACCESS='DIRECT',FILE=LIBGLA//'HIKARI.BIN',&
-      &FORM='UNFORMATTED',RECL=(NRECL*33),STATUS='UNKNOWN')
-      READ(UNIT=99,REC=1) TOTAL
-      DO J=2,TOTAL+1
-         READ(UNIT=99,REC=J)NAME,NUMBER,A0,A1,A2,A3,A4,A5
-!     CALCULATE DISTANCE AND THEN PLACE IN THE SORTING ARRAY
-         D=0.0D0
-         DO I=1,10
-            IF(I.EQ.1)  II=31
-            IF(I.EQ.2)  II=32
-            IF(I.EQ.3)  II=33
-            IF(I.EQ.4)  II=34
-            IF(I.EQ.5)  II=35
-            IF(I.EQ.6)  II=76
-            IF(I.EQ.7)  II=77
-            IF(I.EQ.8)  II=78
-            IF(I.EQ.9)  II=79
-            IF(I.EQ.10) II=80
-            IF(I.EQ.1)  JJ=1
-            IF(I.EQ.2)  JJ=2
-            IF(I.EQ.3)  JJ=3
-            IF(I.EQ.4)  JJ=4
-            IF(I.EQ.5)  JJ=5
-            IF(I.EQ.6)  JJ=71
-            IF(I.EQ.7)  JJ=72
-            IF(I.EQ.8)  JJ=73
-            IF(I.EQ.9)  JJ=74
-            IF(I.EQ.10) JJ=75
-            IF(I.EQ.1)  KK=46
-            IF(I.EQ.2)  KK=47
-            IF(I.EQ.3)  KK=48
-            IF(I.EQ.4)  KK=49
-            IF(I.EQ.5)  KK=50
-            IF(I.EQ.6)  KK=71
-            IF(I.EQ.7)  KK=72
-            IF(I.EQ.8)  KK=73
-            IF(I.EQ.9)  KK=74
-            IF(I.EQ.10) KK=75
-            IF(sys_wl_weight(I).NE.0.0D0) THEN
-!     SPECTRAL WEIGHT NOT ZERO
-               LAMBDA=sys_wavelength(I)
-!     GET INDEX OF MODEL GLASS
-               NMOD=ALENS(KK,INT(W1))
-!     GET INDEX OF CAT GLASS
-               NCAT=PN(LAMBDA,A0,A1,A2,A3,A4,A5)
-               D=D+((NMOD-NCAT)**2)
-            END IF
-         END DO
-         K=K+1
-         ASORTIT(1,K)='HIKARI       '
-         ASORTIT(2,K)=NAME
-         SORTIT(K)=DSQRT(D)
-      END DO
-!     FINISHED LOADING, GO TO THE SORT
-      CALL CLOSE_FILE(99,1)
-      GO TO 999
-   END IF
-   IF(WQ.EQ.'OHARA') THEN
-      K=0
-      OPEN(UNIT=99,ACCESS='DIRECT',FILE=LIBGLA//'OHARA.BIN',&
-      &FORM='UNFORMATTED',RECL=(NRECL*33),STATUS='UNKNOWN')
-      READ(UNIT=99,REC=1) TOTAL
-      DO J=2,TOTAL+1
-         READ(UNIT=99,REC=J)NAME,NUMBER,A0,A1,A2,A3,A4,A5
-!     CALCULATE DISTANCE AND THEN PLACE IN THE SORTING ARRAY
-         D=0.0D0
-         DO I=1,10
-            IF(I.EQ.1)  II=31
-            IF(I.EQ.2)  II=32
-            IF(I.EQ.3)  II=33
-            IF(I.EQ.4)  II=34
-            IF(I.EQ.5)  II=35
-            IF(I.EQ.6)  II=76
-            IF(I.EQ.7)  II=77
-            IF(I.EQ.8)  II=78
-            IF(I.EQ.9)  II=79
-            IF(I.EQ.10) II=80
-            IF(I.EQ.1)  JJ=1
-            IF(I.EQ.2)  JJ=2
-            IF(I.EQ.3)  JJ=3
-            IF(I.EQ.4)  JJ=4
-            IF(I.EQ.5)  JJ=5
-            IF(I.EQ.6)  JJ=71
-            IF(I.EQ.7)  JJ=72
-            IF(I.EQ.8)  JJ=73
-            IF(I.EQ.9)  JJ=74
-            IF(I.EQ.10) JJ=75
-            IF(I.EQ.1)  KK=46
-            IF(I.EQ.2)  KK=47
-            IF(I.EQ.3)  KK=48
-            IF(I.EQ.4)  KK=49
-            IF(I.EQ.5)  KK=50
-            IF(I.EQ.6)  KK=71
-            IF(I.EQ.7)  KK=72
-            IF(I.EQ.8)  KK=73
-            IF(I.EQ.9)  KK=74
-            IF(I.EQ.10) KK=75
-            IF(sys_wl_weight(I).NE.0.0D0) THEN
-!     SPECTRAL WEIGHT NOT ZERO
-               LAMBDA=sys_wavelength(I)
-!     GET INDEX OF MODEL GLASS
-               NMOD=ALENS(KK,INT(W1))
-!     GET INDEX OF CAT GLASS
-               NCAT=PNSC(LAMBDA,A0,A1,A2,A3,A4,A5)
-               D=D+((NMOD-NCAT)**2)
-            END IF
-         END DO
-         K=K+1
-         ASORTIT(1,K)='OHARA        '
-         ASORTIT(2,K)=NAME
-         SORTIT(K)=DSQRT(D)
-      END DO
-!     FINISHED LOADING, GO TO THE SORT
-      CALL CLOSE_FILE(99,1)
-!     NOW THE SECOND OHARA FILE
-      OPEN(UNIT=99,ACCESS='DIRECT',FILE=LIBGLA//'OHARA-O.BIN',&
-      &FORM='UNFORMATTED',RECL=(NRECL*33),STATUS='UNKNOWN')
-      READ(UNIT=99,REC=1) TOTAL
-      DO J=2,TOTAL+1
-         READ(UNIT=99,REC=J)NAME,NUMBER,A0,A1,A2,A3,A4,A5
-!     CALCULATE DISTANCE AND THEN PLACE IN THE SORTING ARRAY
-         D=0.0D0
-         DO I=1,10
-            IF(I.EQ.1)  II=31
-            IF(I.EQ.2)  II=32
-            IF(I.EQ.3)  II=33
-            IF(I.EQ.4)  II=34
-            IF(I.EQ.5)  II=35
-            IF(I.EQ.6)  II=76
-            IF(I.EQ.7)  II=77
-            IF(I.EQ.8)  II=78
-            IF(I.EQ.9)  II=79
-            IF(I.EQ.10) II=80
-            IF(I.EQ.1)  JJ=1
-            IF(I.EQ.2)  JJ=2
-            IF(I.EQ.3)  JJ=3
-            IF(I.EQ.4)  JJ=4
-            IF(I.EQ.5)  JJ=5
-            IF(I.EQ.6)  JJ=71
-            IF(I.EQ.7)  JJ=72
-            IF(I.EQ.8)  JJ=73
-            IF(I.EQ.9)  JJ=74
-            IF(I.EQ.10) JJ=75
-            IF(I.EQ.1)  KK=46
-            IF(I.EQ.2)  KK=47
-            IF(I.EQ.3)  KK=48
-            IF(I.EQ.4)  KK=49
-            IF(I.EQ.5)  KK=50
-            IF(I.EQ.6)  KK=71
-            IF(I.EQ.7)  KK=72
-            IF(I.EQ.8)  KK=73
-            IF(I.EQ.9)  KK=74
-            IF(I.EQ.10) KK=75
-            IF(sys_wl_weight(I).NE.0.0D0) THEN
-!     SPECTRAL WEIGHT NOT ZERO
-               LAMBDA=sys_wavelength(I)
-!     GET INDEX OF MODEL GLASS
-               NMOD=ALENS(KK,INT(W1))
-!     GET INDEX OF CAT GLASS
-               NCAT=PN(LAMBDA,A0,A1,A2,A3,A4,A5)
-               D=D+((NMOD-NCAT)**2)
-            END IF
-         END DO
-         K=K+1
-         ASORTIT(1,K)='OHARA        '
-         ASORTIT(2,K)=NAME
-         SORTIT(K)=DSQRT(D)
-      END DO
-!     FINISHED LOADING, GO TO THE SORT
-      CALL CLOSE_FILE(99,1)
-      GO TO 999
-   END IF
-   IF(WQ.EQ.'CORNIN') THEN
-      K=0
-      OPEN(UNIT=99,ACCESS='DIRECT',FILE=LIBGLA//'CORNIN.BIN',&
-      &FORM='UNFORMATTED',RECL=(NRECL*33),STATUS='UNKNOWN')
-      READ(UNIT=99,REC=1) TOTAL
-      DO J=2,TOTAL+1
-         READ(UNIT=99,REC=J)NAME,NUMBER,A0,A1,A2,A3,A4,A5
-!     CALCULATE DISTANCE AND THEN PLACE IN THE SORTING ARRAY
-         D=0.0D0
-         DO I=1,10
-            IF(I.EQ.1)  II=31
-            IF(I.EQ.2)  II=32
-            IF(I.EQ.3)  II=33
-            IF(I.EQ.4)  II=34
-            IF(I.EQ.5)  II=35
-            IF(I.EQ.6)  II=76
-            IF(I.EQ.7)  II=77
-            IF(I.EQ.8)  II=78
-            IF(I.EQ.9)  II=79
-            IF(I.EQ.10) II=80
-            IF(I.EQ.1)  JJ=1
-            IF(I.EQ.2)  JJ=2
-            IF(I.EQ.3)  JJ=3
-            IF(I.EQ.4)  JJ=4
-            IF(I.EQ.5)  JJ=5
-            IF(I.EQ.6)  JJ=71
-            IF(I.EQ.7)  JJ=72
-            IF(I.EQ.8)  JJ=73
-            IF(I.EQ.9)  JJ=74
-            IF(I.EQ.10) JJ=75
-            IF(I.EQ.1)  KK=46
-            IF(I.EQ.2)  KK=47
-            IF(I.EQ.3)  KK=48
-            IF(I.EQ.4)  KK=49
-            IF(I.EQ.5)  KK=50
-            IF(I.EQ.6)  KK=71
-            IF(I.EQ.7)  KK=72
-            IF(I.EQ.8)  KK=73
-            IF(I.EQ.9)  KK=74
-            IF(I.EQ.10) KK=75
-            IF(sys_wl_weight(I).NE.0.0D0) THEN
-!     SPECTRAL WEIGHT NOT ZERO
-               LAMBDA=sys_wavelength(I)
-!     GET INDEX OF MODEL GLASS
-               NMOD=ALENS(KK,INT(W1))
-!     GET INDEX OF CAT GLASS
-               NCAT=PN(LAMBDA,A0,A1,A2,A3,A4,A5)
-               D=D+((NMOD-NCAT)**2)
-            END IF
-         END DO
-         K=K+1
-         ASORTIT(1,K)='CORNIN       '
-         ASORTIT(2,K)=NAME
-         SORTIT(K)=DSQRT(D)
-      END DO
-!     FINISHED LOADING, GO TO THE SORT
-      CALL CLOSE_FILE(99,1)
-      GO TO 999
-   END IF
-   IF(WQ.EQ.'CHANCE') THEN
-      K=0
-      OPEN(UNIT=99,ACCESS='DIRECT',FILE=LIBGLA//'CHANCE.BIN',&
-      &FORM='UNFORMATTED',RECL=(NRECL*33),STATUS='UNKNOWN')
-      READ(UNIT=99,REC=1) TOTAL
-      DO J=2,TOTAL+1
-         READ(UNIT=99,REC=J)NAME,NUMBER,A0,A1,A2,A3,A4,A5
-!     CALCULATE DISTANCE AND THEN PLACE IN THE SORTING ARRAY
-         D=0.0D0
-         DO I=1,10
-            IF(I.EQ.1)  II=31
-            IF(I.EQ.2)  II=32
-            IF(I.EQ.3)  II=33
-            IF(I.EQ.4)  II=34
-            IF(I.EQ.5)  II=35
-            IF(I.EQ.6)  II=76
-            IF(I.EQ.7)  II=77
-            IF(I.EQ.8)  II=78
-            IF(I.EQ.9)  II=79
-            IF(I.EQ.10) II=80
-            IF(I.EQ.1)  JJ=1
-            IF(I.EQ.2)  JJ=2
-            IF(I.EQ.3)  JJ=3
-            IF(I.EQ.4)  JJ=4
-            IF(I.EQ.5)  JJ=5
-            IF(I.EQ.6)  JJ=71
-            IF(I.EQ.7)  JJ=72
-            IF(I.EQ.8)  JJ=73
-            IF(I.EQ.9)  JJ=74
-            IF(I.EQ.10) JJ=75
-            IF(I.EQ.1)  KK=46
-            IF(I.EQ.2)  KK=47
-            IF(I.EQ.3)  KK=48
-            IF(I.EQ.4)  KK=49
-            IF(I.EQ.5)  KK=50
-            IF(I.EQ.6)  KK=71
-            IF(I.EQ.7)  KK=72
-            IF(I.EQ.8)  KK=73
-            IF(I.EQ.9)  KK=74
-            IF(I.EQ.10) KK=75
-            IF(sys_wl_weight(I).NE.0.0D0) THEN
-!     SPECTRAL WEIGHT NOT ZERO
-               LAMBDA=sys_wavelength(I)
-!     GET INDEX OF MODEL GLASS
-               NMOD=ALENS(KK,INT(W1))
-!     GET INDEX OF CAT GLASS
-               NCAT=PN(LAMBDA,A0,A1,A2,A3,A4,A5)
-               D=D+((NMOD-NCAT)**2)
-            END IF
-         END DO
-         K=K+1
-         ASORTIT(1,K)='CHANCE       '
-         ASORTIT(2,K)=NAME
-         SORTIT(K)=DSQRT(D)
-      END DO
-!     FINISHED LOADING, GO TO THE SORT
-      CALL CLOSE_FILE(99,1)
-      GO TO 999
-   END IF
-   IF(WQ.EQ.'ALL') THEN
-      K=0
-      OPEN(UNIT=99,ACCESS='DIRECT',&
-      &FILE=trim(LIBGLA)//'SCHOTT.BIN',&
-      &FORM='UNFORMATTED',RECL=(NRECL*33),STATUS='UNKNOWN')
-      READ(UNIT=99,REC=1) TOTAL
-      DO J=2,TOTAL+1
-         READ(UNIT=99,REC=J)NAME,NUMBER,A0,A1,A2,A3,A4,A5
-!     CALCULATE DISTANCE AND THEN PLACE IN THE SORTING ARRAY
-         D=0.0D0
-         DO I=1,10
-            IF(I.EQ.1)  II=31
-            IF(I.EQ.2)  II=32
-            IF(I.EQ.3)  II=33
-            IF(I.EQ.4)  II=34
-            IF(I.EQ.5)  II=35
-            IF(I.EQ.6)  II=76
-            IF(I.EQ.7)  II=77
-            IF(I.EQ.8)  II=78
-            IF(I.EQ.9)  II=79
-            IF(I.EQ.10) II=80
-            IF(I.EQ.1)  JJ=1
-            IF(I.EQ.2)  JJ=2
-            IF(I.EQ.3)  JJ=3
-            IF(I.EQ.4)  JJ=4
-            IF(I.EQ.5)  JJ=5
-            IF(I.EQ.6)  JJ=71
-            IF(I.EQ.7)  JJ=72
-            IF(I.EQ.8)  JJ=73
-            IF(I.EQ.9)  JJ=74
-            IF(I.EQ.10) JJ=75
-            IF(I.EQ.1)  KK=46
-            IF(I.EQ.2)  KK=47
-            IF(I.EQ.3)  KK=48
-            IF(I.EQ.4)  KK=49
-            IF(I.EQ.5)  KK=50
-            IF(I.EQ.6)  KK=71
-            IF(I.EQ.7)  KK=72
-            IF(I.EQ.8)  KK=73
-            IF(I.EQ.9)  KK=74
-            IF(I.EQ.10) KK=75
-            IF(sys_wl_weight(I).NE.0.0D0) THEN
-!     SPECTRAL WEIGHT NOT ZERO
-               LAMBDA=sys_wavelength(I)
-!     GET INDEX OF MODEL GLASS
-               NMOD=ALENS(KK,INT(W1))
-!     GET INDEX OF CAT GLASS
-               NCAT=PNSC(LAMBDA,A0,A1,A2,A3,A4,A5)
-               D=D+((NMOD-NCAT)**2)
-            END IF
-         END DO
-         K=K+1
-         ASORTIT(1,K)='SCHOTT       '
-         ASORTIT(2,K)=NAME
-         SORTIT(K)=DSQRT(D)
-      END DO
-!     FINISHED LOADING, GO TO THE SORT
-      CALL CLOSE_FILE(99,1)
-      OPEN(UNIT=99,ACCESS='DIRECT',FILE=LIBGLA//'SCH2000.BIN',&
-      &FORM='UNFORMATTED',RECL=(NRECL*33),STATUS='UNKNOWN')
-      READ(UNIT=99,REC=1) TOTAL
-      DO J=2,TOTAL+1
-         READ(UNIT=99,REC=J)NAME,NUMBER,A0,A1,A2,A3,A4,A5
-!     CALCULATE DISTANCE AND THEN PLACE IN THE SORTING ARRAY
-         D=0.0D0
-         DO I=1,10
-            IF(I.EQ.1)  II=31
-            IF(I.EQ.2)  II=32
-            IF(I.EQ.3)  II=33
-            IF(I.EQ.4)  II=34
-            IF(I.EQ.5)  II=35
-            IF(I.EQ.6)  II=76
-            IF(I.EQ.7)  II=77
-            IF(I.EQ.8)  II=78
-            IF(I.EQ.9)  II=79
-            IF(I.EQ.10) II=80
-            IF(I.EQ.1)  JJ=1
-            IF(I.EQ.2)  JJ=2
-            IF(I.EQ.3)  JJ=3
-            IF(I.EQ.4)  JJ=4
-            IF(I.EQ.5)  JJ=5
-            IF(I.EQ.6)  JJ=71
-            IF(I.EQ.7)  JJ=72
-            IF(I.EQ.8)  JJ=73
-            IF(I.EQ.9)  JJ=74
-            IF(I.EQ.10) JJ=75
-            IF(I.EQ.1)  KK=46
-            IF(I.EQ.2)  KK=47
-            IF(I.EQ.3)  KK=48
-            IF(I.EQ.4)  KK=49
-            IF(I.EQ.5)  KK=50
-            IF(I.EQ.6)  KK=71
-            IF(I.EQ.7)  KK=72
-            IF(I.EQ.8)  KK=73
-            IF(I.EQ.9)  KK=74
-            IF(I.EQ.10) KK=75
-            IF(sys_wl_weight(I).NE.0.0D0) THEN
-!     SPECTRAL WEIGHT NOT ZERO
-               LAMBDA=sys_wavelength(I)
-!     GET INDEX OF MODEL GLASS
-               NMOD=ALENS(KK,INT(W1))
-!     GET INDEX OF CAT GLASS
-               NCAT=PNSC(LAMBDA,A0,A1,A2,A3,A4,A5)
-               D=D+((NMOD-NCAT)**2)
-            END IF
-         END DO
-         K=K+1
-         ASORTIT(1,K)='SCH2000      '
-         ASORTIT(2,K)=NAME
-         SORTIT(K)=DSQRT(D)
-      END DO
-!     FINISHED LOADING, GO TO THE SORT
-      CALL CLOSE_FILE(99,1)
-      OPEN(UNIT=99,ACCESS='DIRECT',FILE=LIBGLA//'HOYA.BIN',&
-      &FORM='UNFORMATTED',RECL=(NRECL*33),STATUS='UNKNOWN')
-      READ(UNIT=99,REC=1) TOTAL
-      DO J=2,TOTAL+1
-         READ(UNIT=99,REC=J)NAME,NUMBER,A0,A1,A2,A3,A4,A5
-!     CALCULATE DISTANCE AND THEN PLACE IN THE SORTING ARRAY
-         D=0.0D0
-         DO I=1,10
-            IF(I.EQ.1)  II=31
-            IF(I.EQ.2)  II=32
-            IF(I.EQ.3)  II=33
-            IF(I.EQ.4)  II=34
-            IF(I.EQ.5)  II=35
-            IF(I.EQ.6)  II=76
-            IF(I.EQ.7)  II=77
-            IF(I.EQ.8)  II=78
-            IF(I.EQ.9)  II=79
-            IF(I.EQ.10) II=80
-            IF(I.EQ.1)  JJ=1
-            IF(I.EQ.2)  JJ=2
-            IF(I.EQ.3)  JJ=3
-            IF(I.EQ.4)  JJ=4
-            IF(I.EQ.5)  JJ=5
-            IF(I.EQ.6)  JJ=71
-            IF(I.EQ.7)  JJ=72
-            IF(I.EQ.8)  JJ=73
-            IF(I.EQ.9)  JJ=74
-            IF(I.EQ.10) JJ=75
-            IF(I.EQ.1)  KK=46
-            IF(I.EQ.2)  KK=47
-            IF(I.EQ.3)  KK=48
-            IF(I.EQ.4)  KK=49
-            IF(I.EQ.5)  KK=50
-            IF(I.EQ.6)  KK=71
-            IF(I.EQ.7)  KK=72
-            IF(I.EQ.8)  KK=73
-            IF(I.EQ.9)  KK=74
-            IF(I.EQ.10) KK=75
-            IF(sys_wl_weight(I).NE.0.0D0) THEN
-!     SPECTRAL WEIGHT NOT ZERO
-               LAMBDA=sys_wavelength(I)
-!     GET INDEX OF MODEL GLASS
-               NMOD=ALENS(KK,INT(W1))
-!     GET INDEX OF CAT GLASS
-               NCAT=PN(LAMBDA,A0,A1,A2,A3,A4,A5)
-               D=D+((NMOD-NCAT)**2)
-            END IF
-         END DO
-         K=K+1
-         ASORTIT(1,K)='HOYA         '
-         ASORTIT(2,K)=NAME
-         SORTIT(K)=DSQRT(D)
-      END DO
-!     FINISHED LOADING, GO TO THE SORT
-      CALL CLOSE_FILE(99,1)
-      OPEN(UNIT=99,ACCESS='DIRECT',FILE=LIBGLA//'HIKARI.BIN',&
-      &FORM='UNFORMATTED',RECL=(NRECL*33),STATUS='UNKNOWN')
-      READ(UNIT=99,REC=1) TOTAL
-      DO J=2,TOTAL+1
-         READ(UNIT=99,REC=J)NAME,NUMBER,A0,A1,A2,A3,A4,A5
-!     CALCULATE DISTANCE AND THEN PLACE IN THE SORTING ARRAY
-         D=0.0D0
-         DO I=1,10
-            IF(I.EQ.1)  II=31
-            IF(I.EQ.2)  II=32
-            IF(I.EQ.3)  II=33
-            IF(I.EQ.4)  II=34
-            IF(I.EQ.5)  II=35
-            IF(I.EQ.6)  II=76
-            IF(I.EQ.7)  II=77
-            IF(I.EQ.8)  II=78
-            IF(I.EQ.9)  II=79
-            IF(I.EQ.10) II=80
-            IF(I.EQ.1)  JJ=1
-            IF(I.EQ.2)  JJ=2
-            IF(I.EQ.3)  JJ=3
-            IF(I.EQ.4)  JJ=4
-            IF(I.EQ.5)  JJ=5
-            IF(I.EQ.6)  JJ=71
-            IF(I.EQ.7)  JJ=72
-            IF(I.EQ.8)  JJ=73
-            IF(I.EQ.9)  JJ=74
-            IF(I.EQ.10) JJ=75
-            IF(I.EQ.1)  KK=46
-            IF(I.EQ.2)  KK=47
-            IF(I.EQ.3)  KK=48
-            IF(I.EQ.4)  KK=49
-            IF(I.EQ.5)  KK=50
-            IF(I.EQ.6)  KK=71
-            IF(I.EQ.7)  KK=72
-            IF(I.EQ.8)  KK=73
-            IF(I.EQ.9)  KK=74
-            IF(I.EQ.10) KK=75
-            IF(sys_wl_weight(I).NE.0.0D0) THEN
-!     SPECTRAL WEIGHT NOT ZERO
-               LAMBDA=sys_wavelength(I)
-!     GET INDEX OF MODEL GLASS
-               NMOD=ALENS(KK,INT(W1))
-!     GET INDEX OF CAT GLASS
-               NCAT=PN(LAMBDA,A0,A1,A2,A3,A4,A5)
-               D=D+((NMOD-NCAT)**2)
-            END IF
-         END DO
-         K=K+1
-         ASORTIT(1,K)='HIKARI       '
-         ASORTIT(2,K)=NAME
-         SORTIT(K)=DSQRT(D)
-      END DO
-!     FINISHED LOADING, GO TO THE SORT
-      CALL CLOSE_FILE(99,1)
-      OPEN(UNIT=99,ACCESS='DIRECT',FILE=LIBGLA//'OHARA.BIN',&
-      &FORM='UNFORMATTED',RECL=(NRECL*33),STATUS='UNKNOWN')
-      READ(UNIT=99,REC=1) TOTAL
-      DO J=2,TOTAL+1
-         READ(UNIT=99,REC=J)NAME,NUMBER,A0,A1,A2,A3,A4,A5
-!     CALCULATE DISTANCE AND THEN PLACE IN THE SORTING ARRAY
-         D=0.0D0
-         DO I=1,10
-            IF(I.EQ.1)  II=31
-            IF(I.EQ.2)  II=32
-            IF(I.EQ.3)  II=33
-            IF(I.EQ.4)  II=34
-            IF(I.EQ.5)  II=35
-            IF(I.EQ.6)  II=76
-            IF(I.EQ.7)  II=77
-            IF(I.EQ.8)  II=78
-            IF(I.EQ.9)  II=79
-            IF(I.EQ.10) II=80
-            IF(I.EQ.1)  JJ=1
-            IF(I.EQ.2)  JJ=2
-            IF(I.EQ.3)  JJ=3
-            IF(I.EQ.4)  JJ=4
-            IF(I.EQ.5)  JJ=5
-            IF(I.EQ.6)  JJ=71
-            IF(I.EQ.7)  JJ=72
-            IF(I.EQ.8)  JJ=73
-            IF(I.EQ.9)  JJ=74
-            IF(I.EQ.10) JJ=75
-            IF(I.EQ.1)  KK=46
-            IF(I.EQ.2)  KK=47
-            IF(I.EQ.3)  KK=48
-            IF(I.EQ.4)  KK=49
-            IF(I.EQ.5)  KK=50
-            IF(I.EQ.6)  KK=71
-            IF(I.EQ.7)  KK=72
-            IF(I.EQ.8)  KK=73
-            IF(I.EQ.9)  KK=74
-            IF(I.EQ.10) KK=75
-            IF(sys_wl_weight(I).NE.0.0D0) THEN
-!     SPECTRAL WEIGHT NOT ZERO
-               LAMBDA=sys_wavelength(I)
-!     GET INDEX OF MODEL GLASS
-               NMOD=ALENS(KK,INT(W1))
-!     GET INDEX OF CAT GLASS
-               NCAT=PNSC(LAMBDA,A0,A1,A2,A3,A4,A5)
-               D=D+((NMOD-NCAT)**2)
-            END IF
-         END DO
-         K=K+1
-         ASORTIT(1,K)='OHARA        '
-         ASORTIT(2,K)=NAME
-         SORTIT(K)=DSQRT(D)
-      END DO
-!     FINISHED LOADING, GO TO THE SORT
-      CALL CLOSE_FILE(99,1)
-      OPEN(UNIT=99,ACCESS='DIRECT',FILE=LIBGLA//'OHARA-O.BIN',&
-      &FORM='UNFORMATTED',RECL=(NRECL*33),STATUS='UNKNOWN')
-      READ(UNIT=99,REC=1) TOTAL
-      DO J=2,TOTAL+1
-         READ(UNIT=99,REC=J)NAME,NUMBER,A0,A1,A2,A3,A4,A5
-!     CALCULATE DISTANCE AND THEN PLACE IN THE SORTING ARRAY
-         D=0.0D0
-         DO I=1,10
-            IF(I.EQ.1)  II=31
-            IF(I.EQ.2)  II=32
-            IF(I.EQ.3)  II=33
-            IF(I.EQ.4)  II=34
-            IF(I.EQ.5)  II=35
-            IF(I.EQ.6)  II=76
-            IF(I.EQ.7)  II=77
-            IF(I.EQ.8)  II=78
-            IF(I.EQ.9)  II=79
-            IF(I.EQ.10) II=80
-            IF(I.EQ.1)  JJ=1
-            IF(I.EQ.2)  JJ=2
-            IF(I.EQ.3)  JJ=3
-            IF(I.EQ.4)  JJ=4
-            IF(I.EQ.5)  JJ=5
-            IF(I.EQ.6)  JJ=71
-            IF(I.EQ.7)  JJ=72
-            IF(I.EQ.8)  JJ=73
-            IF(I.EQ.9)  JJ=74
-            IF(I.EQ.10) JJ=75
-            IF(I.EQ.1)  KK=46
-            IF(I.EQ.2)  KK=47
-            IF(I.EQ.3)  KK=48
-            IF(I.EQ.4)  KK=49
-            IF(I.EQ.5)  KK=50
-            IF(I.EQ.6)  KK=71
-            IF(I.EQ.7)  KK=72
-            IF(I.EQ.8)  KK=73
-            IF(I.EQ.9)  KK=74
-            IF(I.EQ.10) KK=75
-            IF(sys_wl_weight(I).NE.0.0D0) THEN
-!     SPECTRAL WEIGHT NOT ZERO
-               LAMBDA=sys_wavelength(I)
-!     GET INDEX OF MODEL GLASS
-               NMOD=ALENS(KK,INT(W1))
-!     GET INDEX OF CAT GLASS
-               NCAT=PN(LAMBDA,A0,A1,A2,A3,A4,A5)
-               D=D+((NMOD-NCAT)**2)
-            END IF
-         END DO
-         K=K+1
-         ASORTIT(1,K)='OHARA        '
-         ASORTIT(2,K)=NAME
-         SORTIT(K)=DSQRT(D)
-      END DO
-!     FINISHED LOADING, GO TO THE SORT
-      CALL CLOSE_FILE(99,1)
-      OPEN(UNIT=99,ACCESS='DIRECT',FILE=LIBGLA//'CORNIN.BIN',&
-      &FORM='UNFORMATTED',RECL=(NRECL*33),STATUS='UNKNOWN')
-      READ(UNIT=99,REC=1) TOTAL
-      DO J=2,TOTAL+1
-         READ(UNIT=99,REC=J)NAME,NUMBER,A0,A1,A2,A3,A4,A5
-!     CALCULATE DISTANCE AND THEN PLACE IN THE SORTING ARRAY
-         D=0.0D0
-         DO I=1,10
-            IF(I.EQ.1)  II=31
-            IF(I.EQ.2)  II=32
-            IF(I.EQ.3)  II=33
-            IF(I.EQ.4)  II=34
-            IF(I.EQ.5)  II=35
-            IF(I.EQ.6)  II=76
-            IF(I.EQ.7)  II=77
-            IF(I.EQ.8)  II=78
-            IF(I.EQ.9)  II=79
-            IF(I.EQ.10) II=80
-            IF(I.EQ.1)  JJ=1
-            IF(I.EQ.2)  JJ=2
-            IF(I.EQ.3)  JJ=3
-            IF(I.EQ.4)  JJ=4
-            IF(I.EQ.5)  JJ=5
-            IF(I.EQ.6)  JJ=71
-            IF(I.EQ.7)  JJ=72
-            IF(I.EQ.8)  JJ=73
-            IF(I.EQ.9)  JJ=74
-            IF(I.EQ.10) JJ=75
-            IF(I.EQ.1)  KK=46
-            IF(I.EQ.2)  KK=47
-            IF(I.EQ.3)  KK=48
-            IF(I.EQ.4)  KK=49
-            IF(I.EQ.5)  KK=50
-            IF(I.EQ.6)  KK=71
-            IF(I.EQ.7)  KK=72
-            IF(I.EQ.8)  KK=73
-            IF(I.EQ.9)  KK=74
-            IF(I.EQ.10) KK=75
-            IF(sys_wl_weight(I).NE.0.0D0) THEN
-!     SPECTRAL WEIGHT NOT ZERO
-               LAMBDA=sys_wavelength(I)
-!     GET INDEX OF MODEL GLASS
-               NMOD=ALENS(KK,INT(W1))
-!     GET INDEX OF CAT GLASS
-               NCAT=PN(LAMBDA,A0,A1,A2,A3,A4,A5)
-               D=D+((NMOD-NCAT)**2)
-            END IF
-         END DO
-         K=K+1
-         ASORTIT(1,K)='CORNIN       '
-         ASORTIT(2,K)=NAME
-         SORTIT(K)=DSQRT(D)
-      END DO
-!     FINISHED LOADING, GO TO THE SORT
-      CALL CLOSE_FILE(99,1)
-      OPEN(UNIT=99,ACCESS='DIRECT',FILE=LIBGLA//'CHANCE.BIN',&
-      &FORM='UNFORMATTED',RECL=(NRECL*33),STATUS='UNKNOWN')
-      READ(UNIT=99,REC=1) TOTAL
-      DO J=2,TOTAL+1
-         READ(UNIT=99,REC=J)NAME,NUMBER,A0,A1,A2,A3,A4,A5
-!     CALCULATE DISTANCE AND THEN PLACE IN THE SORTING ARRAY
-         D=0.0D0
-         DO I=1,10
-            IF(I.EQ.1)  II=31
-            IF(I.EQ.2)  II=32
-            IF(I.EQ.3)  II=33
-            IF(I.EQ.4)  II=34
-            IF(I.EQ.5)  II=35
-            IF(I.EQ.6)  II=76
-            IF(I.EQ.7)  II=77
-            IF(I.EQ.8)  II=78
-            IF(I.EQ.9)  II=79
-            IF(I.EQ.10) II=80
-            IF(I.EQ.1)  JJ=1
-            IF(I.EQ.2)  JJ=2
-            IF(I.EQ.3)  JJ=3
-            IF(I.EQ.4)  JJ=4
-            IF(I.EQ.5)  JJ=5
-            IF(I.EQ.6)  JJ=71
-            IF(I.EQ.7)  JJ=72
-            IF(I.EQ.8)  JJ=73
-            IF(I.EQ.9)  JJ=74
-            IF(I.EQ.10) JJ=75
-            IF(I.EQ.1)  KK=46
-            IF(I.EQ.2)  KK=47
-            IF(I.EQ.3)  KK=48
-            IF(I.EQ.4)  KK=49
-            IF(I.EQ.5)  KK=50
-            IF(I.EQ.6)  KK=71
-            IF(I.EQ.7)  KK=72
-            IF(I.EQ.8)  KK=73
-            IF(I.EQ.9)  KK=74
-            IF(I.EQ.10) KK=75
-            IF(sys_wl_weight(I).NE.0.0D0) THEN
-!     SPECTRAL WEIGHT NOT ZERO
-               LAMBDA=sys_wavelength(I)
-!     GET INDEX OF MODEL GLASS
-               NMOD=ALENS(KK,INT(W1))
-!     GET INDEX OF CAT GLASS
-               NCAT=PN(LAMBDA,A0,A1,A2,A3,A4,A5)
-               D=D+((NMOD-NCAT)**2)
-            END IF
-         END DO
-         K=K+1
-         ASORTIT(1,K)='CHANCE       '
-         ASORTIT(2,K)=NAME
-         SORTIT(K)=DSQRT(D)
-      END DO
-!     FINISHED LOADING, GO TO THE SORT
-      CALL CLOSE_FILE(99,1)
-      GO TO 999
-   END IF
-999 CONTINUE
-!     SORT SORTIT IN ASSENDING ORDER AND REORDER
-!      THE ASORTIT ARRAY AT THE SAME TIME
-   ALLOCATE(SORTIT2(1:K),ASORTIT2(1:2,1:K),STAT=ALLOERR)
-   SORTIT2(1:K)=SORTIT(1:K)
-   ASORTIT2(1:2,1:K)=ASORTIT(1:2,1:K)
-   CALL SORT_JK(K,SORTIT2,ASORTIT2)
+   END DO
+   IF(K.GT.0) CALL SORT_JK(K,SORTIT,ASORTIT)
 10 FORMAT('THE CLOSEST ',I3,' CATALOG GLASSES')
 20 FORMAT('FOUND IN THE LAST "FINDGLAS" SEARCH')
 30 FORMAT('FOR SURFACE #',I3,' ARE:')
@@ -1028,32 +117,17 @@ SUBROUTINE FNDGLS
    CALL SHOWIT(0)
    WRITE(OUTLYNE,20)
    CALL SHOWIT(0)
-   WRITE(OUTLYNE,30) INT(W1)
+   WRITE(OUTLYNE,30) ISURF
    CALL SHOWIT(0)
 50 FORMAT('  # ',1X,'CAT. NAME    ',1X,'GLASS NAME   ',6X,'DISTANCE')
    WRITE(OUTLYNE,50)
    CALL SHOWIT(0)
-   IF(NUMSRCH.GT.5000) NUMSRCH=5000
-   DO I=1,NUMSRCH
-
-      IF(ASORTIT2(1,I)(1:13).NE.'SCHOTT       '.AND.&
-      &ASORTIT2(1,I)(1:13).NE.'SCH2000      '.AND.&
-      &ASORTIT2(1,I)(1:13).NE.'OHARA        '.AND.&
-      &ASORTIT2(1,I)(1:13).NE.'HOYA         '.AND.&
-      &ASORTIT2(1,I)(1:13).NE.'CHANCE       '.AND.&
-      &ASORTIT2(1,I)(1:13).NE.'CORNIN       '.AND.&
-      &ASORTIT2(1,I)(1:13).NE.'HIKARI       ') THEN
-         GO TO 41
-      ELSE
-         WRITE(OUTLYNE,40) I,ASORTIT2(1,I),ASORTIT2(2,I),SORTIT2(I)
-         CALL SHOWIT(0)
-      END IF
+   DO II=1,min(NUMSRCH,K,5000)
+      WRITE(OUTLYNE,40) II,ASORTIT(1,II),ASORTIT(2,II),SORTIT(II)
+      CALL SHOWIT(0)
    END DO
-41 CONTINUE
 40 FORMAT(I4,1X,A13,1X,A13,1X,G23.15)
-!
-   DEALLOCATE(SORTIT,ASORTIT,STAT=ALLOERR)
-   DEALLOCATE(SORTIT2,ASORTIT2,STAT=ALLOERR)
+   DEALLOCATE(SORTIT,ASORTIT)
    RETURN
 END
 SUBROUTINE GLASSP_RUSSIAN1
@@ -1348,38 +422,26 @@ SUBROUTINE GLASSP_RUSSIAN2
 END
 ! SUB GLASSP.FOR
 SUBROUTINE GLASSP
-   use glass_manager
+   use glass_manager, only: gdb
+   use glass_catalog, only: gc_num_catalogs
 !
    use DATLEN
    use DATMAI
    use command_utils, only: is_command_query
    use iso_fortran_env, only: real64
    IMPLICIT NONE
-
-   character(len=80) :: tokens(40)
-   character(len=80) :: glassCand
-   integer :: numTokens
-
-
-
 !
 !       THIS IS SUBROUTINE GLASSP WHICH IMPLEMENTS THE GLASSP
-!       COMMAND AT THE CMD LEVEL.
+!       COMMAND AT THE CMD LEVEL:
+!         GLASSP               THE CATALOG NAMES
+!         GLASSP cat           THE GLASSES OF A CATALOG (CATALOG NAME NUMBER)
+!         GLASSP GLAK|GLCAT    THE GLASSES OF EVERY CATALOG
+!         GLASSP cat glass     THE DATA OF A GLASS (BY NAME OR GLASS CODE);
+!                              GLAK|GLCAT SEARCHES EVERY CATALOG
 !
-   INTEGER J,TOTAL, i
+   INTEGER i, IC
+   LOGICAL FOUND
 !
-   real(real64) A0,A1,A2,A3,A4,A5,LAMUPP,LAMLOW
-!
-   CHARACTER NAME*13,NUMBER*13,FLNAME*12,NAME1*13,NAME2*13 &
-   &,CATNAME*13
-!
-!
-   LOGICAL EXIS_USER
-!
-!
-
-110 FORMAT(A13,1X,A13,1X,A13)
-
    IF(SN.EQ.1) THEN
       CALL REPORT_ERROR_AND_FAIL(&
       & '"GLASSP" TAKES NO NUMERIC WORD INPUT'//'\n'//&
@@ -1390,25 +452,22 @@ SUBROUTINE GLASSP
       CALL REPORT_ERROR_AND_FAIL('"THE GLASS CATALOG NAME IS MISSING'//'\n'//'RE-ENTER COMMAND', 1)
       RETURN
    END IF
-!
-!     SYNTAX OK, PROCEED
-!
    IF(is_command_query()) THEN
       CALL REPORT_ERROR_AND_FAIL(&
       & '"GLASSP" INTERROGATES GLASS CATALOGS'//'\n'//&
       & 'RE-ENTER COMMAND', 1)
       RETURN
    END IF
+   call gdb%sync()
 !
    IF(SST.EQ.0.AND.SQ.EQ.0) THEN
 !     JUST GLASSP
       WRITE(OUTLYNE,100)
       CALL SHOWIT(0)
       do i=1,size(gdb%catalogDescriptions)
-         OUTLYNE = trim(gdb%catalogDescriptions(i))
+         WRITE(OUTLYNE,101) gdb%catalogs(i), trim(gdb%catalogDescriptions(i))
          CALL SHOWIT(0)
       end do
-
       WRITE(OUTLYNE,106)
       CALL SHOWIT(0)
       WRITE(OUTLYNE,117)
@@ -1419,44 +478,18 @@ SUBROUTINE GLASSP
       CALL SHOWIT(0)
       WRITE(OUTLYNE,107)
       CALL SHOWIT(0)
-      WRITE(OUTLYNE,2082)
-      CALL SHOWIT(0)
-      WRITE(OUTLYNE,2083)
-      CALL SHOWIT(0)
-100   FORMAT(&
-      &'THE CURRENT PROGRAM GLASS CATALOG NAMES ARE:')
-
-106   FORMAT(&
-      &10X,'"GLCAT     (Searches all catalogs)')
-117   FORMAT(&
-      &10X,&
-      &'"GLASS     (Searches all catalogs)')
-116   FORMAT(&
-      &10X,'            [specified without giving catalog name]')
-2161  FORMAT(&
-      &10X,'              [but just by glass name or number]')
-107   FORMAT(&
-      &10X,'"MATL"     (Special IR, UV, Visual Materials and Plastics)')
-2082  FORMAT(&
-      &10X,'"USER"     (Use "EDIT USER.DAT" from the command line)')
-2083  FORMAT(&
-      &10X,'"SCH2000"  (SCHOTT POST-2000 Optical Glass Catalog)')
+100   FORMAT('THE CURRENT PROGRAM GLASS CATALOG NAMES ARE:')
+101   FORMAT(A13,1X,A)
+106   FORMAT(10X,'"GLCAT     (Searches all catalogs)')
+117   FORMAT(10X,'"GLASS     (Searches all catalogs)')
+116   FORMAT(10X,'            [specified without giving catalog name]')
+2161  FORMAT(10X,'              [but just by glass name or number]')
+107   FORMAT(10X,'"MATL"     (Special IR, UV, Visual Materials and Plastics)')
       RETURN
-   ELSE
-!     QUALIFIER AND STRING NOT BLANK
    END IF
+!
    IF(SQ.EQ.1.AND.SST.EQ.0) THEN
-!     OPEN THE APPROPRIATE CATALOG AND DISPLAY THE GLASS NAMES
-!     AND NUMBERS
-      IF(gdb%isNameInCatalog(trim(WQ)).EQV..FALSE.) THEN
-         call LogTermUser("Not in .bin files!")
-         if(WQ.EQ.'MATL') then
-            call LogTermFOR("Matl entered!")
-         end if
-      END IF
-
-      ! This is a crutch that shoudl be addressed with a more
-      ! sophisticated glass database
+!     THE GLASS NAMES AND NUMBERS OF A CATALOG
       IF(WQ.EQ.'SPECIAL') THEN
          call PRINTSPECIALCATALOGMATERIALS()
          return
@@ -1465,319 +498,115 @@ SUBROUTINE GLASSP
          CALL PRINTMATLGLASSES()
          RETURN
       END IF
-
-
-
-      ! Since some glasses are more than 8 characters parse the input
-      ! instead of using WQ
-      !glassCand = trim(tokens(2))
-
-      !call LogTermFOR("Can I use input? "//trim(glassCand))
-
-!       IS THE SURFACE CATALOG IMPLEMENTED ?
-      IF(gdb%isNameInCatalog(trim(WQ)).EQV..FALSE.&
-      &.AND.WQ.NE.'GLAK'.AND.WQ.NE.'GLCAT'.AND.WQ.NE.'MATL') THEN
-         !    IF(WQ.NE.'SCHOTT'.AND.WQ.NE.'CHANCE'.AND.WQ.NE.'GLAK'
-         ! 1  .AND.WQ.NE.'OHARA'.AND.WQ.NE.'CORNIN'.AND.WQ.NE.'HIKARI'
-         ! 2  .AND.WQ.NE.'HOYA'.AND.WQ.NE.'GLCAT'.AND.WQ.NE.'MATL'
-         ! 3  .AND.WQ.NE.'RUSSIAN'.AND.WQ.NE.'RADHARD'.AND.WQ.NE.'USER'
-         ! 4  .AND.WQ.NE.'SCH2000'.AND.WQ.NE.'SCH2023') THEN
-!     NOT A VALID CATALOG
+      IF(WQ.EQ.'GLCAT'.OR.WQ.EQ.'GLAK') THEN
+         DO IC=1,gc_num_catalogs()
+            CALL LISTAGFCATALOG(IC)
+         END DO
+         RETURN
+      END IF
+      IC=0
+      IF(.NOT.gdb%isNameInCatalog(trim(WQ), IC)) THEN
          WRITE(OUTLYNE,*) WQ
          CALL SHOWIT(1)
          CALL REPORT_ERROR_AND_FAIL(&
          & 'THE REQUESTED GLASS CATALOG WAS NOT RECOGNIZED'//'\n'//&
          & 'RE-ENTER COMMAND', 1)
          RETURN
-      ELSE
-         IF(WQ.EQ.'USER') THEN
-            WRITE(OUTLYNE,2082)
-            CALL SHOWIT(1)
-            RETURN
-         END IF
-         IF(WQ.NE.'GLCAT'.AND.WQ.NE.'GLAK') THEN
-!     VALID SINGLE CATALOG, PROCEED LISTING GLASSES
-!     DETERMINE FILE NAME
-            IF(WQ.NE.'MATL'.AND.WQ.NE.'RUSSIAN') THEN
-               IF(WQ.EQ.'SCHOTT')   FLNAME='SCHOTT.BIN  '
-               IF(WQ.EQ.'SCH2000')  FLNAME='SCH2000.BIN '
-               IF(WQ.EQ.'HOYA')     FLNAME='HOYA.BIN    '
-               IF(WQ.EQ.'HIKARI')   FLNAME='HIKARI.BIN  '
-               IF(WQ.EQ.'OHARA')    FLNAME='OHARAMULTI  '
-               IF(WQ.EQ.'CORNIN')   FLNAME='CORNIN.BIN  '
-               IF(WQ.EQ.'CHANCE')   FLNAME='CHANCE.BIN  '
-               IF(WQ.EQ.'RADHARD')  FLNAME='RADHARD.BIN  '
-               IF(WQ.EQ.'SCH2023')  FLNAME='SCH2023.BIN '
-               IF(FLNAME.NE.'OHARAMULTI  ') THEN
-                  CALL READGLASSFILE(FLNAME, 1, NAME, NUMBER, A0,&
-                  &A1,A2,A3,A4,A5)
-               ELSE
-                  CALL READGLASSFILE('OHARA.BIN', 1, NAME, NUMBER, A0,&
-                  &A1,A2,A3,A4,A5)
-                  CALL READGLASSFILE('OHARA-O.BIN', 1, NAME, NUMBER, A0,&
-                  &A1,A2,A3,A4,A5)
-
-               END IF
-               RETURN
-            ELSE
-!     WQ WAS MATL OR RUSSIAN
-
-
-               !IF(WQ.EQ.'RUSSIAN') CALL GLASSP_RUSSIAN1
-            END IF
-         ELSE
-         END IF
-         IF(WQ.EQ.'GLCAT'.OR.WQ.EQ.'GLAK') THEN
-!     GLCAT MEANS DO ALL CATALOGS
-            CALL READGLASSFILE('SCHOTT.BIN', 1, NAME, NUMBER, A0,&
-            &A1,A2,A3,A4,A5)
-            CALL READGLASSFILE('OHARA.BIN', 1, NAME, NUMBER, A0,&
-            &A1,A2,A3,A4,A5)
-            CALL READGLASSFILE('OHARA-O.BIN', 1, NAME, NUMBER, A0,&
-            &A1,A2,A3,A4,A5)
-            CALL READGLASSFILE('SCH2000.BIN', 1, NAME, NUMBER, A0,&
-            &A1,A2,A3,A4,A5)
-            CALL READGLASSFILE('HOYA.BIN', 1, NAME, NUMBER, A0,&
-            &A1,A2,A3,A4,A5)
-            CALL READGLASSFILE('HIKARI.BIN', 1, NAME, NUMBER, A0,&
-            &A1,A2,A3,A4,A5)
-            CALL READGLASSFILE('CORNIN.BIN', 1, NAME, NUMBER, A0,&
-            &A1,A2,A3,A4,A5)
-            CALL READGLASSFILE('CHANCE.BIN', 1, NAME, NUMBER, A0,&
-            &A1,A2,A3,A4,A5)
-
-            RETURN
-         END IF
       END IF
-   ELSE
-!     NOT A REQUEST FOR GLASS NAMES IN A CATALOG
+      CALL LISTAGFCATALOG(IC)
+      RETURN
    END IF
 !
    IF(SQ.EQ.1.AND.SST.EQ.1) THEN
-!     OPEN THE APPROPRIATE CATALOG AND DISPLAY DATA FOR THE
-!     SPECIFIED GLASS
-!       IS THE SURFACE CATALOG IMPLEMENTED ?
-      IF(WQ.NE.'SCHOTT'.AND.WQ.NE.'CHANCE'.AND.WQ.NE.'GLAK'&
-      &.AND.WQ.NE.'OHARA'.AND.WQ.NE.'CORNIN'.AND.WQ.NE.'HIKARI'&
-      &.AND.WQ.NE.'HOYA'.AND.WQ.NE.'GLCAT'.AND.WQ.NE.'MATL'&
-      &.AND.WQ.NE.'RUSSIAN'.AND.WQ.NE.'RADHARD'.AND.WQ.NE.'SCH2000'&
-      &.AND.WQ.NE.'SCH2023') THEN
-!     NOT A VALID CATALOG
+!     THE DATA OF THE SPECIFIED GLASS
+      IF(WQ.EQ.'RUSSIAN') THEN
+         CALL GLASSP_RUSSIAN2
+         RETURN
+      END IF
+      FOUND=.FALSE.
+      IC=0
+      IF(WQ.EQ.'GLCAT'.OR.WQ.EQ.'GLAK') THEN
+         FOUND=gdb%isGlassInAnyCatalog(WS(1:32), IC, byCode=.TRUE.)
+      ELSE IF(gdb%isNameInCatalog(trim(WQ), IC)) THEN
+         FOUND=gdb%isGlassInCatalog(WS(1:32), IC, byCode=.TRUE.)
+      ELSE
          CALL REPORT_ERROR_AND_FAIL(&
          & '2THE REQUESTED GLASS CATALOG WAS NOT RECOGNIZED'//'\n'//&
          & 'RE-ENTER COMMAND', 1)
          RETURN
-      ELSE
-!     VALID CATALOG, PROCEED LISTING GLASSES
-!     DETERMINE FILE NAME
-         IF(WQ.NE.'GLCAT'.AND.WQ.NE.'GLAK') THEN
-            IF(WQ.NE.'MATL'.AND.WQ.NE.'RUSSIAN') THEN
-               IF(WQ.EQ.'SCHOTT') FLNAME='SCHOTT.BIN  '
-               IF(WQ.EQ.'SCH2000')FLNAME='SCH2000.BIN '
-               IF(WQ.EQ.'SCH2023')FLNAME='SCH2023.BIN '
-               IF(WQ.EQ.'HOYA')   FLNAME='HOYA.BIN    '
-               IF(WQ.EQ.'HIKARI') FLNAME='HIKARI.BIN  '
-               IF(WQ.EQ.'OHARA')  FLNAME='OHARAMULTI  '
-               IF(WQ.EQ.'CORNIN') FLNAME='CORNIN.BIN  '
-               IF(WQ.EQ.'CHANCE') FLNAME='CHANCE.BIN  '
-               IF(WQ.EQ.'RADHARD') FLNAME='RADHARD.BIN  '
-               IF(FLNAME.NE.'OHARAMULTI  ') THEN
-
-                  CALL READGLASSFILE(FLNAME, 2, NAME, NUMBER, A0,&
-                  &A1,A2,A3,A4,A5)
-
-               END IF
-!     OHARAMULTI
-               IF(FLNAME.EQ.'OHARAMULTI  ') THEN
-                  CALL READGLASSFILE('OHARA.BIN', 2, NAME, NUMBER, A0,&
-                  &A1,A2,A3,A4,A5)
-                  CALL READGLASSFILE('OHARA-O.BIN', 2, NAME, NUMBER, A0,&
-                  &A1,A2,A3,A4,A5)
-               END IF
-
-
-
-               IF(WQ.EQ.'RUSSIAN') CALL GLASSP_RUSSIAN2
-!
-            END IF
-         ELSE
-!     GLCAT/GLASS SEARCH
-            CALL READGLASSFILE('SCHOTT.BIN', 2, NAME, NUMBER, A0,&
-            &A1,A2,A3,A4,A5)
-            CALL READGLASSFILE('SCH2000.BIN', 2, NAME, NUMBER, A0,&
-            &A1,A2,A3,A4,A5)
-            CALL READGLASSFILE('HOYA.BIN', 2, NAME, NUMBER, A0,&
-            &A1,A2,A3,A4,A5)
-            CALL READGLASSFILE('HIKARI.BIN', 2, NAME, NUMBER, A0,&
-            &A1,A2,A3,A4,A5)
-            CALL READGLASSFILE('OHARA.BIN', 2, NAME, NUMBER, A0,&
-            &A1,A2,A3,A4,A5)
-            CALL READGLASSFILE('OHARA-O.BIN', 2, NAME, NUMBER, A0,&
-            &A1,A2,A3,A4,A5)
-            CALL READGLASSFILE('CHANCE.BIN', 2, NAME, NUMBER, A0,&
-            &A1,A2,A3,A4,A5)
-            CALL READGLASSFILE('CORNIN.BIN', 2, NAME, NUMBER, A0,&
-            &A1,A2,A3,A4,A5)
-
-
-         END IF
       END IF
+      IF(FOUND.AND.gdb%curCat.GT.0) CALL SHOWAGFGLASS(gdb%curCat, gdb%curGlass)
    END IF
-
 END
 
-
-SUBROUTINE  READGLASSFILE(FLNAME, FLAG, NAME,NUMBER,A0,A1,A2,&
-&A3,A4,A5)
-
+! The glasses of catalog ic: catalog, name and glass code per line (the
+! Glass Manager window reads this listing).
+SUBROUTINE LISTAGFCATALOG(IC)
    use DATMAI
-
-   integer :: J, TOTAL, FLAG, uG
-
-   real(real64) A0,A1,A2,A3,A4,A5
-   CHARACTER(len=13) NAME,NUMBER, CATNAME
-   CHARACTER(len=*) :: FLNAME
-   !CHARACTER(LEN=140) :: OUTLYNE
-
-   !COMMON/REPLWRIT/OUTLYNE
-   call OPENGLASSFILE(trim(LIBGLA)//FLNAME, uG, TOTAL)
-
-
-109 FORMAT(A25)
-119 FORMAT(A33)
-111 FORMAT('GLASS NAME       GLASS NUMBER')
-
-   DO J=2,TOTAL+1
-      READ(UNIT=uG,REC=J)NAME,NUMBER,A0,A1,A2,A3,A4,A5
-      IF(FLNAME.EQ.'SCHOTT.BIN')  CATNAME='SCHOTT       '
-      IF(FLNAME.EQ.'SCH2000.BIN') CATNAME='SCH2000      '
-      IF(FLNAME.EQ.'OHARAMULTI')  CATNAME='OHARA        '
-      IF(FLNAME.EQ.'OHARA.BIN')   CATNAME='OHARA        '
-      IF(FLNAME.EQ.'OHARA-O.BIN')   CATNAME='OHARA        '
-      IF(FLNAME.EQ.'HOYA.BIN')    CATNAME='HOYA         '
-      IF(FLNAME.EQ.'CHANCE.BIN')  CATNAME='CHANCE       '
-      IF(FLNAME.EQ.'CORNIN.BIN')  CATNAME='CORNIN       '
-      IF(FLNAME.EQ.'HIKARI.BIN')  CATNAME='HIKARI       '
-      IF(FLNAME.EQ.'RADHARD.BIN')  CATNAME='RADHARD      '
-      IF(FLNAME.EQ.'SCH2023.BIN')  CATNAME='SCH2023     '
-
-      SELECT CASE (FLAG)
-
-       CASE (1)
-         !PRINT *, "FLNAME is ", FLNAME
-         !PRINT *, "CATNAME is ", CATNAME
-         WRITE(OUTLYNE,110) CATNAME,NAME,NUMBER
-         CALL SHOWIT(0)
-       CASE (2)
-         IF(WS(1:13).EQ.NAME.OR.WS(1:13).EQ.NUMBER) THEN
-
-            CALL SHOWGLASSDATA(FLNAME, NAME, A0, A1, A2,&
-            &A3, A4, A5)
-            CLOSE(UNIT=uG)
-            RETURN
-         END IF
-!
-      END SELECT
-110   FORMAT(A13,1X,A13,1X,A13)
-!      PRINT *, "DONE WITH RECORD ",J
+   use glass_catalog, only: gc_catalog_name, gc_catalog_size, gc_glass, glass_record
+   IMPLICIT NONE
+   INTEGER, INTENT(IN) :: IC
+   INTEGER IG
+   type(glass_record) :: g
+   CHARACTER(len=13) :: CATNAME, NAME, NUMBER
+   CATNAME=gc_catalog_name(IC)
+   DO IG=1,gc_catalog_size(IC)
+      g=gc_glass(IC,IG)
+      NAME=g%name
+      NUMBER=g%code
+      WRITE(OUTLYNE,110) CATNAME,NAME,NUMBER
+      CALL SHOWIT(0)
    END DO
-   CLOSE(UNIT=36)
-
-
+110 FORMAT(A13,1X,A13,1X,A13)
 END SUBROUTINE
 
-SUBROUTINE SHOWGLASSDATA(FLNAME, NAME, A0, A1, A2,&
-&A3, A4, A5)
-
+! The data of glass ig of catalog ic: wavelength range, name, dispersion
+! formula and its coefficients.
+SUBROUTINE SHOWAGFGLASS(IC, IG)
    use DATMAI
-
-   CHARACTER(len=13) :: NAME,NUMBER, CATNAME, NAME1, NAME2
-   CHARACTER(len=*) :: FLNAME
-   real(real64) A0,A1,A2,A3,A4,A5,LAMUPP,LAMLOW
+   use glass_catalog, only: gc_glass, glass_record, agf_formula_name
+   IMPLICIT NONE
+   INTEGER, INTENT(IN) :: IC, IG
+   type(glass_record) :: g
+   INTEGER K
+   CHARACTER(len=12) :: LBL
+   g=gc_glass(IC,IG)
 991 FORMAT('WAVELENGTH RANGE:')
 992 FORMAT('LOWER WAVELENGTH = ',G15.8,' MICRONS')
 993 FORMAT('UPPER WAVELENGTH = ',G15.8,' MICRONS')
-
-
-   NAME1=WQ//'     '
-   NAME2=NAME
-   CALL LAMHILO(NAME1,NAME2,FLNAME,LAMUPP,LAMLOW)
+120 FORMAT('GLASS NAME   = ',A)
+121 FORMAT('GLASS NUMBER = ',A)
+122 FORMAT(A12,' = ',G23.15)
    WRITE(OUTLYNE,991)
    CALL SHOWIT(0)
-   WRITE(OUTLYNE,992) LAMLOW
+   WRITE(OUTLYNE,992) g%lmin
    CALL SHOWIT(0)
-   WRITE(OUTLYNE,993) LAMUPP
+   WRITE(OUTLYNE,993) g%lmax
    CALL SHOWIT(0)
-
-   WRITE(OUTLYNE,120) NAME
+   WRITE(OUTLYNE,120) trim(g%name)
    CALL SHOWIT(0)
-120 FORMAT('GLASS NAME   = ',A13)
-
-
-   !WRITE(OUTLYNE,121) NUMBER
+   WRITE(OUTLYNE,121) trim(g%code)
    CALL SHOWIT(0)
-121 FORMAT('GLASS NUMBER = ',A13)
-122 FORMAT('          A0 = ',G23.15)
-123 FORMAT('          A1 = ',G23.15)
-124 FORMAT('          A2 = ',G23.15)
-125 FORMAT('          A3 = ',G23.15)
-126 FORMAT('          A4 = ',G23.15)
-127 FORMAT('          A5 = ',G23.15)
-1122 FORMAT('          B1 = ',G23.15)
-1123 FORMAT('          B2 = ',G23.15)
-1124 FORMAT('          B3 = ',G23.15)
-1125 FORMAT('          C1 = ',G23.15)
-1126 FORMAT('          C2 = ',G23.15)
-1127 FORMAT('          C3 = ',G23.15)
-22 FORMAT('SCHOTT TYPE INTERPOLATION EQUATION')
-2222 FORMAT('SELLMEIER INTERPOLATION EQUATION')
-2223 FORMAT('HERZBERGER INTERPOLATION EQUATION')
-   IF(FLNAME.NE.'SCHOTT.BIN  '.AND.FLNAME.NE.'SCH2000.BIN ') THEN
-
-      WRITE(OUTLYNE,22)
+   OUTLYNE=trim(agf_formula_name(g%formula))//' DISPERSION FORMULA (AGF FORMULA '// &
+   &  CHAR(48+g%formula/10)//CHAR(48+MOD(g%formula,10))//')'
+   CALL SHOWIT(0)
+   DO K=1,g%ncd
+      SELECT CASE (g%formula)
+      CASE (1)
+         WRITE(LBL,'(10X,A1,I1)') 'A', K-1
+      CASE (2)
+         ! K1 L1 K2 L2 K3 L3, labelled B1 C1 B2 C2 B3 C3 (Schott's names)
+         IF(MOD(K,2).EQ.1) THEN
+            WRITE(LBL,'(10X,A1,I1)') 'B', (K+1)/2
+         ELSE
+            WRITE(LBL,'(10X,A1,I1)') 'C', K/2
+         END IF
+      CASE DEFAULT
+         WRITE(LBL,'(7X,A2,I2.2)') 'CD', K
+      END SELECT
+      WRITE(OUTLYNE,122) LBL, g%cd(K)
       CALL SHOWIT(0)
-
-      WRITE(OUTLYNE,122) A0
-      CALL SHOWIT(0)
-
-      WRITE(OUTLYNE,123) A1
-      CALL SHOWIT(0)
-
-      WRITE(OUTLYNE,124) A2
-      CALL SHOWIT(0)
-
-      WRITE(OUTLYNE,125) A3
-      CALL SHOWIT(0)
-
-      WRITE(OUTLYNE,126) A4
-      CALL SHOWIT(0)
-
-      WRITE(OUTLYNE,127) A5
-      CALL SHOWIT(0)
-   ELSE
-
-      WRITE(OUTLYNE,2222)
-      CALL SHOWIT(0)
-
-      WRITE(OUTLYNE,1122) A0
-      CALL SHOWIT(0)
-
-      WRITE(OUTLYNE,1123) A1
-      CALL SHOWIT(0)
-
-      WRITE(OUTLYNE,1124) A2
-      CALL SHOWIT(0)
-
-      WRITE(OUTLYNE,1125) A3
-      CALL SHOWIT(0)
-
-      WRITE(OUTLYNE,1126) A4
-      CALL SHOWIT(0)
-
-      WRITE(OUTLYNE,1127) A5
-      CALL SHOWIT(0)
-   END IF
-
+   END DO
 END SUBROUTINE
 
 

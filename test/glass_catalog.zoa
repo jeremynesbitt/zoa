@@ -1,0 +1,37 @@
+RES osdtriplet
+! Glass catalogs are AGF files (Library/LIBGLA, plus LIBGLA/ in each
+! search-path folder -- this test's TESTCAT.AGF lives in test/data/LIBGLA)
+GLASSP
+GLASSP RADHARD
+GLASSP TESTCAT
+! glass data by name, by glass code, and searched in every catalog
+GLASSP SCH2000 N-BK7
+GLASSP OHARA 497811
+GLASSP GLAK ZSILICON
+! catalog glasses on a lens: user catalog, a name without a catalog (the
+! catalogs after catalog-order.txt follow alphabetically), lower case, and
+! an old Ohara name that used to contain a space
+GLA S1 N-BK7_SCH2000
+GLA S3 ZBK7_TESTCAT
+GLA S5 zbk7
+RTG ALL
+GLA S3 S-FSL5_OHARA
+GLA S5 i-fpl51y
+RTG ALL
+! out of the glass's wavelength range -> warning, indices 1.0
+GLA S3 ZNARROW_TESTCAT
+RTG ALL
+! Herzberger formula against the built-in SPECIAL formulas, in the IR
+WL 2000 3000 4000
+GLA S1 SILICON
+GLA S3 ZSILICON_TESTCAT
+RTG ALL
+GLA S1 DIAMOND
+GLA S3 ZDIAMOND_TESTCAT
+RTG ALL
+! closest catalog glasses to a model glass
+RES osdtriplet
+GLA S3 1.5168:64.17
+FINDGLAS SCH2000 3 4
+FINDGLAS 3 3
+FINDGLAS NOCAT 3 3

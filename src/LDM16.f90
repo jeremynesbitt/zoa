@@ -562,6 +562,7 @@ SUBROUTINE LENUP
    use command_utils, only: is_command_query
    use mod_parsed_command, only: parsed_command, capture_command
    use iso_fortran_env, only: real64
+   use glass_manager, only: gdb
    IMPLICIT NONE
 !
 !       THIS IS SUBROUTINE LENUP. THIS IS THE SUBROUTINE WHICH
@@ -897,13 +898,10 @@ SUBROUTINE LENUP
          RETURN
       END IF
 !       COMMAND ((GLASS CAT NAME) [INDENTIFICATION])
-      IF(WC.EQ.'SCHOTT'.OR.&
-      &WC.EQ.'OHARA'.OR.WC.EQ.'CHANCE'.OR.&
-      &WC.EQ.'CORNIN'.OR.WC.EQ.'RADHARD'.OR.&
+      IF(gdb%isNameInCatalog(trim(WC)).OR.&
       &WC.EQ.'MATL'.OR.WC.EQ.'GLAK'.OR.&
       &WC.EQ.'USER'.OR.WC.EQ.'RUSSIAN'.OR.&
-      &WC.EQ.'HIKARI'.OR.WC.EQ.'SCH2000'.OR.&
-      &WC.EQ.'HOYA'.OR.WC.EQ.'GLCAT') THEN
+      &WC.EQ.'GLCAT') THEN
          CALL GLSCAT
          RETURN
       END IF

@@ -520,7 +520,9 @@ the 7 PNG baselines (`vie_settings`, `vie_orient`, `plots_geom`, `plots_wave`,
   build from a fresh directory before trusting `meson test`, and consider a
   clean-build check before tagging a release.
 - Tests still depend on `~/Library/Application Support/Zoa` (Projects/,
-  Macros/newlens.zoa, LIBGLA); hermetic in-repo fixtures would remove that.
+  Macros/newlens.zoa); hermetic in-repo fixtures would remove that.  (Glass
+  catalogs no longer: since the AGF catalogs, a test finds them in the
+  repo's Library/LIBGLA through the search path.)
 
 ---
 
@@ -843,3 +845,22 @@ deliberately not exposed.
   same commands (e.g. `YDC S4 0`).
 - Related: pickups on tilts/decenters (KDP pickup kinds without a CODE V
   name) are still not written by the .zoa save.
+
+---
+
+## Glass catalog overhaul: open items after phase 1 (2026-10-26)
+
+Phase 1 (AGF catalogs, module glass_catalog) is in.  Still to do:
+- `GLA` runs silently, so a glass used outside its wavelength range (AGF
+  LD line) gets index 1.0 with no message in the terminal.
+- Hard-coded catalog-name chains remain in CONFIG3/CONFIG4, LDM14, LDM17
+  (lens export `_SCHOTT`-style names), PLOTCAD6 (part drawing), UTILITY2/5
+  and NAMES; a user catalog works for GLA/GLASSP/FINDGLAS/index resolution
+  but not on those paths yet (phase 4).
+- GLSCAT stores the catalog word as `WC(1:8)`: catalog names longer than 8
+  characters are cut in GLANAM.
+- Formulas 4-13 (Sellmeier 2-5, Conrady, Handbook, Extended*) are coded
+  from their standard definitions but not yet checked against vendor data;
+  1-3 are checked (legacy catalogs, SPECIAL SILICON/DIAMOND).
+- LAMHILO still supplies the ranges of SPECIAL/MODEL materials.
+

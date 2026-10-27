@@ -1,26 +1,32 @@
-! Currently most glass routines are in .FOR files like LDM13.
-! Would like to eventually migrate functionality to this module
-! to facilitate supporting different glasses
+! The glass database the legacy code calls (gdb): catalog names and the
+! lookup / index calculation of a catalog glass.  The catalogs themselves are
+! the AGF files of module glass_catalog; this type keeps the names, files
+! and descriptions in the arrays the legacy code indexes, rebuilt whenever
+! glass_catalog reloads.  The SPECIAL materials (formulas and tables below)
+! are still built in and come last in the search order.
 
 module glass_manager
   use iso_fortran_env, only: real64
+  private :: gm_upper
 
 type :: glassdb
-  character(len=13), allocatable :: catalogs(:)
-  character(len=19), allocatable :: catalogFileNames(:)
+  character(len=32), allocatable :: catalogs(:)
+  character(len=32), allocatable :: catalogFileNames(:)
   character(len=200), allocatable :: catalogDescriptions(:)
   integer, allocatable :: catalogDataTypes(:)
 
-  real(kind=real64), dimension(6) :: coeffs
-  integer :: dataType
+  ! the glass found by the last successful isGlassInCatalog/isGlassInAnyCatalog
+  integer :: dataType = 0
+  integer :: curCat = 0, curGlass = 0
+  integer :: generation = -1
 
   contains
+  procedure, public, pass(self) :: sync
   procedure, public, pass(self) :: isNameInCatalog
   procedure, public, pass(self) :: isGlassInCatalog
   procedure, public, pass(self) :: isGlassInAnyCatalog
   procedure, public, pass(self) :: calcIndexForCurrentGlass
-  procedure, private, pass(self) :: calcPN
-  procedure, private, pass(self) :: calcPNSC
+  procedure, public, pass(self) :: currentWavelengthRange
   procedure, private, pass(self) :: isGlassInSpecialCatalog
 
 end type
@@ -44,8 +50,7 @@ interface specialCatalog
 end interface
 
 type(glassdb) :: gdb
-integer, parameter ::  ID_PN   = 1
-integer, parameter ::  ID_PNSC = 2
+integer, parameter ::  ID_AGF = 1
 integer, parameter ::  ID_SPECIAL = 3
 type(specialCatalog) :: specCat
 
@@ -56,71 +61,185 @@ type(specialCatalog) :: specCat
 contains
 
  type(glassdb) function glassdb_constructor() result(self)
-     integer, parameter :: numC = 11
-     allocate(character(len=13) :: self%catalogs(numC))
-     allocate(character(len=19) :: self%catalogFileNames(numC))
-     allocate(character(len=200) :: self%catalogDescriptions(numC))
-     allocate(self%catalogDataTypes(numC))
-
-
-     self%catalogs(1) = 'SCHOTT'
-     self%catalogFileNames(1) = 'SCHOTT.BIN'
-     self%catalogDescriptions(1) = 'Schott Optical Glass Catalog'
-     self%catalogDataTypes(1) = ID_PNSC
-
-     self%catalogs(2) = 'SCH2000'
-     self%catalogFileNames(2) = 'SCH2000.BIN'
-     self%catalogDescriptions(2) = 'SCHOTT POST-2000 Optical Glass Catalog'
-     self%catalogDataTypes(2) = ID_PNSC
-     
-          self%catalogs(3) = 'OHARA'
-     self%catalogFileNames(3) = 'OHARA.BIN'
-     self%catalogDescriptions(3) = 'OHara Optical Glass Catalog'
-     self%catalogDataTypes(3) = ID_PNSC
-     
-     self%catalogs(4) = 'OHARA'
-     self%catalogFileNames(4) = 'OHARA-O.BIN'
-     self%catalogDescriptions(4) = 'OHara Optical Glass Catalog'
-     self%catalogDataTypes(4) = ID_PNSC
-     
-     self%catalogs(5) = 'HOYA'
-     self%catalogFileNames(5) = 'HOYA.BIN'
-     self%catalogDescriptions(5) = 'Hoya Optical Glass Catalog'
-     self%catalogDataTypes(5) = ID_PN
-     
-     self%catalogs(6) = 'CHANCE'
-     self%catalogFileNames(6) = 'CHANCE.BIN'
-     self%catalogDescriptions(6) = 'Chance-Pilkington Optical Glass Catalog'
-     self%catalogDataTypes(6) = ID_PN
-     
-     self%catalogs(7) = 'CORNIN'
-     self%catalogFileNames(7) = 'CORNIN.BIN'
-     self%catalogDescriptions(7) = 'Corning-France Optical Glass Catalog'
-     self%catalogDataTypes(7) = ID_PN
-     
-     self%catalogs(8) = 'HIKARI'
-     self%catalogFileNames(8) = 'HIKARI.BIN'
-     self%catalogDescriptions(8) = 'Hikara Optical Glass Catalog'
-     self%catalogDataTypes(8) = ID_PN
-     
-     self%catalogs(9) = 'RADHARD'
-     self%catalogFileNames(9) = 'RADHARD.BIN'
-     self%catalogDescriptions(9) = 'Radiation Resistant Optical Materials'
-     self%catalogDataTypes(9) = ID_PN
-     
-     self%catalogs(10) = 'SCH2023'
-     self%catalogFileNames(10) = 'SCH2023.BIN'
-     self%catalogDescriptions(10) = 'Schott 2023 Preferred Glass Catalog'
-     self%catalogDataTypes(10) = ID_PNSC
-
-     self%catalogs(11) = 'SPECIAL'
-     self%catalogFileNames(11) = ''
-     self%catalogDescriptions(11) = 'Special Material Catalog'
-     self%catalogDataTypes(11) = ID_SPECIAL
-
-     specCat = specialCatalog_constructor()
-
+   call self%sync()
+   specCat = specialCatalog_constructor()
  end function
+
+ ! Rebuild the catalog arrays if glass_catalog has (re)loaded.  Called by
+ ! every method; legacy code that loops over gdb%catalogs directly calls it
+ ! first.
+ subroutine sync(self)
+   use glass_catalog, only: gc_generation, gc_num_catalogs, gc_catalog_name, &
+                            gc_catalog_comment, gc_catalog_path
+   class(glassdb) :: self
+   integer :: n, i, gen, k
+   character(len=1024) :: path
+
+   gen = gc_generation()
+   if (gen == self%generation .and. allocated(self%catalogs)) return
+   n = gc_num_catalogs()
+   if (allocated(self%catalogs)) deallocate(self%catalogs, self%catalogFileNames, &
+       self%catalogDescriptions, self%catalogDataTypes)
+   allocate(self%catalogs(n+1), self%catalogFileNames(n+1), &
+            self%catalogDescriptions(n+1), self%catalogDataTypes(n+1))
+   do i = 1, n
+     self%catalogs(i) = gc_catalog_name(i)
+     path = gc_catalog_path(i)
+     k = max(index(path, '/', back=.true.), index(path, '\', back=.true.))
+     self%catalogFileNames(i) = path(k+1:)
+     self%catalogDescriptions(i) = gc_catalog_comment(i)
+     if (len_trim(self%catalogDescriptions(i)) == 0) &
+       self%catalogDescriptions(i) = trim(self%catalogs(i))//' glass catalog'
+     self%catalogDataTypes(i) = ID_AGF
+   end do
+   self%catalogs(n+1) = 'SPECIAL'
+   self%catalogFileNames(n+1) = ''
+   self%catalogDescriptions(n+1) = 'Special Material Catalog'
+   self%catalogDataTypes(n+1) = ID_SPECIAL
+   self%generation = gen
+   self%curCat = 0; self%curGlass = 0
+ end subroutine
+
+ function calcIndexForCurrentGlass(self, lambda) result(n_l)
+  use glass_catalog, only: gc_index
+  class(glassdb) :: self
+  real(kind=real64), intent(in) :: lambda
+  real(kind=real64) :: n_l
+
+  n_l = 1.0_real64
+  if (lambda == 0) return
+  select case (self%dataType)
+  case (ID_AGF)
+    if (self%curCat > 0) n_l = gc_index(self%curCat, self%curGlass, lambda)
+  case (ID_SPECIAL)
+    n_l = specCat%calcSpecialIndex(lambda)
+  end select
+ end function
+
+ ! Wavelength range (um) of the current catalog glass; .false. for a
+ ! SPECIAL material (its range is still LAMHILO's).
+ logical function currentWavelengthRange(self, lmin, lmax) result(ok)
+  use glass_catalog, only: glass_record, gc_glass
+  class(glassdb) :: self
+  real(kind=real64), intent(out) :: lmin, lmax
+  type(glass_record) :: g
+  ok = .false.; lmin = 0.0_real64; lmax = 1.0e10_real64
+  if (self%dataType /= ID_AGF .or. self%curCat < 1) return
+  g = gc_glass(self%curCat, self%curGlass)
+  lmin = g%lmin; lmax = g%lmax
+  ok = .true.
+ end function
+
+ ! Glass strName in catalog number gdb_loc; on success it becomes the
+ ! current glass.  byCode also accepts the glass code (GLASSP, GLSRIN).
+ function isGlassInCatalog(self, strName, gdb_loc, byCode) result(boolResult)
+  use glass_catalog, only: gc_find_glass
+  class(glassdb) :: self
+  character(len=*) :: strName
+  integer, intent(in) :: gdb_loc
+  logical, intent(in), optional :: byCode
+  logical :: boolResult
+  integer :: ig
+
+  call self%sync()
+  boolResult = .false.
+  if (gdb_loc < 1 .or. gdb_loc > size(self%catalogs)) return
+  if (self%catalogDataTypes(gdb_loc) == ID_SPECIAL) then
+    boolResult = self%isGlassInSpecialCatalog(strName, gdb_loc)
+    if (boolResult) then
+      self%dataType = ID_SPECIAL; self%curCat = 0; self%curGlass = 0
+    end if
+    return
+  end if
+  if (gc_find_glass(gdb_loc, trim(strName), ig, byCode)) then
+    boolResult = .true.
+    self%dataType = ID_AGF
+    self%curCat = gdb_loc
+    self%curGlass = ig
+  end if
+ end function
+
+ function isGlassInAnyCatalog(self, strName, gdb_loc, byCode) result(boolResult)
+    class(glassdb) :: self
+    character(len=*) :: strName
+    integer, intent(inout), optional :: gdb_loc
+    logical, intent(in), optional :: byCode
+    logical :: boolResult
+    integer :: i
+
+    call self%sync()
+    boolResult = .FALSE.
+    do i=1,size(self%catalogs)
+      if (self%isGlassInCatalog(strName, i, byCode)) then
+        boolResult = .TRUE.
+        if(present(gdb_loc)) gdb_loc = i
+        return
+      end if
+    end do
+ end function
+
+ function isGlassInSpecialCatalog(self, strName, gdb_loc) result(boolResult)
+  class(glassdb) :: self
+  character(len=*) :: strName
+  integer, intent(in) :: gdb_loc
+  logical :: boolResult
+  integer :: i
+
+   boolResult = .FALSE.
+   do i=1,size(specCat%names)
+    if (strName == specCat%names(i)) then
+      specCat%currName = specCat%names(i)
+      boolResult = .TRUE.
+      return
+    end if
+   end do
+ end function
+
+ ! Is strName a catalog name (case-insensitive)?  gdb_loc = its number.
+ function isNameInCatalog(self, strName, gdb_loc) result(boolResult)
+  class(glassdb) :: self
+  character(len=*) :: strName
+  integer, intent(inout), optional :: gdb_loc
+  logical :: boolResult
+  integer :: i
+  character(len=32) :: u
+
+  call self%sync()
+  boolResult = .FALSE.
+  u = gm_upper(adjustl(strName))
+  do i=1,size(self%catalogs)
+    if (u == self%catalogs(i)) then
+      boolResult = .TRUE.
+      if (present(gdb_loc)) gdb_loc = i
+      return
+    end if
+  end do
+ end function
+
+ ! Catalog of the first catalog holding glassName ('' if none).
+ subroutine findCatalogNameFromGlassName(glassName, catalogName)
+   character(len=*), intent(in) :: glassName
+   character(len=*), intent(inout) :: catalogName
+   integer :: loc
+   loc = 0
+   if (gdb%isGlassInAnyCatalog(trim(glassName), loc)) then
+     catalogName = gdb%catalogs(loc)
+   else
+     catalogName = ''
+   end if
+ end subroutine
+
+ function gm_upper(s) result(u)
+   character(len=*), intent(in) :: s
+   character(len=len(s)) :: u
+   integer :: i, c
+   u = s
+   do i = 1, len(u)
+     c = iachar(u(i:i))
+     if (c >= 97 .and. c <= 122) u(i:i) = achar(c - 32)
+   end do
+ end function
+
 
  type(specialCatalog) function specialCatalog_constructor() result(self)
     
@@ -397,229 +516,5 @@ end function
 
 
  end function
-
- function calcPN(self, lambda) result(n)
-
-  class(glassdb) :: self
-  real(kind=real64), intent(in) :: lambda
-  real(kind=real64) :: n
-
-   n = DSQRT(self%coeffs(1)+ &
-   &   (self%coeffs(2)*(lambda**2))+&
-   &   (self%coeffs(3)*(1.0D0/(lambda**2)))+ &
-   &   (self%coeffs(4)*(1.0D0/(lambda**4)))+ &
-   &   (self%coeffs(5)*(1.0D0/(lambda**6)))+ &
-   &   (self%coeffs(6)*(1.0D0/(lambda**8))))
-
- end function
-
- function calcPNSC(self, lambda) result(n)
-  class(glassdb) :: self
-  real(kind=real64), intent(in) :: lambda
-  real(kind=real64) :: n
-
-  n = DSQRT(((self%coeffs(1)*(lambda**2))/((lambda**2)-self%coeffs(4)))+ &
-  &  ((self%coeffs(2)*(lambda**2))/((lambda**2)-self%coeffs(5)))+ &
-  &  ((self%coeffs(3)*(lambda**2))/((lambda**2)-self%coeffs(6)))+1.0D0)
-
- end function
- 
- function calcIndexForCurrentGlass(self, lambda) result(n_l)
-  class(glassdb) :: self
-  real(kind=real64), intent(in) :: lambda
-  real(kind=real64) :: n_l
-
-  if(lambda == 0 ) then
-    n_l = 1.0
-    return
-  end if
-
-  select case(self%dataType)
-   case(ID_PN)
-    n_l = self%calcPN(lambda)
-
-   case(ID_PNSC)
-    n_l = self%calcPNSC(lambda)
-
-   case(ID_SPECIAL)
-    n_l = specCat%calcSpecialIndex(lambda)
-
-  end select
-
- end function
-
- function isGlassInCatalog(self, strName, gdb_loc) result(boolResult)
-  ! Note.  Needs some refactoring to separate opening file
-  use iso_fortran_env, only: real64
-  use type_utils, only: real2str
-  use DATMAI
-  implicit none
-  class(glassdb) :: self
-  character(len=*) :: strName
-  integer, intent(in) :: gdb_loc
-  logical :: boolResult
-  integer :: TOTAL, J, uG
-  character(len=1024) :: candCatalog
-
-  REAL(kind=real64) :: A0,A1,A2,A3,A4,A5
-  CHARACTER(len=13) NAME,NUMBER
-  logical :: EXIS36
-
-
-  boolResult = .FALSE.
-
-  candCatalog = trim(LIBGLA)//self%catalogFileNames(gdb_loc)
-  
-  ! If no file name, check if this is a special catalog
-  if (self%catalogFileNames(gdb_loc) == ' ') then
-     boolResult = self%isGlassInSpecialCatalog(strName, gdb_loc)
-     if(boolResult) self%dataType = self%catalogDataTypes(gdb_loc)
-  else
-
-  EXIS36=.FALSE.
-  INQUIRE(FILE=trim(candCatalog),EXIST=EXIS36)
-  IF(EXIS36) THEN
-
-    call OPENGLASSFILE(trim(candCatalog), uG, TOTAL)
-    READ(UNIT=36,REC=1) TOTAL
-    DO J=2,TOTAL+1
-      ! TODO:  Make this a type to simplify code
-      READ(UNIT=36,REC=J)NAME,NUMBER,A0,A1,A2,A3,A4,A5
-      IF(strName.EQ.NAME) THEN
-        boolResult = .TRUE.
-        !call LogTermFOR("Found "//strName//" eq "//NAME)
-        self%coeffs(1) = A0
-        self%coeffs(2) = A1
-        self%coeffs(3) = A2
-        self%coeffs(4) = A3
-        self%coeffs(5) = A4
-        self%coeffs(6) = A5
-
-        self%dataType = self%catalogDataTypes(gdb_loc)
-
-        close(unit=36)
-        return
-
-      END IF
-    END DO
-    close(unit=36)  ! close whether or not the glass was found
-  ELSE
-    call LogTermUser("Warning:  Unable to open "//trim(candCatalog)//".  Moving to next catalog")
-  END IF
-  end if
-
- end function
-
- function isGlassInAnyCatalog(self, strName, gdb_loc) result(boolResult)
-    
-   use iso_fortran_env, only: real64
-    implicit none
-    class(glassdb) :: self
-    character(len=*) :: strName
-    integer, intent(inout), optional :: gdb_loc
-    logical :: boolResult
-    integer :: i
-    
-
-    boolResult = .FALSE.
- 
-
-    do i=1,size(self%catalogs)
-      if (self%isGlassInCatalog(strName, i)) then
-        boolResult = .TRUE.
-        if(present(gdb_loc)) gdb_loc = i
-        return 
-      end if
-    end do
-
-
- end function
-
- function isGlassInSpecialCatalog(self, strName, gdb_loc) result(boolResult)
-   use iso_fortran_env, only: real64
-  implicit none
-  class(glassdb) :: self
-  character(len=*) :: strName
-  integer, intent(in) :: gdb_loc
-  logical :: boolResult
-  integer :: i
-
-   boolResult = .FALSE.
-
-   do i=1,size(specCat%names)
-    if (strName == specCat%names(i)) then
-      !call LogTermFOR("Found Special Glass!")
-      specCat%currName = specCat%names(i)
-      boolResult = .TRUE.
-      return
-    end if
-
-   end do
-
-
- end function
-
- function isNameInCatalog(self, strName, gdb_loc) result(boolResult)
-
-   use iso_fortran_env, only: real64
-  implicit none
-  class(glassdb) :: self
-  character(len=*) :: strName
-  integer, intent(inout), optional :: gdb_loc
-  logical :: boolResult
-  integer :: i
-
-  boolResult = .FALSE.
-  !gdb_loc = -1
-
-  do i=1,size(self%catalogs)
-    if (strName.eq.self%catalogs(i)) then
-      boolResult = .TRUE.
-      if (present(gdb_loc)) gdb_loc = i
-      return
-    end if
-  end do
-
- end function
-
- subroutine findCatalogNameFromGlassName(glassName, catalogName)
-      use DATMAI
-   use iso_fortran_env, only: real64
-      implicit none
-
-      character(len=13), intent(in) :: glassName
-      character(len=13), intent(inout) :: catalogName
-      real(real64) :: A0,A1,A2,A3,A4,A5
-      character(len=13) :: Name, Number
-      integer :: i, m, uG, TOTAL, J
-      logical :: EXIS36
-      
-
-      m = size(gdb%catalogs, DIM=1)
-      PRINT *, "m is ", m
-      do i=1,m
-        if (gdb%catalogFileNames(i) /= ' ' ) then
-        EXIS36=.FALSE.
-        INQUIRE(FILE=trim(LIBGLA)//gdb%catalogFileNames(i),EXIST=EXIS36)
-        IF(EXIS36) THEN        
-        call OPENGLASSFILE(trim(LIBGLA)//gdb%catalogFileNames(i), uG, TOTAL)
-        PRINT *, trim(LIBGLA)//gdb%catalogFileNames(i)
-
-        DO J=2,TOTAL+1
-          READ(UNIT=uG,REC=J)Name,Number,A0,A1,A2,A3,A4,A5
-        if (trim(Name).eq.glassName) then
-          PRINT *, "Found Catalog! "
-          catalogName = gdb%catalogs(i)
-          CLOSE(uG)
-          return
-        end if
-      end DO
-    ELSE 
-      call LogTermUser("Unable to open "//trim(LIBGLA)//gdb%catalogFileNames(i))
-    END IF
-  end if ! Check if name is empty
-    end do
-
- end subroutine
 
 end module

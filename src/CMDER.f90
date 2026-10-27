@@ -1037,7 +1037,7 @@ SUBROUTINE CMDER
       IF(WC.EQ.'GLASSP') THEN
          IF(WQ.EQ.'GLAK'.AND.SST.EQ.0.OR.&
          &WQ.EQ.'GLCAT'.AND.SST.EQ.0) THEN
-            ! TODO:  Put all this in glass manager
+            call gdb%sync()
             do I=1,size(gdb%catalogs)
                WQ = trim(gdb%catalogs(I))
                CALL GLASSP
