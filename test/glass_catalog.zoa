@@ -112,3 +112,31 @@ SAV longrt
 RES longrt
 GLASSP LONGCATALOG ZLONG
 NDEX ALL
+! private glasses (PRV ... END): indices at the PWL wavelengths, found
+! before any catalog glass of the same name (SK16), saved with the lens,
+! removed with DEL PRV, cleared by a new lens, and read from a CODE V file;
+! wrong index counts and the unsupported formula forms are reported
+RES osdtriplet
+PRV
+PWL 587.56 486.13 656.27 435.84 706.52
+'MYCROWN' 1.5168 1.5224 1.5143 1.5267 1.5129
+'SK16' 1.70 1.71 1.69 1.715 1.688
+'BAD' 1.5 1.6
+'MELT' MLT 2 N-BK7 1.5 1.6 1.7
+PWL 550
+CONST 1.6
+END
+GLA S1 MYCROWN
+GLA S3 CONST
+GLA S5 SK16
+RTG ALL
+GLI PRV
+SAV prvrt
+RES prvrt
+RTG ALL
+DEL PRV 'SK16'
+RTG ALL
+LEN NEW
+GLI PRV
+CV2PRG prvglass.seq
+GLI PRV

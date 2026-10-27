@@ -52,11 +52,16 @@ module glass_catalog
             gc_catalog_name, gc_catalog_comment, gc_catalog_path, gc_catalog_size, &
             gc_find_catalog, gc_find_glass, gc_find_glass_any, gc_glass, gc_index, &
             agf_index, agf_formula_name, agf_formula_ncoef, gc_generation, &
-            gc_glass_alias, FORMULA_TABLE, gc_set_search_order
+            gc_glass_alias, FORMULA_TABLE, gc_set_search_order, PRIVATE_CATALOG, &
+            gc_prv_clear, gc_prv_define, gc_prv_delete, gc_prv_count, gc_prv_glass, &
+            gc_prv_write_save
 
   integer, parameter :: MAXCD = 10
   integer, parameter :: FORMULA_TABLE = -1     ! a ZTG table glass
   character(len=*), parameter :: TABLE_CATALOG = 'SPECIAL'
+  ! private glasses (CODE V PRV): belong to the lens, not to a file; the
+  ! catalog PRV comes first in every search while it has glasses
+  character(len=*), parameter :: PRIVATE_CATALOG = 'PRV'
   integer, parameter :: MAXALIAS = 2000
 
   type :: glass_record
@@ -87,6 +92,7 @@ module glass_catalog
   end type
 
   type(catalog), allocatable, save :: cats(:)
+  type(catalog), save :: prvCat
   integer, save :: ncat = 0
   logical, save :: loaded = .false.
   integer, save :: generation = 0          ! bumped on every (re)load
@@ -281,8 +287,140 @@ contains
     ncat = nfound
     loadedKey = key
     loaded = .true.
+    call place_private()
+  end subroutine
+
+  ! Put the private catalog first (or drop it when empty); a new generation.
+  subroutine place_private()
+    type(catalog), allocatable :: t(:)
+    integer :: i, k
+    if (.not. allocated(cats)) allocate(cats(0))
+    allocate(t(ncat + 1))
+    k = 0
+    if (prvCat%n > 0) then
+      k = 1
+      t(1) = prvCat
+    end if
+    do i = 1, ncat
+      if (cats(i)%name == PRIVATE_CATALOG .and. len_trim(cats(i)%path) == 0) cycle
+      k = k + 1
+      t(k) = cats(i)
+    end do
+    call move_alloc(t, cats)
+    ncat = k
     generation = generation + 1
   end subroutine
+
+  ! ---------------------------------------------------------------- PRV
+
+  subroutine gc_prv_clear()
+    if (allocated(prvCat%g)) deallocate(prvCat%g)
+    prvCat%n = 0
+    if (loaded) call place_private()
+  end subroutine
+
+  ! Define (or redefine) private glass name: indices idx at wavelengths wl
+  ! (um).  One wavelength gives a constant index; more, a natural spline
+  ! over their range (the table-glass rules).
+  subroutine gc_prv_define(name, wl, idx, n)
+    character(len=*), intent(in) :: name
+    real(real64), intent(in) :: wl(:), idx(:)
+    integer, intent(in) :: n
+    integer :: ig, i, j
+    real(real64) :: tw, tn
+    call gc_ensure_loaded()
+    prvCat%name = PRIVATE_CATALOG
+    prvCat%comment = 'Private glasses of the lens (PRV)'
+    prvCat%path = ''
+    ig = 0
+    do i = 1, prvCat%n
+      if (upper(prvCat%g(i)%name) == upper(name)) ig = i
+    end do
+    if (ig == 0) call add_glass(prvCat, ig)
+    prvCat%g(ig) = glass_record()
+    prvCat%g(ig)%name = upper(name)
+    prvCat%g(ig)%formula = FORMULA_TABLE
+    allocate(prvCat%g(ig)%tab(3, n))
+    prvCat%g(ig)%ntab = n
+    prvCat%g(ig)%tab(1, :) = wl(1:n)
+    prvCat%g(ig)%tab(2, :) = idx(1:n)
+    prvCat%g(ig)%tab(3, :) = 0.0_real64
+    do i = 2, n                          ! ascending wavelength
+      j = i
+      do while (j > 1)
+        if (prvCat%g(ig)%tab(1, j-1) <= prvCat%g(ig)%tab(1, j)) exit
+        tw = prvCat%g(ig)%tab(1, j); tn = prvCat%g(ig)%tab(2, j)
+        prvCat%g(ig)%tab(1:2, j) = prvCat%g(ig)%tab(1:2, j-1)
+        prvCat%g(ig)%tab(1, j-1) = tw; prvCat%g(ig)%tab(2, j-1) = tn
+        j = j - 1
+      end do
+    end do
+    call finish_table(prvCat%g(ig))
+    if (n == 1) then
+      prvCat%g(ig)%lmin = 0.0_real64; prvCat%g(ig)%lmax = 1.0e10_real64
+      prvCat%g(ig)%nd = idx(1)
+    end if
+    call place_private()
+  end subroutine
+
+  logical function gc_prv_delete(name) result(found)
+    character(len=*), intent(in) :: name
+    integer :: i
+    found = .false.
+    do i = 1, prvCat%n
+      if (upper(prvCat%g(i)%name) /= upper(name)) cycle
+      prvCat%g(i:prvCat%n-1) = prvCat%g(i+1:prvCat%n)
+      prvCat%n = prvCat%n - 1
+      found = .true.
+      call place_private()
+      return
+    end do
+  end function
+
+  ! The PRV block of a lens file (before its surfaces, so the glasses exist
+  ! when the surfaces name them); a PWL line whenever a glass's wavelengths
+  ! differ from the glass before it.  Nothing without private glasses.
+  subroutine gc_prv_write_save(fID)
+    integer, intent(in) :: fID
+    integer :: i, k
+    character(len=2048) :: line
+    character(len=32) :: num
+    logical :: same
+    if (prvCat%n == 0) return
+    write(fID, '(A)') 'PRV'
+    do i = 1, prvCat%n
+      same = .false.
+      if (i > 1) then
+        if (prvCat%g(i)%ntab == prvCat%g(i-1)%ntab) same = &
+          all(prvCat%g(i)%tab(1, :) == prvCat%g(i-1)%tab(1, :))
+      end if
+      if (.not. same) then
+        line = 'PWL'
+        do k = 1, prvCat%g(i)%ntab
+          write(num, '(G0.12)') prvCat%g(i)%tab(1, k)*1000.0_real64
+          line = trim(line)//' '//trim(adjustl(num))
+        end do
+        write(fID, '(A)') trim(line)
+      end if
+      line = "'"//trim(prvCat%g(i)%name)//"'"
+      do k = 1, prvCat%g(i)%ntab
+        write(num, '(G0.15)') prvCat%g(i)%tab(2, k)
+        line = trim(line)//' '//trim(adjustl(num))
+      end do
+      write(fID, '(A)') trim(line)
+    end do
+    write(fID, '(A)') 'END'
+  end subroutine
+
+  integer function gc_prv_count()
+    gc_prv_count = prvCat%n
+  end function
+
+  function gc_prv_glass(i) result(g)
+    integer, intent(in) :: i
+    type(glass_record) :: g
+    g = prvCat%g(i)
+  end function
 
   ! Files of extension ext (e.g. '.AGF', any case) in dir (full paths),
   ! sorted by name.
@@ -549,6 +687,12 @@ contains
       if (nv >= 4) call add_it(g, v(1), v(3), v(4))
     end do
     if (g%ntab == 0) return
+    call finish_table(g)
+  end subroutine
+
+  ! Spline, range, nd/vd and code of a table glass whose points are set.
+  subroutine finish_table(g)
+    type(glass_record), intent(inout) :: g
     call natural_spline(g%tab(1, 1:g%ntab), g%tab(2, 1:g%ntab), g%tab(3, 1:g%ntab))
     g%lmin = g%tab(1, 1)
     g%lmax = g%tab(1, g%ntab)

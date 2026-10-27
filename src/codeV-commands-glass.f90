@@ -1,6 +1,11 @@
 ! CODE V glass catalog commands (Lens System Setup: Glass Catalog Data).
 submodule (codeV_commands) mod_codev_glass
+use mod_kdp_api, only: kdp_lens_begin, kdp_lens_end, kdp_silent_begin, kdp_silent_end
 implicit none
+
+! PRV ... END entry state: the PWL wavelengths (um) and glasses defined
+real(real64) :: prvWl(21)
+integer :: prvNWl = 0, prvNew = 0
 contains
 
     !## cmd:      CSO
@@ -114,6 +119,10 @@ contains
         if (numTokens >= 2) then
             ic1 = gc_find_catalog(trim(tokens(2)))
             if (ic1 == 0) then
+                if (trim(tokens(2)) == 'PRV') then
+                    call zoa_emit(what//': the lens has no private glasses (PRV)', 'red')
+                    return
+                end if
                 call zoa_emit(what//': no glass catalog '//trim(tokens(2)), 'red')
                 return
             end if
@@ -189,7 +198,7 @@ contains
         call lensWavelengths(wl, n)
         line = leftCols(gc_catalog_name(ic), g%name, g%code)
         do j = 1, n
-            if (wl(j) < g%lmin .or. wl(j) > g%lmax) then
+            if (wl(j) < g%lmin - 1.0d-9 .or. wl(j) > g%lmax + 1.0d-9) then
                 col = repeat(' ', 13)//'-'
             else
                 write(col, '(F14.6)') gc_index(ic, ig, wl(j))
@@ -276,5 +285,168 @@ contains
         if (.not. known) t = repeat(' ', w - 1)//'-'
         s = t(1:w)
     end function num
+
+    !## cmd:      PRV
+    !## syntax:   PRV
+    !## category: Glass Catalogs
+    !## desc:     Starts private glass entries, which belong to the lens and
+    !##           are found before any catalog glass of the same name:
+    !##             PWL wavelength_nm ...       wavelengths for the next glasses
+    !##             'label' index ...           a glass's index at each PWL wavelength
+    !##             END                         ends the entries
+    !##           One wavelength gives a constant index; more give a cubic
+    !##           spline over their range.  DEL PRV ALL|'label' removes them.
+    !##
+    module procedure execPRV
+        use strings, only: parse
+        implicit none
+        character(len=80) :: tokens(4)
+        integer :: numTokens
+        call parse(trim(iptStr), ' ', tokens, numTokens)
+        if (numTokens > 1) then
+            call zoa_emit('PRV takes no input; the glasses follow on the next lines, then END', 'red')
+            return
+        end if
+        prvNWl = 0
+        prvNew = 0
+        cmd_loop = PRV_LOOP
+    end procedure execPRV
+
+    ! One line inside PRV ... END.
+    module procedure prvLine
+        use strings, only: parse
+        use glass_catalog, only: gc_prv_define
+        implicit none
+        character(len=80) :: tokens(30)
+        character(len=80) :: label
+        integer :: numTokens, i, ios, L
+        real(real64) :: v(21)
+
+        call parse(trim(iptStr), ' ,', tokens, numTokens)
+        if (numTokens < 1) return
+        select case (trim(tokens(1)))
+        case ('END')
+            cmd_loop = 0
+            call zoa_emit('PRV: '//trim(int2str(prvNew))//' private glass(es) defined', 'black')
+            call refreshLensGlasses()
+            return
+        case ('PWL')
+            if (numTokens < 2 .or. numTokens > 22) then
+                call zoa_emit('PWL takes 1 to 21 wavelengths (nm)', 'red')
+                return
+            end if
+            do i = 2, numTokens
+                read(tokens(i), *, iostat=ios) v(i-1)
+                if (ios /= 0 .or. v(i-1) <= 0.0d0) then
+                    call zoa_emit('PWL: '//trim(tokens(i))//' is not a wavelength (nm)', 'red')
+                    return
+                end if
+            end do
+            prvNWl = numTokens - 1
+            prvWl(1:prvNWl) = v(1:prvNWl)/1000.0d0
+            return
+        end select
+
+        ! 'label' index ... (one index per PWL wavelength)
+        label = tokens(1)
+        L = len_trim(label)
+        if (L >= 2 .and. label(1:1) == "'" .and. label(L:L) == "'") label = label(2:L-1)
+        L = len_trim(label)
+        if (L == 0 .or. L > 13) then
+            call zoa_emit('PRV: a glass label is 1 to 13 characters: '//trim(tokens(1)), 'red')
+            return
+        end if
+        if (numTokens >= 2) then
+            select case (trim(tokens(2)))
+            case ('MLT', 'LAU', 'GML', 'GMS', 'SLM', 'CAU', 'HAR')
+                call zoa_emit('PRV: '//trim(tokens(2))//' glass definitions are not supported '// &
+                              'yet; give the indices at the PWL wavelengths', 'red')
+                return
+            end select
+        end if
+        if (prvNWl == 0) then
+            call zoa_emit('PRV: give the wavelengths (PWL) before '//trim(label), 'red')
+            return
+        end if
+        if (numTokens - 1 /= prvNWl) then
+            call zoa_emit('PRV: '//trim(label)//' needs '//trim(int2str(prvNWl))// &
+                          ' indices, one per PWL wavelength', 'red')
+            return
+        end if
+        do i = 2, numTokens
+            read(tokens(i), *, iostat=ios) v(i-1)
+            if (ios /= 0 .or. v(i-1) <= 0.0d0) then
+                call zoa_emit('PRV: '//trim(tokens(i))//' is not an index', 'red')
+                return
+            end if
+        end do
+        call gc_prv_define(trim(label), prvWl(1:prvNWl), v(1:prvNWl), prvNWl)
+        prvNew = prvNew + 1
+    end procedure prvLine
+
+    ! A line of a PRV block in a CODE V file being imported (CV2PRG): the
+    ! PRV command's parser, without its command loop or the lens refresh.
+    module procedure prvImportLine
+        implicit none
+        character(len=1024) :: w
+        done = .false.
+        w = adjustl(line)
+        if (trim(w) == 'PRV') then
+            prvNWl = 0
+            prvNew = 0
+        else if (trim(w) == 'END') then
+            done = .true.
+        else
+            call prvLine(trim(w))
+        end if
+    end procedure prvImportLine
+
+    ! DEL PRV ALL | DEL PRV 'label'
+    module procedure prvDelete
+        use strings, only: parse
+        use glass_catalog, only: gc_prv_clear, gc_prv_delete
+        use DATLEN, only: GLANAM
+        use mod_system, only: sys_last_surf
+        implicit none
+        character(len=80) :: tokens(4), label
+        integer :: numTokens, L, i
+        call parse(trim(iptStr), ' ', tokens, numTokens)
+        if (numTokens < 3) then
+            call zoa_emit('DEL PRV needs ALL or a glass label', 'red')
+            return
+        end if
+        if (trim(tokens(3)) == 'ALL') then
+            label = ''
+            call gc_prv_clear()
+        else
+            label = tokens(3)
+            L = len_trim(label)
+            if (L >= 2 .and. label(1:1) == "'" .and. label(L:L) == "'") label = label(2:L-1)
+            if (.not. gc_prv_delete(trim(label))) then
+                call zoa_emit('DEL PRV: no private glass '//trim(label), 'red')
+                return
+            end if
+        end if
+        ! surfaces that used a deleted glass are left without one
+        do i = 0, int(sys_last_surf())
+            if (GLANAM(i,1) /= 'PRV') cycle
+            if (len_trim(label) > 0 .and. GLANAM(i,2) /= label) cycle
+            call zoa_emit('DEL PRV: surface S'//trim(int2str(i))//' used '// &
+                trim(GLANAM(i,2))//'; its indices are now 1.0', 'red')
+        end do
+        call refreshLensGlasses()
+    end procedure prvDelete
+
+
+    ! Recompute the lens's indices after its private glasses changed.
+    subroutine refreshLensGlasses()
+        use DATMAI, only: F1, F22
+        if (F1 /= 1) return
+        call kdp_silent_begin()
+        call kdp_lens_begin()
+        F22 = 1                     ! re-resolve every surface's glass at EOS
+        call kdp_lens_end()
+        call kdp_silent_end()
+    end subroutine refreshLensGlasses
 
 end submodule mod_codev_glass

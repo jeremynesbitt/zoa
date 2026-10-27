@@ -2630,7 +2630,7 @@ SUBROUTINE LENSFCV(I)
 !     A CATALOG GLASS IS WRITTEN name_CATALOG (CODE V'S FORM)
    IF(GLANAM(I,2).EQ.'LAST SURFACE') THEN
       GL='AIR                        '
-   ELSE IF(gdb%isNameInCatalog(trim(GLANAM(I,1)))) THEN
+   ELSE IF(gdb%isNameInCatalog(trim(GLANAM(I,1))).AND.GLANAM(I,1).NE.'PRV') THEN
       GL=GLANAM(I,2)(1:JA)//'_'//trim(GLANAM(I,1))
    ELSE
       GL=GLANAM(I,2)(1:JA)

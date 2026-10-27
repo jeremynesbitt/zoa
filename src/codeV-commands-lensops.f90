@@ -566,6 +566,8 @@ contains
         call parse(iptStr, ' ', tokens, numTokens)
         if (numTokens > 1) then
             select case(trim(tokens(2)))
+            case('PRV')
+                call prvDelete(iptStr)
             case('PIM')
                 call zoa_emit("Deleting PIM", "blue")
                 surfNum = curr_lens_data%num_surfaces - 2
@@ -1033,11 +1035,19 @@ contains
                 strOut = 'GLAK '//trim(strInput)
             end if
         else
-            ! Plain glass name.  A glass alias (glass-aliases.txt) comes first:
+            ! Plain glass name.  A private glass (PRV) comes first, then a
+            ! glass alias (glass-aliases.txt):
             ! the shipped file keeps the long-standing SK16 -> N-SK16 (an old
             ! Schott name meaning its modern N- equivalent); otherwise the first
             ! catalog in search order holding the name.
-            if (gc_glass_alias(trim(strInput), aliasCat, aliasGlass)) then
+            catalogIdx = 0
+            if (gdb%isNameInCatalog('PRV', catalogIdx)) then
+                if (.not. gdb%isGlassInCatalog(trim(strInput), catalogIdx)) catalogIdx = 0
+            end if
+            if (catalogIdx > 0) then
+                ! a private glass of the lens (PRV) comes before everything
+                strOut = 'PRV '//trim(strInput)
+            else if (gc_glass_alias(trim(strInput), aliasCat, aliasGlass)) then
                 aliasRec = gc_glass(aliasCat, aliasGlass)
                 strOut = trim(gdb%catalogs(aliasCat))//' '//trim(aliasRec%name)
             ! Otherwise, if it starts with N, also try the N-xxx spelling

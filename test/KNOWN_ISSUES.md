@@ -900,6 +900,12 @@ as 517642 is a model glass) are in.  Still to do:
 - Model glass codes (nnn.vvv) are still converted in single precision
   (parseModelGlassEntry), so 517.642 gives nd 1.5169999...; changing it
   moves the model-glass refs.
+- PRV private glasses take indices at PWL wavelengths only; the melt fit
+  (MLT) and the formula forms (LAU, GML, GMS, SLM, CAU, HAR) are refused
+  with a message -- the CODE V guide in the repo names them but does not
+  define them.  Grin PRV entries are not read.  A private glass is a table
+  glass: outside its PWL range GLA reports it and sets index 1.0 (CODE V
+  may extrapolate).
 - Formulas 4, 5 and 7-10 are coded from their standard definitions but no
   shipped file uses them; 1-3, 6 and 11-13 are checked (every vendor
   glass's nd/vd within the file's rounding; SPECIAL against the old

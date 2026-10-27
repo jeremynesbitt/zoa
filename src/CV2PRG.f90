@@ -10,7 +10,7 @@ SUBROUTINE CV2PRG
    use DATMAI
    use mod_lens_data_manager, only: ldm
    use undo_manager, only: undo_reset_baseline
-   use codeV_commands, only: resetToNewLensTemplate
+   use codeV_commands, only: resetToNewLensTemplate, prvImportLine
    use glass_manager, only: gdb
    use iso_fortran_env, only: real64
    IMPLICIT NONE
@@ -57,6 +57,7 @@ SUBROUTINE CV2PRG
 !
    LOGICAL HOE
    INTEGER HOESUR, KCAT, ICAT
+   LOGICAL INPRV, PRVDONE
    CHARACTER*1 HV1,HV2
    real(real64) HX1,HY1,HZ1,HX2,HY2,HZ2,HWL,HOR
    DIMENSION HV1(:),HV2(:),HX1(:),HY1(:),HZ1(:),HX2(:),HY2(:),&
@@ -79,6 +80,7 @@ SUBROUTINE CV2PRG
    ! Zoa's CODE V export uses radii without an explicit RDM command.
    ! Reset for every import; RDM N below explicitly selects curvature mode.
    RADON=.TRUE.
+   INPRV=.FALSE.
 
    !PRINT *, "CV2PRG Starting.."
 !
@@ -422,6 +424,14 @@ SUBROUTINE CV2PRG
    WRITE(38,4000)
    DO I=1,L
       TEMPCC(1:1024)=TEMPC(I)(1:1024)
+!     PRV ... END: PRIVATE GLASSES, READ BY THE PRV COMMAND'S PARSER
+      IF(INPRV.OR.TEMPC(I)(1:4).EQ.'PRV '.OR.TRIM(TEMPC(I)).EQ.'PRV') THEN
+         INPRV=.TRUE.
+         CALL prvImportLine(TRIM(TEMPC(I)), PRVDONE)
+         IF(PRVDONE) INPRV=.FALSE.
+         TEMPC(I)(1:1024)=BL1024(1:1024)
+         GO TO 8888
+      END IF
 !     RDM
       IF(TEMPC(I)(1:3).EQ.'RDM') THEN
          IF(TEMPC(I)(1:5).EQ.'RDM N') RADON=.FALSE.

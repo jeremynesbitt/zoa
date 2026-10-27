@@ -845,6 +845,10 @@ contains
         ! clear + edge apertures by its DEL APE SA; constraints by DCON ALL.)
         call zoom_reset()
         block
+            use glass_catalog, only: gc_prv_clear
+            call gc_prv_clear()         ! private glasses belong to the lens
+        end block
+        block
             use ref_sphere_settings, only: rsl_reset
             call rsl_reset()
         end block

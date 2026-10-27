@@ -553,3 +553,75 @@ SURF    N1             N2             N3             N4             N5
   3    1.62005        1.63208        1.61506        1.64209        1.61229
   5 LONGCATALOG   ZLONG
   5    1.62005        1.63208        1.61506        1.64209        1.61229
+All constraints removed
+
+
+
+
+
+
+PRV: BAD needs 5 indices, one per PWL wavelength
+PRV: MLT glass definitions are not supported yet; give the indices at the PWL wavelengths
+PRV: 3 private glass(es) defined
+BASIC LENS DATA (RADIUS MODE)
+
+SURF  RADIUS        THICKNESS          MATERIAL          INDEX        V-NUM
+  0    0.00000      0.100000E+14         AIR
+  1    15.0000       3.50000     PRV     MYCROWN         1.51680       63.8
+  2    0.00000       3.10000             AIR
+  3*  -37.5300       1.50000     PRV     CONST           1.60000       0.00
+  3*REFS,STOP
+  4    14.0800       5.00000             AIR
+  5    50.2600       3.50000     PRV     SK16            1.70000       35.0
+  6*  -31.3800       45.9314             AIR
+  6*Solve
+  7    0.00000       0.00000             LAST SURFACE
+CATALOG    GLASS                CODE              587.56nm      486.13nm      656.27nm      435.84nm      706.52nm
+PRV        MYCROWN              517638            1.516800      1.522400      1.514300      1.526700      1.512900
+PRV        SK16                 700350            1.700000      1.710000      1.690000      1.715000      1.688000
+PRV        CONST                0                 1.600000      1.600000      1.600000      1.600000      1.600000
+File name to save is prvrt.zoa
+All constraints removed
+
+
+
+PRV: 3 private glass(es) defined
+
+BASIC LENS DATA (RADIUS MODE)
+
+SURF  RADIUS        THICKNESS          MATERIAL          INDEX        V-NUM
+  0    0.00000      0.100000E+14         AIR
+  1    15.0000       3.50000     PRV     MYCROWN         1.51680       63.8
+  2    0.00000       3.10000             AIR
+  3*  -37.5300       1.50000     PRV     CONST           1.60000       0.00
+  3*REFS,STOP
+  4    14.0800       5.00000             AIR
+  5    50.2600       3.50000     PRV     SK16            1.70000       35.0
+  6*  -31.3800       45.9314             AIR
+  6*Solve
+  7    0.00000       0.00000             LAST SURFACE
+DEL PRV: surface S5 used SK16; its indices are now 1.0
+BASIC LENS DATA (RADIUS MODE)
+
+SURF  RADIUS        THICKNESS          MATERIAL          INDEX        V-NUM
+  0    0.00000      0.100000E+14         AIR
+  1    15.0000       3.50000     PRV     MYCROWN         1.51680       63.8
+  2    0.00000       3.10000             AIR
+  3*  -37.5300       1.50000     PRV     CONST           1.60000       0.00
+  3*REFS,STOP
+  4    14.0800       5.00000             AIR
+  5    50.2600       3.50000     PRV     SK16            1.00000       0.00
+  6*  -31.3800      -72.6383             AIR
+  6*Solve
+  7    0.00000       0.00000             LAST SURFACE
+All constraints removed
+
+
+GLI: the lens has no private glasses (PRV)
+All constraints removed
+
+
+
+CATALOG    GLASS                CODE              656.30nm      587.60nm      486.10nm
+PRV        MYSK2                607552            1.604000      1.607400      1.615000
+PRV        MYF5                 603468            1.599600      1.603400      1.612500

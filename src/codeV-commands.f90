@@ -501,6 +501,19 @@ module codeV_commands
    module subroutine execCSO(iptStr)
     character(len=*) :: iptStr
    end subroutine execCSO
+   module subroutine execPRV(iptStr)
+    character(len=*) :: iptStr
+   end subroutine execPRV
+   module subroutine prvLine(iptStr)
+    character(len=*) :: iptStr
+   end subroutine prvLine
+   module subroutine prvImportLine(line, done)
+    character(len=*), intent(in) :: line
+    logical, intent(out) :: done
+   end subroutine prvImportLine
+   module subroutine prvDelete(iptStr)
+    character(len=*) :: iptStr
+   end subroutine prvDelete
    module subroutine execGLI(iptStr)
     character(len=*) :: iptStr
    end subroutine execGLI
@@ -568,6 +581,8 @@ module codeV_commands
     integer, parameter :: CON_UPDATE_LOOP = 8
     integer, parameter :: WAV_LOOP = 9
     integer, parameter :: FAB_LOOP = 10
+    ! PRV ... END: every line is private glass data (a label can be any word)
+    integer, parameter :: PRV_LOOP = 11
 
 
     ! Views saved by nested kdp_silent_begin calls (see kdpApiSilenceOn).
@@ -850,6 +865,8 @@ module codeV_commands
         zoaCmds(818)%execFunc => execMLI
         zoaCmds(819)%cmd = 'GPR'
         zoaCmds(819)%execFunc => execGPR
+        zoaCmds(820)%cmd = 'PRV'
+        zoaCmds(820)%execFunc => execPRV
         ! Tilt / decenter / pivot control codes (CODE V XDC..CDC, XOC..ZOC).
         block
             use zoa_ui, only: TILT_VAR_NAMES
@@ -1088,6 +1105,12 @@ module codeV_commands
 
         boolResult = .FALSE.
 
+        if (cmd_loop == PRV_LOOP) then
+            call prvLine(currentCommand)
+            boolResult = .TRUE.
+            return
+        end if
+
         ! RAD plot settings.  Not registered commands: NRD is also a legacy
         ! KDP command (CAPFN pupil grid), and a registered word that falls
         ! back to the legacy parser comes straight back here (CMDER's hook).
@@ -1253,8 +1276,21 @@ module codeV_commands
         character(len=8)   :: token
 
         handled = .FALSE.
-        if (F1 /= 1) return                     ! CMD level only
         if (len_trim(seg) == 0) return
+        ! A PRV ... END block is read at any level: a lens file has it
+        ! inside LEN ... GO, at lens input.
+        if (cmd_loop == PRV_LOOP .or. uppercase(trim(adjustl(seg))) == 'PRV') then
+            currentCommand = uppercase(trim(adjustl(seg)))
+            currentCommandRaw = trim(adjustl(seg))
+            if (cmd_loop == PRV_LOOP) then
+                call prvLine(currentCommand)
+            else
+                call execPRV(currentCommand)
+            end if
+            handled = .TRUE.
+            return
+        end if
+        if (F1 /= 1) return                     ! CMD level only
 
         ! Fold case for the command-word lookup, but PROTECT quoted strings
         ! (strings::uppercase does this): a title like TIT 'OSDmirror' keeps

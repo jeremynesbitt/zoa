@@ -969,6 +969,12 @@ module mod_lens_data_manager
             call self%load_surfaces_from_alens()
         end if
 
+        ! the lens's private glasses (PRV ... END), before any surface names one
+        block
+            use glass_catalog, only: gc_prv_write_save
+            call gc_prv_write_save(fID)
+        end block
+
         ! Do Object SUrface
         strSurfLine = 'SO'
         write(strTHI, '(D23.15)') surf_thickness(0)
@@ -1112,7 +1118,8 @@ module mod_lens_data_manager
             character(len=64) :: nm
             nm = curr_lens_data%glassnames(k)
             if (len_trim(nm) == 0) return
-            if (gdb%isNameInCatalog(trim(GLANAM(k-1,1)))) &
+            ! (a private glass is named bare, as CODE V does)
+            if (gdb%isNameInCatalog(trim(GLANAM(k-1,1))) .and. GLANAM(k-1,1) /= 'PRV') &
                 nm = trim(nm)//'_'//trim(GLANAM(k-1,1))
         end function saveGlassName
 
