@@ -2967,6 +2967,7 @@ END
  ! save for another day..
 
 SUBROUTINE CHECKGLSRESWAVELENGTHBOUNDS(boolResult,NAME1, NAME2, FLNAME, LMIN, LMAX, sI)
+   use glass_manager, only: rangeWarnSurf, rangeWarnText
    use DATLEN
    use mod_surface
    use DATMAI
@@ -2987,6 +2988,10 @@ SUBROUTINE CHECKGLSRESWAVELENGTHBOUNDS(boolResult,NAME1, NAME2, FLNAME, LMIN, LM
    IF(LMAX.GT.LAMUPP.AND.LMAX.NE.0.0D0.OR.LMIN.LT.LAMLOW .AND.LMIN.NE.0.0D0) THEN
 !       STOP AND GO TO CMD LEVEL AND PRINT WARNING
       boolResult=.FALSE.
+      rangeWarnSurf=sI
+      rangeWarnText=trim(NAME2)//' ('//trim(NAME1)//') is defined only from '// &
+      &  trim(um(LAMLOW))//' to '//trim(um(LAMUPP))//' um; the system wavelengths span '// &
+      &  trim(um(LMIN))//' to '//trim(um(LMAX))//' um'
       WRITE(OUTLYNE,*)'GLASS DEFINITION WARNING: FOR SURFACE ',sI
       CALL SHOWIT(1)
       OUTLYNE='THE GLASS - '//NAME2
@@ -3000,6 +3005,15 @@ SUBROUTINE CHECKGLSRESWAVELENGTHBOUNDS(boolResult,NAME1, NAME2, FLNAME, LMIN, LM
       CALL SHOWIT(1)
    END IF
 
+
+CONTAINS
+   ! a wavelength in um for the message (0.4358, 16.0000)
+   FUNCTION um(x) RESULT(t)
+      real(real64), intent(in) :: x
+      character(len=16) :: t
+      WRITE(t,'(F16.4)') x
+      t=adjustl(t)
+   END FUNCTION um
 
 END SUBROUTINE
 

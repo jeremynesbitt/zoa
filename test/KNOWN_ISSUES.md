@@ -877,8 +877,9 @@ as 517642 is a model glass) are in.  Still to do:
   rule), but GLA's range check rejects them first, as for AGF LD ranges.
 - Ohara's AGF is UTF-16 and kept byte-for-byte as published, so git shows it
   as binary.
-- `GLA` runs silently, so a glass used outside its wavelength range (AGF
-  LD line) gets index 1.0 with no message in the terminal.
+- `GLA` now reports a glass outside its wavelength range; a later `WL`
+  that moves the wavelengths outside a surface's glass range still only
+  gets the legacy GLSRES warning (shown when that path is not silent).
 - Hard-coded catalog-name chains remain in CONFIG3/CONFIG4, LDM1, LDM14
   (surface-material queries), LDM16, LDM17 (lens export `_SCHOTT`-style
   names), LDM18, PLOTCAD6 (part drawing), UTILITY2/5, CV2PRG (`MATL`) and

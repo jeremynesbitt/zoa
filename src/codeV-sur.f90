@@ -147,7 +147,8 @@ module procedure execSUR
     !##
     module procedure setGlass
         use command_utils, only : checkCommandInput, getInputNumber, isInputNumber
-        use glass_manager, only: parseModelGlassEntry
+        use glass_manager, only: parseModelGlassEntry, rangeWarnSurf, rangeWarnText
+        use type_utils, only: int2str
         use DATMAI
         use strings
 
@@ -162,12 +163,18 @@ module procedure execSUR
 
         if(isSurfCommand(trim(tokens(2)))) then
             surfNum = getSurfNumFromSurfCommand(trim(tokens(2)))
+            rangeWarnSurf = -1
             call kdp_silent_begin()
             call kdp_lens_begin()
             call kdp_chg(surfNum)
             call applyGlassText(trim(getSetGlassText(trim(tokens(3)))))
             call kdp_lens_end()
             call kdp_silent_end()
+            ! the lens update ran silently: report a glass outside its range
+            if (rangeWarnSurf == surfNum) then
+                call zoa_emit('GLA S'//trim(int2str(surfNum))//': '// &
+                    trim(rangeWarnText)//'; its indices are set to 1.0', 'red')
+            end if
         else
             call zoa_emit("Surface not input correctly.  Should be SO or Sk where k is the surface of interest", "red")
             return

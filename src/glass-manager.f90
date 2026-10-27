@@ -36,6 +36,12 @@ end interface
 type(glassdb) :: gdb
 integer, parameter ::  ID_AGF = 1
 
+! The last glass GLSRES found not defined across the system wavelengths
+! (surface -1 if none since the last clear) -- for commands that update the
+! lens silently (GLA) to report it.
+integer :: rangeWarnSurf = -1
+character(len=200) :: rangeWarnText = ''
+
 
 
 

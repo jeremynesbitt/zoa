@@ -98,6 +98,7 @@ SURF  RADIUS        THICKNESS          MATERIAL          INDEX        V-NUM
   6*  -31.3800       62.6850             AIR
   6*Solve
   7    0.00000       0.00000             LAST SURFACE
+GLA S3: ZNARROW (TESTCAT) is defined only from 0.5500 to 0.6000 um; the system wavelengths span 0.4358 to 0.7065 um; its indices are set to 1.0
 BASIC LENS DATA (RADIUS MODE)
 
 SURF  RADIUS        THICKNESS          MATERIAL          INDEX        V-NUM
