@@ -80,6 +80,7 @@ module glass_catalog
     real(real64), allocatable :: it(:,:)   ! (3, nit): wavelength, tau, thickness
     integer :: ntab = 0
     real(real64), allocatable :: tab(:,:)  ! (3, ntab): wavelength, index, spline y''
+    logical :: extrapolate = .false.       ! beyond the table: end slope (PRV), else end value
     character(len=140) :: comment = ''
   end type
 
@@ -321,7 +322,7 @@ contains
 
   ! Define (or redefine) private glass name: indices idx at wavelengths wl
   ! (um).  One wavelength gives a constant index; more, a natural spline
-  ! over their range (the table-glass rules).
+  ! through them, extended along its end slopes beyond their range.
   subroutine gc_prv_define(name, wl, idx, n)
     character(len=*), intent(in) :: name
     real(real64), intent(in) :: wl(:), idx(:)
@@ -355,11 +356,12 @@ contains
         j = j - 1
       end do
     end do
+    prvCat%g(ig)%extrapolate = .true.
     call finish_table(prvCat%g(ig))
-    if (n == 1) then
-      prvCat%g(ig)%lmin = 0.0_real64; prvCat%g(ig)%lmax = 1.0e10_real64
-      prvCat%g(ig)%nd = idx(1)
-    end if
+    ! defined at every wavelength: extrapolated beyond the PWL range (one
+    ! wavelength: a constant index)
+    if (n == 1) prvCat%g(ig)%nd = idx(1)
+    prvCat%g(ig)%lmin = 0.0_real64; prvCat%g(ig)%lmax = 1.0e10_real64
     call place_private()
   end subroutine
 
@@ -696,12 +698,14 @@ contains
     call natural_spline(g%tab(1, 1:g%ntab), g%tab(2, 1:g%ntab), g%tab(3, 1:g%ntab))
     g%lmin = g%tab(1, 1)
     g%lmax = g%tab(1, g%ntab)
-    ! nd, vd (and so the glass code) when the table covers the d, F, C lines
+    ! nd, vd (and so the glass code) when the table covers the d, F, C
+    ! lines, or the glass extrapolates (PRV)
     g%nd = 0.0_real64
     g%vd = 0.0_real64
-    if (g%lmin <= 0.5875618_real64 .and. g%lmax >= 0.5875618_real64) &
+    if (g%extrapolate .or. (g%lmin <= 0.5875618_real64 .and. g%lmax >= 0.5875618_real64)) &
       g%nd = table_index(g, 0.5875618_real64)
-    if (g%lmin <= 0.4861327_real64 .and. g%lmax >= 0.6562725_real64) &
+    if (g%ntab >= 2 .and. (g%extrapolate .or. &
+        (g%lmin <= 0.4861327_real64 .and. g%lmax >= 0.6562725_real64))) &
       g%vd = (g%nd - 1.0_real64)/(table_index(g, 0.4861327_real64) - &
                                   table_index(g, 0.6562725_real64))
     call derive_code(g)
@@ -732,19 +736,33 @@ contains
     end do
   end subroutine
 
-  ! Index of a table glass at lambda (the end point's outside the table).
+  ! Index of a table glass at lambda.  Outside the table: the end point's
+  ! index (ZTG), or for a glass that extrapolates (PRV) the spline's end
+  ! tangent -- the natural spline has no curvature at its ends, so the
+  ! straight extension is smooth.
   real(real64) function table_index(g, lambda) result(n)
     type(glass_record), intent(in) :: g
     real(real64), intent(in) :: lambda
-    integer :: lo, hi, k
+    integer :: lo, hi, k, m
     real(real64) :: h, a, b
     n = 1.0_real64
     if (g%ntab < 1) return
+    m = g%ntab
     if (lambda <= g%tab(1, 1)) then
-      n = g%tab(2, 1); return
+      n = g%tab(2, 1)
+      if (g%extrapolate .and. m >= 2) then
+        h = g%tab(1, 2) - g%tab(1, 1)
+        n = n + (lambda - g%tab(1, 1))*((g%tab(2, 2) - g%tab(2, 1))/h - h*g%tab(3, 2)/6.0_real64)
+      end if
+      return
     end if
-    if (lambda >= g%tab(1, g%ntab)) then
-      n = g%tab(2, g%ntab); return
+    if (lambda >= g%tab(1, m)) then
+      n = g%tab(2, m)
+      if (g%extrapolate .and. m >= 2) then
+        h = g%tab(1, m) - g%tab(1, m-1)
+        n = n + (lambda - g%tab(1, m))*((g%tab(2, m) - g%tab(2, m-1))/h + h*g%tab(3, m-1)/6.0_real64)
+      end if
+      return
     end if
     lo = 1; hi = g%ntab
     do while (hi - lo > 1)

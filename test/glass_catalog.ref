@@ -625,3 +625,13 @@ All constraints removed
 CATALOG    GLASS                CODE              656.30nm      587.60nm      486.10nm
 PRV        MYSK2                607552            1.604000      1.607400      1.615000
 PRV        MYF5                 603468            1.599600      1.603400      1.612500
+All constraints removed
+
+
+
+
+
+
+PRV: 1 private glass(es) defined
+CATALOG    GLASS                CODE              587.56nm      486.13nm      656.27nm      435.84nm      706.52nm
+PRV        EXTRA                517638            1.516800      1.522400      1.514300      1.525459      1.512663

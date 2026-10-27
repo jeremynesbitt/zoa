@@ -140,3 +140,12 @@ LEN NEW
 GLI PRV
 CV2PRG prvglass.seq
 GLI PRV
+! a private glass extrapolates beyond its PWL wavelengths (here to 435.84
+! and 706.52 nm) along the spline's end slopes
+RES osdtriplet
+PRV
+PWL 486.13 587.56 656.27
+'EXTRA' 1.5224 1.5168 1.5143
+END
+GLA S1 EXTRA
+GLI PRV
