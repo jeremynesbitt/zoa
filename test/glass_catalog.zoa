@@ -72,3 +72,11 @@ CSO NOSUCH
 CSO
 GLA S5 F8
 RTG ALL
+! catalog listings: indices at the lens wavelengths (GLI), transmittance
+! data (TLI), other data (MLI), and all of it for one glass (GPR)
+GLI TESTCAT
+TLI TESTCAT
+MLI TESTCAT
+GPR SCHOTT N-BK7
+GPR SPECIAL ACRYLIC
+GLI NOPE

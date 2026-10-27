@@ -501,6 +501,18 @@ module codeV_commands
    module subroutine execCSO(iptStr)
     character(len=*) :: iptStr
    end subroutine execCSO
+   module subroutine execGLI(iptStr)
+    character(len=*) :: iptStr
+   end subroutine execGLI
+   module subroutine execTLI(iptStr)
+    character(len=*) :: iptStr
+   end subroutine execTLI
+   module subroutine execMLI(iptStr)
+    character(len=*) :: iptStr
+   end subroutine execMLI
+   module subroutine execGPR(iptStr)
+    character(len=*) :: iptStr
+   end subroutine execGPR
     end interface
 
 
@@ -830,6 +842,14 @@ module codeV_commands
         zoaCmds(814)%execFunc => execFAB
         zoaCmds(815)%cmd = 'CSO'
         zoaCmds(815)%execFunc => execCSO
+        zoaCmds(816)%cmd = 'GLI'
+        zoaCmds(816)%execFunc => execGLI
+        zoaCmds(817)%cmd = 'TLI'
+        zoaCmds(817)%execFunc => execTLI
+        zoaCmds(818)%cmd = 'MLI'
+        zoaCmds(818)%execFunc => execMLI
+        zoaCmds(819)%cmd = 'GPR'
+        zoaCmds(819)%execFunc => execGPR
         ! Tilt / decenter / pivot control codes (CODE V XDC..CDC, XOC..ZOC).
         block
             use zoa_ui, only: TILT_VAR_NAMES

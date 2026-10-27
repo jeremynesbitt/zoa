@@ -261,3 +261,58 @@ SURF  RADIUS        THICKNESS          MATERIAL          INDEX        V-NUM
   6*  -31.3800       7.41646             AIR
   6*Solve
   7    0.00000       0.00000             LAST SURFACE
+CATALOG    GLASS                CODE              587.56nm      486.13nm      656.27nm      435.84nm      706.52nm
+TESTCAT    ZBK7                 517642            1.516800      1.522376      1.514322      1.526684      1.512892
+TESTCAT    ZSILICON             0                        -             -             -             -             -
+TESTCAT    ZDIAMOND             0                 2.414840      2.433115      2.407264      2.447934      2.403138
+TESTCAT    ZNARROW              517642            1.516800             -             -             -             -
+TESTCAT ZBK7: internal transmittance, 3 points
+  WAVELENGTH_UM   TRANSMITTANCE   THICKNESS_MM
+         0.3500          0.9300          25.00
+         0.4000          0.9920          25.00
+         0.7000          0.9980          25.00
+TESTCAT ZSILICON: internal transmittance, 0 points
+TESTCAT ZDIAMOND: internal transmittance, 0 points
+TESTCAT ZNARROW: internal transmittance, 0 points
+CATALOG    GLASS                CODE                ND       VD  STATUS       DENSITY  TCE-30/70     DPGF    COST  CR  FR  SR  AR  PR
+TESTCAT    ZBK7                 517642        1.516800   64.170  preferred      2.510       7.10  -0.0009    1.00   1   1   1   1   1
+TESTCAT    ZSILICON             0             3.420000        -  standard           -          -        -       -   -   -   -   -   -
+TESTCAT    ZDIAMOND             0             2.420000        -  standard           -          -        -       -   -   -   -   -   -
+TESTCAT    ZNARROW              517642        1.516800   64.170  standard           -          -        -       -   -   -   -   -   -
+CATALOG    GLASS                CODE              587.56nm      486.13nm      656.27nm      435.84nm      706.52nm
+SCHOTT     N-BK7                517642.251        1.516800      1.522376      1.514322      1.526684      1.512892
+SCHOTT N-BK7: internal transmittance, 25 points
+  WAVELENGTH_UM   TRANSMITTANCE   THICKNESS_MM
+         0.3000          0.0500          25.00
+         0.3100          0.2500          25.00
+         0.3200          0.5200          25.00
+         0.3340          0.7800          25.00
+         0.3500          0.9200          25.00
+         0.3650          0.9710          25.00
+         0.3700          0.9770          25.00
+         0.3800          0.9830          25.00
+         0.3900          0.9890          25.00
+         0.4000          0.9920          25.00
+         0.4050          0.9930          25.00
+         0.4200          0.9930          25.00
+         0.4360          0.9920          25.00
+         0.4600          0.9930          25.00
+         0.5000          0.9940          25.00
+         0.5460          0.9960          25.00
+         0.5800          0.9950          25.00
+         0.6200          0.9940          25.00
+         0.6600          0.9940          25.00
+         0.7000          0.9960          25.00
+         1.0600          0.9970          25.00
+         1.5300          0.9800          25.00
+         1.9700          0.8400          25.00
+         2.3250          0.5600          25.00
+         2.5000          0.3600          25.00
+CATALOG    GLASS                CODE                ND       VD  STATUS       DENSITY  TCE-30/70     DPGF    COST  CR  FR  SR  AR  PR
+SCHOTT     N-BK7                517642.251    1.516800   64.170  preferred      2.510       7.10  -0.0009    1.00   1   0   1   2   2
+CATALOG    GLASS                CODE              587.56nm      486.13nm      656.27nm      435.84nm      706.52nm
+SPECIAL    ACRYLIC              492575            1.491757      1.497760      1.489201      1.502443      1.487552
+SPECIAL ACRYLIC: internal transmittance, 0 points
+CATALOG    GLASS                CODE                ND       VD  STATUS       DENSITY  TCE-30/70     DPGF    COST  CR  FR  SR  AR  PR
+SPECIAL    ACRYLIC              492575        1.491757   57.456  standard           -          -        -       -   -   -   -   -   -
+GLI: no glass catalog NOPE
