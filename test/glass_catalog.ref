@@ -10,6 +10,7 @@ SCHOTT        SCHOTT June 2025 preferred, inquiry, AR glasses
 OHARA         OHARA glass catalog
 HOYA          20210421 HOYA Optical Glass Catalog
 HIKARI        Updated 11/2019
+LONGCATALOG   Zoa test catalog whose name is longer than the 8-character legacy word
 TESTCAT       Zoa test catalog (user catalog found through the search path)
 SPECIAL       Special materials (KDP-2 built-ins): IR/UV crystals, IR glasses, plastics, water
           "GLCAT     (Searches all catalogs)
@@ -243,11 +244,11 @@ All constraints removed
 
 
 
-Catalog search order: SCHOTT OHARA HOYA HIKARI TESTCAT SPECIAL
-Catalog search order: HIKARI SCHOTT HOYA OHARA SPECIAL TESTCAT
+Catalog search order: SCHOTT OHARA HOYA HIKARI LONGCATALOG TESTCAT SPECIAL
+Catalog search order: HIKARI SCHOTT HOYA LONGCATALOG OHARA SPECIAL TESTCAT
 GLA S3: F8 (HIKARI) is defined only from 0.4000 to 0.7000 um; the system wavelengths span 0.4358 to 0.7065 um; its indices are set to 1.0
 CSO: no glass catalog NOSUCH; search order not changed
-Catalog search order: SCHOTT OHARA HOYA HIKARI TESTCAT SPECIAL
+Catalog search order: SCHOTT OHARA HOYA HIKARI LONGCATALOG TESTCAT SPECIAL
 BASIC LENS DATA (RADIUS MODE)
 
 SURF  RADIUS        THICKNESS          MATERIAL          INDEX        V-NUM
@@ -517,3 +518,38 @@ SURF  RADIUS        THICKNESS          MATERIAL          INDEX        V-NUM
   6   -31.3800       37.3454             AIR
   7    0.00000       0.00000             AIR
   8    0.00000       0.00000             LAST SURFACE
+All constraints removed
+
+
+
+
+
+
+
+File name to save is longrt.zoa
+All constraints removed
+
+
+
+
+WAVELENGTH RANGE:
+LOWER WAVELENGTH =  0.36500000     MICRONS
+UPPER WAVELENGTH =   2.5000000     MICRONS
+GLASS NAME   = ZLONG
+GLASS NUMBER = 620364
+Sellmeier 1 DISPERSION FORMULA (AGF FORMULA 02)
+          B1 =    1.39757037000000
+          C1 =   0.995906143000000E-02
+          B2 =   0.159201403000000
+          C2 =   0.546931752000000E-01
+          B3 =    1.26865430000000
+          C3 =    119.248346000000
+REFRACTIVE INDEX DATA (WAVELENGTHS #1 TO #5)
+
+SURF    N1             N2             N3             N4             N5
+  1 SCHOTT        N-SK16
+  1    1.62041        1.62756        1.61727        1.63312        1.61548
+  3 LONGCATALOG   ZLONG
+  3    1.62005        1.63208        1.61506        1.64209        1.61229
+  5 LONGCATALOG   ZLONG
+  5    1.62005        1.63208        1.61506        1.64209        1.61229

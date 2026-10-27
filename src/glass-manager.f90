@@ -159,7 +159,7 @@ contains
   character(len=*) :: strName
   integer, intent(inout), optional :: gdb_loc
   logical :: boolResult
-  integer :: i
+  integer :: i, k
   character(len=32) :: u
 
   call self%sync()
@@ -176,6 +176,22 @@ contains
   if (i > 0) then
     boolResult = .TRUE.
     if (present(gdb_loc)) gdb_loc = i
+    return
+  end if
+  ! the legacy parser cuts words to 8 characters: an 8-character word is
+  ! the longer catalog name it begins, when only one begins with it
+  if (len_trim(u) == 8) then
+    k = 0
+    do i = 1, size(self%catalogs)
+      if (len_trim(self%catalogs(i)) > 8 .and. self%catalogs(i)(1:8) == u(1:8)) then
+        if (k /= 0) return              ! ambiguous
+        k = i
+      end if
+    end do
+    if (k > 0) then
+      boolResult = .TRUE.
+      if (present(gdb_loc)) gdb_loc = k
+    end if
   end if
  end function
 

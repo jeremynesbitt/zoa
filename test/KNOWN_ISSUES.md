@@ -890,9 +890,13 @@ as 517642 is a model glass) are in.  Still to do:
 - A ZOA2CV/CV2PRG round trip of osdtriplet adds an AIR surface before the
   image and drops the paraxial image solve (seen while testing phase 4;
   not caused by it).
-- GLSCAT stores the catalog word as `WC(1:8)`: catalog names longer than 8
-  characters are cut in GLANAM (the legacy WC word is 8 characters, which
-  is why the Nikon file ships as HIKARI.AGF, not NIKON-HIKARI.AGF).
+- Catalog names: the legacy parser cuts words to 8 characters, so an
+  8-character word means the one longer catalog name it begins (LONGCATA ->
+  LONGCATALOG); two catalogs sharing their first 8 characters are
+  ambiguous on legacy paths (GLA with name_CATALOG still works).  A
+  surface stores 13 characters of the catalog name (GLANAM), so names stay
+  within 13.  The Nikon file could now ship as NIKON-HIKARI.AGF, but lenses
+  name HIKARI, so it stays.
 - Model glass codes (nnn.vvv) are still converted in single precision
   (parseModelGlassEntry), so 517.642 gives nd 1.5169999...; changing it
   moves the model-glass refs.

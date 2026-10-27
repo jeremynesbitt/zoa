@@ -100,3 +100,15 @@ RTG ALL
 ZOA2CV glassrt.seq
 CV2PRG glassrt.seq
 RTG ALL
+! a catalog name longer than the 8-character legacy word (LONGCATALOG.AGF):
+! the cut word LONGCATA means the one catalog it begins
+RES osdtriplet
+GLA S3 ZLONG_LONGCATALOG
+U L
+CHG 5
+LONGCATA ZLONG
+EOS
+SAV longrt
+RES longrt
+GLASSP LONGCATALOG ZLONG
+NDEX ALL
