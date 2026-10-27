@@ -70,14 +70,14 @@ Title: Lithographic system, Kotaro
 
 GENERAL LENS DATA:
 
-Surfaces                  : 61
+Surfaces                  : 60
 Stop                      : 41
 System Aperture           : Object Space NA (NAO) = 0.1000000
 Ray Aiming                : Off
 Telecentric Object Space  : Off
 Afocal Image Space        : Off
 Effective Focal Length    : 660.0450
-Back Focal Length         : -165.0115
+Back Focal Length         : -156.3833
 Front Focal Length        : 2599.751
 Total Track               : 768.0862
 Image Space F/#           : 1.243516
@@ -90,7 +90,7 @@ Paraxial Magnification    : -0.2500003
 Entrance Pupil Diameter   : 530.7895
 Entrance Pupil Position   : 2613.522
 Exit Pupil Diameter       : 25441.74
-Exit Pupil Position       : -31802.21
+Exit Pupil Position       : -31793.58
 Field Type                : Object Height
 Maximum Radial Field      : 39.07803
 Primary Wavelength [um]   : 0.2482870

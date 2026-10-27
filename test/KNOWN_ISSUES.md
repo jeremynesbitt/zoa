@@ -887,9 +887,9 @@ as 517642 is a model glass) are in.  Still to do:
 - `LENO` output goes only to an output file (SHOWIT 10), never the terminal,
   so its CODE V branch (LENSFCV, now `name_CATALOG` like ZOA2CV) is not
   exercised by a test.
-- A ZOA2CV/CV2PRG round trip of osdtriplet adds an AIR surface before the
-  image and drops the paraxial image solve (seen while testing phase 4;
-  not caused by it).
+- CSO lasts for the session only.  CODE V keeps the search order as a
+  preference (Tools > Preferences > General); a CSO preference is deferred
+  (user decision 2026-10-27).
 - Catalog names: the legacy parser cuts words to 8 characters, so an
   8-character word means the one longer catalog name it begins (LONGCATA ->
   LONGCATALOG); two catalogs sharing their first 8 characters are

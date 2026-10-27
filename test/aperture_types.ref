@@ -5,20 +5,20 @@ All constraints removed
 NAO is not set (the aperture is not defined by the object NA)
 NAO 0.100000
 ENTRANCE PUPIL
-DIA       530.7894
-THI       2613.5212
+DIA       530.7895
+THI       2613.5218
 INFINITE CONJUGATES
-EFL       660.0448
-BFL       -165.0114
-FFL       2599.7507
+EFL       660.0450
+BFL       -156.3833
+FFL       2599.7513
 FNO       1.2435
 AT USED CONJUGATES
 RED       0.2500
 FNO       1.2500
 OBJ DIS   40.4256
 TT        808.5117
-IMG DIS   0.0000
-OAL       768.0862
+IMG DIS   8.6282
+OAL       759.4580
 File name to save is natest.zoa
 All constraints removed
 
@@ -60,20 +60,20 @@ All constraints removed
 
 NAO 0.100000
 ENTRANCE PUPIL
-DIA       530.7894
-THI       2613.5212
+DIA       530.7895
+THI       2613.5218
 INFINITE CONJUGATES
-EFL       660.0448
-BFL       -165.0114
-FFL       2599.7507
+EFL       660.0450
+BFL       -156.3833
+FFL       2599.7513
 FNO       1.2435
 AT USED CONJUGATES
 RED       0.2500
 FNO       1.2500
 OBJ DIS   40.4256
 TT        808.5117
-IMG DIS   0.0000
-OAL       768.0862
+IMG DIS   8.6282
+OAL       759.4580
 All constraints removed
 
 
@@ -206,11 +206,11 @@ DIA       7.6683
 THI       6.7224
 INFINITE CONJUGATES
 EFL       50.0107
-BFL       -0.0000
+BFL       38.5152
 FFL       -44.5831
 FNO       6.5218
-IMG DIS   0.0000
-OAL       55.1152
+IMG DIS   38.5152
+OAL       16.6000
 PARAXIAL IMAGE
  HT      8.8182
 ANG       10.3644 DEG
@@ -219,17 +219,17 @@ DIA       7.6683
 THI       6.7224
 EXIT PUPIL
 DIA       7.4747
-THI       -48.7486
+THI       -10.2334
 ENTRANCE PUPIL
 DIA       10.0000
 THI       6.7224
 INFINITE CONJUGATES
 EFL       50.0107
-BFL       -0.0000
+BFL       38.5152
 FFL       -44.5831
 FNO       5.0011
-IMG DIS   0.0000
-OAL       55.1152
+IMG DIS   38.5152
+OAL       16.6000
 PARAXIAL IMAGE
  HT      8.8182
 ANG       10.3644 DEG
@@ -238,7 +238,7 @@ DIA       10.0000
 THI       6.7224
 EXIT PUPIL
 DIA       9.7476
-THI       -48.7486
+THI       -10.2334
 Error! FLOAT takes no arguments
 All constraints removed
 

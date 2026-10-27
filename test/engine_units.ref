@@ -626,22 +626,22 @@ All constraints removed
 
 
 
-ENGINETEST: surfaces 62, input rays 20
-TILT FLAGS: 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
-DECENTER FLAGS: 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
+ENGINETEST: surfaces 61, input rays 20
+TILT FLAGS: 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
+DECENTER FLAGS: 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
 SURFACES WITH GLOBAL DATA: 0, FORONEL PIVOT PATH: F
-TRNSF2: cases 1220, not bit-identical 0
+TRNSF2: cases 1200, not bit-identical 0
 BAKONE: cases 20, not bit-identical 0
 FORONEL: cases 20, not bit-identical 0
-CACHEK: cases 1935206, mismatches 0
-HITSUR: cases 38688, skipped 0, mismatches 0
+CACHEK: cases 1903993, mismatches 0
+HITSUR: cases 38064, skipped 0, mismatches 0
 AIM SETUP: reference surface 41, clap type 1, multi clap 0, aplanatic F, flip X F, flip Y F, orient F, clap decentered or tilted F, surface 1 curved T, surface 1 conic F, ray aiming T, last surface thickness F
 AIMTARGET: cases 137390, mismatches 0
 GETZEE1: cases 1800, mismatches 0
 RAYDERIV: cases 144, mismatches 0
 NEWDEL: cases 792, mismatches 0
 MISSREF: cases 240948, mismatches 0
-ADJLAST: cases 10980, mismatches 0
+ADJLAST: cases 10800, mismatches 0
 ENGINETEST: PASS
 All constraints removed
 

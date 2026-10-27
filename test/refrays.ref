@@ -19,8 +19,7 @@ SURF      X              Y              Z             XANG           YANG
   9    10.8121        18.3907       -6.77396       -1.66833        19.4279
  10    10.5577        21.4722        1.46285       -2.25575        9.25127
  11    10.5206        21.6254       -4.45424       -9.55807        2.83627
- 12   0.887988E-01    24.6947        0.00000       -9.55807        2.83627
- 13   0.119686        24.6856        0.00000       -9.55807        2.83627
+ 12   0.119648        24.6858        0.00000       -9.55807        2.83627
 Reference rays built for 3 field(s).
 RAYTRACE DATA (XZ AND YZ-PLANE) - (CFG # 1)
 ANGULAR OUTPUT MODE IS DEGREES
@@ -39,8 +38,7 @@ SURF      X              Y              Z             XANG           YANG
   9    10.8121        18.3907       -6.77396       -1.66833        19.4279
  10    10.5577        21.4722        1.46285       -2.25575        9.25127
  11    10.5206        21.6254       -4.45424       -9.55807        2.83627
- 12   0.887988E-01    24.6947        0.00000       -9.55807        2.83627
- 13   0.119686        24.6856        0.00000       -9.55807        2.83627
+ 12   0.119648        24.6858        0.00000       -9.55807        2.83627
 Reference rays: 3 field(s)
 F1  x=0.0000 y=0.0000  wl=2
   R1CHF   ok=T vig=F  Ximg=0.0000 Yimg=0.0000
@@ -49,17 +47,17 @@ F1  x=0.0000 y=0.0000  wl=2
   R4+XSG  ok=T vig=F  Ximg=-0.0167 Yimg=0.0000
   R5-XSG  ok=T vig=F  Ximg=0.0167 Yimg=0.0000
 F2  x=0.0000 y=0.7000  wl=2
-  R1CHF   ok=T vig=F  Ximg=0.0000 Yimg=17.0925
+  R1CHF   ok=T vig=F  Ximg=0.0000 Yimg=17.1209
   R2UPR   ok=T vig=F  Ximg=0.0000 Yimg=17.1100
   R3LWR   ok=T vig=F  Ximg=0.0000 Yimg=17.0879
-  R4+XSG  ok=T vig=F  Ximg=-0.0100 Yimg=17.0942
-  R5-XSG  ok=T vig=F  Ximg=0.0100 Yimg=17.0942
+  R4+XSG  ok=T vig=F  Ximg=-0.0104 Yimg=17.0946
+  R5-XSG  ok=T vig=F  Ximg=0.0104 Yimg=17.0946
 F3  x=0.0000 y=1.0000  wl=2
-  R1CHF   ok=T vig=F  Ximg=0.0000 Yimg=24.5515
+  R1CHF   ok=T vig=F  Ximg=0.0000 Yimg=24.5913
   R2UPR   ok=T vig=F  Ximg=0.0000 Yimg=24.5589
   R3LWR   ok=T vig=F  Ximg=0.0000 Yimg=24.5588
-  R4+XSG  ok=T vig=F  Ximg=0.0055 Yimg=24.5484
-  R5-XSG  ok=T vig=F  Ximg=-0.0055 Yimg=24.5484
+  R4+XSG  ok=T vig=F  Ximg=0.0048 Yimg=24.5489
+  R5-XSG  ok=T vig=F  Ximg=-0.0048 Yimg=24.5489
 All constraints removed
 
 

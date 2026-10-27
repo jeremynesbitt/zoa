@@ -97,19 +97,19 @@ DIA       12.0000
 THI       6.5745
 INFINITE CONJUGATES
 EFL       71.8981
-BFL       24.7004
+BFL       62.7892
 FFL       -64.2165
 FNO       5.9915
-IMG DIS   0.0000
-OAL       54.7888
+IMG DIS   62.7892
+OAL       16.7000
 PARAXIAL IMAGE
- HT      8.3893
+ HT      12.6776
 ANG       9.9472 DEG
 ENTRANCE PUPIL
 DIA       12.0000
 THI       6.5745
 EXIT PUPIL
 DIA       12.1877
-THI       -48.3222
+THI       -10.2334
 Error! FNO must be greater than zero
 Error! Expecting 'FNO X' where X is the image-space F/number

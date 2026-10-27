@@ -57,7 +57,7 @@ SUBROUTINE CV2PRG
 !
    LOGICAL HOE
    INTEGER HOESUR, KCAT, ICAT
-   LOGICAL INPRV, PRVDONE
+   LOGICAL INPRV, PRVDONE, LASTSI, HASPIM
    CHARACTER*1 HV1,HV2
    real(real64) HX1,HY1,HZ1,HX2,HY2,HZ2,HWL,HOR
    DIMENSION HV1(:),HV2(:),HX1(:),HY1(:),HZ1(:),HX2(:),HY2(:),&
@@ -81,6 +81,8 @@ SUBROUTINE CV2PRG
    ! Reset for every import; RDM N below explicitly selects curvature mode.
    RADON=.TRUE.
    INPRV=.FALSE.
+   LASTSI=.FALSE.
+   HASPIM=.FALSE.
 
    !PRINT *, "CV2PRG Starting.."
 !
@@ -532,6 +534,13 @@ SUBROUTINE CV2PRG
          END IF
          HASFNO=.TRUE.
          PENDFNO=VALV
+         TEMPC(I)(1:1024)=BL1024(1:1024)
+         GO TO 8888
+      END IF
+!     PIM [YES|NO]: THE PARAXIAL IMAGE SOLVE, SET ONCE THE LENS EXISTS
+      IF(TEMPC(I)(1:4).EQ.'PIM '.OR.TRIM(TEMPC(I)).EQ.'PIM') THEN
+         TEMPER=ADJUSTL(TEMPC(I)(4:1024))
+         HASPIM=(TEMPER(1:1).NE.'N')
          TEMPC(I)(1:1024)=BL1024(1:1024)
          GO TO 8888
       END IF
@@ -1003,6 +1012,8 @@ SUBROUTINE CV2PRG
          END IF
 !     A SURFACE LINE, BREAK IT OUT
 !     STRIP OFF TO THE START OF THE CURVATURE
+!     (SI IS THE IMAGE SURFACE: THE LAST, LEFT OPEN AT EOS)
+         LASTSI=(TEMPC(I)(1:2).EQ.'SI')
          IF(TEMPC(I)(1:2).EQ.'SO'.OR.&
          &TEMPC(I)(1:2).EQ.'S0'.OR.&
          &TEMPC(I)(1:2).EQ.'S '.OR.&
@@ -2033,7 +2044,10 @@ SUBROUTINE CV2PRG
    CLDX=.FALSE.
    CLDY=.FALSE.
    CLTILT=.FALSE.
-   CALL UPDATECV2INPUTANDPROCESCOMMAND(OUTLYNE2, SUB)
+!     (THE SAME LINE AGAIN OPENS ONE MORE SURFACE -- THE IMAGE FOR A FILE
+!     THAT ENDS WITHOUT SI; AFTER SI, WHICH IS THE IMAGE, IT WOULD ADD AN
+!     EXTRA SURFACE)
+   IF(.NOT.LASTSI) CALL UPDATECV2INPUTANDPROCESCOMMAND(OUTLYNE2, SUB)
 !     Refresh the typed surface store from the fully imported ALENS BEFORE the
 !     finalizing EOS: the YZ paraxial trace/solve at EOS reads ldm%surfaces
 !     geometry (same stale-store family as the RDY refreshSurf fix).  Without
@@ -2129,6 +2143,7 @@ SUBROUTINE CV2PRG
       WRITE(FNOSTR,'(G0)') PENDFNO
       CALL PROCESKDP('FNO '//TRIM(FNOSTR))
    END IF
+   IF(HASPIM) CALL PROCESKDP('PIM')
    ! Converting a CODE V file replaces the lens: reset undo history with it as baseline.
    call undo_reset_baseline()
    RETURN

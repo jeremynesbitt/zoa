@@ -471,9 +471,9 @@ SURF  RADIUS        THICKNESS          MATERIAL          INDEX        V-NUM
   8    0.00000       10.8339     HIKARI  F2              1.62004      -51.4
   9   -36.9802      0.500000             AIR
  10    196.417       6.85817     SPECIAL SILICA          1.45846      -98.3
- 11   -67.1476       57.4980             AIR
- 12    0.00000     -0.183430             AIR
- 13    0.00000       0.00000             LAST SURFACE
+ 11*  -67.1476      -32.6438             AIR
+ 11*Solve
+ 12    0.00000     -0.183430             LAST SURFACE
 All constraints removed
 
 
@@ -515,9 +515,9 @@ SURF  RADIUS        THICKNESS          MATERIAL          INDEX        V-NUM
   3*REFS,STOP
   4    14.0800       5.00000             AIR
   5    50.2600       3.50000     SCHOTT  N-SK16          1.62632       221.
-  6   -31.3800       37.3454             AIR
-  7    0.00000       0.00000             AIR
-  8    0.00000       0.00000             LAST SURFACE
+  6*  -31.3800       37.3454             AIR
+  6*Solve
+  7    0.00000       0.00000             LAST SURFACE
 All constraints removed
 
 

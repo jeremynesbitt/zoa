@@ -17,10 +17,10 @@ THE CURRENT INI IS BLANK
 THE CURRENT LTYPE IS BLANK
 UNITS = MILLIMETERS
 REF OBJ Y-HT                    REF AP Y-HT         OBJ SF#  REF SF#  IMG SF#
-  39.0780    ( -44.03     DG)      81.28                 0       41       61
+  39.0780    ( -44.03     DG)      81.28                 0       41       60
 
 REF OBJ X-HT                    REF AP X-HT         OBJ SF#  REF SF#  IMG SF#
-  39.0780    ( -44.03     DG)      81.28                 0       41       61
+  39.0780    ( -44.03     DG)      81.28                 0       41       60
  THERE ARE CURRENTLY            3  ANALYSIS FIELD POSITIONS DEFINED
  UNITS ARE DEGREES
 POS # =  1 X-VALUE =   0.00000     Y-VALUE =   0.00000
@@ -28,10 +28,10 @@ POS # =  2 X-VALUE =   0.00000     Y-VALUE =  0.700000
 POS # =  3 X-VALUE =   0.00000     Y-VALUE =   1.00000
 YZ-PLANE FIRST ORDER OPERATING CONDITIONS
   EFL          BFD          IMG F-NUM    LENGTH       OAL          T-MAG
-  660.04       0.0000      0.65484       768.09       808.51     -0.25000
+  660.04       8.6282      0.65484       768.09       808.51     -0.25000
 XZ-PLANE FIRST ORDER OPERATING CONDITIONS
   EFL          BFD          IMG F-NUM    LENGTH       OAL          T-MAG
-  660.04       0.0000      0.65484       768.09       808.51     -0.25000
+  660.04       8.6282      0.65484       768.09       808.51     -0.25000
 SEMI-APERTURE REFERENCE RAY HEIGHT AT SURFACE #1
 SAY(YZ-PLANE IN LENS UNITS) =    0.506600000000000D+03
 
@@ -48,7 +48,7 @@ EVALUATION MODE IS FOCAL
 THE CURRENT APERTURE STOP SURFACE IS SURFACE #  41
 SPECIAL CONDITIONS
 
- 61           VERTEX
+ 60           VERTEX
 BASIC LENS DATA (RADIUS MODE)
 
 SURF  RADIUS        THICKNESS          MATERIAL          INDEX        V-NUM
@@ -115,8 +115,7 @@ SURF  RADIUS        THICKNESS          MATERIAL          INDEX        V-NUM
  57    59.8901       18.5284             AIR
  58    57.6516       43.9879     SPECIAL SILICA          1.50839       0.00
  59    331.992       8.62815             AIR
- 60    0.00000       0.00000             AIR
- 61    0.00000       0.00000             LAST SURFACE
+ 60    0.00000       0.00000             LAST SURFACE
 CONIC AND 4th THROUGH 10th ORDER ASPHERIC DATA
 (+) - DESIGNATES A PLANO SURFACE WITH A 2ND ORDER ASPHERIC
 TERM IN THE SECOND COLUMN INSTEAD OF A CONIC CONSTANT
@@ -319,10 +318,8 @@ SURF    N1             N2             N3             N4             N5
  58    1.50839        1.00000        1.00000        1.00000        1.00000
  59               AIR
  59    1.00000        1.00000        1.00000        1.00000        1.00000
- 60               AIR
+ 60               LAST SURFACE
  60    1.00000        1.00000        1.00000        1.00000        1.00000
- 61               LAST SURFACE
- 61    1.00000        1.00000        1.00000        1.00000        1.00000
 REFRACTIVE INDEX DATA (WAVELENGTHS #6 TO #10)
 
 SURF    N6             N7             N8             N9             N10
@@ -446,10 +443,8 @@ SURF    N6             N7             N8             N9             N10
  58    1.00000        1.00000        1.00000        1.00000        1.00000
  59               AIR
  59    1.00000        1.00000        1.00000        1.00000        1.00000
- 60               AIR
+ 60               LAST SURFACE
  60    1.00000        1.00000        1.00000        1.00000        1.00000
- 61               LAST SURFACE
- 61    1.00000        1.00000        1.00000        1.00000        1.00000
 
 SURFACE "SPECIFIC GRAVITY (gm/cc)" VALUES
 
@@ -515,7 +510,6 @@ SURF     "SPGR" VALUE (IN CURRENT LENS UNITS)
  58             0.0000000
  59             0.0000000
  60             0.0000000
- 61             0.0000000
 NO LINEAR DIFFRATION GRATING DATA FOUND
 NO SOLVE DATA
 NO PIKUP DATA
@@ -583,7 +577,6 @@ SURF       SURFACE TYPE
  58           REAL
  59           REAL
  60           REAL
- 61           REAL
 SURFACE FOOTBLOK DATA
 
 SURF     FOOTBLOK DEFINITION
@@ -648,7 +641,6 @@ SURF     FOOTBLOK DEFINITION
  58           OFF
  59           OFF
  60           OFF
- 61           OFF
 SURFACE PIVAXIS DATA
 
 SURF     PIVAXIS DEFINITION
@@ -713,7 +705,6 @@ SURF     PIVAXIS DEFINITION
  58           VERTEX
  59           VERTEX
  60           VERTEX
- 61           VERTEX
 SURFACE (FORCED DUMMY) DATA
 
 SURF     FORCED DUMMY SETTING
@@ -778,14 +769,13 @@ SURF     FORCED DUMMY SETTING
  58            NO/OFF
  59            NO/OFF
  60            NO/OFF
- 61            NO/OFF
 
 SURFACE "INR" VALUES
 "INR" IS THE REFERENCE RADIUS FOR "FRINGE" CALCULATIONS
 
 SURF     "INR" VALUE (IN CURRENT LENS UNITS)
   0             39.078000
-  1             46.199413
+  1             46.199412
   2             49.794738
   3             50.411576
   4             51.344713
@@ -844,8 +834,7 @@ SURF     "INR" VALUE (IN CURRENT LENS UNITS)
  57             45.233639
  58             38.580871
  59             19.595907
- 60             9.7695328
- 61             9.7695328
+ 60             9.7695345
 NO MIRROR THICKNESS DATA
 NO PRICE DATA
 SURFACE COATING NUMBER DATA
@@ -912,7 +901,6 @@ SURF    COATING NUMBER
  58     SURFACE NOT COATED
  59     SURFACE NOT COATED
  60     SURFACE NOT COATED
- 61     SURFACE NOT COATED
 NO SPECIAL SURFACE DATA
 NO CONFIG DATA
 

@@ -68,7 +68,6 @@ SURF      X              Y              Z             XANG           YANG
  58    0.00000        0.00000        0.00000        0.00000        0.00000
  59    0.00000        0.00000        0.00000        0.00000        0.00000
  60    0.00000        0.00000        0.00000        0.00000        0.00000
- 61    0.00000        0.00000        0.00000        0.00000        0.00000
 RAYTRACE DATA (XZ AND YZ-PLANE) - (CFG # 1)
 ANGULAR OUTPUT MODE IS DEGREES
 SLOPES/ANGLES  MEASURED WITH RESPECT TO THE Z-AXIS
@@ -135,7 +134,6 @@ SURF      X              Y              Z             XANG           YANG
  58    0.00000       -7.15830       0.446130        0.00000       0.414933
  59    0.00000       -6.84245       0.705200E-01    0.00000       0.254454E-01
  60    0.00000       -6.83865        0.00000        0.00000       0.254454E-01
- 61    0.00000       -6.83865        0.00000        0.00000       0.254454E-01
 RAYTRACE DATA (XZ AND YZ-PLANE) - (CFG # 1)
 ANGULAR OUTPUT MODE IS DEGREES
 SLOPES/ANGLES  MEASURED WITH RESPECT TO THE Z-AXIS
@@ -202,7 +200,6 @@ SURF      X              Y              Z             XANG           YANG
  58    0.00000       -10.2602       0.920339        0.00000       0.631974
  59    0.00000       -9.78352       0.144187        0.00000       0.946279E-01
  60    0.00000       -9.76951        0.00000        0.00000       0.946279E-01
- 61    0.00000       -9.76951        0.00000        0.00000       0.946279E-01
 RAYTRACE DATA (XZ AND YZ-PLANE) - (CFG # 1)
 ANGULAR OUTPUT MODE IS DEGREES
 SLOPES/ANGLES  MEASURED WITH RESPECT TO THE Z-AXIS
@@ -269,7 +266,6 @@ SURF      X              Y              Z             XANG           YANG
  58   -4.37343       -4.37343       0.332727       -23.3215       -23.3215
  59   -23.9400       -23.9400        1.73082       -50.7620       -50.7620
  60   -32.3855       -32.3855        0.00000       -50.7620       -50.7620
- 61   -32.3855       -32.3855        0.00000       -50.7620       -50.7620
 RAYTRACE DATA (XZ AND YZ-PLANE) - (CFG # 1)
 ANGULAR OUTPUT MODE IS DEGREES
 SLOPES/ANGLES  MEASURED WITH RESPECT TO THE Z-AXIS
@@ -336,7 +332,6 @@ SURF      X              Y              Z             XANG           YANG
  58   -1325.53       -1284.30        0.00000       -87.0526       -86.9475
  59   -2179.88       -2109.18        0.00000       -85.5576       -85.3946
  60   -2290.94       -2216.30        0.00000       -85.5576       -85.3946
- 61   -2290.94       -2216.30        0.00000       -85.5576       -85.3946
 RAYTRACE DATA (XZ AND YZ-PLANE) - (CFG # 1)
 ANGULAR OUTPUT MODE IS DEGREES
 SLOPES/ANGLES  MEASURED WITH RESPECT TO THE Z-AXIS
@@ -403,7 +398,6 @@ SURF      X              Y              Z             XANG           YANG
  58   -1076.24       -1055.29        0.00000       -88.1207       -88.0717
  59   -2416.89       -2361.78        0.00000       -87.1676       -87.0896
  60   -2591.28       -2531.50        0.00000       -87.1676       -87.0896
- 61   -2591.28       -2531.50        0.00000       -87.1676       -87.0896
 RAYTRACE DATA (XZ AND YZ-PLANE) - (CFG # 1)
 ANGULAR OUTPUT MODE IS DEGREES
 SLOPES/ANGLES  MEASURED WITH RESPECT TO THE Z-AXIS
@@ -470,7 +464,6 @@ SURF      X              Y              Z             XANG           YANG
  58    30.5537        0.00000        8.76212       -30.6213        0.00000
  59    9.62099        0.00000       0.139435       -48.5785        0.00000
  60  -0.299780E-03    0.00000        0.00000       -48.5785        0.00000
- 61  -0.299780E-03    0.00000        0.00000       -48.5785        0.00000
 RAYTRACE DATA (XZ AND YZ-PLANE) - (CFG # 1)
 ANGULAR OUTPUT MODE IS DEGREES
 SLOPES/ANGLES  MEASURED WITH RESPECT TO THE Z-AXIS
@@ -537,7 +530,6 @@ SURF      X              Y              Z             XANG           YANG
  58    30.3036       -7.92246        9.25084       -30.6742        1.39842
  59    9.57281       -7.06926       0.213346       -48.6849        1.56996
  60  -0.468541E-03   -6.83862        0.00000       -48.6849        1.56996
- 61  -0.468541E-03   -6.83862        0.00000       -48.6849        1.56996
 RAYTRACE DATA (XZ AND YZ-PLANE) - (CFG # 1)
 ANGULAR OUTPUT MODE IS DEGREES
 SLOPES/ANGLES  MEASURED WITH RESPECT TO THE Z-AXIS
@@ -604,7 +596,6 @@ SURF      X              Y              Z             XANG           YANG
  58    30.0367       -11.3463        9.76879       -30.7295        2.05022
  59    9.52230       -10.1109       0.290653       -48.7964        2.34467
  60  -0.345372E-03   -9.76950        0.00000       -48.7964        2.34467
- 61  -0.345372E-03   -9.76950        0.00000       -48.7964        2.34467
 RAYTRACE DATA (XZ AND YZ-PLANE) - (CFG # 1)
 ANGULAR OUTPUT MODE IS DEGREES
 SLOPES/ANGLES  MEASURED WITH RESPECT TO THE Z-AXIS
@@ -671,7 +662,6 @@ SURF      X              Y              Z             XANG           YANG
  58    0.00000        30.5537        8.76212        0.00000       -30.6213
  59    0.00000        9.62099       0.139435        0.00000       -48.5785
  60    0.00000      -0.299780E-03    0.00000        0.00000       -48.5785
- 61    0.00000      -0.299780E-03    0.00000        0.00000       -48.5785
 RAYTRACE DATA (XZ AND YZ-PLANE) - (CFG # 1)
 ANGULAR OUTPUT MODE IS DEGREES
 SLOPES/ANGLES  MEASURED WITH RESPECT TO THE Z-AXIS
@@ -738,7 +728,6 @@ SURF      X              Y              Z             XANG           YANG
  58    0.00000        24.4854        5.45798        0.00000       -29.5665
  59    0.00000        2.62124       0.103481E-01    0.00000       -47.6674
  60    0.00000       -6.83880        0.00000        0.00000       -47.6674
- 61    0.00000       -6.83880        0.00000        0.00000       -47.6674
 RAYTRACE DATA (XZ AND YZ-PLANE) - (CFG # 1)
 ANGULAR OUTPUT MODE IS DEGREES
 SLOPES/ANGLES  MEASURED WITH RESPECT TO THE Z-AXIS
@@ -805,7 +794,6 @@ SURF      X              Y              Z             XANG           YANG
  58    0.00000        21.7600        4.26427        0.00000       -29.1551
  59    0.00000      -0.400055       0.241036E-03    0.00000       -47.3598
  60    0.00000       -9.76963        0.00000        0.00000       -47.3598
- 61    0.00000       -9.76963        0.00000        0.00000       -47.3598
 RAYTRACE DATA (XZ AND YZ-PLANE) - (CFG # 1)
 ANGULAR OUTPUT MODE IS DEGREES
 SLOPES/ANGLES  MEASURED WITH RESPECT TO THE Z-AXIS
@@ -872,7 +860,6 @@ SURF      X              Y              Z             XANG           YANG
  58    4.37343        4.37343       0.332727        23.3215        23.3215
  59    23.9400        23.9400        1.73082        50.7620        50.7620
  60    32.3855        32.3855        0.00000        50.7620        50.7620
- 61    32.3855        32.3855        0.00000        50.7620        50.7620
 RAYTRACE DATA (XZ AND YZ-PLANE) - (CFG # 1)
 ANGULAR OUTPUT MODE IS DEGREES
 SLOPES/ANGLES  MEASURED WITH RESPECT TO THE Z-AXIS
@@ -939,7 +926,6 @@ SURF      X              Y              Z             XANG           YANG
  58    446.460        452.015        0.00000        83.3880        83.5329
  59    825.938        840.072      -0.454747E-12    80.0274        80.2700
  60    875.008        890.390        0.00000        80.0274        80.2700
- 61    875.008        890.390        0.00000        80.0274        80.2700
  RAY FAILURE OCCURRED AT SURFACE           55
 TOTAL INTERNAL REFLECTION
  NO RAY DATA EXISTS TO DISPLAY
@@ -964,8 +950,7 @@ SURF      X              Y              Z             XANG           YANG
   9    0.00000        0.00000        0.00000        0.00000        0.00000
  10    0.00000        0.00000        0.00000        0.00000        0.00000
  11    0.00000        0.00000        0.00000        0.00000        0.00000
- 12    0.00000        0.00000        0.00000        0.00000        0.00000
- 13    0.00000        0.00000        0.00000        0.00000        0.00000
+ 12   0.232514E-06   0.232514E-06    0.00000        0.00000        0.00000
 RAYTRACE DATA (XZ AND YZ-PLANE) - (CFG # 1)
 ANGULAR OUTPUT MODE IS DEGREES
 SLOPES/ANGLES  MEASURED WITH RESPECT TO THE Z-AXIS
@@ -983,8 +968,7 @@ SURF      X              Y              Z             XANG           YANG
   9    0.00000        6.90713      -0.650779        0.00000        14.5536
  10    0.00000        7.24055       0.133500        0.00000        8.10188
  11    0.00000        8.12755      -0.493695        0.00000        8.81179
- 12    0.00000        17.1174        0.00000        0.00000        8.81179
- 13    0.00000        17.0889        0.00000        0.00000        8.81179
+ 12   0.232514E-06    17.0889        0.00000        0.00000        8.81179
 RAYTRACE DATA (XZ AND YZ-PLANE) - (CFG # 1)
 ANGULAR OUTPUT MODE IS DEGREES
 SLOPES/ANGLES  MEASURED WITH RESPECT TO THE Z-AXIS
@@ -1002,8 +986,7 @@ SURF      X              Y              Z             XANG           YANG
   9    0.00000        9.93232       -1.35880        0.00000        20.9218
  10    0.00000        10.7556       0.294704        0.00000        11.4625
  11    0.00000        11.8720       -1.05784        0.00000        12.2522
- 12    0.00000        24.5880        0.00000        0.00000        12.2522
- 13    0.00000        24.5482        0.00000        0.00000        12.2522
+ 12   0.232514E-06    24.5482        0.00000        0.00000        12.2522
 RAYTRACE DATA (XZ AND YZ-PLANE) - (CFG # 1)
 ANGULAR OUTPUT MODE IS DEGREES
 SLOPES/ANGLES  MEASURED WITH RESPECT TO THE Z-AXIS
@@ -1021,8 +1004,7 @@ SURF      X              Y              Z             XANG           YANG
   9    0.00000        0.00000        0.00000        0.00000        0.00000
  10    0.00000        0.00000        0.00000        0.00000        0.00000
  11    0.00000        0.00000        0.00000        0.00000        0.00000
- 12    0.00000        0.00000        0.00000        0.00000        0.00000
- 13    0.00000        0.00000        0.00000        0.00000        0.00000
+ 12   0.232514E-06   0.232514E-06    0.00000        0.00000        0.00000
 RAYTRACE DATA (XZ AND YZ-PLANE) - (CFG # 1)
 ANGULAR OUTPUT MODE IS DEGREES
 SLOPES/ANGLES  MEASURED WITH RESPECT TO THE Z-AXIS
@@ -1040,8 +1022,7 @@ SURF      X              Y              Z             XANG           YANG
   9    0.00000        6.91741      -0.652736        0.00000        14.5839
  10    0.00000        7.25218       0.133929        0.00000        8.09869
  11    0.00000        8.13858      -0.495040        0.00000        8.80434
- 12    0.00000        17.1209        0.00000        0.00000        8.80434
- 13    0.00000        17.0925        0.00000        0.00000        8.80434
+ 12   0.232514E-06    17.0925        0.00000        0.00000        8.80434
 RAYTRACE DATA (XZ AND YZ-PLANE) - (CFG # 1)
 ANGULAR OUTPUT MODE IS DEGREES
 SLOPES/ANGLES  MEASURED WITH RESPECT TO THE Z-AXIS
@@ -1059,8 +1040,7 @@ SURF      X              Y              Z             XANG           YANG
   9    0.00000        9.94726       -1.36297        0.00000        20.9663
  10    0.00000        10.7744       0.295738        0.00000        11.4572
  11    0.00000        11.8895       -1.06098        0.00000        12.2382
- 12    0.00000        24.5913        0.00000        0.00000        12.2382
- 13    0.00000        24.5515        0.00000        0.00000        12.2382
+ 12   0.232514E-06    24.5515        0.00000        0.00000        12.2382
 RAYTRACE DATA (XZ AND YZ-PLANE) - (CFG # 1)
 ANGULAR OUTPUT MODE IS DEGREES
 SLOPES/ANGLES  MEASURED WITH RESPECT TO THE Z-AXIS
@@ -1078,8 +1058,7 @@ SURF      X              Y              Z             XANG           YANG
   9    0.00000        0.00000        0.00000        0.00000        0.00000
  10    0.00000        0.00000        0.00000        0.00000        0.00000
  11    0.00000        0.00000        0.00000        0.00000        0.00000
- 12    0.00000        0.00000        0.00000        0.00000        0.00000
- 13    0.00000        0.00000        0.00000        0.00000        0.00000
+ 12   0.232514E-06   0.232514E-06    0.00000        0.00000        0.00000
 RAYTRACE DATA (XZ AND YZ-PLANE) - (CFG # 1)
 ANGULAR OUTPUT MODE IS DEGREES
 SLOPES/ANGLES  MEASURED WITH RESPECT TO THE Z-AXIS
@@ -1097,8 +1076,7 @@ SURF      X              Y              Z             XANG           YANG
   9    0.00000        6.93863      -0.656782        0.00000        14.6515
  10    0.00000        7.27630       0.134822        0.00000        8.09092
  11    0.00000        8.16132      -0.497821        0.00000        8.78755
- 12    0.00000        17.1266        0.00000        0.00000        8.78755
- 13    0.00000        17.0983        0.00000        0.00000        8.78755
+ 12   0.232514E-06    17.0983        0.00000        0.00000        8.78755
 RAYTRACE DATA (XZ AND YZ-PLANE) - (CFG # 1)
 ANGULAR OUTPUT MODE IS DEGREES
 SLOPES/ANGLES  MEASURED WITH RESPECT TO THE Z-AXIS
@@ -1116,8 +1094,7 @@ SURF      X              Y              Z             XANG           YANG
   9    0.00000        9.97782       -1.37152        0.00000        21.0659
  10    0.00000        10.8134       0.297884        0.00000        11.4445
  11    0.00000        11.9254       -1.06747        0.00000        12.2070
- 12    0.00000        24.5952        0.00000        0.00000        12.2070
- 13    0.00000        24.5555        0.00000        0.00000        12.2070
+ 12   0.232514E-06    24.5555        0.00000        0.00000        12.2070
 RAYTRACE DATA (XZ AND YZ-PLANE) - (CFG # 1)
 ANGULAR OUTPUT MODE IS DEGREES
 SLOPES/ANGLES  MEASURED WITH RESPECT TO THE Z-AXIS
@@ -1135,8 +1112,7 @@ SURF      X              Y              Z             XANG           YANG
   9    10.5407        10.5407       -3.13756       -2.01961       -2.01961
  10    10.3930        10.3930       0.550692       -2.40791       -2.40791
  11    10.1936        10.1936       -1.56573       -9.80204       -9.80204
- 12  -0.106578E-01  -0.106578E-01    0.00000       -9.80204       -9.80204
- 13   0.210328E-01   0.210328E-01    0.00000       -9.80204       -9.80204
+ 12   0.205704E-01   0.205704E-01    0.00000       -9.80204       -9.80204
 RAYTRACE DATA (XZ AND YZ-PLANE) - (CFG # 1)
 ANGULAR OUTPUT MODE IS DEGREES
 SLOPES/ANGLES  MEASURED WITH RESPECT TO THE Z-AXIS
@@ -1154,8 +1130,7 @@ SURF      X              Y              Z             XANG           YANG
   9    10.6987        16.1723       -5.49162       -1.90898        12.6996
  10    10.4629        17.7670        1.08523       -2.36459        5.75985
  11    10.3606        18.0168       -3.29735       -9.63216      -0.774205
- 12   0.427591E-01    17.1952        0.00000       -9.63216      -0.774205
- 13   0.738899E-01    17.1977        0.00000       -9.63216      -0.774205
+ 12   0.738873E-01    17.1977        0.00000       -9.63216      -0.774205
 RAYTRACE DATA (XZ AND YZ-PLANE) - (CFG # 1)
 ANGULAR OUTPUT MODE IS DEGREES
 SLOPES/ANGLES  MEASURED WITH RESPECT TO THE Z-AXIS
@@ -1173,8 +1148,7 @@ SURF      X              Y              Z             XANG           YANG
   9    10.8027        18.3766       -6.76203       -1.70048        19.3549
  10    10.5438        21.4399        1.45855       -2.27106        9.24385
  11    10.5058        21.5958       -4.44155       -9.53627        2.87617
- 12   0.100373        24.7077        0.00000       -9.53627        2.87617
- 13   0.131188        24.6985        0.00000       -9.53627        2.87617
+ 12   0.131149        24.6986        0.00000       -9.53627        2.87617
 RAYTRACE DATA (XZ AND YZ-PLANE) - (CFG # 1)
 ANGULAR OUTPUT MODE IS DEGREES
 SLOPES/ANGLES  MEASURED WITH RESPECT TO THE Z-AXIS
@@ -1192,8 +1166,7 @@ SURF      X              Y              Z             XANG           YANG
   9    10.5500        10.5500       -3.14336       -1.99011       -1.99011
  10    10.4042        10.4042       0.551883       -2.39217       -2.39217
  11    10.2063        10.2063       -1.56969       -9.82208       -9.82208
- 12  -0.198850E-01  -0.198850E-01    0.00000       -9.82208       -9.82208
- 13   0.118717E-01   0.118717E-01    0.00000       -9.82208       -9.82208
+ 12   0.114064E-01   0.114064E-01    0.00000       -9.82208       -9.82208
 RAYTRACE DATA (XZ AND YZ-PLANE) - (CFG # 1)
 ANGULAR OUTPUT MODE IS DEGREES
 SLOPES/ANGLES  MEASURED WITH RESPECT TO THE Z-AXIS
@@ -1211,8 +1184,7 @@ SURF      X              Y              Z             XANG           YANG
   9    10.7078        16.1852       -5.50139       -1.87933        12.7571
  10    10.4752        17.7903        1.08802       -2.34962        5.77009
  11    10.3741        18.0393       -3.30592       -9.65360      -0.805466
- 12   0.313877E-01    17.1845        0.00000       -9.65360      -0.805466
- 13   0.625891E-01    17.1871        0.00000       -9.65360      -0.805466
+ 12   0.625863E-01    17.1870        0.00000       -9.65360      -0.805466
 RAYTRACE DATA (XZ AND YZ-PLANE) - (CFG # 1)
 ANGULAR OUTPUT MODE IS DEGREES
 SLOPES/ANGLES  MEASURED WITH RESPECT TO THE Z-AXIS
@@ -1230,8 +1202,7 @@ SURF      X              Y              Z             XANG           YANG
   9    10.8121        18.3907       -6.77396       -1.66833        19.4279
  10    10.5577        21.4722        1.46285       -2.25575        9.25127
  11    10.5206        21.6254       -4.45424       -9.55807        2.83627
- 12   0.887988E-01    24.6947        0.00000       -9.55807        2.83627
- 13   0.119686        24.6856        0.00000       -9.55807        2.83627
+ 12   0.119648        24.6858        0.00000       -9.55807        2.83627
 RAYTRACE DATA (XZ AND YZ-PLANE) - (CFG # 1)
 ANGULAR OUTPUT MODE IS DEGREES
 SLOPES/ANGLES  MEASURED WITH RESPECT TO THE Z-AXIS
@@ -1249,8 +1220,7 @@ SURF      X              Y              Z             XANG           YANG
   9    10.5802        10.5802       -3.16224       -1.89455       -1.89455
  10    10.4407        10.4407       0.555765       -2.34041       -2.34041
  11    10.2478        10.2478       -1.58262       -9.84750       -9.84750
- 12  -0.767444E-02  -0.767444E-02    0.00000       -9.84750       -9.84750
- 13   0.241661E-01   0.241661E-01    0.00000       -9.84750       -9.84750
+ 12   0.236972E-01   0.236972E-01    0.00000       -9.84750       -9.84750
 RAYTRACE DATA (XZ AND YZ-PLANE) - (CFG # 1)
 ANGULAR OUTPUT MODE IS DEGREES
 SLOPES/ANGLES  MEASURED WITH RESPECT TO THE Z-AXIS
@@ -1268,8 +1238,7 @@ SURF      X              Y              Z             XANG           YANG
   9    10.7367        16.2194       -5.52880       -1.78278        12.9148
  10    10.5149        17.8531        1.09587       -2.29974        5.80790
  11    10.4173        18.1005       -3.33025       -9.68330      -0.858110
- 12   0.379517E-01    17.1894        0.00000       -9.68330      -0.858110
- 13   0.692509E-01    17.1921        0.00000       -9.68330      -0.858110
+ 12   0.692477E-01    17.1921        0.00000       -9.68330      -0.858110
 RAYTRACE DATA (XZ AND YZ-PLANE) - (CFG # 1)
 ANGULAR OUTPUT MODE IS DEGREES
 SLOPES/ANGLES  MEASURED WITH RESPECT TO THE Z-AXIS
@@ -1287,8 +1256,7 @@ SURF      X              Y              Z             XANG           YANG
   9    10.8413        18.4254       -6.80562       -1.56525        19.6202
  10    10.6014        21.5553        1.47440       -2.20533        9.28147
  11    10.5669        21.7017       -4.48838       -9.58942        2.76198
- 12   0.944591E-01    24.6921        0.00000       -9.58942        2.76198
- 13   0.125449        24.6832        0.00000       -9.58942        2.76198
+ 12   0.125413        24.6834        0.00000       -9.58942        2.76198
 RAYTRACE DATA (XZ AND YZ-PLANE) - (CFG # 1)
 ANGULAR OUTPUT MODE IS DEGREES
 SLOPES/ANGLES  MEASURED WITH RESPECT TO THE Z-AXIS
@@ -1306,8 +1274,7 @@ SURF      X              Y              Z             XANG           YANG
   9    10.1838        0.00000       -1.42986       -2.41721        0.00000
  10    10.0913        0.00000       0.259403       -2.61865        0.00000
  11    9.82257        0.00000      -0.722325       -9.61316        0.00000
- 12  -0.384098E-01    0.00000        0.00000       -9.61316        0.00000
- 13  -0.734157E-02    0.00000        0.00000       -9.61316        0.00000
+ 12  -0.734133E-02   0.232514E-06    0.00000       -9.61316        0.00000
 RAYTRACE DATA (XZ AND YZ-PLANE) - (CFG # 1)
 ANGULAR OUTPUT MODE IS DEGREES
 SLOPES/ANGLES  MEASURED WITH RESPECT TO THE Z-AXIS
@@ -1325,8 +1292,7 @@ SURF      X              Y              Z             XANG           YANG
   9    10.2432        6.49214       -2.04504       -2.26897        14.5264
  10    10.1266        7.25403       0.395399       -2.54116        8.08515
  11    9.89381        7.99931       -1.21640       -9.59640        8.83027
- 12  -0.331846E-01    17.1205        0.00000       -9.59640        8.83027
- 13  -0.217157E-02    17.0920        0.00000       -9.59640        8.83027
+ 12  -0.253892E-02    17.0924        0.00000       -9.59640        8.83027
 RAYTRACE DATA (XZ AND YZ-PLANE) - (CFG # 1)
 ANGULAR OUTPUT MODE IS DEGREES
 SLOPES/ANGLES  MEASURED WITH RESPECT TO THE Z-AXIS
@@ -1344,8 +1310,7 @@ SURF      X              Y              Z             XANG           YANG
   9    10.3068        9.33799       -2.71496       -2.10083        20.8873
  10    10.1683        10.7784       0.559735       -2.45850        11.4423
  11    9.97445        11.6925       -1.78250       -9.56920        12.2718
- 12  -0.193114E-01    24.5872        0.00000       -9.56920        12.2718
- 13   0.116120E-01    24.5473        0.00000       -9.56920        12.2718
+ 12   0.109056E-01    24.5478        0.00000       -9.56920        12.2718
 RAYTRACE DATA (XZ AND YZ-PLANE) - (CFG # 1)
 ANGULAR OUTPUT MODE IS DEGREES
 SLOPES/ANGLES  MEASURED WITH RESPECT TO THE Z-AXIS
@@ -1363,8 +1328,7 @@ SURF      X              Y              Z             XANG           YANG
   9    10.1921        0.00000       -1.43224       -2.39188        0.00000
  10    10.1005        0.00000       0.259874       -2.60467        0.00000
  11    9.83325        0.00000      -0.723905       -9.63215        0.00000
- 12  -0.478445E-01    0.00000        0.00000       -9.63215        0.00000
- 13  -0.167138E-01    0.00000        0.00000       -9.63215        0.00000
+ 12  -0.167135E-01   0.232514E-06    0.00000       -9.63215        0.00000
 RAYTRACE DATA (XZ AND YZ-PLANE) - (CFG # 1)
 ANGULAR OUTPUT MODE IS DEGREES
 SLOPES/ANGLES  MEASURED WITH RESPECT TO THE Z-AXIS
@@ -1382,8 +1346,7 @@ SURF      X              Y              Z             XANG           YANG
   9    10.2521        6.50033       -2.04919       -2.24084        14.5554
  10    10.1368        7.26513       0.396337       -2.52624        8.08138
  11    9.90555        8.00951       -1.21940       -9.61453        8.82211
- 12  -0.410631E-01    17.1226        0.00000       -9.61453        8.82211
- 13  -0.999041E-02    17.0942        0.00000       -9.61453        8.82211
+ 12  -0.103578E-01    17.0946        0.00000       -9.61453        8.82211
 RAYTRACE DATA (XZ AND YZ-PLANE) - (CFG # 1)
 ANGULAR OUTPUT MODE IS DEGREES
 SLOPES/ANGLES  MEASURED WITH RESPECT TO THE Z-AXIS
@@ -1401,8 +1364,7 @@ SURF      X              Y              Z             XANG           YANG
   9    10.3165        9.34985       -2.72110       -2.06945        20.9301
  10    10.1798        10.7965       0.561324       -2.44258        11.4362
  11    9.98744        11.7087       -1.78739       -9.58641        12.2568
- 12  -0.254690E-01    24.5882        0.00000       -9.58641        12.2568
- 13   0.551108E-02    24.5484        0.00000       -9.58641        12.2568
+ 12   0.480516E-02    24.5489        0.00000       -9.58641        12.2568
 RAYTRACE DATA (XZ AND YZ-PLANE) - (CFG # 1)
 ANGULAR OUTPUT MODE IS DEGREES
 SLOPES/ANGLES  MEASURED WITH RESPECT TO THE Z-AXIS
@@ -1420,8 +1382,7 @@ SURF      X              Y              Z             XANG           YANG
   9    10.2195        0.00000       -1.44011       -2.30894        0.00000
  10    10.1307        0.00000       0.261431       -2.55863        0.00000
  11    9.86849        0.00000      -0.729132       -9.65789        0.00000
- 12  -0.404041E-01    0.00000        0.00000       -9.65789        0.00000
- 13  -0.918859E-02    0.00000        0.00000       -9.65789        0.00000
+ 12  -0.918835E-02   0.232514E-06    0.00000       -9.65789        0.00000
 RAYTRACE DATA (XZ AND YZ-PLANE) - (CFG # 1)
 ANGULAR OUTPUT MODE IS DEGREES
 SLOPES/ANGLES  MEASURED WITH RESPECT TO THE Z-AXIS
@@ -1439,8 +1400,7 @@ SURF      X              Y              Z             XANG           YANG
   9    10.2811        6.51592       -2.06062       -2.15056        14.6198
  10    10.1700        7.28791       0.398898       -2.47795        8.07211
  11    9.94357        8.02989       -1.22760       -9.63844        8.80350
- 12  -0.296534E-01    17.1248        0.00000       -9.63844        8.80350
- 13   0.149807E-02    17.0964        0.00000       -9.63844        8.80350
+ 12   0.113131E-02    17.0968        0.00000       -9.63844        8.80350
 RAYTRACE DATA (XZ AND YZ-PLANE) - (CFG # 1)
 ANGULAR OUTPUT MODE IS DEGREES
 SLOPES/ANGLES  MEASURED WITH RESPECT TO THE Z-AXIS
@@ -1458,8 +1418,7 @@ SURF      X              Y              Z             XANG           YANG
   9    10.3472        9.37215       -2.73647       -1.97069        21.0251
  10    10.2164        10.8334       0.565269       -2.39196        11.4214
  11    10.0287        11.7412       -1.79954       -9.60846        12.2228
- 12  -0.971706E-02    24.5865        0.00000       -9.60846        12.2228
- 13   0.213357E-01    24.5467        0.00000       -9.60846        12.2228
+ 12   0.206320E-01    24.5473        0.00000       -9.60846        12.2228
 RAYTRACE DATA (XZ AND YZ-PLANE) - (CFG # 1)
 ANGULAR OUTPUT MODE IS DEGREES
 SLOPES/ANGLES  MEASURED WITH RESPECT TO THE Z-AXIS
@@ -1477,8 +1436,7 @@ SURF      X              Y              Z             XANG           YANG
   9    0.00000        10.1838       -1.42986        0.00000       -2.41721
  10    0.00000        10.0913       0.259403        0.00000       -2.61865
  11    0.00000        9.82257      -0.722325        0.00000       -9.61316
- 12    0.00000      -0.384098E-01    0.00000        0.00000       -9.61316
- 13    0.00000      -0.734157E-02    0.00000        0.00000       -9.61316
+ 12   0.232514E-06  -0.734133E-02    0.00000        0.00000       -9.61316
 RAYTRACE DATA (XZ AND YZ-PLANE) - (CFG # 1)
 ANGULAR OUTPUT MODE IS DEGREES
 SLOPES/ANGLES  MEASURED WITH RESPECT TO THE Z-AXIS
@@ -1496,8 +1454,7 @@ SURF      X              Y              Z             XANG           YANG
   9    0.00000        16.3126       -3.79235        0.00000        12.2806
  10    0.00000        17.4154       0.773593        0.00000        5.54920
  11    0.00000        17.7738       -2.39507        0.00000      -0.629077
- 12    0.00000        17.1162        0.00000        0.00000      -0.629077
- 13    0.00000        17.1182        0.00000        0.00000      -0.629077
+ 12   0.232514E-06    17.1182        0.00000        0.00000      -0.629077
 RAYTRACE DATA (XZ AND YZ-PLANE) - (CFG # 1)
 ANGULAR OUTPUT MODE IS DEGREES
 SLOPES/ANGLES  MEASURED WITH RESPECT TO THE Z-AXIS
@@ -1515,8 +1472,7 @@ SURF      X              Y              Z             XANG           YANG
   9    0.00000        18.7242       -5.09074        0.00000        18.8771
  10    0.00000        21.0216        1.12816        0.00000        9.01643
  11    0.00000        21.3765       -3.49350        0.00000        3.00428
- 12    0.00000        24.5775        0.00000        0.00000        3.00428
- 13    0.00000        24.5679        0.00000        0.00000        3.00428
+ 12   0.232514E-06    24.5679        0.00000        0.00000        3.00428
 RAYTRACE DATA (XZ AND YZ-PLANE) - (CFG # 1)
 ANGULAR OUTPUT MODE IS DEGREES
 SLOPES/ANGLES  MEASURED WITH RESPECT TO THE Z-AXIS
@@ -1534,8 +1490,7 @@ SURF      X              Y              Z             XANG           YANG
   9    0.00000        10.1921       -1.43224        0.00000       -2.39188
  10    0.00000        10.1005       0.259874        0.00000       -2.60467
  11    0.00000        9.83325      -0.723905        0.00000       -9.63215
- 12    0.00000      -0.478445E-01    0.00000        0.00000       -9.63215
- 13    0.00000      -0.167138E-01    0.00000        0.00000       -9.63215
+ 12   0.232514E-06  -0.167135E-01    0.00000        0.00000       -9.63215
 RAYTRACE DATA (XZ AND YZ-PLANE) - (CFG # 1)
 ANGULAR OUTPUT MODE IS DEGREES
 SLOPES/ANGLES  MEASURED WITH RESPECT TO THE Z-AXIS
@@ -1553,8 +1508,7 @@ SURF      X              Y              Z             XANG           YANG
   9    0.00000        16.3272       -3.79952        0.00000        12.3356
  10    0.00000        17.4371       0.775523        0.00000        5.55878
  11    0.00000        17.7954       -2.40098        0.00000      -0.657596
- 12    0.00000        17.1079        0.00000        0.00000      -0.657596
- 13    0.00000        17.1100        0.00000        0.00000      -0.657596
+ 12   0.232514E-06    17.1100        0.00000        0.00000      -0.657596
 RAYTRACE DATA (XZ AND YZ-PLANE) - (CFG # 1)
 ANGULAR OUTPUT MODE IS DEGREES
 SLOPES/ANGLES  MEASURED WITH RESPECT TO THE Z-AXIS
@@ -1572,8 +1526,7 @@ SURF      X              Y              Z             XANG           YANG
   9    0.00000        18.7410       -5.10057        0.00000        18.9480
  10    0.00000        21.0522        1.13145        0.00000        9.02368
  11    0.00000        21.4053       -3.50317        0.00000        2.96828
- 12    0.00000        24.5684        0.00000        0.00000        2.96828
- 13    0.00000        24.5589        0.00000        0.00000        2.96828
+ 12   0.232514E-06    24.5589        0.00000        0.00000        2.96828
 RAYTRACE DATA (XZ AND YZ-PLANE) - (CFG # 1)
 ANGULAR OUTPUT MODE IS DEGREES
 SLOPES/ANGLES  MEASURED WITH RESPECT TO THE Z-AXIS
@@ -1591,8 +1544,7 @@ SURF      X              Y              Z             XANG           YANG
   9    0.00000        10.2195       -1.44011        0.00000       -2.30894
  10    0.00000        10.1307       0.261431        0.00000       -2.55863
  11    0.00000        9.86849      -0.729132        0.00000       -9.65789
- 12    0.00000      -0.404041E-01    0.00000        0.00000       -9.65789
- 13    0.00000      -0.918859E-02    0.00000        0.00000       -9.65789
+ 12   0.232514E-06  -0.918835E-02    0.00000        0.00000       -9.65789
 RAYTRACE DATA (XZ AND YZ-PLANE) - (CFG # 1)
 ANGULAR OUTPUT MODE IS DEGREES
 SLOPES/ANGLES  MEASURED WITH RESPECT TO THE Z-AXIS
@@ -1610,8 +1562,7 @@ SURF      X              Y              Z             XANG           YANG
   9    0.00000        16.3655       -3.81836        0.00000        12.4848
  10    0.00000        17.4945       0.780647        0.00000        5.59357
  11    0.00000        17.8530       -2.41684        0.00000      -0.706273
- 12    0.00000        17.1144        0.00000        0.00000      -0.706273
- 13    0.00000        17.1166        0.00000        0.00000      -0.706273
+ 12   0.232514E-06    17.1166        0.00000        0.00000      -0.706273
 RAYTRACE DATA (XZ AND YZ-PLANE) - (CFG # 1)
 ANGULAR OUTPUT MODE IS DEGREES
 SLOPES/ANGLES  MEASURED WITH RESPECT TO THE Z-AXIS
@@ -1629,8 +1580,7 @@ SURF      X              Y              Z             XANG           YANG
   9    0.00000        18.7827       -5.12512        0.00000        19.1328
  10    0.00000        21.1296        1.13982        0.00000        9.05225
  11    0.00000        21.4786       -3.52787        0.00000        2.90116
- 12    0.00000        24.5713        0.00000        0.00000        2.90116
- 13    0.00000        24.5620        0.00000        0.00000        2.90116
+ 12   0.232514E-06    24.5620        0.00000        0.00000        2.90116
 RAYTRACE DATA (XZ AND YZ-PLANE) - (CFG # 1)
 ANGULAR OUTPUT MODE IS DEGREES
 SLOPES/ANGLES  MEASURED WITH RESPECT TO THE Z-AXIS
@@ -1648,8 +1598,7 @@ SURF      X              Y              Z             XANG           YANG
   9   -10.5407       -10.5407       -3.13756        2.01961        2.01961
  10   -10.3930       -10.3930       0.550692        2.40791        2.40791
  11   -10.1936       -10.1936       -1.56573        9.80204        9.80204
- 12   0.106578E-01   0.106578E-01    0.00000        9.80204        9.80204
- 13  -0.210328E-01  -0.210328E-01    0.00000        9.80204        9.80204
+ 12  -0.205699E-01  -0.205699E-01    0.00000        9.80204        9.80204
 RAYTRACE DATA (XZ AND YZ-PLANE) - (CFG # 1)
 ANGULAR OUTPUT MODE IS DEGREES
 SLOPES/ANGLES  MEASURED WITH RESPECT TO THE Z-AXIS
@@ -1667,8 +1616,7 @@ SURF      X              Y              Z             XANG           YANG
   9   -10.4684       -3.89072       -1.72667        1.71876        16.0736
  10   -10.3925       -3.16251       0.300626        2.23971        10.2264
  11   -10.1677       -2.12532      -0.808307        9.81986        18.1778
- 12  -0.755983E-01    17.0197        0.00000        9.81986        18.1778
- 13  -0.107348        16.9595        0.00000        9.81986        18.1778
+ 12  -0.105763        16.9604        0.00000        9.81986        18.1778
  RAY FAILURE OCCURRED AT SURFACE            5
 TOTAL INTERNAL REFLECTION
  NO RAY DATA EXISTS TO DISPLAY
@@ -1689,8 +1637,7 @@ SURF      X              Y              Z             XANG           YANG
   9   -10.5500       -10.5500       -3.14336        1.99011        1.99011
  10   -10.4042       -10.4042       0.551883        2.39217        2.39217
  11   -10.2063       -10.2063       -1.56969        9.82208        9.82208
- 12   0.198850E-01   0.198850E-01    0.00000        9.82208        9.82208
- 13  -0.118717E-01  -0.118717E-01    0.00000        9.82208        9.82208
+ 12  -0.114059E-01  -0.114059E-01    0.00000        9.82208        9.82208
 RAYTRACE DATA (XZ AND YZ-PLANE) - (CFG # 1)
 ANGULAR OUTPUT MODE IS DEGREES
 SLOPES/ANGLES  MEASURED WITH RESPECT TO THE Z-AXIS
@@ -1708,8 +1655,7 @@ SURF      X              Y              Z             XANG           YANG
   9   -10.4790       -3.89363       -1.73015        1.68372        16.0669
  10   -10.4046       -3.16455       0.301297        2.22156        10.2044
  11   -10.1816       -2.13017      -0.810607        9.83653        18.1850
- 12  -0.717114E-01    17.0237        0.00000        9.83653        18.1850
- 13  -0.103516        16.9635        0.00000        9.83653        18.1850
+ 12  -0.101927        16.9644        0.00000        9.83653        18.1850
  RAY FAILURE OCCURRED AT SURFACE            5
 TOTAL INTERNAL REFLECTION
  NO RAY DATA EXISTS TO DISPLAY
@@ -1730,8 +1676,7 @@ SURF      X              Y              Z             XANG           YANG
   9   -10.5802       -10.5802       -3.16224        1.89455        1.89455
  10   -10.4407       -10.4407       0.555765        2.34041        2.34041
  11   -10.2478       -10.2478       -1.58262        9.84750        9.84750
- 12   0.767444E-02   0.767444E-02    0.00000        9.84750        9.84750
- 13  -0.241661E-01  -0.241661E-01    0.00000        9.84750        9.84750
+ 12  -0.236967E-01  -0.236967E-01    0.00000        9.84750        9.84750
 RAYTRACE DATA (XZ AND YZ-PLANE) - (CFG # 1)
 ANGULAR OUTPUT MODE IS DEGREES
 SLOPES/ANGLES  MEASURED WITH RESPECT TO THE Z-AXIS
@@ -1749,8 +1694,7 @@ SURF      X              Y              Z             XANG           YANG
   9   -10.5136       -3.91562       -1.74290        1.57438        16.0208
  10   -10.4436       -3.18439       0.303694        2.16411        10.1380
  11   -10.2269       -2.15873      -0.818486        9.85407        18.1827
- 12  -0.971755E-01    16.9953        0.00000        9.85407        18.1827
- 13  -0.129038        16.9350        0.00000        9.85407        18.1827
+ 12  -0.127446        16.9359        0.00000        9.85407        18.1827
  RAY FAILURE OCCURRED AT SURFACE            5
 TOTAL INTERNAL REFLECTION
  NO RAY DATA EXISTS TO DISPLAY
