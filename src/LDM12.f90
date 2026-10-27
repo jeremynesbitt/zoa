@@ -1690,7 +1690,7 @@ SUBROUTINE GLSRIN
    END IF
 !
 !       IS THE SURFACE MATERIAL A CATALOG MATERIAL?
-   IF(gdb%isNameInCatalog(trim(WC)).OR.WC.EQ.'USER'.OR.WC.EQ.'GLAK'.OR.WC.EQ.'GLCAT') THEN
+   IF(gdb%isNameInCatalog(trim(WC)).OR.WC.EQ.'GLAK'.OR.WC.EQ.'GLCAT') THEN
 
       CALL CHECKGLASSCATWAVELENGTHBOUNDS(boolResult, FLNAME)
       IF (.NOT.boolResult) THEN
@@ -1718,10 +1718,8 @@ SUBROUTINE GLSRIN
       IF(gdb%isNameInCatalog(trim(WC), gdb_loc)) THEN
          FLNAME=gdb%catalogFileNames(gdb_loc)
       END IF
-      IF(WC.EQ.'USER')     FLNAME='USER.DAT  '
       IF(WC.EQ.'GLCAT')    FLTP='MULTI       '
       IF(WC.EQ.'GLAK')      FLTP='MULTI       '
-      IF(WC.EQ.'RUSSIAN')  FLTP='RUSSIAN     '
 
 !
       IF(FLTP.EQ.'            '.AND.FLNAME.NE.'USER.DAT  ') THEN

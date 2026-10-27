@@ -981,16 +981,16 @@ module mod_lens_data_manager
         if (rdmFlag) then
           if (curr_lens_data%thicknesses(1) > 1e11) then
           strSurfLine = genOutputLineWithSpacing(blankStr(1), 'SO', trim(strRdy), &
-          & trim(strTHI), trim(curr_lens_data%glassnames(1)))
+          & trim(strTHI), trim(saveGlassName(1)))
           else 
             strSurfLine = genOutputLineWithSpacing(blankStr(1), 'SO', trim(strRdy), &
-            & trim(strTHI), trim(curr_lens_data%glassnames(1)))  
+            & trim(strTHI), trim(saveGlassName(1)))  
           end if
           !strSurfLine = 'SO'//blankStr(1)//trim(real2str(self%radii(1),4))//blankStr(1)// &
           !& trim(real2str(self%thicknesses(1),sci=.TRUE.))//blankStr(1)//trim(self%glassnames(1))
         else
           strSurfLine = 'SO'//blankStr(3)//real2str(curr_lens_data%curvatures(1),4)//blankStr(5)//real2str(curr_lens_data%thicknesses(1))// &
-          & blankStr(5)//curr_lens_data%glassnames(1)    
+          & blankStr(5)//saveGlassName(1)    
         end if
         write(fID, '(A)') trim(strSurfLine)
       
@@ -1009,14 +1009,14 @@ module mod_lens_data_manager
           if(rdmFlag) then
             strSurfLine = genOutputLineWithSpacing(blankStr(1), trim(surfStr), & 
             & trim(strRdy), trim(strTHI), & 
-            & trim(curr_lens_data%glassnames(ii)))      
+            & trim(saveGlassName(ii)))      
             !strSurfLine = 'S'//int2str(ii-1)//blankStr(3)//real2str(self%radii(ii),4)// &
             !& blankStr(5)//real2str(self%thicknesses(ii),4)// &
             !& blankStr(5)//self%glassnames(ii)
           else
             strSurfLine = 'S'//int2str(ii-1)//blankStr(3)//real2str(curr_lens_data%curvatures(ii),9)// &
             & blankStr(5)//trim(strTHI)// &
-            & blankStr(5)//curr_lens_data%glassnames(ii)    
+            & blankStr(5)//saveGlassName(ii)    
           end if      
           write(fID, '(A)') trim(strSurfLine)
           ! Check for ref stop
@@ -1071,10 +1071,10 @@ module mod_lens_data_manager
         write(strTHI, '(D23.15)') curr_lens_data%thicknesses(curr_lens_data%num_surfaces)
         if (rdmFlag) then
           strSurfLine = 'SI'//blankStr(2)//trim(real2str(curr_lens_data%radii(curr_lens_data%num_surfaces),4))//blankStr(3)// &
-          & trim(strTHI)//blankStr(3)//curr_lens_data%glassnames(curr_lens_data%num_surfaces)
+          & trim(strTHI)//blankStr(3)//saveGlassName(curr_lens_data%num_surfaces)
         else
           strSurfLine = 'SI'//blankStr(2)//trim(real2str(curr_lens_data%curvatures(curr_lens_data%num_surfaces),4))//blankStr(3)// &
-          & trim(strTHI)//blankStr(3)//curr_lens_data%glassnames(curr_lens_data%num_surfaces)  
+          & trim(strTHI)//blankStr(3)//saveGlassName(curr_lens_data%num_surfaces)  
         end if
         write(fID, '(A)') trim(strSurfLine)
         call writeApertureSaveLines(fID, curr_lens_data%num_surfaces-1)
@@ -1099,6 +1099,22 @@ module mod_lens_data_manager
         do ii = 2, curr_lens_data%num_surfaces-1
           call writeSolveSaveLine(fID, curr_lens_data, ii, SLV_YZ_CURV_SLOT)
         end do
+
+      contains
+
+        ! The glass of surface entry k (curr_lens_data numbering) as saved:
+        ! name_CATALOG for a catalog glass, so a reload finds the same
+        ! catalog rather than the first one in search order holding the name
+        function saveGlassName(k) result(nm)
+            use DATLEN, only: GLANAM
+            use glass_manager, only: gdb
+            integer, intent(in) :: k
+            character(len=64) :: nm
+            nm = curr_lens_data%glassnames(k)
+            if (len_trim(nm) == 0) return
+            if (gdb%isNameInCatalog(trim(GLANAM(k-1,1)))) &
+                nm = trim(nm)//'_'//trim(GLANAM(k-1,1))
+        end function saveGlassName
 
       end subroutine
 

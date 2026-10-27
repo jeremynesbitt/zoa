@@ -715,9 +715,7 @@ SUBROUTINE LENUP
       END IF
 !       COMMAND ((GLASS CAT NAME) [INDENTIFICATION])
       IF(gdb%isNameInCatalog(trim(WC)).OR.&
-      &WC.EQ.'MATL'.OR.WC.EQ.'GLAK'.OR.&
-      &WC.EQ.'USER'.OR.WC.EQ.'RUSSIAN'.OR.&
-      &WC.EQ.'GLCAT') THEN
+      &WC.EQ.'GLAK'.OR.WC.EQ.'GLCAT') THEN
          CALL GLSCAT
          RETURN
       END IF

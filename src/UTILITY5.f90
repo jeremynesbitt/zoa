@@ -157,6 +157,7 @@ SUBROUTINE LEFTJUST(TEMPER)
 END
 ! SUB CONTRO.FOR
 SUBROUTINE CONTRO
+   use glass_manager, only: gdb
    !use handlers, only: zoatabMgr
    use zoa_file_handler, only: getPermMacroDir
    use global_widgets, only: lens_editor_window,&
@@ -2689,6 +2690,11 @@ SUBROUTINE CONTRO
       IF(WC.NE.WCC(NNN)) GO TO 3000
       IF(WC.EQ.WCC(NNN).AND..NOT.FNYES) GO TO 3001
 3000 CONTINUE
+!       A GLASS CATALOG NAME OR ALIAS (THE CATALOG FILES, NOT THIS TABLE,
+!       SAY WHICH EXIST) IS A WORD AT EVERY LEVEL
+   IF(NNNN.EQ.16000.AND.WC.NE.' ') THEN
+      IF(gdb%isNameInCatalog(trim(WC))) GO TO 3001
+   END IF
    IF(NNNN.EQ.16000) THEN
 !       NO MATCH WAS EVER FOUND (ONLY IF IN = 5)
 !       HERE IS WHERE WE RUN OFF AND SEE IF THE COMMAND IS
@@ -4624,7 +4630,6 @@ SUBROUTINE CONTF(WC,WS,SST,IS)
    IF(WC.EQ.'SPIDER')      IS=.TRUE.
    IF(WC.EQ.'SPGR')        IS=.TRUE.
    IF(WC.EQ.'MODEL')       IS=.TRUE.
-   IF(WC.EQ.'USER')        IS=.TRUE.
    IF(WC.EQ.'GLCAT')       IS=.TRUE.
    IF(WC.EQ.'AIR')         IS=.TRUE.
    IF(WC.EQ.'COATING ')    IS=.TRUE.
@@ -4861,7 +4866,6 @@ SUBROUTINE CONTG(WC,WS,SST,IS)
    IF(WC.EQ.'SPIDER')      IS=.TRUE.
    IF(WC.EQ.'SPGR')        IS=.TRUE.
    IF(WC.EQ.'MODEL')       IS=.TRUE.
-   IF(WC.EQ.'USER')        IS=.TRUE.
    IF(WC.EQ.'GLCAT')       IS=.TRUE.
    IF(WC.EQ.'AIR')         IS=.TRUE.
    IF(WC.EQ.'COATING ')    IS=.TRUE.
@@ -5768,7 +5772,6 @@ SUBROUTINE CONTR(WC,WQ,SQ,IS)
    IF(WC.EQ.'SPIDER')      IS=.TRUE.
    IF(WC.EQ.'SPGR')        IS=.TRUE.
    IF(WC.EQ.'MODEL')       IS=.TRUE.
-   IF(WC.EQ.'USER')        IS=.TRUE.
    IF(WC.EQ.'GLCAT')       IS=.TRUE.
    IF(WC.EQ.'AIR')         IS=.TRUE.
    IF(WC.EQ.'COATING ')    IS=.TRUE.

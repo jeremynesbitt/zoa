@@ -444,9 +444,7 @@ SUBROUTINE ULQUER
    IF(WC.EQ.'GLASS') MAT=1
    IF(WC.EQ.'MODEL') MAT=1
    IF(gdb%isNameInCatalog(trim(WC))) MAT=1
-   IF(WC.EQ.'USER') MAT=1
    IF(WC.EQ.'GLCAT') MAT=1
-   IF(WC.EQ.'MATL') MAT=1
 
    IF(WC.NE.'IDEAL') THEN
       IF(MAT.EQ.1) THEN

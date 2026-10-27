@@ -749,6 +749,7 @@ ELSE
 END
 ! SUB LQUERY.FOR
 SUBROUTINE LQUERY
+   use glass_manager, only: gdb
 !
    use DATCFG
    use DATLEN
@@ -815,18 +816,8 @@ SUBROUTINE LQUERY
    IF(WC.EQ.'GLAK') MAT=1
    IF(WC.EQ.'GLASS') MAT=1
    IF(WC.EQ.'MODEL') MAT=1
-   IF(WC.EQ.'OHARA') MAT=1
-   IF(WC.EQ.'HOYA') MAT=1
-   IF(WC.EQ.'HIKARI') MAT=1
-   IF(WC.EQ.'SCHOTT') MAT=1
-   IF(WC.EQ.'SCH2000') MAT=1
-   IF(WC.EQ.'CHANCE') MAT=1
-   IF(WC.EQ.'CORNIN') MAT=1
-   IF(WC.EQ.'USER') MAT=1
-   IF(WC.EQ.'RADHARD') MAT=1
+   IF(gdb%isNameInCatalog(trim(WC))) MAT=1
    IF(WC.EQ.'GLCAT') MAT=1
-   IF(WC.EQ.'MATL') MAT=1
-   IF(WC.EQ.'RUSSIAN') MAT=1
    IF(WC.NE.'IDEAL') THEN
       IF(MAT.EQ.1) THEN
          VA1WS1=1

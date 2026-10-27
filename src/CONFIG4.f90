@@ -2,6 +2,7 @@
 
 ! SUB CFDFLT.FOR
 SUBROUTINE CFDFLT
+   use glass_manager, only: gdb
 !
    use DATCFG
    use DATLEN
@@ -2580,157 +2581,11 @@ SUBROUTINE CFDFLT
       END IF
       RETURN
    END IF
-   IF(WC.EQ.'SCHOTT'.OR.WC.EQ.'OHARA'.OR.WC.EQ.'HOYA'&
-   &.OR.WC.EQ.'CHANCE'.OR.WC.EQ.'CORNIN'.OR.WC.EQ.'HIKARI'&
-   &.OR.WC.EQ.'RADHARD'.OR.WC.EQ.'MATL'.OR.WC.EQ.'SCH2000'.OR.&
-   &WC.EQ.'GLCAT'.OR.WC.EQ.'GLAK'.OR.WC.EQ.'RUSSIAN') THEN
+   IF(gdb%isNameInCatalog(trim(WC)).OR.WC.EQ.'GLCAT'.OR.WC.EQ.'GLAK') THEN
       IF(SN.EQ.1.OR.SQ.EQ.1) THEN
-!
-         IF(WQ.EQ.'SCHOTT') THEN
-            WRITE(OUTLYNE,*)'"SCHOTT" ONLY TAKES STRING INPUT'
-            CALL SHOWIT(1)
-            WRITE(OUTLYNE,*)'IN SPECIAL NO LEADING COLON (:) MODE'
-            CALL SHOWIT(1)
-            WRITE(OUTLYNE,*)'RE-ENTER COMMAND'
-            CALL SHOWIT(1)
-            RETRET=1
-            CALL MACFAL
-            RETURN
-         END IF
-         IF(WQ.EQ.'SCH2000') THEN
-            WRITE(OUTLYNE,*)'"SCH2000" ONLY TAKES STRING INPUT'
-            CALL SHOWIT(1)
-            WRITE(OUTLYNE,*)'IN SPECIAL NO LEADING COLON (:) MODE'
-            CALL SHOWIT(1)
-            WRITE(OUTLYNE,*)'RE-ENTER COMMAND'
-            CALL SHOWIT(1)
-            RETRET=1
-            CALL MACFAL
-            RETURN
-         END IF
-         IF(WQ.EQ.'RUSSIAN') THEN
-            WRITE(OUTLYNE,*)'"RUSSIAN" ONLY TAKES STRING INPUT'
-            CALL SHOWIT(1)
-            WRITE(OUTLYNE,*)'IN SPECIAL NO LEADING COLON (:) MODE'
-            CALL SHOWIT(1)
-            WRITE(OUTLYNE,*)'RE-ENTER COMMAND'
-            CALL SHOWIT(1)
-            RETRET=1
-            CALL MACFAL
-            RETURN
-         END IF
-!
-         IF(WQ.EQ.'GLASS') THEN
-            WRITE(OUTLYNE,*)'"GLASS" ONLY TAKES STRING INPUT'
-            CALL SHOWIT(1)
-            WRITE(OUTLYNE,*)'IN SPECIAL NO LEADING COLON (:) MODE'
-            CALL SHOWIT(1)
-            WRITE(OUTLYNE,*)'RE-ENTER COMMAND'
-            CALL SHOWIT(1)
-            RETRET=1
-            CALL MACFAL
-            RETURN
-         END IF
-!
-         IF(WQ.EQ.'RADHARD') THEN
-            WRITE(OUTLYNE,*)'"RADHARD" ONLY TAKES STRING INPUT'
-            CALL SHOWIT(1)
-            WRITE(OUTLYNE,*)'IN SPECIAL NO LEADING COLON (:) MODE'
-            CALL SHOWIT(1)
-            WRITE(OUTLYNE,*)'RE-ENTER COMMAND'
-            CALL SHOWIT(1)
-            RETRET=1
-            CALL MACFAL
-            RETURN
-         END IF
-!
-         IF(WQ.EQ.'USER') THEN
-            WRITE(OUTLYNE,*)'"USER" ONLY TAKES STRING INPUT'
-            CALL SHOWIT(1)
-            WRITE(OUTLYNE,*)'IN SPECIAL NO LEADING COLON (:) MODE'
-            CALL SHOWIT(1)
-            WRITE(OUTLYNE,*)'RE-ENTER COMMAND'
-            CALL SHOWIT(1)
-            RETRET=1
-            CALL MACFAL
-            RETURN
-         END IF
-!
-         IF(WQ.EQ.'CHANCE') THEN
-            WRITE(OUTLYNE,*)'"CHANCE" ONLY TAKES STRING INPUT'
-            CALL SHOWIT(1)
-            WRITE(OUTLYNE,*)'IN SPECIAL NO LEADING COLON (:) MODE'
-            CALL SHOWIT(1)
-            WRITE(OUTLYNE,*)'RE-ENTER COMMAND'
-            CALL SHOWIT(1)
-            RETRET=1
-            CALL MACFAL
-            RETURN
-         END IF
-!
-         IF(WQ.EQ.'GLCAT') THEN
-            WRITE(OUTLYNE,*)'"GLCAT" ONLY TAKES STRING INPUT'
-            CALL SHOWIT(1)
-            WRITE(OUTLYNE,*)'IN SPECIAL NO LEADING COLON (:) MODE'
-            CALL SHOWIT(1)
-            WRITE(OUTLYNE,*)'RE-ENTER COMMAND'
-            CALL SHOWIT(1)
-            RETRET=1
-            CALL MACFAL
-            RETURN
-         END IF
-!
-         IF(WQ.EQ.'CHANCE') THEN
-            WRITE(OUTLYNE,*)'"CHANCE" ONLY TAKES STRING INPUT'
-            CALL SHOWIT(1)
-            WRITE(OUTLYNE,*)'IN SPECIAL NO LEADING COLON (:) MODE'
-            CALL SHOWIT(1)
-            WRITE(OUTLYNE,*)'RE-ENTER COMMAND'
-            CALL SHOWIT(1)
-            RETRET=1
-            CALL MACFAL
-            RETURN
-         END IF
-!
-         IF(WQ.EQ.'CORNIN') THEN
-            WRITE(OUTLYNE,*)'"CORNIN" ONLY TAKES STRING INPUT'
-            CALL SHOWIT(1)
-            WRITE(OUTLYNE,*)'IN SPECIAL NO LEADING COLON (:) MODE'
-            CALL SHOWIT(1)
-            WRITE(OUTLYNE,*)'RE-ENTER COMMAND'
-            CALL SHOWIT(1)
-            RETRET=1
-            CALL MACFAL
-            RETURN
-         END IF
-!
-         IF(WQ.EQ.'MATL') THEN
-            WRITE(OUTLYNE,*)'"MATL" ONLY TAKES STRING INPUT'
-            CALL SHOWIT(1)
-            WRITE(OUTLYNE,*)'IN SPECIAL NO LEADING COLON (:) MODE'
-            CALL SHOWIT(1)
-            WRITE(OUTLYNE,*)'RE-ENTER COMMAND'
-            CALL SHOWIT(1)
-            RETRET=1
-            CALL MACFAL
-            RETURN
-         END IF
-!
-         IF(WQ.EQ.'OHARA') THEN
-            WRITE(OUTLYNE,*)'"OHARA" ONLY TAKES STRING INPUT'
-            CALL SHOWIT(1)
-            WRITE(OUTLYNE,*)'IN SPECIAL NO LEADING COLON (:) MODE'
-            CALL SHOWIT(1)
-            WRITE(OUTLYNE,*)'RE-ENTER COMMAND'
-            CALL SHOWIT(1)
-            RETRET=1
-            CALL MACFAL
-            RETURN
-         END IF
-!
-!
-         IF(WQ.EQ.'HOYA') THEN
-            WRITE(OUTLYNE,*)'"HOYA" ONLY TAKES STRING INPUT'
+!       (A CATALOG WORD GIVEN AS THE QUALIFIER)
+         IF(gdb%isNameInCatalog(trim(WQ)).OR.WQ.EQ.'GLASS'.OR.WQ.EQ.'GLCAT') THEN
+            WRITE(OUTLYNE,*)'"'//trim(WQ)//'" ONLY TAKES STRING INPUT'
             CALL SHOWIT(1)
             WRITE(OUTLYNE,*)'IN SPECIAL NO LEADING COLON (:) MODE'
             CALL SHOWIT(1)
@@ -4424,6 +4279,7 @@ SUBROUTINE LCLEAN
 END
 ! SUB AATEST.FOR
 SUBROUTINE AATEST
+   use glass_manager, only: gdb
 !       THIS IS CALLED BY LORDER.FOR DURING CONFIG
 !       FILE CLEANUP
 !
@@ -4553,18 +4409,8 @@ SUBROUTINE AATEST
    IF(ATEST(1:5).EQ.'GLAK')AJJK=33
    IF(ATEST(1:5).EQ.'MODEL')AJJK=33
    IF(ATEST(1:7).EQ.'GLASS')AJJK=33
-   IF(ATEST(1:6).EQ.'SCHOTT')AJJK=33
-   IF(ATEST(1:7).EQ.'SCH2000')AJJK=33
-   IF(ATEST(1:7).EQ.'RADHARD')AJJK=33
-   IF(ATEST(1:4).EQ.'MATL')AJJK=33
-   IF(ATEST(1:7).EQ.'RUSSIAN')AJJK=33
-   IF(ATEST(1:5).EQ.'OHARA')AJJK=33
-   IF(ATEST(1:4).EQ.'HOYA')AJJK=33
-   IF(ATEST(1:6).EQ.'HIKARI')AJJK=33
-   IF(ATEST(1:6).EQ.'CHANCE')AJJK=33
-   IF(ATEST(1:6).EQ.'CORNIN')AJJK=33
+   IF(gdb%isNameInCatalog(ATEST(1:INDEX(ATEST//' ',' ')-1)))AJJK=33
    IF(ATEST(1:5).EQ.'GLCAT')AJJK=33
-   IF(ATEST(1:4).EQ.'USER')AJJK=33
    IF(ATEST(1:3).EQ.'AIR')AJJK=33
    IF(ATEST(1:4).EQ.'REFL')AJJK=33
    IF(ATEST(1:7).EQ.'REFLTIR')AJJK=33

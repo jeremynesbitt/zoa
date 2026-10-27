@@ -880,11 +880,16 @@ as 517642 is a model glass) are in.  Still to do:
 - `GLA` now reports a glass outside its wavelength range; a later `WL`
   that moves the wavelengths outside a surface's glass range still only
   gets the legacy GLSRES warning (shown when that path is not silent).
-- Hard-coded catalog-name chains remain in CONFIG3/CONFIG4, LDM1, LDM14
-  (surface-material queries), LDM16, LDM17 (lens export `_SCHOTT`-style
-  names), LDM18, PLOTCAD6 (part drawing), UTILITY2/5, CV2PRG (`MATL`) and
-  NAMES; a user catalog works for GLA/GLASSP/FINDGLAS/index resolution but
-  not on those paths yet (phase 4).
+- Phase 4 replaced the hard-coded catalog-name lists with catalog lookups:
+  any catalog or alias is a word at every legacy level (CONTRO), and the
+  vendor and retired words (SCHOTT ... HIKARI, RUSSIAN, USER, MATL) left
+  NAMES.  GLAK/GLCAT stay as the "search every catalog" words.
+- `LENO` output goes only to an output file (SHOWIT 10), never the terminal,
+  so its CODE V branch (LENSFCV, now `name_CATALOG` like ZOA2CV) is not
+  exercised by a test.
+- A ZOA2CV/CV2PRG round trip of osdtriplet adds an AIR surface before the
+  image and drops the paraxial image solve (seen while testing phase 4;
+  not caused by it).
 - GLSCAT stores the catalog word as `WC(1:8)`: catalog names longer than 8
   characters are cut in GLANAM (the legacy WC word is 8 characters, which
   is why the Nikon file ships as HIKARI.AGF, not NIKON-HIKARI.AGF).

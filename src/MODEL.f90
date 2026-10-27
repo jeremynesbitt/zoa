@@ -1,4 +1,5 @@
 SUBROUTINE MODEL(I)
+   use glass_manager, only: gdb
    use DATLEN
    use DATMAI
    use iso_fortran_env, only: real64
@@ -14,11 +15,7 @@ SUBROUTINE MODEL(I)
    I=INT(W1)
 !        CALCULATE Nd AND Vd
 !       SAVE OLD WAVELENGTH VALUES
-   IF(GLANAM(I,1).EQ.'SCHOTT'.OR.GLANAM(I,1).EQ.'OHARA'&
-   &.OR.GLANAM(I,1).EQ.'HOYA'.OR.GLANAM(I,1).EQ.'CORNIN'&
-   &.OR.GLANAM(I,1).EQ.'SCH2000'&
-   &.OR.GLANAM(I,1).EQ.'CHANCE'.OR.GLANAM(I,1).EQ.'RADHARD'&
-   &.OR.GLANAM(I,1).EQ.'RUSSIAN'.OR.GLANAM(I,1).EQ.'HIKARI') THEN
+   IF(gdb%isNameInCatalog(trim(GLANAM(I,1)))) THEN
       OLDGLSWV(1:10)=GLSWV(1:10)
       OGPREG(1:5)=GPREG(1:5)
 !       RESET WAVELENGTHS TO THE DEFAULT.

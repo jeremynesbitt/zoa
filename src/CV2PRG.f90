@@ -11,6 +11,7 @@ SUBROUTINE CV2PRG
    use mod_lens_data_manager, only: ldm
    use undo_manager, only: undo_reset_baseline
    use codeV_commands, only: resetToNewLensTemplate
+   use glass_manager, only: gdb
    use iso_fortran_env, only: real64
    IMPLICIT NONE
 !
@@ -55,7 +56,7 @@ SUBROUTINE CV2PRG
    ALLOCATABLE :: TEMPA,TEMPB,TEMPC
 !
    LOGICAL HOE
-   INTEGER HOESUR
+   INTEGER HOESUR, KCAT, ICAT
    CHARACTER*1 HV1,HV2
    real(real64) HX1,HY1,HZ1,HX2,HY2,HZ2,HWL,HOR
    DIMENSION HV1(:),HV2(:),HX1(:),HY1(:),HZ1(:),HX2(:),HY2(:),&
@@ -1058,10 +1059,14 @@ SUBROUTINE CV2PRG
          !call logger%logText(OUTLYNE)
          DO J=1,1024
             IF(TEMPC(I)(J:J).EQ.'_') THEN
-               IF(TEMPC(I)(J+1:J+1).EQ.'S'.AND.TEMPC(I)(1:4).EQ.'BAF2') THEN
-                  GLASSA='MATL '//TEMPC(I)(1:J-1)
-               ELSE
-                  GLASSA='GLAK '//TEMPC(I)(1:J-1)
+!     name_CATALOG: that catalog when Zoa has it and it holds the glass,
+!     else the first catalog in search order holding the name (GLAK)
+               GLASSA='GLAK '//TEMPC(I)(1:J-1)
+               KCAT=INDEX(TEMPC(I)(J+1:)//' ',' ')
+               ICAT=0
+               IF(gdb%isNameInCatalog(trim(TEMPC(I)(J+1:J+KCAT-1)), ICAT)) THEN
+                  IF(gdb%isGlassInCatalog(TEMPC(I)(1:J-1), ICAT)) &
+                  &  GLASSA=trim(gdb%catalogs(ICAT))//' '//TEMPC(I)(1:J-1)
                END IF
                TEMPC(I)(1:1024)=BL1024(1:1024)
                GO TO 7777

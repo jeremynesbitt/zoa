@@ -759,6 +759,7 @@ SUBROUTINE CFGIN3
 END
 ! SUB CFGIN2.FOR
 SUBROUTINE CFGIN2
+   use glass_manager, only: gdb
    USE GLOBALS
 !
    use DATCFG
@@ -1056,8 +1057,8 @@ SUBROUTINE CFGIN2
          &.OR.WC.EQ.'RTILT'.OR.WC.EQ.'ASTOP'.OR.WC.EQ.&
          &'REFS'.OR.WC.EQ.'TH'.OR.WC.EQ.'PY'.OR.WC.EQ.'PCY'.OR.WC.EQ.&
          &'CAY'.OR.WC.EQ.'PX'.OR.WC.EQ.'PCX'.OR.WC.EQ.'CAX'.OR.WC.EQ.&
-         &'CLAP'.OR.WC.EQ.'COBS'.OR.WC.EQ.'GLAK'.OR.WC.EQ.'SCHOTT'.OR.&
-         &WC.EQ.'INRD'.OR.WC.EQ.'NODUM'.OR.WC.EQ.'SCH2000'.OR.&
+         &'CLAP'.OR.WC.EQ.'COBS'.OR.WC.EQ.'GLAK'.OR.&
+         &WC.EQ.'INRD'.OR.WC.EQ.'NODUM'.OR.&
          &WC.EQ.'GLASS'.OR.WC.EQ.'MODEL'.OR.WC.EQ.'GRT'.OR.WC.EQ.'GRO'&
          &.OR.WC.EQ.'GRS'.OR.WC.EQ.'GRX'.OR.WC.EQ.'GRY'.OR.WC.EQ.'GRZ'&
          &.OR.WC.EQ.'SPGR'.OR.WC.EQ.'THM'.OR.WC.EQ.'PRICE'.OR.WC.EQ.&
@@ -1067,15 +1068,14 @@ SUBROUTINE CFGIN2
 !       ALL IS WELL,PROCEED
          ELSE
 !       CONTINUE TESTING
-            IF( WC.EQ.'OHARA'.OR.WC.EQ.'HOYA'.OR.WC.EQ.'CHANCE'.OR.WC.EQ.&
-            &'CORNIN'.OR.WC.EQ.'MATL'.OR.WC.EQ.'ZD'.OR.WC.EQ.'IDEAL'.OR.&
-            &WC.EQ.'RADHARD'.OR.WC.EQ.'AIR'.OR.WC.EQ.'REFL'.OR.&
+            IF( gdb%isNameInCatalog(trim(WC)).OR.WC.EQ.'ZD'.OR.WC.EQ.'IDEAL'.OR.&
+            &WC.EQ.'AIR'.OR.WC.EQ.'REFL'.OR.&
             &WC.EQ.'EOS'.OR.WC.EQ.'CHG'.OR.WC.EQ.'CVTOR'.OR.WC.EQ.'RDTOR'.OR.&
             &WC.EQ.'XD'.OR.WC.EQ.'YD'.OR.WC.EQ.'ALPHA'.OR.WC.EQ.'TASPH'&
             &.OR.WC.EQ.'TASPHD'.OR.WC.EQ.'ADTOR'.OR.WC.EQ.'AETOR'.OR.&
             &WC.EQ.'AFTOR'.OR.WC.EQ.'GLCAT'.OR.WC.EQ.'VISUAL'.OR.&
             &WC.EQ.'AGTOR'.OR.WC.EQ.'N1'.OR.WC.EQ.'N2'.OR.WC.EQ.'N3'&
-            &.OR.WC.EQ.'N4'.OR.WC.EQ.'N5'.OR.WC.EQ.'USER'.OR.WC.EQ.'N6'&
+            &.OR.WC.EQ.'N4'.OR.WC.EQ.'N5'.OR.WC.EQ.'N6'&
             &.OR.WC.EQ.'N7'.OR.WC.EQ.'N8'.OR.WC.EQ.'N9'.OR.WC.EQ.'N10'.OR.&
             &WC.EQ.'GDX'.OR.WC.EQ.'GDY'.OR.WC.EQ.'GDZ'.OR.WC.EQ.'GALPHA'.OR.&
             &WC.EQ.'GBETA'.OR.WC.EQ.'GGAMMA'.OR.WC.EQ.'PERFECT'&
@@ -1094,8 +1094,8 @@ SUBROUTINE CFGIN2
                &WC.EQ.'VNUM'.OR.WC.EQ.'FOOTBLOK'.OR.WC.EQ.'PIVOT'.OR.WC.EQ.&
                &'DPART'.OR.WC.EQ.'PIVOTD'.OR.WC.EQ.'DEFORM'.OR.WC.EQ.'PYIM'.OR.&
                &WC.EQ.'RXIM'.OR.WC.EQ.'RYIM'.OR.WC.EQ.'DELDEFOR'.OR.WC.EQ.&
-               &'PIVAXIS'.OR.WC.EQ.'RUSSIAN'.OR.WC.EQ.'REFLTIR'.OR.WC.EQ.&
-               &'REFLTIRO'.OR.WC.EQ.'HIKARI'.OR.WC.EQ.'RAYERROR'.OR.WC.EQ.'ROO'&
+               &'PIVAXIS'.OR.WC.EQ.'REFLTIR'.OR.WC.EQ.&
+               &'REFLTIRO'.OR.WC.EQ.'RAYERROR'.OR.WC.EQ.'ROO'&
                &.OR.WC.EQ.'CCR') THEN
                   GO TO 55
 !       ALL IS WELL,PROCEED

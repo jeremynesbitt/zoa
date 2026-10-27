@@ -80,3 +80,23 @@ MLI TESTCAT
 GPR SCHOTT N-BK7
 GPR SPECIAL ACRYLIC
 GLI NOPE
+! CODE V import keeps a glass's catalog (ZBK7_TESTCAT, F2_HIKARI,
+! SILICA_SPECIAL; N-BK7_HIKARI is not a Hikari glass, so the search order
+! finds it); a catalog word at lens input; a save/restore and a .seq round
+! trip keep each catalog (HIKARI F8 is also a SCHOTT glass)
+CV2PRG glasscat.seq
+U L
+CHG 3
+TESTCAT ZDIAMOND
+EOS
+RTG ALL
+RES osdtriplet
+WL 500 550 600
+GLA S1 F8_HIKARI
+GLA S3 POLYCARBONATE
+SAV glassrt
+RES glassrt
+RTG ALL
+ZOA2CV glassrt.seq
+CV2PRG glassrt.seq
+RTG ALL
