@@ -17,7 +17,7 @@
 
 # GLOB  = src/zoa-ui.f90 src/command-utils.f90 src/plotsettingtypes.f90
 # src/kdp-data-types.f90 src/global_widgets.f90 src/gtk-hl-zoa.f90
-# src/zoa-plot.f90 src/zoa-macro-ui.f90 src/zoa-glass-ui.f90 src/ui-lens-library.f90
+# src/zoa-plot.f90 src/zoa-macro-ui.f90 src/zoa-glass-ui.f90
 # src/zoamenubar.f90 src/zoa-tab.f90 src/kdp-draw.f90 src/mod_plotrayfan.f90
 # src/mod_plotopticalsystem.f90  src/ui-ast-fc-dist.f90 src/ui-spot.f90
 # src/ui-rmsfield.f90 src/ROUTEDRAWING.f90 src/zoa-tab-manager.f90
@@ -96,7 +96,6 @@ srcs += files(
   'zoa-plot.f90',
   'zoa-macro-ui.f90',
   'zoa-glass-ui.f90',
-  'ui-lens-library.f90',
   'zoamenubar.f90',
   'zoa-status-bar.f90',
   'zoa-tab.f90',
@@ -187,7 +186,6 @@ srcs += files(
   'LDM16.f90',
   'LDM17.f90',
   'LDM18.f90',
-  'LIBLOAD.f90',
   'macro-stubs.f90',
   'MATH.f90',
   'megaDebugLogger.f90',

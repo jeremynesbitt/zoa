@@ -132,47 +132,9 @@ SUBROUTINE CMDER
       END IF
 !       CHECK FOR SPECT SUB-LEVEL
 !
-      IF(F17.EQ.0.AND.WC.EQ.'ITF'.OR.F17.EQ.0.AND.WC.EQ.'ILF'&
+      IF(F17.EQ.0.AND.WC.EQ.'ITF'&
       &.OR.F17.EQ.0.AND.WC.EQ.'PROCEED'&
       &.OR.F17.EQ.0.AND.WC.EQ.'IPF') THEN
-!       ILF
-         IF(WC.EQ.'ILF') THEN
-            IF(SST.EQ.1.OR.SQ.EQ.1.OR.SN.EQ.1) THEN
-!
-               CALL REPORT_ERROR_AND_FAIL(&
-               & '"ILF" TAKES NO EXPLICIT INPUT'//'\n'//&
-               & 'RE-ENTER COMMAND', 1)
-               RETURN
-            END IF
-            F48=1
-            OUTLYNE='WARNING:'
-            CALL SHOWIT(1)
-            OUTLYNE='IF THE NEXT COMMAND IS "PROCEED" YOUR LENS LIBRARY'
-            CALL SHOWIT(1)
-            OUTLYNE='WILL BE ERASED'
-            CALL SHOWIT(1)
-            RETURN
-         END IF
-         IF(WC.EQ.'PROCEED'.AND.F48.EQ.1) THEN
-            IF(SST.EQ.1.OR.SQ.EQ.1.OR.SN.EQ.1) THEN
-               OUTLYNE='"PROCEED" TAKES NO EXPLICIT INPUT'
-               CALL SHOWIT(1)
-               OUTLYNE='RE-ENTER COMMAND'
-               CALL SHOWIT(1)
-               F48=0
-               CALL MACFAL
-               RETURN
-            END IF
-            CALL ILF
-            F48=0
-            RETURN
-         END IF
-         IF(WC.NE.'PROCEED'.AND.F48.EQ.1) THEN
-            OUTLYNE='ILF CANCELLED'
-            CALL SHOWIT(1)
-            F48=0
-            RETURN
-         END IF
 !       ITF
          IF(WC.EQ.'ITF') THEN
             IF(SST.EQ.1.OR.SQ.EQ.1.OR.SN.EQ.1) THEN
@@ -257,18 +219,13 @@ SUBROUTINE CMDER
             CALL SHOWIT(1)
             RETURN
          END IF
-         IF(WC.EQ.'PROCEED'.AND.F48.EQ.0) THEN
-            OUTLYNE='NO ILF ACTION TAKEN'
-            CALL SHOWIT(1)
-            RETURN
-         END IF
       END IF
-      IF(F17.EQ.1.AND.WC.EQ.'ITF'.OR.F17.EQ.1.AND.WC.EQ.'ILF'&
+      IF(F17.EQ.1.AND.WC.EQ.'ITF'&
       &.OR.F17.EQ.1.AND.WC.EQ.'PROCEED'&
       &.OR.F17.EQ.1.AND.WC.EQ.'IPF') THEN
 !       WE ARE AT SPECT
          OUTLYNE=&
-         &'"ILF", "ITF" AND "IPF" NOT VALID AT "SPECT" LEVEL'
+         &'"ITF" AND "IPF" NOT VALID AT "SPECT" LEVEL'
          CALL SHOWIT(1)
          OUTLYNE='RE-ENTER COMMAND'
          CALL SHOWIT(1)
@@ -898,25 +855,6 @@ SUBROUTINE CMDER
          CALL DEZOOM
          RETURN
       END IF
-!       CALL TO LSTAT( LENS LIBRARY STATUS)
-      IF(WC.EQ.'LSTAT')  THEN
-         IF(SN.EQ.1.OR.SST.EQ.1.OR.SQ.EQ.1) THEN
-            CALL REPORT_ERROR_AND_FAIL(&
-            & '"LSTAT" TAKES NO EXPLICIT INPUT'//'\n'//&
-            & 'RE-ENTER COMMAND', 1)
-            RETURN
-         END IF
-
-         CALL myLSTAT
-         RETURN
-      END IF
-!               LENS LIBRARY COMMANDS
-      IF(WC.EQ.'LIB') THEN
-         OPTMES=.FALSE.
-         CALL LLIB
-         OPTMES=.TRUE.
-         RETURN
-      END IF
 !
 !       CALL TO PSTAT( PLOT LIBRARY STATUS)
       IF(WC.EQ.'PSTAT')  THEN
@@ -1012,10 +950,6 @@ SUBROUTINE CMDER
          WC=OWC
          RETURN
          LBT=.FALSE.
-         RETURN
-      END IF
-      IF(WC.EQ.'LENADD') THEN
-         CALL LENADD
          RETURN
       END IF
       !IF(WC.EQ.'LOADPROF') THEN
@@ -3088,7 +3022,7 @@ SUBROUTINE CMDER
          CALL GLSRIN
          RETURN
       END IF
-      IF(WC.EQ.'LENDIR'.OR.WC.EQ.'MACDIR'.OR.WC.EQ.'TRADIR'&
+      IF(WC.EQ.'MACDIR'.OR.WC.EQ.'TRADIR'&
       &.OR.WC.EQ.'PLTDIR'.OR.WC.EQ.'CHGMAC') THEN
          CALL CHADIR
          RETURN

@@ -169,9 +169,6 @@ module codeV_commands
    module subroutine execRestore(iptStr)
    character(len=*) :: iptStr
    end subroutine execRestore
-   module subroutine execRestore_old(iptStr)
-   character(len=*) :: iptStr
-   end subroutine execRestore_old
    module subroutine exportLensToCodeV(iptStr)
    character(len=*) :: iptStr
    end subroutine exportLensToCodeV

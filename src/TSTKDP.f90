@@ -29,7 +29,6 @@ SUBROUTINE TSTKDP
 
 
 !	    NRECL = 1
-!        LIBLEN = 'LIBLEN/'
 
 
    CALL INITKDP

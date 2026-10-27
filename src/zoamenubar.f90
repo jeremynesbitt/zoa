@@ -88,7 +88,6 @@ contains
 
     use zoa_macro_ui
     use zoa_glass_ui
-    use ui_lens_library
 
 
     type(c_ptr), intent(in) :: win
@@ -107,7 +106,6 @@ contains
     type(c_ptr) :: act_editlensrad, menu_item_editlensrad
 
     type(c_ptr) :: act_glassDisplay, menu_item_glass
-    type(c_ptr) :: act_lenslib, menu_item_lenslib
  
 
     type(c_ptr) :: menu_import, menu_export
@@ -270,13 +268,6 @@ contains
     call g_signal_connect (act_editlensrad, "activate"//c_null_char, c_funloc(zoa_editLensRadUI), win)
     menu_item_editlensrad = g_menu_item_new ("Edit Lens (Radius Mode)"//c_null_char, "win.EditLensRad"//c_null_char)
     call g_menu_append_item (menu_lens, menu_item_editlensrad)
-
-    ! Lens Library
-    act_lenslib = g_simple_action_new("LensLib"//c_null_char, c_null_ptr)
-    call g_action_map_add_action (win, act_lenslib)
-    call g_signal_connect (act_lenslib, "activate"//c_null_char, c_funloc(create_lenslibraryUI), win)
-    menu_item_lenslib = g_menu_item_new ("Lens Library"//c_null_char, "win.LensLib"//c_null_char)
-    call g_menu_append_item (menu_lens, menu_item_lenslib)
 
 
     ! Lens Sub Menus

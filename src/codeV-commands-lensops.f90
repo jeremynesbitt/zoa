@@ -67,49 +67,6 @@ contains
         end if
     end procedure execRestore
 
-    module procedure execRestore_old
-        use zoa_file_handler
-        use strings, only: parse
-        use zoa_file_handler, only: open_file_to_sav_lens, doesFileExist
-        use zoa_ui_callbacks, only: query_confirm, query_yes_no, notify_close_all_tabs
-        implicit none
-
-        character(len=256) :: fName
-        character(len=80) :: tokens(40)
-        character(len=1024) :: fullPath
-        integer :: numTokens, locDot
-        logical :: confirmed, save_lens
-
-        call parse(trim(iptStr), ' ', tokens, numTokens)
-
-        if (numTokens == 2) then
-            fName = trim(tokens(2))
-            locDot = index(fName, '.')
-            if (locDot == 0) fName = trim(fName)//'.zoa'
-            call LogTermFOR("File name to restore is "//trim(fName))
-            fullPath = getRestoreFilePath(trim(fName))
-
-            if (TEST_MODE .eqv. .FALSE. .and. doesFileExist(trim(fullPath))) then
-                call query_confirm("You are about to start a new lens system. Are you sure?", "Warning", confirmed)
-                if (confirmed) then
-                    call query_yes_no("Do you want to save current lens before loading?", "Warning", save_lens)
-                    if (save_lens) call PROCESKDP('LIB PUT')
-                    call notify_close_all_tabs("Loading new lens")
-                else
-                    call zoa_emit("New Lens Process Cancelled", "black")
-                end if
-            end if
-
-            if (len(trim(fullPath)) > 1) then
-                call process_zoa_file(fullPath)
-            else
-                call zoa_emit("File Not found in known directory!  Please try again or use UI", "red")
-            end if
-        else
-            call zoa_emit("No file given to restore!  Please try again", "red")
-        end if
-    end procedure execRestore_old
-
     !## cmd:      ZOA2CV
     !## syntax:   ZOA2CV file
     !## category: File I/O

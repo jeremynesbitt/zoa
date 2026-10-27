@@ -116,8 +116,8 @@ contains
   ! the GUI or with another test running at the same time.
   subroutine prepare_test_home()
     use zoa_file_handler, only: writeRootOverride
-    character(len=12), parameter :: subdirs(13) = [character(len=12) :: &
-      'Projects', 'Macros', 'Temp', 'CodeV', 'LIBLEN', 'LIBMAC', 'LIBTRA', &
+    character(len=12), parameter :: subdirs(12) = [character(len=12) :: &
+      'Projects', 'Macros', 'Temp', 'CodeV', 'LIBMAC', 'LIBTRA', &
       'LIBSPO', 'LIBAUT', 'LIBPLO', 'NSSDIR', 'CURLENS', 'PERMAC']
     integer :: k
 

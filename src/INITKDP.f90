@@ -570,7 +570,6 @@ SUBROUTINE INITKDP
    DRWNAM='NEUTRAL.DAT'
    ! Set directories.  Base path and File separator should have been
    ! set based on os
-   LIBLEN=trim(writePath)//'LIBLEN'//fileSep
    LIBMAC=trim(writePath)//'LIBMAC'//fileSep
    LIBTRA=trim(writePath)//'LIBTRA'//fileSep
    LIBSPO=trim(writePath)//'LIBSPO'//fileSep
