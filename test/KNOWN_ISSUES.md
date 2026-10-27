@@ -854,13 +854,11 @@ Phase 1 (AGF catalogs, module glass_catalog) and phase 2 (vendor SCHOTT,
 OHARA and Nikon HIKARI files; SCH2000/SCH2023 as aliases of SCHOTT and the
 SK16 -> N-SK16 rule in Library/LIBGLA/glass-aliases.txt; CHANCE, CORNIN and
 RADHARD dropped) are in.  Still to do:
-- HOYA.AGF is still the conversion of the old binary; replace it with Hoya's
-  own AGF when we have it.
 - Discontinued glasses were dropped with the old tables (user decision): 415
-  Ohara glasses (old non-S names, S-FPL52, S-LAH55, the i-line glasses), 10
-  RADHARD glasses, Schott N-SF6Q2.  The shipped library lenses LIB001 and
-  LIB009 (Library/LIBLEN) use `OHARA SSK4`, which no longer resolves; Schott
-  SSK4A (618551) is the same glass.
+  Ohara glasses (old non-S names, S-FPL52, S-LAH55, the i-line glasses), 191
+  Hoya glasses (old ADF/BAC/... names), 10 RADHARD glasses, Schott N-SF6Q2.
+  Library/CodeV/LithoBraat.seq names F8_HOYA, which now falls back to
+  Schott F8 (same 596392 glass).
 - Ohara's AGF is UTF-16 and kept byte-for-byte as published, so git shows it
   as binary.
 - `GLA` runs silently, so a glass used outside its wavelength range (AGF
