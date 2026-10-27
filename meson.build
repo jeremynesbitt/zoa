@@ -15,6 +15,11 @@ project('Zoa', ['fortran', 'c'],
 # Print some informations:
 #system = host_machine.system()
 system = host_machine.system()
+# On macOS `meson install` builds a Zoa.app bundle (prefix = the bundle, bindir
+# = Contents/MacOS, as zoareleasetools/build-release.sh configures it).  With
+# any other prefix nothing is installed: Meson's default prefix there is
+# /opt/homebrew, and the bundle layout (Contents/...) does not belong in it.
+install_app = system != 'darwin' or (get_option('prefix').endswith('.app') and get_option('bindir') == 'Contents/MacOS')
 message('Host machine system = '+system)
 build_type = get_option('buildtype')
 message('Build type: '+build_type)
@@ -341,7 +346,7 @@ xtb_exe = executable(
   link_with: [zoa_lib, plotcad5_lib],
   dependencies:  [zoa_deps, thread_dep],
   link_language: 'fortran',
-  install: true
+  install: install_app
 )
 
 # ZeroMQ server executable (headless, for Jupyter integration)
@@ -353,7 +358,7 @@ if zmq_dep.found()
     link_with: [zoa_lib, plotcad5_lib],
     dependencies: [zoa_deps, thread_dep, zmq_dep],
     link_language: 'fortran',
-    install: true,
+    install: install_app,
     install_dir: 'Contents/MacOS'
   )
 endif
@@ -654,9 +659,17 @@ test('engine_units', test_runner,
 
 
 if system == 'darwin'
-  MacOSDir = meson.project_source_root() / 'MacOS'
-  install_data(MacOSDir / 'AppIcon.icns', install_dir : 'Contents/Resources')
-  install_data(MacOSDir / 'Info.plist', install_dir : 'Contents')
-  install_subdir(meson.project_source_root() / 'help/html', install_dir : 'Contents/Resources/help', strip_directory: false)
+  if install_app
+    MacOSDir = meson.project_source_root() / 'MacOS'
+    install_data(MacOSDir / 'AppIcon.icns', install_dir : 'Contents/Resources')
+    install_data(MacOSDir / 'Info.plist', install_dir : 'Contents')
+    install_subdir(meson.project_source_root() / 'help/html', install_dir : 'Contents/Resources/help', strip_directory: false)
+  else
+    warning('meson install makes a Zoa.app bundle and needs ' +
+            '--prefix=/path/to/Zoa.app --bindir=Contents/MacOS; this build has prefix ' +
+            get_option('prefix') + ' and bindir ' + get_option('bindir') +
+            ', so meson install installs nothing')
+  endif
+  # (with a non-bundle prefix the script only explains how to configure one)
   meson.add_install_script(files('macos_install.script.sh'))
 endif
