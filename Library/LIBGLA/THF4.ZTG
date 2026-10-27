@@ -1,0 +1,9 @@
+! Thorium fluoride, for coatings
+! Zoa SPECIAL material, from the KDP-2 built-in data; linear from 1.52 at 0.4 um to 1.51 at 0.75 um
+! wavelength (um)  index
+0.4          1.52
+0.47         1.518
+0.54         1.516
+0.61         1.514
+0.68         1.512
+0.75         1.51

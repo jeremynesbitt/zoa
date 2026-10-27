@@ -9,7 +9,8 @@
 !   2. the program's glass folder (LIBGLA, or the GlassCatalogDir preference).
 ! The catalog search order (for a glass given without a catalog) is the
 ! first catalog-order.txt found in those folders -- one catalog name per
-! line, '!' comments -- then any other catalogs alphabetically.
+! line, '!' comments; the catalogs it does not name go alphabetically at a
+! '*' line, or at the end without one.
 !
 ! glass-aliases.txt in any of those folders (all are read; the first
 ! definition of an alias wins, so a search-path file overrides the shipped
@@ -30,6 +31,15 @@
 ! before it (some vendors wrap long CD/TD lines).  A glass code that is
 ! not a 6-digit code (some vendors write 1) is made from nd and vd.  Text
 ! files may be ASCII/UTF-8 or UTF-16 (with BOM).
+!
+! Table glasses: every *.ZTG file found (OpticStudio's table-glass format)
+! is one material of the SPECIAL catalog, named after the file (the first
+! file of a name wins, as for catalogs).  Lines are
+!   wavelength_um  index  [internal_transmittance  thickness_mm]
+! plus '!' comments (the first is kept as the glass comment) and an
+! ignored DENSITY line.  The index is a natural cubic spline through the
+! points; outside the table the nearest point's index is used, and the
+! glass's wavelength range is the table's.
 module glass_catalog
   use iso_fortran_env, only: real64, int8
   use iso_c_binding, only: c_ptr, c_char, c_int, c_null_char, c_null_ptr, &
@@ -41,9 +51,11 @@ module glass_catalog
             gc_catalog_name, gc_catalog_comment, gc_catalog_path, gc_catalog_size, &
             gc_find_catalog, gc_find_glass, gc_find_glass_any, gc_glass, gc_index, &
             agf_index, agf_formula_name, agf_formula_ncoef, gc_generation, &
-            gc_glass_alias
+            gc_glass_alias, FORMULA_TABLE
 
   integer, parameter :: MAXCD = 10
+  integer, parameter :: FORMULA_TABLE = -1     ! a ZTG table glass
+  character(len=*), parameter :: TABLE_CATALOG = 'SPECIAL'
   integer, parameter :: MAXALIAS = 2000
 
   type :: glass_record
@@ -60,6 +72,8 @@ module glass_catalog
     real(real64) :: od(6) = -1.0_real64
     integer :: nit = 0
     real(real64), allocatable :: it(:,:)   ! (3, nit): wavelength, tau, thickness
+    integer :: ntab = 0
+    real(real64), allocatable :: tab(:,:)  ! (3, ntab): wavelength, index, spline y''
     character(len=140) :: comment = ''
   end type
 
@@ -152,22 +166,23 @@ contains
 
   subroutine load_all(key)
     character(len=*), intent(in) :: key
-    character(len=1024) :: dirs(40), files(500), paths(500), order(200)
-    character(len=32) :: names(500), nm
-    integer :: nd, i, j, k, nf, nord, nfound, idx(500), nfirst, t
+    character(len=1024) :: dirs(40), files(2000), paths(500), order(200), tpaths(2000)
+    character(len=32) :: names(500), nm, tnames(2000)
+    integer :: nd, i, j, k, nf, nord, nfound, idx(500), nfirst, t, ntfound, tsave
     logical :: used(500)
 
     if (allocated(cats)) deallocate(cats)
     ncat = 0
     call glass_dirs(dirs, nd)
     nfound = 0
+    ntfound = 0
     nord = 0
     ncatAlias = 0
     nglaAlias = 0
     do i = 1, nd
       if (nord == 0) call read_order(trim(dirs(i))//'catalog-order.txt', order, nord)
       call read_aliases(trim(dirs(i))//'glass-aliases.txt')
-      call list_agf(trim(dirs(i)), files, nf)
+      call list_files(trim(dirs(i)), '.AGF', files, nf)
       do j = 1, nf
         nm = upper(stem(files(j)))
         if (any(names(1:nfound) == nm)) cycle      ! an earlier folder wins
@@ -176,35 +191,71 @@ contains
         names(nfound) = nm
         paths(nfound) = files(j)
       end do
+      call list_files(trim(dirs(i)), '.ZTG', files, nf)
+      do j = 1, nf
+        nm = upper(stem(files(j)))
+        if (any(tnames(1:ntfound) == nm)) cycle
+        if (ntfound >= size(tnames)) exit
+        ntfound = ntfound + 1
+        tnames(ntfound) = nm
+        tpaths(ntfound) = files(j)
+      end do
     end do
+    ! table glasses join the SPECIAL catalog, which they make if need be
+    if (ntfound > 0 .and. .not. any(names(1:nfound) == TABLE_CATALOG) .and. &
+        nfound < size(names)) then
+      nfound = nfound + 1
+      names(nfound) = TABLE_CATALOG
+      paths(nfound) = ''
+    end if
 
-    ! search order: catalog-order.txt first, then the rest alphabetically
+    ! search order: catalog-order.txt, the catalogs it does not name going
+    ! (alphabetically) where it has a '*' line, else at the end
     used = .false.
-    k = 0
     do i = 1, nord
       do j = 1, nfound
-        if (.not. used(j) .and. names(j) == upper(order(i))) then
-          k = k + 1; idx(k) = j; used(j) = .true.
+        if (names(j) == upper(order(i))) used(j) = .true.
+      end do
+    end do
+    k = 0
+    do i = 1, nord + 1
+      if (i <= nord) then
+        if (trim(order(i)) /= '*') then
+          do j = 1, nfound
+            if (names(j) == upper(order(i)) .and. .not. any(idx(1:k) == j)) then
+              k = k + 1; idx(k) = j
+            end if
+          end do
+          cycle
         end if
+      end if
+      if (i == nord + 1 .and. any(order(1:nord) == '*')) exit
+      nfirst = k
+      do j = 1, nfound
+        if (used(j)) cycle
+        k = k + 1; idx(k) = j; used(j) = .true.
       end do
-    end do
-    nfirst = k
-    do j = 1, nfound
-      if (used(j)) cycle
-      k = k + 1; idx(k) = j
-    end do
-    do i = nfirst + 2, k
-      t = idx(i); j = i - 1
-      do while (j > nfirst)
-        if (names(idx(j)) <= names(t)) exit
-        idx(j+1) = idx(j); j = j - 1
+      do t = nfirst + 2, k                  ! insertion sort of the rest
+        nm = names(idx(t)); j = t - 1
+        tsave = idx(t)
+        do while (j > nfirst)
+          if (names(idx(j)) <= nm) exit
+          idx(j+1) = idx(j); j = j - 1
+        end do
+        idx(j+1) = tsave
       end do
-      idx(j+1) = t
     end do
 
     allocate(cats(nfound))
     do i = 1, nfound
       call read_agf(trim(paths(idx(i))), names(idx(i)), cats(i))
+      if (names(idx(i)) == TABLE_CATALOG) then
+        if (len_trim(paths(idx(i))) == 0) cats(i)%comment = 'Table glasses'
+        do j = 1, ntfound
+          call add_glass(cats(i), k)
+          call read_ztg(trim(tpaths(j)), cats(i)%g(k))
+        end do
+      end if
     end do
     ncat = nfound
     loadedKey = key
@@ -212,9 +263,10 @@ contains
     generation = generation + 1
   end subroutine
 
-  ! *.AGF files in dir (full paths), sorted by name.
-  subroutine list_agf(dir, files, n)
-    character(len=*), intent(in) :: dir
+  ! Files of extension ext (e.g. '.AGF', any case) in dir (full paths),
+  ! sorted by name.
+  subroutine list_files(dir, ext, files, n)
+    character(len=*), intent(in) :: dir, ext
     character(len=1024), intent(out) :: files(:)
     integer, intent(out) :: n
     type(c_ptr) :: d, p
@@ -230,7 +282,7 @@ contains
       f = c_string(p)
       L = len_trim(f)
       if (L < 5) cycle
-      if (upper(f(L-3:L)) /= '.AGF') cycle
+      if (upper(f(L-3:L)) /= ext) cycle
       if (n >= size(files)) exit
       n = n + 1
       files(n) = trim(dir)//trim(f)
@@ -252,7 +304,8 @@ contains
     integer, intent(inout) :: n
     character(len=:), allocatable :: text
     character(len=1024) :: line
-    integer :: pos, ios
+    character(len=64) :: tok(1)
+    integer :: pos, nt
     logical :: ok
     call read_text(path, text, ok)
     if (.not. ok) return
@@ -261,9 +314,10 @@ contains
       line = adjustl(line)
       if (len_trim(line) == 0 .or. line(1:1) == '!') cycle
       if (n >= size(order)) exit
+      call tokens(line, tok, nt)
+      if (nt < 1) cycle
       n = n + 1
-      read(line, *, iostat=ios) order(n)
-      if (ios /= 0) n = n - 1
+      order(n) = tok(1)
     end do
   end subroutine
 
@@ -308,7 +362,6 @@ contains
     type(catalog), intent(out) :: cat
     character(len=:), allocatable :: text
     character(len=1024) :: line, pend
-    type(glass_record), allocatable :: tmp(:)
     real(real64) :: v(12)
     integer :: pos, nv, cur
     logical :: ok, more
@@ -349,13 +402,7 @@ contains
       case ('CC')
         cat%comment = rest
       case ('NM')
-        if (cat%n >= size(cat%g)) then
-          allocate(tmp(2*size(cat%g)))
-          tmp(1:cat%n) = cat%g(1:cat%n)
-          call move_alloc(tmp, cat%g)
-        end if
-        cat%n = cat%n + 1
-        cur = cat%n
+        call add_glass(cat, cur)
         call parse_nm(rest, cat%g(cur))
       case ('GC')
         if (cur > 0) cat%g(cur)%comment = rest
@@ -415,12 +462,140 @@ contains
       read(tok(7), *, iostat=ios) x
       if (ios == 0) g%status = nint(x)
     end if
-    ! no real glass code (e.g. 1): the usual nnnvvv code from nd and vd
+    call derive_code(g)
+  end subroutine
+
+  ! No real glass code (e.g. 1): the usual nnnvvv code from nd and vd.
+  subroutine derive_code(g)
+    type(glass_record), intent(inout) :: g
     if (len_trim(code_digits(g%code)) < 6 .and. g%nd > 1.0_real64 .and. &
         g%nd < 2.0_real64 .and. g%vd > 0.0_real64 .and. g%vd < 99.95_real64) &
       write(g%code, '(I3.3,I3.3)') nint((g%nd - 1.0_real64)*1000.0_real64), &
                                    nint(g%vd*10.0_real64)
   end subroutine
+
+  ! A new (blank) glass at the end of cat; ig its number.
+  subroutine add_glass(cat, ig)
+    type(catalog), intent(inout) :: cat
+    integer, intent(out) :: ig
+    type(glass_record), allocatable :: tmp(:)
+    if (.not. allocated(cat%g)) allocate(cat%g(64))
+    if (cat%n >= size(cat%g)) then
+      allocate(tmp(2*size(cat%g)))
+      tmp(1:cat%n) = cat%g(1:cat%n)
+      call move_alloc(tmp, cat%g)
+    end if
+    cat%n = cat%n + 1
+    ig = cat%n
+  end subroutine
+
+  ! ---------------------------------------------------------------- ZTG
+
+  subroutine read_ztg(path, g)
+    character(len=*), intent(in) :: path
+    type(glass_record), intent(inout) :: g
+    character(len=:), allocatable :: text
+    character(len=1024) :: line
+    real(real64) :: v(4)
+    real(real64), allocatable :: t(:,:)
+    integer :: pos, nv
+    logical :: ok
+
+    g%name = stem(path)
+    g%formula = FORMULA_TABLE
+    allocate(g%tab(3, 32))
+    g%ntab = 0
+    call read_text(path, text, ok)
+    if (.not. ok) return
+    pos = 1
+    do while (next_line(text, pos, line))
+      line = adjustl(line)
+      if (len_trim(line) == 0) cycle
+      if (line(1:1) == '!') then
+        if (len_trim(g%comment) == 0) g%comment = adjustl(line(2:))
+        cycle
+      end if
+      if (upper(line(1:7)) == 'DENSITY') cycle
+      call reals(line, v, nv)
+      if (nv < 2) cycle
+      if (g%ntab >= size(g%tab, 2)) then
+        allocate(t(3, 2*size(g%tab, 2)))
+        t(:, 1:g%ntab) = g%tab(:, 1:g%ntab)
+        call move_alloc(t, g%tab)
+      end if
+      g%ntab = g%ntab + 1
+      g%tab(:, g%ntab) = [v(1), v(2), 0.0_real64]
+      if (nv >= 4) call add_it(g, v(1), v(3), v(4))
+    end do
+    if (g%ntab == 0) return
+    call natural_spline(g%tab(1, 1:g%ntab), g%tab(2, 1:g%ntab), g%tab(3, 1:g%ntab))
+    g%lmin = g%tab(1, 1)
+    g%lmax = g%tab(1, g%ntab)
+    ! nd, vd (and so the glass code) when the table covers the d, F, C lines
+    g%nd = 0.0_real64
+    g%vd = 0.0_real64
+    if (g%lmin <= 0.5875618_real64 .and. g%lmax >= 0.5875618_real64) &
+      g%nd = table_index(g, 0.5875618_real64)
+    if (g%lmin <= 0.4861327_real64 .and. g%lmax >= 0.6562725_real64) &
+      g%vd = (g%nd - 1.0_real64)/(table_index(g, 0.4861327_real64) - &
+                                  table_index(g, 0.6562725_real64))
+    call derive_code(g)
+  end subroutine
+
+  ! Second derivatives of the natural cubic spline through (x, y) (the
+  ! Numerical Recipes SPLINE of splines.f90 with zero end curvature, same
+  ! arithmetic).
+  subroutine natural_spline(x, y, y2)
+    real(real64), intent(in) :: x(:), y(:)
+    real(real64), intent(out) :: y2(:)
+    real(real64) :: u(size(x)), sig, p
+    integer :: i, n
+    n = size(x)
+    y2 = 0.0_real64
+    if (n < 3) return
+    u(1) = 0.0_real64
+    do i = 2, n - 1
+      sig = (x(i) - x(i-1))/(x(i+1) - x(i-1))
+      p = sig*y2(i-1) + 2.0_real64
+      y2(i) = (sig - 1.0_real64)/p
+      u(i) = (6.0_real64*((y(i+1) - y(i))/(x(i+1) - x(i)) - (y(i) - y(i-1))/(x(i) - x(i-1)))/ &
+              (x(i+1) - x(i-1)) - sig*u(i-1))/p
+    end do
+    y2(n) = 0.0_real64
+    do i = n - 1, 1, -1
+      y2(i) = y2(i)*y2(i+1) + u(i)
+    end do
+  end subroutine
+
+  ! Index of a table glass at lambda (the end point's outside the table).
+  real(real64) function table_index(g, lambda) result(n)
+    type(glass_record), intent(in) :: g
+    real(real64), intent(in) :: lambda
+    integer :: lo, hi, k
+    real(real64) :: h, a, b
+    n = 1.0_real64
+    if (g%ntab < 1) return
+    if (lambda <= g%tab(1, 1)) then
+      n = g%tab(2, 1); return
+    end if
+    if (lambda >= g%tab(1, g%ntab)) then
+      n = g%tab(2, g%ntab); return
+    end if
+    lo = 1; hi = g%ntab
+    do while (hi - lo > 1)
+      k = (hi + lo)/2
+      if (g%tab(1, k) > lambda) then
+        hi = k
+      else
+        lo = k
+      end if
+    end do
+    h = g%tab(1, hi) - g%tab(1, lo)
+    a = (g%tab(1, hi) - lambda)/h
+    b = (lambda - g%tab(1, lo))/h
+    n = a*g%tab(2, lo) + b*g%tab(2, hi) + &
+        ((a**3 - a)*g%tab(3, lo) + (b**3 - b)*g%tab(3, hi))*(h**2)/6.0_real64
+  end function
 
   ! The part of a glass code before any decimal point (520636.252 -> 520636).
   function code_digits(code) result(s)
@@ -577,6 +752,11 @@ contains
   real(real64) function gc_index(ic, ig, lambda) result(n)
     integer, intent(in) :: ic, ig
     real(real64), intent(in) :: lambda
+    if (cats(ic)%g(ig)%formula == FORMULA_TABLE) then
+      n = 1.0_real64
+      if (lambda /= 0.0_real64) n = table_index(cats(ic)%g(ig), lambda)
+      return
+    end if
     n = agf_index(cats(ic)%g(ig)%formula, cats(ic)%g(ig)%cd, lambda)
   end function
 
@@ -657,6 +837,7 @@ contains
     case (11); s = 'Sellmeier 5'
     case (12); s = 'Extended 2'
     case (13); s = 'Extended 3'
+    case (FORMULA_TABLE); s = 'Table'
     case default; s = 'unknown'
     end select
   end function
@@ -672,6 +853,7 @@ contains
     case (7, 8);    n = 4
     case (11);      n = 10
     case (13);      n = 9
+    case (FORMULA_TABLE); n = 0
     case default;   n = MAXCD
     end select
   end function

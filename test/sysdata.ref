@@ -76,8 +76,8 @@ System Aperture           : Object Space NA (NAO) = 0.1000000
 Ray Aiming                : Off
 Telecentric Object Space  : Off
 Afocal Image Space        : Off
-Effective Focal Length    : 660.0448
-Back Focal Length         : -165.0114
+Effective Focal Length    : 660.0450
+Back Focal Length         : -165.0115
 Front Focal Length        : 2599.751
 Total Track               : 768.0862
 Image Space F/#           : 1.243516
@@ -87,15 +87,15 @@ Object Space NA           : 0.09950372
 Stop Radius               : 40.06046
 Paraxial Image Height     : -9.769519
 Paraxial Magnification    : -0.2500003
-Entrance Pupil Diameter   : 530.7894
-Entrance Pupil Position   : 2613.521
-Exit Pupil Diameter       : 25441.66
-Exit Pupil Position       : -31802.11
+Entrance Pupil Diameter   : 530.7895
+Entrance Pupil Position   : 2613.522
+Exit Pupil Diameter       : 25441.74
+Exit Pupil Position       : -31802.21
 Field Type                : Object Height
 Maximum Radial Field      : 39.07803
 Primary Wavelength [um]   : 0.2482870
 Lens Units                : Millimeters
-Angular Magnification     : 0.02086300
+Angular Magnification     : 0.02086294
 Petzval Sum               : 5.342109E-007
 Petzval Radius            : -1871920.
 

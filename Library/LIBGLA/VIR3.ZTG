@@ -1,0 +1,20 @@
+! Corning VIR 3 infrared glass
+! Zoa SPECIAL material, from the KDP-2 built-in data; the legacy table repeated 1 um (n 1.831 and 1.818); the second point is dropped
+! wavelength (um)  index
+0.4047       1.92568
+0.5461       1.87002
+0.7065       1.84694
+1.0          1.831
+2.0          1.812
+2.5          1.806
+3.0          1.799
+3.25         1.795
+3.5          1.791
+3.75         1.786
+4.0          1.781
+4.25         1.775
+4.5          1.769
+4.75         1.762
+5.0          1.756
+5.5          1.741
+6.0          1.725

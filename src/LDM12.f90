@@ -1690,7 +1690,7 @@ SUBROUTINE GLSRIN
    END IF
 !
 !       IS THE SURFACE MATERIAL A CATALOG MATERIAL?
-   IF(gdb%isNameInCatalog(trim(WC)).OR.WC.EQ.'USER'.OR.WC.EQ.'GLAK'.OR.WC.EQ.'GLCAT'.OR.WC.EQ.'MATL') THEN
+   IF(gdb%isNameInCatalog(trim(WC)).OR.WC.EQ.'USER'.OR.WC.EQ.'GLAK'.OR.WC.EQ.'GLCAT') THEN
 
       CALL CHECKGLASSCATWAVELENGTHBOUNDS(boolResult, FLNAME)
       IF (.NOT.boolResult) THEN
@@ -1721,7 +1721,6 @@ SUBROUTINE GLSRIN
       IF(WC.EQ.'USER')     FLNAME='USER.DAT  '
       IF(WC.EQ.'GLCAT')    FLTP='MULTI       '
       IF(WC.EQ.'GLAK')      FLTP='MULTI       '
-      IF(WC.EQ.'MATL  ')   FLTP='MATL        '
       IF(WC.EQ.'RUSSIAN')  FLTP='RUSSIAN     '
 
 !
@@ -2207,265 +2206,6 @@ SUBROUTINE GLSRIN
       END IF
 !     HERE IS WHERE OTHER CATALOG CALLS GO
 !
-!     DO MATL
-      IF(FLTP.EQ.'MATL        ') THEN
-!     SECOND ENTRY IDENTIFIES THE MATERIAL TO SPCGLS
-!
-         IF(WS.EQ.'GERMSC')  THEN
-            CALL SPCGL(I,1)
-            RETURN
-         END IF
-         IF(WS.EQ.'GERMPC')  THEN
-            CALL SPCGL(I,2)
-            RETURN
-         END IF
-         IF(WS.EQ.'SILICON') THEN
-            CALL SPCGL(I,3)
-            RETURN
-         END IF
-         IF(WS.EQ.'IRG100')  THEN
-            CALL SPCGL(I,4)
-            RETURN
-         END IF
-         IF(WS.EQ.'ZNSE')    THEN
-            CALL SPCGL(I,5)
-            RETURN
-         END IF
-         IF(WS.EQ.'IRTRAN4')    THEN
-            CALL SPCGL(I,5)
-            RETURN
-         END IF
-         IF(WS.EQ.'ZNS')     THEN
-            CALL SPCGL(I,6)
-            RETURN
-         END IF
-         IF(WS.EQ.'IRTRAN2')     THEN
-            CALL SPCGL(I,6)
-            RETURN
-         END IF
-         IF(WS.EQ.'CLRTRAN') THEN
-            CALL SPCGL(I,7)
-            RETURN
-         END IF
-         IF(WS.EQ.'SILICA')  THEN
-            CALL SPCGL(I,8)
-            RETURN
-         END IF
-         IF(WS.EQ.'SIO2  ')  THEN
-            CALL SPCGL(I,8)
-            RETURN
-         END IF
-         IF(WS.EQ.'SAPPHIRE'.OR.WS.EQ.'SAPHIR') THEN
-            CALL SPCGL(I,9)
-            RETURN
-         END IF
-         IF(WS.EQ.'DYNASIL') THEN
-            CALL SPCGL(I,10)
-            RETURN
-         END IF
-         IF(WS.EQ.'AMTIR1')  THEN
-            CALL SPCGL(I,11)
-            RETURN
-         END IF
-         IF(WS.EQ.'AMTIR3')  THEN
-            CALL SPCGL(I,12)
-            RETURN
-         END IF
-         IF(WS.EQ.'AS2S3')   THEN
-            CALL SPCGL(I,13)
-            RETURN
-         END IF
-         IF(WS.EQ.'GAAS')    THEN
-            CALL SPCGL(I,14)
-            RETURN
-         END IF
-         IF(WS.EQ.'CDTE')    THEN
-            CALL SPCGL(I,15)
-            RETURN
-         END IF
-         IF(WS.EQ.'IRTRAN6')    THEN
-            CALL SPCGL(I,15)
-            RETURN
-         END IF
-         IF(WS.EQ.'MGF2(O)'.OR.WS.EQ.'MGF2')   THEN
-            CALL SPCGL(I,16)
-            RETURN
-         END IF
-         IF(WS.EQ.'IRTRAN1')   THEN
-            CALL SPCGL(I,16)
-            RETURN
-         END IF
-         IF(WS.EQ.'MGF2(E)')   THEN
-            CALL SPCGL(I,17)
-            RETURN
-         END IF
-         IF(WS.EQ.'CAF2')    THEN
-            CALL SPCGL(I,18)
-            RETURN
-         END IF
-         IF(WS.EQ.'IRTRAN3')    THEN
-            CALL SPCGL(I,18)
-            RETURN
-         END IF
-         IF(WS.EQ.'MGO')     THEN
-            CALL SPCGL(I,19)
-            RETURN
-         END IF
-         IF(WS.EQ.'IRTRAN5')     THEN
-            CALL SPCGL(I,19)
-            RETURN
-         END IF
-         IF(WS.EQ.'BAF2')    THEN
-            CALL SPCGL(I,20)
-            RETURN
-         END IF
-         IF(WS.EQ.'KBR')     THEN
-            CALL SPCGL(I,21)
-            RETURN
-         END IF
-         IF(WS.EQ.'CSI')     THEN
-            CALL SPCGL(I,22)
-            RETURN
-         END IF
-         IF(WS.EQ.'CSBR')    THEN
-            CALL SPCGL(I,23)
-            RETURN
-         END IF
-         IF(WS.EQ.'KRS5')    THEN
-            CALL SPCGL(I,24)
-            RETURN
-         END IF
-         IF(WS.EQ.'LIF')     THEN
-            CALL SPCGL(I,25)
-            RETURN
-         END IF
-         IF(WS.EQ.'NACL')    THEN
-            CALL SPCGL(I,26)
-            RETURN
-         END IF
-         IF(WS.EQ.'SIO2O')   THEN
-            CALL SPCGL(I,27)
-            RETURN
-         END IF
-         IF(WS.EQ.'SIO2E')   THEN
-            CALL SPCGL(I,28)
-            RETURN
-         END IF
-         IF(WS.EQ.'VIR3')    THEN
-            CALL SPCGL(I,29)
-            RETURN
-         END IF
-         IF(WS.EQ.'9754')    THEN
-            CALL SPCGL(I,30)
-            RETURN
-         END IF
-         IF(WS.EQ.'ALON')    THEN
-            CALL SPCGL(I,31)
-            RETURN
-         END IF
-         IF(WS.EQ.'SPINEL')  THEN
-            CALL SPCGL(I,32)
-            RETURN
-         END IF
-         IF(WS.EQ.'CALAL')   THEN
-            CALL SPCGL(I,33)
-            RETURN
-         END IF
-         IF(WS.EQ.'B270')    THEN
-            CALL SPCGL(I,34)
-            RETURN
-         END IF
-         IF(WS.EQ.'IRG2')    THEN
-            CALL SPCGL(I,35)
-            RETURN
-         END IF
-         IF(WS.EQ.'IRG3')    THEN
-            CALL SPCGL(I,36)
-            RETURN
-         END IF
-         IF(WS.EQ.'IRGN6')   THEN
-            CALL SPCGL(I,37)
-            RETURN
-         END IF
-         IF(WS.EQ.'IRG7')    THEN
-            CALL SPCGL(I,38)
-            RETURN
-         END IF
-         IF(WS.EQ.'IRG9')    THEN
-            CALL SPCGL(I,39)
-            RETURN
-         END IF
-         IF(WS.EQ.'IRG11')   THEN
-            CALL SPCGL(I,40)
-            RETURN
-         END IF
-         IF(WS.EQ.'IRG15')   THEN
-            CALL SPCGL(I,41)
-            RETURN
-         END IF
-         IF(WS.EQ.'VAC')     THEN
-            CALL SPCGL(I,42)
-            RETURN
-         END IF
-         IF(WS.EQ.'WATER')     THEN
-            CALL SPCGL(I,43)
-            RETURN
-         END IF
-         IF(WS.EQ.'SUPRASIL')  THEN
-            CALL SPCGL(I,44)
-            RETURN
-         END IF
-         IF(WS.EQ.'HOMOSIL')  THEN
-            CALL SPCGL(I,45)
-            RETURN
-         END IF
-         IF(WS.EQ.'ZNS-MS')  THEN
-            CALL SPCGL(I,46)
-            RETURN
-         END IF
-         IF(WS.EQ.'CEF3')  THEN
-            CALL SPCGL(I,47)
-            RETURN
-         END IF
-         IF(WS.EQ.'LA2O3')  THEN
-            CALL SPCGL(I,48)
-            RETURN
-         END IF
-         IF(WS.EQ.'THF4')  THEN
-            CALL SPCGL(I,49)
-            RETURN
-         END IF
-         IF(WS.EQ.'ZRO2')  THEN
-            CALL SPCGL(I,50)
-            RETURN
-         END IF
-         IF(WS.EQ.'DIAMOND')  THEN
-            CALL SPCGL(I,51)
-            RETURN
-         END IF
-         IF(WS.EQ.'YAG')  THEN
-            CALL SPCGL(I,52)
-            RETURN
-         END IF
-         IF(WS.EQ.'ACRYLIC')  THEN
-            CALL SPCGL(I,101)
-            RETURN
-         END IF
-         IF(WS.EQ.'PLYSTY')   THEN
-            CALL SPCGL(I,102)
-            RETURN
-         END IF
-         IF(WS.EQ.'POLYCARB') THEN
-            CALL SPCGL(I,103)
-            RETURN
-         END IF
-         IF(WS.EQ.'SAN')      THEN
-            CALL SPCGL(I,104)
-            RETURN
-         END IF
-         CALL REPORT_ERROR_AND_FAIL('GLASS NOT FOUND IN THE '//GLANAM(I,1)//' CATALOG', 1)
-         RETURN
-      END IF
    END IF
 
 !
@@ -2591,7 +2331,7 @@ SUBROUTINE GLSRES
                      ALENS(45+J,I) = gdb%calcIndexForCurrentGlass (sysConfig%wavelengths(J))
                      !call LogTermFOR("ALENS is "//real2str(ALENS(45+J,I)))
                   END DO
-                  DO J=1,4
+                  DO J=1,5
                      ALENS(70+J,I) = gdb%calcIndexForCurrentGlass (sysConfig%wavelengths(J+5))
                      !call LogTermFOR("ALENS is "//real2str(ALENS(70+J,I)))
 
@@ -2653,7 +2393,7 @@ SUBROUTINE GLSRES
                ! serves this purpose IMO,
                ! JRN
 
-!     MATL LIMITS
+!     WAVELENGTH RANGE
                CALL CHECKGLSRESWAVELENGTHBOUNDS(boolResult,GLANAM(I,1),GLANAM(I,2),' ', LMIN, LMAX, I)
 
                if(.not.boolResult) then
@@ -3263,23 +3003,21 @@ SUBROUTINE CHECKGLSRESWAVELENGTHBOUNDS(boolResult,NAME1, NAME2, FLNAME, LMIN, LM
 
 END SUBROUTINE
 
-! Wavelength range (um) of glass NAME2 in catalog NAME1: the LD line of an
-! AGF catalog glass, else (SPECIAL materials, MODEL, a catalog word such as
-! GLAK) the legacy LAMHILO table.
+! Wavelength range (um) of glass NAME2 in catalog NAME1: the LD line (or
+! table) of a catalog glass; a MODEL glass is the visible-to-near-IR range
+! its formula is fitted over; anything else (a catalog word such as GLAK)
+! is unlimited.
 SUBROUTINE GLASSWAVERANGE(NAME1,NAME2,FLNAME,LAMUPP,LAMLOW)
-   use glass_manager, only: gdb, specCat
+   use glass_manager, only: gdb
    use iso_fortran_env, only: real64
    IMPLICIT NONE
    CHARACTER(len=*) :: NAME1, NAME2, FLNAME
    real(real64) :: LAMUPP, LAMLOW
    integer :: loc, savedType, savedCat, savedGlass
-   CHARACTER*13 N1,N2
-   CHARACTER(len=40) :: savedSpecial
    logical :: found
 
    ! (the lookup must not change the caller's current glass)
    savedType = gdb%dataType; savedCat = gdb%curCat; savedGlass = gdb%curGlass
-   savedSpecial = specCat%currName
    found = .false.
    loc = 0
    IF(gdb%isNameInCatalog(trim(NAME1), loc)) THEN
@@ -3288,11 +3026,13 @@ SUBROUTINE GLASSWAVERANGE(NAME1,NAME2,FLNAME,LAMUPP,LAMLOW)
       END IF
    END IF
    gdb%dataType = savedType; gdb%curCat = savedCat; gdb%curGlass = savedGlass
-   specCat%currName = savedSpecial
    IF(found) RETURN
-   N1=NAME1
-   N2=NAME2
-   CALL LAMHILO(N1,N2,FLNAME,LAMUPP,LAMLOW)
+   LAMLOW=0.0D0
+   LAMUPP=1.0D10
+   IF(NAME1.EQ.'MODEL') THEN
+      LAMLOW=0.3341D0
+      LAMUPP=2.3254D0
+   END IF
 END SUBROUTINE
 
 SUBROUTINE CHECKGLASSCATWAVELENGTHBOUNDS(boolResult, FLNAME)

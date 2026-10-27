@@ -28,7 +28,7 @@ RTG ALL
 ! out of the glass's wavelength range -> warning, indices 1.0
 GLA S3 ZNARROW_TESTCAT
 RTG ALL
-! Herzberger formula against the built-in SPECIAL formulas, in the IR
+! Herzberger formula: user catalog against SPECIAL.AGF, in the IR
 WL 2000 3000 4000
 GLA S1 SILICON
 GLA S3 ZSILICON_TESTCAT
@@ -42,3 +42,23 @@ GLA S3 1.5168:64.17
 FINDGLAS SCH2000 3 4
 FINDGLAS 3 3
 FINDGLAS NOCAT 3 3
+! special materials: SPECIAL.AGF formulas and *.ZTG table glasses, the old
+! MATL catalog and material names as aliases (glass-aliases.txt), and a
+! glass code written without its dot (a model glass)
+RES osdtriplet
+GLASSP SPECIAL ACRYLIC
+GLASSP MATL CAF2
+GLA S1 ACRYLIC
+GLA S3 517642
+GLA S5 POLYCARB
+RTG ALL
+WL 3000 4000 5000
+GLA S1 IRTRAN4
+GLA S3 GERMSC_MATL
+GLA S5 KBR
+RTG ALL
+! ten wavelengths: a catalog glass gets its index at wavelength 10 too
+WL 450 480 500 520 550 580 600 620 650 680
+GLA S1 SILICA
+GLA S3 N-BK7
+NDEX2 ALL

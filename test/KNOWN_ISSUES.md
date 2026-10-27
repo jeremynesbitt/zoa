@@ -848,30 +848,49 @@ deliberately not exposed.
 
 ---
 
-## Glass catalog overhaul: open items after phase 2 (2026-10-27)
+## Glass catalog overhaul: open items after phase 3 (2026-10-27)
 
-Phase 1 (AGF catalogs, module glass_catalog) and phase 2 (vendor SCHOTT,
-OHARA and Nikon HIKARI files; SCH2000/SCH2023 as aliases of SCHOTT and the
-SK16 -> N-SK16 rule in Library/LIBGLA/glass-aliases.txt; CHANCE, CORNIN and
-RADHARD dropped) are in.  Still to do:
+Phase 1 (AGF catalogs, module glass_catalog), phase 2 (vendor SCHOTT,
+OHARA, HOYA and Nikon HIKARI files; SCH2000/SCH2023 as aliases of SCHOTT
+and the SK16 -> N-SK16 rule in Library/LIBGLA/glass-aliases.txt; CHANCE,
+CORNIN and RADHARD dropped) and phase 3 (the built-in materials as
+Library/LIBGLA/SPECIAL.AGF plus OpticStudio *.ZTG table glasses; MATL an
+alias of SPECIAL; LAMHILO, SPCGL/SPCGLS and the Russian RGLASS tables
+removed; wavelength 10 set for catalog glasses; a 6-digit glass code such
+as 517642 is a model glass) are in.  Still to do:
 - Discontinued glasses were dropped with the old tables (user decision): 415
   Ohara glasses (old non-S names, S-FPL52, S-LAH55, the i-line glasses), 191
-  Hoya glasses (old ADF/BAC/... names), 10 RADHARD glasses, Schott N-SF6Q2.
-  Library/CodeV/LithoBraat.seq names F8_HOYA, which now falls back to
-  Schott F8 (same 596392 glass).
+  Hoya glasses (old ADF/BAC/... names), 10 RADHARD glasses, Schott N-SF6Q2,
+  the Russian catalog.  Library/CodeV/LithoBraat.seq names F8_HOYA, which
+  now falls back to Schott F8 (same 596392 glass).
+- SPECIAL conversion notes: SILICA (and DYNASIL) now use the published
+  coefficients at full precision -- the old built-in SILICA rounded them to
+  single precision (index change ~1e-8; the litho refs were regenerated).
+  KBR, CSBR, MGO and VAC had formulas no AGF formula expresses: they are
+  ZTG tables sampled from the formula (spline within 1e-6).  VIR3's table
+  listed 1.0 um twice (the second point dropped); the ZRO2 line had a slope
+  typo (now 2.10 at 0.55 um to 2.00 at 0.75 um); CEF3/LA2O3/THF4/ZRO2 are
+  now limited to their two data points' range (they were clamped).  B270
+  and the H2O table were dropped (Schott's own B270; WATER keeps its
+  Sellmeier formula).
+- Table glasses outside their table: the end point's index (OpticStudio's
+  rule), but GLA's range check rejects them first, as for AGF LD ranges.
 - Ohara's AGF is UTF-16 and kept byte-for-byte as published, so git shows it
   as binary.
 - `GLA` runs silently, so a glass used outside its wavelength range (AGF
   LD line) gets index 1.0 with no message in the terminal.
-- Hard-coded catalog-name chains remain in CONFIG3/CONFIG4, LDM14, LDM17
-  (lens export `_SCHOTT`-style names), PLOTCAD6 (part drawing), UTILITY2/5
-  and NAMES; a user catalog works for GLA/GLASSP/FINDGLAS/index resolution
-  but not on those paths yet (phase 4).
+- Hard-coded catalog-name chains remain in CONFIG3/CONFIG4, LDM1, LDM14
+  (surface-material queries), LDM16, LDM17 (lens export `_SCHOTT`-style
+  names), LDM18, PLOTCAD6 (part drawing), UTILITY2/5, CV2PRG (`MATL`) and
+  NAMES; a user catalog works for GLA/GLASSP/FINDGLAS/index resolution but
+  not on those paths yet (phase 4).
 - GLSCAT stores the catalog word as `WC(1:8)`: catalog names longer than 8
   characters are cut in GLANAM (the legacy WC word is 8 characters, which
   is why the Nikon file ships as HIKARI.AGF, not NIKON-HIKARI.AGF).
-- Formulas 4, 5 and 7-11 are coded from their standard definitions but no
-  shipped file uses them; 1-3, 6, 12 and 13 are checked (every vendor
-  glass's nd/vd within the file's rounding; SPECIAL SILICON/DIAMOND).
-- LAMHILO still supplies the ranges of SPECIAL/MODEL materials.
-
+- Model glass codes (nnn.vvv) are still converted in single precision
+  (parseModelGlassEntry), so 517.642 gives nd 1.5169999...; changing it
+  moves the model-glass refs.
+- Formulas 4, 5 and 7-10 are coded from their standard definitions but no
+  shipped file uses them; 1-3, 6 and 11-13 are checked (every vendor
+  glass's nd/vd within the file's rounding; SPECIAL against the old
+  built-in formulas).

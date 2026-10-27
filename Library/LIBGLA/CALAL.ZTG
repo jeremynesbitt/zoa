@@ -1,0 +1,15 @@
+! Calcium aluminate glass
+! Zoa SPECIAL material, from the KDP-2 built-in data
+! wavelength (um)  index
+0.4861       1.6794
+0.5893       1.669
+0.6563       1.6647
+0.8          1.6588
+1.0          1.6538
+1.5          1.6463
+2.0          1.6403
+2.5          1.6341
+3.0          1.6266
+3.5          1.618
+4.0          1.6074
+4.5          1.5952

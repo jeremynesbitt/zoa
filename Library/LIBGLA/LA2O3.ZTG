@@ -1,0 +1,9 @@
+! Lanthanum oxide, for coatings
+! Zoa SPECIAL material, from the KDP-2 built-in data; linear from 1.95 at 0.55 um to 1.86 at 2 um
+! wavelength (um)  index
+0.55         1.95
+0.84         1.932
+1.13         1.914
+1.42         1.896
+1.71         1.878
+2            1.86

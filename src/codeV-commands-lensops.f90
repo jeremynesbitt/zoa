@@ -996,6 +996,11 @@ contains
         else if (isInputNumber(strInput)) then
             call LogTermFOR("Model Glass Entered! "//strInput)
             call parseModelGlassEntry(strInput, nd, vd)
+            if (nd == 0.0_real64) then
+                call zoa_emit(trim(strInput)//' is not a glass code (nnn.vvv or nnnvvv)', 'red')
+                strOut = 'GLAK '//trim(strInput)
+                return
+            end if
             strOut = 'MODEL D'//strInput//','//real2str(nd)//','//real2str(vd)
             call LogTermFOR("STROUT is "//trim(strOut))
         else if (underscoreLoc > 1) then

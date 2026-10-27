@@ -1,7 +1,9 @@
 ! Zoa glass catalog search order: a glass given without a catalog is looked
-! up in these catalogs first, in this order; other catalogs follow
-! alphabetically.  One catalog name per line.
+! up in these catalogs, in this order.  One catalog name per line; the
+! catalogs not named here (your own) go alphabetically at the * line.
 SCHOTT
 OHARA
 HOYA
 HIKARI
+*
+SPECIAL

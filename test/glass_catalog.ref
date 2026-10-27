@@ -11,12 +11,11 @@ OHARA         OHARA glass catalog
 HOYA          20210421 HOYA Optical Glass Catalog
 HIKARI        Updated 11/2019
 TESTCAT       Zoa test catalog (user catalog found through the search path)
-SPECIAL       Special Material Catalog
+SPECIAL       Special materials (KDP-2 built-ins): IR/UV crystals, IR glasses, plastics, water
           "GLCAT     (Searches all catalogs)
           "GLASS     (Searches all catalogs)
                       [specified without giving catalog name]
                         [but just by glass name or number]
-          "MATL"     (Special IR, UV, Visual Materials and Plastics)
 TESTCAT       ZBK7          517642
 TESTCAT       ZSILICON      0
 TESTCAT       ZDIAMOND      0
@@ -162,3 +161,77 @@ FOR SURFACE #  3 ARE:
    3 HIKARI        J-BK7A          0.132299444726943E-03
 INVALID CATALOG NAME ISSUED WITH "FINDGLAS"
 RE-ENTER COMMAND
+All constraints removed
+
+
+
+
+
+
+WAVELENGTH RANGE:
+LOWER WAVELENGTH =  0.36501000     MICRONS
+UPPER WAVELENGTH =   1.0139800     MICRONS
+GLASS NAME   = ACRYLIC
+GLASS NUMBER = 492575
+TABLE GLASS (ZTG),   13 POINTS:  WAVELENGTH (MICRONS)  INDEX
+                     0.36501000          1.5136130
+                     0.40466000          1.5066070
+                     0.43484000          1.5025570
+                     0.47999000          1.4982580
+                     0.48613000          1.4977600
+                     0.54607000          1.4937950
+                     0.58756000          1.4917570
+                     0.58929000          1.4916810
+                     0.64385000          1.4896030
+                     0.65627000          1.4892010
+                     0.70652000          1.4875520
+                     0.85211000          1.4849650
+                      1.0139800          1.4831150
+WAVELENGTH RANGE:
+LOWER WAVELENGTH =  0.22880000     MICRONS
+UPPER WAVELENGTH =   9.7240000     MICRONS
+GLASS NAME   = CAF2
+GLASS NUMBER = 434950
+Sellmeier 1 DISPERSION FORMULA (AGF FORMULA 02)
+          B1 =   0.567588800000000
+          C1 =   0.252642998759603E-02
+          B2 =   0.471091400000000
+          C2 =   0.100783328028100E-01
+          B3 =    3.84847230000000
+          C3 =    1200.55597292160
+BASIC LENS DATA (RADIUS MODE)
+
+SURF  RADIUS        THICKNESS          MATERIAL          INDEX        V-NUM
+  0    0.00000      0.100000E+14         AIR
+  1    15.0000       3.50000     SPECIAL ACRYLIC         1.49176       57.5
+  2    0.00000       3.10000             AIR
+  3*  -37.5300       1.50000     MODEL   D517642         1.51700       64.2
+(MODEL DATA: Nd=  1.51700     Vd=  64.2000     DPART=  0.00000    )
+  3*REFS,STOP
+  4    14.0800       5.00000             AIR
+  5    50.2600       3.50000     SPECIAL POLYCARBONATE   1.58547       29.9
+  6*  -31.3800       47.8657             AIR
+  6*Solve
+  7    0.00000       0.00000             LAST SURFACE
+BASIC LENS DATA (RADIUS MODE)
+
+SURF  RADIUS        THICKNESS          MATERIAL          INDEX        V-NUM
+  0    0.00000      0.100000E+14         AIR
+  1    15.0000       3.50000     SPECIAL ZNSE            2.43760       395.
+  2    0.00000       3.10000             AIR
+  3*  -37.5300       1.50000     SPECIAL GERMSC          4.04514       406.
+  3*REFS,STOP
+  4    14.0800       5.00000             AIR
+  5    50.2600       3.50000     SPECIAL KBR             1.53659       492.
+  6*  -31.3800      -24.7370             AIR
+  6*Solve
+  7    0.00000       0.00000             LAST SURFACE
+REFRACTIVE INDEX DATA (WAVELENGTHS #6 TO #10)
+
+SURF    N6             N7             N8             N9             N10
+  1 SPECIAL       SILICA
+  1    1.45873        1.45804        1.45740        1.45653        1.45576
+  3 SCHOTT        N-BK7
+  3    1.51712        1.51629        1.51554        1.51452        1.51361
+  5 SPECIAL       KBR
+  5    1.56062        1.55895        1.55745        1.55547        1.55377

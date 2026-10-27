@@ -14,6 +14,21 @@
 CAT SCH2000 SCHOTT
 CAT SCH2023 SCHOTT
 !
+! The KDP-2 MATL catalog of special materials is now SPECIAL, and its
+! other material names mean these SPECIAL materials.
+CAT MATL    SPECIAL
+GLA SIO2     SPECIAL SILICA
+GLA SAPHIR   SPECIAL SAPPHIRE
+GLA MGF2     SPECIAL MGF2(O)
+GLA IRTRAN1  SPECIAL MGF2(O)
+GLA IRTRAN2  SPECIAL ZNS
+GLA IRTRAN3  SPECIAL CAF2
+GLA IRTRAN4  SPECIAL ZNSE
+GLA IRTRAN5  SPECIAL MGO
+GLA IRTRAN6  SPECIAL CDTE
+GLA PLYSTY   SPECIAL POLYSTYRENE
+GLA POLYCARB SPECIAL POLYCARBONATE
+!
 ! An old Schott name given without a catalog means its modern lead- and
 ! arsenic-free N- glass (SK16 -> N-SK16), as Zoa has always done.  To get
 ! the old glass itself, name the catalog: SK16_SCHOTT.

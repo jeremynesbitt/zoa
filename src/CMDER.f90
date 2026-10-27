@@ -3009,8 +3009,8 @@ SUBROUTINE CMDER
          CALL APOVERT
          RETURN
       END IF
-      IF(gdb%isNameInCatalog(trim(WC)).OR.WC.EQ.'GLCAT'.OR.WC.EQ.&
-      &'MATL'.OR.WC.EQ.'USER'.OR.WC.EQ.'GLAK'.OR.WC.EQ.'AIR') THEN
+      IF(gdb%isNameInCatalog(trim(WC)).OR.WC.EQ.'GLCAT'.OR.&
+      &WC.EQ.'USER'.OR.WC.EQ.'GLAK'.OR.WC.EQ.'AIR') THEN
 
          !   IF(WC.EQ.'SCHOTT'.OR.WC.EQ.'OHARA'.OR.WC.EQ.'HOYA'.OR.
          !    1WC.EQ.'CORNIN'.OR.WC.EQ.'CHANCE'.OR.WC.EQ.'GLCAT'.OR.WC.EQ.

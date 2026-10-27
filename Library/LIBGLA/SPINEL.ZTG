@@ -1,0 +1,14 @@
+! Magnesium aluminate spinel (MgAl2O4)
+! Zoa SPECIAL material, from the KDP-2 built-in data
+! wavelength (um)  index
+0.4047       1.73574
+0.4358       1.73054
+0.5461       1.71896
+0.8521       1.70728
+1.014        1.703
+1.53         1.69468
+1.97         1.68763
+3.0          1.6647
+4.0          1.6414
+5.0          1.5978
+5.5          1.5719

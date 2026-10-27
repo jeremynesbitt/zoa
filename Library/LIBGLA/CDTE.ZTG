@@ -1,0 +1,13 @@
+! Cadmium telluride (IRTRAN6)
+! Zoa SPECIAL material, from the KDP-2 built-in data
+! wavelength (um)  index
+3.0          2.7026
+4.0          2.6971
+5.0          2.6922
+6.0          2.6886
+7.0          2.6865
+8.0          2.6846
+9.0          2.6825
+10.0         2.6797
+11.0         2.6766
+12.0         2.6749

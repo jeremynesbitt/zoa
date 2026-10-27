@@ -1,0 +1,9 @@
+! Cerium fluoride, for coatings
+! Zoa SPECIAL material, from the KDP-2 built-in data; linear from 1.63 at 0.55 um to 1.59 at 2 um
+! wavelength (um)  index
+0.55         1.63
+0.84         1.622
+1.13         1.614
+1.42         1.606
+1.71         1.598
+2            1.59
