@@ -236,3 +236,28 @@ SURF    N6             N7             N8             N9             N10
   3    1.51712        1.51629        1.51554        1.51452        1.51361
   5 SPECIAL       KBR
   5    1.56062        1.55895        1.55745        1.55547        1.55377
+All constraints removed
+
+
+
+
+
+
+Catalog search order: SCHOTT OHARA HOYA HIKARI TESTCAT SPECIAL
+Catalog search order: HIKARI SCHOTT HOYA OHARA SPECIAL TESTCAT
+GLA S3: F8 (HIKARI) is defined only from 0.4000 to 0.7000 um; the system wavelengths span 0.4358 to 0.7065 um; its indices are set to 1.0
+CSO: no glass catalog NOSUCH; search order not changed
+Catalog search order: SCHOTT OHARA HOYA HIKARI TESTCAT SPECIAL
+BASIC LENS DATA (RADIUS MODE)
+
+SURF  RADIUS        THICKNESS          MATERIAL          INDEX        V-NUM
+  0    0.00000      0.100000E+14         AIR
+  1    15.0000       3.50000     SCHOTT  N-SK16          1.62041       60.3
+  2    0.00000       3.10000             AIR
+  3*  -37.5300       1.50000     HIKARI  F8              1.00000       0.00
+  3*REFS,STOP
+  4    14.0800       5.00000             AIR
+  5    50.2600       3.50000     SCHOTT  F8              1.59551       39.2
+  6*  -31.3800       7.41646             AIR
+  6*Solve
+  7    0.00000       0.00000             LAST SURFACE

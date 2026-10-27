@@ -498,6 +498,9 @@ module codeV_commands
    module subroutine fabSetOption(iptStr)
     character(len=*) :: iptStr
    end subroutine fabSetOption
+   module subroutine execCSO(iptStr)
+    character(len=*) :: iptStr
+   end subroutine execCSO
     end interface
 
 
@@ -825,6 +828,8 @@ module codeV_commands
         zoaCmds(813)%execFunc => execFOO
         zoaCmds(814)%cmd = 'FAB'
         zoaCmds(814)%execFunc => execFAB
+        zoaCmds(815)%cmd = 'CSO'
+        zoaCmds(815)%execFunc => execCSO
         ! Tilt / decenter / pivot control codes (CODE V XDC..CDC, XOC..ZOC).
         block
             use zoa_ui, only: TILT_VAR_NAMES

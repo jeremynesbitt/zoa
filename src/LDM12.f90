@@ -2362,48 +2362,26 @@ SUBROUTINE GLSRES
             END IF
 !
             IF(FLTP.EQ.'MULTI       ') THEN
+!     A GLASS GIVEN WITHOUT ITS CATALOG (GLAK, GLCAT): THE FIRST CATALOG IN
+!     SEARCH ORDER HOLDING IT BECOMES THE SURFACE'S CATALOG
                IF (gdb%isGlassInAnyCatalog(GLANAM(I,2), COUNT)) THEN
-                  ! Update Glass Name
                   GLANAM(I,1) = gdb%catalogs(COUNT)
-                  !call LogTermFOR("Found glass in catalog "//trim(GLANAM(I,1)))
-
-                  CALL CHECKGLASSCATWAVELENGTHBOUNDS(boolResult, FLNAME)
-                  IF (boolResult) THEN
-
-
-                     DO J=1,5
-                        !call LogTermFOR("Wavelength is "
-                        ! 1    //real2str(sysConfig%wavelengths(J)))
-                        ALENS(45+J,I) = gdb%calcIndexForCurrentGlass (sysConfig%wavelengths(J))
-                        !call LogTermFOR("ALENS is "//real2str(ALENS(45+J,I)))
-                     END DO
-                     DO J=1,5
-                        ALENS(70+J,I) = gdb%calcIndexForCurrentGlass (sysConfig%wavelengths(J+5))
-                        !call LogTermFOR("ALENS is "//real2str(ALENS(70+J,I)))
-
-                     END DO
-                     ! SEE NOTE ABOVE FOR WHY THIS IS TEMPORARILY NECESSARy
-                     !call LogTermFOR("About to go to 10?")
+                  CALL CHECKGLSRESWAVELENGTHBOUNDS(boolResult,GLANAM(I,1),GLANAM(I,2),' ', LMIN, LMAX, I)
+                  IF (.NOT.boolResult) THEN
+                     BADGLS=.TRUE.
+                     call ldm%clearGlassColorData(I)
+                     call ldm%initRefractiveIndices(I)
                      GO TO 10
-
                   END IF
-               END IF
-!     NOTHING FOUND IN THE ABOVE CATALOGS
-               ! Removed support for USER.DAT.  Model glass support
-               ! serves this purpose IMO,
-               ! JRN
-
-!     WAVELENGTH RANGE
-               CALL CHECKGLSRESWAVELENGTHBOUNDS(boolResult,GLANAM(I,1),GLANAM(I,2),' ', LMIN, LMAX, I)
-
-               if(.not.boolResult) then
-
-                  BADGLS=.TRUE.
-                  call ldm%clearGlassColorData(I)
-                  call ldm%initRefractiveIndices(I)
+                  DO J=1,5
+                     ALENS(45+J,I) = gdb%calcIndexForCurrentGlass (sysConfig%wavelengths(J))
+                  END DO
+                  DO J=1,5
+                     ALENS(70+J,I) = gdb%calcIndexForCurrentGlass (sysConfig%wavelengths(J+5))
+                  END DO
                   GO TO 10
-               end if
-
+               END IF
+!     NOTHING FOUND IN ANY CATALOG
                BADGLS=.TRUE.
                WRITE(OUTLYNE, *) "Glass Name is ", GLANAM(I,1)
                call logger%logText(OUTLYNE)

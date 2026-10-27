@@ -10,7 +10,8 @@
 ! The catalog search order (for a glass given without a catalog) is the
 ! first catalog-order.txt found in those folders -- one catalog name per
 ! line, '!' comments; the catalogs it does not name go alphabetically at a
-! '*' line, or at the end without one.
+! '*' line, or at the end without one.  The CSO command sets an order for
+! the session in place of the file's.
 !
 ! glass-aliases.txt in any of those folders (all are read; the first
 ! definition of an alias wins, so a search-path file overrides the shipped
@@ -51,7 +52,7 @@ module glass_catalog
             gc_catalog_name, gc_catalog_comment, gc_catalog_path, gc_catalog_size, &
             gc_find_catalog, gc_find_glass, gc_find_glass_any, gc_glass, gc_index, &
             agf_index, agf_formula_name, agf_formula_ncoef, gc_generation, &
-            gc_glass_alias, FORMULA_TABLE
+            gc_glass_alias, FORMULA_TABLE, gc_set_search_order
 
   integer, parameter :: MAXCD = 10
   integer, parameter :: FORMULA_TABLE = -1     ! a ZTG table glass
@@ -90,6 +91,11 @@ module glass_catalog
   logical, save :: loaded = .false.
   integer, save :: generation = 0          ! bumped on every (re)load
   character(len=:), allocatable, save :: loadedKey
+
+  ! CSO: a search order set for the session (replaces catalog-order.txt;
+  ! the catalogs it does not name follow alphabetically); none if ncso = 0
+  integer, save :: ncso = 0
+  character(len=32), save :: csoList(200)
 
   ! glass-aliases.txt: catalog aliases (from -> to) and glass aliases
   ! (name -> catalog, glass), upper case except the target glass
@@ -159,6 +165,16 @@ contains
     call load_all(key)
   end subroutine
 
+  ! Set the catalog search order (CSO): names are catalog names (not
+  ! aliases); n = 0 restores the default order (catalog-order.txt).
+  subroutine gc_set_search_order(names, n)
+    character(len=*), intent(in) :: names(:)
+    integer, intent(in) :: n
+    ncso = min(n, size(csoList))
+    if (ncso > 0) csoList(1:ncso) = names(1:ncso)
+    call load_all(current_key())
+  end subroutine
+
   ! Force a re-read (catalog files edited while running).
   subroutine gc_reload()
     call load_all(current_key())
@@ -180,7 +196,8 @@ contains
     ncatAlias = 0
     nglaAlias = 0
     do i = 1, nd
-      if (nord == 0) call read_order(trim(dirs(i))//'catalog-order.txt', order, nord)
+      if (nord == 0 .and. ncso == 0) &
+        call read_order(trim(dirs(i))//'catalog-order.txt', order, nord)
       call read_aliases(trim(dirs(i))//'glass-aliases.txt')
       call list_files(trim(dirs(i)), '.AGF', files, nf)
       do j = 1, nf
@@ -201,6 +218,10 @@ contains
         tpaths(ntfound) = files(j)
       end do
     end do
+    if (ncso > 0) then
+      nord = ncso
+      order(1:nord) = csoList(1:ncso)
+    end if
     ! table glasses join the SPECIAL catalog, which they make if need be
     if (ntfound > 0 .and. .not. any(names(1:nfound) == TABLE_CATALOG) .and. &
         nfound < size(names)) then

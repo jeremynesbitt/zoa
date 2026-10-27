@@ -62,3 +62,13 @@ WL 450 480 500 520 550 580 600 620 650 680
 GLA S1 SILICA
 GLA S3 N-BK7
 NDEX2 ALL
+! catalog search order (CSO): F8 is in both SCHOTT and HIKARI (whose F8 data
+! stops at 0.70 um, so GLA warns); CSO alone restores the default
+RES osdtriplet
+CSO ?
+CSO hikari sch2000
+GLA S3 F8
+CSO NOSUCH
+CSO
+GLA S5 F8
+RTG ALL

@@ -125,6 +125,7 @@ srcs += files(
   'codeV-commands.f90',
   'codeV-commands-undoredo.f90',
   'codeV-commands-zoom.f90',
+  'codeV-commands-glass.f90',
   'codeV-sur.f90',
   'codeV-plot.f90',
   'codeV-commands-plots.f90',
