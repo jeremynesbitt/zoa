@@ -224,6 +224,22 @@ contains
             write(line, '(F15.4,F16.4,F15.2)') g%it(1,k), g%it(2,k), g%it(3,k)
             call zoa_emit(trim(line), 'black')
         end do
+        ! the transmittance of 10 mm at the lens wavelengths (absorption
+        ! coefficients interpolated between the points)
+        block
+            use glass_catalog, only: gc_internal_transmittance
+            real(real64) :: wl(10)
+            integer :: n, j
+            character(len=32) :: col
+            call lensWavelengths(wl, n)
+            line = '  10 MM AT THE LENS WAVELENGTHS:'
+            do j = 1, n
+                write(col, '(F9.2,A,F7.4)') wl(j)*1000.0d0, 'nm ', &
+                    gc_internal_transmittance(ic, ig, wl(j), 10.0d0)
+                line = trim(line)//' '//trim(adjustl(col))
+            end do
+            call zoa_emit(trim(line), 'black')
+        end block
     end subroutine transLines
 
     subroutine otherLine(ic, ig, header)

@@ -272,6 +272,7 @@ TESTCAT ZBK7: internal transmittance, 3 points
          0.3500          0.9300          25.00
          0.4000          0.9920          25.00
          0.7000          0.9980          25.00
+  10 MM AT THE LENS WAVELENGTHS: 587.56nm  0.9983 486.13nm  0.9975 656.27nm  0.9988 435.84nm  0.9971 706.52nm  0.9992
 TESTCAT ZSILICON: internal transmittance, 0 points
 TESTCAT ZDIAMOND: internal transmittance, 0 points
 TESTCAT ZNARROW: internal transmittance, 0 points
@@ -309,6 +310,7 @@ SCHOTT N-BK7: internal transmittance, 25 points
          1.9700          0.8400          25.00
          2.3250          0.5600          25.00
          2.5000          0.3600          25.00
+  10 MM AT THE LENS WAVELENGTHS: 587.56nm  0.9979 486.13nm  0.9975 656.27nm  0.9976 435.84nm  0.9968 706.52nm  0.9984
 CATALOG    GLASS                CODE                ND       VD  STATUS       DENSITY  TCE-30/70     DPGF    COST  CR  FR  SR  AR  PR
 SCHOTT     N-BK7                517642.251    1.516800   64.170  preferred      2.510       7.10  -0.0009    1.00   1   0   1   2   2
 CATALOG    GLASS                CODE              587.56nm      486.13nm      656.27nm      435.84nm      706.52nm

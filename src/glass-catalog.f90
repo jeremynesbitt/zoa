@@ -54,7 +54,7 @@ module glass_catalog
             agf_index, agf_formula_name, agf_formula_ncoef, gc_generation, &
             gc_glass_alias, FORMULA_TABLE, gc_set_search_order, PRIVATE_CATALOG, &
             gc_prv_clear, gc_prv_define, gc_prv_delete, gc_prv_count, gc_prv_glass, &
-            gc_prv_write_save
+            gc_prv_write_save, gc_internal_transmittance, glass_internal_transmittance
 
   integer, parameter :: MAXCD = 10
   integer, parameter :: FORMULA_TABLE = -1     ! a ZTG table glass
@@ -790,19 +790,74 @@ contains
     if (p > 0) s = s(1:p-1)
   end function
 
+  ! Add an internal-transmittance point, keeping them in wavelength order.
   subroutine add_it(g, lam, tau, thk)
     type(glass_record), intent(inout) :: g
     real(real64), intent(in) :: lam, tau, thk
     real(real64), allocatable :: t(:,:)
+    integer :: k
     if (.not. allocated(g%it)) allocate(g%it(3, 16))
     if (g%nit >= size(g%it, 2)) then
       allocate(t(3, 2*size(g%it, 2)))
       t(:, 1:g%nit) = g%it(:, 1:g%nit)
       call move_alloc(t, g%it)
     end if
+    k = g%nit
+    do while (k >= 1)
+      if (g%it(1, k) <= lam) exit
+      g%it(:, k+1) = g%it(:, k)
+      k = k - 1
+    end do
+    g%it(:, k+1) = [lam, tau, thk]
     g%nit = g%nit + 1
-    g%it(:, g%nit) = [lam, tau, thk]
   end subroutine
+
+  ! Internal transmittance of glass ig of catalog ic over path_mm of glass
+  ! at lambda (um), from its IT data (wavelength, transmittance tau over
+  ! thickness t mm).  Each point gives an absorption coefficient
+  ! a = -ln(tau)/t (per mm), interpolated linearly in wavelength (the end
+  ! points' outside the data); the result is exp(-a*path_mm).  A glass
+  ! without IT data transmits 1.
+  real(real64) function gc_internal_transmittance(ic, ig, lambda, path_mm) result(tau)
+    integer, intent(in) :: ic, ig
+    real(real64), intent(in) :: lambda, path_mm
+    tau = 1.0_real64
+    if (ic < 1 .or. ic > ncat) return
+    if (ig < 1 .or. ig > cats(ic)%n) return
+    tau = glass_internal_transmittance(cats(ic)%g(ig), lambda, path_mm)
+  end function
+
+  real(real64) function glass_internal_transmittance(g, lambda, path_mm) result(tau)
+    type(glass_record), intent(in) :: g
+    real(real64), intent(in) :: lambda, path_mm
+    real(real64) :: a, f
+    integer :: k
+    tau = 1.0_real64
+    if (g%nit < 1 .or. path_mm <= 0.0_real64) return
+    if (lambda <= g%it(1, 1) .or. g%nit == 1) then
+      a = absorption(1)
+    else if (lambda >= g%it(1, g%nit)) then
+      a = absorption(g%nit)
+    else
+      do k = 1, g%nit - 1
+        if (lambda <= g%it(1, k+1)) exit
+      end do
+      if (g%it(1, k+1) > g%it(1, k)) then
+        f = (lambda - g%it(1, k))/(g%it(1, k+1) - g%it(1, k))
+      else
+        f = 0.0_real64
+      end if
+      a = (1.0_real64 - f)*absorption(k) + f*absorption(k+1)
+    end if
+    tau = exp(-a*path_mm)
+  contains
+    real(real64) function absorption(k)
+      integer, intent(in) :: k
+      absorption = 0.0_real64
+      if (g%it(3, k) <= 0.0_real64) return        ! no thickness: no data
+      absorption = -log(max(min(g%it(2, k), 1.0_real64), 1.0e-30_real64))/g%it(3, k)
+    end function
+  end function
 
   ! ---------------------------------------------------------------- lookup
 
