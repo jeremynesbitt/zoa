@@ -115,7 +115,7 @@ Vignetting Factors
 Wavelengths               : 1
 Units: um
  #          Value         Weight
- 1       0.248287     248.287000  (primary)
+ 1       0.248287     100.000000  (primary)
 All constraints removed
 
 
