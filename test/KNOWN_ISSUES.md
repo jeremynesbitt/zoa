@@ -927,6 +927,8 @@ surfaces lose their bare Fresnel reflection (mean of s and p).
 - Outside a glass's IT data the end point's absorption is used; a glass
   without IT data (SPECIAL formula/ZTG materials, PRV, model glasses) has no
   bulk loss.
-- Opt-in bulk absorption for the other analyses (spot % transmission,
-  CAPFN/PSF/MTF pupil weights) is still to do.
+- SET ABS Y puts the same bulk absorption into the real-ray energy for the
+  other analyses (spot % transmission, CAPFN/PSF/MTF pupil weights); off by
+  default, saved with the lens, cleared by a new lens.  Its coefficients
+  are refreshed at the end of GLSRES (any glass or wavelength change).
 

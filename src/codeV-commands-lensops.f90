@@ -98,7 +98,7 @@ contains
             fID = open_file_to_sav_lens(trim(fileName), dirName=trim(getCodeVDir()), overwriteFlag=.TRUE.)
             if (fID /= 0) then
                 call sysConfig%genSaveOutputText(fID, forCodeV=.true.)
-                call ldm%genSaveOutputText(fID)
+                call ldm%genSaveOutputText(fID, forCodeV=.true.)
                 call sysConfig%genPostLensSaveText(fID, forCodeV=.true.)
                 call optim%genSaveOutputText(fID)
                 close(fID)
@@ -118,7 +118,7 @@ contains
                 fID = open_file_to_sav_lens(trim(getFileNameFromPath(fileName)), dirName=trim(cdir), overwriteFlag=.TRUE.)
                 if (fID /= 0) then
                     call sysConfig%genSaveOutputText(fID, forCodeV=.true.)
-                    call ldm%genSaveOutputText(fID)
+                    call ldm%genSaveOutputText(fID, forCodeV=.true.)
                     call sysConfig%genPostLensSaveText(fID, forCodeV=.true.)
                     call optim%genSaveOutputText(fID)
                     close(fID)

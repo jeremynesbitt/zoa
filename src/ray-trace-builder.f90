@@ -43,6 +43,7 @@ contains
                         COATSET, ANAAIM
       use GLOBALS, only: NUMHITS
       use mod_lens_data_manager, only: ldm
+      use bulk_absorption, only: abs_alpha
       use mod_system, only: sys_ray_aiming, sys_telecentric, sys_scx, sys_scy, &
                             sys_screen, sys_wavelength
       use mod_surface_placement, only: pivot_normal_needed
@@ -121,6 +122,7 @@ contains
          ctx%surf(s)%optics = optics_of(s)
          do w = 1, 10
             ctx%surf(s)%n_after(w) = ldm%getSurfIndex(s, w)
+            ctx%surf(s)%absorb(w) = abs_alpha(s, w)
          end do
       end do
 

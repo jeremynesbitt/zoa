@@ -86,6 +86,7 @@ module mod_ray_trace_engine
    type :: trace_surface
       class(surface_type), allocatable :: geom   ! copy of ldm%surfaces(s)%s
       real(real64) :: n_after(10) = 1.0_real64   ! index after s, per wavelength
+      real(real64) :: absorb(10) = 0.0_real64    ! bulk absorption after s, per lens unit (SET ABS)
       type(surface_placement) :: place           ! tilts/decenters/thickness (TRNSF2 data)
       type(surface_apertures) :: aper            ! clear aperture/obscuration/erase (CACHEK data)
       type(surface_optics) :: optics             ! indices, modes, flags (HITSUR/INTERACK data)
@@ -727,7 +728,7 @@ contains
          end do cacoch_loop
       end if
 
-      ! ---- energy: the starting weight carried through unchanged ---------
+      ! ---- energy: the starting weight, less any bulk absorption ---------
       ! (coatings, screens, gratings and grid surfaces are gated out)
       res%rr(RR_ENERGY, obj:img) = 0.0_real64
       res%rr(34:38, obj:img) = 0.0_real64
@@ -740,6 +741,10 @@ contains
             end if
          else
             res%rr(RR_ENERGY, i) = res%rr(RR_ENERGY, i-1)
+            ! bulk absorption of the glass crossed (SET ABS Y)
+            if (ctx%surf(i-1)%absorb(req%iwl) /= 0.0_real64) &
+               res%rr(RR_ENERGY, i) = res%rr(RR_ENERGY, i)* &
+                  exp(-ctx%surf(i-1)%absorb(req%iwl)*abs(res%rr(RR_LEN, i)))
          end if
       end do
 

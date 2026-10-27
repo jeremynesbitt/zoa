@@ -1265,6 +1265,7 @@ END SUBROUTINE
 ! -----------------------------------------------------------------------
 subroutine compute_ray_energy
    use GLOBALS
+   use bulk_absorption, only: abs_factor
    use DATLEN
    use mod_surface
    use DATMAI, only: PII
@@ -1302,7 +1303,8 @@ subroutine compute_ray_energy
             RAYRAY(25,I)=WW4
          END IF
       ELSE
-         RAYRAY(25,I)=RAYRAY(25,I-1)
+         ! (bulk absorption of the glass crossed, with SET ABS Y)
+         RAYRAY(25,I)=RAYRAY(25,I-1)*abs_factor(I-1,WA3,RAYRAY(8,I))
       END IF
       ! --- refractive indices either side of this surface --------------
       IF(I.EQ.NEWOBJ) THEN

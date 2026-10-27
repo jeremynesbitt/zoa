@@ -60,6 +60,7 @@ srcs += files(
   'footprint.f90',
   'fabrication-data.f90',
   'transmission-analysis.f90',
+  'bulk-absorption.f90',
   'glass-catalog.f90',
   'surface-renumber.f90',
   'lens-draw-apertures.f90',

@@ -846,7 +846,9 @@ contains
         call zoom_reset()
         block
             use glass_catalog, only: gc_prv_clear
+            use bulk_absorption, only: abs_set
             call gc_prv_clear()         ! private glasses belong to the lens
+            call abs_set(.false.)       ! so does SET ABS (saved with it)
         end block
         block
             use ref_sphere_settings, only: rsl_reset
@@ -1586,7 +1588,8 @@ contains
     !## cmd:      SET
     !## syntax:   SET <option> ...
     !## category: Utilities
-    !## desc:     Set a system option (e.g. SET CAP, SET VIG).
+    !## desc:     Set a system option (e.g. SET CAP, SET VIG, SET ABS Y|N -- bulk
+    !##           absorption from the glass catalogs in the real-ray energy).
     !##
     module procedure execSET
         use mod_lens_data_manager, only: ldm
@@ -1624,8 +1627,28 @@ contains
             if (numTokens >= 6) vux = str2real8(tokens(6))
             if (numTokens >= 7) vlx = str2real8(tokens(7))
             call sysConfig%setVignetting(fld, vuy, vly, vux, vlx)
+        else if (numTokens >= 2 .and. trim(tokens(2)) == 'ABS') then
+            ! SET ABS Y|N: bulk absorption (glass catalog IT data) in the
+            ! real-ray energy -- spot transmission, CAPFN/PSF/MTF weights
+            block
+                use bulk_absorption, only: abs_set, abs_on
+                if (numTokens == 2) then
+                    if (abs_on) then
+                        call zoa_emit("SET ABS: bulk absorption is on", "black")
+                    else
+                        call zoa_emit("SET ABS: bulk absorption is off", "black")
+                    end if
+                    return
+                end if
+                select case (trim(tokens(3)))
+                case ('Y', 'YES'); call abs_set(.true.)
+                case ('N', 'NO');  call abs_set(.false.)
+                case default
+                    call zoa_emit("Usage: SET ABS Y|N", "red"); return
+                end select
+            end block
         else
-            call zoa_emit("Unknown SET subcommand. Try: SET CAP, SET VIG", "red")
+            call zoa_emit("Unknown SET subcommand. Try: SET CAP, SET VIG, SET ABS", "red")
         end if
     end procedure execSET
 

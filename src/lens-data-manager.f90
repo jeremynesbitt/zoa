@@ -936,7 +936,7 @@ module mod_lens_data_manager
     end subroutine
 
 
-    subroutine genLDMSaveOutputText(self, fID, skip_alens_refresh)
+    subroutine genLDMSaveOutputText(self, fID, skip_alens_refresh, forCodeV)
         use type_utils, only: real2str, blankStr, int2str
         use zoa_file_handler, only: genOutputLineWithSpacing
         use mod_surface, only: surf_curvature, surf_radius, surf_thickness, surf_conic
@@ -948,6 +948,8 @@ module mod_lens_data_manager
         ! mid-execution, which can cause check_clear_apertures (called by the next EOS)
         ! to run with freshly-zeroed surfaces and produce a corrupted PIM solve.
         logical, optional, intent(in) :: skip_alens_refresh
+        ! forCodeV: a CODE V file (ZOA2CV), which gets no Zoa-only settings
+        logical, optional, intent(in) :: forCodeV
         integer :: ii, jj
         character(len=1024) :: strSurfLine, strTHI, strRdy
         character(len=4) :: surfStr
@@ -1105,6 +1107,15 @@ module mod_lens_data_manager
         do ii = 2, curr_lens_data%num_surfaces-1
           call writeSolveSaveLine(fID, curr_lens_data, ii, SLV_YZ_CURV_SLOT)
         end do
+
+        ! bulk absorption in the ray energy (a Zoa setting, at CMD level)
+        block
+            use bulk_absorption, only: abs_on
+            logical :: cv
+            cv = .false.
+            if (present(forCodeV)) cv = forCodeV
+            if (abs_on .and. .not. cv) write(fID, '(A)') 'SET ABS Y'
+        end block
 
       contains
 

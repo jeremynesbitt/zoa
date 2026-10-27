@@ -2412,8 +2412,15 @@ SUBROUTINE GLSRES
 
 !       GLASS RESOLUTIONS COMPLETED
    CALL CLOSE_FILE(36,1)
+   CALL ABSREFRESH
    RETURN
 END
+
+! Bulk absorption coefficients for the newly resolved glasses (SET ABS).
+SUBROUTINE ABSREFRESH
+   use bulk_absorption, only: abs_refresh
+   CALL abs_refresh()
+END SUBROUTINE
 
 ! SUB FICTRES.FOR
 SUBROUTINE FICTRES(I)

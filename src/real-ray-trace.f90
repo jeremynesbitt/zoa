@@ -368,6 +368,7 @@ end subroutine
 !         We inline both to preserve each path's original accessors.
 ! -----------------------------------------------------------------------
 subroutine real_ray_trace_core(for_optimization)
+   use bulk_absorption, only: abs_factor
    use GLOBALS
    use mod_lens_data_manager, only: ldm
    use mod_system, only: sys_ray_aiming, sys_scx, sys_scy, &
@@ -1235,7 +1236,8 @@ subroutine real_ray_trace_core(for_optimization)
                RAYRAY(25,I)=WW4
             END IF
          ELSE
-            RAYRAY(25,I)=RAYRAY(25,I-1)
+!           (BULK ABSORPTION OF THE GLASS CROSSED, WITH SET ABS Y)
+            RAYRAY(25,I)=RAYRAY(25,I-1)*abs_factor(I-1,WA3,RAYRAY(8,I))
          END IF
          IF(I.EQ.NEWOBJ) THEN
             IF(WA3.GE.1.AND.WA3.LE.10) THEN

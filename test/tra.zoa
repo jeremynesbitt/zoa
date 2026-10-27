@@ -35,3 +35,23 @@ CV2PRG LithoKotaro.seq
 TRA
 NRD 4
 GO
+! SET ABS Y: the same bulk absorption in the ray energy of the other
+! analyses (spot % transmission = TRA's weighted bulk figure, 0.996361),
+! saved with the lens and cleared by a new lens; the engine and the legacy
+! tracer agree
+RES osdtriplet
+SPD
+SET ABS
+SET ABS Y
+SPD
+SAV absrt
+RES absrt
+SET ABS
+RAYENGINE CHECK
+CAPFN 32
+RAYENGINE OFF
+SPD
+RAYENGINE ON
+LEN NEW
+SET ABS
+SET ABS MAYBE
