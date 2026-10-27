@@ -910,3 +910,23 @@ as 517642 is a model glass) are in.  Still to do:
   shipped file uses them; 1-3, 6 and 11-13 are checked (every vendor
   glass's nd/vd within the file's rounding; SPECIAL against the old
   built-in formulas).
+
+## TRA (transmission analysis): what is and isn't modelled (2026-10-27)
+
+TRA (src/transmission-analysis.f90) shipped with the user's decisions: bulk
+absorption always in TRA (opt-in elsewhere -- not built yet), uncoated
+surfaces lose their bare Fresnel reflection (mean of s and p).
+- Mirrors are lossless (no metal reflectance data); PLI (polarization) is
+  refused; TRA has no zoom-position (....z) values.
+- A coated surface uses its COATnnnn.DAT interface factor only; the coating
+  file's own absorption coefficients are not applied (bulk absorption comes
+  from the glass catalog), so a coating file that carries the substrate's
+  absorption is not double counted -- nor used.
+- The means are over the rays that reach the image (vignetted rays are
+  excluded, not counted as zero).
+- Outside a glass's IT data the end point's absorption is used; a glass
+  without IT data (SPECIAL formula/ZTG materials, PRV, model glasses) has no
+  bulk loss.
+- Opt-in bulk absorption for the other analyses (spot % transmission,
+  CAPFN/PSF/MTF pupil weights) is still to do.
+

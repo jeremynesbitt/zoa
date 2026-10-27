@@ -1506,6 +1506,40 @@ contains
         end select
     end procedure fooSetOption
 
+    !## cmd:      TRA
+    !## syntax:   TRA; [FUL Y|N] [NRD n]; GO
+    !## category: Analysis
+    !## desc:     Transmission analysis (CODE V TRA): per field and wavelength, the mean
+    !##           transmission of the rays reaching the image -- surface losses (coatings,
+    !##           else bare Fresnel), bulk absorption from the glass catalogs, and both.
+    !##           FUL Y lists every field in full; NRD sets the pupil grid (default 20).
+    !##
+    module procedure execTRA
+        use transmission_analysis, only: tra_reset
+        implicit none
+        character(len=80) :: tokens(40)
+        integer :: numTokens
+
+        call parse(trim(iptStr), ' ', tokens, numTokens)
+        if (numTokens > 1) then
+            call zoa_emit("Error:  expected TRA (then its options and GO)", "red"); return
+        end if
+        call tra_reset()
+        cmd_loop = TRA_LOOP
+    end procedure execTRA
+
+    module procedure traSetOption
+        use transmission_analysis, only: tra_set_option
+        implicit none
+        character(len=80) :: tokens(40)
+        character(len=200) :: msg
+        integer :: numTokens
+
+        call parse(trim(iptStr), ' ', tokens, numTokens)
+        call tra_set_option(tokens, numTokens, msg)
+        if (len_trim(msg) > 0) call zoa_emit("Error:  "//trim(msg), "red")
+    end procedure traSetOption
+
     !## cmd:      FAB
     !## syntax:   FAB; [SUR Y] [IND Y] [SPA Y] [SAG [Sk] [max incr ref delta min]] [BES Y] [FRI Y] [SLO Y]; GO
     !## category: Analysis

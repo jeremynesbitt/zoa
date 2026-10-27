@@ -59,6 +59,7 @@ srcs += files(
   'field-map.f90',
   'footprint.f90',
   'fabrication-data.f90',
+  'transmission-analysis.f90',
   'glass-catalog.f90',
   'surface-renumber.f90',
   'lens-draw-apertures.f90',

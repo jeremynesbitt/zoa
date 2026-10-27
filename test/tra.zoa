@@ -1,0 +1,37 @@
+! CODE V TRA: transmission analysis -- per field and wavelength, the mean
+! over the rays reaching the image of the surface losses (coating, else
+! bare Fresnel), the bulk absorption (glass catalog IT data) and both.
+RES osdtriplet
+! one ray (the axial chief ray), checked by hand: the six bare surfaces
+! give 0.707496 (normal-incidence Fresnel at n 1.62041 and 1.62005); the
+! bulk, 7 mm of N-SK16 and 1.5 mm of N-F2 from Schott's IT data
+TRA
+NRD 1
+GO
+! the default grid (20 across); fields after the first give the weighted
+! line only, unless FUL Y
+TRA
+GO
+TRA
+FUL Y
+NRD 10
+GO
+! options that are refused
+TRA
+PLI Y
+NRD 0
+CAN
+! a mirror is lossless; a SPECIAL material without IT data has no bulk loss
+LEN NEW
+EPD  20
+TIT 'OSDmirror'
+RDY S1 -100
+PIM
+RMD S1 REFL
+TRA
+NRD 4
+GO
+CV2PRG LithoKotaro.seq
+TRA
+NRD 4
+GO

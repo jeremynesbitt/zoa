@@ -637,6 +637,11 @@ test('fab', test_runner,
             meson.project_source_root() / 'test/fab.ref'],
      timeout: 120)
 
+test('tra', test_runner,
+     args: [meson.project_source_root() / 'test/tra.zoa',
+            meson.project_source_root() / 'test/tra.ref'],
+     timeout: 120)
+
 test('glass_catalog', test_runner,
      args: [meson.project_source_root() / 'test/glass_catalog.zoa',
             meson.project_source_root() / 'test/glass_catalog.ref'],

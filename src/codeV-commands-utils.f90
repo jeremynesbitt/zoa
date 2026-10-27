@@ -80,6 +80,13 @@ contains
                 call wav_go()
             end block
         end if
+        if (cmd_loop == TRA_LOOP) then
+            cmd_loop = 0
+            block
+                use transmission_analysis, only: tra_go
+                call tra_go()
+            end block
+        end if
         if (cmd_loop == ID_PLOTTYPE_SEIDEL) then
             call seidel_go(curr_psm)
             cmd_loop = 0

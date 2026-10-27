@@ -498,6 +498,12 @@ module codeV_commands
    module subroutine fabSetOption(iptStr)
     character(len=*) :: iptStr
    end subroutine fabSetOption
+   module subroutine execTRA(iptStr)
+    character(len=*) :: iptStr
+   end subroutine execTRA
+   module subroutine traSetOption(iptStr)
+    character(len=*) :: iptStr
+   end subroutine traSetOption
    module subroutine execCSO(iptStr)
     character(len=*) :: iptStr
    end subroutine execCSO
@@ -583,6 +589,7 @@ module codeV_commands
     integer, parameter :: FAB_LOOP = 10
     ! PRV ... END: every line is private glass data (a label can be any word)
     integer, parameter :: PRV_LOOP = 11
+    integer, parameter :: TRA_LOOP = 12
 
 
     ! Views saved by nested kdp_silent_begin calls (see kdpApiSilenceOn).
@@ -867,6 +874,8 @@ module codeV_commands
         zoaCmds(819)%execFunc => execGPR
         zoaCmds(820)%cmd = 'PRV'
         zoaCmds(820)%execFunc => execPRV
+        zoaCmds(821)%cmd = 'TRA'
+        zoaCmds(821)%execFunc => execTRA
         ! Tilt / decenter / pivot control codes (CODE V XDC..CDC, XOC..ZOC).
         block
             use zoa_ui, only: TILT_VAR_NAMES
@@ -1146,6 +1155,14 @@ module codeV_commands
             select case (trim(iptCmd))
             case ('SUR', 'IND', 'SPA', 'SAG', 'BES', 'FRI', 'SLO', 'ZLI', 'GSC')
                 call fabSetOption(currentCommand); boolResult = .TRUE.; return
+            end select
+        end if
+
+        ! TRA options (FUL/NRD mean other things outside TRA).
+        if (cmd_loop == TRA_LOOP) then
+            select case (trim(iptCmd))
+            case ('FUL', 'NRD', 'PLI')
+                call traSetOption(currentCommand); boolResult = .TRUE.; return
             end select
         end if
 

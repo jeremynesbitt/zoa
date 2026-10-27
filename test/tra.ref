@@ -1,0 +1,100 @@
+All constraints removed
+
+
+
+
+
+
+TRANSMISSION ANALYSIS (TRA)   rays across the pupil diameter: 1
+uncoated surfaces: Fresnel losses; bulk absorption: the glass catalogs' transmittance data
+
+FIELD 1   (X   0.0000, Y   0.0000 relative)
+  WAVELENGTH_NM   WEIGHT    RAYS   SURFACES       BULK      TOTAL
+         587.56    100.0       1   0.707496   0.997820   0.705953
+         486.13    100.0       1   0.702060   0.995588   0.698963
+         656.27    100.0       1   0.709827   0.997694   0.708190
+         435.84    100.0       1   0.697703   0.992382   0.692388
+         706.52    100.0       1   0.711142   0.998396   0.710001
+  WEIGHTED                           0.705646   0.996376   0.703099
+
+FIELD 2   (X   0.0000, Y   0.7000 relative)
+  WEIGHTED (SURFACES BULK TOTAL)     0.705598   0.996381   0.703055
+
+FIELD 3   (X   0.0000, Y   1.0000 relative)
+  WEIGHTED (SURFACES BULK TOTAL)     0.705439   0.996388   0.702901
+TRANSMISSION ANALYSIS (TRA)   rays across the pupil diameter: 20
+uncoated surfaces: Fresnel losses; bulk absorption: the glass catalogs' transmittance data
+
+FIELD 1   (X   0.0000, Y   0.0000 relative)
+  WAVELENGTH_NM   WEIGHT    RAYS   SURFACES       BULK      TOTAL
+         587.56    100.0     316   0.707328   0.997860   0.705814
+         486.13    100.0     316   0.701888   0.995574   0.698782
+         656.27    100.0     316   0.709661   0.997695   0.708025
+         435.84    100.0     316   0.697528   0.992298   0.692155
+         706.52    100.0     316   0.710977   0.998377   0.709823
+  WEIGHTED                           0.705476   0.996361   0.702920
+
+FIELD 2   (X   0.0000, Y   0.7000 relative)
+  WEIGHTED (SURFACES BULK TOTAL)     0.705186   0.996366   0.702635
+
+FIELD 3   (X   0.0000, Y   1.0000 relative)
+  WEIGHTED (SURFACES BULK TOTAL)     0.704740   0.996373   0.702195
+TRANSMISSION ANALYSIS (TRA)   rays across the pupil diameter: 10
+uncoated surfaces: Fresnel losses; bulk absorption: the glass catalogs' transmittance data
+
+FIELD 1   (X   0.0000, Y   0.0000 relative)
+  WAVELENGTH_NM   WEIGHT    RAYS   SURFACES       BULK      TOTAL
+         587.56    100.0      80   0.707325   0.997861   0.705811
+         486.13    100.0      80   0.701885   0.995574   0.698779
+         656.27    100.0      80   0.709658   0.997695   0.708022
+         435.84    100.0      80   0.697524   0.992297   0.692151
+         706.52    100.0      80   0.710974   0.998377   0.709820
+  WEIGHTED                           0.705473   0.996361   0.702917
+
+FIELD 2   (X   0.0000, Y   0.7000 relative)
+  WAVELENGTH_NM   WEIGHT    RAYS   SURFACES       BULK      TOTAL
+         587.56    100.0      80   0.707034   0.997865   0.705525
+         486.13    100.0      80   0.701588   0.995581   0.698487
+         656.27    100.0      80   0.709370   0.997699   0.707738
+         435.84    100.0      80   0.697221   0.992307   0.691858
+         706.52    100.0      80   0.710688   0.998379   0.709535
+  WEIGHTED                           0.705180   0.996366   0.702629
+
+FIELD 3   (X   0.0000, Y   1.0000 relative)
+  WAVELENGTH_NM   WEIGHT    RAYS   SURFACES       BULK      TOTAL
+         587.56    100.0      80   0.706588   0.997871   0.705084
+         486.13    100.0      80   0.701132   0.995589   0.698039
+         656.27    100.0      80   0.708928   0.997703   0.707300
+         435.84    100.0      80   0.696758   0.992319   0.691406
+         706.52    100.0      80   0.710248   0.998381   0.709098
+  WEIGHTED                           0.704731   0.996373   0.702185
+Error:  TRA: PLI (polarization data) is not available yet
+Error:  TRA: NRD takes 1 to 500 rays across the pupil
+Option cancelled
+All constraints removed
+
+
+TRANSMISSION ANALYSIS (TRA)   rays across the pupil diameter: 4
+uncoated surfaces: Fresnel losses; bulk absorption: the glass catalogs' transmittance data
+
+FIELD 1   (X   0.0000, Y   0.0000 relative)
+  WAVELENGTH_NM   WEIGHT    RAYS   SURFACES       BULK      TOTAL
+         587.56      1.0      12   1.000000   1.000000   1.000000
+  WEIGHTED                           1.000000   1.000000   1.000000
+All constraints removed
+
+
+
+TRANSMISSION ANALYSIS (TRA)   rays across the pupil diameter: 4
+uncoated surfaces: Fresnel losses; bulk absorption: the glass catalogs' transmittance data
+
+FIELD 1   (X   0.0000, Y   0.0000 relative)
+  WAVELENGTH_NM   WEIGHT    RAYS   SURFACES       BULK      TOTAL
+         248.29    100.0      12   0.086918   1.000000   0.086918
+  WEIGHTED                           0.086918   1.000000   0.086918
+
+FIELD 2   (X   0.0000, Y   0.7000 relative)
+  WEIGHTED (SURFACES BULK TOTAL)     0.086747   1.000000   0.086747
+
+FIELD 3   (X   0.0000, Y   1.0000 relative)
+  WEIGHTED (SURFACES BULK TOTAL)     0.086437   1.000000   0.086437
