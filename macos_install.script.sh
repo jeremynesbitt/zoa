@@ -26,7 +26,14 @@ fi
 
 echo "Finishing ${PREFIX}"
 xattr -cr "${PREFIX}"
-dylibbundler -od -b -x "${PREFIX}"/Contents/MacOS/Zoa -d "${PREFIX}"/Contents/libs -s /usr/local/gfortran/lib -s /opt/homebrew/lib/gcc/current
+# Zoa and (when built, with libzmq) the Jupyter server zoa_server share
+# Contents/libs: one dylibbundler run fixes both.
+BINS="${PREFIX}/Contents/MacOS/Zoa"
+SERVER="${PREFIX}/Contents/MacOS/zoa_server"
+[ -x "$SERVER" ] && BINS="$BINS $SERVER"
+set --
+for b in $BINS; do set -- "$@" -x "$b"; done
+dylibbundler -od -b "$@" -d "${PREFIX}"/Contents/libs -s /usr/local/gfortran/lib -s /opt/homebrew/lib/gcc/current
 
 # dylibbundler rewrites every rpath it replaces to @executable_path/../libs/,
 # so a binary linked with several (gfortran links three gcc library
@@ -41,10 +48,13 @@ dedupe_rpaths() {
     done
   done
 }
-dedupe_rpaths "${PREFIX}"/Contents/MacOS/Zoa
+for b in $BINS; do dedupe_rpaths "$b"; done
 for lib in "${PREFIX}"/Contents/libs/*.dylib; do
   dedupe_rpaths "$lib"
   codesign --force --sign - "$lib"
 done
 
 codesign --force --deep --preserve-metadata=entitlements,requirements,flags,runtime --entitlements "${MESON_SOURCE_ROOT}"/MacOS/app.entitlements --sign - "${PREFIX}"/Contents/MacOS/Zoa
+if [ -x "$SERVER" ]; then
+  codesign --force --preserve-metadata=entitlements,requirements,flags,runtime --entitlements "${MESON_SOURCE_ROOT}"/MacOS/app.entitlements --sign - "$SERVER"
+fi
