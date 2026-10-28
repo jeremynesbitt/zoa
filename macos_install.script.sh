@@ -28,4 +28,23 @@ echo "Finishing ${PREFIX}"
 xattr -cr "${PREFIX}"
 dylibbundler -od -b -x "${PREFIX}"/Contents/MacOS/Zoa -d "${PREFIX}"/Contents/libs -s /usr/local/gfortran/lib -s /opt/homebrew/lib/gcc/current
 
+# dylibbundler rewrites every rpath it replaces to @executable_path/../libs/,
+# so a binary linked with several (gfortran links three gcc library
+# folders) ends up with the same LC_RPATH more than once -- which dyld
+# refuses at launch ("duplicate LC_RPATH").  Keep one of each.
+dedupe_rpaths() {
+  otool -l "$1" | awk '/cmd LC_RPATH/{getline; getline; print $2}' | sort | uniq -c |
+  while read -r count rpath; do
+    while [ "$count" -gt 1 ]; do
+      install_name_tool -delete_rpath "$rpath" "$1"
+      count=$((count - 1))
+    done
+  done
+}
+dedupe_rpaths "${PREFIX}"/Contents/MacOS/Zoa
+for lib in "${PREFIX}"/Contents/libs/*.dylib; do
+  dedupe_rpaths "$lib"
+  codesign --force --sign - "$lib"
+done
+
 codesign --force --deep --preserve-metadata=entitlements,requirements,flags,runtime --entitlements "${MESON_SOURCE_ROOT}"/MacOS/app.entitlements --sign - "${PREFIX}"/Contents/MacOS/Zoa
