@@ -754,50 +754,6 @@ contains
 
   end subroutine
 
-  subroutine open_file(filename)
-
-    character(len=120), intent(inout) :: filename
-    integer(kind=c_int) :: isel
-    character(len=120), dimension(:), allocatable :: chfile
-    character(len=30), dimension(2) :: filters
-    character(len=30), dimension(2) :: filtnames
-    character(len=200) :: inln
-    integer :: ios
-    integer :: idxs
-
-    filters(1) = "*.seq"
-    filters(2) = "*.txt"
-    filtnames(1) = "CodeV Sequence Files"
-    filtnames(2) = "Plain Text"
-
-    isel = hl_gtk_file_chooser_show(chfile, create=FALSE,&
-         & title="Select input file"//c_null_char, filter=filters, &
-         & filter_name=filtnames, wsize=(/ 600_c_int, 400_c_int /), &
-         & edit_filters=TRUE, &
-         & parent=app, all=TRUE)
-    print *, "isel = hl_gtk_file_chooser_show=", isel
-    if (isel == FALSE) return   ! No selection made
-
-    filename = chfile(1)
-    deallocate(chfile)
-
-    !open(37, file=filename, action='read')
-    !call hl_gtk_text_view_delete(tedit)
-    !do
-    !   read(37,"(A)",iostat=ios) inln
-    !   if (ios /= 0) exit
-    !   call hl_gtk_text_view_insert(tedit, (/ trim(inln)//c_new_line /))
-    !end do
-    !close(37)
-    !idxs = index(filename, '/', .true.)+1
-    !call gtk_window_set_title(window, trim(filename(idxs:))//c_null_char)
-
-    ! We manually reset the changed flag as the text box signal handler sets it.
-
-    !file_is_changed = .FALSE.
-
-  end subroutine open_file
-
 subroutine iconMenu_callback(widget, event, cairo_drawing_area) bind(c)
   implicit none
   type(c_ptr), value :: widget, event, cairo_drawing_area
