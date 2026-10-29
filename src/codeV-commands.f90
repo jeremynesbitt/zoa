@@ -1288,7 +1288,7 @@ module codeV_commands
         character(len=1024) :: segU
         ! as long as the segment itself: parse stops with a runtime error on a
         ! word longer than its token buffer (a long folder or file name)
-        character(len=140) :: tokens(40)
+        character(len=1024) :: tokens(40)
         integer :: numTokens
         character(len=8)   :: token
 

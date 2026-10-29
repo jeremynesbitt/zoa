@@ -326,9 +326,15 @@ contains
    ! The legacy path keeps the segment's original case (PROCES/PRO2 upcases);
    ! only the front door folds case internally for its zoaCmds lookup.
    subroutine routeSegment(seg)
+      use zoa_output, only: zoa_emit
       character(len=*), intent(in) :: seg
       if (len_trim(seg) == 0) return
       if (dispatchCodeVSegment(seg)) return
+      ! legacy commands still parse from the 140-character INPUT buffer
+      if (len_trim(seg) > len(INPUT)) then
+         call zoa_emit("Command too long (over 140 characters): "//seg(1:20)//"...", "red")
+         return
+      end if
       INPUT = seg
       CALL PROCES
    end subroutine

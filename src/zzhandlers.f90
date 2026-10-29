@@ -41,7 +41,7 @@ module handlers
   ! Top-level command queue — prevents re-entrant execution via pending_events()
   logical :: cmd_in_progress = .false.
   integer, parameter :: CMD_QUEUE_SIZE = 50
-  character(len=140) :: cmd_queue(CMD_QUEUE_SIZE)
+  character(len=1024) :: cmd_queue(CMD_QUEUE_SIZE)
   integer :: cmd_queue_count = 0
   ! Deferred replot: set by gui_notify_replot() during command processing,
   ! consumed by name_enter after each top-level command finishes.
@@ -225,7 +225,7 @@ contains
     type(c_ptr) :: buff2, tag, tagTable, gBool
     type(c_ptr) :: page, enter
     type(gtktextiter), target :: iter, startIter, endIter
-    character(len=100) :: ftext
+    character(len=1024) :: ftext
     character(len=20)  :: txtColor
 
     if (c_associated(data)) then
@@ -248,12 +248,12 @@ contains
     if (txtColor.eq."blue") then
       if (command_index.LT.cmdHistorySize+1) THEN
 
-       command_history(command_index) = ftext
+       command_history(command_index) = ftext(1:len(command_history))
        command_index = command_index + 1
        command_search = command_index
      else ! array full
        command_history(1:cmdHistorySize-1) = command_history(2:cmdHistorySize)
-       command_history(cmdHistorySize) = ftext
+       command_history(cmdHistorySize) = ftext(1:len(command_history))
 
      END IF
    END IF
@@ -485,7 +485,8 @@ contains
 
     ! CMD Entry TextBox
 
-    entry = hl_gtk_entry_new(60_c_int, editable=TRUE, tooltip = &
+    ! the maximum length matches the buffer name_enter reads it into
+    entry = hl_gtk_entry_new(1024_c_int, editable=TRUE, tooltip = &
          & "Enter text here for command interpreter"//c_null_char, &
          & activate=c_funloc(name_enter))
     
@@ -1050,7 +1051,7 @@ end subroutine
           call gtk_entry_buffer_set_text(buffer, ' '//c_null_char, -1)
         else
 
-          call gtk_entry_buffer_set_text(buffer, command_history(idx)//c_null_char, len(command_history(idx))+30)
+          call gtk_entry_buffer_set_text(buffer, trim(command_history(idx))//c_null_char, -1_c_int)
           call gtk_editable_set_position(entry, len(trim(command_history(idx))))
         end if
 

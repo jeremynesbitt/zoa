@@ -622,13 +622,6 @@ contains
       fileName = trim(fileName)//".png"
     end if
 
-    ! PROCESKDP's input buffer is 140 characters, so a path long enough to
-    ! overflow it would be silently truncated and written to the wrong place.
-    if (len_trim(fileName) + 11 > 140) then
-      call zoa_emit("Path is too long to export (limit is 129 characters)", "red")
-      return
-    end if
-
     call PROCESKDP('EXPORTPNG '//trim(fileName))
 
   end subroutine

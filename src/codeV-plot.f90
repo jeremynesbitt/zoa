@@ -202,7 +202,7 @@ contains
 
         implicit none
 
-        character(len=140) :: raw
+        character(len=1024) :: raw
         integer :: iSpace
 
         ! Use the ORIGINAL-case form: the front door case-folds the command it
