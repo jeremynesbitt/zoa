@@ -1,6 +1,6 @@
 submodule (codeV_commands) mod_codev_plots
 use mod_kdp_api, only: kdp_silent_begin, kdp_silent_end, kdp_lens_begin, &
-                       kdp_lens_end, kdp_chg, kdp_lens_cmd
+                       kdp_lens_end, kdp_chg, kdp_lens_cmd, kdp_fob, kdp_capfn
 implicit none
 contains
 
@@ -15,7 +15,9 @@ contains
         call PROCESKDP('THI SI '//real2str(x))
         ! Explicit grid (KDP's default 16) so the focus search is independent of
         ! whatever CAPFN grid a plot last left in KDP's CAPDEF global.
-        call PROCESKDP('FOB 0; CAPFN, 16; SHO RMSOPD')
+        call kdp_fob(0.0d0)
+        call kdp_capfn(16)
+        call PROCESKDP('SHO RMSOPD')
         f = REG(9)
     end function adjustImageFocus
 
@@ -100,8 +102,8 @@ contains
 
             do ii=1,size(fields)
                 COLRAY = sysConfig%fieldColorCodes(fields(ii))
-                call PROCESKDP("FOB "//real2str(sysConfig%relativeFields(2,fields(ii))) &
-                & //real2str(sysConfig%relativeFields(1,fields(ii))))
+                call kdp_fob(sysConfig%relativeFields(2,fields(ii)), &
+                &            sysConfig%relativeFields(1,fields(ii)))
                 do jj=1,numRays
                     relAngle = -1.0d0 + (jj-1)*(2.0d0)/(numRays-1)
                     if (yzFlag) then
@@ -704,10 +706,8 @@ contains
         ! Select zoom, aim at the field, compute the wavefront on the NxN pupil
         ! grid, and fit Zernikes at the requested wavelength.
         call PROCESKDP("POS "//trim(int2str(zoomIdx)))
-        write(fobStr, *) "FOB ", sysConfig%relativeFields(2,fieldIdx), ' ', &
-        &                        sysConfig%relativeFields(1,fieldIdx)
-        call PROCESKDP(trim(fobStr))
-        call PROCESKDP("CAPFN, "//trim(int2str(densN)))
+        call kdp_fob(sysConfig%relativeFields(2,fieldIdx), sysConfig%relativeFields(1,fieldIdx))
+        call kdp_capfn(densN)
         call PROCESKDP("FITZERN, "//trim(int2str(wavIdx)))
 
         ! X(1:96) holds the fit coefficients (COMMON/SOLU/X, same as LISTZERN).

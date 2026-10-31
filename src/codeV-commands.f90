@@ -564,9 +564,11 @@ module codeV_commands
     logical :: in_macro_load = .FALSE.
 
     ! Fallback telemetry (see recordFallback / execFallbackReport): how often
-    ! each CMD-level word fell through the flip to the legacy CONTRO router.
+    ! each word fell through to a legacy router -- CONTRO/CMDER at the CMD
+    ! level (F1), LENUP at the lens-update level (F6) -- keyed by word+level.
     integer, parameter :: MAX_FALLBACK = 2000
     character(len=8) :: fallbackWords(MAX_FALLBACK)
+    character(len=4) :: fallbackLevels(MAX_FALLBACK)
     integer          :: fallbackCounts(MAX_FALLBACK) = 0
     integer          :: nFallback = 0
     logical          :: fbLogChecked = .FALSE.
@@ -1325,23 +1327,29 @@ module codeV_commands
         if (.not. handled) call recordFallback(token)
     end function
 
-    ! Fallback telemetry: tallies CMD-level command words that fell through to
-    ! the legacy router (a word never observed here over real use + the test
-    ! suite is a deletion candidate).  In-memory always; when the env var
-    ! ZOA_FALLBACK_LOG names a file, each word is also appended there so a
-    ! `meson test` run produces a corpus.
-    subroutine recordFallback(word)
+    ! Fallback telemetry: tallies command words that fell through to a legacy
+    ! router (a word never observed here over real use + the test suite is a
+    ! deletion candidate).  level is 'CMD' (default) or 'LENS' (the lens-update
+    ! level, recorded by CONTRO before LENUP).  In-memory always; when the env
+    ! var ZOA_FALLBACK_LOG names a file, each word is also appended there --
+    ! 'WORD' for the CMD level, 'WORD<tab>LENS' for the lens-update level -- so
+    ! a `meson test` run produces a corpus.
+    subroutine recordFallback(word, level)
         character(len=*), intent(in) :: word
+        character(len=*), intent(in), optional :: level
         integer :: i, u, ios
         character(len=8) :: w
+        character(len=4) :: lv
         logical :: found
 
         w = adjustl(word)
         if (w == ' ' .or. w == '?') return       ! blanks/queries are noise
+        lv = 'CMD'
+        if (present(level)) lv = level
 
         found = .FALSE.
         do i = 1, nFallback
-            if (fallbackWords(i) == w) then
+            if (fallbackWords(i) == w .and. fallbackLevels(i) == lv) then
                 fallbackCounts(i) = fallbackCounts(i) + 1
                 found = .TRUE.
                 exit
@@ -1350,6 +1358,7 @@ module codeV_commands
         if (.not. found .and. nFallback < MAX_FALLBACK) then
             nFallback = nFallback + 1
             fallbackWords(nFallback)  = w
+            fallbackLevels(nFallback) = lv
             fallbackCounts(nFallback) = 1
         end if
 
@@ -1362,7 +1371,11 @@ module codeV_commands
             open(newunit=u, file=trim(fbLogFile), position='append', &
                  action='write', iostat=ios)
             if (ios == 0) then
-                write(u,'(A)') trim(w)
+                if (lv == 'CMD') then
+                    write(u,'(A)') trim(w)
+                else
+                    write(u,'(A)') trim(w)//achar(9)//trim(lv)
+                end if
                 close(u)
             end if
         end if
@@ -1395,10 +1408,15 @@ module codeV_commands
             end do
         end do
 
-        call zoa_emit("Legacy-fallback command tally (word: hits):", "black")
+        call zoa_emit("Legacy-fallback command tally (word: hits; (U L) = lens-update level):", "black")
         do i = 1, nFallback
-            call zoa_emit("  "//fallbackWords(order(i))//" : "// &
-                 & trim(int2str(fallbackCounts(order(i)))), "black")
+            if (fallbackLevels(order(i)) == 'LENS') then
+                call zoa_emit("  "//fallbackWords(order(i))//" (U L) : "// &
+                     & trim(int2str(fallbackCounts(order(i)))), "black")
+            else
+                call zoa_emit("  "//fallbackWords(order(i))//" : "// &
+                     & trim(int2str(fallbackCounts(order(i)))), "black")
+            end if
         end do
     end subroutine
      
@@ -1676,6 +1694,8 @@ module codeV_commands
         use DATLEN, only: RAYRAY, NEWOBJ, NEWIMG
         use DATMAI, only: PII, TWOPII
         use result_builder
+        use mod_kdp_api, only: kdp_fob, kdp_ray
+        use iso_fortran_env, only: real64
 
         implicit none
 
@@ -1731,15 +1751,14 @@ module codeV_commands
             ! TODO:  Put COLRAY value into sysConfig (current field Color)
             !COLRAY = sysConfig%fieldColorCodes(fields(j))
             !WRITE(INPUT, *) "FOB ", )
-            CALL PROCESKDP("FOB "//trim(real2str(sysConfig%relativeFields(2,fields(j)))))
+            call kdp_fob(sysConfig%relativeFields(2,fields(j)))
             !REST_KDP(1)=RESTINPT(1)
 
 
       ! Add loop for wavelengths
       ! By definition RSI only traces a ray of a single angle
             !SAVE_KDP(1)=SAVEINPT(1)
-            CALL PROCESKDP("RAY "//real2str(relApeY)// &
-            & " "//real2str(relApeX)//" "//int2str(wavelengths(i)))
+            call kdp_ray(relApeY, relApeX, real(wavelengths(i), real64))
             CALL PROCESKDP("PRXYZ ALL")
             !REST_KDP(1)=RESTINPT(1)
     end do ! fields

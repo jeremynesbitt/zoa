@@ -163,7 +163,7 @@ SUBROUTINE CONTRO
    use global_widgets, only: lens_editor_window,&
    &sysConfig, curr_lens_data
    use lens_editor
-   use codeV_commands, only: startCodeVLensUpdateCmd,&
+   use codeV_commands, only: startCodeVLensUpdateCmd, recordFallback,&
    &isCodeVCommand
    use iso_c_binding, only: c_associated
    use DATLEN
@@ -3928,6 +3928,8 @@ SUBROUTINE CONTRO
             end if
          end if
 
+!     retirement telemetry: this word reached the legacy LENUP router
+         call recordFallback(WC, 'LENS')
          CALL LENUP
          !PRINT *, "F31 = ", F31
          !PRINT *, "F28 = ", F28

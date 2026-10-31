@@ -14,6 +14,7 @@
 ! Marechal estimate exp(-(2 pi sigma)^2), averaged over the spectral weights.
 module wavefront_analysis
   use iso_fortran_env, only: real64
+  use mod_kdp_api, only: kdp_fob, kdp_ray, kdp_spd, kdp_capfn, kdp_silent_begin, kdp_silent_end
   implicit none
   private
   public :: wav_reset, wav_set_mode, wav_set_rfo, wav_set_nrd, wav_set_wtf, &
@@ -132,8 +133,10 @@ contains
     G = 0.0_real64; h = 0.0_real64; ok = .false.
     fr%n = 0
     if (allocated(fr%iw)) deallocate(fr%iw, fr%W, fr%b)
-    write(line, '(A,F0.8,1X,F0.8,A,I0)') 'FOB ', fy, fx, '; CAPFN, ', nrd
-    call PROCESSILENT(trim(line))
+    call kdp_silent_begin()
+    call kdp_fob(fy, fx)
+    call kdp_capfn(nrd)
+    call kdp_silent_end()
     if (.not. allocated(DSPOTT)) return
     allocate(fr%iw(ITOT), fr%W(ITOT), fr%b(3,ITOT))
     do i = 1, ITOT - 1

@@ -1697,21 +1697,7 @@ SUBROUTINE CMDER
          RETURN
       END IF
       IF(WC.EQ.'RAY')  THEN
-         IF(WQ.EQ.'CAOB') CACOCH=1
-!     IF NOT OPTIMIZATION OR TOLERANCING, MESSAGE ON
-         IF(F28.EQ.0.AND.F31.EQ.0) MSG=.TRUE.
-!     IF VIE, MSG OFF
-         IF(F34.EQ.1) MSG=.FALSE.
-         IF(F34.EQ.0) MSG=.TRUE.
-         NOCOAT=.FALSE.
-         IF(.NOT.GLOBE) THEN
-            GRASET=.TRUE.
-            DXFSET=.TRUE.
-         END IF
-         CALL RRAY
-!     DONE, MSG BACK ON
-         IF(F34.EQ.1) MSG=.FALSE.
-         IF(F34.EQ.0) MSG=.TRUE.
+         CALL KDP_CMD_RAY
          RETURN
       END IF
       IF(WC.EQ.'MRAYS')  THEN
@@ -1844,94 +1830,7 @@ SUBROUTINE CMDER
          RETURN
       END IF
       IF(WC.EQ.'FOB'.OR.WC.EQ.'FOBH')  THEN
-!     NO LINE SPREAD FUNCTIONS MAY EXIST NOW
-         RSTREHL_EXIST=.FALSE.
-         LSF=.FALSE.
-!     NO SPOTS EXIST
-         SPDEXT=.FALSE.
-         GSPDEXT=.FALSE.
-         CPFNEXT=.FALSE.
-         CALL DELPSF
-!     IF NOT OPTIMIZATION OR TOLERANCING, MESSAGE ON
-         IF(F28.EQ.0.AND.F31.EQ.0) MSG=.TRUE.
-!     IF VIE, MSG OFF
-         IF(F34.EQ.1) MSG=.FALSE.
-         IF(F34.EQ.0) MSG=.TRUE.
-         NEWOBJ=0
-         NEWREF=INT(sys_ref_surf())
-         NEWIMG=INT(sys_last_surf())
-         IF(WC.EQ.'FOB     ') THEN
-            CALL FFOB
-         END IF
-         IF(WC.EQ.'FOBH    ')CALL FFOBH
-         IF(is_command_query()) RETURN
-         IF(F34.EQ.1) MSG=.FALSE.
-         IF(F34.EQ.0) MSG=.TRUE.
-         IF(.NOT.REFEXT) RETURN
-         EXIS51=.FALSE.
-         INQUIRE(FILE='PSF.DAT',EXIST=EXIS51)
-         IF(EXIS51) THEN
-            OPEN51=.FALSE.
-            INQUIRE(FILE='PSF.DAT',OPENED=OPEN51)
-            IF(.NOT.OPEN51) THEN
-!     OPEN FILE
-               OPEN(UNIT=51,ACCESS='SEQUENTIAL',BLANK='NULL'&
-               &,FORM='FORMATTED',FILE='PSF.DAT'&
-               &,STATUS='UNKNOWN')
-            END IF
-            CALL CLOSE_FILE(51,0)
-         END IF
-         EXIS51=.FALSE.
-         INQUIRE(FILE='SPSF.DAT',EXIST=EXIS51)
-         IF(EXIS51) THEN
-            OPEN51=.FALSE.
-            INQUIRE(FILE='SPSF.DAT',OPENED=OPEN51)
-            IF(.NOT.OPEN51) THEN
-!     OPEN FILE
-               OPEN(UNIT=51,ACCESS='SEQUENTIAL',BLANK='NULL'&
-               &,FORM='FORMATTED',FILE='SPSF.DAT'&
-               &,STATUS='UNKNOWN')
-            END IF
-            CALL CLOSE_FILE(51,0)
-         END IF
-         OLDIF=LDIF
-!     IF DIFFERENTIAL CHIEF RAYS ARE TRACED, TRACE REQULAR DIFFERENTIAL
-!     RAYS AS WELL ELSE DON'T
-         IF(LDIF2) LDIF=.TRUE.
-         SAVE_KDP(3)=SAVEINPT(3)
-         SQ=0
-         SST=0
-         DF1=0
-         DF2=0
-         DF3=0
-         DF4=1
-         DF5=1
-         S1=1
-         S2=1
-         S3=1
-         S4=0
-         S5=0
-         SN=1
-         W1=0.0D0
-         W2=0.0D0
-         W3=LFOB(4)
-         WC='RAY     '
-         NOCOAT=.FALSE.
-         IF(.NOT.GLOBE) THEN
-            GRASET=.TRUE.
-            DXFSET=.TRUE.
-         END IF
-         CALL RRAY
-         NOCOAT=.TRUE.
-         LDIF=OLDIF
-         REST_KDP(3)=RESTINPT(3)
-!     NOW CALL AUXFOB TO CALCULATE DIFFERENTIAL RAY BASED FFL,BFL AND MAGS
-!     AND PUPIL DIAMETERS
-         CALL LASTRAY(1)
-         IF(LDIF2.AND.RAYEXT.AND.REFEXT) THEN
-            CALL AUXFOB(ERRFOB)
-         END IF
-         CALL LASTRAY(2)
+         CALL KDP_CMD_FOB
          RETURN
       END IF
       IF(WC.EQ.'IFOB')  THEN
@@ -2435,10 +2334,7 @@ SUBROUTINE CMDER
       END IF
       IF(WC.EQ.'SPD'.OR.WC.EQ.'FAIL'.OR.WC.EQ.'FAILACC'&
       &.OR.WC.EQ.'SPDADD'.OR.WC.EQ.'SPDSAVE'.OR.WC.EQ.'SPDSTATS') THEN
-         GRASET=.FALSE.
-         IF(WC.EQ.'SPDSTATS') SPDEXT=.FALSE.
-         MSGSPD=.TRUE.
-         CALL SPOT
+         CALL KDP_CMD_SPD
          RETURN
       END IF
       IF(WC.EQ.'ISPD')THEN
@@ -2947,10 +2843,7 @@ SUBROUTINE CMDER
          RETURN
       END IF
       IF(WC.EQ.'CAPFN') THEN
-         GRASET=.FALSE.
-         MSGSPD=.TRUE.
-         IF(DOSTREHL) MSGSPD=.FALSE.
-         CALL SPOT
+         CALL KDP_CMD_CAPFN
          RETURN
       END IF
       IF(WC.EQ.'CAPFNIN'.OR.WC.EQ.'CAPFNADD'.OR.WC.EQ.&

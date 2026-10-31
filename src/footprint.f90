@@ -11,6 +11,7 @@
 !          wavelength (CODE V's default for obscured systems).
 module footprint
   use iso_fortran_env, only: real64
+  use mod_kdp_api, only: kdp_fob, kdp_ray, kdp_spd, kdp_capfn, kdp_silent_begin, kdp_silent_end
   implicit none
   private
   public :: foo_beam, foo_trace, foo_default_nrd, foo_lens_obscured, &
@@ -113,9 +114,9 @@ contains
     logical :: pass
 
     ok = .false.
-    write(line, '(A,F0.8,1X,F0.8)') 'FOB ', sysConfig%relativeFields(2,f), &
-    &  sysConfig%relativeFields(1,f)
-    call PROCESSILENT(trim(line))
+    call kdp_silent_begin()
+    call kdp_fob(sysConfig%relativeFields(2,f), sysConfig%relativeFields(1,f))
+    call kdp_silent_end()
     call build_trace_context(ctx, check_apertures=.true.)
 
     if (boundary) then
@@ -219,8 +220,9 @@ contains
         xy(2, j) = res%rr(RR_Y, surfs(j))
       end do
     else
-      write(line, '(A,F0.10,1X,F0.10,1X,I0)') 'RAY CAOB ', py, px, iw
-      call PROCESSILENT(trim(line))
+      call kdp_silent_begin()
+      call kdp_ray(py, px, real(iw, real64), qual='CAOB')
+      call kdp_silent_end()
       pass = RAYCOD(1) == 0
       if (.not. pass) return
       do j = 1, size(surfs)

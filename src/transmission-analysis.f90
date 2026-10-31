@@ -18,6 +18,7 @@
 ! Options: FUL Y|N, NRD n (default 20).  PLI (polarization) is not done.
 module transmission_analysis
   use iso_fortran_env, only: real64
+  use mod_kdp_api, only: kdp_fob, kdp_ray, kdp_spd, kdp_capfn, kdp_silent_begin, kdp_silent_end
   implicit none
   private
   public :: tra_reset, tra_set_option, tra_go
@@ -98,9 +99,9 @@ contains
         sysConfig%relativeFields(1, f), ', Y ', sysConfig%relativeFields(2, f), ' relative)'
       call zoa_emit('', 'black')
       call zoa_emit(trim(line), 'black')
-      write(line, '(A,F0.8,1X,F0.8)') 'FOB ', sysConfig%relativeFields(2, f), &
-        sysConfig%relativeFields(1, f)
-      call PROCESSILENT(trim(line))
+      call kdp_silent_begin()
+      call kdp_fob(sysConfig%relativeFields(2, f), sysConfig%relativeFields(1, f))
+      call kdp_silent_end()
       call build_trace_context(ctx, check_apertures=.true.)
       if (f == 1 .or. ful) call zoa_emit('  WAVELENGTH_NM   WEIGHT    RAYS   SURFACES       BULK      TOTAL', &
                                          'black')
@@ -193,8 +194,9 @@ contains
       cosip(0:last) = res%rr(RR_COSIP, 0:last)
       plen(0:last) = res%rr(RR_LEN, 0:last)
     else
-      write(line, '(A,F0.10,1X,F0.10,1X,I0)') 'RAY CAOB ', py, px, iw
-      call PROCESSILENT(trim(line))
+      call kdp_silent_begin()
+      call kdp_ray(py, px, real(iw, real64), qual='CAOB')
+      call kdp_silent_end()
       pass = RAYCOD(1) == 0
       if (.not. pass) return
       cosi(0:last) = RAYRAY(9, 0:last)

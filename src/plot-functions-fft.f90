@@ -40,9 +40,7 @@ lambda = psm%getWavelengthSetting()
 fldIdx = psm%getFieldSetting()
 
 PRINT *, "fldIdx is ", fldIdx
-WRITE(ffieldstr, *) "FOB ", sysConfig%relativeFields(2,fldIdx) &
-& , ' ' , sysConfig%relativeFields(1, fldIdx)
-CALL PROCESKDP(trim(ffieldstr))
+call kdp_fob(sysConfig%relativeFields(2,fldIdx), sysConfig%relativeFields(1,fldIdx))
 
 ! Set this plot's own pupil grid, exactly as mtf_go does.  doPSF sizes its
 ! transform from the NRD/TGR globals, which without this were simply whatever
@@ -51,7 +49,9 @@ CALL PROCESKDP(trim(ffieldstr))
 ! (not just NRD) so that NRD and the transform size TGR are set consistently.
 pupilGrid = psm%getDensitySetting()
 call PROCESSILENT('NRD, '//trim(int2str(pupilGrid)))
-call PROCESSILENT('CAPFN, '//trim(int2str(pupilGrid)))
+call kdp_silent_begin()
+call kdp_capfn(pupilGrid)
+call kdp_silent_end()
 
 if (HEADLESS_MODE) then
   canvas = c_null_ptr
@@ -160,14 +160,14 @@ module procedure pma_go
   ypts = xpts
   call psm%getPMASettings(plotType, nZern)
 
-  WRITE(ffieldstr, *) "FOB ", sysConfig%relativeFields(2,fldIdx) &
-  & , ' ' , sysConfig%relativeFields(1, fldIdx)
-  CALL PROCESKDP(trim(ffieldstr))
+  call kdp_fob(sysConfig%relativeFields(2,fldIdx), sysConfig%relativeFields(1,fldIdx))
 
   ! Compute silently: CAPFN fills curr_opd (the map) and FITZERN fills the
   ! Zernike coefficients.  Their printed reports used to be dumped into the
   ! Data tab; it now gets structured data for the selected plot type instead.
-  call PROCESSILENT('CAPFN, '//trim(int2str(xpts)))
+  call kdp_silent_begin()
+  call kdp_capfn(xpts)
+  call kdp_silent_end()
   call PROCESSILENT('FITZERN, '//trim(int2str(lambda)))
 
   if (HEADLESS_MODE) then
@@ -282,11 +282,11 @@ module procedure mtf_go
   maxFreq = psm%getSettingValueByCode(SETTING_MAX_FREQUENCY)
   dFreq = psm%getSettingValueByCode(SETTING_FREQUENCY_INTERVAL)
 
-  write(ffieldstr, *) "FOB ", sysConfig%relativeFields(2,iField), ' ', &
-  &                   sysConfig%relativeFields(1,iField)
-  call PROCESKDP(trim(ffieldstr))
+  call kdp_fob(sysConfig%relativeFields(2,iField), sysConfig%relativeFields(1,iField))
   call PROCESSILENT('NRD, '//trim(int2str(xpts)))
-  call PROCESSILENT('CAPFN, '//trim(int2str(xpts)))
+  call kdp_silent_begin()
+  call kdp_capfn(xpts)
+  call kdp_silent_end()
 
   ! the cutoff frequency, in the current SPACE, at the shortest wavelength
   cutErr = .false.

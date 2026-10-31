@@ -16,6 +16,7 @@ module plot_functions
   use iso_c_binding, only:  c_ptr, c_null_char
   use zoa_plot
   use data_registers
+  use mod_kdp_api, only: kdp_fob, kdp_ray, kdp_spd, kdp_capfn, kdp_silent_begin, kdp_silent_end
 
    use iso_fortran_env, only: real64
   implicit none
@@ -126,12 +127,17 @@ subroutine zern_go(psm)
       else
         xdat(ii+1) = 0.0
       end if
-      write(ffieldstr, *) xdat(ii+1)
       ! Silent, like every other plot routine: this loop runs once per field,
       ! and with bare PROCESKDP each pass dumped the full CAPFN/FITZERN report
       ! into the console -- including whenever this tab was replotted.
-      CALL PROCESSILENT("FOB "// ffieldstr)
-      CALL PROCESSILENT("CAPFN, "//trim(int2str(pupilGrid)))
+      call kdp_silent_begin()
+      if (numPoints > 1) then
+        call kdp_fob(real(ii, real64)/real(numPoints-1, real64))
+      else
+        call kdp_fob(0.0_real64)
+      end if
+      call kdp_capfn(pupilGrid)
+      call kdp_silent_end()
       write(ffieldstr, *) lambda
       CALL PROCESSILENT("FITZERN, "//ffieldstr)
 
@@ -1101,9 +1107,7 @@ subroutine rayaberration_go(psm)
     do i=1,sysConfig%numFields
 
       ! Set Field
-      WRITE(ffieldstr, *) "FOB ", sysConfig%relativeFields(2,i) &
-      & , ' ' , sysConfig%relativeFields(1, i)
-      CALL PROCESKDP(trim(ffieldstr))
+      call kdp_fob(sysConfig%relativeFields(2,i), sysConfig%relativeFields(1,i))
       ! Set Fan Input - TODO:  add setting to change fan type
       write(ffieldstr, FMTFAN) sysConfig%refWavelengthIndex ,',',3
       
@@ -1152,9 +1156,9 @@ subroutine rayaberration_go(psm)
       ! Set Field
       ! Silent from here on: output points at the Data tab, which gets the
       ! plotted fans below rather than the legacy fan reports.
-      WRITE(ffieldstr, *) "FOB ", sysConfig%relativeFields(2,i) &
-      & , ' ' , sysConfig%relativeFields(1, i)
-      CALL PROCESSILENT(trim(ffieldstr))
+      call kdp_silent_begin()
+      call kdp_fob(sysConfig%relativeFields(2,i), sysConfig%relativeFields(1,i))
+      call kdp_silent_end()
 
 
       ! Set Fan Input - TODO:  add setting to change fan type
@@ -1360,22 +1364,27 @@ do ii = 0, numPoints-1
    x(ii+1) = 0.0
    x64(ii+1) = 0.0_real64
  end if
- write(ffieldstr, *) x(ii+1)
- CALL PROCESSILENT("FOB "// ffieldstr)
+ call kdp_silent_begin()
+ call kdp_fob(x64(ii+1))
+ call kdp_silent_end()
  select case(iData)
 
  case(ID_RMS_DATA_WAVE)
     ! Explicit grid (default 16, KDP's own): a bare CAPFN inherits the last
     ! caller's CAPDEF global, so this plot's numbers would change with
     ! whatever grid another plot had used.
-    CALL PROCESSILENT("CAPFN SILENT, "//trim(int2str(pupilGrid)))
+    call kdp_silent_begin()
+    call kdp_capfn(pupilGrid, qual='SILENT')
+    call kdp_silent_end()
     CALL PROCESSILENT("SHO RMSOPD")
     y64(ii+1) = 1000.0_real64*REG(9)
  case(ID_RMS_DATA_SPOT)
   ! PROCESSILENT, matching the wavefront branch above: a bare PROCESKDP here
   ! dumped the full KDP spot-diagram report (aperture assignment, ray-trace
   ! progress, SPOT DIAGRAM SUMMARY) into the terminal once per field point.
-  CALL PROCESSILENT("SPD")
+  call kdp_silent_begin()
+  call kdp_spd()
+  call kdp_silent_end()
   CALL PROCESSILENT("SHO RMS")
   y64(ii+1) = REG(9)
  end select
@@ -1490,9 +1499,10 @@ subroutine rad_go(psm)
   allocate(r(1, nf), w(1, nf))
   r = 0.0d0; w = 0.0d0
   do f = 1, nf
-    write(line, '(A,F0.6,1X,F0.6,A)') 'FOB ', sysConfig%relativeFields(2,f), &
-    &  sysConfig%relativeFields(1,f), '; SPD'
-    call PROCESSILENT(trim(line))
+    call kdp_silent_begin()
+    call kdp_fob(sysConfig%relativeFields(2,f), sysConfig%relativeFields(1,f))
+    call kdp_spd()
+    call kdp_silent_end()
     if (.not. allocated(DSPOTT)) cycle
     if (size(r, 1) < ITOT) then
       ! grow the per-field ray storage (fields share one array)

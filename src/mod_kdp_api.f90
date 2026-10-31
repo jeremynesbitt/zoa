@@ -37,7 +37,11 @@ module mod_kdp_api
 
   public :: kdp_lens_begin, kdp_lens_cmd, kdp_chg, kdp_lens_end
   public :: kdp_silent_begin, kdp_silent_end
+  public :: kdp_fob, kdp_ray, kdp_spd, kdp_capfn
   public :: kdp_api_set_hooks
+
+  ! CMD-level commands run by run_cmd_level
+  integer, parameter :: CMD_FOB = 1, CMD_RAY = 2, CMD_SPD = 3, CMD_CAPFN = 4
 
   abstract interface
     subroutine surf_hook_ifc(surf)
@@ -223,6 +227,68 @@ contains
 
     ! Restore the surface pointer a recompute (STO -> REFS) may have reset.
     SURF = restoreSurf
+  end subroutine
+
+  ! --- CMD-level analysis commands -----------------------------------------
+  ! Each runs the same prelude + handler CMDER does for the text command
+  ! (kdp-cmd-preludes.f90), from exact real64 arguments.  Wrap a call in
+  ! kdp_silent_begin/end for the PROCESSILENT equivalent.
+
+  ! FOB y x [z] [wl]: set the field (relative Y, X) and trace its chief ray.
+  subroutine kdp_fob(y, x, z, wl)
+    real(real64), intent(in), optional :: y, x, z, wl
+    call run_cmd_level(build_cmd('FOB', w1=y, w2=x, w3=z, w4=wl), CMD_FOB)
+  end subroutine
+
+  ! RAY [qual] py px [wl]: trace one ray at relative pupil (py, px) of the
+  ! current field; qual is e.g. 'CAOB'.
+  subroutine kdp_ray(py, px, wl, qual)
+    real(real64), intent(in), optional :: py, px, wl
+    character(len=*), intent(in), optional :: qual
+    call run_cmd_level(build_cmd('RAY', wq=qual, w1=py, w2=px, w3=wl), CMD_RAY)
+  end subroutine
+
+  ! SPD: the spot diagram at the current field.
+  subroutine kdp_spd()
+    call run_cmd_level(build_cmd('SPD'), CMD_SPD)
+  end subroutine
+
+  ! CAPFN [qual] [grid]: the wavefront at the current field on a grid x grid
+  ! pupil; qual is e.g. 'SILENT'.
+  subroutine kdp_capfn(grid, qual)
+    integer, intent(in), optional :: grid
+    character(len=*), intent(in), optional :: qual
+    if (present(grid)) then
+      call run_cmd_level(build_cmd('CAPFN', wq=qual, w1=real(grid, real64)), CMD_CAPFN)
+    else
+      call run_cmd_level(build_cmd('CAPFN', wq=qual), CMD_CAPFN)
+    end if
+  end subroutine
+
+  ! What CONTRO does around CMDER for these words: refuse outside the CMD
+  ! level, and keep the last-command record (RAY/SPD read LASTWASFOB).
+  subroutine run_cmd_level(cmd, which)
+    use DATMAI, only: F1, LASTCOMWRD, LASTWASFOB
+    type(parsed_command), intent(in) :: cmd
+    integer, intent(in) :: which
+    type(parsed_command) :: saved
+
+    if (F1 /= 1) then
+      CALL REPORT_ERROR_AND_FAIL('"'//trim(cmd%wc)//'" IS A CMD LEVEL COMMAND', 1)
+      return
+    end if
+    saved = capture_command()
+    LASTWASFOB = (LASTCOMWRD == 'FOB')
+    call apply_command(cmd)
+    select case (which)
+    case (CMD_FOB);   CALL KDP_CMD_FOB
+    case (CMD_RAY);   CALL KDP_CMD_RAY
+    case (CMD_SPD);   CALL KDP_CMD_SPD
+    case (CMD_CAPFN); CALL KDP_CMD_CAPFN
+    end select
+    LASTCOMWRD = cmd%wc
+    LASTWASFOB = (LASTCOMWRD == 'FOB')
+    call apply_command(saved)
   end subroutine
 
 end module mod_kdp_api

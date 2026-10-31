@@ -89,7 +89,7 @@ contains
   subroutine rr_populate(self)
     use DATLEN
     use global_widgets, only: sysConfig
-    use type_utils,     only: real2str, int2str
+    use mod_kdp_api,    only: kdp_fob, kdp_ray
     use zoa_output,     only: zoa_suppress_output
     class(reference_ray_manager), intent(inout) :: self
 
@@ -162,14 +162,13 @@ contains
       ! FOB sets the field and traces the chief ray into REFRY. Pass only the field
       ! (Y X) -- a 3rd FOB argument is NOT the wavelength and corrupts the trace on
       ! some lenses; the wavelength belongs on the RAY command (as execRSI does).
-      call PROCESKDP("FOB "//trim(real2str(yf))//" "//trim(real2str(xf)))
+      call kdp_fob(yf, xf)
       o = NEWOBJ; im = NEWIMG
       call store_record(self%fields(i)%ray(R1_CHIEF), REFRY, o, im, REFEXT)
 
       ! R2..R5 are real rays at the pupil edges.
       do k = R2_UPPER, R5_MINUSX
-        call PROCESKDP("RAY "//trim(real2str(pupY(k)))//" "// &
-                       trim(real2str(pupX(k)))//" "//trim(int2str(wl)))
+        call kdp_ray(pupY(k), pupX(k), real(wl, real64))
         o = NEWOBJ; im = NEWIMG
         call store_record(self%fields(i)%ray(k), RAYRAY, o, im, RAYEXT)
       end do

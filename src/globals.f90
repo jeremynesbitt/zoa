@@ -34,9 +34,8 @@ MODULE globals
    ! Display threshold: show "Infinity" in the lens editor for |thickness| above this
    real(kind=long), parameter :: INFINITY_DISPLAY_THRESHOLD = 1.0e10_long
 !
-!     PROCESS ONE OR 20 COMMANDS
+!     PROCES INITIALIZES NUMCOM (20) COMMAND SLOTS PER LINE
 !
-   LOGICAL MULTICOM
    INTEGER NUMCOM
 !
 !     NEUTRAL PLOT ARRAY STUFF

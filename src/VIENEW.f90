@@ -27,6 +27,7 @@ SUBROUTINE VIE_psm(psm)
       use mod_surface
       use mod_system, only: sys_units, sys_wl_ref
       use mod_lens_data_manager, only: ldm
+      use mod_kdp_api, only: kdp_fob
     IMPLICIT NONE
 
        type(zoaplot_setting_manager) :: psm
@@ -243,7 +244,7 @@ SUBROUTINE VIE_psm(psm)
 
 !
 !  GUT RAY
-                    CALL KDP_EXEC('FOB')
+                    call kdp_fob()
 !
           SAVE_KDP(1)=SAVEINPT(1)
           WW1=0.0D0
@@ -396,11 +397,8 @@ SUBROUTINE VIE_psm(psm)
 
    do jj = 1, numFields
 
-      SAVE_KDP(1)=SAVEINPT(1)
       COLRAY = sysConfig%fieldColorCodes(jj)
-      WRITE(INPUT, *) "FOB ", sysConfig%relativeFields(2,jj)
-      CALL PROCES
-      REST_KDP(1)=RESTINPT(1)
+      call kdp_fob(sysConfig%relativeFields(2,jj))
 
 do ii = 0, numRays-1
   relAngle = YVLO + ii*(YVHI-YVLO)/(numRays-1)
@@ -425,12 +423,8 @@ end do  !  Fields
 
    do jj = 1, numFields
 
-          SAVE_KDP(1)=SAVEINPT(1)
           COLRAY = sysConfig%fieldColorCodes(jj)
-          WRITE(INPUT, *) "FOB ", sysConfig%relativeFields(2,jj) &
-          & , ' ' , sysConfig%relativeFields(1,jj)
-          CALL PROCES
-          REST_KDP(1)=RESTINPT(1)
+          call kdp_fob(sysConfig%relativeFields(2,jj), sysConfig%relativeFields(1,jj))
 
     do ii = 0, numRays-1
       ! Note relAngle is X now not Y.

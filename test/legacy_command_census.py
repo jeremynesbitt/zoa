@@ -158,8 +158,17 @@ def print_fallback(cur, logfile):
     the test suite is a retirement candidate: nothing routed to it.  A word
     that DOES appear is still load-bearing (something -- user input or
     legacy-internal PROCESKDP traffic -- depends on the legacy handler)."""
+    # One word per line; lens-update-level (F6) hits carry a second field,
+    # "WORD<tab>LENS".
+    observed, lens_level = set(), set()
     with open(logfile, errors='replace') as f:
-        observed = {ln.strip().upper() for ln in f if ln.strip()}
+        for ln in f:
+            parts = ln.split()
+            if not parts:
+                continue
+            observed.add(parts[0].upper())
+            if len(parts) > 1 and parts[1].upper() == 'LENS':
+                lens_level.add(parts[0].upper())
     name_words = set(cur['words'])
     hit = sorted(name_words & observed)
     unseen = sorted(name_words - observed)
@@ -171,9 +180,10 @@ def print_fallback(cur, logfile):
     print(f"NAMES words that hit the legacy router:   {len(hit)}")
     print(f"NAMES words never seen (retirement cand.): {len(unseen)}")
     print(f"observed words not in NAMES (new/aliases): {len(extra)}")
-    print(f"\nlegacy-router-hit NAMES words ({len(hit)}):")
+    print(f"  of which reached LENUP at the lens-update level: {len(lens_level & name_words)}")
+    print(f"\nlegacy-router-hit NAMES words ({len(hit)}; * = also at the lens-update level):")
     for w in hit:
-        print(f"  {w}")
+        print(f"  {w}{' *' if w in lens_level else ''}")
 
 
 def main():

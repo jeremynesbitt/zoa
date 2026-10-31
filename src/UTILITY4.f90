@@ -1104,10 +1104,7 @@ SUBROUTINE INPUTT
                &INPUT(1:1).EQ.'0'&
                &.OR.INPUT(1:8).EQ.'FLDSRAYS') THEN
                ELSE
-                  IF(IN.NE.9) CALL PROCES
-                  MULTICOM=.TRUE.
-                  IF(IN.EQ.9) CALL PROCES
-                  MULTICOM=.FALSE.
+                  CALL PROCES
                END IF
                IF(F4.EQ.0) RETURN
             END IF
@@ -1205,16 +1202,10 @@ SUBROUTINE INPUTT
                &INPUT(1:1).EQ.'0'&
                &.OR.INPUT(1:8).EQ.'FLDSRAYS') THEN
                ELSE
-                  IF(IN.NE.9) CALL PROCES
-                  MULTICOM=.TRUE.
-                  IF(IN.EQ.9) CALL PROCES
-                  MULTICOM=.FALSE.
+                  CALL PROCES
                END IF
                IF(F4.EQ.0) RETURN
-               IF(IN.NE.9) CALL PROCES
-               MULTICOM=.TRUE.
-               IF(IN.EQ.9) CALL PROCES
-               MULTICOM=.FALSE.
+               CALL PROCES
             END IF
          END DO
 9991     BACKSPACE(UNIT=IN)
@@ -1223,10 +1214,7 @@ SUBROUTINE INPUTT
          CALL CLOSE_FILE(IN,1)
          IN=5
          INPUT='IN TP'
-         IF(IN.NE.9) CALL PROCES
-         MULTICOM=.TRUE.
-         IF(IN.EQ.9) CALL PROCES
-         MULTICOM=.FALSE.
+         CALL PROCES
          RETURN
       ELSE
 !     NOT IN A MACRO
@@ -1287,10 +1275,7 @@ SUBROUTINE INPUTT
                &INPUT(1:1).EQ.'0'&
                &.OR.INPUT(1:8).EQ.'FLDSRAYS') THEN
                ELSE
-                  IF(IN.NE.9) CALL PROCES
-                  MULTICOM=.TRUE.
-                  IF(IN.EQ.9) CALL PROCES
-                  MULTICOM=.FALSE.
+                  CALL PROCES
                END IF
             END IF
          END DO
@@ -1300,10 +1285,7 @@ SUBROUTINE INPUTT
          CALL CLOSE_FILE(IN,1)
          IN=5
          INPUT='IN TP'
-         IF(IN.NE.9) CALL PROCES
-         MULTICOM=.TRUE.
-         IF(IN.EQ.9) CALL PROCES
-         MULTICOM=.FALSE.
+         CALL PROCES
       END IF
       RETURN
    ELSE
@@ -1340,10 +1322,7 @@ SUBROUTINE INPUTT
             IF(F4.EQ.0) RETURN
             READ(UNIT=IN,FMT=100,END=9998,ERR=9998) INPUT
             IF(F4.EQ.0) RETURN
-            IF(IN.NE.9) CALL PROCES
-            MULTICOM=.TRUE.
-            IF(IN.EQ.9) CALL PROCES
-            MULTICOM=.FALSE.
+            CALL PROCES
          END DO
 9998     BACKSPACE(UNIT=IN)
          BACKSPACE(UNIT=IN)
@@ -1351,10 +1330,7 @@ SUBROUTINE INPUTT
          CLOSE (UNIT=IN)
          IN=5
          INPUT='IN TP'
-         IF(IN.NE.9) CALL PROCES
-         MULTICOM=.TRUE.
-         IF(IN.EQ.9) CALL PROCES
-         MULTICOM=.FALSE.
+         CALL PROCES
          RETURN
       ELSE
 !     NOT IN A MACRO

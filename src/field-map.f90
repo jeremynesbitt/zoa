@@ -17,6 +17,7 @@
 ! data restored afterwards).
 module field_map
   use iso_fortran_env, only: real64
+  use mod_kdp_api, only: kdp_fob, kdp_ray, kdp_spd, kdp_capfn, kdp_silent_begin, kdp_silent_end
   implicit none
   private
   public :: FMA_RWE, FMA_RSD, FMA_DST, fma_metric_name, fma_metric_unit, fma_evaluate
@@ -134,8 +135,10 @@ contains
     integer :: i, n
 
     d = 0.0_real64; ok = .false.
-    write(line, '(A,F0.8,1X,F0.8,A)') 'FOB ', fy, fx, '; SPD'
-    call PROCESSILENT(trim(line))
+    call kdp_silent_begin()
+    call kdp_fob(fy, fx)
+    call kdp_spd()
+    call kdp_silent_end()
     if (.not. allocated(DSPOTT)) return
     cx = 0.0_real64; cy = 0.0_real64; wsum = 0.0_real64; n = 0
     do i = 1, ITOT - 1
@@ -169,8 +172,9 @@ contains
     real(real64) :: ri, ra
 
     pct = 0.0_real64; pts = 0.0_real64; ok = .false.
-    write(line, '(A,F0.8,1X,F0.8)') 'FOB ', fy, fx
-    call PROCESSILENT(trim(line))
+    call kdp_silent_begin()
+    call kdp_fob(fy, fx)
+    call kdp_silent_end()
     if (.not. REFEXT) return
     pts(1:2) = REFRY(1:2, NEWIMG)
     if (abs(surf_thickness(NEWOBJ)) >= 1.0e10_real64) then

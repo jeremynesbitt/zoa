@@ -153,6 +153,7 @@ srcs += files(
   'BMPJN.f90',
   'CMDCHECKING.f90',
   'CMDER.f90',
+  'kdp-cmd-preludes.f90',
   'CONFIG1.f90',
   'CONFIG2.f90',
   'CONFIG3.f90',

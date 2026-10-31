@@ -476,15 +476,28 @@ not user commands — so the next reductions come from migrating that internal
 traffic to kdp_api (or new-native handlers), which shrinks the fallback set
 directly.
 
-Follow-ups:
-- Extract CMDER FOB/RAY/CAPFN/SPD preludes into shared subroutines, then add
-  kdp_fob/kdp_ray/kdp_get/kdp_capfn/kdp_spd typed entry points.
-- Migrate the reference-ray / plot-function FOB/RAY text builders once the
-  above exists.
-- Fallback telemetry currently covers CMD level (F1) only; lens-update-level
-  (F6) fallback is not yet counted.
-- MULTICOM is now vestigial (PRO3 always initializes all 20 instruction slots
-  after the NUMCOM=20 fix); it can be removed in a later parser cleanup.
+Follow-ups (progress 2026-10-30):
+- DONE: the CMDER FOB/FOBH, RAY, SPD and CAPFN preludes are shared
+  subroutines (`KDP_CMD_FOB/_RAY/_SPD/_CAPFN`, src/kdp-cmd-preludes.f90) that
+  CMDER and the new typed entry points `kdp_fob(y,x,z,wl)`,
+  `kdp_ray(py,px,wl,qual)`, `kdp_spd()`, `kdp_capfn(grid,qual)` (mod_kdp_api)
+  both run; the typed path also keeps CONTRO's last-command record
+  (LASTWASFOB) and refuses outside the CMD level.  Wrap in
+  kdp_silent_begin/end for the PROCESSILENT equivalent.
+- DONE: migrated off command text -- reference rays (mod_reference_rays),
+  FMA, FOO, TRA, WAV, ZRNFLD, PLTRMS, RAD, RIM, PSF/PMA/MTF, BES's focus
+  search, ZRN, RSI, the VIE field loops (which used raw INPUT=/PROCES with
+  SAVE_KDP slots).  Every golden ref stayed byte-identical.
+- Remaining text sites: `getKDPSpotPlotCommand` (plot-command-utils; the
+  spot plots run one compound "FOB ...; SPOT ...; SPD" string), DXF and
+  RAYTRA1's legacy INPUT=/PROCES dances, and the GET/SHO queries the plots
+  use for results (`SHO RMSOPD`, `SHO RMS`) -- a `kdp_get` is the next step.
+- DONE: fallback telemetry also counts the lens-update level (F6): CONTRO
+  records each word that reaches LENUP; the log line is `WORD<tab>LENS`,
+  FALLBACK marks those `(U L)`, and `legacy_command_census.py --fallback`
+  reports them (36 NAMES words reach LENUP over the suite).  Over the
+  current suite 145 of 1110 NAMES words reach a legacy router.
+- DONE: MULTICOM removed.
 
 ---
 
