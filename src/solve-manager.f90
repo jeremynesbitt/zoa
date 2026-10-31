@@ -39,6 +39,8 @@ module solve_manager
   public :: solve_kind_from_cmd, solve_kind_at
   public :: solve_code, solve_target
   public :: surf_has_thi_solve, surf_has_curv_solve, surf_has_any_solve
+  public :: surf_has_yz_thi_solve, surf_has_xz_thi_solve
+  public :: surf_has_yz_curv_solve, surf_has_xz_curv_solve
   public :: solve_set_cmd, solve_remove_cmd, solve_del_cmd
   public :: solve_kdp_from_codev, solve_save_line, solve_ui_cmd
 
@@ -151,6 +153,28 @@ contains
     i = solve_kind_at(type_slot, code)
     if (i == 0) return
     tgt = SOLVE(SOLVE_KINDS(i)%tgt_slot, s)
+  end function
+
+  ! Surface has a solve of this plane and class?  Derived from the SOLVE
+  ! codes, so always current (these replace the old ALENS(33) solve counter).
+  logical function surf_has_yz_thi_solve(s)
+    integer, intent(in) :: s
+    surf_has_yz_thi_solve = solve_code(s, SLV_YZ_THI_SLOT) /= 0
+  end function
+
+  logical function surf_has_xz_thi_solve(s)
+    integer, intent(in) :: s
+    surf_has_xz_thi_solve = solve_code(s, SLV_XZ_THI_SLOT) /= 0
+  end function
+
+  logical function surf_has_yz_curv_solve(s)
+    integer, intent(in) :: s
+    surf_has_yz_curv_solve = solve_code(s, SLV_YZ_CURV_SLOT) /= 0
+  end function
+
+  logical function surf_has_xz_curv_solve(s)
+    integer, intent(in) :: s
+    surf_has_xz_curv_solve = solve_code(s, SLV_XZ_CURV_SLOT) /= 0
   end function
 
   ! Surface has a thickness solve (either plane)?

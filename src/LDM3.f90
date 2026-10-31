@@ -2382,6 +2382,7 @@ SUBROUTINE SSA
 END
 ! SUB SRTG.FOR
 SUBROUTINE SRTG(LBT,RTGERROR)
+   use solve_manager, only: surf_has_any_solve
    use global_widgets
 !
    use DATLEN
@@ -2511,7 +2512,7 @@ SUBROUTINE SRTG(LBT,RTGERROR)
 !       PIKUPS
             IF(surf_special_type(I).NE.0.0D0) SPEC='*'
 !       SOLVES
-            IF(surf_solve_flag(I).NE.0.0D0) SPEC='*'
+            IF(surf_has_any_solve(I)) SPEC='*'
 !       REFS
             IF(INT(sys_ref_surf()).EQ.I) SPEC='*'
 !       STOP
@@ -2533,7 +2534,7 @@ SUBROUTINE SRTG(LBT,RTGERROR)
 !       PIKUPS
             IF(surf_special_type(I).NE.0.0D0) SPECC(43:47)='Pikup'
 !       SOLVES
-            IF(surf_solve_flag(I).NE.0.0D0) SPECC(49:53)='Solve'
+            IF(surf_has_any_solve(I)) SPECC(49:53)='Solve'
 !       REFS
             IF(INT(sys_ref_surf()).EQ.I) SPECC(55:58)='REFS'
 !       STOP
@@ -2783,7 +2784,7 @@ SUBROUTINE SRTG(LBT,RTGERROR)
 !       PIKUPS
             IF(surf_special_type(I).NE.0.0D0) SPEC='*'
 !       SOLVES
-            IF(surf_solve_flag(I).NE.0.0D0) SPEC='*'
+            IF(surf_has_any_solve(I)) SPEC='*'
 !       REFS
             IF(INT(sys_ref_surf()).EQ.I) SPEC='*'
 !       STOP
@@ -2803,7 +2804,7 @@ SUBROUTINE SRTG(LBT,RTGERROR)
 !       PIKUPS
             IF(surf_special_type(I).NE.0.0D0) SPECC(43:47)='Pikup'
 !       SOLVES
-            IF(surf_solve_flag(I).NE.0.0D0) SPECC(49:53)='Solve'
+            IF(surf_has_any_solve(I)) SPECC(49:53)='Solve'
 !       REFS
             IF(INT(sys_ref_surf()).EQ.I) SPECC(55:58)='REFS'
 !       STOP
@@ -3056,7 +3057,7 @@ SUBROUTINE SRTG(LBT,RTGERROR)
 !       PIKUPS
          IF(surf_special_type(I).NE.0.0D0) SPEC='*'
 !       SOLVES
-         IF(surf_solve_flag(I).NE.0.0D0) SPEC='*'
+         IF(surf_has_any_solve(I)) SPEC='*'
 !       REFS
          IF(INT(sys_ref_surf()).EQ.I) SPEC='*'
 !       STOP
@@ -3076,7 +3077,7 @@ SUBROUTINE SRTG(LBT,RTGERROR)
 !       PIKUPS
          IF(surf_special_type(I).NE.0.0D0) SPECC(43:47)='Pikup'
 !       SOLVES
-         IF(surf_solve_flag(I).NE.0.0D0) SPECC(49:53)='Solve'
+         IF(surf_has_any_solve(I)) SPECC(49:53)='Solve'
 !       REFS
          IF(INT(sys_ref_surf()).EQ.I) SPECC(55:58)='REFS'
 !       STOP
@@ -3154,7 +3155,7 @@ SUBROUTINE SRTG(LBT,RTGERROR)
 !       PIKUPS
          IF(surf_special_type(I).NE.0.0D0) SPEC='*'
 !       SOLVES
-         IF(surf_solve_flag(I).NE.0.0D0) SPEC='*'
+         IF(surf_has_any_solve(I)) SPEC='*'
 !       REFS
          IF(INT(sys_ref_surf()).EQ.I) SPEC='*'
 !       STOP
@@ -3174,7 +3175,7 @@ SUBROUTINE SRTG(LBT,RTGERROR)
 !       PIKUPS
          IF(surf_special_type(I).NE.0.0D0) SPECC(43:47)='Pikup'
 !       SOLVES
-         IF(surf_solve_flag(I).NE.0.0D0) SPECC(49:53)='Solve'
+         IF(surf_has_any_solve(I)) SPECC(49:53)='Solve'
 !       REFS
          IF(INT(sys_ref_surf()).EQ.I) SPECC(55:58)='REFS'
 !       STOP
@@ -3273,7 +3274,7 @@ SUBROUTINE SRTG(LBT,RTGERROR)
 !       PIKUPS
          IF(surf_special_type(I).NE.0.0D0) SPEC='*'
 !       SOLVES
-         IF(surf_solve_flag(I).NE.0.0D0) SPEC='*'
+         IF(surf_has_any_solve(I)) SPEC='*'
 !       REFS
          IF(INT(sys_ref_surf()).EQ.I) SPEC='*'
 !       STOP
@@ -3293,7 +3294,7 @@ SUBROUTINE SRTG(LBT,RTGERROR)
 !       PIKUPS
          IF(surf_special_type(I).NE.0.0D0) SPECC(43:47)='Pikup'
 !       SOLVES
-         IF(surf_solve_flag(I).NE.0.0D0) SPECC(49:53)='Solve'
+         IF(surf_has_any_solve(I)) SPECC(49:53)='Solve'
 !       REFS
          IF(INT(sys_ref_surf()).EQ.I) SPECC(55:58)='REFS'
 !       STOP
@@ -3342,7 +3343,7 @@ SUBROUTINE SRTG(LBT,RTGERROR)
 !       PIKUPS
          IF(surf_special_type(I).NE.0.0D0) SPEC='*'
 !       SOLVES
-         IF(surf_solve_flag(I).NE.0.0D0) SPEC='*'
+         IF(surf_has_any_solve(I)) SPEC='*'
 !       REFS
          IF(INT(sys_ref_surf()).EQ.I) SPEC='*'
 !       STOP
@@ -3362,7 +3363,7 @@ SUBROUTINE SRTG(LBT,RTGERROR)
 !       PIKUPS
          IF(surf_special_type(I).NE.0.0D0) SPECC(43:47)='Pikup'
 !       SOLVES
-         IF(surf_solve_flag(I).NE.0.0D0) SPECC(49:53)='Solve'
+         IF(surf_has_any_solve(I)) SPECC(49:53)='Solve'
 !       REFS
          IF(INT(sys_ref_surf()).EQ.I) SPECC(55:58)='REFS'
 !       STOP
@@ -3431,7 +3432,7 @@ SUBROUTINE SRTG(LBT,RTGERROR)
 !       PIKUPS
          IF(surf_special_type(I).NE.0.0D0) SPEC='*'
 !       SOLVES
-         IF(surf_solve_flag(I).NE.0.0D0) SPEC='*'
+         IF(surf_has_any_solve(I)) SPEC='*'
 !       REFS
          IF(INT(sys_ref_surf()).EQ.I) SPEC='*'
 !       STOP
@@ -3451,7 +3452,7 @@ SUBROUTINE SRTG(LBT,RTGERROR)
 !       PIKUPS
          IF(surf_special_type(I).NE.0.0D0) SPECC(43:47)='Pikup'
 !       SOLVES
-         IF(surf_solve_flag(I).NE.0.0D0) SPECC(49:53)='Solve'
+         IF(surf_has_any_solve(I)) SPECC(49:53)='Solve'
 !       REFS
          IF(INT(sys_ref_surf()).EQ.I) SPECC(55:58)='REFS'
 !       STOP
@@ -3528,7 +3529,7 @@ SUBROUTINE SRTG(LBT,RTGERROR)
 !       PIKUPS
          IF(surf_special_type(I).NE.0.0D0) SPEC='*'
 !       SOLVES
-         IF(surf_solve_flag(I).NE.0.0D0) SPEC='*'
+         IF(surf_has_any_solve(I)) SPEC='*'
 !       REFS
          IF(INT(sys_ref_surf()).EQ.I) SPEC='*'
 !       STOP
@@ -3548,7 +3549,7 @@ SUBROUTINE SRTG(LBT,RTGERROR)
 !       PIKUPS
          IF(surf_special_type(I).NE.0.0D0) SPECC(43:47)='Pikup'
 !       SOLVES
-         IF(surf_solve_flag(I).NE.0.0D0) SPECC(49:53)='Solve'
+         IF(surf_has_any_solve(I)) SPECC(49:53)='Solve'
 !       REFS
          IF(INT(sys_ref_surf()).EQ.I) SPECC(55:58)='REFS'
 !       STOP

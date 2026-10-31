@@ -43,7 +43,6 @@ module mod_surface
         surf_toric_flag,      set_surf_toric_flag,       &
         surf_toric_curvature, set_surf_toric_curvature,  &
         surf_pickup_count,    set_surf_pickup_count,     &
-        surf_solve_flag,      set_surf_solve_flag,       &
         surf_anamorphic_flag,   set_surf_anamorphic_flag,  &
         surf_anamorphic_coeff,  set_surf_anamorphic_coeff, &
         surf_anamorphic_conic,  set_surf_anamorphic_conic, &
@@ -564,17 +563,8 @@ contains
         ALENS(32, s) = real(val, real64)
     end subroutine
 
-    ! Solve flag is composite real (e.g. 3.3 = YZ+XZ curvature+thickness)
-    real(real64) function surf_solve_flag(s)
-        integer, intent(in) :: s
-        surf_solve_flag = ALENS(33, s)
-    end function
-
-    subroutine set_surf_solve_flag(s, val)
-        integer, intent(in) :: s
-        real(real64), intent(in) :: val
-        ALENS(33, s) = val
-    end subroutine
+    ! ALENS(33) was the solve counter; solves are queried from solve_manager
+    ! (surf_has_*_solve), derived from the SOLVE codes.
 
     ! Anamorphic asphere group (ALENS 36-41)
     integer function surf_anamorphic_flag(s)

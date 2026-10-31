@@ -2,6 +2,7 @@
 
 ! SUB SASTOP.FOR
 SUBROUTINE SASTOP
+   use solve_manager, only: surf_has_thi_solve, surf_has_curv_solve
 !
    use DATLEN
    use mod_surface
@@ -114,8 +115,7 @@ SUBROUTINE SASTOP
 !       DELETE SOLVES BETWEEN 0 AND DBLE(SURF) IF THERE ARE
 !       ARE ANY
       DO I=0,SURF-1
-         IF(surf_solve_flag(I).EQ.1.0D0) THEN
-            call set_surf_solve_flag(I, 0.0D0)
+         IF(surf_has_thi_solve(I).AND..NOT.surf_has_curv_solve(I)) THEN
             OUTLYNE='THICKNESS SOLVE INFRONT OF APERTURE STOP'
             CALL SHOWIT(1)
             WRITE(OUTLYNE,*)'IS BEING DELETED ON SURFACE ',SURF
@@ -124,8 +124,7 @@ SUBROUTINE SASTOP
             SOLVE(0:9,I)=0.0D0
          END IF
 !
-         IF(surf_solve_flag(I).EQ.2.0D0) THEN
-            call set_surf_solve_flag(I, 0.0D0)
+         IF(surf_has_curv_solve(I).AND..NOT.surf_has_thi_solve(I)) THEN
             OUTLYNE='CURVATURE SOLVE INFRONT OF APERTURE STOP'
             CALL SHOWIT(1)
             WRITE(OUTLYNE,*)'IS BEING DELETED ON SURFACE ',SURF
@@ -134,8 +133,7 @@ SUBROUTINE SASTOP
             SOLVE(0:9,I)=0.0D0
          END IF
 !
-         IF(surf_solve_flag(I).EQ.3.0D0) THEN
-            call set_surf_solve_flag(I, 0.0D0)
+         IF(surf_has_thi_solve(I).AND.surf_has_curv_solve(I)) THEN
             OUTLYNE='CURVATURE AND THICKNESS SOLVES INFRONT OF APERTURE STOP'
             CALL SHOWIT(1)
             WRITE(OUTLYNE,*)'ARE BEING DELETED ON SURFACE ',SURF

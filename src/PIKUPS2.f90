@@ -115,12 +115,6 @@ SUBROUTINE PIKCV
       IF(SOLVE(8,SURF).GT.0.0D0) THEN
          SOLVE(8,SURF)=0.0D0
          SOLVE(9,SURF)=0.0D0
-!       RECALCULATE surf_solve_flag(SURF)
-         call set_surf_solve_flag(SURF, 0.0D0)
-         IF(SOLVE(6,SURF).GT.0.0D0)call set_surf_solve_flag(SURF, surf_solve_flag(SURF)+1.0D0)
-         IF(SOLVE(4,SURF).GT.0.0D0)call set_surf_solve_flag(SURF, surf_solve_flag(SURF)+0.1D0)
-         IF(SOLVE(8,SURF).GT.0.0D0)call set_surf_solve_flag(SURF, surf_solve_flag(SURF)+2.0D0)
-         IF(SOLVE(2,SURF).GT.0.0D0)call set_surf_solve_flag(SURF, surf_solve_flag(SURF)+0.2D0)
          WRITE(OUTLYNE,*)'SURFACE',SURF,' :YZ PLANE CURVATURE SOLVE DELETED'
          CALL SHOWIT(1)
       END IF
@@ -131,12 +125,6 @@ SUBROUTINE PIKCV
       IF(SOLVE(2,SURF).GT.0.0D0) THEN
          SOLVE(2,SURF)=0.0D0
          SOLVE(1,SURF)=0.0D0
-!       RECALCULATE surf_solve_flag(SURF)
-         call set_surf_solve_flag(SURF, 0.0D0)
-         IF(SOLVE(6,SURF).GT.0.0D0)call set_surf_solve_flag(SURF, surf_solve_flag(SURF)+1.0D0)
-         IF(SOLVE(4,SURF).GT.0.0D0)call set_surf_solve_flag(SURF, surf_solve_flag(SURF)+0.1D0)
-         IF(SOLVE(8,SURF).GT.0.0D0)call set_surf_solve_flag(SURF, surf_solve_flag(SURF)+2.0D0)
-         IF(SOLVE(2,SURF).GT.0.0D0)call set_surf_solve_flag(SURF, surf_solve_flag(SURF)+0.2D0)
          WRITE(OUTLYNE,*)'SURFACE',SURF,' :XZ PLANE CURVATURE SOLVE DELETED'
          CALL SHOWIT(1)
       END IF
@@ -686,16 +674,18 @@ SUBROUTINE LINKIT(LERROR)
    LOGICAL LERROR
    CHARACTER IAVAL*3
    type(parsed_command) :: saved, shifted, cmdRec
-      CALL KDP_EXEC('UPDATE LENS')
-   IVAL=W1
-   IF(IVAL.LT.0.OR.IVAL.GT.sys_last_surf())OUTLYNE='INVALID TARGET SURFACE NUMBER FOR LINKING'
-   IF(IVAL.LT.0.OR.IVAL.GT.sys_last_surf())CALL SHOWIT(1)
-   IF(IVAL.LT.0.OR.IVAL.GT.sys_last_surf()) THEN
-      OUTLYNE='RE-ENTER COMMAND'
-      CALL SHOWIT(1)
+!       "LINK t ..." / "LINKD t ..." act on target surface t: check it
+!       before opening the lens update level, so a bad number leaves no
+!       level open.
+   IVAL=INT(W1)
+   IF(DF1.EQ.1.OR.IVAL.LT.0.OR.IVAL.GT.INT(sys_last_surf())) THEN
+      LERROR=.TRUE.
+      CALL REPORT_ERROR_AND_FAIL(&
+      & 'INVALID TARGET SURFACE NUMBER FOR LINKING'//'\n'//&
+      & 'RE-ENTER COMMAND', 1)
+      RETURN
    END IF
-   LERROR=.TRUE.
-   CALL MACFAL
+      CALL KDP_EXEC('UPDATE LENS')
    CALL NTOAN1(IVAL,IAVAL)
    IF(WC.EQ.'LINK') THEN
             CALL KDP_EXEC('CHG '//IAVAL)

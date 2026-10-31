@@ -160,11 +160,12 @@ END
 
 ! SUB PRSLV.FOR
 SUBROUTINE PRSLV
+   use solve_manager, only: surf_has_any_solve, surf_has_yz_thi_solve, surf_has_xz_thi_solve, surf_has_yz_curv_solve, surf_has_xz_curv_solve
 !
    use DATLEN
    use mod_surface
    use DATMAI
-   use mod_surface, only: surf_solve_flag, surf_thickness, surf_curvature
+   use mod_surface, only: surf_thickness, surf_curvature
    use mod_system, only: sys_last_surf
    use iso_fortran_env, only: real64
    IMPLICIT NONE
@@ -177,7 +178,7 @@ SUBROUTINE PRSLV
 !
    CHARACTER TYPE1*4,TYPE2*2,TYPE3*4,TYPE4*2
 !
-   INTEGER SLVCNT,SUR,FRACPT,INTPRT,SURFF
+   INTEGER SLVCNT,SUR,SURFF
 !
    real(real64) PARVAL,SLVVAL
 !
@@ -260,7 +261,7 @@ SUBROUTINE PRSLV
 !
 !       FIRST DETERMINE IF THERE ARE SOLVES ON A SURFACE
 !
-      IF(surf_solve_flag(SURFF).EQ.0.0D0) THEN
+      IF(.NOT.surf_has_any_solve(SURFF)) THEN
 !       NO SOLVES
          WRITE(OUTLYNE,110) SURFF
          CALL SHOWIT(0)
@@ -268,8 +269,7 @@ SUBROUTINE PRSLV
       ELSE
       END IF
 !       THERE ARE SOLVES
-      INTPRT=INT(surf_solve_flag(SURFF))
-      IF(INTPRT.EQ.1.OR.INTPRT.EQ.3) THEN
+      IF(surf_has_yz_thi_solve(SURFF)) THEN
 !       THERE ARE YZ PLANE THICKNESS SOLVES TO PRINT
          IF(SOLVE(6,SURFF).EQ.1.0D0) TYPE1='PY'
          IF(SOLVE(6,SURFF).EQ.2.0D0) TYPE1='PCY'
@@ -285,8 +285,7 @@ SUBROUTINE PRSLV
 !       NO YZ THICKNESS SOLVES
       END IF
 !       NOW HOW ABOUT XZ PLANE
-      FRACPT=INT((surf_solve_flag(SURFF)*10))-(DBLE(INT(surf_solve_flag(SURFF)))*10.0D0)
-      IF(FRACPT.EQ.1.OR.FRACPT.EQ.3) THEN
+      IF(surf_has_xz_thi_solve(SURFF)) THEN
 !       THERE ARE XZ PLANE THICKNESS SOLVES TO PRINT
          IF(SOLVE(4,SURFF).EQ.4.0D0) TYPE1='PX'
          IF(SOLVE(4,SURFF).EQ.5.0D0) TYPE1='PCX'
@@ -301,8 +300,7 @@ SUBROUTINE PRSLV
       ELSE
       END IF
 !       CHECK FOR CURVATURE SOLVES
-      INTPRT=INT(surf_solve_flag(SURFF))
-      IF(INTPRT.EQ.2.OR.INTPRT.EQ.3) THEN
+      IF(surf_has_yz_curv_solve(SURFF)) THEN
 !       YZ PLANE CURVATURE SOLVES TO PRINT
          IF(SOLVE(8,SURFF).EQ.1.0D0)  TYPE3='APY'
          IF(SOLVE(8,SURFF).EQ.2.0D0)  TYPE3='PIY'
@@ -322,8 +320,7 @@ SUBROUTINE PRSLV
 !       NO YZ PLANE CURVATURE SOLVES TO PRINT
       END IF
 !       CHECK FOR XZ PLANE CURVATURE SOLVE
-      FRACPT=INT((surf_solve_flag(SURFF)*10))-(DBLE(INT(surf_solve_flag(SURFF)))*10.0D0)
-      IF(FRACPT.EQ.2.OR.FRACPT.EQ.3) THEN
+      IF(surf_has_xz_curv_solve(SURFF)) THEN
 !       XZ PLANE CURVATURE SOLVES TO PRINT
          IF(SOLVE(2,SURFF).EQ.8.0D0)  TYPE3='APX'
          IF(SOLVE(2,SURFF).EQ.9.0D0)  TYPE3='PIX'
@@ -352,7 +349,7 @@ SUBROUTINE PRSLV
 !       SET THE SOLVE COUNTER. IT IS USED TO DETERMINE
 !       THE CASE OF NO SOLVES IN A LENS
       DO 16 SUR=0,INT(sys_last_surf())
-         IF(surf_solve_flag(SUR).NE.0.0D0) THEN
+         IF(surf_has_any_solve(SUR)) THEN
             SLVCNT=SLVCNT+1
          ELSE
          END IF
@@ -373,14 +370,13 @@ SUBROUTINE PRSLV
       DO 15 SUR=0,INT(sys_last_surf())
 !
 !       CHECK FOR A SOLVE ON CURRENT SURFACE
-         IF(surf_solve_flag(SUR).EQ.0.0D0) THEN
+         IF(.NOT.surf_has_any_solve(SUR)) THEN
 !       NO SOLVES, GO TO NEXT SURFACE BY A (GO TO 15)
             GO TO 15
          ELSE
          END IF
 !       THERE ARE SOLVES
-         INTPRT=INT(surf_solve_flag(SUR))
-         IF(INTPRT.EQ.1.OR.INTPRT.EQ.3) THEN
+         IF(surf_has_yz_thi_solve(SUR)) THEN
 !       THERE ARE YZ PLANE THICKNESS SOLVES TO PRINT
             IF(SOLVE(6,SUR).EQ.1.0D0) TYPE1='PY'
             IF(SOLVE(6,SUR).EQ.2.0D0) TYPE1='PCY'
@@ -392,8 +388,7 @@ SUBROUTINE PRSLV
             CALL SHOWIT(0)
          ELSE
          END IF
-         FRACPT=INT((surf_solve_flag(SUR)*10))-(DBLE(INT(surf_solve_flag(SUR)))*10.0D0)
-         IF(FRACPT.EQ.1.OR.FRACPT.EQ.3) THEN
+         IF(surf_has_xz_thi_solve(SUR)) THEN
 !       THERE ARE XZ PLANE THICKNESS SOLVES TO PRINT
             IF(SOLVE(4,SUR).EQ.4.0D0) TYPE1='PX'
             IF(SOLVE(4,SUR).EQ.5.0D0) TYPE1='PCX'
@@ -406,8 +401,7 @@ SUBROUTINE PRSLV
          ELSE
          END IF
 !       CHECK FOR CURVATURE SOLVES
-         INTPRT=(INT(surf_solve_flag(SUR)))
-         IF(INTPRT.EQ.2.OR.INTPRT.EQ.3) THEN
+         IF(surf_has_yz_curv_solve(SUR)) THEN
 !       YZ PLANE CURVATURE SOLVES TO PRINT
             IF(SOLVE(8,SUR).EQ.1.0D0)  TYPE3='APY'
             IF(SOLVE(8,SUR).EQ.2.0D0)  TYPE3='PIY'
@@ -425,8 +419,7 @@ SUBROUTINE PRSLV
 !       NO YZ PLANE CURVATURE SOLVES TO PRINT
          END IF
 !       CHECK FOR XZ PLANE CURVATURE SOLVE
-         FRACPT=INT((surf_solve_flag(SUR)*10))-(DBLE(INT(surf_solve_flag(SUR)))*10.0D0)
-         IF(FRACPT.EQ.2.OR.FRACPT.EQ.3) THEN
+         IF(surf_has_xz_curv_solve(SUR)) THEN
 !       XZ PLANE CURVATURE SOLVES TO PRINT
             IF(SOLVE(2,SUR).EQ.8.0D0)  TYPE3='APX'
             IF(SOLVE(2,SUR).EQ.9.0D0)  TYPE3='PIX'

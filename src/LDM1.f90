@@ -2753,13 +2753,7 @@ SUBROUTINE THSOLV
       ELSE
       END IF
 !
-!       CALCULATE THE CORRECT VALUE OF surf_solve_flag(SURF)
 !
-      call set_surf_solve_flag(SURF, 0.0D0)
-      IF(SOLVE(6,SURF).GT.0.0D0)call set_surf_solve_flag(SURF, surf_solve_flag(SURF)+1.0D0)
-      IF(SOLVE(4,SURF).GT.0.0D0)call set_surf_solve_flag(SURF, surf_solve_flag(SURF)+0.1D0)
-      IF(SOLVE(8,SURF).GT.0.0D0)call set_surf_solve_flag(SURF, surf_solve_flag(SURF)+2.0D0)
-      IF(SOLVE(2,SURF).GT.0.0D0)call set_surf_solve_flag(SURF, surf_solve_flag(SURF)+0.2D0)
 
 !       IF THERE IS A THICKNESS PIKUP ON THIS SURFACE,
 !       DELETE IT.
@@ -2885,13 +2879,7 @@ SUBROUTINE THSOLV
             CALL SHOWIT(1)
          END IF
 !
-!       RE-COMPUTE surf_solve_flag(SF)
 !
-         call set_surf_solve_flag(SF, 0.0D0)
-         IF(SOLVE(6,SF).GT.0.0D0)call set_surf_solve_flag(SF, surf_solve_flag(SF)+1.0D0)
-         IF(SOLVE(4,SF).GT.0.0D0)call set_surf_solve_flag(SF, surf_solve_flag(SF)+0.1D0)
-         IF(SOLVE(8,SF).GT.0.0D0)call set_surf_solve_flag(SF, surf_solve_flag(SF)+2.0D0)
-         IF(SOLVE(2,SF).GT.0.0D0)call set_surf_solve_flag(SF, surf_solve_flag(SF)+0.2D0)
 900      CONTINUE
       END DO
       RETURN

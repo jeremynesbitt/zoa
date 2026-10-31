@@ -4021,6 +4021,7 @@ SUBROUTINE BLKHEAD
 END
 ! SUB CVFLIP.FOR
 SUBROUTINE CVFLIP
+   use solve_manager, only: surf_has_any_solve
 !
    use DATLEN
    use mod_surface
@@ -4147,7 +4148,7 @@ SUBROUTINE CVFLIP
    END DO
 21 CONTINUE
    DO K=I,J
-      IF(surf_special_type(K).NE.0.0D0.OR.surf_solve_flag(K).NE.0.0D0) THEN
+      IF(surf_special_type(K).NE.0.0D0.OR.surf_has_any_solve(K)) THEN
          WRITE(OUTLYNE,*)'WARNING:'
          CALL SHOWIT(1)
          WRITE(OUTLYNE,*)'THERE ARE PIKUPS OR TILTS IN THE SURFACE NUMBER RANGE'

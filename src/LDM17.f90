@@ -2,6 +2,7 @@
 
 ! SUB LENOUT.FOR
 SUBROUTINE LENOUT
+   use solve_manager, only: surf_has_any_solve
    USE GLOBALS
 !
    use DATCFG
@@ -105,7 +106,7 @@ SUBROUTINE LENOUT
 !     PLANE LENO ONLY
          CAL=.FALSE.
          DO I=0,INT(sys_last_surf())
-            IF(surf_special_type(I).NE.0.0D0.OR.surf_solve_flag(I).NE.0.0D0) CAL=.TRUE.
+            IF(surf_special_type(I).NE.0.0D0.OR.surf_has_any_solve(I)) CAL=.TRUE.
          END DO
          IF(CAL) THEN
 !       YES GO TO THE U L CYCLE
@@ -113,7 +114,7 @@ SUBROUTINE LENOUT
             CALL SHOWIT(10)
 10          FORMAT('U        L')
             DO I=0,INT(sys_last_surf())
-               IF(surf_special_type(I).NE.0.0D0.OR.surf_solve_flag(I).NE.0.0D0) THEN
+               IF(surf_special_type(I).NE.0.0D0.OR.surf_has_any_solve(I)) THEN
 !       SOLVES AND/OR PIKUPS EXITS, CALL PIKSLV
                   WRITE(OUTLYNE,11) DBLE(I)
                   CALL SHOWIT(10)

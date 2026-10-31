@@ -2411,12 +2411,6 @@ SUBROUTINE SCVR
             CALL SHOWIT(1)
          END IF
       END IF
-!       NOW RE-CALCULATE surf_solve_flag(SURF) THE SOLVE COUNTER
-      call set_surf_solve_flag(SURF, 0.0D0)
-      IF(SOLVE(6,SURF).GT.0.0D0) call set_surf_solve_flag(SURF, surf_solve_flag(SURF)+1.0D0)
-      IF(SOLVE(4,SURF).GT.0.0D0) call set_surf_solve_flag(SURF, surf_solve_flag(SURF)+0.1D0)
-      IF(SOLVE(8,SURF).GT.0.0D0) call set_surf_solve_flag(SURF, surf_solve_flag(SURF)+2.0D0)
-      IF(SOLVE(2,SURF).GT.0.0D0) call set_surf_solve_flag(SURF, surf_solve_flag(SURF)+0.2D0)
    ELSE
 !       NOT RDTOR OR CVTOR
    END IF
@@ -2837,7 +2831,6 @@ SUBROUTINE SCV
 !
 !       CHECK CURVATURE SOLVES
 ! IF THE SURFACE IS NOT A TORIC surf_toric_flag(SURF)=0 THEN DELETE ALL CURVATUVE SOLVES
-!       AND RE-CALCULATE surf_solve_flag(SURF) THE SOLVE TRACKER
 !       IF THE SURFACE IS AN X TORIC THEN DELETE ONLY THE XZ PLANE CURVATURE SOLVES
 !       IF THE SURFACE IS AN Y TORIC THEN DELETE ONLY THE YZ PLANE CURVATURE SOLVES
 !
@@ -2852,12 +2845,6 @@ SUBROUTINE SCV
          SOLVE(2,SURF)=0.0D0
          SOLVE(1,SURF)=0.0D0
       END IF
-!       RE-CALCULATE surf_solve_flag(SURF)
-      call set_surf_solve_flag(SURF, 0.0D0)
-      IF(SOLVE(6,SURF).GT.0.0D0) call set_surf_solve_flag(SURF, surf_solve_flag(SURF)+1.0D0)
-      IF(SOLVE(4,SURF).GT.0.0D0) call set_surf_solve_flag(SURF, surf_solve_flag(SURF)+0.1D0)
-      IF(SOLVE(8,SURF).GT.0.0D0) call set_surf_solve_flag(SURF, surf_solve_flag(SURF)+2.0D0)
-      IF(SOLVE(2,SURF).GT.0.0D0) call set_surf_solve_flag(SURF, surf_solve_flag(SURF)+0.2D0)
    ELSE
 !       TORIC
 !               CHECK FOR Y-TORIC
@@ -2868,12 +2855,6 @@ SUBROUTINE SCV
             SOLVE(9,SURF)=0.0D0
             WRITE(OUTLYNE,*)'SURFACE',SURF,' :YZ PLANE CURVATURE SOLVES DELETED'
             CALL SHOWIT(1)
-!       RE-CALCULATE surf_solve_flag(SURF)
-            call set_surf_solve_flag(SURF, 0.0D0)
-            IF(SOLVE(6,SURF).GT.0.0D0) call set_surf_solve_flag(SURF, surf_solve_flag(SURF)+1.0D0)
-            IF(SOLVE(4,SURF).GT.0.0D0) call set_surf_solve_flag(SURF, surf_solve_flag(SURF)+0.1D0)
-            IF(SOLVE(8,SURF).GT.0.0D0) call set_surf_solve_flag(SURF, surf_solve_flag(SURF)+2.0D0)
-            IF(SOLVE(2,SURF).GT.0.0D0) call set_surf_solve_flag(SURF, surf_solve_flag(SURF)+0.2D0)
          ELSE
 !       NO SOLVES
          END IF
@@ -2885,12 +2866,6 @@ SUBROUTINE SCV
                SOLVE(1,SURF)=0.0D0
                WRITE(OUTLYNE,*)'SURFACE',SURF,' :XZ PLANE CURVATURE SOLVES DELETED'
                CALL SHOWIT(1)
-!       RE-CALCULATE surf_solve_flag(SURF)
-               call set_surf_solve_flag(SURF, 0.0D0)
-               IF(SOLVE(6,SURF).GT.0.0D0) call set_surf_solve_flag(SURF, surf_solve_flag(SURF)+1.0D0)
-               IF(SOLVE(4,SURF).GT.0.0D0) call set_surf_solve_flag(SURF, surf_solve_flag(SURF)+0.1D0)
-               IF(SOLVE(8,SURF).GT.0.0D0) call set_surf_solve_flag(SURF, surf_solve_flag(SURF)+2.0D0)
-               IF(SOLVE(2,SURF).GT.0.0D0) call set_surf_solve_flag(SURF, surf_solve_flag(SURF)+0.2D0)
             END IF
          ELSE
             CALL REPORT_ERROR_AND_FAIL('SERIOUS ERROR IN ASSIGNMENT OF surf_toric_flag()', 1)
@@ -3148,6 +3123,7 @@ SUBROUTINE SINS
 END
 ! SUB SDEL.FOR
 SUBROUTINE SDEL
+   use solve_manager, only: surf_has_any_solve
 !
    use DATSUB
    use DATLEN
@@ -3356,7 +3332,7 @@ SUBROUTINE SDEL
 !
 !       THEN PIKUPS
 !
-      IF(surf_solve_flag(SURF) /= 0) THEN
+      IF(surf_has_any_solve(SURF)) THEN
          OUTLYNE='SOLVE DATA BEING DELETED WITH SURFACE DELETION'
          CALL SHOWIT(1)
       END IF

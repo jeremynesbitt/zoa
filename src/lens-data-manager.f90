@@ -1487,11 +1487,15 @@ module mod_lens_data_manager
         ALENS(31:43, surfIdx) = 0.0D0
       end subroutine
 
+      ! Remove the surface's solves (the SOLVE codes and targets -- clearing
+      ! only the old ALENS(33) solve counter left the solves active) and its
+      ! special-surface count (ALENS(34)).
       subroutine clearSolvesAndSurfType(self, surfIdx)
-        use DATLEN, only: ALENS
+        use DATLEN, only: ALENS, SOLVE
         class(lens_data_manager), intent(inout) :: self
         integer, intent(in) :: surfIdx
-        ALENS(33:34, surfIdx) = 0.0D0
+        SOLVE(0:9, surfIdx) = 0.0D0
+        ALENS(34, surfIdx) = 0.0D0
       end subroutine
 
       subroutine clearAnamorphicCoeffs(self, surfIdx)

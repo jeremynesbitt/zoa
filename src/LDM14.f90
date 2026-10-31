@@ -2889,6 +2889,7 @@ SUBROUTINE LQAS(VALUE1,VALUE2,VALUE3,VALUE4,VALUE5,VAL,V1,V2,V3,V4,V5,VA1,V6,VAL
 END
 ! SUB MGADJ.FOR
 SUBROUTINE MGADJ(MAG,I,J)
+   use solve_manager, only: surf_has_any_solve
 !
    use DATLEN
    use mod_surface
@@ -2906,7 +2907,7 @@ SUBROUTINE MGADJ(MAG,I,J)
 !
    IF(WC.EQ.'MAGX') THEN
       DO KK=I,J-1
-         IF(surf_solve_flag(KK).NE.0.0D0) THEN
+         IF(surf_has_any_solve(KK)) THEN
             CALL REPORT_ERROR_AND_FAIL(&
             & 'ALL SOLVES FROM'//'\n'//&
             & 'SURFACE (I) TO (J-1) MUST BE REMOVED'//'\n'//&
@@ -2983,7 +2984,7 @@ SUBROUTINE MGADJ(MAG,I,J)
 
 !       CHECK FOR EXTRA SOLVES
       DO KK=I,J-1
-         IF(surf_solve_flag(KK).NE.0.0D0) THEN
+         IF(surf_has_any_solve(KK)) THEN
             CALL REPORT_ERROR_AND_FAIL(&
             & 'ALL SOLVES FROM'//'\n'//&
             & 'SURFACE (I) TO (J-1) MUST BE REMOVED'//'\n'//&

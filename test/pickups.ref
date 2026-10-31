@@ -102,3 +102,65 @@ STO:    -37.530    1.50000               N-F2_SCHOTT    100     100     100
 005:    50.26000    3.50000               N-SK16_SCHOTT  100     100     100
 006:    -31.380    15.00915                              100     100     100
 IMG:    INFINITY    0.00000                              100     100     100
+All constraints removed
+
+
+
+
+
+
+
+          RDY          THI     RMD          GLA          CCY     THC     GLC
+OBJ:    INFINITY    INFINITY                              100     100     100
+001:    15.00000    3.50000               N-SK16_SCHOTT  100     100     100
+002:    INFINITY    3.10000                              100     100     100
+STO:    -37.530    1.50000               N-F2_SCHOTT    100     100     100
+004:    14.08000    5.00000                              100     100     100
+005:    -15.000    3.50000               N-SK16_SCHOTT  100     100     100
+006:    -31.380    -42.760                              100     100     100
+IMG:    INFINITY    0.00000                              100     100     100
+          RDY          THI     RMD          GLA          CCY     THC     GLC
+OBJ:    INFINITY    INFINITY                              100     100     100
+001:    25.00000    3.50000               N-SK16_SCHOTT  100     100     100
+002:    INFINITY    3.10000                              100     100     100
+STO:    -37.530    1.50000               N-F2_SCHOTT    100     100     100
+004:    14.08000    5.00000                              100     100     100
+005:    -25.000    3.50000               N-SK16_SCHOTT  100     100     100
+006:    -31.380    -36.721                              100     100     100
+IMG:    INFINITY    0.00000                              100     100     100
+ SURFACE           5  RD       :PIKUP DELETED
+
+          RDY          THI     RMD          GLA          CCY     THC     GLC
+OBJ:    INFINITY    INFINITY                              100     100     100
+001:    22.00000    3.50000               N-SK16_SCHOTT  100     100     100
+002:    INFINITY    3.10000                              100     100     100
+STO:    -37.530    1.50000               N-F2_SCHOTT    100     100     100
+004:    14.08000    5.00000                              100     100     100
+005:    -25.000    3.50000               N-SK16_SCHOTT  100     100     100
+006:    -31.380    -41.092                              100     100     100
+IMG:    INFINITY    0.00000                              100     100     100
+
+ SURFACE           6  RD       :PIKUP DELETED
+
+          RDY          THI     RMD          GLA          CCY     THC     GLC
+OBJ:    INFINITY    INFINITY                              100     100     100
+001:    20.00000    3.50000               N-SK16_SCHOTT  100     100     100
+002:    INFINITY    3.10000                              100     100     100
+STO:    -37.530    1.50000               N-F2_SCHOTT    100     100     100
+004:    14.08000    5.00000                              100     100     100
+005:    -25.000    3.50000               N-SK16_SCHOTT  100     100     100
+006:    44.00000    -18.004                              100     100     100
+IMG:    INFINITY    0.00000                              100     100     100
+INVALID TARGET SURFACE NUMBER FOR LINKING
+RE-ENTER COMMAND
+INVALID TARGET SURFACE NUMBER FOR LINKING
+RE-ENTER COMMAND
+          RDY          THI     RMD          GLA          CCY     THC     GLC
+OBJ:    INFINITY    INFINITY                              100     100     100
+001:    20.00000    3.50000               N-SK16_SCHOTT  100     100     100
+002:    INFINITY    3.10000                              100     100     100
+STO:    -37.530    1.50000               N-F2_SCHOTT    100     100     100
+004:    14.08000    5.00000                              100     100     100
+005:    -25.000    3.50000               N-SK16_SCHOTT  100     100     100
+006:    44.00000    -18.004                              100     100     100
+IMG:    INFINITY    0.00000                              100     100     100

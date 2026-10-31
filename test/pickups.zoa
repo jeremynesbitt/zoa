@@ -42,3 +42,25 @@ PIKD GLASS,4
 EOS
 GLA S1 NSK16_SCHOTT
 SUR SA
+
+! --- LINK / LINKD / TLINK (pickups set from CMD level on a target surface) ---
+! LINKIT used to flag every call as failed (the error flag sat outside the
+! range check), so none of these ever made or removed a pickup.
+RES osdtriplet
+! LINK: S5 RD picks up -1 x RD(S1) and tracks it (S5 = -15, then -25)
+LINK RD 5 1 -1 0
+SUR SA
+RDY S1 25
+SUR SA
+! LINKD: the pickup goes, S5 stays at -25 when S1 changes
+LINKD RD 5
+RDY S1 22
+SUR SA
+! TLINK: a one-shot link -- S6 = 2 x 22 = 44, kept when S1 changes
+TLINK RD 6 1 2 0
+RDY S1 20
+SUR SA
+! A bad target is refused without leaving the lens update level open
+LINK RD 99 1
+LINK
+SUR SA

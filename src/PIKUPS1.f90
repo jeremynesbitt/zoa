@@ -322,22 +322,12 @@ SUBROUTINE PIKTH
       SOLVE(7,SURF)=0.0D0
       WRITE(OUTLYNE,*)'SURFACE',SURF,' :YZ PLANE THICKNESS SOLVE DELETED'
       CALL SHOWIT(1)
-      call set_surf_solve_flag(SURF, 0.0D0)
-      IF(SOLVE(6,SURF).GT.0.0D0)call set_surf_solve_flag(SURF, surf_solve_flag(SURF)+1.0D0)
-      IF(SOLVE(4,SURF).GT.0.0D0)call set_surf_solve_flag(SURF, surf_solve_flag(SURF)+0.1D0)
-      IF(SOLVE(8,SURF).GT.0.0D0)call set_surf_solve_flag(SURF, surf_solve_flag(SURF)+2.0D0)
-      IF(SOLVE(2,SURF).GT.0.0D0)call set_surf_solve_flag(SURF, surf_solve_flag(SURF)+0.2D0)
    END IF
    IF(SOLVE(4,SURF).GT.0.0D0) THEN
       SOLVE(4,SURF)=0.0D0
       SOLVE(3,SURF)=0.0D0
       WRITE(OUTLYNE,*)'SURFACE',SURF,' :XZ PLANE THICKNESS SOLVE DELETED'
       CALL SHOWIT(1)
-      call set_surf_solve_flag(SURF, 0.0D0)
-      IF(SOLVE(6,SURF).GT.0.0D0)call set_surf_solve_flag(SURF, surf_solve_flag(SURF)+1.0D0)
-      IF(SOLVE(4,SURF).GT.0.0D0)call set_surf_solve_flag(SURF, surf_solve_flag(SURF)+0.1D0)
-      IF(SOLVE(8,SURF).GT.0.0D0)call set_surf_solve_flag(SURF, surf_solve_flag(SURF)+2.0D0)
-      IF(SOLVE(2,SURF).GT.0.0D0)call set_surf_solve_flag(SURF, surf_solve_flag(SURF)+0.2D0)
    END IF
 !
    RETURN
@@ -445,22 +435,12 @@ SUBROUTINE PIKTHOAL
       SOLVE(7,SURF)=0.0D0
       WRITE(OUTLYNE,*)'SURFACE',SURF,' :YZ PLANE THICKNESS SOLVE DELETED'
       CALL SHOWIT(1)
-      call set_surf_solve_flag(SURF, 0.0D0)
-      IF(SOLVE(6,SURF).GT.0.0D0)call set_surf_solve_flag(SURF, surf_solve_flag(SURF)+1.0D0)
-      IF(SOLVE(4,SURF).GT.0.0D0)call set_surf_solve_flag(SURF, surf_solve_flag(SURF)+0.1D0)
-      IF(SOLVE(8,SURF).GT.0.0D0)call set_surf_solve_flag(SURF, surf_solve_flag(SURF)+2.0D0)
-      IF(SOLVE(2,SURF).GT.0.0D0)call set_surf_solve_flag(SURF, surf_solve_flag(SURF)+0.2D0)
    END IF
    IF(SOLVE(4,SURF).GT.0.0D0) THEN
       SOLVE(4,SURF)=0.0D0
       SOLVE(3,SURF)=0.0D0
       WRITE(OUTLYNE,*)'SURFACE',SURF,' :XZ PLANE THICKNESS SOLVE DELETED'
       CALL SHOWIT(1)
-      call set_surf_solve_flag(SURF, 0.0D0)
-      IF(SOLVE(6,SURF).GT.0.0D0)call set_surf_solve_flag(SURF, surf_solve_flag(SURF)+1.0D0)
-      IF(SOLVE(4,SURF).GT.0.0D0)call set_surf_solve_flag(SURF, surf_solve_flag(SURF)+0.1D0)
-      IF(SOLVE(8,SURF).GT.0.0D0)call set_surf_solve_flag(SURF, surf_solve_flag(SURF)+2.0D0)
-      IF(SOLVE(2,SURF).GT.0.0D0)call set_surf_solve_flag(SURF, surf_solve_flag(SURF)+0.2D0)
    END IF
 !
    RETURN
@@ -2712,12 +2692,6 @@ SUBROUTINE PIKPRO
       WRITE(OUTLYNE,*)'SURFACE',SURF,' : ALL XZ PLANE CURVATURE SOLVES DELETED'
       CALL SHOWIT(1)
    ELSE
-!       RESOLVE surf_solve_flag(SURF)
-      call set_surf_solve_flag(SURF, 0.0D0)
-      IF(SOLVE(6,SURF).GT.0.0D0)call set_surf_solve_flag(SURF, surf_solve_flag(SURF)+1.0D0)
-      IF(SOLVE(4,SURF).GT.0.0D0)call set_surf_solve_flag(SURF, surf_solve_flag(SURF)+0.1D0)
-      IF(SOLVE(8,SURF).GT.0.0D0)call set_surf_solve_flag(SURF, surf_solve_flag(SURF)+2.0D0)
-      IF(SOLVE(2,SURF).GT.0.0D0)call set_surf_solve_flag(SURF, surf_solve_flag(SURF)+0.2D0)
    END IF
 !       DUMP OLD CV  AND CV OR RD PIKUPS
    IF(PIKUP(1,SURF,1).GT.0.0D0) THEN
@@ -3333,12 +3307,6 @@ SUBROUTINE PIKCVT
          CALL SHOWIT(1)
       END IF
    END IF
-!       RESOLVE surf_solve_flag(SURF)
-   call set_surf_solve_flag(SURF, 0.0D0)
-   IF(SOLVE(6,SURF).GT.0.0D0)call set_surf_solve_flag(SURF, surf_solve_flag(SURF)+1.0D0)
-   IF(SOLVE(4,SURF).GT.0.0D0)call set_surf_solve_flag(SURF, surf_solve_flag(SURF)+0.1D0)
-   IF(SOLVE(8,SURF).GT.0.0D0)call set_surf_solve_flag(SURF, surf_solve_flag(SURF)+2.0D0)
-   IF(SOLVE(2,SURF).GT.0.0D0)call set_surf_solve_flag(SURF, surf_solve_flag(SURF)+0.2D0)
 !
 !       SOLVE CONFLICTS RESOLVED
 !

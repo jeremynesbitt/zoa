@@ -314,6 +314,7 @@ SUBROUTINE TILT_RETURN(ERCODE,TRYES)
 END
 ! SUB LNSEOS1.FOR
 SUBROUTINE LNSEOS1
+   use solve_manager, only: surf_has_any_solve
    use global_widgets
    use kdp_data_types, only: check_clear_apertures
    use mod_ray_trace_builder, only: ensure_typed_store_current
@@ -534,7 +535,7 @@ SUBROUTINE LNSEOS1
 !     PIKUPS ON THIS LAST SURFACE
       IF(F5.EQ.1) THEN
 !     IS THERE A THICKNESS SOLVE OR PIKUP ON SURF INT(SYSTEM(20))-1?
-         IF(surf_pickup_count(INT(sys_last_surf())-1).NE.0.0D0.OR.surf_solve_flag(INT(sys_last_surf())-1).NE.0.0D0.OR.surf_thickness(INT(sys_last_surf())).NE.0.0D0) THEN
+         IF(surf_pickup_count(INT(sys_last_surf())-1).NE.0.0D0.OR.surf_has_any_solve(INT(sys_last_surf())-1).OR.surf_thickness(INT(sys_last_surf())).NE.0.0D0) THEN
 !     HAS SOLVES OR PIKUPS OR THICKNESS ON I-1, DON'T REDUCE THE COUNT
          ELSE
 !     NO SOLVES, PIKUPS OR THICKNESS ON I-1, DELETE THE SURFACE I
@@ -947,11 +948,10 @@ SUBROUTINE LNSEOS1
       DO 56 I=0,SLVMRK-1
 !       ARE THERE SOLVES?
 !
-         IF(surf_solve_flag(I).NE.0.0D0) THEN
+         IF(surf_has_any_solve(I)) THEN
 !       FOUND A SOLVE INFRONT OF THE ASTOP SURFACE, REMOVE IT
 !       AND PRINT MESSAGE IN SOME CASES
 !     NO CHIEF RAY SOLVES IN FRONT OF STOP INCLUDING APY AND APX SOLVES
-!     THEN RESOLVE THE VALUE OF surf_solve_flag(I)
 
 !     CHIEF RAY SOLVES OF ANY TYPE ARE NOT ALLOWED IN FRONT OF THE STOP
             IF(SOLVE(6,I).EQ.2.0D0) THEN
@@ -1094,18 +1094,11 @@ SUBROUTINE LNSEOS1
             ELSE
 !     NOT SAX FLOAT
             END IF
-!       CALCULATE THE CORRECT VALUE OF surf_solve_flag(SURF)
 !
-            call set_surf_solve_flag(SURF, 0.0D0)
-            IF(SOLVE(6,SURF).GT.0.0D0) call set_surf_solve_flag(SURF, surf_solve_flag(SURF)+1.0D0)
-            IF(SOLVE(4,SURF).GT.0.0D0) call set_surf_solve_flag(SURF, surf_solve_flag(SURF)+0.1D0)
-            IF(SOLVE(8,SURF).GT.0.0D0) call set_surf_solve_flag(SURF, surf_solve_flag(SURF)+2.0D0)
-            IF(SOLVE(2,SURF).GT.0.0D0) call set_surf_solve_flag(SURF, surf_solve_flag(SURF)+0.2D0)
 !
-            IF(surf_solve_flag(I).EQ.0.0D0) THEN
+            IF(.NOT.surf_has_any_solve(I)) THEN
                WRITE(OUTLYNE,*)'SURFACE',SURF,'NO SOLVES REMAIN ON SURFACE'
                CALL SHOWIT(1)
-               call set_surf_solve_flag(I, 0.0D0)
 !       TESTED SURFACE DOES NOT HAVE SOLVE, PROCEED
             END IF
          END IF
@@ -1227,7 +1220,6 @@ SUBROUTINE LNSEOS1
                      CALL SHOWIT(1)
                      SOLVE(8,I)=0.0D0
                      SOLVE(9,I)=0.0D0
-                     call set_surf_solve_flag(I, surf_solve_flag(I)-2.0D0)
 !       NOT A COCY SOLVE,PROCEED
                   END IF
                   IF(SOLVE(2,I).EQ.14.0D0) THEN
@@ -1237,7 +1229,6 @@ SUBROUTINE LNSEOS1
                      CALL SHOWIT(1)
                      SOLVE(2,I)=0.0D0
                      SOLVE(1,I)=0.0D0
-                     call set_surf_solve_flag(I, surf_solve_flag(I)-2.0D0)
 !       NOT A COCX SOLVE,PROCEED
                   END IF
 !       TESTIT IS ZERO, NO SOLVE TO REMOVE, PROCEED
@@ -1831,7 +1822,6 @@ SUBROUTINE LNSEOS1
       call set_surf_decenter_y(I, 0.0D0)
       call set_surf_decenter_x(I, 0.0D0)
       call set_surf_pickup_count(I, 0)
-      call set_surf_solve_flag(I, 0.0D0)
       call set_surf_special_type(I, 0)
       call set_surf_asi_enabled(I, 0)
       call set_surf_anamorphic_flag(I, 0)
@@ -1912,7 +1902,6 @@ SUBROUTINE LNSEOS1
       call set_surf_focus_dz(I, 0.0D0)
       call set_surf_decenter_x(I, 0.0D0)
       call set_surf_pickup_count(I, 0)
-      call set_surf_solve_flag(I, 0.0D0)
       call set_surf_special_type(I, 0)
       call set_surf_asi_enabled(I, 0)
       call set_surf_anamorphic_flag(I, 0)

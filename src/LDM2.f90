@@ -365,6 +365,7 @@ SUBROUTINE CHKGLSP(GONOGO,I)
    RETURN
 END
 SUBROUTINE CHKTHK(GONOGO,I)
+   use solve_manager, only: surf_has_thi_solve
    use DATLEN
    use mod_surface
    use DATMAI
@@ -375,8 +376,7 @@ SUBROUTINE CHKTHK(GONOGO,I)
    PIKK=.FALSE.
    SLVV=.FALSE.
    GONOGO=.TRUE.
-   IF(surf_solve_flag(I).EQ.1.0D0) SLVV=.TRUE.
-   IF(surf_solve_flag(I).EQ.3.0D0) SLVV=.TRUE.
+   IF(surf_has_thi_solve(I)) SLVV=.TRUE.
    IF(PIKUP(1,I,3).NE.0.0D0) PIKK=.TRUE.
    IF(PIKUP(1,I,32).NE.0.0D0) PIKK=.TRUE.
    IF(PIKK) THEN
@@ -394,6 +394,7 @@ SUBROUTINE CHKTHK(GONOGO,I)
    RETURN
 END
 SUBROUTINE CHKCVR(GONOGO,I)
+   use solve_manager, only: surf_has_curv_solve
    use DATLEN
    use mod_surface
    use DATMAI
@@ -404,8 +405,7 @@ SUBROUTINE CHKCVR(GONOGO,I)
    PIKK=.FALSE.
    SLVV=.FALSE.
    GONOGO=.TRUE.
-   IF(surf_solve_flag(I).EQ.2.0D0) SLVV=.TRUE.
-   IF(surf_solve_flag(I).EQ.3.0D0) SLVV=.TRUE.
+   IF(surf_has_curv_solve(I)) SLVV=.TRUE.
    IF(PIKUP(1,I,2).NE.0.0D0) PIKK=.TRUE.
    IF(PIKUP(1,I,1).NE.0.0D0) PIKK=.TRUE.
    IF(PIKUP(1,I,10).NE.0.0D0) PIKK=.TRUE.
@@ -1306,6 +1306,7 @@ SUBROUTINE SUNITS
 END
 ! SUB STORIC.FOR
 SUBROUTINE STORIC
+   use solve_manager, only: surf_has_any_solve
 !
    use DATLEN
    use mod_surface
@@ -1378,7 +1379,7 @@ SUBROUTINE STORIC
 !
 !       SET TORIC CURV = TO PROFILE CURVATURE
          IF(WC.EQ.'XTORIC'.OR.WC.EQ.'YTORIC')call set_surf_toric_curvature(SURF, surf_curvature(SURF))
-         IF(surf_solve_flag(SURF).NE.0.0D0) THEN
+         IF(surf_has_any_solve(SURF)) THEN
 !       THERE WERE SOLVES. PRINT MESSAGE THEN DELETE ALL SOLVES FOR
 !       SURF.
             IF(SOLVE(6,SURF).GT.0.0D0)THEN
@@ -1399,7 +1400,6 @@ SUBROUTINE STORIC
                WRITE(OUTLYNE,*)'SURFACE',SURF,' :NO SOLVES REMAIN'
                CALL SHOWIT(1)
             END IF
-            call set_surf_solve_flag(SURF, 0.0D0)
             SOLVE(0:9,SURF)=0.0D0
          ELSE
          END IF
@@ -1444,7 +1444,7 @@ SUBROUTINE STORIC
             CALL SHOWIT(1)
          END IF
          call set_surf_toric_flag(SURF, 1)
-         IF(surf_solve_flag(SURF).NE.0.0D0) THEN
+         IF(surf_has_any_solve(SURF)) THEN
 !       THERE WERE SOLVES. PRINT MESSAGE THEN DELETE ALL SOLVES FOR
 !       SURF.
             IF(SOLVE(6,SURF).GT.0.0D0) THEN
@@ -1465,7 +1465,6 @@ SUBROUTINE STORIC
                WRITE(OUTLYNE,*)'SURFACE',SURF,' :NO SOLVES REMAIN'
                CALL SHOWIT(1)
             END IF
-            call set_surf_solve_flag(SURF, 0.0D0)
             SOLVE(0:9,SURF)=0.0D0
          ELSE
          END IF
@@ -1488,7 +1487,7 @@ SUBROUTINE STORIC
             CALL SHOWIT(1)
          END IF
          call set_surf_toric_flag(SURF, 2)
-         IF(surf_solve_flag(SURF).NE.0.0D0) THEN
+         IF(surf_has_any_solve(SURF)) THEN
 !       THERE WERE SOLVES. PRINT MESSAGE THEN DELETE ALL SOLVES FOR
 !       SURF.
             IF(SOLVE(6,SURF).GT.0.0D0) THEN
@@ -1509,7 +1508,6 @@ SUBROUTINE STORIC
                WRITE(OUTLYNE,*)'SURFACE',SURF,' :NO SOLVES REMAIN'
                CALL SHOWIT(1)
             END IF
-            call set_surf_solve_flag(SURF, 0.0D0)
             SOLVE(0:9,SURF)=0.0D0
          ELSE
          END IF
@@ -1646,12 +1644,6 @@ SUBROUTINE STORD
                CALL SHOWIT(1)
             END IF
          END IF
-!       RECALCULATE surf_solve_flag(SF)
-         call set_surf_solve_flag(SF, 0.0D0)
-         IF(SOLVE(6,SF).GT.0.0D0)call set_surf_solve_flag(SF, surf_solve_flag(SF)+1.0D0)
-         IF(SOLVE(4,SF).GT.0.0D0)call set_surf_solve_flag(SF, surf_solve_flag(SF)+0.1D0)
-         IF(SOLVE(8,SF).GT.0.0D0)call set_surf_solve_flag(SF, surf_solve_flag(SF)+2.0D0)
-         IF(SOLVE(2,SF).GT.0.0D0)call set_surf_solve_flag(SF, surf_solve_flag(SF)+0.2D0)
 !
 !       IF THERE ARE RDTOR OR CVTOR PIKUPS ON THIS SURFACE THEY MUST GO
 !       ALSO TORIC CONIC AND ASPHERIC PIKUPS AND ASPHERIC TORIC
@@ -2375,11 +2367,6 @@ SUBROUTINE STH
       call LogTermFOR("MAG SOLVE DELETED HERE?")
       WRITE(OUTLYNE,*)'SURFACE',SURF,' :THICKNESS SOLVE DELETED'
       CALL SHOWIT(1)
-      call set_surf_solve_flag(SURF, 0.0D0)
-      IF(SOLVE(6,SURF).GT.0.0D0)call set_surf_solve_flag(SURF, surf_solve_flag(SURF)+1.0D0)
-      IF(SOLVE(4,SURF).GT.0.0D0)call set_surf_solve_flag(SURF, surf_solve_flag(SURF)+0.1D0)
-      IF(SOLVE(8,SURF).GT.0.0D0)call set_surf_solve_flag(SURF, surf_solve_flag(SURF)+2.0D0)
-      IF(SOLVE(2,SURF).GT.0.0D0)call set_surf_solve_flag(SURF, surf_solve_flag(SURF)+0.2D0)
    ELSE
 !       NO SOLVE TO DELETE
    END IF
@@ -2896,6 +2883,7 @@ SUBROUTINE STASPH
 END
 ! SUB STILT.FOR
 SUBROUTINE STILT
+   use solve_manager, only: surf_has_thi_solve
 !
    use DATLEN
    use mod_surface
@@ -3325,19 +3313,17 @@ SUBROUTINE STILT
          call set_surf_focus_dz(NEXTSURF-1, 0.0D0)
       END IF
 !     THICKNESSES
-      IF(surf_solve_flag(NEXTSURF-1).EQ.1.0D0.OR.surf_solve_flag(NEXTSURF-1).EQ.1.1D0.OR.surf_solve_flag(NEXTSURF-1).EQ.0.1D0.OR.surf_solve_flag(NEXTSURF-1).EQ.0.3D0.OR.surf_solve_flag(NEXTSURF-1).EQ.3.0D0.OR.surf_solve_flag(NEXTSURF-1).EQ.3.3D0) THEN
-!     THICKNESS SOLVE NEEDS MOVING
-         call set_surf_solve_flag(NEXTSURF, surf_solve_flag(NEXTSURF-1))
+      IF(surf_has_thi_solve(NEXTSURF-1)) THEN
+!     THICKNESS SOLVE NEEDS MOVING: to the new surface, which takes the
+!     thickness, and off the old one, whose thickness becomes 0
          SOLVE(6,NEXTSURF)=SOLVE(6,NEXTSURF-1)
          SOLVE(4,NEXTSURF)=SOLVE(4,NEXTSURF-1)
          SOLVE(7,NEXTSURF)=SOLVE(7,NEXTSURF-1)
          SOLVE(3,NEXTSURF)=SOLVE(3,NEXTSURF-1)
-         IF(surf_solve_flag(NEXTSURF-1).EQ.0.1D0)call set_surf_solve_flag(NEXTSURF-1, 0.0D0)
-         IF(surf_solve_flag(NEXTSURF-1).EQ.1.0D0)call set_surf_solve_flag(NEXTSURF-1, 0.0D0)
-         IF(surf_solve_flag(NEXTSURF-1).EQ.1.1D0)call set_surf_solve_flag(NEXTSURF-1, 0.0D0)
-         IF(surf_solve_flag(NEXTSURF-1).EQ.0.3D0)call set_surf_solve_flag(NEXTSURF-1, 0.2D0)
-         IF(surf_solve_flag(NEXTSURF-1).EQ.3.0D0)call set_surf_solve_flag(NEXTSURF-1, 2.0D0)
-         IF(surf_solve_flag(NEXTSURF-1).EQ.3.3D0)call set_surf_solve_flag(NEXTSURF-1, 2.2D0)
+         SOLVE(6,NEXTSURF-1)=0.0D0
+         SOLVE(4,NEXTSURF-1)=0.0D0
+         SOLVE(7,NEXTSURF-1)=0.0D0
+         SOLVE(3,NEXTSURF-1)=0.0D0
       END IF
       call set_surf_thickness(NEXTSURF, surf_thickness(NEXTSURF-1))
       call set_surf_thickness(NEXTSURF-1, 0.0D0)
@@ -3402,19 +3388,17 @@ SUBROUTINE STILT
          call set_surf_focus_dz(NEXTSURF, surf_focus_dz(NEXTSURF-1))
       END IF
 !     THICKNESSES
-      IF(surf_solve_flag(NEXTSURF-1).EQ.1.0D0.OR.surf_solve_flag(NEXTSURF-1).EQ.1.1D0.OR.surf_solve_flag(NEXTSURF-1).EQ.0.1D0.OR.surf_solve_flag(NEXTSURF-1).EQ.0.3D0.OR.surf_solve_flag(NEXTSURF-1).EQ.3.0D0.OR.surf_solve_flag(NEXTSURF-1).EQ.3.3D0) THEN
-!     THICKNESS SOLVE NEEDS MOVING
-         call set_surf_solve_flag(NEXTSURF, surf_solve_flag(NEXTSURF-1))
+      IF(surf_has_thi_solve(NEXTSURF-1)) THEN
+!     THICKNESS SOLVE NEEDS MOVING: to the new surface, which takes the
+!     thickness, and off the old one, whose thickness becomes 0
          SOLVE(6,NEXTSURF)=SOLVE(6,NEXTSURF-1)
          SOLVE(4,NEXTSURF)=SOLVE(4,NEXTSURF-1)
          SOLVE(7,NEXTSURF)=SOLVE(7,NEXTSURF-1)
          SOLVE(3,NEXTSURF)=SOLVE(3,NEXTSURF-1)
-         IF(surf_solve_flag(NEXTSURF-1).EQ.0.1D0)call set_surf_solve_flag(NEXTSURF-1, 0.0D0)
-         IF(surf_solve_flag(NEXTSURF-1).EQ.1.0D0)call set_surf_solve_flag(NEXTSURF-1, 0.0D0)
-         IF(surf_solve_flag(NEXTSURF-1).EQ.1.1D0)call set_surf_solve_flag(NEXTSURF-1, 0.0D0)
-         IF(surf_solve_flag(NEXTSURF-1).EQ.0.3D0)call set_surf_solve_flag(NEXTSURF-1, 0.2D0)
-         IF(surf_solve_flag(NEXTSURF-1).EQ.3.0D0)call set_surf_solve_flag(NEXTSURF-1, 2.0D0)
-         IF(surf_solve_flag(NEXTSURF-1).EQ.3.3D0)call set_surf_solve_flag(NEXTSURF-1, 2.2D0)
+         SOLVE(6,NEXTSURF-1)=0.0D0
+         SOLVE(4,NEXTSURF-1)=0.0D0
+         SOLVE(7,NEXTSURF-1)=0.0D0
+         SOLVE(3,NEXTSURF-1)=0.0D0
       END IF
       call set_surf_thickness(NEXTSURF, surf_thickness(NEXTSURF-1))
       call set_surf_thickness(NEXTSURF-1, 0.0D0)

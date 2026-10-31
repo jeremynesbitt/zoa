@@ -277,39 +277,37 @@ deliberate ownership audit:
   passes run (chained pickups converge by iteration), so changing its source
   is a behavior risk and was deliberately left out of the refactor.
 
-## LINK / LINKD commands appear dead
+## LINK / LINKD / TLINK fixed (RESOLVED 2026-10-30)
 
-`LINKIT` (PIKUPS2.f90) unconditionally executes `LERROR=.TRUE.` + `CALL MACFAL`
-after its target-surface range check (the statements sit outside the IF), so
-`LINK`/`LINKD` never create or delete a pickup — verified identical before and
-after the refactor-#9 LINKIT rewrite, with both argument orders. No test uses
-them. If LINK is ever wanted, fix the error-flag scoping; otherwise the pair
-is a candidate for removal.
+`LINKIT` (PIKUPS2.f90) set `LERROR=.TRUE.` and called `MACFAL` outside its
+target-surface range check, so every `LINK`/`LINKD` was flagged failed and
+`TLINK` never ran its delete half.  The check now runs first (before the lens
+update level is opened, so a bad target leaves no level open) and fails only
+on a bad surface number.  Syntax is KDP's: qualifier first --
+`LINK RD 5 1 -1 0` (S5 RD picks up -1 x RD(S1)), `LINKD RD 5`, `TLINK RD 6 1 2 0`
+(a one-shot link).  Covered at the end of test/pickups.zoa.
 
-## Solve counter ownership (`surf_solve_flag`) audit
+## Solve counter retired (RESOLVED 2026-10-30)
 
-The solve refactor (`solve_manager`, 2026-07) derives solve existence directly
-from the `SOLVE(type_slot, surf)` codes (slots 6/4/8/2), so the new-world
-queries (`ldm%is*SolveOnSurf`, the save path) no longer depend on a maintained
-counter. One legacy counter remains and, like the pickup counters above, drifts:
-
-- **`surf_solve_flag` (an ALENS slot) is a fractional per-plane/class tally**
-  (+1.0 YZ-thickness, +0.1 XZ-thickness, +2.0 YZ-curvature, +0.2 XZ-curvature).
-  It is recalculated from the SOLVE codes at every *command-level* solve
-  create/delete (THSOLV in LDM1, CVSOLV in LDM12, TSD, CSD/CSDY/CSDX), but it is
-  **not** refreshed when SOLVE slots are zeroed *directly* — e.g. surface delete
-  (LDM6) and toric resets (LDM2) — so it can disagree with the actual SOLVE
-  codes after those paths.
-- **Risk is lower than the pickup counters**: the paraxial-trace solve gates
-  (`SLVRS`, LDM5; `resolveSolve`, paraxial-ray-trace) read `SOLVE(6,L)`/
-  `SOLVE(8,L)` *directly*, not the flag. `surf_solve_flag`'s readers are the
-  display/listing paths and a few LDM2 toric checks, so drift shows up as a
-  stale UI marker rather than a wrong trace.
-- **Migration**: readers should move to `solve_manager`'s
-  `surf_has_thi_solve` / `surf_has_curv_solve` / `surf_has_any_solve` (derived
-  from the SOLVE array), after which the flag can be retired. Left out of the
-  refactor because, like `PIKCNT` above, retargeting a value that also feeds
-  legacy toric logic is a behavior risk warranting its own audit.
+`surf_solve_flag` (ALENS(33), a fractional per-plane tally: +1 YZ thickness,
++0.1 XZ thickness, +2 YZ curvature, +0.2 XZ curvature) is gone with its
+accessor.  Every reader asks `solve_manager` instead, which derives the
+answer from the SOLVE codes (`surf_has_any_solve`, `surf_has_thi_solve`,
+`surf_has_curv_solve`, and the per-plane `surf_has_yz_thi_solve`,
+`surf_has_xz_thi_solve`, `surf_has_yz_curv_solve`, `surf_has_xz_curv_solve`);
+the ~120 recalculation lines were deleted.  Bugs the counter hid, fixed
+along the way:
+- FLIP warned that solves in its range "will be deleted" but cleared only
+  the counter; the SOLVE codes stayed active.  `clearSolvesAndSurfType` now
+  clears them.
+- TILT DAR/DARD surface insertion moved a thickness solve to the new surface
+  but left the codes on the old one (now thickness 0, still solving); it
+  also tested a fixed list of counter values that missed e.g. 1.2 (YZ
+  thickness + XZ curvature).  The codes now move.
+- THERM's checks (CHKTHK/CHKCVR) and ASTOP's deletion of solves in front of
+  the stop compared the counter to exact values, so a surface with solves in
+  both planes slipped through.
+ALENS(33) is now unused (no new owner -- ALENS is being retired).
 
 Also unmapped by design: **`COCY`/`COCX`** (curvature-of-curvature) and
 **`CAY`/`CAX`** (clear-aperture) solves have no CODE V command spelling, so they
