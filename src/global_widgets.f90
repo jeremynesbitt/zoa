@@ -2,6 +2,7 @@ module global_widgets
   use zoa_ui
   use iso_c_binding, only: c_ptr, c_char, c_int, c_null_ptr
   use iso_fortran_env, only: real64
+  use plot_geometry, only: KDP_PAGE_H, KDP_PAGE_MARGIN, KDP_DEVICE_W, KDP_DEVICE_H
   use kdp_data_types, only: sys_config, io_config, lens_data, paraxial_ray_trace_data, &
   & ray_fan_data, opd_data
 
@@ -38,25 +39,17 @@ type(ray_fan_data) :: curr_ray_fan_data
   type(c_ptr) :: preferences_window = c_null_ptr
 
 
-  ! Lens-drawing device-space constants -- single source of truth, referenced by
-  ! the renderer (DRAWOPTICALSYSTEM/JK_MOVETOCAIRO in kdp-draw.f90) and the
-  ! cursor->world transform (mod_vie_transform.f90) so they can never drift apart.
-  !   KDP_PLOT_HEIGHT : y-flip origin for the lens drawing (KDP device units)
-  !   KDP_CAIRO_SCALE : KDP units -> screen pixels factor (cairo_scale)
-  ! See test/KNOWN_ISSUES.md for the separate (frame) dimension set in kdp_plot_gen.
-  real(real64), parameter :: KDP_PLOT_HEIGHT = 7050.0d0
-  real(real64), parameter :: KDP_CAIRO_SCALE = 0.1d0
-  ! The lens drawing's frame width in KDP units (with KDP_PLOT_HEIGHT).
-  real(real64), parameter :: KDP_PLOT_WIDTH = 10500.0d0
-  ! The scale the lens drawing was last drawn at: KDP_CAIRO_SCALE headless
-  ! (fixed-size PNGs), otherwise vie_draw_scale of its widget -- the cursor
-  ! readout (mod_vie_transform) inverts with the same value.
-  real(real64) :: vie_current_scale = KDP_CAIRO_SCALE
+  ! How the lens drawing's page (module plot_geometry) was last placed on its
+  ! canvas: screen pixel = offset + scale * page unit, Y flipped about
+  ! KDP_PAGE_H.  Set by the renderer (DRAWOPTICALSYSTEM in kdp-draw.f90) and
+  ! inverted by the cursor readout (mod_vie_transform.f90).  The defaults
+  ! are a 1000 x 700 canvas, until something is drawn.
+  real(real64) :: vie_current_scale = 0.1d0
+  real(real64) :: vie_offset_x = 0.0d0, vie_offset_y = 0.0d0
 
-  ! kdp_height doubles as the per-plot y-flip origin (lens draw uses the full
-  ! height, the RMS-field overlay sets it to 0), so it stays a mutable variable.
-  REAL :: kdp_width  = 10500
-  REAL :: kdp_height = KDP_PLOT_HEIGHT
+  ! The renderer's y-flip origin: KDP_PAGE_H for a page drawing, 0 for the
+  ! RMS-field overlay, which draws in its own frame.
+  REAL :: kdp_height = KDP_PAGE_H
 
   logical :: debug_messages = .FALSE.
 
@@ -64,12 +57,16 @@ type(ray_fan_data) :: curr_ray_fan_data
 
 contains
 
-  ! The largest scale at which the whole lens-drawing frame fits w x h pixels.
-  pure function vie_draw_scale(w, h) result(s)
+  ! Where a page drawing goes on a w x h pixel canvas: the largest scale at
+  ! which the page and its margin (KDP_DEVICE_W x KDP_DEVICE_H) fit, centred,
+  ! and the pixel position (ox, oy) of the page's upper-left corner.
+  pure subroutine vie_page_placement(w, h, s, ox, oy)
     integer, intent(in) :: w, h
-    real(real64) :: s
-    s = KDP_CAIRO_SCALE
-    if (w > 0 .and. h > 0) s = min(real(w, real64)/KDP_PLOT_WIDTH, real(h, real64)/KDP_PLOT_HEIGHT)
-  end function
+    real(real64), intent(out) :: s, ox, oy
+    s = 0.1d0
+    if (w > 0 .and. h > 0) s = min(real(w, real64)/KDP_DEVICE_W, real(h, real64)/KDP_DEVICE_H)
+    ox = (real(max(w, 0), real64) - s*KDP_DEVICE_W)/2.0d0 + s*KDP_PAGE_MARGIN
+    oy = (real(max(h, 0), real64) - s*KDP_DEVICE_H)/2.0d0 + s*KDP_PAGE_MARGIN
+  end subroutine
 
 end module global_widgets

@@ -1,12 +1,12 @@
 module kdp_plot_gen
     use iso_fortran_env, only: real64
-    ! These values are hard coded in many places.  This is an initial attempt
-    ! to get that under control so I can eventually change them
-    integer :: kdp_width = 10000 !10010
-    integer :: kdp_height = 7000 !7010
+    ! The plot page's size comes from module plot_geometry; the lens drawing
+    ! centres itself on the page's middle.
+    use plot_geometry, only: KDP_PAGE_W, KDP_PAGE_H, KDP_CLIP_XLO, KDP_CLIP_XHI, &
+        KDP_CLIP_YLO, KDP_CLIP_YHI
 
-    real(kind=real64) :: width_mid = 5000.0 !5000.0
-    real(kind=real64) :: height_mid = 3500.0 ! 3500.0
+    real(kind=real64), parameter :: width_mid = KDP_PAGE_W/2.0_real64
+    real(kind=real64), parameter :: height_mid = KDP_PAGE_H/2.0_real64
 
 
 
@@ -1224,10 +1224,10 @@ NORAYPLOT=.FALSE.
 !        CALL IGRLINEWIDTH(1,1,.1)
                         CALL MY_INIPLT
 !
-      LLX=-10
-      LLY=-10
-      URX=kdp_width
-      URY=kdp_height
+      LLX=KDP_CLIP_XLO
+      LLY=KDP_CLIP_YLO
+      URX=KDP_PAGE_W
+      URY=KDP_PAGE_H
 !
 !
 !     LIGHT BLUE (DEFAULT) BACKGROUND
@@ -1340,12 +1340,12 @@ NORAYPLOT=.FALSE.
 !     LIFT PEN, MOVE TO FRAME START
       COLPAS=COLFRM
       CALL MY_COLTYP(COLPAS)
-        CALL MY_PLOT(0,0,0,0,-10,kdp_width,-10,kdp_height)
+        CALL PAGE_PLOT(0,0,0,0)
 !     DROP PEN, DRAW BOX
-        CALL MY_PLOT(kdp_width,0,1,0,-10,kdp_width,-10,kdp_height)
-        CALL MY_PLOT(kdp_width,kdp_height,1,0,-10,kdp_width,-10,kdp_height)
-        CALL MY_PLOT(0,kdp_height,1,0,-10,kdp_width,-10,kdp_height)
-        CALL MY_PLOT(0,0,1,0,-10,kdp_width,-10,kdp_height)
+        CALL PAGE_PLOT(KDP_PAGE_W,0,1,0)
+        CALL PAGE_PLOT(KDP_PAGE_W,KDP_PAGE_H,1,0)
+        CALL PAGE_PLOT(0,KDP_PAGE_H,1,0)
+        CALL PAGE_PLOT(0,0,1,0)
                        END IF
                        RETURN
     END                        
@@ -1537,10 +1537,10 @@ NORAYPLOT=.FALSE.
               AXFLG=.FALSE.
 !
 !     MAX AND MIN DEVICE INDEPENDENT COORDINATES
-              XXMAX=kdp_width
-              XXMIN=-10
-              YYMAX=kdp_height
-              YYMIN=-10
+              XXMAX=KDP_CLIP_XHI
+              XXMIN=KDP_CLIP_XLO
+              YYMAX=KDP_CLIP_YHI
+              YYMIN=KDP_CLIP_YLO
     XPEN=0
     YPEN=0
     XPENOL=0
@@ -2441,7 +2441,7 @@ NORAYPLOT=.FALSE.
                         END IF
       IF(RCL.EQ.3.OR.RCL.EQ.-3) THEN
       !JUSOFF=9500.0D0-((XMAXI/SCFAX)*1000.0D0)
-      JUSOFF=kdp_width-500.0-((XMAXI/SCFAX)*1000.0D0)
+      JUSOFF=KDP_PAGE_W-500.0-((XMAXI/SCFAX)*1000.0D0)
                         RCL=-3
                         ELSE
                         END IF

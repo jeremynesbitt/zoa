@@ -536,1737 +536,6 @@ SUBROUTINE CHRSHIFT
    CHRSHIFTEXT=.TRUE.
    RETURN
 END
-! SUB CAPFIX.FOR
-SUBROUTINE CAPFIX
-!
-   use DATSP1
-   use DATSPD
-   use DATLEN
-   use DATMAI
-   use mod_surface, only: surf_clap_type, surf_clap_dim
-   use command_utils, only: is_command_query
-   use mod_system, only: sys_units, sys_wavelength, sys_wl_weight
-   use iso_fortran_env, only: real64
-   IMPLICIT NONE
-!
-!       THIS PROGRAM CONTROLS THE BEST AND NOTILT COMMANDS
-!
-   INTEGER MEANCNT,IQ,G,I,ALLOERR,NUMT1,&
-   &NUMT2,NUMT3,NUMT4,NUMT5,NUMT6,NUMT7,NUMT8,NUMT9,NUMT10 &
-   &,NUMTOTAL,NUMT0
-!
-   real(real64) WEIS,REFHT,SUMSIG,WEI(1:10),LAM(1:10)&
-   &,SUML2,SUML4
-!
-   real(real64) ARG,PIT,PEAK,MEAN,MEAN2
-!
-   real(real64) SUMONE(0:10),SUMTWO(0:10),OPPIT(0:10),&
-   &SIG,OPPEAK(0:10),TOT
-!
-   PTOVOPD(0:10)=0.0D0
-   SUMONE(0:10)=0.0D0
-   SUMTWO(0:10)=0.0D0
-   RMSOP(0:10)=0.0D0
-   OPPEAK(0:10)=-1.0D99
-   OPPIT(0:10) = 1.0D99
-   RMSOPD=0.0D0
-!
-!     COMPUTE THE EFFECTIVE WAVELENGTH
-   SUML2=0.0D0
-   SUML4=0.0D0
-   LAMAVE=0.0D0
-   WEI(1)=sys_wl_weight(1)
-   WEI(2)=sys_wl_weight(2)
-   WEI(3)=sys_wl_weight(3)
-   WEI(4)=sys_wl_weight(4)
-   WEI(5)=sys_wl_weight(5)
-   WEI(6)=sys_wl_weight(6)
-   WEI(7)=sys_wl_weight(7)
-   WEI(8)=sys_wl_weight(8)
-   WEI(9)=sys_wl_weight(9)
-   WEI(10)=sys_wl_weight(10)
-   LAM(1)=sys_wavelength(1)
-   LAM(2)=sys_wavelength(2)
-   LAM(3)=sys_wavelength(3)
-   LAM(4)=sys_wavelength(4)
-   LAM(5)=sys_wavelength(5)
-   LAM(6)=sys_wavelength(6)
-   LAM(7)=sys_wavelength(7)
-   LAM(8)=sys_wavelength(8)
-   LAM(9)=sys_wavelength(9)
-   LAM(10)=sys_wavelength(10)
-   WEIS=0.0D0
-   DO I=1,10
-      WEIS=WEIS+WEI(I)
-   END DO
-   IF(WEIS.EQ.0.0D0) WEIS=1.0D0
-   DO I=1,10
-      WEI(I)=WEI(I)/WEIS
-   END DO
-   DO I=1,10
-      IF(LAM(I).NE.0.0D0.AND.WEI(I).NE.0.0D0) THEN
-         SUML2=SUML2+(WEI(I)/(LAM(I)**2))
-         SUML4=SUML4+(WEI(I)/(LAM(I)**4))
-      END IF
-   END DO
-   LAMAVE=DSQRT(SUML2/SUML4)
-   IF(sys_units().EQ.1.0D0) THEN
-      LAMAVE=LAMAVE*3.93700787402D-5
-   END IF
-   IF(sys_units().EQ.2.0D0) THEN
-      LAMAVE=LAMAVE*1.0D-4
-   END IF
-   IF(sys_units().EQ.3.0D0) THEN
-      LAMAVE=LAMAVE*1.0D-3
-   END IF
-   IF(sys_units().EQ.4.0D0) THEN
-      LAMAVE=LAMAVE*1.0D-6
-   END IF
-!
-   IF(is_command_query()) THEN
-      OUTLYNE= WC//' ACTS ON THE EXISTING CAPFN'
-      CALL SHOWIT(1)
-      OUTLYNE= 'RE-ENTER COMMAND'
-      CALL SHOWIT(1)
-      RETURN
-   END IF
-   IF(SST.EQ.1.OR.SQ.EQ.1.OR.SN.EQ.1) THEN
-      CALL REPORT_ERROR_AND_FAIL(WC//' TAKES NO EXPLICIT INPUT'//'\n'//'RE-ENTER COMMAND', 1)
-      RETURN
-   END IF
-!     OPEN AND LOAD THE APPROPRIATE CAPFN DATA AND THEN PLOT IT
-   IF(.NOT.CPFNEXT) THEN
-      OUTLYNE=&
-      &'NO CAPFN EXISTS'
-      CALL SHOWIT(1)
-      CALL REPORT_ERROR_AND_FAIL('NO ACTION TAKEN', 1)
-      RETURN
-   END IF
-!
-!     DETERMINE THE REFERNCE APERTURE HEIGHT
-!     OF THE REF SURFACE COORDINATES
-   IF(surf_clap_type(NEWREF) >= 1.AND.abs(surf_clap_type(NEWREF))&
-   &.LE.5.0D0) THEN
-      IF(surf_clap_type(NEWREF) == 1) THEN
-         REFHT=(surf_clap_dim(NEWREF, 1))
-      END IF
-!        RECT CLAP
-!
-      IF(surf_clap_type(NEWREF) == 2) THEN
-         IF(surf_clap_dim(NEWREF, 1).GE.surf_clap_dim(NEWREF, 2)) THEN
-            REFHT=(surf_clap_dim(NEWREF, 1))
-         ELSE
-            REFHT=(surf_clap_dim(NEWREF, 2))
-         END IF
-      END IF
-!        ELIP CLAP
-!
-      IF(surf_clap_type(NEWREF) == 3) THEN
-         IF(surf_clap_dim(NEWREF, 1).GE.surf_clap_dim(NEWREF, 2)) THEN
-            REFHT=(surf_clap_dim(NEWREF, 1))
-         ELSE
-            REFHT=(surf_clap_dim(NEWREF, 2))
-         END IF
-      END IF
-!        RCTK CLAP
-!
-      IF(surf_clap_type(NEWREF) == 4) THEN
-         IF(surf_clap_dim(NEWREF, 1).GE.surf_clap_dim(NEWREF, 2)) THEN
-            REFHT=(surf_clap_dim(NEWREF, 1))
-         ELSE
-            REFHT=(surf_clap_dim(NEWREF, 2))
-         END IF
-      END IF
-!        POLY CLAP
-!
-      IF(surf_clap_type(NEWREF) == 5) THEN
-         REFHT=(surf_clap_dim(NEWREF, 1))
-      END IF
-!
-   ELSE
-!       NO CLAP ON REF SURF.
-      IF(PXTRAY(1,NEWREF).GE.PXTRAX(1,NEWREF)) THEN
-         REFHT=((PXTRAY(1,NEWREF)))
-      ELSE
-         REFHT=((PXTRAX(1,NEWREF)))
-      END IF
-   END IF
-
-   IF(WC.EQ.'NOTILT') CALL CAPFIX1(1,REFHT)
-   IF(WC.EQ.'BEST') CALL CAPFIX1(2,REFHT)
-   NUMT0=0.0D0
-   NUMT1=0.0D0
-   NUMT2=0.0D0
-   NUMT3=0.0D0
-   NUMT4=0.0D0
-   NUMT5=0.0D0
-   NUMT6=0.0D0
-   NUMT7=0.0D0
-   NUMT8=0.0D0
-   NUMT9=0.0D0
-   NUMT10=0.0D0
-   NUMTOTAL=0.0D0
-   TOT=0.0D0
-   NUMTOT=0
-   DO I=1,ITOT-1
-!     LOAD DSPOTT(*ID) INTO DSPOT(*,)
-      ID=I
-      CALL SPOTIT(4)
-      IF(DSPOT(12).NE.0.0D0) THEN
-         TOT=TOT+(DSPOT(17)*DSPOT(11))
-         NUMTOT=NUMTOT+1
-      END IF
-      IF(DSPOT(12).NE.0.0D0) THEN
-         SUMONE(0)=SUMONE(0)+(DSPOT(4)/(TWOPII))
-         SUMTWO(0)=SUMTWO(0)+((DSPOT(4)/(TWOPII))**2)
-         NUMT0=NUMT0+1
-      END IF
-      IF(DSPOT(12).NE.0.0D0.AND.DSPOT(16).EQ.1.0D0) THEN
-         SUMONE(1)=SUMONE(1)+(DSPOT(4)/(TWOPII))
-         SUMTWO(1)=SUMTWO(1)+((DSPOT(4)/(TWOPII))**2)
-         NUMT1=NUMT1+1
-      END IF
-      IF(DSPOT(12).NE.0.0D0.AND.DSPOT(16).EQ.2.0D0) THEN
-         SUMONE(2)=SUMONE(2)+(DSPOT(4)/(TWOPII))
-         SUMTWO(2)=SUMTWO(2)+((DSPOT(4)/(TWOPII))**2)
-         NUMT2=NUMT2+1
-      END IF
-      IF(DSPOT(12).NE.0.0D0.AND.DSPOT(16).EQ.3.0D0) THEN
-         SUMONE(3)=SUMONE(3)+(DSPOT(4)/(TWOPII))
-         SUMTWO(3)=SUMTWO(3)+((DSPOT(4)/(TWOPII))**2)
-         NUMT3=NUMT3+1
-      END IF
-      IF(DSPOT(12).NE.0.0D0.AND.DSPOT(16).EQ.4.0D0) THEN
-         SUMONE(4)=SUMONE(4)+(DSPOT(4)/(TWOPII))
-         SUMTWO(4)=SUMTWO(4)+((DSPOT(4)/(TWOPII))**2)
-         NUMT4=NUMT4+1
-      END IF
-      IF(DSPOT(12).NE.0.0D0.AND.DSPOT(16).EQ.5.0D0) THEN
-         SUMONE(5)=SUMONE(5)+(DSPOT(4)/(TWOPII))
-         SUMTWO(5)=SUMTWO(5)+((DSPOT(4)/(TWOPII))**2)
-         NUMT5=NUMT5+1
-      END IF
-      IF(DSPOT(12).NE.0.0D0.AND.DSPOT(16).EQ.6.0D0) THEN
-         SUMONE(6)=SUMONE(6)+(DSPOT(4)/(TWOPII))
-         SUMTWO(6)=SUMTWO(6)+((DSPOT(4)/(TWOPII))**2)
-         NUMT6=NUMT6+1
-      END IF
-      IF(DSPOT(12).NE.0.0D0.AND.DSPOT(16).EQ.7.0D0) THEN
-         SUMONE(7)=SUMONE(7)+(DSPOT(4)/(TWOPII))
-         SUMTWO(7)=SUMTWO(7)+((DSPOT(4)/(TWOPII))**2)
-         NUMT7=NUMT7+1
-      END IF
-      IF(DSPOT(12).NE.0.0D0.AND.DSPOT(16).EQ.8.0D0) THEN
-         SUMONE(8)=SUMONE(8)+(DSPOT(4)/(TWOPII))
-         SUMTWO(8)=SUMTWO(8)+((DSPOT(4)/(TWOPII))**2)
-         NUMT8=NUMT8+1
-      END IF
-      IF(DSPOT(12).NE.0.0D0.AND.DSPOT(16).EQ.9.0D0) THEN
-         SUMONE(9)=SUMONE(9)+(DSPOT(4)/(TWOPII))
-         SUMTWO(9)=SUMTWO(9)+((DSPOT(4)/(TWOPII))**2)
-         NUMT9=NUMT9+1
-      END IF
-      IF(DSPOT(12).NE.0.0D0.AND.DSPOT(16).EQ.10.0D0) THEN
-         SUMONE(10)=SUMONE(10)+(DSPOT(4)/(TWOPII))
-         SUMTWO(10)=SUMTWO(10)+((DSPOT(4)/(TWOPII))**2)
-         NUMT10=NUMT10+1
-      END IF
-
-!
-      IF(DSPOT(12).NE.0.0D0) THEN
-         IF((DSPOT(4)/(TWOPII)).GE.OPPEAK(0))&
-         &OPPEAK(0)=DSPOT(4)/(TWOPII)
-         IF((DSPOT(4)/(TWOPII)).LE.OPPIT(0))&
-         &OPPIT(0)=DSPOT(4)/(TWOPII)
-      END IF
-!
-      IF(DSPOT(12).NE.0.0D0.AND.DSPOT(16).EQ.1.0D0) THEN
-         IF((DSPOT(4)/(TWOPII)).GE.OPPEAK(1))&
-         &OPPEAK(1)=DSPOT(4)/(TWOPII)
-         IF((DSPOT(4)/(TWOPII)).LE.OPPIT(1))&
-         &OPPIT(1)=DSPOT(4)/(TWOPII)
-      END IF
-!
-      IF(DSPOT(12).NE.0.0D0.AND.DSPOT(16).EQ.2.0D0) THEN
-         IF((DSPOT(4)/(TWOPII)).GE.OPPEAK(2))&
-         &OPPEAK(2)=DSPOT(4)/(TWOPII)
-         IF((DSPOT(4)/(TWOPII)).LE.OPPIT(2))&
-         &OPPIT(2)=DSPOT(4)/(TWOPII)
-      END IF
-!
-      IF(DSPOT(12).NE.0.0D0.AND.DSPOT(16).EQ.3.0D0) THEN
-         IF((DSPOT(4)/(TWOPII)).GE.OPPEAK(3))&
-         &OPPEAK(3)=DSPOT(4)/(TWOPII)
-         IF((DSPOT(4)/(TWOPII)).LE.OPPIT(3))&
-         &OPPIT(3)=DSPOT(4)/(TWOPII)
-      END IF
-!
-      IF(DSPOT(12).NE.0.0D0.AND.DSPOT(16).EQ.4.0D0) THEN
-         IF((DSPOT(4)/(TWOPII)).GE.OPPEAK(4))&
-         &OPPEAK(4)=DSPOT(4)/(TWOPII)
-         IF((DSPOT(4)/(TWOPII)).LE.OPPIT(4))&
-         &OPPIT(4)=DSPOT(4)/(TWOPII)
-      END IF
-!
-      IF(DSPOT(12).NE.0.0D0.AND.DSPOT(16).EQ.5.0D0) THEN
-         IF((DSPOT(4)/(TWOPII)).GE.OPPEAK(5))&
-         &OPPEAK(5)=DSPOT(4)/(TWOPII)
-         IF((DSPOT(4)/(TWOPII)).LE.OPPIT(5))&
-         &OPPIT(5)=DSPOT(4)/(TWOPII)
-      END IF
-!
-      IF(DSPOT(12).NE.0.0D0.AND.DSPOT(16).EQ.6.0D0) THEN
-         IF((DSPOT(4)/(TWOPII)).GE.OPPEAK(6))&
-         &OPPEAK(6)=DSPOT(4)/(TWOPII)
-         IF((DSPOT(4)/(TWOPII)).LE.OPPIT(6))&
-         &OPPIT(6)=DSPOT(4)/(TWOPII)
-      END IF
-!
-      IF(DSPOT(12).NE.0.0D0.AND.DSPOT(16).EQ.7.0D0) THEN
-         IF((DSPOT(4)/(TWOPII)).GE.OPPEAK(7))&
-         &OPPEAK(7)=DSPOT(4)/(TWOPII)
-         IF((DSPOT(4)/(TWOPII)).LE.OPPIT(7))&
-         &OPPIT(7)=DSPOT(4)/(TWOPII)
-      END IF
-!
-      IF(DSPOT(12).NE.0.0D0.AND.DSPOT(16).EQ.8.0D0) THEN
-         IF((DSPOT(4)/(TWOPII)).GE.OPPEAK(8))&
-         &OPPEAK(8)=DSPOT(4)/(TWOPII)
-         IF((DSPOT(4)/(TWOPII)).LE.OPPIT(8))&
-         &OPPIT(8)=DSPOT(4)/(TWOPII)
-      END IF
-!
-      IF(DSPOT(12).NE.0.0D0.AND.DSPOT(16).EQ.9.0D0) THEN
-         IF((DSPOT(4)/(TWOPII)).GE.OPPEAK(9))&
-         &OPPEAK(9)=DSPOT(4)/(TWOPII)
-         IF((DSPOT(4)/(TWOPII)).LE.OPPIT(9))&
-         &OPPIT(9)=DSPOT(4)/(TWOPII)
-      END IF
-!
-      IF(DSPOT(12).NE.0.0D0.AND.DSPOT(16).EQ.10.0D0) THEN
-         IF((DSPOT(4)/(TWOPII)).GE.OPPEAK(10))&
-         &OPPEAK(10)=DSPOT(4)/(TWOPII)
-         IF((DSPOT(4)/(TWOPII)).LE.OPPIT(10))&
-         &OPPIT(10)=DSPOT(4)/(TWOPII)
-      END IF
-   END DO
-   IF(NUMT0.NE.0.0D0) THEN
-      ARG=((SUMTWO(0)-((SUMONE(0)**2)/&
-      &DBLE(NUMT0)))/DBLE(NUMT0-1))
-      IF(ARG.LT.0.0D0) THEN
-         OUTLYNE=&
-         &'RMSOPD ERROR OCCURED, CAPFN CALCULATION HAS FAILED'
-         CALL SHOWIT(1)
-         CALL MACFAL
-!     DEALLOCATE DSPOTT
-         CALL SPOTIT(1)
-         RETURN
-      ELSE
-         RMSOP(0)=DSQRT(ARG)
-      END IF
-   END IF
-   IF(NUMT1.NE.0.0D0) THEN
-      ARG=((SUMTWO(1)-((SUMONE(1)**2)/&
-      &DBLE(NUMT1)))/DBLE(NUMT1-1))
-      IF(ARG.LT.0.0D0) THEN
-         OUTLYNE=&
-         &'RMSOPD ERROR OCCURED, CAPFN CALCULATION HAS FAILED'
-         CALL SHOWIT(1)
-         CALL MACFAL
-!     DEALLOCATE DSPOTT
-         CALL SPOTIT(1)
-         RETURN
-      ELSE
-         RMSOP(1)=DSQRT(ARG)
-      END IF
-   END IF
-   IF(NUMT2.NE.0.0D0) THEN
-      ARG=((SUMTWO(2)-((SUMONE(2)**2)/&
-      &DBLE(NUMT2)))/DBLE(NUMT2-1))
-      IF(ARG.LT.0.0D0) THEN
-         OUTLYNE=&
-         &'RMSOPD ERROR OCCURED, CAPFN CALCULATION HAS FAILED'
-         CALL SHOWIT(1)
-         CALL MACFAL
-!     DEALLOCATE DSPOTT
-         CALL SPOTIT(1)
-         RETURN
-      ELSE
-         RMSOP(2)=DSQRT(ARG)
-      END IF
-   END IF
-   IF(NUMT3.NE.0.0D0) THEN
-      ARG=((SUMTWO(3)-((SUMONE(3)**2)/&
-      &DBLE(NUMT3)))/DBLE(NUMT3-1))
-      IF(ARG.LT.0.0D0) THEN
-         OUTLYNE=&
-         &'RMSOPD ERROR OCCURED, CAPFN CALCULATION HAS FAILED'
-         CALL SHOWIT(1)
-         CALL MACFAL
-!     DEALLOCATE DSPOTT
-         CALL SPOTIT(1)
-         RETURN
-      ELSE
-         RMSOP(3)=DSQRT(ARG)
-      END IF
-   END IF
-   IF(NUMT4.NE.0.0D0) THEN
-      ARG=((SUMTWO(4)-((SUMONE(4)**2)/&
-      &DBLE(NUMT4)))/DBLE(NUMT4-1))
-      IF(ARG.LT.0.0D0) THEN
-         OUTLYNE=&
-         &'RMSOPD ERROR OCCURED, CAPFN CALCULATION HAS FAILED'
-         CALL SHOWIT(1)
-         CALL MACFAL
-!     DEALLOCATE DSPOTT
-         CALL SPOTIT(1)
-         RETURN
-      ELSE
-         RMSOP(4)=DSQRT(ARG)
-      END IF
-   END IF
-   IF(NUMT5.NE.0.0D0) THEN
-      ARG=((SUMTWO(5)-((SUMONE(5)**2)/&
-      &DBLE(NUMT5)))/DBLE(NUMT5-1))
-      IF(ARG.LT.0.0D0) THEN
-         OUTLYNE=&
-         &'RMSOPD ERROR OCCURED, CAPFN CALCULATION HAS FAILED'
-         CALL SHOWIT(1)
-         CALL MACFAL
-!     DEALLOCATE DSPOTT
-         CALL SPOTIT(1)
-         RETURN
-      ELSE
-         RMSOP(5)=DSQRT(ARG)
-      END IF
-   END IF
-   IF(NUMT6.NE.0.0D0) THEN
-      ARG=((SUMTWO(6)-((SUMONE(6)**2)/&
-      &DBLE(NUMT6)))/DBLE(NUMT6-1))
-      IF(ARG.LT.0.0D0) THEN
-         OUTLYNE=&
-         &'RMSOPD ERROR OCCURED, CAPFN CALCULATION HAS FAILED'
-         CALL SHOWIT(1)
-         CALL MACFAL
-!     DEALLOCATE DSPOTT
-         CALL SPOTIT(1)
-         RETURN
-      ELSE
-         RMSOP(6)=DSQRT(ARG)
-      END IF
-   END IF
-   IF(NUMT7.NE.0.0D0) THEN
-      ARG=((SUMTWO(7)-((SUMONE(7)**2)/&
-      &DBLE(NUMT7)))/DBLE(NUMT7-1))
-      IF(ARG.LT.0.0D0) THEN
-         OUTLYNE=&
-         &'RMSOPD ERROR OCCURED, CAPFN CALCULATION HAS FAILED'
-         CALL SHOWIT(1)
-         CALL MACFAL
-!     DEALLOCATE DSPOTT
-         CALL SPOTIT(1)
-         RETURN
-      ELSE
-         RMSOP(7)=DSQRT(ARG)
-      END IF
-   END IF
-   IF(NUMT8.NE.0.0D0) THEN
-      ARG=((SUMTWO(8)-((SUMONE(8)**2)/&
-      &DBLE(NUMT8)))/DBLE(NUMT8-1))
-      IF(ARG.LT.0.0D0) THEN
-         OUTLYNE=&
-         &'RMSOPD ERROR OCCURED, CAPFN CALCULATION HAS FAILED'
-         CALL SHOWIT(1)
-         CALL MACFAL
-!     DEALLOCATE DSPOTT
-         CALL SPOTIT(1)
-         RETURN
-      ELSE
-         RMSOP(8)=DSQRT(ARG)
-      END IF
-   END IF
-   IF(NUMT9.NE.0.0D0) THEN
-      ARG=((SUMTWO(9)-((SUMONE(9)**2)/&
-      &DBLE(NUMT9)))/DBLE(NUMT9-1))
-      IF(ARG.LT.0.0D0) THEN
-         OUTLYNE=&
-         &'RMSOPD ERROR OCCURED, CAPFN CALCULATION HAS FAILED'
-         CALL SHOWIT(1)
-         CALL MACFAL
-!     DEALLOCATE DSPOTT
-         CALL SPOTIT(1)
-         RETURN
-      ELSE
-         RMSOP(9)=DSQRT(ARG)
-      END IF
-   END IF
-   IF(NUMT10.NE.0.0D0) THEN
-      ARG=((SUMTWO(10)-((SUMONE(10)**2)/&
-      &DBLE(NUMT10)))/DBLE(NUMT10-1))
-      IF(ARG.LT.0.0D0) THEN
-         OUTLYNE=&
-         &'RMSOPD ERROR OCCURED, CAPFN CALCULATION HAS FAILED'
-         CALL SHOWIT(1)
-         CALL MACFAL
-!     DEALLOCATE DSPOTT
-         CALL SPOTIT(1)
-         RETURN
-      ELSE
-         RMSOP(10)=DSQRT(ARG)
-      END IF
-   END IF
-!     NOW THE POLY CHROMATIC RMSOPD
-   IF(LAMAVE.NE.0.0D0) THEN
-!     CALC SUMSIG
-      SUMSIG=0.0D0
-      DO I=1,10
-         IF(WEI(I).NE.0.0D0.AND.RMSOP(I).NE.0.0D0.AND.&
-         &LAM(I).NE.0.0D0)&
-         &SUMSIG=SUMSIG+((WEI(I)*(RMSOP(I)**2))/(LAM(I)**2))
-      END DO
-   END IF
-   SIG=0.0D0
-   IF(SUML2.NE.0.0D0.AND.SUMSIG.NE.0.0D0)&
-   &RMSOPD=DSQRT(SUMSIG/SUML2)
-   RMSOP(0)=RMSOPD
-   PTOVOPD(0)=OPPEAK(0)-OPPIT(0)
-   PTOVOPD(1)=OPPEAK(1)-OPPIT(1)
-   PTOVOPD(2)=OPPEAK(2)-OPPIT(2)
-   PTOVOPD(3)=OPPEAK(3)-OPPIT(3)
-   PTOVOPD(4)=OPPEAK(4)-OPPIT(4)
-   PTOVOPD(5)=OPPEAK(5)-OPPIT(5)
-   PTOVOPD(6)=OPPEAK(6)-OPPIT(6)
-   PTOVOPD(7)=OPPEAK(7)-OPPIT(7)
-   PTOVOPD(8)=OPPEAK(8)-OPPIT(8)
-   PTOVOPD(9)=OPPEAK(9)-OPPIT(9)
-   PTOVOPD(10)=OPPEAK(10)-OPPIT(10)
-   RETURN
-END
-! SUB CAPFIX1.FOR
-SUBROUTINE CAPFIX1(FTYPE,REFHT)
-!
-   use DATSP1
-   use DATSPD
-   use DATLEN
-   use DATMAI
-   use mod_system, only: sys_units, sys_wavelength, sys_wl_weight
-   use iso_fortran_env, only: real64
-   IMPLICIT NONE
-!
-   EXTERNAL FF3
-!
-   INTEGER SSN,SM,NP2,MP,JTYPE,COUNT,I,J,N,M,II,IIP,IWK,JJJ &
-   &,ISS,IITOT,FTYPE,IQ
-!
-   COMMON/PRSIZE/COUNT
-!
-!       THIS PASSES THE SOLUTION OF THE LEAST SQUARES PROBLEM
-   COMMON/SOLU/X
-   LOGICAL ERRR
-!
-   real(real64) ACCUM(1:96,1:96),REFHT,WW,TERM1,TERM2,&
-   &WAVEX,A,CCOL(1:96),X(1:96),SUML2,SUML4,WEIS,&
-   &DENOM,DZ1,DZ2,SS1,SS2,VALL,VALX,VALY,WEI(1:10),LAM(1:10)&
-   &,PHI,PHIX,PHIY,SSS,COSX,COSY,SINX,SINY,SSSO,DLLZX,DLLZY,DLLZ0 &
-   &,PHIO,NRR,ORR,TERM3
-!
-   COMMON/ACDATA/ACCUM,CCOL
-!
-   real(real64) WVAL
-!
-   INTEGER III,JJ,ALLOERR,WWVN
-!
-   real(real64) DWW1,DWW2,DWW3,DWW4,&
-   &TERM,FF3,RHO,THETA
-!
-!
-   real(real64) W,V,U,WV,&
-   &B,XXX
-!
-   DIMENSION W(:),V(:,:),U(:,:),&
-   &B(:),XXX(:)
-!
-   ALLOCATABLE :: W,V,U,B,XXX
-   DEALLOCATE (W,V,U,B,XXX &
-   &,STAT=ALLOERR)
-   ALLOCATE (W(1:96),V(1:96,1:96),U(1:96,1:96),B(1:96),XXX(1:96)&
-   &,STAT=ALLOERR)
-!
-!     COMPUTE THE EFFECTIVE WAVELENGTH
-   SUML2=0.0D0
-   SUML4=0.0D0
-   LAMAVE=0.0D0
-   WEI(1)=sys_wl_weight(1)
-   WEI(2)=sys_wl_weight(2)
-   WEI(3)=sys_wl_weight(3)
-   WEI(4)=sys_wl_weight(4)
-   WEI(5)=sys_wl_weight(5)
-   WEI(6)=sys_wl_weight(6)
-   WEI(7)=sys_wl_weight(7)
-   WEI(8)=sys_wl_weight(8)
-   WEI(9)=sys_wl_weight(9)
-   WEI(10)=sys_wl_weight(10)
-   LAM(1)=sys_wavelength(1)
-   LAM(2)=sys_wavelength(2)
-   LAM(3)=sys_wavelength(3)
-   LAM(4)=sys_wavelength(4)
-   LAM(5)=sys_wavelength(5)
-   LAM(6)=sys_wavelength(6)
-   LAM(7)=sys_wavelength(7)
-   LAM(8)=sys_wavelength(8)
-   LAM(9)=sys_wavelength(9)
-   LAM(10)=sys_wavelength(10)
-   WEIS=0.0D0
-   DO ISS=1,10
-      WEIS=WEIS+WEI(ISS)
-   END DO
-   IF(WEIS.EQ.0.0D0) WEIS=1.0D0
-   DO ISS=1,10
-      WEI(ISS)=WEI(ISS)/WEIS
-   END DO
-   DO ISS=1,10
-      IF(LAM(ISS).NE.0.0D0.AND.WEI(ISS).NE.0.0D0) THEN
-         SUML2=SUML2+(WEI(ISS)/(LAM(ISS)**2))
-         SUML4=SUML4+(WEI(ISS)/(LAM(ISS)**4))
-      END IF
-   END DO
-   LAMAVE=DSQRT(SUML2/SUML4)
-   IF(sys_units().EQ.1.0D0) THEN
-      LAMAVE=LAMAVE*3.93700787402D-5
-   END IF
-   IF(sys_units().EQ.2.0D0) THEN
-      LAMAVE=LAMAVE*1.0D-4
-   END IF
-   IF(sys_units().EQ.3.0D0) THEN
-      LAMAVE=LAMAVE*1.0D-3
-   END IF
-   IF(sys_units().EQ.4.0D0) THEN
-      LAMAVE=LAMAVE*1.0D-6
-   END IF
-!
-   WAVEX=0.0D0
-   DLLX=0.0D0
-   DLLY=0.0D0
-   DLLZ=0.0D0
-   CCOL(1:96)=0.0D0
-   CFTYPE(1:96)=0.0D0
-   X(1:96)=0.0D0
-   XXX(1:96)=0.0D0
-   ACCUM(1:96,1:96)=0.0D0
-!
-   DO IIP=1,ITOT-1
-!     LOAD DSPOT(*) WITH DSPOTT(*,ID)
-      ID=IIP
-      CALL SPOTIT(4)
-      IF(DSPOT(16).EQ.1.0D0)  WV=sys_wavelength(1)
-      IF(DSPOT(16).EQ.2.0D0)  WV=sys_wavelength(2)
-      IF(DSPOT(16).EQ.3.0D0)  WV=sys_wavelength(3)
-      IF(DSPOT(16).EQ.4.0D0)  WV=sys_wavelength(4)
-      IF(DSPOT(16).EQ.5.0D0)  WV=sys_wavelength(5)
-      IF(DSPOT(16).EQ.6.0D0)  WV=sys_wavelength(6)
-      IF(DSPOT(16).EQ.7.0D0)  WV=sys_wavelength(7)
-      IF(DSPOT(16).EQ.8.0D0)  WV=sys_wavelength(8)
-      IF(DSPOT(16).EQ.9.0D0)  WV=sys_wavelength(9)
-      IF(DSPOT(16).EQ.10.0D0) WV=sys_wavelength(10)
-      IF(DSPOT(16).EQ.1.0D0)  WWVN=46
-      IF(DSPOT(16).EQ.2.0D0)  WWVN=47
-      IF(DSPOT(16).EQ.3.0D0)  WWVN=48
-      IF(DSPOT(16).EQ.4.0D0)  WWVN=49
-      IF(DSPOT(16).EQ.5.0D0)  WWVN=50
-      IF(DSPOT(16).EQ.6.0D0)  WWVN=71
-      IF(DSPOT(16).EQ.7.0D0)  WWVN=72
-      IF(DSPOT(16).EQ.8.0D0)  WWVN=73
-      IF(DSPOT(16).EQ.9.0D0)  WWVN=74
-      IF(DSPOT(16).EQ.10.0D0) WWVN=75
-      IF(sys_units().EQ.1.0D0) THEN
-         WV=WV*3.93700787402D-5
-      END IF
-      IF(sys_units().EQ.2.0D0) THEN
-         WV=WV*1.0D-4
-      END IF
-      IF(sys_units().EQ.3.0D0) THEN
-         WV=WV*1.0D-3
-      END IF
-      IF(sys_units().EQ.4.0D0) THEN
-         WV=WV*1.0D-6
-      END IF
-      DWW1=DSPOT(6)/REFHT
-      DWW2=DSPOT(5)/REFHT
-      DWW3=((DSPOT(33)/(TWOPII)))*WV
-      DWW4=DSPOT(12)
-!       PROCEED WITH FITTING A TYPE 3 TYPE/SURFACE
-      RHO=DSQRT((DWW1**2)+(DWW2**2))
-      IF(DABS(DWW1).GE.DABS(((1.0D35)*DWW2))) THEN
-         IF(DWW1.GE.0.0D0) THETA=PII/2.0D0
-         IF(DWW1.LT.0.0D0) THETA=(3.0D0*PII)/2.0D0
-      ELSE
-         IF(DABS(DWW1).LE.1.0D-15.AND.DABS(DWW2).LE.1.0D-15) THEN
-            THETA=0.0D0
-         ELSE
-            THETA=DATAN2(DWW1,DWW2)
-         END IF
-         IF(THETA.LT.0.0D0) THETA=THETA+(TWOPII)
-      END IF
-!
-      III=0
-      DO I=1,4
-!       FILL THE COLLUMN ARRAY
-         III=III+1
-!       CALCULATE COLUMN VECTOR
-!       FUNCTION FF3 RETURNS THE CORRECT VALUE
-!       FOR THE ITH ENTRY IN THE COLUMN VECTOR
-!       WITHOUT THE GIVEN DEPENDENT VARIABLE VALUE
-!       OF THE WEIGHT FUNCTION FACTORED IN. THIS IS
-!       FOR THE STANDARD ZERNIKE. I RANGES FROM 1 TO 4
-         TERM= FF3(RHO,THETA,I)
-         TERM=TERM*DWW3*DWW4
-         CCOL(III)=CCOL(III)+TERM
-         JJ=0
-         DO J=1,4
-!       DO THE APPROPRIATE ROW FOR COLUMN I
-            JJ=JJ+1
-            TERM= FF3(RHO,THETA,I)*FF3(RHO,THETA,J)
-            ACCUM(III,JJ)=ACCUM(III,JJ)+(DWW4*TERM)
-         END DO
-      END DO
-      COUNT=III
-   END DO
-!       THE LARGE ARRAY WITH ACCUMULATED DATA IS
-!       ACCUM. THE COLUMN VECTOR WITH FUNCTIONAL DATA
-!       IS CCOL.
-   MP=96
-   NP2=96
-   N=COUNT
-   M=COUNT
-   DO I=1,COUNT
-      B(I)=CCOL(I)
-      DO J=1,COUNT
-         U(I,J)=ACCUM(I,J)
-      END DO
-   END DO
-!       DO SINGULAR VALUE DECOMPOSITION
-!
-   SM=M
-   SSN=N
-   CALL SVDCMP(U,SM,SSN,MP,NP2,W,V)
-   M=SM
-   N=SSN
-!
-!       SOLVE LINEAR EQUATION
-!
-   SM=M
-   SSN=N
-   CALL SVBKSB(U,W,V,SM,SSN,MP,NP2,B,XXX)
-   M=SM
-   N=SSN
-   II=0
-   DO I=1,4
-      II=II+1
-      CFTYPE(I)=XXX(II)
-      X(I)=CFTYPE(I)
-   END DO
-!     NOW COMPUTE THE TILTED PART AND SUBTRACT IT OFF
-   DO IIP=1,ITOT-1
-!     LOAD DSPOT(*) WITH DSPOTT(*,ID)
-      ID=IIP
-      CALL SPOTIT(4)
-      IF(DSPOT(16).EQ.1.0D0)  WV=sys_wavelength(1)
-      IF(DSPOT(16).EQ.2.0D0)  WV=sys_wavelength(2)
-      IF(DSPOT(16).EQ.3.0D0)  WV=sys_wavelength(3)
-      IF(DSPOT(16).EQ.4.0D0)  WV=sys_wavelength(4)
-      IF(DSPOT(16).EQ.5.0D0)  WV=sys_wavelength(5)
-      IF(DSPOT(16).EQ.6.0D0)  WV=sys_wavelength(6)
-      IF(DSPOT(16).EQ.7.0D0)  WV=sys_wavelength(7)
-      IF(DSPOT(16).EQ.8.0D0)  WV=sys_wavelength(8)
-      IF(DSPOT(16).EQ.9.0D0)  WV=sys_wavelength(9)
-      IF(DSPOT(16).EQ.10.0D0) WV=sys_wavelength(10)
-      IF(sys_units().EQ.1.0D0) THEN
-         WV=WV*3.93700787402D-5
-      END IF
-      IF(sys_units().EQ.2.0D0) THEN
-         WV=WV*1.0D-4
-      END IF
-      IF(sys_units().EQ.3.0D0) THEN
-         WV=WV*1.0D-3
-      END IF
-      IF(sys_units().EQ.4.0D0) THEN
-         WV=WV*1.0D-6
-      END IF
-      DWW1=DSPOT(6)/REFHT
-      DWW2=DSPOT(5)/REFHT
-      DWW3=((DSPOT(33)/(TWOPII)))*WV
-      RHO=DSQRT((DWW1**2)+(DWW2**2))
-      IF(DABS(DWW1).GE.DABS(((1.0D35)*DWW2))) THEN
-         IF(DWW1.GE.0.0D0) THETA=PII/2.0D0
-         IF(DWW1.LT.0.0D0) THETA=(3.0D0*PII)/2.0D0
-      ELSE
-         IF(DABS(DWW1).LE.1.0D-15.AND.DABS(DWW2).LE.1.0D-15) THEN
-            THETA=0.0D0
-         ELSE
-            THETA=DATAN2(DWW1,DWW2)
-         END IF
-         IF(THETA.LT.0.0D0) THETA=THETA+(TWOPII)
-      END IF
-      TERM=0.0D0
-      IF(FTYPE.EQ.1) THEN
-         TERM1=(X(2)*FF3(RHO,THETA,2))&
-         &+(X(3)*FF3(RHO,THETA,3))
-         TERM2=0.0D0
-      END IF
-      IF(FTYPE.EQ.2) THEN
-         TERM1=(X(2)*FF3(RHO,THETA,2))&
-         &+(X(3)*FF3(RHO,THETA,3))
-         TERM2=(X(1)*FF3(RHO,THETA,1))&
-         &+(X(4)*FF3(RHO,THETA,4))
-      END IF
-      TERM3=TERM1+TERM2
-      DWW3=DWW3-TERM3
-      IF(DSPOT(12).NE.0.0D0) DSPOT(4)=&
-      &(DWW3*(TWOPII))/WV
-      IF(DSPOT(12).EQ.0.0D0) DSPOT(4)=0.0D0
-!     LOAD DSPOTT(*,ID) WITH DSPOT
-      ID=IIP
-      CALL SPOTIT(3)
-   END DO
-
-   DLLX=((X(2)*FF3(1.0D0,0.0D0,2))&
-   &-(X(2)*FF3(1.0D0,(PII),2)))
-   DLLY=((X(3)*FF3(1.0D0,(PII/2.0D0),3))&
-   &-(X(3)*FF3(1.0D0,(3.0D0*PII/2.0D0),3)))
-   IF(FTYPE.EQ.1)  DLLZ=0.0D0
-   IF(FTYPE.EQ.2)  DLLZ=((X(1)*FF3(1.0D0,0.0D0,1))&
-   &+(X(4)*FF3(1.0D0,0.0D0,4)))
-   VALX=EXDIAX
-   VALY=EXDIAY
-   DLLX=-((DLLX/(2.0D0*VALX))*RREF)*DCOS(REFRY(11,NEWIMG))
-   DLLY=-((DLLY/(2.0D0*VALY))*RREF)*DCOS(REFRY(12,NEWIMG))
-   DLLZX=&
-   &(DLLZ*2.0D0)/((ALENS(WWVN,NEWIMG-1)*&
-   &DSIN(DATAN(1.0D0/(2.0D0*RBFNX))))**2)
-   DLLZY=&
-   &(DLLZ*2.0D0)/((ALENS(WWVN,NEWIMG-1)*&
-   &DSIN(DATAN(1.0D0/(2.0D0*RBFNY))))**2)
-   DLLZ=(DLLZX+DLLZY)/2.0D0
-!
-   DEALLOCATE(U,W,V,XXX,B,STAT=ALLOERR)
-   RETURN
-END
-! SUB PLTCAPFN.FOR
-SUBROUTINE PLTCAPFN
-!
-   use DATSP1
-   use DATSPD
-   use DATLEN
-   use DATMAI
-   use mod_surface, only: surf_clap_type, surf_clap_dim
-   use command_utils, only: is_command_query
-   use iso_fortran_env, only: real64
-   IMPLICIT NONE
-!
-!       THIS PROGRAM CONTROLS THE PLOT CAPFNOPD AND PLOT CAPFNAPD COMMANDS
-!
-   INTEGER COLPAS
-!
-   INTEGER G,KKK,KVAL,I,KKV,ALLOERR
-!
-   REAL REFHT
-!
-   real(real64) WVAL
-!
-!
-   REAL ZMAX1,ZMIN1
-!
-   LOGICAL AUTOZSCALE
-!
-   COMMON/AUTSCALE/ZMAX1,ZMIN1,AUTOZSCALE
-!
-   LOGICAL PLOTIT(1:10)
-   COMMON/ITPLOT/PLOTIT
-!
-!
-   AUTOZSCALE=.TRUE.
-   IF(is_command_query()) THEN
-      OUTLYNE= '"PLOT CAPFN(OPD AND APD)" PLOTS THE EXISTING CAPFN'
-      CALL SHOWIT(1)
-      OUTLYNE= 'RE-ENTER COMMAND'
-      CALL SHOWIT(1)
-      RETURN
-   END IF
-   IF(SST.EQ.1) THEN
-      CALL REPORT_ERROR_AND_FAIL(&
-      & '"PLOT CAPFN(OPD OR APD)" TAKES NO STRING INPUT'//'\n'//&
-      & 'RE-ENTER COMMAND', 1)
-      RETURN
-   END IF
-   IF(WQ.EQ.'CAPFNOPD') THEN
-      IF(S5.EQ.1) THEN
-         CALL REPORT_ERROR_AND_FAIL(&
-         & '"PLOT CAPFNOPD" TAKES NO NUMERIC WORD #5 INPUT'//'\n'//&
-         & 'RE-ENTER COMMAND', 1)
-         RETURN
-      END IF
-   END IF
-   IF(WQ.EQ.'CAPFNOPD') THEN
-      IF(DF3.EQ.1.AND.DF4.EQ.0.OR.DF3.EQ.0.AND.DF4.EQ.1) THEN
-         OUTLYNE=&
-         &'FOR "PLOT CAPFNOPD":'
-         CALL SHOWIT(1)
-         OUTLYNE=&
-         &'EITHER USE NO EXPLICIT NUMERIC WORD #3 AND #4 (AUTO Z-SCALING)'
-         CALL SHOWIT(1)
-         OUTLYNE=&
-         &'OR USE BOTH NUMERIC WORD #3 (Z-MAX) AND NUMERIC WORD #4 (Z-MIN)'
-         CALL SHOWIT(1)
-         CALL REPORT_ERROR_AND_FAIL('RE-ENTER COMMAND', 1)
-         RETURN
-      END IF
-      IF(DF3.EQ.0.AND.DF4.EQ.0) THEN
-         IF(W3.LT.W4) THEN
-         ELSE
-            OUTLYNE=&
-            &'FOR "PLOT CAPFNOPD":'
-            CALL SHOWIT(1)
-            OUTLYNE=&
-            &'NUMERIC WORD #3 MUST BE LESS THAN NUMERIC WORK #4'
-            CALL SHOWIT(1)
-            OUTLYNE=&
-            &'WHEN BOTH ARE ISSUED DURING CAPFNOPD PLOTTING'
-            CALL SHOWIT(1)
-            CALL REPORT_ERROR_AND_FAIL('RE-ENTER COMMAND', 1)
-            RETURN
-         END IF
-      END IF
-   END IF
-   IF(WQ.EQ.'CAPFNAPD') THEN
-      IF(S3.EQ.1.OR.S4.EQ.1.OR.S5.EQ.1) THEN
-         CALL REPORT_ERROR_AND_FAIL(&
-         & '"PLOT CAPFNAPD" TAKES NO NUMERIC WORD'//'\n'//&
-         & '#3, #4 OR #5 INPUT'//'\n'//&
-         & 'RE-ENTER COMMAND', 1)
-         RETURN
-      END IF
-   END IF
-
-   IF(DF1.EQ.1) W1=1.0D0
-   IF(DF1.EQ.1) S1=1
-   IF(DF1.EQ.1) DF1=0
-   IF(INT(W1).LT.1.OR.INT(W1).GT.10) THEN
-      OUTLYNE=&
-      &'NUMERIC WORD #1 MUST BE 1, 2, 3, 4, 5, 6, 7, 8, 9 OR 10'
-      CALL SHOWIT(1)
-      CALL REPORT_ERROR_AND_FAIL('RE-ENTER COMMAND', 1)
-      RETURN
-   END IF
-!     OPEN AND LOAD THE APPROPRIATE CAPFN DATA AND THEN PLOT IT
-   IF(.NOT.CPFNEXT) THEN
-      OUTLYNE=&
-      &'NO CAPFN EXISTS'
-      CALL SHOWIT(1)
-      CALL REPORT_ERROR_AND_FAIL('NO ACTION TAKEN', 1)
-      RETURN
-   END IF
-!
-!     DETERMINE THE REFERNCE APERTURE HEIGHT
-!     OF THE REF SURFACE COORDINATES
-   IF(surf_clap_type(NEWREF) >= 1.AND.abs(surf_clap_type(NEWREF))&
-   &.LE.5.0D0) THEN
-      IF(surf_clap_type(NEWREF) == 1) THEN
-         REFHT=SNGL(surf_clap_dim(NEWREF, 1))
-      END IF
-!        RECT CLAP
-!
-      IF(surf_clap_type(NEWREF) == 2) THEN
-         IF(surf_clap_dim(NEWREF, 1).GE.surf_clap_dim(NEWREF, 2)) THEN
-            REFHT=SNGL(surf_clap_dim(NEWREF, 1))
-         ELSE
-            REFHT=SNGL(surf_clap_dim(NEWREF, 2))
-         END IF
-      END IF
-!        ELIP CLAP
-!
-      IF(surf_clap_type(NEWREF) == 3) THEN
-         IF(surf_clap_dim(NEWREF, 1).GE.surf_clap_dim(NEWREF, 2)) THEN
-            REFHT=SNGL(surf_clap_dim(NEWREF, 1))
-         ELSE
-            REFHT=SNGL(surf_clap_dim(NEWREF, 2))
-         END IF
-      END IF
-!        RCTK CLAP
-!
-      IF(surf_clap_type(NEWREF) == 4) THEN
-         IF(surf_clap_dim(NEWREF, 1).GE.surf_clap_dim(NEWREF, 2)) THEN
-            REFHT=SNGL(surf_clap_dim(NEWREF, 1))
-         ELSE
-            REFHT=SNGL(surf_clap_dim(NEWREF, 2))
-         END IF
-      END IF
-!        POLY CLAP
-!
-      IF(surf_clap_type(NEWREF) == 5) THEN
-         REFHT=SNGL(surf_clap_dim(NEWREF, 1))
-      END IF
-!
-   ELSE
-!       NO CLAP ON REF SURF.
-      IF(PXTRAY(1,NEWREF).GE.PXTRAX(1,NEWREF)) THEN
-         REFHT=SNGL((PXTRAY(1,NEWREF)))
-      ELSE
-         REFHT=SNGL((PXTRAX(1,NEWREF)))
-      END IF
-   END IF
-!
-   WVAL=(W1)
-   KKV=(ITOT-1)/NUMCOL
-!     KKV IS THE TOTAL NUMBER OF POINTS AT THE DESIRED COLOR
-!     AND IT IS AN EXACT SQUARE
-   PLOTIT(1)=.FALSE.
-   PLOTIT(2)=.FALSE.
-   PLOTIT(3)=.FALSE.
-   PLOTIT(4)=.FALSE.
-   PLOTIT(5)=.FALSE.
-   PLOTIT(6)=.FALSE.
-   PLOTIT(7)=.FALSE.
-   PLOTIT(8)=.FALSE.
-   PLOTIT(9)=.FALSE.
-   PLOTIT(10)=.FALSE.
-   DO I=1,ITOT-1
-!     LOAD DSPOTT(*,ID) INTO DSPOT(*)
-      ID=I
-      CALL SPOTIT(4)
-!
-      IF(DSPOT(16).EQ.WVAL) THEN
-         PLOTIT(INT(WVAL))=.TRUE.
-         KVAL=I
-         GO TO 10
-      END IF
-!
-   END DO
-10 CONTINUE
-   G=ITOT+1
-!
-
-   KKK=NINT(SQRT(FLOAT(KKV)))
-   IF(.NOT.PLOTIT(INT(W1))) THEN
-      CALL REPORT_ERROR_AND_FAIL(&
-      & 'CAPFN DATA FOR THE WAVELENGTH VALUE (NUMERIC WORD 1)'//'\n'//&
-      & 'DOES NOT EXIST'//'\n'//&
-      & 'NO ACTION TAKEN', 1)
-      RETURN
-   END IF
-!
-   IF(WQ.EQ.'CAPFNOPD') CALL CAPPLOT(1,KVAL,REFHT,WVAL,KKV,KKK &
-   &)
-   IF(WQ.EQ.'CAPFNAPD') CALL CAPPLOT(2,KVAL,REFHT,WVAL,KKV,KKK &
-   &)
-   RETURN
-END
-! SUB CAPPLOT.FOR
-SUBROUTINE CAPPLOT(IJ,KVAL,REFHT,WVAL,KKV,KKK)
-!     KVAL IS THE FIRST RECORD OF THE SPOT FILE TO READ
-!     REFHT IS THE NORMALIZING AP HT.
-!     WVAL IS THE DESIRED WAVELENGTH NUMBER
-!     KKV IS THE TOTAL NUMBER OF POINTS TO BE READ IN FROM DSPOTT
-!
-   use DATSP1
-   use DATSPD
-   use DATLEN
-   use DATMAI
-   use iso_fortran_env, only: real64
-   IMPLICIT NONE
-!
-   LOGICAL ITSFLAT
-!
-   INTEGER IJ,KVAL,K,I,J,NNX,KKI2,NNY,KK,KKK,IQ,KKV,II,IIVAL
-   INTEGER ALLOERR,WVNUMB
-!
-   real(real64) DL1,FV &
-   &,WVAL
-   REAL REFHT,ZMAX2,ZMIN2,RI,RII
-   REAL XYVALUE,XPLT,YPLT,F1PLT,F2PLT,DELGRID
-!
-   REAL ZMAX1,ZMIN1
-!
-   LOGICAL AUTOZSCALE
-!
-   COMMON/AUTSCALE/ZMAX1,ZMIN1,AUTOZSCALE
-!
-   DIMENSION F1PLT(:,:),F2PLT(:,:),XPLT(:),YPLT(:)
-!
-   ALLOCATABLE :: F1PLT,F2PLT,YPLT,XPLT
-!
-   KKI2=NINT(SQRT(FLOAT(KKV)))
-   DEALLOCATE(XPLT,YPLT,F1PLT,F2PLT,STAT=ALLOERR)
-   ALLOCATE(XPLT(KKK),YPLT(KKK),F1PLT(KKK,KKK),&
-   &F2PLT(KKK,KKK),STAT=ALLOERR)
-!
-   ZMAX1=-1.0E10
-   ZMIN1=1.0E10
-   ZMAX2=1.0E0
-   ZMIN2=0.0E0
-   I=1
-   J=0
-   DO IQ=1,ITOT-1
-!     LOAD DSPOTT(*,ID) INTO DSPOT(*)
-      ID=IQ
-      CALL SPOTIT(4)
-      IF(DSPOT(16).NE.WVAL) THEN
-         GO TO 101
-      END IF
-      J=J+1
-      IF(J.GT.KKK) THEN
-         J=1
-         I=I+1
-      END IF
-      F1PLT(J,I)=SNGL(DSPOT(4)/(TWOPII))
-      F2PLT(J,I)=SNGL(DSPOT(12))
-      WVNUMB=INT(DSPOT(16))
-      IF(F2PLT(J,I).NE.0.0) THEN
-         IF(F1PLT(J,I).GT.ZMAX1) ZMAX1=(F1PLT(J,I))
-         IF(F1PLT(J,I).LE.ZMIN1) ZMIN1=(F1PLT(J,I))
-      END IF
-101   CONTINUE
-   END DO
-   ITSFLAT=.FALSE.
-   IF(ABS(ZMIN1-ZMAX1).LT.1.0E-6) THEN
-      IF(ABS(ZMIN1).LE.1.0E-6) ZMIN1=0.0
-      ZMAX1=ZMIN1+1.0
-      ITSFLAT=.TRUE.
-      GO TO 5
-   END IF
-!
-5  DO I=-10000,10000,1
-      RI=FLOAT(I)/100.0
-      RII=FLOAT(I+1)/100.0
-      IF(ZMAX1.GT.RI.AND.ZMAX1.LE.RII) THEN
-         ZMAX1=RII
-         GO TO 10
-      END IF
-   END DO
-10 CONTINUE
-   DO I=-10000,10000,1
-      RI=FLOAT(I)/100.0
-      RII=FLOAT(I+1)/100.0
-      IF(ZMIN1.GE.RI.AND.ZMIN1.LT.RII) THEN
-         ZMIN1=RI
-         GO TO 20
-      END IF
-   END DO
-20 CONTINUE
-   IF(ZMIN1.EQ.ZMAX1) THEN
-      ZMAX1=ZMIN1+0.01
-      DO J=1,KKI2
-         DO I=1,KKI2
-            IF(F1PLT(I,J).LT.0.0.AND.ABS(F1PLT(I,J)).LT.0.0001)&
-            &F1PLT(I,J)=-0.0001
-            IF(F1PLT(I,J).GE.0.0.AND.ABS(F1PLT(I,J)).LT.0.0001)&
-            &F1PLT(I,J)= 0.0001
-         END DO
-      END DO
-   END IF
-6  CONTINUE
-   DO J=1,KKI2
-      DO I=1,KKI2
-         IF(F1PLT(I,J).LT.0.0.AND.ABS(F1PLT(I,J)).LT.0.0001)&
-         &F1PLT(I,J)=-0.0001
-         IF(F1PLT(I,J).GE.0.0.AND.ABS(F1PLT(I,J)).LT.0.0001)&
-         &F1PLT(I,J)= 0.0001
-      END DO
-   END DO
-
-   DELGRID=2.0/(FLOAT(KKI2)-1.0)
-   XPLT(1)=-1.0
-   YPLT(1)=-1.0
-   XPLT(KKI2)=1.0
-   YPLT(KKI2)=1.0
-   XYVALUE=-1.0
-   DO IQ=2,KKI2-1
-      XYVALUE=XYVALUE+DELGRID
-      XPLT(IQ)=XYVALUE
-      YPLT(IQ)=XYVALUE
-   END DO
-   DO IQ=1,KKI2
-      XPLT(IQ)=XPLT(IQ)*.99
-      YPLT(IQ)=YPLT(IQ)*.99
-   END DO
-   IF(DF3.EQ.0.AND.DF4.EQ.0) THEN
-      ZMAX1=SNGL(W4)
-      ZMIN1=SNGL(W3)
-   END IF
-   DO J=1,KKI2
-      DO I=1,KKI2
-         F1PLT(I,J)=(F1PLT(I,J)-ZMIN1)/(ZMAX1-ZMIN1)
-         IF(ABS(F1PLT(I,J)).LT.1E-6) F1PLT(I,J)=0.0
-         IF(ABS(F2PLT(I,J)).LT.1E-6) F2PLT(I,J)=0.0
-      END DO
-   END DO
-   IF(ITSFLAT) THEN
-      J=KKI2
-      I=KKI2
-      F1PLT(1:I,1:J)=0.01
-   END IF
-   CALL FFT3(KKI2,XPLT,YPLT,F1PLT,F2PLT,REFHT,IJ &
-   &,ZMIN2,ZMAX2,WVNUMB)
-   DEALLOCATE(XPLT,YPLT,F1PLT,F2PLT,STAT=ALLOERR)
-   RETURN
-END
-SUBROUTINE PLOTCAPFN(PCOUNT,XPLT,YPLT,F1PLT,FTF1,F2PLT,FTF2 &
-&,ROT,IJ,ZMIN2,ZMAX2,REFHT,WVNUMB)
-   use DATSP1
-   use DATHGR
-   use DATSPD
-   use DATLEN
-   use DATMAI
-   use mod_system, only: sys_scx, sys_scx_fang, sys_scx_fang_set, &
-      & sys_scy, sys_scy_fang, sys_scy_fang_set, sys_units, sys_wavelength
-   use iso_fortran_env, only: real64
-   IMPLICIT NONE
-!     F IS THE FUNTION FPLT(X,Y),XPLT AND YPLT ARE THE POINT COORDINATES
-!     PCOUNT=NUMBER OF POINTS IN THE CAPFN FILE
-!
-   CHARACTER B*80,UNN*9,BLNOTE*80,BL20*20,NNTT1*80,CRANGE*15 &
-   &,UNN1*9,TMY*8,DTY*10,CCRANGE*11
-!
-   INTEGER PCOUNT,ROT,IV,WVWT,SPREC,NT1ANG,NT1SIZ,ALLOERR &
-   &,K,COLPAS,II,IIX,IIY,IIXM1,IIYM1,IPN,H,IIIX,IIIY,WVNUMB
-
-   real(real64) XTEST1,XTEST2,YTEST1,YTEST2,SLOPE
-!
-   REAL PEXTENT,F1PLT,F2PLT,XPLT,YPLT,FTF1,FTF2,PSPACING &
-   &,REFHT,ZMAX2,ZMIN2
-!
-   DIMENSION XPLT(PCOUNT),YPLT(PCOUNT),F1PLT(PCOUNT,PCOUNT),&
-   &FTF1(PCOUNT,PCOUNT),H(:),F2PLT(PCOUNT,PCOUNT),&
-   &FTF2(PCOUNT,PCOUNT)
-!
-   EXTERNAL WVWT
-!
-   LOGICAL ERROR1
-!
-   REAL ZMAX1,ZMIN1
-!
-   LOGICAL AUTOZSCALE
-!
-   COMMON/AUTSCALE/ZMAX1,ZMIN1,AUTOZSCALE
-!
-   INTEGER I,J,IHID,IO,IO2,IJ
-   real(real64) XV,YV,RANGE
-   real(real64) XX,YY,XY2
-   DIMENSION XX(:),YY(:),XY2(:)
-   REAL F_JK,X_JK,Y_JK
-   DIMENSION F_JK(:,:),X_JK(:),Y_JK(:)
-   ALLOCATABLE :: XX,YY,F_JK,X_JK,Y_JK,XY2,H
-!
-   DEALLOCATE(XX,YY,F_JK,X_JK,Y_JK,XY2,H,STAT=ALLOERR)
-   ALLOCATE(XX(PCOUNT),YY(PCOUNT),XY2(PCOUNT),&
-   &F_JK(PCOUNT,PCOUNT),X_JK(PCOUNT),Y_JK(PCOUNT),H(2740:7260),&
-   &STAT=ALLOERR)
-   DO I=2740,7260
-      H(I)=-10000
-   END DO
-   DO I=1,PCOUNT
-      X_JK(I)=XPLT(I)
-      Y_JK(I)=YPLT(I)
-      XX(I)=0.0
-      YY(I)=0.0
-      DO J=1,PCOUNT
-         IF(IJ.EQ.1) F_JK(I,J)=F1PLT(I,J)
-         IF(IJ.EQ.2) F_JK(I,J)=F2PLT(I,J)
-      END DO
-   END DO
-   BL20='                    '
-   BLNOTE=BL20//BL20//BL20//BL20
-!
-!     GENERATE GRAPHIC
-!     DO A PLOT NEW
-   DEVTYP=1
-   LOOKY=0.0D0
-   LOOKX=-1.0D0
-   LOOKZ=0.0D0
-!     GENERATE GRAPHIC
-   CALL PLTDEV
-   GRASET=.TRUE.
-   PLEXIS=.TRUE.
-   NT1SIZ=1
-   NT1ANG=0
-   CALL MY_SETCHARASPECT(1.5,1.5)
-   COLPAS=COLFRM
-   CALL MY_COLTYP(COLPAS)
-!
-!     PLOT THE FUNCTION RIGHT HERE
-!     STARTING AT -Y, PLOT A ROW FROM -X TO X
-!     SET THE STARTING POINT
-   IIX=INT(2750.0+XPLT(1))
-   IF(IJ.EQ.1) IIY=INT(2000.0+F1PLT(1,1))
-   IF(IJ.EQ.2) IIY=INT(2500.0+F2PLT(1,1))
-   CALL MY_PLOT(IIX,IIY,0,0,-10,10010,-10,7010)
-   IPN=1
-
-   DO J=1,PCOUNT
-!     LOAD THE XX AND YY ARRAYS FOR A SPECIFIC J VALUE
-      DO K=1,PCOUNT
-         XX(K)=XPLT(K)
-         IF(IJ.EQ.1) YY(K)=F1PLT(K,J)
-         IF(IJ.EQ.2) YY(K)=F2PLT(K,J)
-      END DO
-!     NOW PLOTTING STEPS A INTEGER 10 AND THERE ARE GOING TO BE
-!     100 POINTS PER LINE
-      DO I=1,3000
-         XV=DBLE(I-1)
-         YV=0.0D0
-         DO II=1,PCOUNT-1
-            XTEST1=XX(II)
-            XTEST2=XX(II+1)
-            YTEST1=YY(II)
-            YTEST2=YY(II+1)
-            IF(XV.GE.XTEST1.AND.XV.LE.XTEST2) THEN
-!     CALC A VALUE FOR YV AND RETURN
-               IF((XTEST2-XTEST1).NE.0.0D0) THEN
-                  SLOPE=(YTEST2-YTEST1)/(XTEST2-XTEST1)
-                  YV=(SLOPE*(XV-XTEST1))+YTEST1
-               ELSE
-!     SLOPE IS VERTICAL, TAKE THE AVERAGE Y VALUE
-                  YV=(YTEST2+YTEST1)/2.0D0
-               END IF
-               GO TO 2001
-            END IF
-         END DO
-2001     CONTINUE
-         IIXM1=IIX
-         IIYM1=IIY
-         IIX=INT((2750+XV)+(0.5*YPLT(J)))
-         IIY=INT((2000+YV)+(0.5*YPLT(J)))
-!     IIX IS IN THE RANGE 2750 TO 7250
-         IPN=0
-         IF((IIY).GT.H(IIX)) THEN
-            IF(IPN.EQ.0.AND.I.NE.1.AND.IIYM1.LT.IIY.AND.H(IIX).GT.-10000 &
-            &.AND.IIYM1.LT.H(IIXM1))&
-            &CALL MY_PLOT(IIX,H(IIX),0,0,-10,10010,-10,7010)
-            H(IIX)=(IIY)
-            IPN=1
-         ELSE
-!     IIY LESS THAN OR EQUAL TO H(IIX)
-            IPN=0
-         END IF
-         IF(I.EQ.1) IPN=0
-         CALL MY_PLOT(IIX,IIY,IPN,0,-10,10010,-10,7010)
-         IF(IPN.EQ.0.AND.I.EQ.1) IPN=1
-      END DO
-      IPN=0
-   END DO
-
-!
-!
-   IF(ROT.EQ.90) THEN
-!     XAXIS
-      CALL MY_PLOT(2550,1800,0,0,0,10000,0,7000)
-      CALL MY_PLOT(2750,2000,1,0,0,10000,0,7000)
-      CALL MY_PLOT(2750,2000,0,0,0,10000,0,7000)
-!     XAXIS LABEL
-      CALL MY_JUSTSTRING(2200,1910,'+X'&
-      &,0,2,3,3)
-!     YAXIS
-      CALL MY_PLOT(2750,2000,0,0,0,10000,0,7000)
-      CALL MY_PLOT(6032,2000,1,0,0,10000,0,7000)
-      CALL MY_PLOT(6032,2000,0,0,0,10000,0,7000)
-!     YAXIS LABEL
-      CALL MY_JUSTSTRING(6182,1910,'+Y'&
-      &,0,2,3,3)
-   END IF
-   IF(ROT.EQ.0) THEN
-!     YAXIS
-      CALL MY_PLOT(5750,2000,0,0,0,10000,0,7000)
-      CALL MY_PLOT(7450,3700,1,0,0,10000,0,7000)
-      CALL MY_PLOT(7450,3700,0,0,0,10000,0,7000)
-!     YAXIS LABEL
-      CALL MY_JUSTSTRING(7550,3800,'+Y'&
-      &,0,2,3,3)
-!     XAXIS
-      CALL MY_PLOT(2750,2000,0,0,0,10000,0,7000)
-      CALL MY_PLOT(6032,2000,1,0,0,10000,0,7000)
-      CALL MY_PLOT(6032,2000,0,0,0,10000,0,7000)
-!     XAXIS LABEL
-      CALL MY_JUSTSTRING(6182,1910,'+X'&
-      &,0,2,3,3)
-   END IF
-!     ZAXIS
-   CALL MY_PLOT(7250,3500,0,0,0,10000,0,7000)
-   CALL MY_PLOT(7250,5500,1,0,0,10000,0,7000)
-   CALL MY_PLOT(7250,5500,0,0,0,10000,0,7000)
-!
-   IF(IJ.EQ.1) THEN
-!     Z AXIS TIC MARKS, OPD
-      CALL MY_PLOT(7250,3500,0,0,0,10000,0,7000)
-      CALL MY_PLOT(7450,3500,1,0,0,10000,0,7000)
-!
-      RANGE=ZMIN1
-      WRITE(B,102) RANGE
-      READ(B,202) CCRANGE
-      NNTT1=CCRANGE//' WAVES'
-      CALL MY_JUSTSTRING(7550,3460,NNTT1(1:20),0,1,3,3)
-      CALL MY_PLOT(7250,3700,0,0,0,10000,0,7000)
-      CALL MY_PLOT(7350,3700,1,0,0,10000,0,7000)
-      CALL MY_PLOT(7250,3900,0,0,0,10000,0,7000)
-      CALL MY_PLOT(7350,3900,1,0,0,10000,0,7000)
-      CALL MY_PLOT(7250,4100,0,0,0,10000,0,7000)
-      CALL MY_PLOT(7350,4100,1,0,0,10000,0,7000)
-      CALL MY_PLOT(7250,4300,0,0,0,10000,0,7000)
-      CALL MY_PLOT(7350,4300,1,0,0,10000,0,7000)
-      CALL MY_PLOT(7250,4500,0,0,0,10000,0,7000)
-      CALL MY_PLOT(7450,4500,1,0,0,10000,0,7000)
-      RANGE=(ZMAX1+ZMIN1)/2.0D0
-      WRITE(B,102) RANGE
-      READ(B,202) CCRANGE
-      NNTT1=CCRANGE//' WAVES'
-      CALL MY_JUSTSTRING(7550,4460,NNTT1(1:20),0,1,3,3)
-      CALL MY_PLOT(7250,4700,0,0,0,10000,0,7000)
-      CALL MY_PLOT(7350,4700,1,0,0,10000,0,7000)
-      CALL MY_PLOT(7250,4900,0,0,0,10000,0,7000)
-      CALL MY_PLOT(7350,4900,1,0,0,10000,0,7000)
-      CALL MY_PLOT(7250,5100,0,0,0,10000,0,7000)
-      CALL MY_PLOT(7350,5100,1,0,0,10000,0,7000)
-      CALL MY_PLOT(7250,5300,0,0,0,10000,0,7000)
-      CALL MY_PLOT(7350,5300,1,0,0,10000,0,7000)
-      CALL MY_PLOT(7250,5500,0,0,0,10000,0,7000)
-      CALL MY_PLOT(7450,5500,1,0,0,10000,0,7000)
-      RANGE=ZMAX1
-      WRITE(B,102) RANGE
-      READ(B,202) CCRANGE
-      NNTT1=CCRANGE//' WAVES'
-      CALL MY_JUSTSTRING(7550,5460,NNTT1(1:20),0,1,3,3)
-   END IF
-   IF(IJ.EQ.2) THEN
-!     Z AXIS TIC MARKS, INTENSITY
-      CALL MY_PLOT(7250,3500,0,0,0,10000,0,7000)
-      CALL MY_PLOT(7450,3500,1,0,0,10000,0,7000)
-      CALL MY_JUSTSTRING(7550,3460,'0.0'&
-      &,0,1,3,3)
-      CALL MY_PLOT(7250,3700,0,0,0,10000,0,7000)
-      CALL MY_PLOT(7350,3700,1,0,0,10000,0,7000)
-      CALL MY_PLOT(7250,3900,0,0,0,10000,0,7000)
-      CALL MY_PLOT(7350,3900,1,0,0,10000,0,7000)
-      CALL MY_PLOT(7250,4100,0,0,0,10000,0,7000)
-      CALL MY_PLOT(7350,4100,1,0,0,10000,0,7000)
-      CALL MY_PLOT(7250,4300,0,0,0,10000,0,7000)
-      CALL MY_PLOT(7350,4300,1,0,0,10000,0,7000)
-      CALL MY_PLOT(7250,4500,0,0,0,10000,0,7000)
-      CALL MY_PLOT(7450,4500,1,0,0,10000,0,7000)
-      CALL MY_JUSTSTRING(7550,4460,'0.5'&
-      &,0,1,3,3)
-      CALL MY_PLOT(7250,4700,0,0,0,10000,0,7000)
-      CALL MY_PLOT(7350,4700,1,0,0,10000,0,7000)
-      CALL MY_PLOT(7250,4900,0,0,0,10000,0,7000)
-      CALL MY_PLOT(7350,4900,1,0,0,10000,0,7000)
-      CALL MY_PLOT(7250,5100,0,0,0,10000,0,7000)
-      CALL MY_PLOT(7350,5100,1,0,0,10000,0,7000)
-      CALL MY_PLOT(7250,5300,0,0,0,10000,0,7000)
-      CALL MY_PLOT(7350,5300,1,0,0,10000,0,7000)
-      CALL MY_PLOT(7250,5500,0,0,0,10000,0,7000)
-      CALL MY_PLOT(7450,5500,1,0,0,10000,0,7000)
-      CALL MY_JUSTSTRING(7550,5460,'1.0'&
-      &,0,1,3,3)
-   END IF
-!     Z AXIS LABLE
-   IF(IJ.EQ.1)&
-   &CALL MY_JUSTSTRING(6500,5750,' (Wavefront Error)'&
-   &,0,1,3,3)
-   IF(IJ.EQ.2)&
-   &CALL MY_JUSTSTRING(6500,5750,'(Relative Intensity)'&
-   &,0,1,3,3)
-!
-   CALL PLOTBOX
-!
-!     NOW FOR PLOT ANNOTATION
-   COLPAS=COLLBL
-   CALL MY_COLTYP(COLPAS)
-!     DO THE PLOTTING OF THE LENS IDENTIFIER
-!     AT X=200, Y=500
-   IF(STMPT) CALL MYTIME(TMY)
-   IF(STMPD) CALL MYDATE(DTY)
-   IF(.NOT.STMPT.AND..NOT.STMPD) NNTT1=LI
-   IF(STMPT.AND.STMPD) NNTT1=TMY//' '//DTY//LI
-   IF(STMPT.AND..NOT.STMPD) NNTT1=TMY//' '//LI
-   IF(.NOT.STMPT.AND.STMPD) NNTT1=DTY//LI
-   IF(NNTT1.NE.BLNOTE) THEN
-      CALL MY_JUSTSTRING(200,650,NNTT1(1:80),NT1ANG,NT1SIZ,3,3)
-   ELSE
-!     LI BLANK, NOT ACTION
-   END IF
-   IF(IJ.EQ.1) THEN
-      IF(ROT.EQ.0) CALL MY_JUSTSTRING(200,300,&
-      &'Complex Aperture Function Wavefront Phase',&
-      &0,2,3,3)
-      IF(ROT.EQ.90) CALL MY_JUSTSTRING(200,300,&
-      &'Complex Aperture Function Wavefront Phase-ROTATED',&
-      &0,2,3,3)
-   END IF
-   IF(IJ.EQ.2) THEN
-      IF(ROT.EQ.0) CALL MY_JUSTSTRING(200,300,&
-      &'Complex Aperture Function Wavefront Intensity',&
-      &0,2,3,3)
-      IF(ROT.EQ.90) CALL MY_JUSTSTRING(200,300,&
-      &'Complex Aperture Function Wavefront Intensity-ROTATED',&
-      &0,2,3,3)
-   END IF
-!
-!     DO THE PLOTTING OF THE EXTENT
-   IF(sys_units().EQ.1.0D0) UNN='in(s)    '
-   IF(sys_units().EQ.2.0D0) UNN='cm(s)    '
-   IF(sys_units().EQ.3.0D0) UNN='mm(s)    '
-   IF(sys_units().EQ.4.0D0) UNN='meter(s) '
-!     UNITS ARE NOW SET
-!
-!     NOW WRITE = "VALUE" UNN
-   RANGE=DBLE(2.0*REFHT)
-   WRITE(B,101) RANGE
-   READ(B,200) CRANGE
-   NNTT1='REFERENCE APERTURE WIDTH = '//CRANGE//' '//UNN
-!
-   CALL MY_JUSTSTRING(200,1200,NNTT1(1:53),NT1ANG,NT1SIZ,3,3)
-
-!
-   IF(IJ.EQ.1) THEN
-!     NOW WRITE = "VALUE" UNN
-      RANGE=PTOVOPD(WVNUMB)
-      WRITE(B,101) RANGE
-      READ(B,200) CRANGE
-      NNTT1='P-V OPD = '//CRANGE//' WAVES'
-!
-      CALL MY_JUSTSTRING(200,5900,NNTT1(1:60),NT1ANG,NT1SIZ,3,3)
-!
-!     NOW WRITE = "VALUE" UNN
-      RANGE=RMSOP(WVNUMB)
-      WRITE(B,101) RANGE
-      READ(B,200) CRANGE
-      NNTT1='RMS OPD = '//CRANGE//' WAVES'
-!
-      CALL MY_JUSTSTRING(200,5700,NNTT1(1:45),NT1ANG,NT1SIZ,3,3)
-   END IF
-!
-   RANGE=sys_wavelength(WVNUMB)
-   WRITE(B,101) RANGE
-   READ(B,200) CRANGE
-   NNTT1='WAVELENGTH = '//CRANGE//' MICRONS'
-!
-   CALL MY_JUSTSTRING(200,5500,NNTT1(1:40),NT1ANG,NT1SIZ,3,3)
-!
-!
-!     NOW WRITE = "VALUE" UNN
-   IF(WVNUMB.EQ.1) RANGE=sys_wavelength(1)
-   IF(WVNUMB.EQ.2) RANGE=sys_wavelength(2)
-   IF(WVNUMB.EQ.3) RANGE=sys_wavelength(3)
-   IF(WVNUMB.EQ.4) RANGE=sys_wavelength(4)
-   IF(WVNUMB.EQ.5) RANGE=sys_wavelength(5)
-   IF(WVNUMB.EQ.6) RANGE=sys_wavelength(6)
-   IF(WVNUMB.EQ.7) RANGE=sys_wavelength(7)
-   IF(WVNUMB.EQ.8) RANGE=sys_wavelength(8)
-   IF(WVNUMB.EQ.9) RANGE=sys_wavelength(9)
-   IF(WVNUMB.EQ.10) RANGE=sys_wavelength(10)
-   WRITE(B,101) RANGE
-   READ(B,200) CRANGE
-   NNTT1='REFERENCE WAVELENGTH = '//CRANGE//' MICRON(S)'
-!
-   CALL MY_JUSTSTRING(200,1600,NNTT1(1:48),NT1ANG,NT1SIZ,3,3)
-!
-   IF(.NOT.SUMMOR) THEN
-      IF(IJ.EQ.1) THEN
-!     DO REF SPHERE SHIFTS IF NOT ZERO
-         IF(sys_units().EQ.1.0D0) UNN='in(s)    '
-         IF(sys_units().EQ.2.0D0) UNN='cm(s)    '
-         IF(sys_units().EQ.3.0D0) UNN='mm(s)    '
-         IF(sys_units().EQ.4.0D0) UNN='meter(s) '
-         IF(DABS(DLLX).GT.1.0D-14) THEN
-            WRITE(B,101) DLLX
-            READ(B,200) CRANGE
-            NNTT1='REF. SPHERE X-SHIFT = '//CRANGE//' '//UNN
-            CALL MY_JUSTSTRING(5200,1600,NNTT1(1:50),NT1ANG,NT1SIZ,3,3)
-         ELSE
-            NNTT1='REF. SPHERE CENTER NOT SHIFTED IN X'
-            CALL MY_JUSTSTRING(5200,1600,NNTT1(1:50),NT1ANG,NT1SIZ,3,3)
-         END IF
-         IF(DABS(DLLY).GT.1.0D-14) THEN
-            WRITE(B,101) DLLY
-            READ(B,200) CRANGE
-            NNTT1='REF. SPHERE Y-SHIFT = '//CRANGE//' '//UNN
-            CALL MY_JUSTSTRING(5200,1400,NNTT1(1:50),NT1ANG,NT1SIZ,3,3)
-         ELSE
-            NNTT1='REF. SPHERE CENTER NOT SHIFTED IN Y'
-            CALL MY_JUSTSTRING(5200,1400,NNTT1(1:50),NT1ANG,NT1SIZ,3,3)
-         END IF
-         IF(DABS(DLLZ).GT.1.0D-14) THEN
-            WRITE(B,101) DLLZ
-            READ(B,200) CRANGE
-            NNTT1='REF. SPHERE Z-SHIFT = '//CRANGE//' '//UNN
-            CALL MY_JUSTSTRING(5200,1200,NNTT1(1:50),NT1ANG,NT1SIZ,3,3)
-         ELSE
-            NNTT1='REF. SPHERE CENTER NOT SHIFTED IN Z'
-            CALL MY_JUSTSTRING(5200,1200,NNTT1(1:50),NT1ANG,NT1SIZ,3,3)
-         END IF
-      END IF
-!
-!     NOT SUMMED CAPFN, DO FOV STUFF
-!     FIELD OF VIEW DATA
-!
-      IF(sys_scx_fang_set().EQ.1.0D0) THEN
-!     SCX FANG
-         RANGE=sys_scx_fang()*LFOB(2)
-         UNN1='DEGREE(S)'
-      ELSE
-         RANGE=sys_scx()*LFOB(2)
-         IF(sys_units().EQ.1.0D0) UNN1='in(s)    '
-         IF(sys_units().EQ.2.0D0) UNN1='cm(s)    '
-         IF(sys_units().EQ.3.0D0) UNN1='mm(s)    '
-         IF(sys_units().EQ.4.0D0) UNN1='meter(s) '
-!     SCX
-      END IF
-      WRITE(B,101) RANGE
-      READ(B,200) CRANGE
-      NNTT1='OBJECT POINT-X'
-!
-      CALL MY_JUSTSTRING(200,6500,NNTT1(1:14),NT1ANG,NT1SIZ,3,3)
-      NNTT1=' = '//CRANGE//' '//UNN1
-!
-      CALL MY_JUSTSTRING(1500,6500,NNTT1(1:28),NT1ANG,NT1SIZ,3,3)
-!
-!
-      IF(sys_scy_fang_set().EQ.1.0D0) THEN
-!     SCY FANG
-         RANGE=sys_scy_fang()*LFOB(1)
-         UNN1='DEGREE(S)'
-      ELSE
-         RANGE=sys_scy()*LFOB(1)
-         IF(sys_units().EQ.1.0D0) UNN1='in(s)    '
-         IF(sys_units().EQ.2.0D0) UNN1='cm(s)    '
-         IF(sys_units().EQ.3.0D0) UNN1='mm(s)    '
-         IF(sys_units().EQ.4.0D0) UNN1='meter(s) '
-!     SCY
-      END IF
-      WRITE(B,101) RANGE
-      READ(B,200) CRANGE
-      NNTT1='OBJECT POINT-Y'
-!
-      CALL MY_JUSTSTRING(200,6300,NNTT1(1:14),NT1ANG,NT1SIZ,3,3)
-      NNTT1=' = '//CRANGE//' '//UNN1
-!
-      CALL MY_JUSTSTRING(1500,6300,NNTT1(1:28),NT1ANG,NT1SIZ,3,3)
-   END IF
-!
-!
-   IF(DF2.EQ.1) THEN
-            CALL KDP_EXEC('DRAW')
-   END IF
-101 FORMAT(1PG15.8)
-102 FORMAT(1F11.4)
-200 FORMAT(A15)
-202 FORMAT(A11)
-   DEALLOCATE(XX,YY,X_JK,Y_JK,F_JK,XY2,H,STAT=ALLOERR)
-   RETURN
-END
-SUBROUTINE FFT3(PCOUNT,XPLT,YPLT,F1PLT,F2PLT,REFHT,IJ &
-&,ZMIN2,ZMAX2,WVNUMB)
-   use DATSP1
-   use DATHGR
-   use DATSPD
-   use DATLEN
-   use DATMAI
-   use iso_fortran_env, only: real64
-   IMPLICIT NONE
-   REAL SPACER
-   INTEGER ROT,I,J,ALLOERR,PCOUNT,COLPAS,IJ,WVNUMB
-!
-   REAL ZMAX1,ZMIN1
-!
-   LOGICAL AUTOZSCALE
-!
-   COMMON/AUTSCALE/ZMAX1,ZMIN1,AUTOZSCALE
-!
-   REAL F1PLT,F2PLT,XPLT,YPLT,FTF1,FTF2,ZMIN2 &
-   &,ZMAX2,REFHT
-!
-   DIMENSION FTF1(:,:),F1PLT(PCOUNT,PCOUNT),XPLT(PCOUNT),YPLT(PCOUNT)&
-   &,F2PLT(PCOUNT,PCOUNT),FTF2(:,:)
-   ALLOCATABLE :: FTF1,FTF2
-!
-   DEALLOCATE(FTF1,FTF2,STAT=ALLOERR)
-   ALLOCATE(FTF1(PCOUNT,PCOUNT),FTF2(PCOUNT,PCOUNT),STAT=ALLOERR)
-!     FIX THE ARRAY SO IT PLOTS LIKE IN CODE-V
-!     WE NEED TO REFLECT IN THE Y-DIRECTION
-   ROT=0
-   IF(ROTCAPFN) ROT=90
-!
-   DO I=1,PCOUNT
-      DO J=1,PCOUNT
-         FTF1(I,J)=F1PLT(PCOUNT+1-I,J)
-         FTF2(I,J)=F2PLT(PCOUNT+1-I,J)
-      END DO
-   END DO
-   DO J=1,PCOUNT
-      DO I=1,PCOUNT
-         F1PLT(I,J)=FTF1(I,J)
-         F2PLT(I,J)=FTF2(I,J)
-      END DO
-   END DO
-!     WE NEED TO REFLECT IN THE X-DIRECTION
-   DO I=1,PCOUNT
-      DO J=1,PCOUNT
-         FTF1(I,J)=F1PLT(PCOUNT+1-I,J)
-         FTF2(I,J)=F2PLT(PCOUNT+1-I,J)
-      END DO
-   END DO
-   DO J=1,PCOUNT
-      DO I=1,PCOUNT
-         F1PLT(I,J)=FTF1(I,J)
-         F2PLT(I,J)=FTF2(I,J)
-      END DO
-   END DO
-   IF(ROT.EQ.90) THEN
-!     ROTATE THE F ARRAY BY 90 DEGREES (CLOCKWISE LOOKING DOWN
-!     FROM THE PLUS INTENSITY Z AXIS TOWARD THE MINUS INTENSITY
-!     Z AXIS. STORE THE TEMPORARY FUNCTION IN ARRAY FTF
-      DO J=1,PCOUNT
-         DO I=1,PCOUNT
-            FTF1(I,J)=F1PLT(PCOUNT+1-J,I)
-            FTF2(I,J)=F2PLT(PCOUNT+1-J,I)
-         END DO
-      END DO
-      DO J=1,PCOUNT
-         DO I=1,PCOUNT
-            F1PLT(I,J)=FTF1(I,J)
-            F2PLT(I,J)=FTF2(I,J)
-         END DO
-      END DO
-   END IF
-   DO I=1,PCOUNT
-      DO J=1,PCOUNT
-         F1PLT(I,J)=(F1PLT(I,J))
-         IF(F2PLT(I,J).EQ.0.0) THEN
-            F1PLT(I,J)=0.0
-         END IF
-      END DO
-   END DO
-   DO I=1,PCOUNT
-      XPLT(I)=((XPLT(I))*1500.0)+1500.0
-      YPLT(I)=((YPLT(I))*1500.0)+1500.0
-   END DO
-   DO I=1,PCOUNT
-      DO J=1,PCOUNT
-         IF(F2PLT(I,J).EQ.0.0D0) F1PLT(I,J)=0.0
-         F1PLT(I,J)=(F1PLT(I,J))*2000.0
-         F2PLT(I,J)=(F2PLT(I,J))*2000.0
-      END DO
-   END DO
-!
-!     NOW FUNCTION GOES FROM 0 TO 2000 AND XPLT AND YPLT GO FROM
-!     0 TO +2000 EACH
-!
-!     THE PLOT WILL BE SEEN IN ORTHOGRAPHIC PROJECTION, XPLT ACROSS THE SCREEN,
-!     YPLT INTO THE SCREEN AT 45 DEG EL AND AZ AND FPLT UP ON THE SCREEN
-!
-   CALL PLOTCAPFN(PCOUNT,XPLT,YPLT,F1PLT,FTF1,F2PLT,FTF2,ROT,IJ &
-   &,ZMIN2,ZMAX2,REFHT,WVNUMB)
-!
-   DEALLOCATE(FTF1,FTF2,STAT=ALLOERR)
-   RETURN
-END
 ! SUB PLTAX.FOR
 SUBROUTINE PLTAX
 !
@@ -2541,581 +810,6 @@ SUBROUTINE PLTABL
       CALL KDP_EXEC('DRAW')
    RETURN
 END
-! SUB PLOTSPD
-SUBROUTINE PLOTSPD
-   USE GLOBALS
-!
-   use DATSP1
-   use DATHGR
-   use DATSPD
-   use DATLEN
-   use DATMAI
-   use mod_system, only: sys_mode, sys_scx, sys_scx_fang, sys_scx_fang_set, &
-      & sys_scy, sys_scy_fang, sys_scy_fang_set, sys_units
-   use iso_fortran_env, only: real64
-   IMPLICIT NONE
-!
-!       THIS PLOTS THE SPOT DIAGRAM
-!
-   CHARACTER B*80,UNN*9,BLNOTE*80,BL20*20,NNTT1*80,CRANGE*15 &
-   &,UNN1*9,TMY*8,DTY*10
-!
-   INTEGER SPREC,NT1ANG,NT1SIZ
-!
-   real(real64) XCENTER,YCENTER,A,X10,X20,X30,X40 &
-   &,Y10,Y20,Y30,Y40,X11,X21,X31,X41,Y11,Y21,Y31,Y41,RANGE &
-   &,PLANG,CENTXX,CENTYY,PII2
-!
-   INTEGER COLPAS,I,XPOINT,YPOINT,IXI,IYI
-!
-   real(real64) JA,JB,XUP,XLO,YUP,YLO,MAXX,MAXY
-!
-   COMMON/BIGGY/XUP,YUP,XLO,YLO,MAXX,MAXY
-!
-!
-   JA=COS_A_ANG
-   JB=COS_B_ANG
-   PII2=TWOPII
-!
-   BL20='                    '
-   BLNOTE=BL20//BL20//BL20//BL20
-!     DO A PLOT NEW
-   DEVTYP=1
-   LOOKY=0.0D0
-   LOOKX=-1.0D0
-   LOOKZ=0.0D0
-   CALL PLTDEV
-   GRASET=.TRUE.
-   PLEXIS=.TRUE.
-!     SET LETTER SIZE AND ANGLE
-   BL20='                    '
-   BLNOTE=BL20//BL20//BL20//BL20
-   NT1SIZ=1
-   NT1ANG=0
-   CALL MY_SETCHARASPECT(1.5,1.5)
-!
-   IF(WQ.EQ.'SUM') THEN
-      CENTXX=0.0D0
-      CENTYY=0.0D0
-   ELSE
-      CENTXX=CENTX
-      CENTYY=CENTY
-   END IF
-!
-!
-!
-!     LIFT PEN, MOVE TO FRAME START
-!
-   CALL PLOTBOX
-!
-!     LIFT PEN, MOVE TO INNER WINDOW START
-!
-   COLPAS=COLLBL
-   CALL MY_COLTYP(COLPAS)
-!     SPOT DIAGRAM HEADING
-   IF(WQ.EQ.'SUM') THEN
-      CALL MY_JUSTSTRING(3150,5600,'SUMMED SPOT DIAGRAM'&
-      &,0,2,3,3)
-   ELSE
-      CALL MY_JUSTSTRING(3900,5600,'SPOT DIAGRAM'&
-      &,0,2,3,3)
-   END IF
-!
-   COLPAS=COLFRM
-   CALL MY_COLTYP(COLPAS)
-   CALL MY_PLOT(3000,1500,0,0,0,10000,0,7000)
-!     DROP PEN, DRAW BOX
-   CALL MY_PLOT(7000,1500,1,0,0,10000,0,7000)
-   CALL MY_PLOT(7000,5500,1,0,0,10000,0,7000)
-   CALL MY_PLOT(3000,5500,1,0,0,10000,0,7000)
-   CALL MY_PLOT(3000,1500,1,0,0,10000,0,7000)
-!
-!     LIFT PEN, MOVE TO DRAW HORIZONTAL CENTER LINE
-   COLPAS=COLFRM
-   CALL MY_COLTYP(COLPAS)
-   CALL MY_PLOT(3000,3500,0,0,0,10000,0,7000)
-!     DROP PEN, DRAW HORIZONTAL LINE
-   CALL MY_PLOT(7000,3500,1,0,0,10000,0,7000)
-!     LIFT PEN, MOVE TO DRAW VERTICAL CENTER LINE
-   CALL MY_PLOT(5000,5500,0,0,0,10000,0,7000)
-!     DROP PEN, DRAW HORIZONTAL LINE
-   CALL MY_PLOT(5000,1500,1,0,0,10000,0,7000)
-!
-!     NOW CALCULATE THE SPDSSIVAL IF NEED BE
-   IF(.NOT.SPOTSSI) THEN
-      SPOTSSI=.TRUE.
-      IF(MAXX.GT.MAXY) THEN
-         IF(sys_mode().LE.2.0D0) THEN
-            SPDSSIVAL=(MAXX+(2.0D0*&
-            &DABS((CENTXX-REFRY(1,NEWIMG))/JB)))/3.6D0
-         ELSE
-            IF(REFRY(11,NEWIMG).LE.PII)&
-            &SPDSSIVAL=(MAXX+(2.0D0*DABS(CENTXX-REFRY(11,NEWIMG))))/3.6D0
-            IF(REFRY(11,NEWIMG).GT.PII)&
-            &SPDSSIVAL=(MAXX+(2.0D0*DABS(CENTXX-(REFRY(11,NEWIMG)-PII2)&
-            &)))/3.6D0
-         END IF
-      ELSE
-         IF(sys_mode().LE.2.0D0) THEN
-            SPDSSIVAL=(MAXY+(2.0D0*&
-            &DABS((CENTYY-REFRY(2,NEWIMG))/JA)))/3.6D0
-         ELSE
-            IF(REFRY(12,NEWIMG).LE.PII)&
-            &SPDSSIVAL=(MAXY+(2.0D0*DABS(CENTYY-REFRY(12,NEWIMG))))/3.6D0
-            IF(REFRY(12,NEWIMG).GT.PII)&
-            &SPDSSIVAL=(MAXY+(2.0D0*DABS(CENTYY-(REFRY(12,NEWIMG)-PII2)&
-            &)))/3.6D0
-         END IF
-      END IF
-   ELSE
-!     USE THE INPUT VALUE
-   END IF
-!
-!     NOW PLOT THE DETECTOR IF NEEDED, FOCAL MODE ONLY
-   IF(DETTYP.EQ.1.AND.DETER.AND.sys_mode().LE.2.0D0) THEN
-!     CIRCULAR DETECTOR
-      XCENTER=DETDELX
-      YCENTER=DETDELY
-      DO I=0,720
-         PLANG=360.0D0*(DBLE(I)/720.0D0)*PII/180.0D0
-         XPOINT=INT(((((DETDIAM/2.0D0)*DCOS(PLANG))+XCENTER)&
-         &*1000.0D0)/SPDSSIVAL)+5000
-         YPOINT=INT(((((DETDIAM/2.0D0)*DSIN(PLANG))+YCENTER)&
-         &*1000.0D0)/SPDSSIVAL)+3500
-         COLPAS=COLFRM
-         CALL MY_COLTYP(COLPAS)
-         IF(I.EQ.0)&
-         &CALL MY_PLOT(XPOINT,YPOINT,0,0,3000,7000,1500,5500)
-         IF(I.GT.0)&
-         &CALL MY_PLOT(XPOINT,YPOINT,1,2,3000,7000,1500,5500)
-      END DO
-   END IF
-   IF(DETTYP.EQ.2.AND.DETER.AND.sys_mode().LE.2.0D0) THEN
-!     RECTANGULAR DETECTOR
-      XCENTER=DETDELX
-      YCENTER=DETDELY
-!     BEFORE ROTATION THROUGH THETA
-!     CORNER PONITS ARE: LEFT TOP
-!     -(DETTX/2)+XCENTER, (DETTY/2)+CENTYY
-      X10=-(DETTX/2.0D0)+XCENTER
-      Y10= (DETTY/2.0D0)+YCENTER
-!     CORNER PONITS ARE: RIGHT TOP
-!     (DETTX/2)+XCENTER, (DETTY/2)+CENTYY
-      X20= (DETTX/2.0D0)+XCENTER
-      Y20= (DETTY/2.0D0)+YCENTER
-!     CORNER PONITS ARE: LEFT BOTTOM
-!     -(DETTX/2)+XCENTER, -(DETTY/2)+CENTYY
-      X30=-(DETTX/2.0D0)+XCENTER
-      Y30=-(DETTY/2.0D0)+YCENTER
-!     CORNER PONITS ARE: RIGHT BOTTOM
-!     (DETTX/2)+XCENTER, -(DETTY/2)+CENTYY
-      X40= (DETTX/2.0D0)+XCENTER
-      Y40=-(DETTY/2.0D0)+YCENTER
-      A=DETTHETA*PII/180.0D0
-!     AFTER ROTATION THE LEFT TOP POINT IS X11,Y11
-      X11=(X10*DCOS(A))-(Y10*DSIN(A))
-      Y11=(X10*DSIN(A))+(Y10*DCOS(A))
-!     AFTER ROTATION THE RIGHT TOP POINT IS X21,Y21
-      X21=(X20*DCOS(A))-(Y20*DSIN(A))
-      Y21=(X20*DSIN(A))+(Y20*DCOS(A))
-!     AFTER ROTATION THE LEFT BOTTOM POINT IS X31,Y31
-      X31=(X30*DCOS(A))-(Y30*DSIN(A))
-      Y31=(X30*DSIN(A))+(Y30*DCOS(A))
-!     AFTER ROTATION THE RIGHT BOTTOM POINT IS X41,Y41
-      X41=(X40*DCOS(A))-(Y40*DSIN(A))
-      Y41=(X40*DSIN(A))+(Y40*DCOS(A))
-!     GO TO STARTING POINT
-      XPOINT=INT(X11*1000.0D0/SPDSSIVAL)+5000
-      YPOINT=INT(Y11*1000.0D0/SPDSSIVAL)+3500
-      COLPAS=COLFRM
-      CALL MY_COLTYP(COLPAS)
-      CALL MY_PLOT(XPOINT,YPOINT,0,2,3000,7000,1500,5500)
-      XPOINT=INT(X21*1000.0D0/SPDSSIVAL)+5000
-      YPOINT=INT(Y21*1000.0D0/SPDSSIVAL)+3500
-      CALL MY_PLOT(XPOINT,YPOINT,1,2,3000,7000,1500,5500)
-      XPOINT=INT(X41*1000.0D0/SPDSSIVAL)+5000
-      YPOINT=INT(Y41*1000.0D0/SPDSSIVAL)+3500
-      CALL MY_PLOT(XPOINT,YPOINT,1,2,3000,7000,1500,5500)
-      XPOINT=INT(X31*1000.0D0/SPDSSIVAL)+5000
-      YPOINT=INT(Y31*1000.0D0/SPDSSIVAL)+3500
-      CALL MY_PLOT(XPOINT,YPOINT,1,2,3000,7000,1500,5500)
-      XPOINT=INT(X11*1000.0D0/SPDSSIVAL)+5000
-      YPOINT=INT(Y11*1000.0D0/SPDSSIVAL)+3500
-      CALL MY_PLOT(XPOINT,YPOINT,1,2,3000,7000,1500,5500)
-   END IF
-!
-!     NOW PLOT THE SPOT DATA
-   IF(SPDCENT) THEN
-      XCENTER=CENTXX
-      YCENTER=CENTYY
-   END IF
-   IF(SPDCHIEF) THEN
-      IF(sys_mode().LE.2.0D0) THEN
-         XCENTER=REFRY(1,NEWIMG)
-         YCENTER=REFRY(2,NEWIMG)
-      ELSE
-         IF(REFRY(11,NEWIMG).LE.PII) XCENTER=REFRY(11,NEWIMG)
-         IF(REFRY(12,NEWIMG).LE.PII) YCENTER=REFRY(12,NEWIMG)
-         IF(REFRY(11,NEWIMG).GT.PII) XCENTER=REFRY(11,NEWIMG)-PII2
-         IF(REFRY(12,NEWIMG).GT.PII) YCENTER=REFRY(12,NEWIMG)-PII2
-      END IF
-   END IF
-   IF(WQ.EQ.'ZERO') THEN
-      XCENTER=0.0D0
-      YCENTER=0.0D0
-   END IF
-   IF(WQ.EQ.'SUM') THEN
-      OPEN(UNIT=32,ACCESS='DIRECT',FILE=trim(LIBSPO)//'SPOTS.DAT',&
-      &FORM='UNFORMATTED',RECL=(110*NRECL),STATUS='UNKNOWN')
-      READ(UNIT=32,REC=1) ITOT
-      SPREC=32
-   END IF
-   IF(WQ.EQ.'CENT'.OR.WQ.EQ.'CHIEF'.OR.WQ.EQ.'ZERO') THEN
-      SPREC=61
-   END IF
-   DO I=2,ITOT
-      IF(SPREC.EQ.61) THEN
-!     LOAD DSPOT(*) WITH DSPOTT(*,ID) DATA
-         ID=I-1
-         CALL SPOTIT(4)
-      END IF
-      IF(SPREC.EQ.32)&
-      &READ(UNIT=32,REC=I)&
-      &DSPOT(1),DSPOT(2),DSPOT(3),DSPOT(4),&
-      &DSPOT(5),DSPOT(6),DSPOT(7),DSPOT(8),&
-      &DSPOT(9),DSPOT(10),DSPOT(11),DSPOT(12),&
-      &DSPOT(13),DSPOT(14),DSPOT(15),DSPOT(16),&
-      &DSPOT(13),DSPOT(14),DSPOT(15),DSPOT(16),&
-      &DSPOT(17),DSPOT(18),DSPOT(19),DSPOT(20),&
-      &DSPOT(21),DSPOT(22),DSPOT(23),DSPOT(24)&
-      &,DSPOT(25),DSPOT(26),DSPOT(27),DSPOT(28),DSPOT(29)&
-      &,DSPOT(30),DSPOT(31),DSPOT(32),DSPOT(33),DSPOT(34),DSPOT(35)&
-      &,DSPOT(36),DSPOT(37),DSPOT(38),DSPOT(39),DSPOT(40),DSPOT(41)&
-      &,DSPOT(42),DSPOT(43),DSPOT(44),DSPOT(45),DSPOT(46),DSPOT(47)&
-      &,DSPOT(48),DSPOT(49),DSPOT(50)
-      IF(sys_mode().LE.2.0D0) THEN
-         XPOINT=INT((DSPOT(1)-XCENTER)*1000.0D0/SPDSSIVAL)+5000
-         XPOINT=XPOINT/JB
-         YPOINT=INT((DSPOT(2)-YCENTER)*1000.0D0/SPDSSIVAL)+3500
-         YPOINT=YPOINT/JA
-      ELSE
-         XPOINT=INT((DSPOT(9)-XCENTER)*1000.0D0/SPDSSIVAL)+5000
-         YPOINT=INT((DSPOT(10)-YCENTER)*1000.0D0/SPDSSIVAL)+3500
-      END IF
-!
-!     SELECT A COLOR
-      IF(INT(DSPOT(16)).EQ.1)  COLPAS=(COLR1)
-      IF(INT(DSPOT(16)).EQ.2)  COLPAS=(COLR2)
-      IF(INT(DSPOT(16)).EQ.3)  COLPAS=(COLR3)
-      IF(INT(DSPOT(16)).EQ.4)  COLPAS=(COLR4)
-      IF(INT(DSPOT(16)).EQ.5)  COLPAS=(COLR5)
-      IF(INT(DSPOT(16)).EQ.6)  COLPAS=(COLR6)
-      IF(INT(DSPOT(16)).EQ.7)  COLPAS=(COLR7)
-      IF(INT(DSPOT(16)).EQ.8)  COLPAS=(COLR8)
-      IF(INT(DSPOT(16)).EQ.9)  COLPAS=(COLR9)
-      IF(INT(DSPOT(16)).EQ.10) COLPAS=(COLR10)
-      CALL MY_COLTYP(COLPAS)
-!     MOVE TO THE POINT
-      IF(INT(DSPOT(7)).EQ.0.AND.DSPOT(12).NE.0.0D0) THEN
-         CALL MY_PLOTC(XPOINT-10,YPOINT,0,0,3000,7000,1500,5500)
-         CALL MY_PLOTC(XPOINT+10,YPOINT,1,0,3000,7000,1500,5500)
-         CALL MY_PLOTC(XPOINT,YPOINT-10,0,0,3000,7000,1500,5500)
-         CALL MY_PLOTC(XPOINT,YPOINT+10,1,0,3000,7000,1500,5500)
-      END IF
-!
-   END DO
-   IF(SPDCHIEF.AND.WQ.NE.'SUM'.AND.WQ.NE.'ZERO') THEN
-!     PLOT CENT LOCATION
-      IF(sys_mode().LE.2.0D0) THEN
-         XPOINT=INT(((CENTXX-REFRY(1,NEWIMG))*1000.0D0)/SPDSSIVAL)+5000
-         YPOINT=INT(((CENTYY-REFRY(2,NEWIMG))*1000.0D0)/SPDSSIVAL)+3500
-      ELSE
-         IF(REFRY(11,NEWIMG).LE.PII)&
-         &XPOINT=INT(((CENTXX-REFRY(11,NEWIMG))*1000.0D0)/SPDSSIVAL)+5000
-         IF(REFRY(12,NEWIMG).LE.PII)&
-         &YPOINT=INT(((CENTYY-REFRY(12,NEWIMG))*1000.0D0)/SPDSSIVAL)+3500
-         IF(REFRY(11,NEWIMG).GT.PII)&
-         &XPOINT=INT(((CENTXX-(REFRY(11,NEWIMG)-PII2))&
-         &*1000.0D0)/SPDSSIVAL)+5000
-         IF(REFRY(12,NEWIMG).GT.PII)&
-         &YPOINT=INT(((CENTYY-(REFRY(12,NEWIMG)-PII2))&
-         &*1000.0D0)/SPDSSIVAL)+3500
-      END IF
-      CALL MY_PLOT(3000,YPOINT,0,2,3000,7000,1500,5500)
-      CALL MY_PLOT(7000,YPOINT,1,2,3000,7000,1500,5500)
-      CALL MY_PLOT(XPOINT,1500,0,2,3000,7000,1500,5500)
-      CALL MY_PLOT(XPOINT,5500,1,2,3000,7000,1500,5500)
-   END IF
-   IF(SPDCENT.AND.WQ.NE.'SUM'.AND.WQ.NE.'ZERO') THEN
-!     PLOT CHIEF RAY LOCATION
-      IF(sys_mode().LE.2.0D0) THEN
-         XPOINT=INT(((REFRY(1,NEWIMG)-CENTXX)*1000.0D0)/SPDSSIVAL)+5000
-         YPOINT=INT(((REFRY(2,NEWIMG)-CENTYY)*1000.0D0)/SPDSSIVAL)+3500
-      ELSE
-         IF(REFRY(11,NEWIMG).LE.PII)&
-         &XPOINT=INT(((REFRY(11,NEWIMG)-CENTXX)*1000.0D0)/SPDSSIVAL)+5000
-         IF(REFRY(12,NEWIMG).LE.PII)&
-         &YPOINT=INT(((REFRY(12,NEWIMG)-CENTYY)*1000.0D0)/SPDSSIVAL)+3500
-         IF(REFRY(11,NEWIMG).GT.PII)&
-         &XPOINT=INT((((REFRY(11,NEWIMG)-PII2)-CENTXX)&
-         &*1000.0D0)/SPDSSIVAL)+5000
-         IF(REFRY(12,NEWIMG).GT.PII)&
-         &YPOINT=INT((((REFRY(12,NEWIMG)-PII2)-CENTYY)&
-         &*1000.0D0)/SPDSSIVAL)+3500
-      END IF
-      CALL MY_PLOT(3000,YPOINT,0,2,3000,7000,1500,5500)
-      CALL MY_PLOT(7000,YPOINT,1,2,3000,7000,1500,5500)
-      CALL MY_PLOT(XPOINT,1500,0,2,3000,7000,1500,5500)
-      CALL MY_PLOT(XPOINT,5500,1,2,3000,7000,1500,5500)
-   END IF
-   PLEXIS=.TRUE.
-!     NOW FOR PLOT ANNOTATION
-   COLPAS=COLLBL
-   CALL MY_COLTYP(COLPAS)
-!
-!     DO THE PLOTTING OF THE LENS IDENTIFIER
-!     AT X=200, Y=500
-   NT1SIZ=1
-   NT1ANG=0
-   IF(STMPT) CALL MYTIME(TMY)
-   IF(STMPD) CALL MYDATE(DTY)
-   IF(.NOT.STMPT.AND..NOT.STMPD) NNTT1=LI
-   IF(STMPT.AND.STMPD) NNTT1=TMY//' '//DTY//LI
-   IF(STMPT.AND..NOT.STMPD) NNTT1=TMY//' '//LI
-   IF(.NOT.STMPT.AND.STMPD) NNTT1=DTY//LI
-   IF(NNTT1.NE.BLNOTE) THEN
-      CALL MY_JUSTSTRING(200,500,NNTT1(1:80),NT1ANG,NT1SIZ,3,3)
-   ELSE
-!     LI BLANK, NOT ACTION
-   END IF
-!     DO THE CENTERING MESSAGE AT 200,250
-   NT1SIZ=1
-   NT1ANG=0
-   IF(SPDCENT.AND.WQ.NE.'SUM') THEN
-      NNTT1='SPOT DIAGRAM PLOT CENTERED ON SPOT CENTROID'&
-      &//',DASHED LINES MARK CHIEF RAY LOCATION'
-   END IF
-   IF(SPDCHIEF.AND.WQ.NE.'SUM'.AND.WQ.NE.'ZERO') THEN
-      NNTT1='SPOT DIAGRAM PLOT CENTERED ON CHIEF RAY'&
-      &//',DASHED LINES MARK SPOT CENTROID LOCATION'
-   END IF
-   IF(WQ.EQ.'ZERO') THEN
-      NNTT1='SPOT DIAGRAM PLOT CENTERED AT X=0, Y=0'
-   END IF
-   IF(WQ.NE.'SUM') THEN
-      CALL MY_JUSTSTRING(200,250,NNTT1(1:80),NT1ANG,NT1SIZ,3,3)
-   END IF
-!
-!     DO THE PLOTTING OF THE SPOT PLOT SSI
-   NT1SIZ=1
-   NT1ANG=0
-   IF(sys_mode().EQ.1.0D0.OR.sys_mode().EQ.2.0D0) THEN
-!     FOCAL OR UFOCAL
-      IF(sys_units().EQ.1.0D0) UNN='in(s)    '
-      IF(sys_units().EQ.2.0D0) UNN='cm(s)    '
-      IF(sys_units().EQ.3.0D0) UNN='mm(s)    '
-      IF(sys_units().EQ.4.0D0) UNN='meter(s) '
-   END IF
-   IF(sys_mode().EQ.3.0D0.OR.sys_mode().EQ.4.0D0) THEN
-!     AFOCAL OR UAFOCAL
-      UNN='RADIAN(S)'
-   END IF
-!     UNITS ARE NOW SET
-!
-   COLPAS=COLFRM
-   CALL MY_COLTYP(COLPAS)
-   CALL MY_PLOT(6000,850,0,0,0,10000,0,7000)
-   CALL MY_PLOT(6000,750,1,0,0,10000,0,7000)
-   CALL MY_PLOT(6000,800,0,0,0,10000,0,7000)
-   CALL MY_PLOT(7000,800,1,0,0,10000,0,7000)
-   CALL MY_PLOT(7000,850,0,0,0,10000,0,7000)
-   CALL MY_PLOT(7000,750,1,0,0,10000,0,7000)
-   CALL MY_PLOT(7050,800,0,0,0,10000,0,7000)
-   COLPAS=COLLBL
-   CALL MY_COLTYP(COLPAS)
-!     NOW WRITE = "VALUE" UNN
-   RANGE=SPDSSIVAL
-   WRITE(B,101) RANGE
-   READ(B,200) CRANGE
-   NNTT1=' = '//CRANGE//' '//UNN
-!
-   CALL MY_JUSTSTRING(7050,800,NNTT1(1:28),NT1ANG,NT1SIZ,3,3)
-!
-!
-!
-   IF(WQ.NE.'SUM') THEN
-!     DO THE PLOTTING OF THE CENTROID POSITIONS
-!     AT X=200, Y=6500
-      NT1SIZ=1
-      NT1ANG=0
-      IF(sys_mode().EQ.1.0D0.OR.sys_mode().EQ.2.0D0) THEN
-!     FOCAL OR UFOCAL
-         IF(sys_units().EQ.1.0D0) UNN='in(s)    '
-         IF(sys_units().EQ.2.0D0) UNN='cm(s)    '
-         IF(sys_units().EQ.3.0D0) UNN='mm(s)    '
-         IF(sys_units().EQ.4.0D0) UNN='meter(s) '
-      END IF
-      IF(sys_mode().EQ.3.0D0.OR.sys_mode().EQ.4.0D0) THEN
-!     AFOCAL OR UAFOCAL
-         UNN='RADIAN(S)'
-      END IF
-!     UNITS ARE NOW SET
-!
-      COLPAS=COLLBL
-      CALL MY_COLTYP(COLPAS)
-!     NOW WRITE = "VALUE" UNN
-      RANGE=CENTXX
-      WRITE(B,101) RANGE
-      READ(B,200) CRANGE
-101   FORMAT(G15.8)
-200   FORMAT(A15)
-      NNTT1='CENT X-POSITION'
-!
-      CALL MY_JUSTSTRING(200,6500,NNTT1(1:15),NT1ANG,NT1SIZ,3,3)
-
-      NNTT1=' = '//CRANGE//' '//UNN
-!
-      CALL MY_JUSTSTRING(1600,6500,NNTT1(1:28),NT1ANG,NT1SIZ,3,3)
-!
-      RANGE=CENTYY
-      WRITE(B,101) RANGE
-      READ(B,200) CRANGE
-      NNTT1='CENT Y-POSITION'
-!
-      CALL MY_JUSTSTRING(200,6300,NNTT1(1:15),NT1ANG,NT1SIZ,3,3)
-
-      NNTT1=' = '//CRANGE//' '//UNN
-!
-      CALL MY_JUSTSTRING(1600,6300,NNTT1(1:28),NT1ANG,NT1SIZ,3,3)
-!
-!
-      IF(sys_mode().LE.2.0D0) THEN
-         RANGE=REFRY(1,NEWIMG)
-      ELSE
-         IF(REFRY(11,NEWIMG).LE.PII)RANGE=REFRY(11,NEWIMG)
-         IF(REFRY(11,NEWIMG).GT.PII)RANGE=REFRY(11,NEWIMG)-PII2
-      END IF
-      WRITE(B,101) RANGE
-      READ(B,200) CRANGE
-      NNTT1='CHIEF RAY X-POS'
-!
-      CALL MY_JUSTSTRING(200,6100,NNTT1(1:15),NT1ANG,NT1SIZ,3,3)
-      NNTT1=' = '//CRANGE//' '//UNN
-!
-      CALL MY_JUSTSTRING(1600,6100,NNTT1(1:28),NT1ANG,NT1SIZ,3,3)
-!
-      IF(sys_mode().LE.2.0D0) THEN
-         RANGE=REFRY(2,NEWIMG)
-      ELSE
-         IF(REFRY(12,NEWIMG).LE.PII)RANGE=REFRY(12,NEWIMG)
-         IF(REFRY(12,NEWIMG).GT.PII)RANGE=REFRY(12,NEWIMG)-PII2
-      END IF
-      WRITE(B,101) RANGE
-      READ(B,200) CRANGE
-      NNTT1='CHIEF RAY Y-POS'
-!
-      CALL MY_JUSTSTRING(200,5900,NNTT1(1:15),NT1ANG,NT1SIZ,3,3)
-      NNTT1=' = '//CRANGE//' '//UNN
-!
-      CALL MY_JUSTSTRING(1600,5900,NNTT1(1:28),NT1ANG,NT1SIZ,3,3)
-!
-!     FIELD OF VIEW DATA
-!
-      IF(sys_scx_fang_set().EQ.1.0D0) THEN
-!     SCX FANG
-         RANGE=sys_scx_fang()*LFOB(2)
-         UNN1='DEGREE(S)'
-      ELSE
-         RANGE=sys_scx()*LFOB(2)
-         IF(sys_units().EQ.1.0D0) UNN1='in(s)    '
-         IF(sys_units().EQ.2.0D0) UNN1='cm(s)    '
-         IF(sys_units().EQ.3.0D0) UNN1='mm(s)    '
-         IF(sys_units().EQ.4.0D0) UNN1='meter(s) '
-!     SCX
-      END IF
-      WRITE(B,101) RANGE
-      READ(B,200) CRANGE
-      NNTT1='OBJECT POINT-X'
-!
-      CALL MY_JUSTSTRING(6000,6500,NNTT1(1:14),NT1ANG,NT1SIZ,3,3)
-      NNTT1=' = '//CRANGE//' '//UNN1
-!
-      CALL MY_JUSTSTRING(7300,6500,NNTT1(1:28),NT1ANG,NT1SIZ,3,3)
-!
-!
-      IF(sys_scy_fang_set().EQ.1.0D0) THEN
-!     SCY FANG
-         RANGE=sys_scy_fang()*LFOB(1)
-         UNN1='DEGREE(S)'
-      ELSE
-         RANGE=sys_scy()*LFOB(1)
-         IF(sys_units().EQ.1.0D0) UNN1='in(s)    '
-         IF(sys_units().EQ.2.0D0) UNN1='cm(s)    '
-         IF(sys_units().EQ.3.0D0) UNN1='mm(s)    '
-         IF(sys_units().EQ.4.0D0) UNN1='meter(s) '
-!     SCY
-      END IF
-      WRITE(B,101) RANGE
-      READ(B,200) CRANGE
-      NNTT1='OBJECT POINT-Y'
-!
-      CALL MY_JUSTSTRING(6000,6300,NNTT1(1:14),NT1ANG,NT1SIZ,3,3)
-      NNTT1=' = '//CRANGE//' '//UNN1
-!
-      CALL MY_JUSTSTRING(7300,6300,NNTT1(1:28),NT1ANG,NT1SIZ,3,3)
-!
-   END IF
-!
-!     NOW DIMENSIONAL LINES
-!     LIFT PEN
-   COLPAS=COLFRM
-   CALL MY_COLTYP(COLPAS)
-!     HORIZONTAL
-   CALL MY_PLOT(3000,1350,0,0,0,10000,0,7000)
-   CALL MY_PLOT(3000,1450,1,0,0,10000,0,7000)
-!
-   CALL MY_PLOT(3000,1400,0,0,0,10000,0,7000)
-   CALL MY_PLOT(4500,1400,1,0,0,10000,0,7000)
-
-   CALL MY_PLOT(5500,1400,0,0,0,10000,0,7000)
-   CALL MY_PLOT(7000,1400,1,0,0,10000,0,7000)
-
-   CALL MY_PLOT(7000,1350,0,0,0,10000,0,7000)
-   CALL MY_PLOT(7000,1450,1,0,0,10000,0,7000)
-!     VERTICAL
-   CALL MY_PLOT(7050,5500,0,0,0,10000,0,7000)
-   CALL MY_PLOT(7150,5500,1,0,0,10000,0,7000)
-
-   CALL MY_PLOT(7100,5500,0,0,0,10000,0,7000)
-   CALL MY_PLOT(7100,4000,1,0,0,10000,0,7000)
-!
-   CALL MY_PLOT(7100,3000,0,0,0,10000,0,7000)
-   CALL MY_PLOT(7100,1500,1,0,0,10000,0,7000)
-
-   CALL MY_PLOT(7050,1500,0,0,0,10000,0,7000)
-   CALL MY_PLOT(7150,1500,1,0,0,10000,0,7000)
-
-!     VERTICAL BAR LABLE
-   COLPAS=COLLBL
-   CALL MY_COLTYP(COLPAS)
-!     NOW WRITE = "VALUE" UNN
-   RANGE=4.0D0*SPDSSIVAL
-   WRITE(B,101) RANGE
-   READ(B,200) CRANGE
-   NNTT1='Y = '//CRANGE//' '//UNN
-!
-   CALL MY_JUSTSTRING(7100,3500,NNTT1(1:29),NT1ANG,NT1SIZ,3,3)
-!
-!     HORIZONTAL BAR LABLE
-!     NOW WRITE = "VALUE" UNN
-   RANGE=4.0D0*SPDSSIVAL
-   WRITE(B,101) RANGE
-   READ(B,200) CRANGE
-   NNTT1='X = '//CRANGE//' '//UNN
-!
-   CALL MY_JUSTSTRING(4000,1200,NNTT1(1:29),NT1ANG,NT1SIZ,3,3)
-   RETURN
-END
 !     THE FOLLOWING ARE FOR LSF AND FIELD ABERRATION PLOTS
 SUBROUTINE PLOTFUNC2(X,Y,FEND,LLIM,ULIM,LFUNC,UFUNC,SPNUM)
 !
@@ -3156,38 +850,6 @@ SUBROUTINE PLOTFUNC2(X,Y,FEND,LLIM,ULIM,LFUNC,UFUNC,SPNUM)
    DEALLOCATE(IX,IY,XX,YY,STAT=ALLOERR)
 END
 !     THE FOLLOWING ARE FOR LSF AND FIELD ABERRATION PLOTS
-SUBROUTINE PLOTFUNC4(X,Y,FEND,LLIM,ULIM,LFUNC,UFUNC,LT)
-!
-   use DATHGR
-   use DATLEN
-   use DATMAI
-   use iso_fortran_env, only: real64
-   IMPLICIT NONE
-!
-   REAL X,Y,LLIM,ULIM,LFUNC,UFUNC
-!
-   INTEGER FEND,I,IX,IY,ALLOERR,LT,COLPAS
-!
-   DIMENSION IX(:),IY(:),X(*),Y(*)
-   ALLOCATABLE :: IX,IY
-!
-   DEALLOCATE(IX,IY,STAT=ALLOERR)
-
-   ALLOCATE(IX(1:FEND),IY(1:FEND),STAT=ALLOERR)
-   COLPAS=COLDEF
-   CALL MY_COLTYP(COLPAS)
-   DO I=1,FEND
-      IX(I)=INT((((X(I)-LLIM)/(ULIM-LLIM))*4000.0)+3000.0)
-      IY(I)=INT((((Y(I)-LFUNC)/(UFUNC-LFUNC))*3500.0)+1500.0)
-   END DO
-   CALL MY_PLOTC(IX(1),IY(1),0,LT,3000,7000,1500,5000)
-   DO I=1,FEND
-      CALL MY_PLOTC(IX(I),IY(I),1,LT,3000,7000,1500,5000)
-   END DO
-   PRINT *, "ABOUT TO CALL PENUP IN PLOTFUNC4!"
-   CALL MY_PLOTC(IX(1),IY(1),0,0,3000,7000,1500,5000)
-   DEALLOCATE(IX,IY,STAT=ALLOERR)
-END
 SUBROUTINE PLOTFUNC3(X,Y,FEND,LLIM,ULIM,LFUNC,UFUNC,SPNUM)
 !
    use DATHGR
@@ -3248,80 +910,80 @@ SUBROUTINE PLOTAXES3
    COLPAS=COLAXS
    CALL MY_COLTYP(COLPAS)
 !       PLOT THE AXES
-   CALL MY_PLOT(2000,1400,0,0,-10,10010,-10,7010)
-   CALL MY_PLOT(2000,5600,1,0,-10,10010,-10,7010)
-   CALL MY_PLOT(2000,1400,0,0,-10,10010,-10,7010)
-   CALL MY_PLOT(8000,1400,1,0,-10,10010,-10,7010)
+   CALL PAGE_PLOT(2000,1400,0,0)
+   CALL PAGE_PLOT(2000,5600,1,0)
+   CALL PAGE_PLOT(2000,1400,0,0)
+   CALL PAGE_PLOT(8000,1400,1,0)
    IF(MTFGRIDS) THEN
 !       PLOT THE VERTICAL GRID LINES (11 OF THEM FROM 0 TO 10)
-      CALL MY_PLOT(2000,1820,0,1,-10,10010,-10,7010)
-      CALL MY_PLOT(8000,1820,1,1,-10,10010,-10,7010)
-      CALL MY_PLOT(2000,2240,0,1,-10,10010,-10,7010)
-      CALL MY_PLOT(8000,2240,1,1,-10,10010,-10,7010)
-      CALL MY_PLOT(2000,2660,0,1,-10,10010,-10,7010)
-      CALL MY_PLOT(8000,2660,1,1,-10,10010,-10,7010)
-      CALL MY_PLOT(2000,3080,0,1,-10,10010,-10,7010)
-      CALL MY_PLOT(8000,3080,1,1,-10,10010,-10,7010)
-      CALL MY_PLOT(2000,3500,0,1,-10,10010,-10,7010)
-      CALL MY_PLOT(8000,3500,1,1,-10,10010,-10,7010)
-      CALL MY_PLOT(2000,3920,0,1,-10,10010,-10,7010)
-      CALL MY_PLOT(8000,3920,1,1,-10,10010,-10,7010)
-      CALL MY_PLOT(2000,4340,0,1,-10,10010,-10,7010)
-      CALL MY_PLOT(8000,4340,1,1,-10,10010,-10,7010)
-      CALL MY_PLOT(2000,4760,0,1,-10,10010,-10,7010)
-      CALL MY_PLOT(8000,4760,1,1,-10,10010,-10,7010)
-      CALL MY_PLOT(2000,5180,0,1,-10,10010,-10,7010)
-      CALL MY_PLOT(8000,5180,1,1,-10,10010,-10,7010)
-      CALL MY_PLOT(2000,5600,0,1,-10,10010,-10,7010)
-      CALL MY_PLOT(8000,5600,1,1,-10,10010,-10,7010)
+      CALL PAGE_PLOT(2000,1820,0,1)
+      CALL PAGE_PLOT(8000,1820,1,1)
+      CALL PAGE_PLOT(2000,2240,0,1)
+      CALL PAGE_PLOT(8000,2240,1,1)
+      CALL PAGE_PLOT(2000,2660,0,1)
+      CALL PAGE_PLOT(8000,2660,1,1)
+      CALL PAGE_PLOT(2000,3080,0,1)
+      CALL PAGE_PLOT(8000,3080,1,1)
+      CALL PAGE_PLOT(2000,3500,0,1)
+      CALL PAGE_PLOT(8000,3500,1,1)
+      CALL PAGE_PLOT(2000,3920,0,1)
+      CALL PAGE_PLOT(8000,3920,1,1)
+      CALL PAGE_PLOT(2000,4340,0,1)
+      CALL PAGE_PLOT(8000,4340,1,1)
+      CALL PAGE_PLOT(2000,4760,0,1)
+      CALL PAGE_PLOT(8000,4760,1,1)
+      CALL PAGE_PLOT(2000,5180,0,1)
+      CALL PAGE_PLOT(8000,5180,1,1)
+      CALL PAGE_PLOT(2000,5600,0,1)
+      CALL PAGE_PLOT(8000,5600,1,1)
 !       PLOT THE HORIZONTAL TICS (11 OF THEM FROM 0 TO 10)
-      CALL MY_PLOT(3200,1400,0,1,-10,10010,-10,7010)
-      CALL MY_PLOT(3200,5600,1,1,-10,10010,-10,7010)
-      CALL MY_PLOT(4400,1400,0,1,-10,10010,-10,7010)
-      CALL MY_PLOT(4400,5600,1,1,-10,10010,-10,7010)
-      CALL MY_PLOT(5600,1400,0,1,-10,10010,-10,7010)
-      CALL MY_PLOT(5600,5600,1,1,-10,10010,-10,7010)
-      CALL MY_PLOT(6800,1400,0,1,-10,10010,-10,7010)
-      CALL MY_PLOT(6800,5600,1,1,-10,10010,-10,7010)
-      CALL MY_PLOT(8000,1400,0,1,-10,10010,-10,7010)
-      CALL MY_PLOT(8000,5600,1,1,-10,10010,-10,7010)
+      CALL PAGE_PLOT(3200,1400,0,1)
+      CALL PAGE_PLOT(3200,5600,1,1)
+      CALL PAGE_PLOT(4400,1400,0,1)
+      CALL PAGE_PLOT(4400,5600,1,1)
+      CALL PAGE_PLOT(5600,1400,0,1)
+      CALL PAGE_PLOT(5600,5600,1,1)
+      CALL PAGE_PLOT(6800,1400,0,1)
+      CALL PAGE_PLOT(6800,5600,1,1)
+      CALL PAGE_PLOT(8000,1400,0,1)
+      CALL PAGE_PLOT(8000,5600,1,1)
    END IF
 !       PLOT THE VERTICAL TICS (11 OF THEM FROM 0 TO 10)
-   CALL MY_PLOT(1900,1400,0,0,-10,10010,-10,7010)
-   CALL MY_PLOT(2100,1400,1,0,-10,10010,-10,7010)
-   CALL MY_PLOT(1900,1820,0,0,-10,10010,-10,7010)
-   CALL MY_PLOT(2100,1820,1,0,-10,10010,-10,7010)
-   CALL MY_PLOT(1900,2240,0,0,-10,10010,-10,7010)
-   CALL MY_PLOT(2100,2240,1,0,-10,10010,-10,7010)
-   CALL MY_PLOT(1900,2660,0,0,-10,10010,-10,7010)
-   CALL MY_PLOT(2100,2660,1,0,-10,10010,-10,7010)
-   CALL MY_PLOT(1900,3080,0,0,-10,10010,-10,7010)
-   CALL MY_PLOT(2100,3080,1,0,-10,10010,-10,7010)
-   CALL MY_PLOT(1900,3500,0,0,-10,10010,-10,7010)
-   CALL MY_PLOT(2100,3500,1,0,-10,10010,-10,7010)
-   CALL MY_PLOT(1900,3920,0,0,-10,10010,-10,7010)
-   CALL MY_PLOT(2100,3920,1,0,-10,10010,-10,7010)
-   CALL MY_PLOT(1900,4340,0,0,-10,10010,-10,7010)
-   CALL MY_PLOT(2100,4340,1,0,-10,10010,-10,7010)
-   CALL MY_PLOT(1900,4760,0,0,-10,10010,-10,7010)
-   CALL MY_PLOT(2100,4760,1,0,-10,10010,-10,7010)
-   CALL MY_PLOT(1900,5180,0,0,-10,10010,-10,7010)
-   CALL MY_PLOT(2100,5180,1,0,-10,10010,-10,7010)
-   CALL MY_PLOT(1900,5600,0,0,-10,10010,-10,7010)
-   CALL MY_PLOT(2100,5600,1,0,-10,10010,-10,7010)
+   CALL PAGE_PLOT(1900,1400,0,0)
+   CALL PAGE_PLOT(2100,1400,1,0)
+   CALL PAGE_PLOT(1900,1820,0,0)
+   CALL PAGE_PLOT(2100,1820,1,0)
+   CALL PAGE_PLOT(1900,2240,0,0)
+   CALL PAGE_PLOT(2100,2240,1,0)
+   CALL PAGE_PLOT(1900,2660,0,0)
+   CALL PAGE_PLOT(2100,2660,1,0)
+   CALL PAGE_PLOT(1900,3080,0,0)
+   CALL PAGE_PLOT(2100,3080,1,0)
+   CALL PAGE_PLOT(1900,3500,0,0)
+   CALL PAGE_PLOT(2100,3500,1,0)
+   CALL PAGE_PLOT(1900,3920,0,0)
+   CALL PAGE_PLOT(2100,3920,1,0)
+   CALL PAGE_PLOT(1900,4340,0,0)
+   CALL PAGE_PLOT(2100,4340,1,0)
+   CALL PAGE_PLOT(1900,4760,0,0)
+   CALL PAGE_PLOT(2100,4760,1,0)
+   CALL PAGE_PLOT(1900,5180,0,0)
+   CALL PAGE_PLOT(2100,5180,1,0)
+   CALL PAGE_PLOT(1900,5600,0,0)
+   CALL PAGE_PLOT(2100,5600,1,0)
 !       PLOT THE HORIZONTAL TICS (11 OF THEM FROM 0 TO 10)
-   CALL MY_PLOT(2000,1300,0,0,-10,10010,-10,7010)
-   CALL MY_PLOT(2000,1500,1,0,-10,10010,-10,7010)
-   CALL MY_PLOT(3200,1300,0,0,-10,10010,-10,7010)
-   CALL MY_PLOT(3200,1500,1,0,-10,10010,-10,7010)
-   CALL MY_PLOT(4400,1300,0,0,-10,10010,-10,7010)
-   CALL MY_PLOT(4400,1500,1,0,-10,10010,-10,7010)
-   CALL MY_PLOT(5600,1300,0,0,-10,10010,-10,7010)
-   CALL MY_PLOT(5600,1500,1,0,-10,10010,-10,7010)
-   CALL MY_PLOT(6800,1300,0,0,-10,10010,-10,7010)
-   CALL MY_PLOT(6800,1500,1,0,-10,10010,-10,7010)
-   CALL MY_PLOT(8000,1300,0,0,-10,10010,-10,7010)
-   CALL MY_PLOT(8000,1500,1,0,-10,10010,-10,7010)
+   CALL PAGE_PLOT(2000,1300,0,0)
+   CALL PAGE_PLOT(2000,1500,1,0)
+   CALL PAGE_PLOT(3200,1300,0,0)
+   CALL PAGE_PLOT(3200,1500,1,0)
+   CALL PAGE_PLOT(4400,1300,0,0)
+   CALL PAGE_PLOT(4400,1500,1,0)
+   CALL PAGE_PLOT(5600,1300,0,0)
+   CALL PAGE_PLOT(5600,1500,1,0)
+   CALL PAGE_PLOT(6800,1300,0,0)
+   CALL PAGE_PLOT(6800,1500,1,0)
+   CALL PAGE_PLOT(8000,1300,0,0)
+   CALL PAGE_PLOT(8000,1500,1,0)
    RETURN
 END
 SUBROUTINE PLOTAXES4
@@ -3334,81 +996,81 @@ SUBROUTINE PLOTAXES4
    COLPAS=COLAXS
    CALL MY_COLTYP(COLPAS)
 !       PLOT THE AXES
-   CALL MY_PLOT(2000,1400,0,0,-10,10010,-10,7010)
-   CALL MY_PLOT(2000,5600,1,0,-10,10010,-10,7010)
-   CALL MY_PLOT(8000,5600,1,0,-10,10010,-10,7010)
-   CALL MY_PLOT(8000,1400,1,0,-10,10010,-10,7010)
-   CALL MY_PLOT(2000,1400,1,0,-10,10010,-10,7010)
+   CALL PAGE_PLOT(2000,1400,0,0)
+   CALL PAGE_PLOT(2000,5600,1,0)
+   CALL PAGE_PLOT(8000,5600,1,0)
+   CALL PAGE_PLOT(8000,1400,1,0)
+   CALL PAGE_PLOT(2000,1400,1,0)
    IF(MTFGRIDS) THEN
 !       PLOT THE VERTICAL GRID LINES (11 OF THEM FROM 0 TO 10)
-      CALL MY_PLOT(2000,1820,0,1,-10,10010,-10,7010)
-      CALL MY_PLOT(8000,1820,1,1,-10,10010,-10,7010)
-      CALL MY_PLOT(2000,2240,0,1,-10,10010,-10,7010)
-      CALL MY_PLOT(8000,2240,1,1,-10,10010,-10,7010)
-      CALL MY_PLOT(2000,2660,0,1,-10,10010,-10,7010)
-      CALL MY_PLOT(8000,2660,1,1,-10,10010,-10,7010)
-      CALL MY_PLOT(2000,3080,0,1,-10,10010,-10,7010)
-      CALL MY_PLOT(8000,3080,1,1,-10,10010,-10,7010)
-      CALL MY_PLOT(2000,3500,0,1,-10,10010,-10,7010)
-      CALL MY_PLOT(8000,3500,1,1,-10,10010,-10,7010)
-      CALL MY_PLOT(2000,3920,0,1,-10,10010,-10,7010)
-      CALL MY_PLOT(8000,3920,1,1,-10,10010,-10,7010)
-      CALL MY_PLOT(2000,4340,0,1,-10,10010,-10,7010)
-      CALL MY_PLOT(8000,4340,1,1,-10,10010,-10,7010)
-      CALL MY_PLOT(2000,4760,0,1,-10,10010,-10,7010)
-      CALL MY_PLOT(8000,4760,1,1,-10,10010,-10,7010)
-      CALL MY_PLOT(2000,5180,0,1,-10,10010,-10,7010)
-      CALL MY_PLOT(8000,5180,1,1,-10,10010,-10,7010)
-      CALL MY_PLOT(2000,5600,0,1,-10,10010,-10,7010)
-      CALL MY_PLOT(8000,5600,1,1,-10,10010,-10,7010)
+      CALL PAGE_PLOT(2000,1820,0,1)
+      CALL PAGE_PLOT(8000,1820,1,1)
+      CALL PAGE_PLOT(2000,2240,0,1)
+      CALL PAGE_PLOT(8000,2240,1,1)
+      CALL PAGE_PLOT(2000,2660,0,1)
+      CALL PAGE_PLOT(8000,2660,1,1)
+      CALL PAGE_PLOT(2000,3080,0,1)
+      CALL PAGE_PLOT(8000,3080,1,1)
+      CALL PAGE_PLOT(2000,3500,0,1)
+      CALL PAGE_PLOT(8000,3500,1,1)
+      CALL PAGE_PLOT(2000,3920,0,1)
+      CALL PAGE_PLOT(8000,3920,1,1)
+      CALL PAGE_PLOT(2000,4340,0,1)
+      CALL PAGE_PLOT(8000,4340,1,1)
+      CALL PAGE_PLOT(2000,4760,0,1)
+      CALL PAGE_PLOT(8000,4760,1,1)
+      CALL PAGE_PLOT(2000,5180,0,1)
+      CALL PAGE_PLOT(8000,5180,1,1)
+      CALL PAGE_PLOT(2000,5600,0,1)
+      CALL PAGE_PLOT(8000,5600,1,1)
 !       PLOT THE HORIZONTAL TICS (11 OF THEM FROM 0 TO 10)
-      CALL MY_PLOT(3200,1400,0,1,-10,10010,-10,7010)
-      CALL MY_PLOT(3200,5600,1,1,-10,10010,-10,7010)
-      CALL MY_PLOT(4400,1400,0,1,-10,10010,-10,7010)
-      CALL MY_PLOT(4400,5600,1,1,-10,10010,-10,7010)
-      CALL MY_PLOT(5600,1400,0,1,-10,10010,-10,7010)
-      CALL MY_PLOT(5600,5600,1,1,-10,10010,-10,7010)
-      CALL MY_PLOT(6800,1400,0,1,-10,10010,-10,7010)
-      CALL MY_PLOT(6800,5600,1,1,-10,10010,-10,7010)
-      CALL MY_PLOT(8000,1400,0,1,-10,10010,-10,7010)
-      CALL MY_PLOT(8000,5600,1,1,-10,10010,-10,7010)
+      CALL PAGE_PLOT(3200,1400,0,1)
+      CALL PAGE_PLOT(3200,5600,1,1)
+      CALL PAGE_PLOT(4400,1400,0,1)
+      CALL PAGE_PLOT(4400,5600,1,1)
+      CALL PAGE_PLOT(5600,1400,0,1)
+      CALL PAGE_PLOT(5600,5600,1,1)
+      CALL PAGE_PLOT(6800,1400,0,1)
+      CALL PAGE_PLOT(6800,5600,1,1)
+      CALL PAGE_PLOT(8000,1400,0,1)
+      CALL PAGE_PLOT(8000,5600,1,1)
    END IF
 !       PLOT THE VERTICAL TICS (11 OF THEM FROM 0 TO 10)
-   CALL MY_PLOT(1900,1400,0,0,-10,10010,-10,7010)
-   CALL MY_PLOT(2100,1400,1,0,-10,10010,-10,7010)
-   CALL MY_PLOT(1900,1820,0,0,-10,10010,-10,7010)
-   CALL MY_PLOT(2100,1820,1,0,-10,10010,-10,7010)
-   CALL MY_PLOT(1900,2240,0,0,-10,10010,-10,7010)
-   CALL MY_PLOT(2100,2240,1,0,-10,10010,-10,7010)
-   CALL MY_PLOT(1900,2660,0,0,-10,10010,-10,7010)
-   CALL MY_PLOT(2100,2660,1,0,-10,10010,-10,7010)
-   CALL MY_PLOT(1900,3080,0,0,-10,10010,-10,7010)
-   CALL MY_PLOT(2100,3080,1,0,-10,10010,-10,7010)
-   CALL MY_PLOT(1900,3500,0,0,-10,10010,-10,7010)
-   CALL MY_PLOT(2100,3500,1,0,-10,10010,-10,7010)
-   CALL MY_PLOT(1900,3920,0,0,-10,10010,-10,7010)
-   CALL MY_PLOT(2100,3920,1,0,-10,10010,-10,7010)
-   CALL MY_PLOT(1900,4340,0,0,-10,10010,-10,7010)
-   CALL MY_PLOT(2100,4340,1,0,-10,10010,-10,7010)
-   CALL MY_PLOT(1900,4760,0,0,-10,10010,-10,7010)
-   CALL MY_PLOT(2100,4760,1,0,-10,10010,-10,7010)
-   CALL MY_PLOT(1900,5180,0,0,-10,10010,-10,7010)
-   CALL MY_PLOT(2100,5180,1,0,-10,10010,-10,7010)
-   CALL MY_PLOT(1900,5600,0,0,-10,10010,-10,7010)
-   CALL MY_PLOT(2100,5600,1,0,-10,10010,-10,7010)
+   CALL PAGE_PLOT(1900,1400,0,0)
+   CALL PAGE_PLOT(2100,1400,1,0)
+   CALL PAGE_PLOT(1900,1820,0,0)
+   CALL PAGE_PLOT(2100,1820,1,0)
+   CALL PAGE_PLOT(1900,2240,0,0)
+   CALL PAGE_PLOT(2100,2240,1,0)
+   CALL PAGE_PLOT(1900,2660,0,0)
+   CALL PAGE_PLOT(2100,2660,1,0)
+   CALL PAGE_PLOT(1900,3080,0,0)
+   CALL PAGE_PLOT(2100,3080,1,0)
+   CALL PAGE_PLOT(1900,3500,0,0)
+   CALL PAGE_PLOT(2100,3500,1,0)
+   CALL PAGE_PLOT(1900,3920,0,0)
+   CALL PAGE_PLOT(2100,3920,1,0)
+   CALL PAGE_PLOT(1900,4340,0,0)
+   CALL PAGE_PLOT(2100,4340,1,0)
+   CALL PAGE_PLOT(1900,4760,0,0)
+   CALL PAGE_PLOT(2100,4760,1,0)
+   CALL PAGE_PLOT(1900,5180,0,0)
+   CALL PAGE_PLOT(2100,5180,1,0)
+   CALL PAGE_PLOT(1900,5600,0,0)
+   CALL PAGE_PLOT(2100,5600,1,0)
 !       PLOT THE HORIZONTAL TICS (11 OF THEM FROM 0 TO 10)
-   CALL MY_PLOT(2000,1300,0,0,-10,10010,-10,7010)
-   CALL MY_PLOT(2000,1500,1,0,-10,10010,-10,7010)
-   CALL MY_PLOT(3200,1300,0,0,-10,10010,-10,7010)
-   CALL MY_PLOT(3200,1500,1,0,-10,10010,-10,7010)
-   CALL MY_PLOT(4400,1300,0,0,-10,10010,-10,7010)
-   CALL MY_PLOT(4400,1500,1,0,-10,10010,-10,7010)
-   CALL MY_PLOT(5600,1300,0,0,-10,10010,-10,7010)
-   CALL MY_PLOT(5600,1500,1,0,-10,10010,-10,7010)
-   CALL MY_PLOT(6800,1300,0,0,-10,10010,-10,7010)
-   CALL MY_PLOT(6800,1500,1,0,-10,10010,-10,7010)
-   CALL MY_PLOT(8000,1300,0,0,-10,10010,-10,7010)
-   CALL MY_PLOT(8000,1500,1,0,-10,10010,-10,7010)
+   CALL PAGE_PLOT(2000,1300,0,0)
+   CALL PAGE_PLOT(2000,1500,1,0)
+   CALL PAGE_PLOT(3200,1300,0,0)
+   CALL PAGE_PLOT(3200,1500,1,0)
+   CALL PAGE_PLOT(4400,1300,0,0)
+   CALL PAGE_PLOT(4400,1500,1,0)
+   CALL PAGE_PLOT(5600,1300,0,0)
+   CALL PAGE_PLOT(5600,1500,1,0)
+   CALL PAGE_PLOT(6800,1300,0,0)
+   CALL PAGE_PLOT(6800,1500,1,0)
+   CALL PAGE_PLOT(8000,1300,0,0)
+   CALL PAGE_PLOT(8000,1500,1,0)
    RETURN
 END
 SUBROUTINE PLOTHNAME(NAME,N)
@@ -3635,147 +1297,147 @@ SUBROUTINE PLOTAXES2
    COLPAS=COLAXS
    CALL MY_COLTYP(COLPAS)
 !       PLOT THE AXES
-   CALL MY_PLOT(5000,1500,0,0,-10,10010,-10,7010)
-   CALL MY_PLOT(5000,5000,1,0,-10,10010,-10,7010)
-   CALL MY_PLOT(3000,1500,0,0,-10,10010,-10,7010)
-   CALL MY_PLOT(7000,1500,1,0,-10,10010,-10,7010)
+   CALL PAGE_PLOT(5000,1500,0,0)
+   CALL PAGE_PLOT(5000,5000,1,0)
+   CALL PAGE_PLOT(3000,1500,0,0)
+   CALL PAGE_PLOT(7000,1500,1,0)
    ! JN Add for debugging
-   CALL MY_PLOT(3000,2500,0,0,-10,10010,-10,7010)
-   CALL MY_PLOT(7000,2500,1,0,-10,10010,-10,7010)
+   CALL PAGE_PLOT(3000,2500,0,0)
+   CALL PAGE_PLOT(7000,2500,1,0)
    !CALL MY_PLOT(5000,1500,0,0,-10,10010,-10,7010)
    !CALL MY_PLOT(5000,7000,1,0,-10,10010,-10,7010)
    !CALL MY_PLOT(10000,1500,1,0,-10,10010,-10,7010)
    !CALL MY_PLOT(5000,5000,0,0,-10,10010,-10,7010)
    IF(MTFGRIDS) THEN
 !       PLOT THE VERTICAL GRID LINES (11 OF THEM FROM 0 TO 10)
-      CALL MY_PLOT(3000,1850,0,1,-10,10010,-10,7010)
-      CALL MY_PLOT(7000,1850,1,1,-10,10010,-10,7010)
-      CALL MY_PLOT(3000,2200,0,1,-10,10010,-10,7010)
-      CALL MY_PLOT(7000,2200,1,1,-10,10010,-10,7010)
-      CALL MY_PLOT(3000,2550,0,1,-10,10010,-10,7010)
-      CALL MY_PLOT(7000,2550,1,1,-10,10010,-10,7010)
-      CALL MY_PLOT(3000,2900,0,1,-10,10010,-10,7010)
-      CALL MY_PLOT(7000,2900,1,1,-10,10010,-10,7010)
-      CALL MY_PLOT(3000,3250,0,1,-10,10010,-10,7010)
-      CALL MY_PLOT(7000,3250,1,1,-10,10010,-10,7010)
-      CALL MY_PLOT(3000,3600,0,1,-10,10010,-10,7010)
-      CALL MY_PLOT(7000,3600,1,1,-10,10010,-10,7010)
-      CALL MY_PLOT(3000,3950,0,1,-10,10010,-10,7010)
-      CALL MY_PLOT(7000,3950,1,1,-10,10010,-10,7010)
-      CALL MY_PLOT(3000,4300,0,1,-10,10010,-10,7010)
-      CALL MY_PLOT(7000,4300,1,1,-10,10010,-10,7010)
-      CALL MY_PLOT(3000,4650,0,1,-10,10010,-10,7010)
-      CALL MY_PLOT(7000,4650,1,1,-10,10010,-10,7010)
-      CALL MY_PLOT(3000,5000,0,1,-10,10010,-10,7010)
-      CALL MY_PLOT(7000,5000,1,1,-10,10010,-10,7010)
+      CALL PAGE_PLOT(3000,1850,0,1)
+      CALL PAGE_PLOT(7000,1850,1,1)
+      CALL PAGE_PLOT(3000,2200,0,1)
+      CALL PAGE_PLOT(7000,2200,1,1)
+      CALL PAGE_PLOT(3000,2550,0,1)
+      CALL PAGE_PLOT(7000,2550,1,1)
+      CALL PAGE_PLOT(3000,2900,0,1)
+      CALL PAGE_PLOT(7000,2900,1,1)
+      CALL PAGE_PLOT(3000,3250,0,1)
+      CALL PAGE_PLOT(7000,3250,1,1)
+      CALL PAGE_PLOT(3000,3600,0,1)
+      CALL PAGE_PLOT(7000,3600,1,1)
+      CALL PAGE_PLOT(3000,3950,0,1)
+      CALL PAGE_PLOT(7000,3950,1,1)
+      CALL PAGE_PLOT(3000,4300,0,1)
+      CALL PAGE_PLOT(7000,4300,1,1)
+      CALL PAGE_PLOT(3000,4650,0,1)
+      CALL PAGE_PLOT(7000,4650,1,1)
+      CALL PAGE_PLOT(3000,5000,0,1)
+      CALL PAGE_PLOT(7000,5000,1,1)
 !       PLOT THE HORIZONTAL GRIDS (11 OF THEM FROM 0 TO 10)
-      CALL MY_PLOT(3000,1500,0,1,-10,10010,-10,7010)
-      CALL MY_PLOT(3000,5000,1,1,-10,10010,-10,7010)
-      CALL MY_PLOT(3200,1500,0,1,-10,10010,-10,7010)
-      CALL MY_PLOT(3200,5000,1,1,-10,10010,-10,7010)
-      CALL MY_PLOT(3400,1500,0,1,-10,10010,-10,7010)
-      CALL MY_PLOT(3400,5000,1,1,-10,10010,-10,7010)
-      CALL MY_PLOT(3600,1500,0,1,-10,10010,-10,7010)
-      CALL MY_PLOT(3600,5000,1,1,-10,10010,-10,7010)
-      CALL MY_PLOT(3800,1500,0,1,-10,10010,-10,7010)
-      CALL MY_PLOT(3800,5000,1,1,-10,10010,-10,7010)
-      CALL MY_PLOT(4000,1500,0,1,-10,10010,-10,7010)
-      CALL MY_PLOT(4000,5000,1,1,-10,10010,-10,7010)
-      CALL MY_PLOT(4200,1500,0,1,-10,10010,-10,7010)
-      CALL MY_PLOT(4200,5000,1,1,-10,10010,-10,7010)
-      CALL MY_PLOT(4400,1500,0,1,-10,10010,-10,7010)
-      CALL MY_PLOT(4400,5000,1,1,-10,10010,-10,7010)
-      CALL MY_PLOT(4600,1500,0,1,-10,10010,-10,7010)
-      CALL MY_PLOT(4600,5000,1,1,-10,10010,-10,7010)
-      CALL MY_PLOT(4800,1500,0,1,-10,10010,-10,7010)
-      CALL MY_PLOT(4800,5000,1,1,-10,10010,-10,7010)
-      CALL MY_PLOT(5200,1500,0,1,-10,10010,-10,7010)
-      CALL MY_PLOT(5200,5000,1,1,-10,10010,-10,7010)
-      CALL MY_PLOT(5400,1500,0,1,-10,10010,-10,7010)
-      CALL MY_PLOT(5400,5000,1,1,-10,10010,-10,7010)
-      CALL MY_PLOT(5600,1500,0,1,-10,10010,-10,7010)
-      CALL MY_PLOT(5600,5000,1,1,-10,10010,-10,7010)
-      CALL MY_PLOT(5800,1500,0,1,-10,10010,-10,7010)
-      CALL MY_PLOT(5800,5000,1,1,-10,10010,-10,7010)
-      CALL MY_PLOT(6000,1500,0,1,-10,10010,-10,7010)
-      CALL MY_PLOT(6000,5000,1,1,-10,10010,-10,7010)
-      CALL MY_PLOT(6200,1500,0,1,-10,10010,-10,7010)
-      CALL MY_PLOT(6200,5000,1,1,-10,10010,-10,7010)
-      CALL MY_PLOT(6400,1500,0,1,-10,10010,-10,7010)
-      CALL MY_PLOT(6400,5000,1,1,-10,10010,-10,7010)
-      CALL MY_PLOT(6600,1500,0,1,-10,10010,-10,7010)
-      CALL MY_PLOT(6600,5000,1,1,-10,10010,-10,7010)
-      CALL MY_PLOT(6800,1500,0,1,-10,10010,-10,7010)
-      CALL MY_PLOT(6800,5000,1,1,-10,10010,-10,7010)
-      CALL MY_PLOT(7000,1500,0,1,-10,10010,-10,7010)
-      CALL MY_PLOT(7000,5000,1,1,-10,10010,-10,7010)
+      CALL PAGE_PLOT(3000,1500,0,1)
+      CALL PAGE_PLOT(3000,5000,1,1)
+      CALL PAGE_PLOT(3200,1500,0,1)
+      CALL PAGE_PLOT(3200,5000,1,1)
+      CALL PAGE_PLOT(3400,1500,0,1)
+      CALL PAGE_PLOT(3400,5000,1,1)
+      CALL PAGE_PLOT(3600,1500,0,1)
+      CALL PAGE_PLOT(3600,5000,1,1)
+      CALL PAGE_PLOT(3800,1500,0,1)
+      CALL PAGE_PLOT(3800,5000,1,1)
+      CALL PAGE_PLOT(4000,1500,0,1)
+      CALL PAGE_PLOT(4000,5000,1,1)
+      CALL PAGE_PLOT(4200,1500,0,1)
+      CALL PAGE_PLOT(4200,5000,1,1)
+      CALL PAGE_PLOT(4400,1500,0,1)
+      CALL PAGE_PLOT(4400,5000,1,1)
+      CALL PAGE_PLOT(4600,1500,0,1)
+      CALL PAGE_PLOT(4600,5000,1,1)
+      CALL PAGE_PLOT(4800,1500,0,1)
+      CALL PAGE_PLOT(4800,5000,1,1)
+      CALL PAGE_PLOT(5200,1500,0,1)
+      CALL PAGE_PLOT(5200,5000,1,1)
+      CALL PAGE_PLOT(5400,1500,0,1)
+      CALL PAGE_PLOT(5400,5000,1,1)
+      CALL PAGE_PLOT(5600,1500,0,1)
+      CALL PAGE_PLOT(5600,5000,1,1)
+      CALL PAGE_PLOT(5800,1500,0,1)
+      CALL PAGE_PLOT(5800,5000,1,1)
+      CALL PAGE_PLOT(6000,1500,0,1)
+      CALL PAGE_PLOT(6000,5000,1,1)
+      CALL PAGE_PLOT(6200,1500,0,1)
+      CALL PAGE_PLOT(6200,5000,1,1)
+      CALL PAGE_PLOT(6400,1500,0,1)
+      CALL PAGE_PLOT(6400,5000,1,1)
+      CALL PAGE_PLOT(6600,1500,0,1)
+      CALL PAGE_PLOT(6600,5000,1,1)
+      CALL PAGE_PLOT(6800,1500,0,1)
+      CALL PAGE_PLOT(6800,5000,1,1)
+      CALL PAGE_PLOT(7000,1500,0,1)
+      CALL PAGE_PLOT(7000,5000,1,1)
    END IF
 !       PLOT THE VERTICAL TICS (11 OF THEM FROM 0 TO 10)
-   CALL MY_PLOT(4975,1500,0,0,-10,10010,-10,7010)
-   CALL MY_PLOT(5025,1500,1,0,-10,10010,-10,7010)
-   CALL MY_PLOT(4975,1850,0,0,-10,10010,-10,7010)
-   CALL MY_PLOT(5025,1850,1,0,-10,10010,-10,7010)
-   CALL MY_PLOT(4975,2200,0,0,-10,10010,-10,7010)
-   CALL MY_PLOT(5025,2200,1,0,-10,10010,-10,7010)
-   CALL MY_PLOT(4975,2550,0,0,-10,10010,-10,7010)
-   CALL MY_PLOT(5025,2550,1,0,-10,10010,-10,7010)
-   CALL MY_PLOT(4975,2900,0,0,-10,10010,-10,7010)
-   CALL MY_PLOT(5025,2900,1,0,-10,10010,-10,7010)
-   CALL MY_PLOT(4950,3250,0,0,-10,10010,-10,7010)
-   CALL MY_PLOT(5050,3250,1,0,-10,10010,-10,7010)
-   CALL MY_PLOT(4975,3600,0,0,-10,10010,-10,7010)
-   CALL MY_PLOT(5025,3600,1,0,-10,10010,-10,7010)
-   CALL MY_PLOT(4975,3950,0,0,-10,10010,-10,7010)
-   CALL MY_PLOT(5025,3950,1,0,-10,10010,-10,7010)
-   CALL MY_PLOT(4975,4300,0,0,-10,10010,-10,7010)
-   CALL MY_PLOT(5025,4300,1,0,-10,10010,-10,7010)
-   CALL MY_PLOT(4975,4650,0,0,-10,10010,-10,7010)
-   CALL MY_PLOT(5025,4650,1,0,-10,10010,-10,7010)
-   CALL MY_PLOT(4950,5000,0,0,-10,10010,-10,7010)
-   CALL MY_PLOT(5050,5000,1,0,-10,10010,-10,7010)
+   CALL PAGE_PLOT(4975,1500,0,0)
+   CALL PAGE_PLOT(5025,1500,1,0)
+   CALL PAGE_PLOT(4975,1850,0,0)
+   CALL PAGE_PLOT(5025,1850,1,0)
+   CALL PAGE_PLOT(4975,2200,0,0)
+   CALL PAGE_PLOT(5025,2200,1,0)
+   CALL PAGE_PLOT(4975,2550,0,0)
+   CALL PAGE_PLOT(5025,2550,1,0)
+   CALL PAGE_PLOT(4975,2900,0,0)
+   CALL PAGE_PLOT(5025,2900,1,0)
+   CALL PAGE_PLOT(4950,3250,0,0)
+   CALL PAGE_PLOT(5050,3250,1,0)
+   CALL PAGE_PLOT(4975,3600,0,0)
+   CALL PAGE_PLOT(5025,3600,1,0)
+   CALL PAGE_PLOT(4975,3950,0,0)
+   CALL PAGE_PLOT(5025,3950,1,0)
+   CALL PAGE_PLOT(4975,4300,0,0)
+   CALL PAGE_PLOT(5025,4300,1,0)
+   CALL PAGE_PLOT(4975,4650,0,0)
+   CALL PAGE_PLOT(5025,4650,1,0)
+   CALL PAGE_PLOT(4950,5000,0,0)
+   CALL PAGE_PLOT(5050,5000,1,0)
 !       PLOT THE HORIZONTAL TICS (11 OF THEM FROM 0 TO 10)
-   CALL MY_PLOT(3000,1500,0,0,-10,10010,-10,7010)
-   CALL MY_PLOT(3000,1650,1,0,-10,10010,-10,7010)
-   CALL MY_PLOT(3200,1500,0,0,-10,10010,-10,7010)
-   CALL MY_PLOT(3200,1550,1,0,-10,10010,-10,7010)
-   CALL MY_PLOT(3400,1500,0,0,-10,10010,-10,7010)
-   CALL MY_PLOT(3400,1550,1,0,-10,10010,-10,7010)
-   CALL MY_PLOT(3600,1500,0,0,-10,10010,-10,7010)
-   CALL MY_PLOT(3600,1550,1,0,-10,10010,-10,7010)
-   CALL MY_PLOT(3800,1500,0,0,-10,10010,-10,7010)
-   CALL MY_PLOT(3800,1550,1,0,-10,10010,-10,7010)
-   CALL MY_PLOT(4000,1500,0,0,-10,10010,-10,7010)
-   CALL MY_PLOT(4000,1650,1,0,-10,10010,-10,7010)
-   CALL MY_PLOT(4200,1500,0,0,-10,10010,-10,7010)
-   CALL MY_PLOT(4200,1550,1,0,-10,10010,-10,7010)
-   CALL MY_PLOT(4400,1500,0,0,-10,10010,-10,7010)
-   CALL MY_PLOT(4400,1550,1,0,-10,10010,-10,7010)
-   CALL MY_PLOT(4600,1500,0,0,-10,10010,-10,7010)
-   CALL MY_PLOT(4600,1550,1,0,-10,10010,-10,7010)
-   CALL MY_PLOT(4800,1500,0,0,-10,10010,-10,7010)
-   CALL MY_PLOT(4800,1550,1,0,-10,10010,-10,7010)
-   CALL MY_PLOT(5000,1500,0,0,-10,10010,-10,7010)
-   CALL MY_PLOT(5000,1650,1,0,-10,10010,-10,7010)
-   CALL MY_PLOT(5200,1500,0,0,-10,10010,-10,7010)
-   CALL MY_PLOT(5200,1550,1,0,-10,10010,-10,7010)
-   CALL MY_PLOT(5400,1500,0,0,-10,10010,-10,7010)
-   CALL MY_PLOT(5400,1550,1,0,-10,10010,-10,7010)
-   CALL MY_PLOT(5600,1500,0,0,-10,10010,-10,7010)
-   CALL MY_PLOT(5600,1550,1,0,-10,10010,-10,7010)
-   CALL MY_PLOT(5800,1500,0,0,-10,10010,-10,7010)
-   CALL MY_PLOT(5800,1550,1,0,-10,10010,-10,7010)
-   CALL MY_PLOT(6000,1500,0,0,-10,10010,-10,7010)
-   CALL MY_PLOT(6000,1650,1,0,-10,10010,-10,7010)
-   CALL MY_PLOT(6200,1500,0,0,-10,10010,-10,7010)
-   CALL MY_PLOT(6200,1550,1,0,-10,10010,-10,7010)
-   CALL MY_PLOT(6400,1500,0,0,-10,10010,-10,7010)
-   CALL MY_PLOT(6400,1550,1,0,-10,10010,-10,7010)
-   CALL MY_PLOT(6600,1500,0,0,-10,10010,-10,7010)
-   CALL MY_PLOT(6600,1550,1,0,-10,10010,-10,7010)
-   CALL MY_PLOT(6800,1500,0,0,-10,10010,-10,7010)
-   CALL MY_PLOT(6800,1550,1,0,-10,10010,-10,7010)
-   CALL MY_PLOT(7000,1500,0,0,-10,10010,-10,7010)
-   CALL MY_PLOT(7000,1650,1,0,-10,10010,-10,7010)
+   CALL PAGE_PLOT(3000,1500,0,0)
+   CALL PAGE_PLOT(3000,1650,1,0)
+   CALL PAGE_PLOT(3200,1500,0,0)
+   CALL PAGE_PLOT(3200,1550,1,0)
+   CALL PAGE_PLOT(3400,1500,0,0)
+   CALL PAGE_PLOT(3400,1550,1,0)
+   CALL PAGE_PLOT(3600,1500,0,0)
+   CALL PAGE_PLOT(3600,1550,1,0)
+   CALL PAGE_PLOT(3800,1500,0,0)
+   CALL PAGE_PLOT(3800,1550,1,0)
+   CALL PAGE_PLOT(4000,1500,0,0)
+   CALL PAGE_PLOT(4000,1650,1,0)
+   CALL PAGE_PLOT(4200,1500,0,0)
+   CALL PAGE_PLOT(4200,1550,1,0)
+   CALL PAGE_PLOT(4400,1500,0,0)
+   CALL PAGE_PLOT(4400,1550,1,0)
+   CALL PAGE_PLOT(4600,1500,0,0)
+   CALL PAGE_PLOT(4600,1550,1,0)
+   CALL PAGE_PLOT(4800,1500,0,0)
+   CALL PAGE_PLOT(4800,1550,1,0)
+   CALL PAGE_PLOT(5000,1500,0,0)
+   CALL PAGE_PLOT(5000,1650,1,0)
+   CALL PAGE_PLOT(5200,1500,0,0)
+   CALL PAGE_PLOT(5200,1550,1,0)
+   CALL PAGE_PLOT(5400,1500,0,0)
+   CALL PAGE_PLOT(5400,1550,1,0)
+   CALL PAGE_PLOT(5600,1500,0,0)
+   CALL PAGE_PLOT(5600,1550,1,0)
+   CALL PAGE_PLOT(5800,1500,0,0)
+   CALL PAGE_PLOT(5800,1550,1,0)
+   CALL PAGE_PLOT(6000,1500,0,0)
+   CALL PAGE_PLOT(6000,1650,1,0)
+   CALL PAGE_PLOT(6200,1500,0,0)
+   CALL PAGE_PLOT(6200,1550,1,0)
+   CALL PAGE_PLOT(6400,1500,0,0)
+   CALL PAGE_PLOT(6400,1550,1,0)
+   CALL PAGE_PLOT(6600,1500,0,0)
+   CALL PAGE_PLOT(6600,1550,1,0)
+   CALL PAGE_PLOT(6800,1500,0,0)
+   CALL PAGE_PLOT(6800,1550,1,0)
+   CALL PAGE_PLOT(7000,1500,0,0)
+   CALL PAGE_PLOT(7000,1650,1,0)
    RETURN
 END
 SUBROUTINE PLOTVVAL2(LFUNC,DELF1)
@@ -3848,82 +1510,82 @@ SUBROUTINE PLOTAXES
    COLPAS=COLAXS
    CALL MY_COLTYP(COLPAS)
 !       PLOT THE AXES
-   CALL MY_PLOT(2000,1400,0,0,-10,10010,-10,7010)
-   CALL MY_PLOT(2000,5600,1,0,-10,10010,-10,7010)
-   CALL MY_PLOT(2000,1400,0,0,-10,10010,-10,7010)
-   CALL MY_PLOT(7000,1400,1,0,-10,10010,-10,7010)
+   CALL PAGE_PLOT(2000,1400,0,0)
+   CALL PAGE_PLOT(2000,5600,1,0)
+   CALL PAGE_PLOT(2000,1400,0,0)
+   CALL PAGE_PLOT(7000,1400,1,0)
    IF(MTFGRIDS) THEN
 !       PLOT THE VERTICAL GRID LINES (11 OF THEM FROM 0 TO 10)
-      CALL MY_PLOT(2000,1820,0,1,-10,10010,-10,7010)
-      CALL MY_PLOT(7000,1820,1,1,-10,10010,-10,7010)
-      CALL MY_PLOT(2000,2240,0,1,-10,10010,-10,7010)
-      CALL MY_PLOT(7000,2240,1,1,-10,10010,-10,7010)
-      CALL MY_PLOT(2000,2660,0,1,-10,10010,-10,7010)
-      CALL MY_PLOT(7000,2660,1,1,-10,10010,-10,7010)
-      CALL MY_PLOT(2000,3080,0,1,-10,10010,-10,7010)
-      CALL MY_PLOT(7000,3080,1,1,-10,10010,-10,7010)
-      CALL MY_PLOT(2000,3500,0,1,-10,10010,-10,7010)
-      CALL MY_PLOT(7000,3500,1,1,-10,10010,-10,7010)
-      CALL MY_PLOT(2000,3920,0,1,-10,10010,-10,7010)
-      CALL MY_PLOT(7000,3920,1,1,-10,10010,-10,7010)
-      CALL MY_PLOT(2000,4340,0,1,-10,10010,-10,7010)
-      CALL MY_PLOT(7000,4340,1,1,-10,10010,-10,7010)
-      CALL MY_PLOT(2000,4760,0,1,-10,10010,-10,7010)
-      CALL MY_PLOT(7000,4760,1,1,-10,10010,-10,7010)
-      CALL MY_PLOT(2000,5180,0,1,-10,10010,-10,7010)
-      CALL MY_PLOT(7000,5180,1,1,-10,10010,-10,7010)
-      CALL MY_PLOT(2000,5600,0,1,-10,10010,-10,7010)
-      CALL MY_PLOT(7000,5600,1,1,-10,10010,-10,7010)
+      CALL PAGE_PLOT(2000,1820,0,1)
+      CALL PAGE_PLOT(7000,1820,1,1)
+      CALL PAGE_PLOT(2000,2240,0,1)
+      CALL PAGE_PLOT(7000,2240,1,1)
+      CALL PAGE_PLOT(2000,2660,0,1)
+      CALL PAGE_PLOT(7000,2660,1,1)
+      CALL PAGE_PLOT(2000,3080,0,1)
+      CALL PAGE_PLOT(7000,3080,1,1)
+      CALL PAGE_PLOT(2000,3500,0,1)
+      CALL PAGE_PLOT(7000,3500,1,1)
+      CALL PAGE_PLOT(2000,3920,0,1)
+      CALL PAGE_PLOT(7000,3920,1,1)
+      CALL PAGE_PLOT(2000,4340,0,1)
+      CALL PAGE_PLOT(7000,4340,1,1)
+      CALL PAGE_PLOT(2000,4760,0,1)
+      CALL PAGE_PLOT(7000,4760,1,1)
+      CALL PAGE_PLOT(2000,5180,0,1)
+      CALL PAGE_PLOT(7000,5180,1,1)
+      CALL PAGE_PLOT(2000,5600,0,1)
+      CALL PAGE_PLOT(7000,5600,1,1)
 !
 !       PLOT THE HORIZONTAL TICS (5 OF THEM FROM 0 TO 10)
-      CALL MY_PLOT(3000,1400,0,1,-10,10010,-10,7010)
-      CALL MY_PLOT(3000,5600,1,1,-10,10010,-10,7010)
-      CALL MY_PLOT(4000,1400,0,1,-10,10010,-10,7010)
-      CALL MY_PLOT(4000,5600,1,1,-10,10010,-10,7010)
-      CALL MY_PLOT(5000,1400,0,1,-10,10010,-10,7010)
-      CALL MY_PLOT(5000,5600,1,1,-10,10010,-10,7010)
-      CALL MY_PLOT(6000,1400,0,1,-10,10010,-10,7010)
-      CALL MY_PLOT(6000,5600,1,1,-10,10010,-10,7010)
-      CALL MY_PLOT(7000,1400,0,1,-10,10010,-10,7010)
-      CALL MY_PLOT(7000,4760,1,1,-10,10010,-10,7010)
+      CALL PAGE_PLOT(3000,1400,0,1)
+      CALL PAGE_PLOT(3000,5600,1,1)
+      CALL PAGE_PLOT(4000,1400,0,1)
+      CALL PAGE_PLOT(4000,5600,1,1)
+      CALL PAGE_PLOT(5000,1400,0,1)
+      CALL PAGE_PLOT(5000,5600,1,1)
+      CALL PAGE_PLOT(6000,1400,0,1)
+      CALL PAGE_PLOT(6000,5600,1,1)
+      CALL PAGE_PLOT(7000,1400,0,1)
+      CALL PAGE_PLOT(7000,4760,1,1)
    END IF
 !       PLOT THE VERTICAL TICS (11 OF THEM FROM 0 TO 10)
-   CALL MY_PLOT(1900,1400,0,0,-10,10010,-10,7010)
-   CALL MY_PLOT(2000,1400,1,0,-10,10010,-10,7010)
-   CALL MY_PLOT(1900,1820,0,0,-10,10010,-10,7010)
-   CALL MY_PLOT(2000,1820,1,0,-10,10010,-10,7010)
-   CALL MY_PLOT(1900,2240,0,0,-10,10010,-10,7010)
-   CALL MY_PLOT(2000,2240,1,0,-10,10010,-10,7010)
-   CALL MY_PLOT(1900,2660,0,0,-10,10010,-10,7010)
-   CALL MY_PLOT(2000,2660,1,0,-10,10010,-10,7010)
-   CALL MY_PLOT(1900,3080,0,0,-10,10010,-10,7010)
-   CALL MY_PLOT(2000,3080,1,0,-10,10010,-10,7010)
-   CALL MY_PLOT(1900,3500,0,0,-10,10010,-10,7010)
-   CALL MY_PLOT(2000,3500,1,0,-10,10010,-10,7010)
-   CALL MY_PLOT(1900,3920,0,0,-10,10010,-10,7010)
-   CALL MY_PLOT(2000,3920,1,0,-10,10010,-10,7010)
-   CALL MY_PLOT(1900,4340,0,0,-10,10010,-10,7010)
-   CALL MY_PLOT(2000,4340,1,0,-10,10010,-10,7010)
-   CALL MY_PLOT(1900,4760,0,0,-10,10010,-10,7010)
-   CALL MY_PLOT(2000,4760,1,0,-10,10010,-10,7010)
-   CALL MY_PLOT(1900,5180,0,0,-10,10010,-10,7010)
-   CALL MY_PLOT(2000,5180,1,0,-10,10010,-10,7010)
-   CALL MY_PLOT(1900,5600,0,0,-10,10010,-10,7010)
-   CALL MY_PLOT(2000,5600,1,0,-10,10010,-10,7010)
+   CALL PAGE_PLOT(1900,1400,0,0)
+   CALL PAGE_PLOT(2000,1400,1,0)
+   CALL PAGE_PLOT(1900,1820,0,0)
+   CALL PAGE_PLOT(2000,1820,1,0)
+   CALL PAGE_PLOT(1900,2240,0,0)
+   CALL PAGE_PLOT(2000,2240,1,0)
+   CALL PAGE_PLOT(1900,2660,0,0)
+   CALL PAGE_PLOT(2000,2660,1,0)
+   CALL PAGE_PLOT(1900,3080,0,0)
+   CALL PAGE_PLOT(2000,3080,1,0)
+   CALL PAGE_PLOT(1900,3500,0,0)
+   CALL PAGE_PLOT(2000,3500,1,0)
+   CALL PAGE_PLOT(1900,3920,0,0)
+   CALL PAGE_PLOT(2000,3920,1,0)
+   CALL PAGE_PLOT(1900,4340,0,0)
+   CALL PAGE_PLOT(2000,4340,1,0)
+   CALL PAGE_PLOT(1900,4760,0,0)
+   CALL PAGE_PLOT(2000,4760,1,0)
+   CALL PAGE_PLOT(1900,5180,0,0)
+   CALL PAGE_PLOT(2000,5180,1,0)
+   CALL PAGE_PLOT(1900,5600,0,0)
+   CALL PAGE_PLOT(2000,5600,1,0)
 !
 !       PLOT THE HORIZONTAL TICS (11 OF THEM FROM 0 TO 10)
-   CALL MY_PLOT(2000,1300,0,0,-10,10010,-10,7010)
-   CALL MY_PLOT(2000,1400,1,0,-10,10010,-10,7010)
-   CALL MY_PLOT(3000,1300,0,0,-10,10010,-10,7010)
-   CALL MY_PLOT(3000,1400,1,0,-10,10010,-10,7010)
-   CALL MY_PLOT(4000,1300,0,0,-10,10010,-10,7010)
-   CALL MY_PLOT(4000,1400,1,0,-10,10010,-10,7010)
-   CALL MY_PLOT(5000,1300,0,0,-10,10010,-10,7010)
-   CALL MY_PLOT(5000,1400,1,0,-10,10010,-10,7010)
-   CALL MY_PLOT(6000,1300,0,0,-10,10010,-10,7010)
-   CALL MY_PLOT(6000,1400,1,0,-10,10010,-10,7010)
-   CALL MY_PLOT(7000,1300,0,0,-10,10010,-10,7010)
-   CALL MY_PLOT(7000,1400,1,0,-10,10010,-10,7010)
+   CALL PAGE_PLOT(2000,1300,0,0)
+   CALL PAGE_PLOT(2000,1400,1,0)
+   CALL PAGE_PLOT(3000,1300,0,0)
+   CALL PAGE_PLOT(3000,1400,1,0)
+   CALL PAGE_PLOT(4000,1300,0,0)
+   CALL PAGE_PLOT(4000,1400,1,0)
+   CALL PAGE_PLOT(5000,1300,0,0)
+   CALL PAGE_PLOT(5000,1400,1,0)
+   CALL PAGE_PLOT(6000,1300,0,0)
+   CALL PAGE_PLOT(6000,1400,1,0)
+   CALL PAGE_PLOT(7000,1300,0,0)
+   CALL PAGE_PLOT(7000,1400,1,0)
    RETURN
 END
 SUBROUTINE FOVCAPTION1(CT,J,IX,IY)
@@ -4974,336 +2636,6 @@ SUBROUTINE PLOTFUNCC(X,Y,FEND,LLIM,ULIM,LFUNC,UFUNC,SPNUM,LT,&
    END DO
    DEALLOCATE(IX,IY,XX,YY,Y2,XXX,YYY,STAT=ALLOERR)
 END
-! SUB PLTCAPCO.FOR
-SUBROUTINE PLTCAPCO(IIU)
-!
-   use DATSP1
-   use DATSPD
-   use DATLEN
-   use DATMAI
-   use mod_surface, only: surf_clap_type, surf_clap_dim
-   use command_utils, only: is_command_query
-   use iso_fortran_env, only: real64
-   IMPLICIT NONE
-!
-!       THIS PROGRAM CONTROLS THE PLOTCON CAPFNOPD AND
-!       PLOTCON CAPFNAPD COMMANDS
-!
-   REAL REFHT
-!
-   real(real64) WVAL
-!
-   LOGICAL PLOTIT(1:10)
-!
-   REAL ZMAX1,ZMIN1
-!
-   LOGICAL AUTOZSCALE
-!
-   COMMON/AUTSCALE/ZMAX1,ZMIN1,AUTOZSCALE
-!
-   INTEGER KKV,KKK,I,KVAL,G,IU,IIU
-!
-!
-   PLOTCAPCON=.TRUE.
-!
-   AUTOZSCALE=.TRUE.
-!
-   IF(DF2.EQ.1) IIU=0
-   IF(DF2.EQ.0) IIU=1
-!
-   IF(is_command_query()) THEN
-      OUTLYNE= '"PLOTCON CAPFN(OPD AND APD)" PLOTS THE EXISTING CAPFN'
-      CALL SHOWIT(1)
-      OUTLYNE= '"AS A CONTOUR PLOT'
-      CALL SHOWIT(1)
-      OUTLYNE= 'RE-ENTER COMMAND'
-      CALL SHOWIT(1)
-      RETURN
-   END IF
-   IF(SST.EQ.1) THEN
-      CALL REPORT_ERROR_AND_FAIL(&
-      & '"PLOTCON CAPFN(OPD OR APD)" TAKES NO STRING INPUT'//'\n'//&
-      & 'RE-ENTER COMMAND', 1)
-      RETURN
-   END IF
-   IF(WQ.EQ.'CAPFNOPD') THEN
-      IF(S4.EQ.1.OR.S5.EQ.1) THEN
-         CALL REPORT_ERROR_AND_FAIL(&
-         & '"PLOTCON CAPFNOPD" TAKES NO NUMERIC WORD #4 or #5'//'\n'//&
-         & '#4 OR #5 INPUT'//'\n'//&
-         & 'RE-ENTER COMMAND', 1)
-         RETURN
-      END IF
-   END IF
-   IF(WQ.EQ.'CAPFNAPD') THEN
-      IF(S3.EQ.1.OR.S4.EQ.1.OR.S5.EQ.1) THEN
-         CALL REPORT_ERROR_AND_FAIL(&
-         & '"PLOT CAPFNAPD" TAKES NO NUMERIC WORD'//'\n'//&
-         & '#3, #4 OR #5 INPUT'//'\n'//&
-         & 'RE-ENTER COMMAND', 1)
-         RETURN
-      END IF
-   END IF
-
-   IF(DF1.EQ.1) W1=1.0D0
-   IF(DF1.EQ.1) S1=1
-   IF(DF1.EQ.1) DF1=0
-   IF(INT(W1).LT.1.OR.INT(W1).GT.10) THEN
-      OUTLYNE=&
-      &'NUMERIC WORD #1 MUST BE 1, 2, 3, 4, 5, 6, 7, 8, 9 OR 10'
-      CALL SHOWIT(1)
-      CALL REPORT_ERROR_AND_FAIL('RE-ENTER COMMAND', 1)
-      RETURN
-   END IF
-   IF(WQ.EQ.'CAPFNOPD'.AND.DF3.EQ.0.AND.W3.GT.0.0D0) THEN
-      AUTOZSCALE=.FALSE.
-   END IF
-!     OPEN AND LOAD THE APPROPRIATE CAPFN DATA AND THEN PLOT IT
-   IF(.NOT.CPFNEXT) THEN
-      OUTLYNE=&
-      &'NO CAPFN EXISTS'
-      CALL SHOWIT(1)
-      CALL REPORT_ERROR_AND_FAIL('NO ACTION TAKEN', 1)
-      RETURN
-   END IF
-!
-!     DETERMINE THE REFERNCE APERTURE HEIGHT
-!     OF THE REF SURFACE COORDINATES
-   IF(surf_clap_type(NEWREF) >= 1.AND.abs(surf_clap_type(NEWREF))&
-   &.LE.5.0D0) THEN
-      IF(surf_clap_type(NEWREF) == 1) THEN
-         REFHT=SNGL(surf_clap_dim(NEWREF, 1))
-      END IF
-!        RECT CLAP
-!
-      IF(surf_clap_type(NEWREF) == 2) THEN
-         IF(surf_clap_dim(NEWREF, 1).GE.surf_clap_dim(NEWREF, 2)) THEN
-            REFHT=SNGL(surf_clap_dim(NEWREF, 1))
-         ELSE
-            REFHT=SNGL(surf_clap_dim(NEWREF, 2))
-         END IF
-      END IF
-!        ELIP CLAP
-!
-      IF(surf_clap_type(NEWREF) == 3) THEN
-         IF(surf_clap_dim(NEWREF, 1).GE.surf_clap_dim(NEWREF, 2)) THEN
-            REFHT=SNGL(surf_clap_dim(NEWREF, 1))
-         ELSE
-            REFHT=SNGL(surf_clap_dim(NEWREF, 2))
-         END IF
-      END IF
-!        RCTK CLAP
-!
-      IF(surf_clap_type(NEWREF) == 4) THEN
-         IF(surf_clap_dim(NEWREF, 1).GE.surf_clap_dim(NEWREF, 2)) THEN
-            REFHT=SNGL(surf_clap_dim(NEWREF, 1))
-         ELSE
-            REFHT=SNGL(surf_clap_dim(NEWREF, 2))
-         END IF
-      END IF
-!        POLY CLAP
-!
-      IF(surf_clap_type(NEWREF) == 5) THEN
-         REFHT=SNGL(surf_clap_dim(NEWREF, 1))
-      END IF
-!
-   ELSE
-!       NO CLAP ON REF SURF.
-      IF(PXTRAY(1,NEWREF).GE.PXTRAX(1,NEWREF)) THEN
-         REFHT=SNGL((PXTRAY(1,NEWREF)))
-      ELSE
-         REFHT=SNGL((PXTRAX(1,NEWREF)))
-      END IF
-   END IF
-!
-   WVAL=(W1)
-   KKV=(ITOT-1)/NUMCOL
-!     KKV IS THE TOTAL NUMBER OF POINTS AT THE DESIRED COLOR
-!     AND IT IS AN EXACT SQUARE
-   PLOTIT(1)=.FALSE.
-   PLOTIT(2)=.FALSE.
-   PLOTIT(3)=.FALSE.
-   PLOTIT(4)=.FALSE.
-   PLOTIT(5)=.FALSE.
-   PLOTIT(6)=.FALSE.
-   PLOTIT(7)=.FALSE.
-   PLOTIT(8)=.FALSE.
-   PLOTIT(9)=.FALSE.
-   PLOTIT(10)=.FALSE.
-   DO I=1,ITOT-1
-!     LOAD DSPOTT(*,ID) INTO DSPOT(*)
-      ID=I
-      CALL SPOTIT(4)
-!
-      IF(DSPOT(16).EQ.WVAL) THEN
-         PLOTIT(INT(WVAL))=.TRUE.
-         KVAL=I
-         GO TO 10
-      END IF
-!
-   END DO
-10 CONTINUE
-   G=ITOT+1
-!
-
-   KKK=NINT(SQRT(FLOAT(KKV)))
-   IF(.NOT.PLOTIT(INT(W1))) THEN
-      CALL REPORT_ERROR_AND_FAIL(&
-      & 'CAPFN DATA FOR THE WAVELENGTH VALUE (NUMERIC WORD 1)'//'\n'//&
-      & 'DOES NOT EXIST'//'\n'//&
-      & 'NO ACTION TAKEN', 1)
-      RETURN
-   END IF
-!
-   ! JN - do plot with separate routine, but want to use this
-   ! routine to load proper wavelength so comment out.
-!     NOW CALL ROUTINES TO DO THE CONTOUR PLOT
-!       IF(WQ.EQ.'CAPFNOPD') CALL CON_CAPPLOT(1,KVAL,REFHT,WVAL,KKV,KKK
-!      1,IU)
-!       IF(WQ.EQ.'CAPFNAPD') CALL CON_CAPPLOT(2,KVAL,REFHT,WVAL,KKV,KKK
-!      1,IU)
-!
-   RETURN
-END
-! SUB CON_CAPPLOT.FOR
-SUBROUTINE CON_CAPPLOT(IJ,KVAL,REFHT,WVAL,KKV,KKK,IU)
-!     KVAL IS THE FIRST RECORD OF THE SPOT FILE TO READ
-!     REFHT IS THE NORMALIZING AP HT.
-!     WVAL IS THE DESIRED WAVELENGTH NUMBER
-!     KKV IS THE TOTAL NUMBER OF POINTS TO BE READ IN FROM DSPOTT
-!
-   use DATSP1
-   use DATSPD
-   use DATLEN
-   use DATMAI
-   use iso_fortran_env, only: real64
-   IMPLICIT NONE
-!
-   LOGICAL ITSFLAT
-!
-   INTEGER IJ,KVAL,K,I,J,NNX,KKI2,NNY,KK,KKK,IQ,KKV,II,IIVAL
-   INTEGER ALLOERR,WVNUMB,IU
-!
-   real(real64) DL1,FV &
-   &,WVAL
-   REAL REFHT,ZMAX2,ZMIN2,RI,RII,ZSTEP
-   REAL F1PLT,F2PLT,DELGRID
-!
-   REAL ZMAX1,ZMIN1
-!
-   LOGICAL AUTOZSCALE
-!
-   COMMON/AUTSCALE/ZMAX1,ZMIN1,AUTOZSCALE
-!
-   DIMENSION F1PLT(:,:),F2PLT(:,:)
-!
-   ALLOCATABLE :: F1PLT,F2PLT
-!
-   KKI2=NINT(SQRT(FLOAT(KKV)))
-   DEALLOCATE(F1PLT,F2PLT,STAT=ALLOERR)
-   ALLOCATE(F1PLT(KKK,KKK),&
-   &F2PLT(KKK,KKK),STAT=ALLOERR)
-!
-   ZMAX1=-1.0E10
-   ZMIN1=1.0E10
-   ZMAX2=1.0E0
-   ZMIN2=0.0E0
-   I=1
-   J=0
-   DO IQ=1,ITOT-1
-!     LOAD DSPOTT(*,ID) INTO DSPOT(*)
-      ID=IQ
-      CALL SPOTIT(4)
-      IF(DSPOT(16).NE.WVAL) THEN
-         GO TO 101
-      END IF
-      J=J+1
-      IF(J.GT.KKK) THEN
-         J=1
-         I=I+1
-      END IF
-      F1PLT(J,I)=SNGL(DSPOT(4)/(TWOPII))
-      F2PLT(J,I)=SNGL(DSPOT(12))
-      WVNUMB=INT(DSPOT(16))
-      IF(F2PLT(J,I).NE.0.0) THEN
-         IF(F1PLT(J,I).GT.ZMAX1) ZMAX1=(F1PLT(J,I))
-         IF(F1PLT(J,I).LE.ZMIN1) ZMIN1=(F1PLT(J,I))
-      END IF
-101   CONTINUE
-   END DO
-   ITSFLAT=.FALSE.
-   IF(ABS(ZMIN1-ZMAX1).LT.1.0E-6) THEN
-      IF(ABS(ZMIN1).LE.1.0E-6) ZMIN1=0.0
-      ZMAX1=ZMIN1+1.0
-      ITSFLAT=.TRUE.
-      GO TO 5
-   END IF
-!
-5  DO I=-10000,10000,1
-      RI=FLOAT(I)/100.0
-      RII=FLOAT(I+1)/100.0
-      IF(ZMAX1.GT.RI.AND.ZMAX1.LE.RII) THEN
-         ZMAX1=RII
-         GO TO 10
-      END IF
-   END DO
-10 CONTINUE
-   DO I=-10000,10000,1
-      RI=FLOAT(I)/100.0
-      RII=FLOAT(I+1)/100.0
-      IF(ZMIN1.GE.RI.AND.ZMIN1.LT.RII) THEN
-         ZMIN1=RI
-         GO TO 20
-      END IF
-   END DO
-20 CONTINUE
-   IF(ZMIN1.EQ.ZMAX1) THEN
-      ZMAX1=ZMIN1+0.01
-      DO J=1,KKI2
-         DO I=1,KKI2
-            IF(F1PLT(I,J).LT.0.0.AND.ABS(F1PLT(I,J)).LT.0.0001)&
-            &F1PLT(I,J)=-0.0001
-            IF(F1PLT(I,J).GE.0.0.AND.ABS(F1PLT(I,J)).LT.0.0001)&
-            &F1PLT(I,J)= 0.0001
-         END DO
-      END DO
-   END IF
-6  CONTINUE
-   DO J=1,KKI2
-      DO I=1,KKI2
-         IF(F1PLT(I,J).LT.0.0.AND.ABS(F1PLT(I,J)).LT.0.0001)&
-         &F1PLT(I,J)=-0.0001
-         IF(F1PLT(I,J).GE.0.0.AND.ABS(F1PLT(I,J)).LT.0.0001)&
-         &F1PLT(I,J)= 0.0001
-      END DO
-   END DO
-
-   DELGRID=1.0/(FLOAT(KKI2)-1.0)
-   DO J=1,KKI2
-      DO I=1,KKI2
-         F1PLT(I,J)=(F1PLT(I,J)-ZMIN1)/(ZMAX1-ZMIN1)
-         IF(ABS(F1PLT(I,J)).LT.1E-6) F1PLT(I,J)=0.0
-         IF(ABS(F2PLT(I,J)).LT.1E-6) F2PLT(I,J)=0.0
-      END DO
-   END DO
-   IF(ITSFLAT) THEN
-      J=KKI2
-      I=KKI2
-      F1PLT(1:I,1:J)=0.01
-   END IF
-!     WE NOW HAVE PLOTABLE ARRAYS F1PLT AND F2PLT
-!     THE ARRAYS ARE DIMENSIONED 1 BY KKI2
-!     THE REFERENCE APERTURE WIDTH IS REFHT, MIN AND MAX Z VALUES
-!     ARE 0 AND 1.0
-!     IJ IS 1 FOR OPD AND 2 FOR INTENSITY
-!     WAVLENGTH NUMBER IS WVNUMB
-   ZSTEP=0.0
-   IF(W3.GT.0.0D0.AND.IJ.EQ.1) ZSTEP=SNGL(W3)
-   CALL PLTCONT(KKI2,F1PLT,F2PLT,REFHT,IJ &
-   &,ZMIN2,ZMAX2,WVNUMB,ZSTEP,IU)
-   DEALLOCATE(F1PLT,F2PLT,STAT=ALLOERR)
-   RETURN
-END
 SUBROUTINE PLTCONT(PCOUNT,F1PLT,F2PLT,REFHT,IJ &
 &,ZMIN2,ZMAX2,WVNUMB,ZSTEP,IU)
    use DATSP1
@@ -5386,10 +2718,10 @@ SUBROUTINE PLTCONT(PCOUNT,F1PLT,F2PLT,REFHT,IJ &
    CALL MY_COLTYP(COLPAS)
       CALL KDP_EXEC('PLOT FRAME')
       CALL KDP_EXEC('PLOT LI')
-   CALL MY_PLOT(5400,1500,0,0,0,10000,0,7000)
-   CALL MY_PLOT(5400,2000,1,0,0,10000,0,7000)
-   CALL MY_PLOT(5400,1500,0,0,0,10000,0,7000)
-   CALL MY_PLOT(5900,1500,1,0,0,10000,0,7000)
+   CALL PAGE_PLOT(5400,1500,0,0)
+   CALL PAGE_PLOT(5400,2000,1,0)
+   CALL PAGE_PLOT(5400,1500,0,0)
+   CALL PAGE_PLOT(5900,1500,1,0)
    CALL MY_JUSTSTRING(5285,2040,'+Y',0,1,3,3)
    CALL MY_JUSTSTRING(5940,1470,'+X',0,1,3,3)
    WRITE(B,180)REAL(sys_wavelength(WVNUMB))
@@ -5610,14 +2942,14 @@ SUBROUTINE PLOTUXAXIS(XLOWER,XUPPER)
    CALL MY_COLTYP(COLPAS)
    CALL MY_SETCHARASPECT(1.5,1.5)
 !       PLOT THE UXAXES
-   CALL MY_PLOT(UIXSTART,UIYSTART,0,0,-10,10010,-10,7010)
-   CALL MY_PLOT(UIXSTOP,UIYSTART,1,0,-10,10010,-10,7010)
+   CALL PAGE_PLOT(UIXSTART,UIYSTART,0,0)
+   CALL PAGE_PLOT(UIXSTOP,UIYSTART,1,0)
 !       PLOT THE HORIZONTAL TICS (UUDX+1 OF THEM FROM 0 TO UUDX)
    IX=0
    DIX=(UIXSTOP-UIXSTART)/INT(UUDX)
    DO I=1,INT(UUDX)+1
-      CALL MY_PLOT(UIXSTART+IX,UIYSTART-100,0,0,-10,10010,-10,7010)
-      CALL MY_PLOT(UIXSTART+IX,UIYSTART,1,0,-10,10010,-10,7010)
+      CALL PAGE_PLOT(UIXSTART+IX,UIYSTART-100,0,0)
+      CALL PAGE_PLOT(UIXSTART+IX,UIYSTART,1,0)
       IX=IX+DIX
    END DO
    XL=XLOWER
@@ -5699,14 +3031,14 @@ SUBROUTINE PLOTUYAXIS(YLOWER,YUPPER)
    CALL MY_COLTYP(COLPAS)
    CALL MY_SETCHARASPECT(1.5,1.5)
 !       PLOT THE AXES
-   CALL MY_PLOT(UIXSTART,UIYSTART,0,0,-10,10010,-10,7010)
-   CALL MY_PLOT(UIXSTART,UIYSTOP,1,0,-10,10010,-10,7010)
+   CALL PAGE_PLOT(UIXSTART,UIYSTART,0,0)
+   CALL PAGE_PLOT(UIXSTART,UIYSTOP,1,0)
 !       PLOT THE VERTICAL TICS (UUDY+1 OF THEM FROM 0 TO UUDY)
    IY=0
    DIY=(UIYSTOP-UIYSTART)/INT(UUDY)
    DO I=1,INT(UUDY)+1
-      CALL MY_PLOT(UIXSTART-100,UIYSTART+IY,0,0,-10,10010,-10,7010)
-      CALL MY_PLOT(UIXSTART,UIYSTART+IY,1,0,-10,10010,-10,7010)
+      CALL PAGE_PLOT(UIXSTART-100,UIYSTART+IY,0,0)
+      CALL PAGE_PLOT(UIXSTART,UIYSTART+IY,1,0)
       IY=IY+DIY
    END DO
    IF(DF5.EQ.1) THEN

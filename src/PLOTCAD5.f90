@@ -128,84 +128,6 @@ SUBROUTINE PLNOTE
 !
    RETURN
 END
-! SUB PLLIB.FOR
-SUBROUTINE PLLIB
-!
-   use DATLEN
-   use DATMAI
-   use iso_fortran_env, only: real64
-   IMPLICIT NONE
-!
-!
-!                PLOT LIBRARY COMMANDS
-   IF(SQ.EQ.1.AND.&
-   &WQ.NE.'P'.AND.WQ.NE.'PUT'.AND.WQ.NE.'DELK'.AND.WQ.NE.'GET'&
-   &)THEN
-      OUTLYNE=&
-      &'INVALID QUALIFIER WORD USED WITH THE "PLIB" COMMAND'
-      CALL SHOWIT(1)
-      OUTLYNE='RE-ENTER COMMAND'
-      CALL SHOWIT(1)
-      RETURN
-   END IF
-   IF(SQ.EQ.0) THEN
-      OUTLYNE=&
-      &'"PLIB" REQUIRES EXPLICIT QUALIFIER WORD INPUT'
-      CALL SHOWIT(1)
-      OUTLYNE='RE-ENTER COMMAND'
-      CALL SHOWIT(1)
-      RETURN
-   END IF
-   IF(WQ.EQ.'GET') THEN
-      IF(SST.EQ.1.OR.S2.EQ.1.OR.S3.EQ.1.OR.S4.EQ.1.OR.S5.EQ.1) THEN
-         OUTLYNE=&
-         &'"PLIB GET" TAKES NO STRING OR NUMERIC WORD #2,#3,#4 OR #5 INPUT'
-         CALL SHOWIT(1)
-         OUTLYNE='RE-ENTER COMMAND'
-         CALL SHOWIT(1)
-         RETURN
-      END IF
-   END IF
-   IF(WQ.EQ.'PUT') THEN
-      IF(SST.EQ.1.OR.S2.EQ.1.OR.S3.EQ.1.OR.S4.EQ.1.OR.S5.EQ.1) THEN
-         OUTLYNE=&
-         &'"PLIB PUT" TAKES NO STRING OR NUMERIC WORD #2,#3,#4 OR #5 INPUT'
-         CALL SHOWIT(1)
-         OUTLYNE='RE-ENTER COMMAND'
-         CALL SHOWIT(1)
-         RETURN
-      END IF
-   END IF
-   IF(WQ.EQ.'DELK') THEN
-      IF(SST.EQ.1.OR.S3.EQ.1.OR.S4.EQ.1.OR.S5.EQ.1) THEN
-         OUTLYNE=&
-         &'"PLIB DEL" TAKES NO STRING OR NUMERIC WORD #3,#4 OR #5 INPUT'
-         CALL SHOWIT(1)
-         OUTLYNE='RE-ENTER COMMAND'
-         CALL SHOWIT(1)
-         RETURN
-      END IF
-   END IF
-   IF(WQ.EQ.'P') THEN
-      IF(SST.EQ.1.OR.S3.EQ.1.OR.S4.EQ.1.OR.S5.EQ.1) THEN
-         OUTLYNE=&
-         &'"PLIB P" TAKES NO STRING OR NUMERIC WORD #3,#4 OR #5 INPUT'
-         CALL SHOWIT(1)
-         OUTLYNE='RE-ENTER COMMAND'
-         CALL SHOWIT(1)
-         RETURN
-      END IF
-   END IF
-   IF(WQ.EQ.'P'.OR.&
-   &WQ.EQ.'PUT'.OR.&
-   &WQ.EQ.'DELK'.OR.&
-   &WQ.EQ.'GET') THEN
-      CALL PLIBRY
-      RETURN
-   ELSE
-   END IF
-   RETURN
-END
 ! SUB PLFANS.FOR
 SUBROUTINE PLFANS
 !
@@ -3361,629 +3283,8 @@ SUBROUTINE PLFAN1(ABORT,IFA)
    END DO
    RETURN
 END
-! SUB PLFAN3.FOR
-SUBROUTINE PLFAN3(ICOMP)
-!
-   use DATLEN
-   use DATMAI
-   use mod_system, only: sys_mode, sys_units, sys_wavelength, &
-      & sys_wl_pri1, sys_wl_pri2, sys_wl_sec1, sys_wl_sec2
-   use iso_fortran_env, only: real64
-   IMPLICIT NONE
-!
-!     DOES FAN CALCULATIONS FOR USER-DEFINED FAN PLOTTING
-!
-   INTEGER J,JJ,IX,OUT1,I,JJJ,K,KKK &
-   &,KFNN,IIX,L,JK_K,FANWAV,JK_WVN,WWRF
-!
-   INTEGER JK_WAV(1:10),WWVN,ICOMP
-!
-   COMMON/WAVER/JK_WAV
-!
-   INTEGER XTENT,YTENT,CLIP
-!
-   COMMON/USEFAN/XTENT,YTENT,CLIP
-!
-   real(real64) COSARG,XTEMP,YTEMP,TEMP1,TEMP2,TEMP3,TEMP4,&
-   &LOWERL,DELTA,OFFSET,FW4,XI,XX1,YY1,LLR,MMR,NNR,LLP,MMP,NNP,&
-   &LPWP1,LPWP2,LCW,LSWP1,LSWP2,XXDIF,YYDIF,OOPD,OPDW,&
-   &WAV,RRDIF,DIF1,DIF2,DIF3,DIF4,PW11,PW12,PW21,PW22,&
-   &SW11,SW12,SW21,SW22,LAX,LAY,DX,DY,DTY,DTX,XX2,YY2 &
-   &,JA,JB,XDER1,XDER2,XDER3,XDER4,YDER1,YDER2,YDER3,YDER4
-!
-   LOGICAL FOBB0,FANEXT &
-   &,FOBB0X,FOBB0Y
-!
-   COMMON/FANEXI/FANEXT
-!
-   COMMON/FANNER/FANWAV
-!
-   COMMON/FFOOBB/FOBB0,FOBB0X,FOBB0Y
-!
-   IF(INT(LFOB(4)).EQ.1) WWRF=46
-   IF(INT(LFOB(4)).EQ.2) WWRF=47
-   IF(INT(LFOB(4)).EQ.3) WWRF=48
-   IF(INT(LFOB(4)).EQ.4) WWRF=49
-   IF(INT(LFOB(4)).EQ.5) WWRF=50
-   IF(INT(LFOB(4)).EQ.6) WWRF=71
-   IF(INT(LFOB(4)).EQ.7) WWRF=72
-   IF(INT(LFOB(4)).EQ.8) WWRF=73
-   IF(INT(LFOB(4)).EQ.9) WWRF=74
-   IF(INT(LFOB(4)).EQ.10) WWRF=75
-   IF(FANWAV.EQ.1) WWVN=46
-   IF(FANWAV.EQ.2) WWVN=47
-   IF(FANWAV.EQ.3) WWVN=48
-   IF(FANWAV.EQ.4) WWVN=49
-   IF(FANWAV.EQ.5) WWVN=50
-   IF(FANWAV.EQ.6) WWVN=71
-   IF(FANWAV.EQ.7) WWVN=72
-   IF(FANWAV.EQ.8) WWVN=73
-   IF(FANWAV.EQ.9) WWVN=74
-   IF(FANWAV.EQ.10) WWVN=75
-!
-   DO JJJ=1,21
-      FFAANN(1,JJJ,1,1)=0.0D0
-      FFAANN(1,JJJ,5,1)=1.0D0
-   END DO
-!
-!     TRACE THE GUT RAY, IF OK KEEP GOING, IF NOT RETURN
-!     WITH ABORT SET TO TRUE AND PRINT ERROR MESSAGE
-!
-   SAVE_KDP(1)=SAVEINPT(1)
-!     RESET THE INPUT WORDS AND CALL FFOB
-   WC='FOB'
-   WQ='        '
-   SQ=0
-   S1=1
-   S2=1
-   S3=1
-   S4=1
-   S5=0
-   DF1=0
-   DF2=0
-   DF3=0
-   DF4=0
-   DF5=1
-   W1=LFOB(1)
-   W2=LFOB(2)
-   W3=LFOB(3)
-   W4=LFOB(4)
-   W5=0.0D0
-   CALL FFOB
-   JA=COS_A_ANG
-   JB=COS_B_ANG
-!     RESTORE THE OLD COMMAND LINE
-   REST_KDP(1)=RESTINPT(1)
-!
-!     ALL IS OK WITH THE GUT RAY, TRACE THE FAN.
-!       CLEAR APERTURE/OBSCURATION CHECKING IS SET
-!       TO "ON" BY SETTING CACOCH=1.
-!
-   CACOCH=1
-!
-!       THE ACTUAL COORDINATES OF THE RAYS TO BE TRACED (AT
-!       THE REFERENCE SURFACE) ARE DETERMINED IN RAYTRA. ALL THAT NEEDS
-!       BE SENT TO RAYTRA IS THE RELATIVE APERTURE POSITIONS.
-!       CIRCULAR PUPIL COORDINATES ARE RESOLVED IN RAYTRA.FOR.
-!
-!       IF PUPIL IS SET TO RECT, TEMPORARILY RESET IT TO CIRCULAR
-!       AS FANS ARE ONLY DEFINED FOR A CIRCULAR PUPIL DEFINITION
-!       DUE TO THE PRESENCE OF PFAN AND NFAN. IN THIS TEMPORARY
-!       REDEFINITION, WE DON'T CHANGE THE VALUE OF SAX OR A
-!       CLAPX ON THE REFERENCE SURFACE, WE JUST DON'T USE IT.
-!
-!
-!     FAN LIMITS ARE -1 TO 1 IN 1/(MAXFAN/2.0D0)
-!     STEPS FOR MAXFAN+1 TOTAL POINTS
-   OFFSET=FANOFF
-!
-!     NOW DO FAN TRACES
-!
-   DO IX=-INT(DBLE(MAXFAN)/2.0D0),INT(DBLE(MAXFAN)/2.0D0),1
-      XI=DBLE(IX)/(DBLE(MAXFAN)/2.0D0)
-!     SET THE OFFSET
-      OFFSET=FANOFF
-!
-!     DO THE SETUP FOR TYPES OF FANS
-!
-      IF(FANTYP.EQ.1) THEN
-!       YFAN
-!       RELATIVE X COORDINATE IS:
-         XX1=OFFSET
-!       RELATIVE Y COORDINATE IS:
-         YY1=XI
-      END IF
-      IF(FANTYP.EQ.2) THEN
-!       XFAN
-!       RELATIVE X COORDINATE IS:
-         XX1=XI
-!       RELATIVE Y COORDINATE IS:
-         YY1=OFFSET
-      END IF
-      IF(FANTYP.EQ.3) THEN
-!       NFAN
-!       RELATIVE X COORDINATE IS:
-         XX1=(XI-OFFSET)/(DSQRT(2.0D0))
-!       RELATIVE Y COORDINATE IS:
-         YY1=(XI+OFFSET)/(DSQRT(2.0D0))
-      END IF
-      IF(FANTYP.EQ.4) THEN
-!       PFAN
-!       RELATIVE X COORDINATE IS:
-         XX1=(XI+OFFSET)/(DSQRT(2.0D0))
-!       RELATIVE Y COORDINATE IS:
-         YY1=-(XI-OFFSET)/(DSQRT(2.0D0))
-      END IF
-!
-!       NOW CALL RAYTRA TO TRACE THE SPECIFIC RAY
-      WWQ='        '
-      WW1=YY1
-      WW2=XX1
-!
-      IF(QALTYP.EQ.0) THEN
-!     JUST DY/DX OR DYA/DXA
-         WW3=DBLE(FANWAV)
-         WVN=WW3
-         RAYCOD(1)=0
-         RAYCOD(2)=-1
-         MSG=.FALSE.
-         F58=1
-         NOCOAT=.TRUE.
-         GRASET=.FALSE.
-         DXFSET=.FALSE.
-         CALL RAYTRA
-         F58=0
-         MSG=.TRUE.
-         IF(sys_mode().EQ.1.0D0.OR.sys_mode().EQ.2.0D0) THEN
-!       MODE FOCAL
-            XXDIF=(RAYRAY(1,NEWIMG)-REFRY(1,NEWIMG))/JB
-            YYDIF=(RAYRAY(2,NEWIMG)-REFRY(2,NEWIMG))/JA
-            RRDIF=DSQRT((XXDIF**2)+(YYDIF**2))
-         ELSE
-!       MOD AFOCAL
-            XXDIF=RAYRAY(11,NEWIMG)&
-            &-REFRY(11,NEWIMG)
-            YYDIF=RAYRAY(12,NEWIMG)&
-            &-REFRY(12,NEWIMG)
-            IF((XXDIF).GT.(PII)) XXDIF=XXDIF-(TWOPII)
-            IF((YYDIF).GT.(PII)) YYDIF=YYDIF-(TWOPII)
-            IF((XXDIF).LT.(-PII)) XXDIF=XXDIF+(TWOPII)
-            IF((YYDIF).LT.(-PII)) YYDIF=YYDIF+(TWOPII)
-            IF(ABS(XXDIF).EQ.ABS(TWOPII)) XXDIF=0.0D0
-            IF(ABS(YYDIF).EQ.ABS(TWOPII)) YYDIF=0.0D0
-            IF((XXDIF).LT.(-TWOPII)) XXDIF=XXDIF+(TWOPII)
-            IF((YYDIF).LT.(-TWOPII)) YYDIF=YYDIF+(TWOPII)
-
-            COSARG=((RAYRAY(4,NEWIMG)*REFRY(4,NEWIMG))+&
-            &(RAYRAY(5,NEWIMG)*REFRY(5,NEWIMG))+&
-            &(RAYRAY(6,NEWIMG)*REFRY(6,NEWIMG)))
-            IF(COSARG.LT.0.0D0) COSARG=-COSARG
-            IF(COSARG.GT.1.0D0) COSARG=1.0D0
-            RRDIF=DACOS(COSARG)
-            IF((RRDIF).GT.(PII)) RRDIF=RRDIF-(TWOPII)
-            IF((RRDIF).LT.(-PII)) RRDIF=RRDIF+(TWOPII)
-            IF(ABS(RRDIF).EQ.ABS(TWOPII)) RRDIF=0.0D0
-            IF((RRDIF).LT.(-TWOPII)) RRDIF=RRDIF+(TWOPII)
-         END IF
-!
-         IF(FANTYP.EQ.1.OR.FANTYP.EQ.2) THEN
-            IF(RAYCOD(1).EQ.0.0D0) THEN
-               IF(DABS(XXDIF).LT.1.0D-7) XXDIF=0.0D0
-               IF(DABS(YYDIF).LT.1.0D-7) YYDIF=0.0D0
-               JJJ=IX+(DBLE(MAXFAN)/2.0D0)+1
-!     JJJ GOES FROM 1 TO MAXFAN+1
-               IF(ICOMP.EQ.1) FFAANN(1,JJJ,1,1)=XXDIF
-               IF(ICOMP.EQ.2) FFAANN(1,JJJ,1,1)=YYDIF
-               FFAANN(1,JJJ,5,1)=1.0D0
-            ELSE
-               JJJ=IX+(DBLE(MAXFAN)/2.0D0)+1
-!     JJJ GOES FROM 1 TO MAXFAN+1
-               FFAANN(1,JJJ,1,1)=0.0D0
-               FFAANN(1,JJJ,5,1)=0.0D0
-            END IF
-         ELSE
-!       NFAN OR PFAN
-            IF(DABS(XXDIF).LT.1.0D-7) XXDIF=0.0D0
-            IF(DABS(YYDIF).LT.1.0D-7) YYDIF=0.0D0
-            IF(FANTYP.EQ.3) THEN
-!     NFAN
-               XTEMP=(XXDIF*DCOS(-PII/4.0D0))+(YYDIF*DSIN(-PII/4.0D0))
-               YTEMP=(YYDIF*DCOS(-PII/4.0D0))-(XXDIF*DSIN(-PII/4.0D0))
-               XXDIF=YTEMP
-               YYDIF=XTEMP
-            END IF
-            IF(FANTYP.EQ.4) THEN
-!     PFAN
-               XTEMP=(XXDIF*DCOS(PII/4.0D0))+(YYDIF*DSIN(PII/4.0D0))
-               YTEMP=(YYDIF*DCOS(PII/4.0D0))-(XXDIF*DSIN(PII/4.0D0))
-               XXDIF=-XTEMP
-               YYDIF=-YTEMP
-            END IF
-            IF(RAYCOD(1).EQ.0.0D0) THEN
-               IF(DABS(XXDIF).LT.1.0D-7) XXDIF=0.0D0
-               IF(DABS(YYDIF).LT.1.0D-7) YYDIF=0.0D0
-               JJJ=IX+(DBLE(MAXFAN)/2.0D0)+1
-!     JJJ GOES FROM 1 TO MAXFAN+1
-               IF(ICOMP.EQ.1) FFAANN(1,JJJ,1,1)=XXDIF
-               IF(ICOMP.EQ.2) FFAANN(1,JJJ,1,1)=YYDIF
-               FFAANN(1,JJJ,5,1)=1.0D0
-            ELSE
-               JJJ=IX+(DBLE(MAXFAN)/2.0D0)+1
-!     JJJ GOES FROM 1 TO MAXFAN+1
-               FFAANN(1,JJJ,1,1)=0.0D0
-               FFAANN(1,JJJ,5,1)=0.0D0
-            END IF
-         END IF
-      ELSE
-!       QALTYP NOT 0
-      END IF
-!
-      IF(QALTYP.EQ.1) THEN
-!       OPD
-         WW3=DBLE(FANWAV)
-         WVN=WW3
-         RAYCOD(1)=0
-         RAYCOD(2)=-1
-         MSG=.FALSE.
-         WW4=1.0D0
-         F58=1
-         NOCOAT=.TRUE.
-         GRASET=.FALSE.
-         DXFSET=.FALSE.
-         CALL RAYTRA
-         F58=0
-         MSG=.TRUE.
-         IF(RAYEXT) THEN
-            OOPD=0.0D0
-            RCOR=0.0D0
-            OCOR=0.0D0
-            IF(DABS(ALENS(3,NEWOBJ)).GE.1.0D10) JJ=NEWOBJ+2
-            IF(DABS(ALENS(3,NEWOBJ)).LT.1.0D10) JJ=NEWOBJ+1
-            DO J=JJ,NEWIMG
-               OOPD=OOPD+RAYRAY(7,J)&
-               &-(REFRY(7,J)*(ALENS(WWVN,J-1)/ALENS(WWRF,J-1)))
-            END DO
-            IF(sys_mode().EQ.1.0D0.OR.sys_mode().EQ.2.0D0) THEN
-!       MODE FOCAL
-!               RCOR=0.0D0
-!               OCOR=0.0D0
-               CALL FOPD
-!       CALCULATE THEN APPLY ADJUSTMENT FOR THE BEGINNING AND ENDING
-!       REFERENCE SPHERES.
-               OOPD=OOPD-(OCOR*ALENS(WWVN,NEWOBJ))&
-               &+(RCOR*ALENS(WWVN,NEWOBJ))
-               RCOR=0.0D0
-               OCOR=0.0D0
-               CENCEN=.FALSE.
-               CALL LOPD
-               OOPD=OOPD-(OCOR*ALENS(WWVN,NEWIMG-1))+&
-               &(RCOR*ALENS(WWVN,NEWIMG-1))
-            ELSE
-!       MODE AFOCAL
-!               RCOR=0.0D0
-!               OCOR=0.0D0
-               CALL FOPD
-!       CALCULATE THEN APPLY ADJUSTMENT FOR THE BEGINNING AND ENDING
-!       REFERENCE SPHERES.
-               OOPD=OOPD-(OCOR*ALENS(WWVN,NEWOBJ))&
-               &+(RCOR*ALENS(WWVN,NEWOBJ))
-               RCOR=0.0D0
-               OCOR=0.0D0
-               CENCEN=.FALSE.
-               CALL LOPD
-               OOPD=OOPD-(OCOR*ALENS(WWVN,NEWIMG-1))&
-               &+(RCOR*ALENS(WWVN,NEWIMG-1))
-            END IF
-            IF(sys_units().EQ.1.0D0) WAV=sys_wavelength(INT(WW3))*&
-            &((1.0D-3)/(25.4D0))
-            IF(sys_units().EQ.2.0D0) WAV=sys_wavelength(INT(WW3))*(1.0D-4)
-            IF(sys_units().EQ.3.0D0) WAV=sys_wavelength(INT(WW3))*(1.0D-3)
-            IF(sys_units().EQ.4.0D0) WAV=sys_wavelength(INT(WW3))*(1.0D-6)
-            OOPD=-OOPD
-            IF(REVSTR) OOPD=-OOPD
-            OPDW=OOPD/WAV
-         ELSE
-!     RAY FAILED
-            OOPD=0.0D0
-            OPDW=0.0D0
-         END IF
-!
-         IF(RAYCOD(1).EQ.0.0D0) THEN
-!       IF OPD IN WAVES IS LESS THAN 0.0001 WAVES, SET OPDS TO ZERO
-            IF(DABS(OPDW).LT.1.0D-7) THEN
-               OOPD=0.0D0
-               OPDW=0.0D0
-            ELSE
-!       NOT ZERO
-            END IF
-            JJJ=IX+(DBLE(MAXFAN)/2.0D0)+1
-            FFAANN(1,JJJ,1,1)=OPDW
-         ELSE
-            JJJ=IX+(DBLE(MAXFAN)/2.0D0)+1
-            FFAANN(1,JJJ,1,1)=0.0D0
-         END IF
-      ELSE
-!       NOT (OPD)
-      END IF
-!
-      IF(QALTYP.EQ.2) THEN
-!       CD
-         RAYCOD(1)=0
-         RAYCOD(2)=-1
-         WW3=sys_wl_pri1()
-         WVN=WW3
-         MSG=.FALSE.
-         WW4=1.0D0
-         F58=1
-         NOCOAT=.TRUE.
-         GRASET=.FALSE.
-         DXFSET=.FALSE.
-         CALL RAYTRA
-         F58=0
-         MSG=.TRUE.
-         IF(sys_mode().EQ.1.0D0.OR.sys_mode().EQ.2.0D0) THEN
-!       MODE FOCAL
-            PW11=RAYRAY(1,NEWIMG)
-            PW12=RAYRAY(2,NEWIMG)
-         ELSE
-!       MODE AFOCAL
-            PW11=RAYRAY(11,NEWIMG)
-            PW12=RAYRAY(12,NEWIMG)
-         END IF
-         WW3=sys_wl_pri2()
-         WVN=WW3
-         MSG=.FALSE.
-         WW4=1.0D0
-         F58=1
-         NOCOAT=.TRUE.
-         GRASET=.FALSE.
-         DXFSET=.FALSE.
-         CALL RAYTRA
-         F58=0
-         MSG=.TRUE.
-         IF(sys_mode().EQ.1.0D0.OR.sys_mode().EQ.2.0D0) THEN
-!       MODE FOCAL
-            PW21=RAYRAY(1,NEWIMG)
-            PW22=RAYRAY(2,NEWIMG)
-         ELSE
-!       MODE AFOCAL
-            PW21=RAYRAY(11,NEWIMG)
-            PW22=RAYRAY(12,NEWIMG)
-         END IF
-         WW3=sys_wl_sec1()
-         WVN=WW3
-         MSG=.FALSE.
-         WW4=1.0D0
-         F58=1
-         NOCOAT=.TRUE.
-         GRASET=.FALSE.
-         DXFSET=.FALSE.
-         CALL RAYTRA
-         F58=0
-         MSG=.TRUE.
-         IF(sys_mode().EQ.1.0D0.OR.sys_mode().EQ.2.0D0) THEN
-!       MODE FOCAL
-            SW11=RAYRAY(1,NEWIMG)
-            SW12=RAYRAY(2,NEWIMG)
-         ELSE
-!       MODE AFOCAL
-            SW11=RAYRAY(11,NEWIMG)
-            SW12=RAYRAY(12,NEWIMG)
-         END IF
-         WW3=sys_wl_sec2()
-         WVN=WW3
-         MSG=.FALSE.
-         WW4=1.0D0
-         F58=1
-         NOCOAT=.TRUE.
-         GRASET=.FALSE.
-         DXFSET=.FALSE.
-         CALL RAYTRA
-         F58=0
-         MSG=.TRUE.
-         IF(sys_mode().EQ.1.0D0.OR.sys_mode().EQ.2.0D0) THEN
-!       MODE FOCAL
-            SW21=RAYRAY(1,NEWIMG)
-            SW22=RAYRAY(2,NEWIMG)
-         ELSE
-!       MODE AFOCAL
-            SW21=RAYRAY(11,NEWIMG)
-            SW22=RAYRAY(12,NEWIMG)
-         END IF
-!       PRIMARY PAIR
-!       X-VALUE
-         DIF1=PW11-PW21
-         IF(sys_mode().GT.2.0D0) THEN
-!     AFOCAL
-            IF((DIF1).GT.(PII)) DIF1=DIF1-(TWOPII)
-            IF((DIF1).LT.(-PII)) DIF1=DIF1+(TWOPII)
-            IF(ABS(DIF1).EQ.ABS(TWOPII)) DIF1=0.0D0
-            IF((DIF1).LT.(-TWOPII)) DIF1=DIF1+(TWOPII)
-         END IF
-!       Y-VALUE
-         DIF2=PW12-PW22
-         IF(sys_mode().GT.2.0D0) THEN
-!     AFOCAL
-            IF((DIF2).GT.(PII)) DIF2=DIF2-(TWOPII)
-            IF((DIF2).LT.(-PII)) DIF2=DIF2+(TWOPII)
-            IF(ABS(DIF2).EQ.ABS(TWOPII)) DIF2=0.0D0
-            IF((DIF2).LT.(-TWOPII)) DIF2=DIF2+(TWOPII)
-         END IF
-!       SECONDARY PAIR
-!       X-VALUE
-         DIF3=SW11-SW21
-         IF(sys_mode().GT.2.0D0) THEN
-!     AFOCAL
-            IF((DIF3).GT.(PII)) DIF3=DIF3-(TWOPII)
-            IF((DIF3).LT.(-PII)) DIF3=DIF3+(TWOPII)
-            IF(ABS(DIF3).EQ.ABS(TWOPII)) DIF3=0.0D0
-            IF((DIF3).LT.(-TWOPII)) DIF3=DIF3+(TWOPII)
-         END IF
-!       Y-VALUE
-         DIF4=SW12-SW22
-         IF(sys_mode().GT.2.0D0) THEN
-!     AFOCAL
-            IF((DIF4).GT.(PII)) DIF4=DIF4-(TWOPII)
-            IF((DIF4).LT.(-PII)) DIF4=DIF4+(TWOPII)
-            IF(ABS(DIF4).EQ.ABS(TWOPII)) DIF4=0.0D0
-            IF((DIF4).LT.(-TWOPII)) DIF4=DIF4+(TWOPII)
-         END IF
-         IF(FANTYP.EQ.1.OR.FANTYP.EQ.2) THEN
-!     X OR Y FAN
-            IF(RAYCOD(1).EQ.0.0D0) THEN
-               JJJ=IX+(DBLE(MAXFAN)/2.0D0)+1
-               IF(ICOMP.EQ.1) FFAANN(1,JJJ,1,1)=DIF1
-               IF(ICOMP.EQ.2) FFAANN(1,JJJ,1,1)=DIF2
-               IF(ICOMP.EQ.3) FFAANN(1,JJJ,1,1)=DIF3
-               IF(ICOMP.EQ.4) FFAANN(1,JJJ,1,1)=DIF4
-               FFAANN(1,JJJ,5,1)=1.0D0
-            ELSE
-               JJJ=IX+(DBLE(MAXFAN)/2.0D0)+1
-               FFAANN(1,JJJ,1,1)=0.0D0
-               FFAANN(1,JJJ,5,1)=0.0D0
-            END IF
-         ELSE
-!     N OR P FAN
-            IF(FANTYP.EQ.3) THEN
-!     NFAN
-               TEMP1=(DIF1*DCOS(-PII/4.0D0))+(DIF2*DSIN(-PII/4.0D0))
-               TEMP2=(DIF2*DCOS(-PII/4.0D0))-(DIF1*DSIN(-PII/4.0D0))
-               TEMP3=(DIF3*DCOS(-PII/4.0D0))+(DIF4*DSIN(-PII/4.0D0))
-               TEMP4=(DIF4*DCOS(-PII/4.0D0))-(DIF3*DSIN(-PII/4.0D0))
-               DIF1=TEMP2
-               DIF2=TEMP1
-               DIF3=TEMP4
-               DIF4=TEMP3
-            END IF
-            IF(FANTYP.EQ.4) THEN
-!     PFAN
-               TEMP1=(DIF1*DCOS(PII/4.0D0))+(DIF2*DSIN(PII/4.0D0))
-               TEMP2=(DIF2*DCOS(PII/4.0D0))-(DIF1*DSIN(PII/4.0D0))
-               TEMP3=(DIF3*DCOS(PII/4.0D0))+(DIF4*DSIN(PII/4.0D0))
-               TEMP4=(DIF4*DCOS(PII/4.0D0))-(DIF3*DSIN(PII/4.0D0))
-               DIF1=-TEMP1
-               DIF2=-TEMP2
-               DIF3=-TEMP3
-               DIF4=-TEMP4
-            END IF
-            IF(RAYCOD(1).EQ.0.0D0) THEN
-               JJJ=IX+(DBLE(MAXFAN)/2.0D0)+1
-               IF(ICOMP.EQ.1) FFAANN(1,JJJ,1,1)=DIF1
-               IF(ICOMP.EQ.2) FFAANN(1,JJJ,1,1)=DIF2
-               IF(ICOMP.EQ.3) FFAANN(1,JJJ,1,1)=DIF3
-               IF(ICOMP.EQ.4) FFAANN(1,JJJ,1,1)=DIF4
-               FFAANN(1,JJJ,5,1)=1.0D0
-            ELSE
-               JJJ=IX+(DBLE(MAXFAN)/2.0D0)+1
-               FFAANN(1,JJJ,1,1)=0.0D0
-               FFAANN(1,JJJ,5,1)=0.0D0
-            END IF
-         END IF
-      ELSE
-!       NOT CD
-      END IF
-!
-      IF(QALTYP.EQ.3) THEN
-         WW3=DBLE(FANWAV)
-         WVN=WW3
-         RAYCOD(1)=0
-         RAYCOD(2)=-1
-         IF(FANTYP.EQ.1) THEN
-            IF(REAL(WW1).LT.0.001.AND.WW1.GT.0.0D0)WW1=0.001D0
-            IF(REAL(WW1).GT.-0.001.AND.WW1.LT.0.0D0)WW1=-0.001D0
-            IF(REAL(WW1).EQ.0.0) WW1=.01D0
-         END IF
-         IF(FANTYP.EQ.2) THEN
-            IF(REAL(WW2).LT.0.001.AND.WW2.GT.0.0D0)WW2=0.001D0
-            IF(REAL(WW2).GT.-0.001.AND.WW2.LT.0.0D0)WW2=-0.001D0
-            IF(REAL(WW2).EQ.0.0) WW2=.01D0
-         END IF
-         IF(FANTYP.EQ.3.OR.FANTYP.EQ.4) THEN
-            IF(REAL(WW1).LT.0.001.AND.WW1.GT.0.0D0)WW1=0.001D0
-            IF(REAL(WW2).LT.0.001.AND.WW2.GT.0.0D0)WW2=0.001D0
-            IF(REAL(WW1).GT.-0.001.AND.WW1.LT.0.0D0)WW1=-0.001D0
-            IF(REAL(WW2).GT.-0.01.AND.WW2.LT.0.0D0)WW2=-0.001D0
-            IF(REAL(WW1).EQ.0.0) WW1=.0001D0
-            IF(REAL(WW2).EQ.0.0) WW2=.0001D0
-         END IF
-         MSG=.FALSE.
-         WW4=1.0D0
-         F58=1
-         NOCOAT=.TRUE.
-         GRASET=.FALSE.
-         DXFSET=.FALSE.
-         CALL RAYTRA
-         F58=0
-         MSG=.TRUE.
-!       CALCULATION OF LA IN XZ AND YZ PLANE.
-         DX=(RAYRAY(1,NEWIMG)-REFRY(1,NEWIMG))/JB
-         DY=(RAYRAY(2,NEWIMG)-REFRY(2,NEWIMG))/JA
-         LLR=RAYRAY(4,NEWIMG)
-         MMR=RAYRAY(5,NEWIMG)
-         NNR=RAYRAY(6,NEWIMG)
-         LLP=REFRY(4,NEWIMG)
-         MMP=REFRY(5,NEWIMG)
-         NNP=REFRY(6,NEWIMG)
-         IF(FANTYP.EQ.1.OR.FANTYP.EQ.2) THEN
-            DTX=((LLR/NNR)-(LLP/NNP))
-            DTY=((MMR/NNR)-(MMP/NNP))
-         END IF
-         IF(FANTYP.EQ.3) THEN
-!     NFAN
-            TEMP1=(DX*DCOS(-PII/4.0D0))+(DY*DSIN(-PII/4.0D0))
-            TEMP2=(DY*DCOS(-PII/4.0D0))-(DX*DSIN(-PII/4.0D0))
-            DX=TEMP1
-            DY=TEMP2
-            TEMP3=((LLR*DCOS(-PII/4.0D0))+(MMR*DSIN(-PII/4.0D0)))
-            TEMP4=((MMR*DCOS(-PII/4.0D0))-(LLR*DSIN(-PII/4.0D0)))
-            LLR=TEMP3
-            MMR=TEMP4
-            TEMP3=((LLP*DCOS(-PII/4.0D0))+(MMP*DSIN(-PII/4.0D0)))
-            TEMP4=((MMP*DCOS(-PII/4.0D0))-(LLP*DSIN(-PII/4.0D0)))
-            LLP=TEMP3
-            MMP=TEMP4
-            DTX=((LLR/NNR)-(LLP/NNP))
-            DTY=((MMR/NNR)-(MMP/NNP))
-         END IF
-         IF(FANTYP.EQ.4) THEN
-!     PFAN
-            TEMP1=(DX*DCOS(PII/4.0D0))+(DY*DSIN(PII/4.0D0))
-            TEMP2=(DY*DCOS(PII/4.0D0))-(DX*DSIN(PII/4.0D0))
-            DX=TEMP1
-            DY=TEMP2
-            TEMP3=((LLR*DCOS(PII/4.0D0))+(MMR*DSIN(PII/4.0D0)))
-            TEMP4=((MMR*DCOS(PII/4.0D0))-(LLR*DSIN(PII/4.0D0)))
-            LLR=TEMP3
-            MMR=TEMP4
-            TEMP3=((LLP*DCOS(PII/4.0D0))+(MMP*DSIN(PII/4.0D0)))
-            TEMP4=((MMP*DCOS(PII/4.0D0))-(LLP*DSIN(PII/4.0D0)))
-            LLP=TEMP3
-            MMP=TEMP4
-            DTX=((LLR/NNR)-(LLP/NNP))
-            DTY=((MMR/NNR)-(MMP/NNP))
-         END IF
-         IF(DX.EQ.0.0D0.OR.DTX.EQ.0.0D0) LAX=0.0D0
-         IF(DX.NE.0.0D0.AND.DTX.NE.0.0D0) LAX=DX/DTX
-         IF(DY.EQ.0.0D0.OR.DTY.EQ.0.0D0) LAY=0.0D0
-         IF(DY.NE.0.0D0.AND.DTY.NE.0.0D0) LAY=DY/DTY
-         IF(RAYCOD(1).EQ.0.0D0) THEN
-            JJJ=IX+(DBLE(MAXFAN)/2.0D0)+1
-            IF(ICOMP.EQ.1) FFAANN(1,JJJ,1,1)=LAX
-            IF(ICOMP.EQ.2) FFAANN(1,JJJ,1,1)=LAY
-            FFAANN(1,JJJ,5,1)=1.0D0
-         ELSE
-            JJJ=IX+(DBLE(MAXFAN)/2.0D0)+1
-            FFAANN(1,JJJ,1,1)=0.0D0
-            FFAANN(1,JJJ,5,1)=0.0D0
-         END IF
-!
-      ELSE
-!       NOT LA
-      END IF
-   END DO
-   RETURN
-END
 SUBROUTINE FANWV
+   use plot_geometry
 !
    use DATHGR
    use DATLEN
@@ -4866,9 +4167,9 @@ SUBROUTINE FANWV
 !     DRAW THE WV5 LINE
       COLPAS=COLR5
       CALL MY_COLTYP(COLPAS)
-      CALL MY_PLOT(100,410,0,4,-10,10010,-10,7010)
-      CALL MY_PLOT(600,410,1,4,-10,10010,-10,7010)
-      CALL MY_PLOT(700,350,0,4,-10,10010,-10,7010)
+      CALL PAGE_PLOT(100,410,0,4)
+      CALL PAGE_PLOT(600,410,1,4)
+      CALL PAGE_PLOT(700,350,0,4)
       IF(WAVE5.GT.99.9D0) THEN
          WRITE(B,180)REAL(WAVE5)
          READ(B,200) VALUE1
@@ -4908,9 +4209,9 @@ SUBROUTINE FANWV
 !     DRAW THE WV4 LINE
       COLPAS=COLR4
       CALL MY_COLTYP(COLPAS)
-      CALL MY_PLOT(100,610,0,3,-10,10010,-10,7010)
-      CALL MY_PLOT(600,610,1,3,-10,10010,-10,7010)
-      CALL MY_PLOT(700,550,0,3,-10,10010,-10,7010)
+      CALL PAGE_PLOT(100,610,0,3)
+      CALL PAGE_PLOT(600,610,1,3)
+      CALL PAGE_PLOT(700,550,0,3)
       IF(WAVE4.GT.99.9D0) THEN
          WRITE(B,180)REAL(WAVE4)
          READ(B,200) VALUE1
@@ -4946,9 +4247,9 @@ SUBROUTINE FANWV
 !     DRAW THE WV3 LINE
       COLPAS=COLR3
       CALL MY_COLTYP(COLPAS)
-      CALL MY_PLOT(100,810,0,2,-10,10010,-10,7010)
-      CALL MY_PLOT(600,810,1,2,-10,10010,-10,7010)
-      CALL MY_PLOT(700,750,0,2,-10,10010,-10,7010)
+      CALL PAGE_PLOT(100,810,0,2)
+      CALL PAGE_PLOT(600,810,1,2)
+      CALL PAGE_PLOT(700,750,0,2)
       IF(WAVE3.GT.99.9D0) THEN
          WRITE(B,180)REAL(WAVE3)
          READ(B,200) VALUE1
@@ -4984,9 +4285,9 @@ SUBROUTINE FANWV
 !     DRAW THE WV2 LINE
       COLPAS=COLR2
       CALL MY_COLTYP(COLPAS)
-      CALL MY_PLOT(100,1010,0,1,-10,10010,-10,7010)
-      CALL MY_PLOT(600,1010,1,1,-10,10010,-10,7010)
-      CALL MY_PLOT(700,950,0,1,-10,10010,-10,7010)
+      CALL PAGE_PLOT(100,1010,0,1)
+      CALL PAGE_PLOT(600,1010,1,1)
+      CALL PAGE_PLOT(700,950,0,1)
       IF(WAVE2.GT.99.9D0) THEN
          WRITE(B,180)REAL(WAVE2)
          READ(B,200) VALUE1
@@ -5022,9 +4323,9 @@ SUBROUTINE FANWV
 !     DRAW THE WV1 LINE
       COLPAS=COLR1
       CALL MY_COLTYP(COLPAS)
-      CALL MY_PLOT(100,1210,0,0,-10,10010,-10,7010)
-      CALL MY_PLOT(600,1210,1,0,-10,10010,-10,7010)
-      CALL MY_PLOT(700,1150,0,0,-10,10010,-10,7010)
+      CALL PAGE_PLOT(100,1210,0,0)
+      CALL PAGE_PLOT(600,1210,1,0)
+      CALL PAGE_PLOT(700,1150,0,0)
       IF(WAVE1.GT.99.9D0) THEN
          WRITE(B,180) REAL(WAVE1)
          READ(B,200) VALUE1
@@ -5059,9 +4360,9 @@ SUBROUTINE FANWV
 !     DRAW THE WV10 LINE
       COLPAS=COLR10
       CALL MY_COLTYP(COLPAS)
-      CALL MY_PLOT(1500,410,0,9,-10,10010,-10,7010)
-      CALL MY_PLOT(2000,410,1,9,-10,10010,-10,7010)
-      CALL MY_PLOT(2100,350,0,9,-10,10010,-10,7010)
+      CALL PAGE_PLOT(1500,410,0,9)
+      CALL PAGE_PLOT(2000,410,1,9)
+      CALL PAGE_PLOT(2100,350,0,9)
       IF(WAVE5.GT.99.9D0) THEN
          WRITE(B,180)REAL(WAVE10)
          READ(B,200) VALUE1
@@ -5097,9 +4398,9 @@ SUBROUTINE FANWV
 !     DRAW THE WV9 LINE
       COLPAS=COLR9
       CALL MY_COLTYP(COLPAS)
-      CALL MY_PLOT(1500,610,0,8,-10,10010,-10,7010)
-      CALL MY_PLOT(2000,610,1,8,-10,10010,-10,7010)
-      CALL MY_PLOT(2100,550,0,8,-10,10010,-10,7010)
+      CALL PAGE_PLOT(1500,610,0,8)
+      CALL PAGE_PLOT(2000,610,1,8)
+      CALL PAGE_PLOT(2100,550,0,8)
       IF(WAVE4.GT.99.9D0) THEN
          WRITE(B,180)REAL(WAVE9)
          READ(B,200) VALUE1
@@ -5135,9 +4436,9 @@ SUBROUTINE FANWV
 !     DRAW THE WV8 LINE
       COLPAS=COLR8
       CALL MY_COLTYP(COLPAS)
-      CALL MY_PLOT(1500,810,0,7,-10,10010,-10,7010)
-      CALL MY_PLOT(2000,810,1,7,-10,10010,-10,7010)
-      CALL MY_PLOT(2100,750,0,7,-10,10010,-10,7010)
+      CALL PAGE_PLOT(1500,810,0,7)
+      CALL PAGE_PLOT(2000,810,1,7)
+      CALL PAGE_PLOT(2100,750,0,7)
       IF(WAVE3.GT.99.9D0) THEN
          WRITE(B,180)REAL(WAVE8)
          READ(B,200) VALUE1
@@ -5173,9 +4474,9 @@ SUBROUTINE FANWV
 !     DRAW THE WV7 LINE
       COLPAS=COLR7
       CALL MY_COLTYP(COLPAS)
-      CALL MY_PLOT(1500,1010,0,6,-10,10010,-10,7010)
-      CALL MY_PLOT(2000,1010,1,6,-10,10010,-10,7010)
-      CALL MY_PLOT(2100,950,0,6,-10,10010,-10,7010)
+      CALL PAGE_PLOT(1500,1010,0,6)
+      CALL PAGE_PLOT(2000,1010,1,6)
+      CALL PAGE_PLOT(2100,950,0,6)
       IF(WAVE2.GT.99.9D0) THEN
          WRITE(B,180)REAL(WAVE7)
          READ(B,200) VALUE1
@@ -5211,9 +4512,9 @@ SUBROUTINE FANWV
 !     DOTTED LINE BUT WITH BIG DOTS
       COLPAS=COLR6
       CALL MY_COLTYP(COLPAS)
-      CALL MY_PLOT(1500,1210,0,5,-10,10010,-10,7010)
-      CALL MY_PLOT(2000,1210,1,5,-10,10010,-10,7010)
-      CALL MY_PLOT(2100,1150,0,5,-10,10010,-10,7010)
+      CALL PAGE_PLOT(1500,1210,0,5)
+      CALL PAGE_PLOT(2000,1210,1,5)
+      CALL PAGE_PLOT(2100,1150,0,5)
       IF(WAVE1.GT.99.9D0) THEN
          WRITE(B,180) REAL(WAVE6)
          READ(B,200) VALUE1
@@ -5249,15 +4550,15 @@ SUBROUTINE FANWV
    COLPAS=COLFRM
    CALL MY_COLTYP(COLPAS)
 !     LIFT PEN, MOVE TO TOP
-   CALL MY_PLOT(0,1325,0,0,-10,10010,-10,7010)
+   CALL PAGE_PLOT(0,1325,0,0)
 !     DROP PEN, DRAW LINE
-   CALL MY_PLOT(3000,1325,1,0,-10,10010,-10,7010)
-   CALL MY_PLOT(3000,250,1,0,-10,10010,-10,7010)
-   CALL MY_PLOT(0,1325,0,0,-10,10010,-10,7010)
+   CALL PAGE_PLOT(3000,1325,1,0)
+   CALL PAGE_PLOT(3000,250,1,0)
+   CALL PAGE_PLOT(0,1325,0,0)
 !     DROP PEN, DRAW LINE
-   CALL MY_PLOT(10000,1325,1,0,-10,10010,-10,7010)
+   CALL PAGE_PLOT(KDP_PAGE_W,1325,1,0)
 !     LIFT PEN, RETURN TO 0,0
-   CALL MY_PLOT(0,0,0,0,-10,10010,-10,7010)
+   CALL PAGE_PLOT(0,0,0,0)
 !
    IF(.NOT.PLEXIS) PLEXIS=.TRUE.
 !

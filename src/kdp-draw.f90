@@ -427,16 +427,13 @@ SUBROUTINE DRAWOPTICALSYSTEM(cairo_drawing_area, my_cairo_context, win_width, wi
 
 
   case default
-      ! On a GUI widget the drawing fills it (plots follow their window, or
-      ! PLTSIZE); headless (no widget) it stays at KDP_CAIRO_SCALE, so the
-      ! fixed-size PNGs do not change.
-      if (c_associated(cairo_drawing_area)) then
-        vie_current_scale = vie_draw_scale(int(win_width), int(win_height))
-      else
-        vie_current_scale = KDP_CAIRO_SCALE
-      end if
+      ! The page with its margin, as large as fits and centred -- on a GUI
+      ! widget (plots follow their window, or PLTSIZE) and headless alike.
+      call vie_page_placement(int(win_width), int(win_height), &
+      &                       vie_current_scale, vie_offset_x, vie_offset_y)
+      call cairo_translate(my_cairo_context, vie_offset_x, vie_offset_y)
       call cairo_scale(my_cairo_context, vie_current_scale, vie_current_scale)
-      kdp_height = KDP_PLOT_HEIGHT   ! full-plot y-flip origin (RMS overlay uses 0)
+      kdp_height = KDP_PAGE_H   ! page y-flip origin (RMS overlay uses 0)
       fontScaleFactor = 20
 
 

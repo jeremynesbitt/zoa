@@ -3685,60 +3685,9 @@ SUBROUTINE CAO(YLFT,XLFT,YRHT,XRHT,XTOP,YTOP,XBOT,YBOT,&
    END IF
    RETURN
 END
-! SUB CAO5.FOR
-!
-SUBROUTINE CAO5(X1,X2,X3,X4,Y1,Y2,Y3,Y4,I)
-!
-!     DOES EDGES WHEN I AND I+1 HAVE RECTANGULAR CLAPS
-!
-   use DATLEN
-   use DATMAI
-   use iso_fortran_env, only: real64
-   IMPLICIT NONE
-!
-   INTEGER I
-!
-   real(real64) X,Y,X1,X2,X3,X4,Y1,Y2,Y3,Y4 &
-   &,GAM
-
-!
-!
-!       SET FLAGS CAFLG AND COFLG. CAFLG2 TO SUPPORT RECT CLAPS ON I AND I+1
-   GAM=0.0D0
-!
-   GAM=(PII/180.0D0)*ALENS(15,I)
-!       X1,Y1
-   X1=ALENS(11,I)
-   Y1=ALENS(10,I)
-   X=(X1*DCOS(GAM))-(Y1*DSIN(GAM))
-   Y=(Y1*DCOS(GAM))+(X1*DSIN(GAM))
-   X1=X+ALENS(13,I)
-   Y1=Y+ALENS(12,I)
-!       X2,Y2
-   X2=-ALENS(11,I)
-   Y2=ALENS(10,I)
-   X=(X2*DCOS(GAM))-(Y2*DSIN(GAM))
-   Y=(Y2*DCOS(GAM))+(X2*DSIN(GAM))
-   X2=X+ALENS(13,I)
-   Y2=Y+ALENS(12,I)
-!       X3,Y3
-   X3=-ALENS(11,I)
-   Y3=-ALENS(10,I)
-   X=(X3*DCOS(GAM))-(Y3*DSIN(GAM))
-   Y=(Y3*DCOS(GAM))+(X3*DSIN(GAM))
-   X3=X+ALENS(13,I)
-   Y3=Y+ALENS(12,I)
-!       X4,Y4
-   X4=ALENS(11,I)
-   Y4=-ALENS(10,I)
-   X=(X4*DCOS(GAM))-(Y4*DSIN(GAM))
-   Y=(Y4*DCOS(GAM))+(X4*DSIN(GAM))
-   X4=X+ALENS(13,I)
-   Y4=Y+ALENS(12,I)
-   RETURN
-END
 ! SUB PLTCLP.FOR
 SUBROUTINE PLTCLP(CLPTYPE,SURFACEI,SFI,MDX,MDY,GAMGAM)
+   use plot_geometry
    USE GLOBALS
 !
    use DATLEN
@@ -4127,13 +4076,13 @@ SUBROUTINE PLTCLP(CLPTYPE,SURFACEI,SFI,MDX,MDY,GAMGAM)
                      IF(P1ARAY(IK-1,1,1).LE.0.OR.P1ARAY(IK-1,2,1).LE.0) THEN
                         P1ARAY(IK,3,1)=0
                      END IF
-                     IF(P1ARAY(IK-1,1,1).GE.10000.OR.P1ARAY(IK-1,2,1).GE.7000) THEN
+                     IF(P1ARAY(IK-1,1,1).GE.KDP_PAGE_W.OR.P1ARAY(IK-1,2,1).GE.KDP_PAGE_H) THEN
                         P1ARAY(IK,3,1)=0
                      END IF
                      IF(P1ARAY(IK,1,1).LE.0.OR.P1ARAY(IK,2,1).LE.0) THEN
                         P1ARAY(IK,3,1)=0
                      END IF
-                     IF(P1ARAY(IK,1,1).GE.10000.OR.P1ARAY(IK,2,1).GE.7000) THEN
+                     IF(P1ARAY(IK,1,1).GE.KDP_PAGE_W.OR.P1ARAY(IK,2,1).GE.KDP_PAGE_H) THEN
                         P1ARAY(IK,3,1)=0
                      END IF
                   END IF

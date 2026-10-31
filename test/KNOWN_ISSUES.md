@@ -213,34 +213,47 @@ actual argument is a parser global like `INPUT` or `WS`.
 
 ---
 
-## TODO: Unify plot dimensions + retire hard-coded plot geometry
+## Plot dimensions unified; hard-coded plot geometry retired (RESOLVED 2026-10-30)
 
-The lens-drawing pipeline carries **two different, overlapping plot-dimension
-sets**, and a lot of plot geometry is still written as bare literals:
+**One source.** Module `plot_geometry` (`src/plot-geometry.f90`) defines the
+KDP plot page (10000 x 7000 plot units), the clip box drawings use (page + 10),
+the PART-drawing clip box (page + 500), and what the renderer shows: the page
+with an even 250-unit margin.  `kdp_plot_gen` (VIENEW), `global_widgets`, the
+renderer and the cursor readout all take their numbers from it.
 
-- **Frame extent** lives in module `kdp_plot_gen` (`src/VIENEW.f90`):
-  `kdp_width = 10000`, `kdp_height = 7000`. Used by VIENEW for the plot frame,
-  bounds, and a `JUSOFF` calc.
-- **Device y-flip origin / scale** lives in `global_widgets`:
-  `KDP_PLOT_HEIGHT = 7050`, `KDP_CAIRO_SCALE = 0.1`. Used by the renderer
-  (`DRAWOPTICALSYSTEM`/`JK_MOVETOCAIRO` in `kdp-draw.f90`) and the cursor→world
-  transform (`mod_vie_transform.f90`).
+**What the two old sets were.** The "frame" (10000 x 7000, `kdp_plot_gen`) was
+the page; the "device" (10500 x 7050, `global_widgets`) was the page plus
+500 on the right and 50 at the top -- nothing on the left or bottom, so the
+page sat in the canvas's top-left corner with its left and bottom edges on
+the canvas edge, and a headless lens drawing filled only 1000 x 705 of its
+1200 x 800 PNG.  The renderer now centres the page with its even margin at
+the largest scale that fits, headless and GUI alike (`vie_page_placement`),
+and `mod_vie_transform` inverts the same scale and offset.  Every lens-drawing
+PNG changed (the page is bigger and centred; nothing else moved).
+**The Windows baselines (`*.win.png` of stop_draw, vie_settings, vie_orient,
+plots_geom, mirror_example, debug_rmd, recmacro p1-p2, apertures_bes,
+plot_modifiers p5 -- and p10 from the spot-diagram fix) need regenerating on
+Windows.**
 
-So there are two "plot heights" (7000 vs 7050) ~50 units apart, plus a now-unused
-`global_widgets%kdp_width = 10500`. They can't simply be merged: the values differ,
-so unifying them would shift the rendering (and the PNG baselines). A proper pass
-should pick one canonical dimension set, reconcile the 50-unit gap deliberately
-(regenerating baselines with justification), and route everything through it.
+**Literals.** The 721 `MY_PLOT` calls with a literal page clip box now call
+`PAGE_PLOT(x,y,pen,mode)` / `PART_PLOT` (HARDWAR1.f90).  Two variants were
+folded in: `-10,10010,-10,10010` and the typo `-10,10010,-10,70010` (both an
+unbounded top) and the border-less `0,10000,0,7000`; the clip box only gates
+dashed lines and `J` records, and every coordinate those calls draw is
+inside the page, so nothing moved.  Page bounds in PENMV/FIXUP, PLOT FRAME's
+and PLOT LOOK's defaults, the clip-window resets (VIENEW and PLTRST used
+10000 x 7000 and 10010 x 7010; both now the clip box), and page-edge borders
+in the PART, fan and frame drawings use the named constants.  Not converted
+(not the page): graph-area coordinates inside the legacy graph plots
+(PLOTCAD4's 2000..7000 x 1400..5600 boxes), text positions, title-block
+layout, and `+-10000` sentinels / loop bounds.
 
-Separately, **`PLOTCAD3/4/6.f90` are full of hard-coded plot geometry** — title
-blocks, borders, and clip bounds written as hundreds of literal `10500`/`7500`/
-`10000`/`7000` values in `MY_PLOT` calls. These look like a large amount of legacy
-/ likely-dead drawing code worth its own cleanup project. Out of scope for the
-VIE hover-coordinate work; flagged here so it isn't forgotten.
-
-Partial progress already made: the VIE frame corners in `VIENEW.f90` (PLOTBOX) now
-use `kdp_width`/`kdp_height` instead of literal `10000`/`7000`, and the `7050`/`0.1`
-device constants are single-source in `global_widgets`.
+**Dead code removed (5,856 lines).** Routines nothing called: PLTFIELD,
+PLTFIELDNEW, PLTFIELDERRORCHECKING (PLOTCAD3); CAPFIX, CAPFIX1, PLTCAPFN,
+PLOTSPD, PLOTFUNC4, PLTCAPCO, CON_CAPPLOT, CAPPLOT, PLOTCAPFN, FFT3 (PLOTCAD4);
+THREEDEESET (PLOTCAD2); PLLIB, PLFAN3 (PLOTCAD5); FILLSURF (PLOTCAD6); CAO5
+(PLOTCAD7); DOPNAME, DNOTES (PLOTCAD8); FANFOV, FANDO1 (PLOTCAD8_fan); and
+all of PLOTCAD11.f90 (PLTINTEN, INTENPLOT, PLOTINTEN, FFTINTEN).
 
 ## Pickup / "special surface" counter ownership (ALENS 32 & 34 audit)
 
@@ -660,7 +673,10 @@ is one surface and cannot shift per colour.
 `CAPFIX` reports RMS in **waves**: per wavelength (`src/PLOTCAD4.f90:721`,
 `DSPOT(4)/TWOPII`, gated on `DSPOT(16)`), each an unweighted sample standard
 deviation, combined as `sqrt(sum w_i RMS_i^2/lam_i^2 / sum w_i/lam_i^2)`
-(`:1030`).
+(`:1030`).  *(2026-10-30: CAPFIX turned out to have no callers and was
+deleted with the dead PLOTCAD code; the RMSOPD that SHO reports comes from a
+different path, so these line references and the proposed fix below need
+re-checking against that path before anyone acts on them.)*
 
 Minimizing `sum (OPD_len)^2` does not minimize `sum (OPD_len/lambda)^2` when
 lambda varies: blue rays count for more in the reported metric than in the fit.
