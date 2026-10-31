@@ -702,7 +702,7 @@ RSPH BEST   ; CAPFN SILENT, 16 ; SHO RMSOPD
 Then repeat after `U L ; WV 0.58756 0.58756 0.58756 0.58756 0.58756 ; EOS` to
 see the ordering come right.
 
-## TODO: Data tab contract -- audit every plot (2026-10-06)
+## Data tab contract -- audit done (2026-10-30)
 
 **Rule (from the user):** every plot's Data tab must hold the data the plot is
 made from, in a form that can be copied straight into MATLAB or Python to
@@ -711,19 +711,27 @@ plain numeric columns, explicit full-precision formats. Never reduce or reshape
 that data (no 2D -> 1D summaries) without asking first; when an output causes a
 test or platform problem, fix its *format*, not its content.
 
-**Status:**
-- PSF: full 2D PSF + FFT real/imag, one matrix row per line, ES24.16 (cb39c27).
-  Positions are not given: the PSF pixel size is computed from wavelength 1, not
-  the shortest wavelength the grid is built for (TODO in `src/psf.f90`).
-- MTF: frequency, Y (tangential), X (sagittal), diffraction limit columns after
-  a two-line header (0af0193).
-- PMA (OPD map / Zernike bar): pupil X, Y, OPD points or the coefficient list
-  (written before this rule; check against it).
-- Every other plot: not yet audited.
+Tables go through `kdp_utils::logColumns` (a header line, then ES16.8
+columns) or the field/2-column helpers, now also ES16.8.  Every user plot was
+audited; VIE (lens drawing) has no Data tab, by decision.
 
-**To do:** go through each plot's Data tab, list what it prints against what the
-plot draws, and report gaps before changing anything. The test capture now keeps
-lines of any length (cb39c27), so long matrix rows are no obstacle to testing.
+| Plot | Data tab |
+|---|---|
+| FIE | Field, tangential (YZ) and sagittal (XZ) field curvature; then Field, distortion % (DIST samples the axis at 0.01, FLDCV at 0, so two tables).  It used to be empty: FLDCV/DIST ran under PROCESSILENT. |
+| SPO | One row per plotted ray: field, wavelength, X, Y (Y less the first wavelength's Y centroid, as drawn).  It used to hold only SPD's summary report. |
+| RIM | Per field: the tangential fan (pupil Y, DY per wavelength, less the chief-ray offset as drawn) and the sagittal fan (pupil X, DX per wavelength).  It used to be the legacy fan reports, with no field named. |
+| PSF | Labelled PSF / FFT real / FFT imaginary matrices (ES24.16); line k = image Y index k from the bottom (MATLAB `imagesc(A); axis xy`).  Positions still not given: the pixel size is computed from wavelength 1, not the shortest wavelength (TODO in `src/psf.f90`). |
+| Seidel (PLOTTHO) | Surface, SA3..LC3 as plotted; the last row (surface N) is the sum.  THO/MAB3 keep their own 5-decimal table. |
+| ZRNFLD, PLTRMS | Field + values, now ES16.8 from double-precision copies (were F12.5 from the single-precision plot arrays). |
+| MTF, RAD, FMA, FOO, PMA | Already compliant.  FMA and PMA give 2D maps as (x, y, value) triples, not a matrix; FMA omits failed field points (drawn at the minimum); FOO omits the `DAP Y` aperture outline. |
+
+**Plot bug found and fixed (2026-10-30):** `getSpotData` (plot-functions.f90)
+kept a ray only when X /= 0 *and* Y /= 0, meant to drop failed rays (zeroed in
+DSPOTT), so every successful ray lying exactly on an axis was dropped too --
+the chief ray of a ring pattern (90 of 91 rays drawn), the centre row/column
+of an odd rectangular grid.  It now keeps records 1..ITOT-1 with no failure
+code (`DSPOTT(7)`) and a wavelength weight (`DSPOTT(17)`).  The plotted Y
+centroid includes those rays now, so spot positions moved slightly.
 
 ---
 

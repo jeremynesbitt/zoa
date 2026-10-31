@@ -69,7 +69,9 @@ subroutine zern_go(psm)
     character(len=5), allocatable :: zLegend(:)
 
     REAL, allocatable :: xdat(:), ydat(:,:)
-    
+    ! the same data in double precision, for the Data tab
+    real(real64), allocatable :: xd64(:), yd64(:,:)
+
 
 
     real(real64) X(1:96)
@@ -115,6 +117,7 @@ subroutine zern_go(psm)
     allocate(xdat(numPoints))
     allocate(ydat(numPoints,numTermsToPlot))
     allocate(zLegend(numTermsToPlot))
+    allocate(xd64(numPoints), yd64(numPoints,numTermsToPlot))
 
 
     do ii = 0, numPoints-1
@@ -133,14 +136,20 @@ subroutine zern_go(psm)
       CALL PROCESSILENT("FITZERN, "//ffieldstr)
 
       !CALL PROCESKDP("SHO RMSOPD")
-      xdat(ii+1) = REAL(xdat(ii+1)*sysConfig%refFieldValue(2))
+      if (numPoints > 1) then
+        xd64(ii+1) = (real(ii, real64)/real(numPoints-1, real64))*sysConfig%refFieldValue(2)
+      else
+        xd64(ii+1) = 0.0_real64
+      end if
+      xdat(ii+1) = real(xd64(ii+1))
       do k=1,numTermsToPlot
         iz = zlist(k)
         if (iz >= 1 .and. iz <= size(X)) then
-          ydat(ii+1,k) = real(X(iz),4)
+          yd64(ii+1,k) = X(iz)
         else
-          ydat(ii+1,k) = 0.0
+          yd64(ii+1,k) = 0.0_real64
         end if
+        ydat(ii+1,k) = real(yd64(ii+1,k))
       end do
     end do
 
@@ -152,7 +161,7 @@ subroutine zern_go(psm)
     ! return before logging when headless, which left the coefficient table
     ! -- the actual content of this plot -- with no test coverage at all.
     if (.not. HEADLESS_MODE) call ioConfig%setTextViewFromPtr(getTabTextView(objIdx))
-    call logDataVsField(xdat, ydat, zLegend)
+    call logDataVsField(xd64, yd64, zLegend)
     if (.not. HEADLESS_MODE) call ioConfig%setTextView(ID_TERMINAL_DEFAULT)
 
     if (HEADLESS_MODE) return
@@ -380,14 +389,28 @@ subroutine spo_fieldPoint_go(psm)
 
 end subroutine
 
+! The image positions of the rays the last SPD traced successfully.  Records
+! 1..ITOT-1 are this trace's; a failed ray has a non-zero failure code
+! (DSPOTT(7)) and no wavelength weight (DSPOTT(17)).  Testing the position
+! instead (X /= 0 and Y /= 0) also dropped every good ray lying on an axis --
+! the chief ray of a ring pattern, a rectangular grid's centre row/column.
 subroutine getSpotData(xData,yData)
   use GLOBALS
+  use DATSP1, only: ITOT
   use iso_fortran_env
   real(kind=real64), allocatable, intent(inout) :: xData(:), yData(:)
+  logical, allocatable :: ok(:)
+  integer :: n
 
-  
-  allocate(xData, source=pack(DSPOTT(1,:),DSPOTT(1,:) /= 0 .and. DSPOTT(2,:) /=0))
-  allocate(yData, source=pack(DSPOTT(2,:), DSPOTT(1,:) /= 0 .and. DSPOTT(2,:) /=0))
+  n = min(ITOT - 1, size(DSPOTT, 2))
+  if (n < 1) then
+    allocate(xData(0), yData(0))
+    return
+  end if
+  allocate(ok(n))
+  ok = DSPOTT(7,1:n) == 0.0d0 .and. DSPOTT(17,1:n) /= 0.0d0
+  allocate(xData, source=pack(DSPOTT(1,1:n), ok))
+  allocate(yData, source=pack(DSPOTT(2,1:n), ok))
 
 end subroutine
 
@@ -399,7 +422,7 @@ subroutine spo_go(psm)
     use zoa_output, only: zoa_emit
     use global_widgets, only:  sysConfig, ioConfig, curr_par_ray_trace
     use zoa_ui
-    use kdp_utils, only: OUTKDP, logDataVsField
+    use kdp_utils, only: OUTKDP, logDataVsField, logColumns
     use type_utils, only: int2str, str2int
     use plot_setting_manager
     use kdp_data_types, only: LENS_UNITS_INCHES, LENS_UNITS_CM, LENS_UNITS_M
@@ -429,8 +452,12 @@ subroutine spo_go(psm)
     integer, parameter :: AIRY_NPTS = 181
     real :: airyX(AIRY_NPTS), airyY(AIRY_NPTS), airyRadius, wlLensUnits, theta
     real :: spotExtent, airyScale
+    ! Data tab rows: field, wavelength, X, Y of every plotted ray
+    real(kind=real64), allocatable :: rays(:,:)
+    integer :: nRays
     ! TODO:  Distable field here
     call psm%getSpotDiagramSettings(iField, iLambda, iMethod, nRect, nRand, nRing, plotScale)
+    nRays = 0
 
     allWL = .FALSE.
     if (iLambda == ID_SETTING_WAVELENGTH_ALL) then
@@ -507,15 +534,17 @@ subroutine spo_go(psm)
       else
         i = iField
       end if
-      call PROCESKDP(trim(getKDPSpotPlotCommand(i, iLambda, iMethod, nRect, nRand, nRing)))
+      ! silent: the Data tab gets the plotted rays below, not SPD's report
+      call PROCESSILENT(trim(getKDPSpotPlotCommand(i, iLambda, iMethod, nRect, nRand, nRing)))
       if(allocated(xSpot)) deallocate(xSpot)
       if(allocated(ySpot)) deallocate(ySpot)
 
-      call getSpotData(xSpot, ySpot)  
-      
+      call getSpotData(xSpot, ySpot)
+
       !Subtract Avg
       yAvg = (sum(ySpot)/size(ySpot))
       ySpot = ySpot - yAvg
+      call addRays(i, iLambda)
       spotExtent = real(max(maxval(abs(xSpot)), maxval(abs(ySpot))))
                                   
 
@@ -549,13 +578,14 @@ subroutine spo_go(psm)
 
     if (allWL) then
       do j=2,sysConfig%numWavelengths
-        call PROCESKDP(trim(getKDPSpotPlotCommand(i, j, iMethod, nRect, nRand, nRing)))
+        call PROCESSILENT(trim(getKDPSpotPlotCommand(i, j, iMethod, nRect, nRand, nRing)))
         if(allocated(xSpot)) deallocate(xSpot)
         if(allocated(ySpot)) deallocate(ySpot)
-        call getSpotData(xSpot, ySpot)  
+        call getSpotData(xSpot, ySpot)
         ! Subtract relative to first wavelength.  Should probably be relative to
         ! ref wavelength; revisit this after testing
         ySpot = ySpot - yAvg
+        call addRays(i, j)
         spotExtent = max(spotExtent, &
         & real(max(maxval(abs(xSpot)), maxval(abs(ySpot)))))
         call xyscat(i)%addXYPlot(real(xSpot), real(ySpot))
@@ -582,6 +612,16 @@ subroutine spo_go(psm)
 
 
 
+    ! Data tab: every plotted ray, Y relative to the field's first-wavelength
+    ! centroid exactly as drawn.
+    if (nRays > 0) then
+      call OUTKDP('Spot diagram rays; X, Y in '// &
+      &           trim(sysConfig%lensUnits(sysConfig%currLensUnitsID)%text)// &
+      &           ', Y relative to the Y centroid of the first wavelength drawn')
+      call logColumns([character(len=20) :: 'Field', 'Wavelength', 'X', 'Y'], &
+      &               rays(1:nRays, :))
+    end if
+
     !call ioConfig%setTextView(ID_TERMINAL_DEFAULT)
     call ioConfig%restoreTextView()
 
@@ -590,6 +630,30 @@ subroutine spo_go(psm)
 
     !call finalizeGoPlot(mplt, psm, ID_PLOTTYPE_SPOT_NEW, "Spot Diagram")
 
+  contains
+
+    ! Append the rays now in xSpot/ySpot (field f, wavelength w).
+    subroutine addRays(f, w)
+      integer, intent(in) :: f, w
+      integer :: n
+      real(kind=real64), allocatable :: grown(:,:)
+      n = size(xSpot)
+      if (.not. allocated(rays)) then
+        allocate(rays(max(n, 1024), 4))
+        nRays = 0
+      end if
+      if (nRays + n > size(rays, 1)) then
+        allocate(grown(max(2*size(rays, 1), nRays + n), 4))
+        grown(1:nRays, :) = rays(1:nRays, :)
+        call move_alloc(grown, rays)
+      end if
+      rays(nRays+1:nRays+n, 1) = real(f, real64)
+      rays(nRays+1:nRays+n, 2) = real(w, real64)
+      rays(nRays+1:nRays+n, 3) = xSpot
+      rays(nRays+1:nRays+n, 4) = ySpot
+      nRays = nRays + n
+    end subroutine
+
 end subroutine
 
 
@@ -597,9 +661,9 @@ subroutine seidel_go(psm)
     USE GLOBALS
     use command_utils
     use zoa_output, only: zoa_emit
-    use global_widgets, only:  curr_par_ray_trace, curr_lens_data, ioConfig
-    use kdp_utils, only: OUTKDP, logDataVsField
-    use type_utils, only: int2str, str2int
+    use global_widgets, only:  curr_par_ray_trace, curr_lens_data, ioConfig, sysConfig
+    use kdp_utils, only: OUTKDP, logDataVsField, logColumns
+    use type_utils, only: int2str, str2int, real2str
     use DATMAI
     use iso_c_binding, only: c_ptr, c_null_ptr
     interface
@@ -632,7 +696,24 @@ subroutine seidel_go(psm)
     if (.not. HEADLESS_MODE) then
       call ioConfig%setTextViewFromPtr(getTabTextView(objIdx))
     end if
-    call MMAB3_NEW(.TRUE., psm%getWavelengthSetting(), .TRUE.)
+    ! Compute without the THO-style table (its 5 fixed decimals are THO's
+    ! format); the Data tab gets the plotted bars at full precision instead.
+    call MMAB3_NEW(.TRUE., psm%getWavelengthSetting(), .FALSE.)
+    block
+      real(real64), allocatable :: tbl(:,:)
+      integer :: s, n
+      n = curr_lens_data%num_surfaces
+      allocate(tbl(n+1, nS+1))
+      do s = 0, n
+        tbl(s+1, 1) = real(s, real64)
+        tbl(s+1, 2:) = curr_par_ray_trace%CSeidel(1:nS, s)
+      end do
+      call OUTKDP(trim(sysConfig%lensTitle)//'; Seidel aberrations, wavelength '// &
+      &           trim(real2str(1000.0*sysConfig%getWavelength(psm%getWavelengthSetting()),1))// &
+      &           ' nm; the last row (surface '//trim(int2str(n))//') is the sum')
+      call logColumns([character(len=8) :: 'Surface', 'SA3', 'CMA3', 'AST3', 'DIS3', &
+      &                'PTZ3', 'AC3', 'LC3'], tbl)
+    end block
     if (.not. HEADLESS_MODE) then
       call checkSeidelDataTab()
       call ioConfig%setTextView(ID_TERMINAL_DEFAULT)
@@ -715,7 +796,7 @@ subroutine ast_go(psm)
     use command_utils
     use zoa_output, only: zoa_emit
     use zoa_plot
-    use kdp_utils, only: OUTKDP, logDataVsField
+    use kdp_utils, only: OUTKDP, logDataVsField, logColumns
     use type_utils, only: int2str, str2int
     use DATMAI
 
@@ -740,6 +821,8 @@ subroutine ast_go(psm)
      REAL:: DDTA(0:50), xDist(0:50), yDist(0:50), x1FC(0:50), x2FC(0:50), yFC(0:50)
 
      REAL:: FLDAN(0:50)
+     ! the plotted curves at full precision, for the Data tab
+     real(real64) :: fcTan(0:50), fcSag(0:50), fldFC(0:50), dist64(0:50), fldDist(0:50), unused(0:50)
 
      !COMMON FLDAN, DDTA
 
@@ -789,6 +872,7 @@ subroutine ast_go(psm)
   !CALL FLDCRV(2,DWORD1,DWORD2,ERROR)
   CALL PROCESSILENT('FLDCV'//trim(ftext)//int2str(numPts))
   call getFieldCalcResult(x1FC, x2FC, yFC, numPtsFC, 3)
+  call getFieldCalcResult64(fcTan, fcSag, fldFC, numPtsFC, 3)
 
 
    call lin3%initialize(c_null_ptr, REAL(x1FC(0:numPtsFC)),yFC(0:numPtsFC), &
@@ -802,6 +886,24 @@ subroutine ast_go(psm)
 CALL PROCESSILENT('DIST'//trim(ftext)//int2str(numPts))
 
  call getFieldCalcResult(xDist, x2FC, yDist, numPtsDist, 2)
+ call getFieldCalcResult64(dist64, unused, fldDist, numPtsDist, 2)
+
+ ! Data tab: the field-curvature (tangential = YZ, sagittal = XZ) and
+ ! distortion curves the two panels draw, one row per field point.
+ call OUTKDP('Field curvature and distortion; field = '//trim(sysConfig%getFieldText()))
+ if (numPtsDist == numPtsFC .and. all(fldDist(0:numPtsFC) == fldFC(0:numPtsFC))) then
+   call logColumns([character(len=20) :: 'Field', 'FCurvTan['//trim(fcUnits())//']', &
+   &               'FCurvSag['//trim(fcUnits())//']', 'Distortion[%]'], &
+   &               reshape([fldFC(0:numPtsFC), fcTan(0:numPtsFC), fcSag(0:numPtsFC), &
+   &                        dist64(0:numPtsFC)], [numPtsFC+1, 4]))
+ else
+   call logColumns([character(len=20) :: 'Field', 'FCurvTan['//trim(fcUnits())//']', &
+   &               'FCurvSag['//trim(fcUnits())//']'], &
+   &               reshape([fldFC(0:numPtsFC), fcTan(0:numPtsFC), fcSag(0:numPtsFC)], &
+   &                       [numPtsFC+1, 3]))
+   call logColumns([character(len=20) :: 'Field', 'Distortion[%]'], &
+   &               reshape([fldDist(0:numPtsDist), dist64(0:numPtsDist)], [numPtsDist+1, 2]))
+ end if
 
 
   call lin2%initialize(c_null_ptr, REAL(xDist(0:numPtsDist)),yDist(0:numPtsDist), &
@@ -834,6 +936,18 @@ CALL PROCESSILENT('DIST'//trim(ftext)//int2str(numPts))
     call finalizeGoPlot_new(mplt, psm, replot, objIdx)
   end if
 
+contains
+
+  ! field curvature is in lens units, or diopters for an afocal system
+  function fcUnits() result(u)
+    use mod_system, only: sys_mode
+    character(len=20) :: u
+    if (sys_mode() > 2.0d0) then
+      u = 'diopters'
+    else
+      u = sysConfig%getLensUnitsText()
+    end if
+  end function
 
 end subroutine
 
@@ -934,6 +1048,7 @@ subroutine rayaberration_go(psm)
     use zoa_output, only: zoa_emit
     use global_widgets
     use type_utils, only: int2str, real2str
+    use kdp_utils, only: OUTKDP, logColumns
     use plplot, PI => PL_PI
     use plplot_extra
 
@@ -958,6 +1073,12 @@ subroutine rayaberration_go(psm)
     type(zoaplot_setting_manager) :: psm
     REAL, allocatable :: x(:), y(:)
     real:: yOff(sysConfig%numFields)
+    ! the plotted fans at full precision, for the Data tab: pupil coordinate,
+    ! then one column per wavelength drawn
+    real(real64) :: yOff64(sysConfig%numFields)
+    real(real64), allocatable :: tanD(:,:), sagD(:,:)
+    character(len=20), allocatable :: tanHdr(:), sagHdr(:)
+    integer :: nW
 
     character(len=100) :: xlabel, ylabel, title
 
@@ -987,16 +1108,31 @@ subroutine rayaberration_go(psm)
       write(ffieldstr, FMTFAN) sysConfig%refWavelengthIndex ,',',3
       
       CALL PROCESKDP("YFAN, -1, 1, "//ffieldstr) 
-      yOff(i) = curr_ray_fan_data%xyfan(2,2) ! only 3 points computed.  Min requireed to get ref value  
+      yOff(i) = curr_ray_fan_data%xyfan(2,2) ! only 3 points computed.  Min requireed to get ref value
+      yOff64(i) = curr_ray_fan_data%xyfan(2,2)
     end do
     print *, "yOff is ", yOff
-  
+
     plotScale = psm%getSettingValueByCode(SETTING_SCALE)
     numPoints = psm%getDensitySetting()
 
-    
+
     allocate(x(numPoints))
     allocate(y(numPoints))
+    nW = 1
+    if (allWL) nW = sysConfig%numWavelengths
+    allocate(tanD(numPoints, nW+1), sagD(numPoints, nW+1), tanHdr(nW+1), sagHdr(nW+1))
+    tanHdr(1) = 'RelPupilY'
+    sagHdr(1) = 'RelPupilX'
+    do j = 1, nW
+      if (allWL) then
+        tanHdr(j+1) = 'DY_'//trim(real2str(1000.0*sysConfig%getWavelength(j),2))//'nm'
+        sagHdr(j+1) = 'DX_'//trim(real2str(1000.0*sysConfig%getWavelength(j),2))//'nm'
+      else
+        tanHdr(j+1) = 'DY_'//trim(real2str(1000.0*sysConfig%getWavelength(lambda),2))//'nm'
+        sagHdr(j+1) = 'DX_'//trim(real2str(1000.0*sysConfig%getWavelength(lambda),2))//'nm'
+      end if
+    end do
 
     if (.not. HEADLESS_MODE) then
       call ioConfig%setTextViewFromPtr(getTabTextView(objIdx))
@@ -1014,18 +1150,22 @@ subroutine rayaberration_go(psm)
     do i=1,sysConfig%numFields
 
       ! Set Field
+      ! Silent from here on: output points at the Data tab, which gets the
+      ! plotted fans below rather than the legacy fan reports.
       WRITE(ffieldstr, *) "FOB ", sysConfig%relativeFields(2,i) &
       & , ' ' , sysConfig%relativeFields(1, i)
-      CALL PROCESKDP(trim(ffieldstr))
+      CALL PROCESSILENT(trim(ffieldstr))
 
 
       ! Set Fan Input - TODO:  add setting to change fan type
       write(ffieldstr, FMTFAN) lambda,',',numPoints
-      
-      CALL PROCESKDP("YFAN, -1, 1, "//ffieldstr) 
+
+      CALL PROCESSILENT("YFAN, -1, 1, "//ffieldstr)
       x = curr_ray_fan_data%relAper
       y(1:numPoints) = curr_ray_fan_data%xyfan(1:numPoints,2)-yOff(i)
-            
+      tanD(:,1) = curr_ray_fan_data%relAper(1:numPoints)
+      tanD(:,2) = curr_ray_fan_data%xyfan(1:numPoints,2) - yOff64(i)
+
       
       ! Hide labels for off axis points
       if (i /= 1) then 
@@ -1053,9 +1193,10 @@ subroutine rayaberration_go(psm)
         if (allWL) then
           do j=2,sysConfig%numWavelengths
             write(ffieldstr, FMTFAN) j,',',numPoints
-            CALL PROCESKDP("YFAN, -1, 1, "//ffieldstr) 
+            CALL PROCESSILENT("YFAN, -1, 1, "//ffieldstr)
             x = curr_ray_fan_data%relAper
             y(1:numPoints) = curr_ray_fan_data%xyfan(1:numPoints,2)-yOff(i)
+            tanD(:,j+1) = curr_ray_fan_data%xyfan(1:numPoints,2) - yOff64(i)
             call lineplot(i)%addXYPlot(x,y)
             call lineplot(i)%setDataColorCode(sysConfig%wavelengthColorCodes(j))                  
           end do
@@ -1077,9 +1218,11 @@ subroutine rayaberration_go(psm)
 
       !Saggatial
       write(ffieldstr, FMTFAN) lambda,',',numPoints
-      CALL PROCESKDP("XFAN, 0, 1, "//ffieldstr) 
+      CALL PROCESSILENT("XFAN, 0, 1, "//ffieldstr)
       x = curr_ray_fan_data%relAper
-      y(1:numPoints) = curr_ray_fan_data%xyfan(1:numPoints,1)       
+      y(1:numPoints) = curr_ray_fan_data%xyfan(1:numPoints,1)
+      sagD(:,1) = curr_ray_fan_data%relAper(1:numPoints)
+      sagD(:,2) = curr_ray_fan_data%xyfan(1:numPoints,1)
 
       if (i==sysConfig%numFields) then
         title = 'Sagittal'
@@ -1097,14 +1240,26 @@ subroutine rayaberration_go(psm)
       if (allWL) then
         do j=2,sysConfig%numWavelengths
           write(ffieldstr, FMTFAN) j,',',numPoints
-          CALL PROCESKDP("XFAN, 0, 1, "//ffieldstr) 
-          y(1:numPoints) = curr_ray_fan_data%xyfan(1:numPoints,1)  
+          CALL PROCESSILENT("XFAN, 0, 1, "//ffieldstr)
+          y(1:numPoints) = curr_ray_fan_data%xyfan(1:numPoints,1)
+          sagD(:,j+1) = curr_ray_fan_data%xyfan(1:numPoints,1)
           call sagplots(i)%addXYPlot(x,y)
-          call sagplots(i)%setDataColorCode(sysConfig%wavelengthColorCodes(j))                  
+          call sagplots(i)%setDataColorCode(sysConfig%wavelengthColorCodes(j))
         end do
       end if
 
       call mplt%set(sysConfig%numFields-i+1,2,sagplots(i))
+
+      ! Data tab: this field's two fans, as drawn (DY less the chief-ray
+      ! offset at the reference wavelength).
+      call OUTKDP('Field '//trim(int2str(i))//' ('//trim(sysConfig%getAbsYFieldText(i))// &
+      &           '): tangential fan, DY ['// &
+      &           trim(sysConfig%lensUnits(sysConfig%currLensUnitsID)%text)//']')
+      call logColumns(tanHdr, tanD)
+      call OUTKDP('Field '//trim(int2str(i))//' ('//trim(sysConfig%getAbsYFieldText(i))// &
+      &           '): sagittal fan, DX ['// &
+      &           trim(sysConfig%lensUnits(sysConfig%currLensUnitsID)%text)//']')
+      call logColumns(sagHdr, sagD)
       
 
      !call mplt%set(2,i,sagplots(i))
@@ -1151,6 +1306,8 @@ type(zoaplot) :: xyscat
 type(c_ptr) :: canvas
 
 REAL, allocatable :: x(:), y(:)
+! the same data in double precision, for the Data tab
+real(real64), allocatable :: x64(:), y64(:)
 type(zoaplot_setting_manager) :: psm
 type(multiplot) :: mplt
 
@@ -1192,14 +1349,16 @@ end if
 ! density sweep to a single row instead of numPoints identical copies.
 if (sysConfig%refFieldValue(2) == 0.0d0) numPoints = 1
 
-allocate(x(numPoints))
-allocate(y(numPoints))
+allocate(x(numPoints), x64(numPoints))
+allocate(y(numPoints), y64(numPoints))
 
 do ii = 0, numPoints-1
  if (numPoints > 1) then
    x(ii+1) = REAL(ii)/REAL(numPoints-1)
+   x64(ii+1) = real(ii, real64)/real(numPoints-1, real64)
  else
    x(ii+1) = 0.0
+   x64(ii+1) = 0.0_real64
  end if
  write(ffieldstr, *) x(ii+1)
  CALL PROCESSILENT("FOB "// ffieldstr)
@@ -1211,17 +1370,18 @@ do ii = 0, numPoints-1
     ! whatever grid another plot had used.
     CALL PROCESSILENT("CAPFN SILENT, "//trim(int2str(pupilGrid)))
     CALL PROCESSILENT("SHO RMSOPD")
-    y(ii+1) = 1000.0*REG(9)
+    y64(ii+1) = 1000.0_real64*REG(9)
  case(ID_RMS_DATA_SPOT)
   ! PROCESSILENT, matching the wavefront branch above: a bare PROCESKDP here
   ! dumped the full KDP spot-diagram report (aperture assignment, ray-trace
   ! progress, SPOT DIAGRAM SUMMARY) into the terminal once per field point.
   CALL PROCESSILENT("SPD")
   CALL PROCESSILENT("SHO RMS")
-  y(ii+1) = REG(9)
+  y64(ii+1) = REG(9)
  end select
+ y(ii+1) = real(y64(ii+1))
 
-
+ x64(ii+1) = x64(ii+1)*sysConfig%refFieldValue(2)
  x(ii+1) = x(ii+1)*sysConfig%refFieldValue(2)
 
 end do
@@ -1246,10 +1406,10 @@ end if
 ! wavefront error is in milliwaves, spot size in the current lens units.
 select case (iData)
 case(ID_RMS_DATA_SPOT)
-  call log2DData(real(x,8), real(y,8), xHeader='Field', &
+  call log2DData(x64, y64, xHeader='Field', &
   & yHeader='RMS['//trim(sysConfig%getLensUnitsText())//']')
 case default
-  call log2DData(real(x,8), real(y,8), xHeader='Field', yHeader='RMS[mWaves]')
+  call log2DData(x64, y64, xHeader='Field', yHeader='RMS[mWaves]')
 end select
 
 if (.not. HEADLESS_MODE) call ioConfig%setTextView(ID_TERMINAL_DEFAULT)

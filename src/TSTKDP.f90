@@ -163,6 +163,35 @@ SUBROUTINE getFieldCalcResult(X1, X2, Y, numPts, calcCode)
 
 end subroutine
 
+! getFieldCalcResult at the arrays' own (double) precision, for the Data
+! tab.  The field positions (COMMON/FIFI) are single precision at the source.
+SUBROUTINE getFieldCalcResult64(X1, X2, Y, numPts, calcCode)
+   use iso_fortran_env, only: real64
+   IMPLICIT NONE
+   integer, intent(in) :: calcCode
+   real(real64), intent(inout) :: X1(0:50), X2(0:50), Y(0:50)
+   integer, intent(inout) :: numPts
+   real(real64) WOR1(0:50),WOR2(0:50),DTA11(0:50),DTA22(0:50),DDTA(0:50),ADTA(0:50)
+   COMMON/ABSSS/WOR1,WOR2,DTA11,DTA22,DDTA,ADTA
+   REAL FLDAN(0:50)
+   COMMON/FIFI/FLDAN
+   INTEGER PNTNUM
+   real(real64) ORI,FACTY
+   COMMON/NUMPNT/PNTNUM,ORI,FACTY
+
+   select case (calcCode)
+   case (1)
+      X1 = ADTA
+   case (2)
+      X1 = DDTA
+   case (3)
+      X1 = DTA11
+      X2 = DTA22
+   end select
+   Y = real(FLDAN, real64)
+   numPts = PNTNUM
+end subroutine
+
 subroutine refreshLensDataStruct()
    use global_widgets,only: curr_lens_data
 

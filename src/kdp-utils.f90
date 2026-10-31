@@ -151,20 +151,50 @@ module kdp_utils
       end if 
     end if
     do i=1,size(xData)
-      write(outStr, '(F12.5,A5,F12.5)') xData(i),blankStr(5), yData(i)
-       !call OUTKDP(trim(real2str(xData(i)))//blankStr(5)//trim(real2str(yData(i))))
+      ! full precision, as the Data tab contract asks (F12.5 kept only about
+      ! three significant digits of a small RMS)
+      write(outStr, '(ES16.8,A5,ES16.8)') xData(i),blankStr(5), yData(i)
        call OUTKDP(trim(outStr))
     end do
 
 
   end subroutine
 
+  ! A Data tab table: one header line (each name right-aligned over its
+  ! column) and one row per data(i,:), every value ES16.8 -- pastes into
+  ! MATLAB/Python as a numeric matrix.
+  subroutine logColumns(headers, data)
+    use iso_fortran_env, only: real64
+    implicit none
+    character(len=*), dimension(:), intent(in) :: headers
+    real(real64), dimension(:,:), intent(in) :: data
+    integer :: W, i, j, n
+    character(len=:), allocatable :: lineStr
+    character(len=20) :: fmt
+
+    ! columns wide enough for the longest header, at least ES16.8
+    W = max(16, maxval(len_trim(headers)) + 2)
+    write(fmt, '(A,I0,A)') '(*(ES', W, '.8))'
+    allocate(character(len=W*size(headers)) :: lineStr)
+    lineStr(:) = ' '
+    do j = 1, size(headers)
+      n = len_trim(headers(j))
+      lineStr(j*W-n+1:j*W) = headers(j)(1:n)
+    end do
+    call OUTKDP(trim(lineStr))
+    do i = 1, size(data, 1)
+      write(lineStr, fmt) data(i, :)
+      call OUTKDP(trim(lineStr))
+    end do
+  end subroutine
+
   subroutine logDataVsField(fldPoints, dataArray, colHeaders, extraRowName, singleSurface)
     use iso_c_binding, only: c_null_char
+    use iso_fortran_env, only: real64
     implicit none
 
-    real, dimension(:) :: fldPoints
-    real, dimension(:,:) :: dataArray
+    real(real64), dimension(:) :: fldPoints
+    real(real64), dimension(:,:) :: dataArray
     character(len=*), dimension(:) :: colHeaders
     character(len=*), optional :: extraRowName
     integer, optional :: singleSurface
@@ -176,7 +206,7 @@ module kdp_utils
 
     ! Column layout: column 1 is the field value ("Field" header), then one
     ! column per data series.  Each column is wide enough for its header and
-    ! every formatted value (F12.5) plus padding.  Headers are centered over
+    ! every formatted value (ES16.8) plus padding.  Headers are centered over
     ! their column; values are right-aligned within it.
     ncols = size(colHeaders) + 1
     allocate(colW(ncols))
@@ -185,10 +215,10 @@ module kdp_utils
       colW(j+1) = len_trim(colHeaders(j))
     end do
     do i=1,size(fldPoints)
-      write(entryStr, '(F12.5)') fldPoints(i)
+      write(entryStr, '(ES16.8)') fldPoints(i)
       colW(1) = max(colW(1), len_trim(adjustl(entryStr)))
       do j=1,size(colHeaders)
-        write(entryStr, '(F12.5)') dataArray(i,j)
+        write(entryStr, '(ES16.8)') dataArray(i,j)
         colW(j+1) = max(colW(j+1), len_trim(adjustl(entryStr)))
       end do
     end do
@@ -197,7 +227,7 @@ module kdp_utils
     call OUTKDP("Data vs Field Position")
 
     ! Header row -- each header centered in its column.
-    lineStr = ' '
+    lineStr(:) = ' '
     pos = 1
     tlen = len('Field'); lpad = (colW(1)-tlen)/2
     lineStr(pos+lpad:pos+lpad+tlen-1) = 'Field'
@@ -221,12 +251,12 @@ module kdp_utils
     do i=sStart,sEnd
       lineStr = ' '
       pos = 1
-      write(entryStr, '(F12.5)') fldPoints(i)
+      write(entryStr, '(ES16.8)') fldPoints(i)
       entryStr = adjustl(entryStr); tlen = len_trim(entryStr)
       lineStr(pos+colW(1)-tlen:pos+colW(1)-1) = trim(entryStr)
       pos = pos + colW(1)
       do j=1,size(colHeaders)
-        write(entryStr, '(F12.5)') dataArray(i,j)
+        write(entryStr, '(ES16.8)') dataArray(i,j)
         entryStr = adjustl(entryStr); tlen = len_trim(entryStr)
         lineStr(pos+colW(j+1)-tlen:pos+colW(j+1)-1) = trim(entryStr)
         pos = pos + colW(j+1)

@@ -77,10 +77,15 @@ call fftshift(fftData)
 if (.not. HEADLESS_MODE) then
   call ioConfig%setTextViewFromPtr(getTabTextView(objIdx))
 end if
+! Three matrices, each introduced by a label line.  The plot draws
+! psfData(j,i) at X = i, Y = j: a line is one Y index (first line = bottom),
+! a column one X index -- in MATLAB, imagesc(A); axis xy.
+call OUTKDP('PSF intensity, '//trim(int2str(xpts))//' x '//trim(int2str(ypts))// &
+&           '; line k = image Y index k (first line at the bottom), column c = X index c')
 call logImageData(psfData)
-call LogTermFOR("Real")
+call OUTKDP('FFT of the PSF, real part (fftshift-ed, same layout)')
 call logImageData(real(real(fftData),kind=long))
-call LogTermFOR("Imag")
+call OUTKDP('FFT of the PSF, imaginary part (fftshift-ed, same layout)')
 call logImageData(real(aimag(fftData),kind=long))
 
 if (.not. HEADLESS_MODE) call ioConfig%restoreTextView()
