@@ -12,11 +12,11 @@ module plot_functions
   use global_widgets, only: sysConfig, ioConfig
   use zoa_ui
   use plot_setting_manager
-  use plot_command_utils, only: getKDPSpotPlotCommand
+  use plot_command_utils, only: runKDPSpot
   use iso_c_binding, only:  c_ptr, c_null_char
   use zoa_plot
   use data_registers
-  use mod_kdp_api, only: kdp_fob, kdp_ray, kdp_spd, kdp_capfn, kdp_silent_begin, kdp_silent_end
+  use mod_kdp_api, only: kdp_fob, kdp_ray, kdp_spd, kdp_capfn, kdp_get, kdp_silent_begin, kdp_silent_end
 
    use iso_fortran_env, only: real64
   implicit none
@@ -352,7 +352,7 @@ subroutine spo_fieldPoint_go(psm)
   call ioConfig%setTextViewFromPtr(getTabTextView(objIdx))
   
 
-  call PROCESKDP(trim(getKDPSpotPlotCommand(iField, iLambda, iMethod, nRect, nRand, nRing)))
+  call runKDPSpot(iField, iLambda, iMethod, nRect, nRand, nRing)
   call ioConfig%setTextView(ID_TERMINAL_DEFAULT)
 
   ! Prep PLot
@@ -541,7 +541,9 @@ subroutine spo_go(psm)
         i = iField
       end if
       ! silent: the Data tab gets the plotted rays below, not SPD's report
-      call PROCESSILENT(trim(getKDPSpotPlotCommand(i, iLambda, iMethod, nRect, nRand, nRing)))
+      call kdp_silent_begin()
+      call runKDPSpot(i, iLambda, iMethod, nRect, nRand, nRing)
+      call kdp_silent_end()
       if(allocated(xSpot)) deallocate(xSpot)
       if(allocated(ySpot)) deallocate(ySpot)
 
@@ -584,7 +586,9 @@ subroutine spo_go(psm)
 
     if (allWL) then
       do j=2,sysConfig%numWavelengths
-        call PROCESSILENT(trim(getKDPSpotPlotCommand(i, j, iMethod, nRect, nRand, nRing)))
+        call kdp_silent_begin()
+        call runKDPSpot(i, j, iMethod, nRect, nRand, nRing)
+        call kdp_silent_end()
         if(allocated(xSpot)) deallocate(xSpot)
         if(allocated(ySpot)) deallocate(ySpot)
         call getSpotData(xSpot, ySpot)
@@ -1376,8 +1380,7 @@ do ii = 0, numPoints-1
     call kdp_silent_begin()
     call kdp_capfn(pupilGrid, qual='SILENT')
     call kdp_silent_end()
-    CALL PROCESSILENT("SHO RMSOPD")
-    y64(ii+1) = 1000.0_real64*REG(9)
+    y64(ii+1) = 1000.0_real64*kdp_get('RMSOPD')
  case(ID_RMS_DATA_SPOT)
   ! PROCESSILENT, matching the wavefront branch above: a bare PROCESKDP here
   ! dumped the full KDP spot-diagram report (aperture assignment, ray-trace
@@ -1385,8 +1388,7 @@ do ii = 0, numPoints-1
   call kdp_silent_begin()
   call kdp_spd()
   call kdp_silent_end()
-  CALL PROCESSILENT("SHO RMS")
-  y64(ii+1) = REG(9)
+  y64(ii+1) = kdp_get('RMS')
  end select
  y(ii+1) = real(y64(ii+1))
 

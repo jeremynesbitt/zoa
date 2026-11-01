@@ -488,10 +488,17 @@ Follow-ups (progress 2026-10-30):
   FMA, FOO, TRA, WAV, ZRNFLD, PLTRMS, RAD, RIM, PSF/PMA/MTF, BES's focus
   search, ZRN, RSI, the VIE field loops (which used raw INPUT=/PROCES with
   SAVE_KDP slots).  Every golden ref stayed byte-identical.
-- Remaining text sites: `getKDPSpotPlotCommand` (plot-command-utils; the
-  spot plots run one compound "FOB ...; SPOT ...; SPD" string), DXF and
-  RAYTRA1's legacy INPUT=/PROCES dances, and the GET/SHO queries the plots
-  use for results (`SHO RMSOPD`, `SHO RMS`) -- a `kdp_get` is the next step.
+- DONE (2026-10-31): `kdp_get(qual, w1..w5, show)` -- GET/SHO results
+  (RMSOPD, RMS, GPCY, ...) returned as a value, computed silently or printed
+  as SHO does (show=.true.; BES keeps its "RMSOPD = v" lines).  Replaced the
+  `SHO`/`GET` text in PLTRMS, BES, FIR and SYSDATA.
+- DONE (2026-10-31): `getKDPSpotPlotCommand`'s compound "FOB; SPOT kind;
+  RECT n; SPD wl" string is now `runKDPSpot` (plot-command-utils): kdp_fob,
+  `kdp_spot_pattern(kind, n)` (SPOT + RECT/RINGS/RANNUM through SPOTSET,
+  same checks) and `kdp_spd(wl)`; used by the spot plots and the
+  optimizer's SPO evaluation.  All refs byte-identical.
+- Remaining text sites are legacy-internal: RAYTRA1/WAVSPOT3's
+  `SPD ACC[,,,3]` / `SPD MOVEACC 0` and DXF's INPUT=/PROCES sequence.
 - DONE: fallback telemetry also counts the lens-update level (F6): CONTRO
   records each word that reaches LENUP; the log line is `WORD<tab>LENS`,
   FALLBACK marks those `(U L)`, and `legacy_command_census.py --fallback`

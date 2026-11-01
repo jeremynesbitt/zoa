@@ -315,6 +315,7 @@ subroutine FIR
   use type_utils, only: real2str
   use zoa_output, only: zoa_emit
   use DATMAI
+  use mod_kdp_api, only: kdp_get
 
   implicit none
   !real(kind=real64) :: epRad, epPos
@@ -350,10 +351,8 @@ subroutine FIR
   call zoa_emit("OAL       "//trim(real2str(curr_par_ray_trace%OAL,4)),"blue")
   call zoa_emit("PARAXIAL IMAGE", "blue")
   ! TODO:  Move this calc somewhere else
-  call PROCESKDP("GET GPCY")
-  call zoa_emit(" HT      "//trim(real2str(reg(9),4)),"blue")
-  call PROCESKDP("GET GPUCY")
-  call zoa_emit("ANG       "//trim(real2str(reg(9)*(180.0D0/PII),4))//" DEG","blue")
+  call zoa_emit(" HT      "//trim(real2str(kdp_get('GPCY'),4)),"blue")
+  call zoa_emit("ANG       "//trim(real2str(kdp_get('GPUCY')*(180.0D0/PII),4))//" DEG","blue")
   call zoa_emit("ENTRANCE PUPIL", "blue")
   call zoa_emit("DIA       "//trim(real2str(curr_par_ray_trace%ENPUPDIA,4)),"blue")
   call zoa_emit("THI       "//trim(real2str(curr_par_ray_trace%ENPUPPOS,4)),"blue")

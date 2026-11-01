@@ -37,11 +37,12 @@ module mod_kdp_api
 
   public :: kdp_lens_begin, kdp_lens_cmd, kdp_chg, kdp_lens_end
   public :: kdp_silent_begin, kdp_silent_end
-  public :: kdp_fob, kdp_ray, kdp_spd, kdp_capfn
+  public :: kdp_fob, kdp_ray, kdp_spd, kdp_capfn, kdp_get, kdp_spot_pattern
   public :: kdp_api_set_hooks
 
   ! CMD-level commands run by run_cmd_level
-  integer, parameter :: CMD_FOB = 1, CMD_RAY = 2, CMD_SPD = 3, CMD_CAPFN = 4
+  integer, parameter :: CMD_FOB = 1, CMD_RAY = 2, CMD_SPD = 3, CMD_CAPFN = 4, &
+                        CMD_SPOTSET = 5
 
   abstract interface
     subroutine surf_hook_ifc(surf)
@@ -248,9 +249,29 @@ contains
     call run_cmd_level(build_cmd('RAY', wq=qual, w1=py, w2=px, w3=wl), CMD_RAY)
   end subroutine
 
-  ! SPD: the spot diagram at the current field.
-  subroutine kdp_spd()
-    call run_cmd_level(build_cmd('SPD'), CMD_SPD)
+  ! SPD [wl]: the spot diagram at the current field (wl: one wavelength
+  ! number, else all).
+  subroutine kdp_spd(wl)
+    integer, intent(in), optional :: wl
+    if (present(wl)) then
+      call run_cmd_level(build_cmd('SPD', w1=real(wl, real64)), CMD_SPD)
+    else
+      call run_cmd_level(build_cmd('SPD'), CMD_SPD)
+    end if
+  end subroutine
+
+  ! The spot-diagram ray pattern: "SPOT kind" then its density -- RECT n
+  ! (n x n grid), RING n (RINGS, n rings) or RAND n (RANNUM, n rays) --
+  ! through the same SPOTSET handler and checks as the text commands.
+  subroutine kdp_spot_pattern(kind, n)
+    character(len=*), intent(in) :: kind
+    integer, intent(in) :: n
+    call run_cmd_level(build_cmd('SPOT', wq=kind), CMD_SPOTSET)
+    select case (kind)
+    case ('RECT'); call run_cmd_level(build_cmd('RECT', w1=real(n, real64)), CMD_SPOTSET)
+    case ('RING'); call run_cmd_level(build_cmd('RINGS', w1=real(n, real64)), CMD_SPOTSET)
+    case ('RAND'); call run_cmd_level(build_cmd('RANNUM', w1=real(n, real64)), CMD_SPOTSET)
+    end select
   end subroutine
 
   ! CAPFN [qual] [grid]: the wavefront at the current field on a grid x grid
@@ -264,6 +285,39 @@ contains
       call run_cmd_level(build_cmd('CAPFN', wq=qual), CMD_CAPFN)
     end if
   end subroutine
+
+  ! GET qual [w1..w5]: the value of a GET/SHO quantity (RMSOPD, RMS, EFL,
+  ! ...).  show=.true. also prints it as "SHO qual" does ("RMSOPD = v");
+  ! otherwise it is computed silently, like "GET qual".  GET leaves it in
+  ! REG(9), where text callers read it; a GET that fails leaves REG(9) as it
+  ! was, as the text path does.  Like CONTRO, any program level.
+  function kdp_get(qual, w1, w2, w3, w4, w5, show) result(val)
+    use DATMAI, only: REG, SHOW_ => SHOW, LASTCOMWRD, LASTWASFOB
+    character(len=*), intent(in) :: qual
+    real(real64), intent(in), optional :: w1, w2, w3, w4, w5
+    logical, intent(in), optional :: show
+    real(real64) :: val
+    type(parsed_command) :: saved
+    logical :: savedShow
+    ! GET prints with 'WRITE X <REMWQ>' (the qualifier CONTRO saves)
+    character(len=8) :: REMWQ, savedRemwq
+    COMMON/WQREM/REMWQ
+
+    saved = capture_command()
+    savedShow = SHOW_
+    savedRemwq = REMWQ
+    SHOW_ = .false.
+    if (present(show)) SHOW_ = show
+    REMWQ = qual
+    call apply_command(build_cmd('GET', wq=qual, w1=w1, w2=w2, w3=w3, w4=w4, w5=w5))
+    CALL GET
+    val = REG(9)
+    LASTCOMWRD = 'GET'
+    LASTWASFOB = .false.
+    SHOW_ = savedShow
+    REMWQ = savedRemwq
+    call apply_command(saved)
+  end function
 
   ! What CONTRO does around CMDER for these words: refuse outside the CMD
   ! level, and keep the last-command record (RAY/SPD read LASTWASFOB).
@@ -285,6 +339,7 @@ contains
     case (CMD_RAY);   CALL KDP_CMD_RAY
     case (CMD_SPD);   CALL KDP_CMD_SPD
     case (CMD_CAPFN); CALL KDP_CMD_CAPFN
+    case (CMD_SPOTSET); CALL SPOTSET
     end select
     LASTCOMWRD = cmd%wc
     LASTWASFOB = (LASTCOMWRD == 'FOB')

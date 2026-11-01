@@ -1,6 +1,6 @@
 submodule (codeV_commands) mod_codev_plots
 use mod_kdp_api, only: kdp_silent_begin, kdp_silent_end, kdp_lens_begin, &
-                       kdp_lens_end, kdp_chg, kdp_lens_cmd, kdp_fob, kdp_capfn
+                       kdp_lens_end, kdp_chg, kdp_lens_cmd, kdp_fob, kdp_capfn, kdp_get
 implicit none
 contains
 
@@ -17,8 +17,7 @@ contains
         ! whatever CAPFN grid a plot last left in KDP's CAPDEF global.
         call kdp_fob(0.0d0)
         call kdp_capfn(16)
-        call PROCESKDP('SHO RMSOPD')
-        f = REG(9)
+        f = kdp_get('RMSOPD', show=.true.)
     end function adjustImageFocus
 
     !## cmd:      BES

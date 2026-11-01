@@ -2719,7 +2719,7 @@ contains
         use mod_lens_data_manager, only: ldm
         use kdp_data_types
         use DATLEN, only: PXTRAY
-        use DATMAI, only: REG
+        use mod_kdp_api, only: kdp_get
         use mod_system, only: sys_telecentric, sys_mode, sys_units, sys_fno_hold_y
         use type_utils, only: int2str
         implicit none
@@ -2747,8 +2747,7 @@ contains
         naObj = nObj*sin(atan(abs(uObj)))
         stopRad = 0.0d0
         if (stp >= 0 .and. stp <= last) stopRad = abs(PXTRAY(1, stp))
-        call PROCESSILENT("GET GPCY")
-        imgHt = REG(9)
+        imgHt = kdp_get('GPCY')
         angMag = 0.0d0
         if (abs(PXTRAY(6, 0)) > 1.0d-15) angMag = PXTRAY(6, last)/PXTRAY(6, 0)
 

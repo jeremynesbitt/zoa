@@ -4,7 +4,8 @@ contains
 
     module function getSPO(self) result(res)
         use DATSPD, only: RMSX, RMSY
-        use plot_command_utils, only: getKDPSpotPlotCommand
+        use plot_command_utils, only: runKDPSpot
+        use mod_kdp_api, only: kdp_silent_begin, kdp_silent_end
         use global_widgets, only: sysConfig
         implicit none
         class(merit_entry) :: self
@@ -30,7 +31,7 @@ contains
         rmsxyData = 0.0_long
         do i=1,sysConfig%numFields
            if (wt(i) == 0.0_long) cycle
-           call PROCESSILENT(trim(getKDPSpotPlotCommand(i, iLambda, ID_SPOT_RECT, nRect, -1, -1)))
+           call kdp_silent_begin(); call runKDPSpot(i, iLambda, ID_SPOT_RECT, nRect, -1, -1); call kdp_silent_end()
            rmsxyData(1,i) = wt(i)*RMSX
            rmsxyData(2,i) = wt(i)*RMSY
         end do
@@ -446,7 +447,8 @@ contains
     ! image surface -- the same rectangular-grid spot SPO uses.
     module function getCentroidConstraint(self) result(res)
         use DATSPD, only: CENTX, CENTY
-        use plot_command_utils, only: getKDPSpotPlotCommand
+        use plot_command_utils, only: runKDPSpot
+        use mod_kdp_api, only: kdp_silent_begin, kdp_silent_end
         use mod_system, only: sys_wl_ref
         class(merit_entry) :: self
         real(long) :: res
@@ -454,7 +456,7 @@ contains
 
         f = merge(self%iF, 1, self%iF > 0)
         lam = merge(self%iW, int(sys_wl_ref()), self%iW > 0)
-        call PROCESSILENT(trim(getKDPSpotPlotCommand(f, lam, ID_SPOT_RECT, 20, -1, -1)))
+        call kdp_silent_begin(); call runKDPSpot(f, lam, ID_SPOT_RECT, 20, -1, -1); call kdp_silent_end()
         res = merge(CENTX, CENTY, trim(self%name) == 'XCN')
     end function
 
