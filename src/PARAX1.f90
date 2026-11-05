@@ -2,6 +2,7 @@
 
 ! SUB PRCOL.FOR
 SUBROUTINE PRCOL
+   use lens_module, only: lm_par_refract, lm_par_transfer
 !
    use DATLEN
    use DATMAI
@@ -66,6 +67,7 @@ SUBROUTINE PRCOL
       END IF
       COLY(2,1)=-CURV*COLY(1,1)*&
       &ldm%getRefractionPowerFactor(0,1,INT(WV))+ldm%getIndexRatio(0,1,INT(WV))*COLY(2,0)
+      COLY(2,1)=lm_par_refract(1, COLY(1,1), COLY(2,1-1), COLY(2,1))
 !
 !       COLY(3,1)
 !       CHECK FOR X-TORIC. IF FOUND SET CURV=surf_toric_curvature(-)
@@ -100,6 +102,7 @@ SUBROUTINE PRCOL
       END IF
       COLY(6,1)=-CURV*COLY(5,1)*&
       &ldm%getRefractionPowerFactor(0,1,INT(WV))+ldm%getIndexRatio(0,1,INT(WV))*COLY(6,0)
+      COLY(6,1)=lm_par_refract(1, COLY(5,1), COLY(6,1-1), COLY(6,1))
 !
 !       COLY(7,1)
 !       CHECK FOR X-TORIC. IF FOUND SET CURV=surf_toric_curvature(-)
@@ -125,7 +128,7 @@ SUBROUTINE PRCOL
 !               VALUES AT SURFACE L
 !******************************************************************************
 !       NOW CALCULATE COLY(1,L) VALUE
-         COLY(1,L)=COLY(1,(L-1))+(surf_thickness(L-1)*COLY(2,(L-1)))
+         COLY(1,L)=lm_par_transfer(L, COLY(1,(L-1)), COLY(2,(L-1)), surf_thickness(L-1), COLY(2,MAX(L-2,0)))
 !******************************************************************************
 !       NOW CALCULATE COLY(2,L)
 !       CHECK FOR X-TORIC. IF FOUND SET CURV=surf_toric_curvature(-)
@@ -141,6 +144,7 @@ SUBROUTINE PRCOL
          END IF
          COLY(2,L)=-CURV*COLY(1,L)*&
          &ldm%getRefractionPowerFactor(L-1,L,INT(WV))+ldm%getIndexRatio(L-1,L,INT(WV))*COLY(2,(L-1))
+         COLY(2,L)=lm_par_refract(L, COLY(1,L), COLY(2,L-1), COLY(2,L))
 !*****************************************************************
 !       COLY(3,L)
 !       CHECK FOR X-TORIC. IF FOUND SET CURV=surf_toric_curvature(-)
@@ -160,7 +164,7 @@ SUBROUTINE PRCOL
          COLY(4,L)=ldm%getIndexRatio(L-1,L,INT(WV))*COLY(3,L)
 !*******************************************************************
 !       COLY(5,L)
-         COLY(5,L)=COLY(5,(L-1))+(surf_thickness(L-1)*COLY(6,(L-1)))
+         COLY(5,L)=lm_par_transfer(L, COLY(5,(L-1)), COLY(6,(L-1)), surf_thickness(L-1), COLY(6,MAX(L-2,0)))
 !************************************************************************
 !       COLY(6,L)
 !       CHECK FOR X-TORIC. IF FOUND SET CURV=surf_toric_curvature(-)
@@ -176,6 +180,7 @@ SUBROUTINE PRCOL
          END IF
          COLY(6,L)=-CURV*COLY(5,L)*&
          &ldm%getRefractionPowerFactor(L-1,L,INT(WV))+ldm%getIndexRatio(L-1,L,INT(WV))*COLY(6,(L-1))
+         COLY(6,L)=lm_par_refract(L, COLY(5,L), COLY(6,L-1), COLY(6,L))
 !**************************************************************
 !       COLY(7,L)
 !       CHECK FOR X-TORIC. IF FOUND SET CURV=surf_toric_curvature(-)
@@ -237,6 +242,7 @@ SUBROUTINE PRCOL
       END IF
       COLX(2,1)=-CURV*COLX(1,1)*&
       &ldm%getRefractionPowerFactor(0,1,INT(WV))+ldm%getIndexRatio(0,1,INT(WV))*COLX(2,0)
+      COLX(2,1)=lm_par_refract(1, COLX(1,1), COLX(2,1-1), COLX(2,1))
 !
 !       COLX(3,1)
 !       CHECK FOR Y-TORIC. IF FOUND SET CURV=surf_toric_curvature(-)
@@ -271,6 +277,7 @@ SUBROUTINE PRCOL
       END IF
       COLX(6,1)=-CURV*COLX(5,1)*&
       &ldm%getRefractionPowerFactor(0,1,INT(WV))+ldm%getIndexRatio(0,1,INT(WV))*COLX(6,0)
+      COLX(6,1)=lm_par_refract(1, COLX(5,1), COLX(6,1-1), COLX(6,1))
 !
 !       COLX(7,1)
 !       CHECK FOR Y-TORIC. IF FOUND SET CURV=surf_toric_curvature(-)
@@ -296,7 +303,7 @@ SUBROUTINE PRCOL
 !               VALUES AT SURFACE L
 !******************************************************************************
 !       NOW CALCULATE COLX(1,L) VALUE
-         COLX(1,L)=COLX(1,(L-1))+(surf_thickness(L-1)*COLX(2,(L-1)))
+         COLX(1,L)=lm_par_transfer(L, COLX(1,(L-1)), COLX(2,(L-1)), surf_thickness(L-1), COLX(2,MAX(L-2,0)))
 !******************************************************************************
 !       NOW CALCULATE COLX(2,L)
 !       CHECK FOR Y-TORIC. IF FOUND SET CURV=surf_toric_curvature(-)
@@ -312,6 +319,7 @@ SUBROUTINE PRCOL
          END IF
          COLX(2,L)=-CURV*COLX(1,L)*&
          &ldm%getRefractionPowerFactor(L-1,L,INT(WV))+ldm%getIndexRatio(L-1,L,INT(WV))*COLX(2,(L-1))
+         COLX(2,L)=lm_par_refract(L, COLX(1,L), COLX(2,L-1), COLX(2,L))
 !*****************************************************************
 !       COLX(3,L)
 !       CHECK FOR Y-TORIC. IF FOUND SET CURV=surf_toric_curvature(-)
@@ -331,7 +339,7 @@ SUBROUTINE PRCOL
          COLX(4,L)=ldm%getIndexRatio(L-1,L,INT(WV))*COLX(3,L)
 !*******************************************************************
 !       COLX(5,L)
-         COLX(5,L)=COLX(5,(L-1))+(surf_thickness(L-1)*COLX(6,(L-1)))
+         COLX(5,L)=lm_par_transfer(L, COLX(5,(L-1)), COLX(6,(L-1)), surf_thickness(L-1), COLX(6,MAX(L-2,0)))
 !************************************************************************
 !       COLX(6,L)
 !       CHECK FOR Y-TORIC. IF FOUND SET CURV=surf_toric_curvature(-)
@@ -347,6 +355,7 @@ SUBROUTINE PRCOL
          END IF
          COLX(6,L)=-CURV*COLX(5,L)*&
          &ldm%getRefractionPowerFactor(L-1,L,INT(WV))+ldm%getIndexRatio(L-1,L,INT(WV))*COLX(6,(L-1))
+         COLX(6,L)=lm_par_refract(L, COLX(5,L), COLX(6,L-1), COLX(6,L))
 !**************************************************************
 !       COLX(7,L)
 !       CHECK FOR Y-TORIC. IF FOUND SET CURV=surf_toric_curvature(-)
@@ -938,6 +947,7 @@ SUBROUTINE PAROUT
 END
 ! SUB TR.FOR
 SUBROUTINE TR
+   use lens_module, only: lm_par_refract, lm_par_transfer
 !
    use DATLEN
    use DATMAI
@@ -1086,6 +1096,7 @@ SUBROUTINE TR
             &PXTRAY(2,1)=(-(1.0D0/surf_thickness(1))*PXTRAY(1,1))+PXTRAY(2,1-1)
             IF(GLANAM(1,2).EQ.'IDEAL        ')&
             &PXTRAY(2,1)=(-(1.0D0/surf_ideal_efl(1))*PXTRAY(1,1))+PXTRAY(2,1-1)
+            PXTRAY(2,1)=lm_par_refract(1, PXTRAY(1,1), PXTRAY(2,1-1), PXTRAY(2,1))
 
 !
 !       PIY(1)=CV(1)*PY(1)+PUY(0)
@@ -1131,6 +1142,7 @@ SUBROUTINE TR
             &PXTRAY(6,1)=(-(1.0D0/surf_thickness(1))*PXTRAY(1,1))+PXTRAY(6,1-1)
             IF(GLANAM(1,2).EQ.'IDEAL        ')&
             &PXTRAY(6,1)=(-(1.0D0/surf_ideal_efl(1))*PXTRAY(1,1))+PXTRAY(6,1-1)
+            PXTRAY(6,1)=lm_par_refract(1, PXTRAY(5,1), PXTRAY(6,1-1), PXTRAY(6,1))
 !
 !       PICY(1)
 !       CHECK FOR X-TORIC. IF FOUND SET CURV=surf_toric_curvature(-)
@@ -1159,7 +1171,7 @@ SUBROUTINE TR
                IF(surf_pickup_count(COMI) /= 0) CALL PIKRES
 !
 !       PY(L) = PY(L-1)+TH(L-1)*PUY(L-1) ; THIS IS THE TRANSFER EQUATION
-               PXTRAY(1,L)=PXTRAY(1,(L-1))+(surf_thickness(L-1)*PXTRAY(2,(L-1)))
+               PXTRAY(1,L)=lm_par_transfer(L, PXTRAY(1,(L-1)), PXTRAY(2,(L-1)), surf_thickness(L-1), PXTRAY(2,MAX(L-2,0)))
 !
 !       PUY(L) =-CV(L)*PY(L)*((N'-N)/N')+(N/N')*PUY(L-1)
 !       CHECK FOR X-TORIC. IF FOUND SET CURV=surf_toric_curvature(-)
@@ -1183,6 +1195,7 @@ SUBROUTINE TR
                &PXTRAY(2,L)=(-(1.0D0/surf_thickness(L))*PXTRAY(1,L))+PXTRAY(2,L-1)
                IF(GLANAM(L,2).EQ.'IDEAL        ')&
                &PXTRAY(2,L)=(-(1.0D0/surf_ideal_efl(L))*PXTRAY(1,L))+PXTRAY(2,L-1)
+               PXTRAY(2,L)=lm_par_refract(L, PXTRAY(1,L), PXTRAY(2,L-1), PXTRAY(2,L))
 
 !
 !       PIY(L)=CV(1)*PY(L)+PUY(L-1)
@@ -1204,7 +1217,7 @@ SUBROUTINE TR
                &(ldm%getSurfIndex(L, INT(sys_wl_ref()))))*PXTRAY(3,L)
 !
 !       PCY(L) = PCY(L-1)+TH(L-1)*PUCY(L-1) ; THIS IS THE TRANSFER EQUATION
-               PXTRAY(5,L)=PXTRAY(5,(L-1))+(surf_thickness(L-1)*PXTRAY(6,(L-1)))
+               PXTRAY(5,L)=lm_par_transfer(L, PXTRAY(5,(L-1)), PXTRAY(6,(L-1)), surf_thickness(L-1), PXTRAY(6,MAX(L-2,0)))
 !
 !       PUCY(L) =-CV(L)*PCY(L)*((N'-N)/N')+(N/N')*PUCY(L-1)
 !       CHECK FOR X-TORIC. IF FOUND SET CURV=surf_toric_curvature(-)
@@ -1228,6 +1241,7 @@ SUBROUTINE TR
                &PXTRAY(6,L)=(-(1.0D0/surf_thickness(L))*PXTRAY(1,L))+PXTRAY(6,L-1)
                IF(GLANAM(L,2).EQ.'IDEAL        ')&
                &PXTRAY(6,L)=(-(1.0D0/surf_ideal_efl(L))*PXTRAY(1,L))+PXTRAY(6,L-1)
+               PXTRAY(6,L)=lm_par_refract(L, PXTRAY(5,L), PXTRAY(6,L-1), PXTRAY(6,L))
 !
 !       PICY(L)
 !       CHECK FOR X-TORIC. IF FOUND SET CURV=surf_toric_curvature(-)
@@ -1333,6 +1347,7 @@ SUBROUTINE TR
          &PXTRAY(2,1)=(-(1.0D0/surf_thickness(1))*PXTRAY(1,1))+PXTRAY(2,1-1)
          IF(GLANAM(1,2).EQ.'IDEAL        ')&
          &PXTRAY(2,1)=(-(1.0D0/surf_ideal_efl(1))*PXTRAY(1,1))+PXTRAY(2,1-1)
+         PXTRAY(2,1)=lm_par_refract(1, PXTRAY(1,1), PXTRAY(2,1-1), PXTRAY(2,1))
 !
 !       PIY(1)=CV(1)*PY(1)+PUY(0)
 !       CHECK FOR X-TORIC. IF FOUND SET CURV=surf_toric_curvature(-)
@@ -1376,6 +1391,7 @@ SUBROUTINE TR
          &PXTRAY(6,1)=(-(1.0D0/surf_thickness(1))*PXTRAY(1,1))+PXTRAY(6,1-1)
          IF(GLANAM(1,2).EQ.'IDEAL        ')&
          &PXTRAY(6,1)=(-(1.0D0/surf_ideal_efl(1))*PXTRAY(1,1))+PXTRAY(6,1-1)
+         PXTRAY(6,1)=lm_par_refract(1, PXTRAY(5,1), PXTRAY(6,1-1), PXTRAY(6,1))
 !
 !       PICY(1)
 !       CHECK FOR X-TORIC. IF FOUND SET CURV=surf_toric_curvature(-)
@@ -1404,7 +1420,7 @@ SUBROUTINE TR
             IF(surf_pickup_count(COMI) /= 0) CALL PIKRES
 !
 !       PY(L) = PY(L-1)+TH(L-1)*PUY(L-1) ; THIS IS THE TRANSFER EQUATION
-            PXTRAY(1,L)=PXTRAY(1,(L-1))+(surf_thickness(L-1)*PXTRAY(2,(L-1)))
+            PXTRAY(1,L)=lm_par_transfer(L, PXTRAY(1,(L-1)), PXTRAY(2,(L-1)), surf_thickness(L-1), PXTRAY(2,MAX(L-2,0)))
 !
 !       PUY(L) =-CV(L)*PY(L)*((N'-N)/N')+(N/N')*PUY(L-1)
 !       CHECK FOR X-TORIC. IF FOUND SET CURV=surf_toric_curvature(-)
@@ -1428,6 +1444,7 @@ SUBROUTINE TR
             &PXTRAY(2,L)=(-(1.0D0/surf_thickness(L))*PXTRAY(1,L))+PXTRAY(2,L-1)
             IF(GLANAM(L,2).EQ.'IDEAL        ')&
             &PXTRAY(2,L)=(-(1.0D0/surf_ideal_efl(L))*PXTRAY(1,L))+PXTRAY(2,L-1)
+            PXTRAY(2,L)=lm_par_refract(L, PXTRAY(1,L), PXTRAY(2,L-1), PXTRAY(2,L))
 !
 !       PIY(L)=CV(1)*PY(L)+PUY(L-1)
 !       CHECK FOR X-TORIC. IF FOUND SET CURV=surf_toric_curvature(-)
@@ -1448,7 +1465,7 @@ SUBROUTINE TR
             &(ldm%getSurfIndex(L, INT(sys_wl_ref()))))*PXTRAY(3,L)
 !
 !       PCY(L) = PCY(L-1)+TH(L-1)*PUCY(L-1) ; THIS IS THE TRANSFER EQUATION
-            PXTRAY(5,L)=PXTRAY(5,(L-1))+(surf_thickness(L-1)*PXTRAY(6,(L-1)))
+            PXTRAY(5,L)=lm_par_transfer(L, PXTRAY(5,(L-1)), PXTRAY(6,(L-1)), surf_thickness(L-1), PXTRAY(6,MAX(L-2,0)))
 !
 !       PUCY(L) =-CV(L)*PCY(L)*((N'-N)/N')+(N/N')*PUCY(L-1)
 !       CHECK FOR X-TORIC. IF FOUND SET CURV=surf_toric_curvature(-)
@@ -1472,6 +1489,7 @@ SUBROUTINE TR
             &PXTRAY(6,L)=(-(1.0D0/surf_thickness(L))*PXTRAY(1,L))+PXTRAY(6,L-1)
             IF(GLANAM(L,2).EQ.'IDEAL        ')&
             &PXTRAY(6,L)=(-(1.0D0/surf_ideal_efl(L))*PXTRAY(1,L))+PXTRAY(6,L-1)
+            PXTRAY(6,L)=lm_par_refract(L, PXTRAY(5,L), PXTRAY(6,L-1), PXTRAY(6,L))
 !
 !       PICY(L)
 !       CHECK FOR X-TORIC. IF FOUND SET CURV=surf_toric_curvature(-)
@@ -1514,7 +1532,7 @@ SUBROUTINE TR
 !
 !       PY(L) = PY(L-1)+TH(L-1)*PUY(L-1) ; THIS IS THE TRANSFER EQUATION
 !       NOW CALCULATE PY VALUE
-            PXTRAY(1,L)=PXTRAY(1,(L-1))+(surf_thickness(L-1)*PXTRAY(2,(L-1)))
+            PXTRAY(1,L)=lm_par_transfer(L, PXTRAY(1,(L-1)), PXTRAY(2,(L-1)), surf_thickness(L-1), PXTRAY(2,MAX(L-2,0)))
 !
 !       FINISHED WITH PY(L)
 !**********************************************************************************
@@ -1541,6 +1559,7 @@ SUBROUTINE TR
             &PXTRAY(2,L)=(-(1.0D0/surf_thickness(L))*PXTRAY(1,L))+PXTRAY(2,L-1)
             IF(GLANAM(L,2).EQ.'IDEAL        ')&
             &PXTRAY(2,L)=(-(1.0D0/surf_ideal_efl(L))*PXTRAY(1,L))+PXTRAY(2,L-1)
+            PXTRAY(2,L)=lm_par_refract(L, PXTRAY(1,L), PXTRAY(2,L-1), PXTRAY(2,L))
 !
 !       PIY(L)=CV(1)*PY(L)+PUY(L-1)
 !       CHECK FOR X-TORIC. IF FOUND SET CURV=surf_toric_curvature(-)
@@ -1562,7 +1581,7 @@ SUBROUTINE TR
 !
 !       PCY(L) = PCY(L-1)+TH(L-1)*PUCY(L-1) ; THIS IS THE TRANSFER EQUATION
 !       NO CALCULATE PCY VALUE
-            PXTRAY(5,L)=PXTRAY(5,(L-1))+(surf_thickness(L-1)*PXTRAY(6,(L-1)))
+            PXTRAY(5,L)=lm_par_transfer(L, PXTRAY(5,(L-1)), PXTRAY(6,(L-1)), surf_thickness(L-1), PXTRAY(6,MAX(L-2,0)))
 !
 !       FINISHED WITH PCY(L)
 !************************************************************************
@@ -1589,6 +1608,7 @@ SUBROUTINE TR
             &PXTRAY(6,L)=(-(1.0D0/surf_thickness(L))*PXTRAY(1,L))+PXTRAY(6,L-1)
             IF(GLANAM(L,2).EQ.'IDEAL        ')&
             &PXTRAY(6,L)=(-(1.0D0/surf_ideal_efl(L))*PXTRAY(1,L))+PXTRAY(6,L-1)
+            PXTRAY(6,L)=lm_par_refract(L, PXTRAY(5,L), PXTRAY(6,L-1), PXTRAY(6,L))
 !
 !       PICY(L)
 !       CHECK FOR X-TORIC. IF FOUND SET CURV=surf_toric_curvature(-)
@@ -1686,6 +1706,7 @@ SUBROUTINE TR
          &PXTRAY(2,1)=(-(1.0D0/surf_thickness(1))*PXTRAY(1,1))+PXTRAY(2,1-1)
          IF(GLANAM(1,2).EQ.'IDEAL        ')&
          &PXTRAY(2,1)=(-(1.0D0/surf_ideal_efl(1))*PXTRAY(1,1))+PXTRAY(2,1-1)
+         PXTRAY(2,1)=lm_par_refract(1, PXTRAY(1,1), PXTRAY(2,1-1), PXTRAY(2,1))
 !
 !       PIY(1)=CV(1)*PY(1)+PUY(0)
 !       CHECK FOR X-TORIC. IF FOUND SET CURV=surf_toric_curvature(-)
@@ -1731,6 +1752,7 @@ SUBROUTINE TR
          &PXTRAY(6,1)=(-(1.0D0/surf_thickness(1))*PXTRAY(1,1))+PXTRAY(6,1-1)
          IF(GLANAM(1,2).EQ.'IDEAL        ')&
          &PXTRAY(6,1)=(-(1.0D0/surf_ideal_efl(1))*PXTRAY(1,1))+PXTRAY(6,1-1)
+         PXTRAY(6,1)=lm_par_refract(1, PXTRAY(5,1), PXTRAY(6,1-1), PXTRAY(6,1))
 !
 !       PICY(1)
 !       CHECK FOR X-TORIC. IF FOUND SET CURV=surf_toric_curvature(-)
@@ -1767,7 +1789,7 @@ SUBROUTINE TR
 !******************************************************************************
 !       PY(L)=PY(L-1)+CV(L-1)*PUY(L-1)
 !       NOW CALCULATE PY VALUE
-            PXTRAY(1,L)=PXTRAY(1,(L-1))+(surf_thickness(L-1)*PXTRAY(2,(L-1)))
+            PXTRAY(1,L)=lm_par_transfer(L, PXTRAY(1,(L-1)), PXTRAY(2,(L-1)), surf_thickness(L-1), PXTRAY(2,MAX(L-2,0)))
 !
 !       FINISHED WITH PY(L)
 !
@@ -1795,6 +1817,7 @@ SUBROUTINE TR
             &PXTRAY(2,L)=(-(1.0D0/surf_thickness(L))*PXTRAY(1,L))+PXTRAY(2,L-1)
             IF(GLANAM(L,2).EQ.'IDEAL        ')&
             &PXTRAY(2,L)=(-(1.0D0/surf_ideal_efl(L))*PXTRAY(1,L))+PXTRAY(2,L-1)
+            PXTRAY(2,L)=lm_par_refract(L, PXTRAY(1,L), PXTRAY(2,L-1), PXTRAY(2,L))
 !
 !       PIY(L)=CV(1)*PY(L)+PUY(L-1)
 !       CHECK FOR X-TORIC. IF FOUND SET CURV=surf_toric_curvature(-)
@@ -1817,7 +1840,7 @@ SUBROUTINE TR
 !       PCY(L) = PCY(L-1)+TH(L-1)*PUCY(L-1) ; THIS IS THE TRANSFER EQUATION
 !******************************************************************************
 !       NO CALCULATE PCY VALUE
-            PXTRAY(5,L)=PXTRAY(5,(L-1))+(surf_thickness(L-1)*PXTRAY(6,(L-1)))
+            PXTRAY(5,L)=lm_par_transfer(L, PXTRAY(5,(L-1)), PXTRAY(6,(L-1)), surf_thickness(L-1), PXTRAY(6,MAX(L-2,0)))
 !
 !       FINISHED WITH PCY(L)
 !************************************************************************
@@ -1844,6 +1867,7 @@ SUBROUTINE TR
             &PXTRAY(6,L)=(-(1.0D0/surf_thickness(L))*PXTRAY(1,L))+PXTRAY(6,L-1)
             IF(GLANAM(L,2).EQ.'IDEAL        ')&
             &PXTRAY(6,L)=(-(1.0D0/surf_ideal_efl(L))*PXTRAY(1,L))+PXTRAY(6,L-1)
+            PXTRAY(6,L)=lm_par_refract(L, PXTRAY(5,L), PXTRAY(6,L-1), PXTRAY(6,L))
 !
 !       PICY(L)
 !       CHECK FOR X-TORIC. IF FOUND SET CURV=surf_toric_curvature(-)
@@ -1993,6 +2017,7 @@ SUBROUTINE TR
             &PXTRAX(2,1)=(-(1.0D0/surf_thickness(1))*PXTRAX(1,1))+PXTRAX(2,1-1)
             IF(GLANAM(1,2).EQ.'IDEAL        ')&
             &PXTRAX(2,1)=(-(1.0D0/surf_ideal_efl(1))*PXTRAX(1,1))+PXTRAX(2,1-1)
+            PXTRAX(2,1)=lm_par_refract(1, PXTRAX(1,1), PXTRAX(2,1-1), PXTRAX(2,1))
 
 !
 !       PIX(1)=CV(1)*PX(1)+PUX(0)
@@ -2038,6 +2063,7 @@ SUBROUTINE TR
             &PXTRAX(6,1)=(-(1.0D0/surf_thickness(1))*PXTRAX(1,1))+PXTRAX(6,1-1)
             IF(GLANAM(1,2).EQ.'IDEAL        ')&
             &PXTRAX(6,1)=(-(1.0D0/surf_ideal_efl(1))*PXTRAX(1,1))+PXTRAX(6,1-1)
+            PXTRAX(6,1)=lm_par_refract(1, PXTRAX(5,1), PXTRAX(6,1-1), PXTRAX(6,1))
 !
 !       PICY(1)
 !       CHECK FOR Y-TORIC. IF FOUND SET CURV=surf_toric_curvature(-)
@@ -2066,7 +2092,7 @@ SUBROUTINE TR
                IF(surf_pickup_count(COMI) /= 0) CALL PIKRES
 !
 !       PX(L) = PX(L-1)+TH(L-1)*PUX(L-1) ; THIS IS THE TRANSFER EQUATION
-               PXTRAX(1,L)=PXTRAX(1,(L-1))+(surf_thickness(L-1)*PXTRAX(2,(L-1)))
+               PXTRAX(1,L)=lm_par_transfer(L, PXTRAX(1,(L-1)), PXTRAX(2,(L-1)), surf_thickness(L-1), PXTRAX(2,MAX(L-2,0)))
 !
 !       PUX(L) =-CV(L)*PX(L)*((N'-N)/N')+(N/N')*PUX(L-1)
 !       CHECK FOR Y-TORIC. IF FOUND SET CURV=surf_toric_curvature(-)
@@ -2090,6 +2116,7 @@ SUBROUTINE TR
                &PXTRAX(2,L)=(-(1.0D0/surf_thickness(L))*PXTRAX(1,L))+PXTRAX(2,L-1)
                IF(GLANAM(L,2).EQ.'IDEAL        ')&
                &PXTRAX(2,L)=(-(1.0D0/surf_ideal_efl(L))*PXTRAX(1,L))+PXTRAX(2,L-1)
+               PXTRAX(2,L)=lm_par_refract(L, PXTRAX(1,L), PXTRAX(2,L-1), PXTRAX(2,L))
 
 !
 !       PIX(L)=CV(1)*PX(L)+PUX(L-1)
@@ -2111,7 +2138,7 @@ SUBROUTINE TR
                &(ldm%getSurfIndex(L, INT(sys_wl_ref()))))*PXTRAX(3,L)
 !
 !       PCX(L) = PCX(L-1)+TH(L-1)*PUCX(L-1) ; THIS IS THE TRANSFER EQUATION
-               PXTRAX(5,L)=PXTRAX(5,(L-1))+(surf_thickness(L-1)*PXTRAX(6,(L-1)))
+               PXTRAX(5,L)=lm_par_transfer(L, PXTRAX(5,(L-1)), PXTRAX(6,(L-1)), surf_thickness(L-1), PXTRAX(6,MAX(L-2,0)))
 !
 !       PUCX(L) =-CV(L)*PCX(L)*((N'-N)/N')+(N/N')*PUCX(L-1)
 !       CHECK FOR Y-TORIC. IF FOUND SET CURV=surf_toric_curvature(-)
@@ -2135,6 +2162,7 @@ SUBROUTINE TR
                &PXTRAX(6,L)=(-(1.0D0/surf_thickness(L))*PXTRAX(1,L))+PXTRAX(6,L-1)
                IF(GLANAM(L,2).EQ.'IDEAL        ')&
                &PXTRAX(6,L)=(-(1.0D0/surf_ideal_efl(L))*PXTRAX(1,L))+PXTRAX(6,L-1)
+               PXTRAX(6,L)=lm_par_refract(L, PXTRAX(5,L), PXTRAX(6,L-1), PXTRAX(6,L))
 !
 !       PICX(L)
 !       CHECK FOR Y-TORIC. IF FOUND SET CURV=surf_toric_curvature(-)
@@ -2240,6 +2268,7 @@ SUBROUTINE TR
          &PXTRAX(2,1)=(-(1.0D0/surf_thickness(1))*PXTRAX(1,1))+PXTRAX(2,1-1)
          IF(GLANAM(1,2).EQ.'IDEAL        ')&
          &PXTRAX(2,1)=(-(1.0D0/surf_ideal_efl(1))*PXTRAX(1,1))+PXTRAX(2,1-1)
+         PXTRAX(2,1)=lm_par_refract(1, PXTRAX(1,1), PXTRAX(2,1-1), PXTRAX(2,1))
 !
 !       PIX(1)=CV(1)*PX(1)+PUX(0)
 !       CHECK FOR Y-TORIC. IF FOUND SET CURV=surf_toric_curvature(-)
@@ -2283,6 +2312,7 @@ SUBROUTINE TR
          &PXTRAX(6,1)=(-(1.0D0/surf_thickness(1))*PXTRAX(1,1))+PXTRAX(6,1-1)
          IF(GLANAM(1,2).EQ.'IDEAL        ')&
          &PXTRAX(6,1)=(-(1.0D0/surf_ideal_efl(1))*PXTRAX(1,1))+PXTRAX(6,1-1)
+         PXTRAX(6,1)=lm_par_refract(1, PXTRAX(5,1), PXTRAX(6,1-1), PXTRAX(6,1))
 !
 !       PICX(1)
 !       CHECK FOR Y-TORIC. IF FOUND SET CURV=surf_toric_curvature(-)
@@ -2311,7 +2341,7 @@ SUBROUTINE TR
             IF(surf_pickup_count(COMI) /= 0) CALL PIKRES
 !
 !       PX(L) = PX(L-1)+TH(L-1)*PUX(L-1) ; THIS IS THE TRANSFER EQUATION
-            PXTRAX(1,L)=PXTRAX(1,(L-1))+(surf_thickness(L-1)*PXTRAX(2,(L-1)))
+            PXTRAX(1,L)=lm_par_transfer(L, PXTRAX(1,(L-1)), PXTRAX(2,(L-1)), surf_thickness(L-1), PXTRAX(2,MAX(L-2,0)))
 !
 !       PUX(L) =-CV(L)*PX(L)*((N'-N)/N')+(N/N')*PUX(L-1)
 !       CHECK FOR Y-TORIC. IF FOUND SET CURV=surf_toric_curvature(-)
@@ -2335,6 +2365,7 @@ SUBROUTINE TR
             &PXTRAX(2,L)=(-(1.0D0/surf_thickness(L))*PXTRAX(1,L))+PXTRAX(2,L-1)
             IF(GLANAM(L,2).EQ.'IDEAL        ')&
             &PXTRAX(2,L)=(-(1.0D0/surf_ideal_efl(L))*PXTRAX(1,L))+PXTRAX(2,L-1)
+            PXTRAX(2,L)=lm_par_refract(L, PXTRAX(1,L), PXTRAX(2,L-1), PXTRAX(2,L))
 !
 !       PIX(L)=CV(1)*PX(L)+PUX(L-1)
 !       CHECK FOR Y-TORIC. IF FOUND SET CURV=surf_toric_curvature(-)
@@ -2355,7 +2386,7 @@ SUBROUTINE TR
             &(ldm%getSurfIndex(L, INT(sys_wl_ref()))))*PXTRAX(3,L)
 !
 !       PCX(L) = PCX(L-1)+TH(L-1)*PUCX(L-1) ; THIS IS THE TRANSFER EQUATION
-            PXTRAX(5,L)=PXTRAX(5,(L-1))+(surf_thickness(L-1)*PXTRAX(6,(L-1)))
+            PXTRAX(5,L)=lm_par_transfer(L, PXTRAX(5,(L-1)), PXTRAX(6,(L-1)), surf_thickness(L-1), PXTRAX(6,MAX(L-2,0)))
 !
 !       PUCX(L) =-CV(L)*PCX(L)*((N'-N)/N')+(N/N')*PUCX(L-1)
 !       CHECK FOR Y-TORIC. IF FOUND SET CURV=surf_toric_curvature(-)
@@ -2379,6 +2410,7 @@ SUBROUTINE TR
             &PXTRAX(6,L)=(-(1.0D0/surf_thickness(L))*PXTRAX(1,L))+PXTRAX(6,L-1)
             IF(GLANAM(L,2).EQ.'IDEAL        ')&
             &PXTRAX(6,L)=(-(1.0D0/surf_ideal_efl(L))*PXTRAX(1,L))+PXTRAX(6,L-1)
+            PXTRAX(6,L)=lm_par_refract(L, PXTRAX(5,L), PXTRAX(6,L-1), PXTRAX(6,L))
 !
 !       PICX(L)
 !       CHECK FOR Y-TORIC. IF FOUND SET CURV=surf_toric_curvature(-)
@@ -2417,7 +2449,7 @@ SUBROUTINE TR
 !
 !       PX(L) = PX(L-1)+TH(L-1)*PUX(L-1) ; THIS IS THE TRANSFER EQUATION
 !       NOW CALCULATE PX VALUE
-            PXTRAX(1,L)=PXTRAX(1,(L-1))+(surf_thickness(L-1)*PXTRAX(2,(L-1)))
+            PXTRAX(1,L)=lm_par_transfer(L, PXTRAX(1,(L-1)), PXTRAX(2,(L-1)), surf_thickness(L-1), PXTRAX(2,MAX(L-2,0)))
 !
 !       FINISHED WITH PX(L)
 !**********************************************************************************
@@ -2444,6 +2476,7 @@ SUBROUTINE TR
             &PXTRAX(2,L)=(-(1.0D0/surf_thickness(L))*PXTRAX(1,L))+PXTRAX(2,L-1)
             IF(GLANAM(L,2).EQ.'IDEAL        ')&
             &PXTRAX(2,L)=(-(1.0D0/surf_ideal_efl(L))*PXTRAX(1,L))+PXTRAX(2,L-1)
+            PXTRAX(2,L)=lm_par_refract(L, PXTRAX(1,L), PXTRAX(2,L-1), PXTRAX(2,L))
 !
 !       PIX(L)=CV(1)*PX(L)+PUX(L-1)
 !       CHECK FOR Y-TORIC. IF FOUND SET CURV=surf_toric_curvature(-)
@@ -2465,7 +2498,7 @@ SUBROUTINE TR
 !
 !       PCX(L) = PCX(L-1)+TH(L-1)*PUCX(L-1) ; THIS IS THE TRANSFER EQUATION
 !       NO CALCULATE PCX VALUE
-            PXTRAX(5,L)=PXTRAX(5,(L-1))+(surf_thickness(L-1)*PXTRAX(6,(L-1)))
+            PXTRAX(5,L)=lm_par_transfer(L, PXTRAX(5,(L-1)), PXTRAX(6,(L-1)), surf_thickness(L-1), PXTRAX(6,MAX(L-2,0)))
 !
 !       FINISHED WITH PCX(L)
 !************************************************************************
@@ -2492,6 +2525,7 @@ SUBROUTINE TR
             &PXTRAX(6,L)=(-(1.0D0/surf_thickness(L))*PXTRAX(1,L))+PXTRAX(6,L-1)
             IF(GLANAM(L,2).EQ.'IDEAL        ')&
             &PXTRAX(6,L)=(-(1.0D0/surf_ideal_efl(L))*PXTRAX(1,L))+PXTRAX(6,L-1)
+            PXTRAX(6,L)=lm_par_refract(L, PXTRAX(5,L), PXTRAX(6,L-1), PXTRAX(6,L))
 !
 !       PICX(L)
 !       CHECK FOR Y-TORIC. IF FOUND SET CURV=surf_toric_curvature(-)
@@ -2587,6 +2621,7 @@ SUBROUTINE TR
          &PXTRAX(2,1)=(-(1.0D0/surf_thickness(1))*PXTRAX(1,1))+PXTRAX(2,1-1)
          IF(GLANAM(1,2).EQ.'IDEAL        ')&
          &PXTRAX(2,1)=(-(1.0D0/surf_ideal_efl(1))*PXTRAX(1,1))+PXTRAX(2,1-1)
+         PXTRAX(2,1)=lm_par_refract(1, PXTRAX(1,1), PXTRAX(2,1-1), PXTRAX(2,1))
 !
 !       PIX(1)=CV(1)*PX(1)+PUX(0)
 !       CHECK FOR Y-TORIC. IF FOUND SET CURV=surf_toric_curvature(-)
@@ -2632,6 +2667,7 @@ SUBROUTINE TR
          &PXTRAX(6,1)=(-(1.0D0/surf_thickness(1))*PXTRAX(1,1))+PXTRAX(6,1-1)
          IF(GLANAM(1,2).EQ.'IDEAL        ')&
          &PXTRAX(6,1)=(-(1.0D0/surf_ideal_efl(1))*PXTRAX(1,1))+PXTRAX(6,1-1)
+         PXTRAX(6,1)=lm_par_refract(1, PXTRAX(5,1), PXTRAX(6,1-1), PXTRAX(6,1))
 !
 !       PICX(1)
 !       CHECK FOR Y-TORIC. IF FOUND SET CURV=surf_toric_curvature(-)
@@ -2663,7 +2699,7 @@ SUBROUTINE TR
 !******************************************************************************
 !       PX(L)=PX(L-1)+CV(L-1)*PUX(L-1)
 !       NOW CALCULATE PX VALUE
-            PXTRAX(1,L)=PXTRAX(1,(L-1))+(surf_thickness(L-1)*PXTRAX(2,(L-1)))
+            PXTRAX(1,L)=lm_par_transfer(L, PXTRAX(1,(L-1)), PXTRAX(2,(L-1)), surf_thickness(L-1), PXTRAX(2,MAX(L-2,0)))
 !
 !       FINISHED WITH PX(L)
 !
@@ -2691,6 +2727,7 @@ SUBROUTINE TR
             &PXTRAX(2,L)=(-(1.0D0/surf_thickness(L))*PXTRAX(1,L))+PXTRAX(2,L-1)
             IF(GLANAM(L,2).EQ.'IDEAL        ')&
             &PXTRAX(2,L)=(-(1.0D0/surf_ideal_efl(L))*PXTRAX(1,L))+PXTRAX(2,L-1)
+            PXTRAX(2,L)=lm_par_refract(L, PXTRAX(1,L), PXTRAX(2,L-1), PXTRAX(2,L))
 !
 !       PIX(L)=CV(1)*PX(L)+PUX(L-1)
 !       CHECK FOR Y-TORIC. IF FOUND SET CURV=surf_toric_curvature(-)
@@ -2713,7 +2750,7 @@ SUBROUTINE TR
 !       PCX(L) = PCX(L-1)+TH(L-1)*PUCX(L-1) ; THIS IS THE TRANSFER EQUATION
 !******************************************************************************
 !       NOW CALCULATE PCX VALUE
-            PXTRAX(5,L)=PXTRAX(5,(L-1))+(surf_thickness(L-1)*PXTRAX(6,(L-1)))
+            PXTRAX(5,L)=lm_par_transfer(L, PXTRAX(5,(L-1)), PXTRAX(6,(L-1)), surf_thickness(L-1), PXTRAX(6,MAX(L-2,0)))
 !
 !       FINISHED WITH PCX(L)
 !************************************************************************
@@ -2740,6 +2777,7 @@ SUBROUTINE TR
             &PXTRAX(6,L)=(-(1.0D0/surf_thickness(L))*PXTRAX(1,L))+PXTRAX(6,L-1)
             IF(GLANAM(L,2).EQ.'IDEAL        ')&
             &PXTRAX(6,L)=(-(1.0D0/surf_ideal_efl(L))*PXTRAX(1,L))+PXTRAX(6,L-1)
+            PXTRAX(6,L)=lm_par_refract(L, PXTRAX(5,L), PXTRAX(6,L-1), PXTRAX(6,L))
 !
 !       PICX(L)
 !       CHECK FOR Y-TORIC. IF FOUND SET CURV=surf_toric_curvature(-)

@@ -361,6 +361,9 @@ module codeV_commands
    module subroutine execSphere(iptStr)
     character(len=*) :: iptStr
    end subroutine execSphere
+   module subroutine execLensModule(iptStr)
+    character(len=*) :: iptStr
+   end subroutine execLensModule
    module subroutine updateAsphereTerms(iptStr)
     character(len=*) :: iptStr
    end subroutine updateAsphereTerms
@@ -878,6 +881,27 @@ module codeV_commands
         zoaCmds(820)%execFunc => execPRV
         zoaCmds(821)%cmd = 'TRA'
         zoaCmds(821)%execFunc => execTRA
+        ! Lens modules (CODE V MOD, eikonal-based lens)
+        zoaCmds(822)%cmd = 'MOD'
+        zoaCmds(822)%execFunc => execLensModule
+        zoaCmds(823)%cmd = 'MFL'
+        zoaCmds(823)%execFunc => execLensModule
+        zoaCmds(824)%cmd = 'MRD'
+        zoaCmds(824)%execFunc => execLensModule
+        zoaCmds(825)%cmd = 'MFF'
+        zoaCmds(825)%execFunc => execLensModule
+        zoaCmds(826)%cmd = 'MBF'
+        zoaCmds(826)%execFunc => execLensModule
+        zoaCmds(827)%cmd = 'MEN'
+        zoaCmds(827)%execFunc => execLensModule
+        zoaCmds(828)%cmd = 'MFD'
+        zoaCmds(828)%execFunc => execLensModule
+        zoaCmds(829)%cmd = 'MED'
+        zoaCmds(829)%execFunc => execLensModule
+        zoaCmds(830)%cmd = 'MWL'
+        zoaCmds(830)%execFunc => execLensModule
+        zoaCmds(831)%cmd = 'MCO'
+        zoaCmds(831)%execFunc => execLensModule
         ! Tilt / decenter / pivot control codes (CODE V XDC..CDC, XOC..ZOC).
         block
             use zoa_ui, only: TILT_VAR_NAMES

@@ -418,8 +418,8 @@ Follow-up candidates surfaced by this rip:
   AGET still fills registers with lens IDs. Future annotation-cleanup tranche.
 - SHUFFLE command (MATH.f90): independent of the calculator, but its only
   consumer was the deleted ITER POWELL optimizer — dead-command candidate.
-- Bentley7p1.zoa line `MOD S1` ("make S1 a lens module") referenced a feature
-  that never existed here; it now reports INVALID COMMAND (no golden runs it).
+- Bentley7p1.zoa line `MOD S1` ("make S1 a lens module"): the lens module
+  now exists (2026-10-31, see "Lens module (MOD)" below).
 
 ---
 
@@ -974,3 +974,29 @@ surfaces lose their bare Fresnel reflection (mean of s and p).
   default, saved with the lens, cleared by a new lens.  Its coefficients
   are refreshed at the end of GLSRES (any glass or wavelength change).
 
+---
+
+## Lens module (MOD): what is and isn't modelled (2026-10-31)
+
+CODE V's eikonal-based lens module (Designing Optics Using CODE V 7.1.1):
+`MOD Sk` plus MFL/MFF/MBF/MEN/MFD [IMG]/MED/MWL/MCO, listed by `MOD`, saved
+in .zoa, test `lens_module`.  Typed store `lens_module` (no ALENS), optics in
+`lens_module_math` (pure), used by the ray engine, the legacy tracers (via
+the HITSUR wrapper) and the paraxial traces (PARAX1/PARAX3/
+paraxial-ray-trace hooks).
+
+Not done yet:
+- Finite conjugates: MRD other than 0 and MFD OBJ are refused.
+- CHR/ACH modules (glass-based colour) and MCO C27 (pupil spherical) are
+  refused; colour is MWL + MCO C1-C3 / C6-C8 only.
+- Lens editor: no "Lens Module" surface type; CLI only.
+- The legacy tracer (RAYENGINE OFF, or a lens the engine declines, e.g. a
+  tilted module surface) bends the rays but leaves out the module's optical
+  path, so OPD-based analyses are wrong there; a one-time red warning says so.
+- Third-order (THO/Seidel) sums do not include the module's MCO aberrations.
+- Real-ray aberrations are applied to the direction cosines (Malus-consistent
+  with the OPD), so ray errors carry a 1/cos^3 factor over the pure
+  third-order fans: e.g. Commands 7.1 coma gives DY +1.763 / +2.199 at
+  pupil +1 / -1, not symmetric.
+- CODE V .seq import/export of MOD lines is unverified (the .zoa save writes
+  `MOD Sk` / `MFL Sk f` ... lines for both).

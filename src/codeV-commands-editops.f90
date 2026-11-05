@@ -851,6 +851,10 @@ contains
             call abs_set(.false.)       ! so does SET ABS (saved with it)
         end block
         block
+            use lens_module, only: lm_reset
+            call lm_reset()             ! and its lens modules (MOD)
+        end block
+        block
             use ref_sphere_settings, only: rsl_reset
             call rsl_reset()
         end block

@@ -8,6 +8,7 @@
 !   edge apertures (ldm%edge_semi_y)
 !   zoom operands (zoom_manager)
 !   merit-entry surface qualifiers (UCY S5 ...)
+!   lens modules (lens_module)
 ! Deliberately external (no module) so LDM6 can call them without a use.
 
 ! Surface k was inserted: old surfaces k, k+1, ... are now k+1, k+2, ...
@@ -15,6 +16,7 @@ subroutine typed_surface_inserted(k)
   use mod_lens_data_manager, only: ldm
   use optim_types, only: nM, meritInUse
   use zoom_manager, only: zoom_surfaces_shifted
+  use lens_module, only: lm_surfaces_shifted
   implicit none
   integer, intent(in) :: k
   integer :: n, i
@@ -31,6 +33,7 @@ subroutine typed_surface_inserted(k)
     if (meritInUse(i)%iS2 >= k) meritInUse(i)%iS2 = meritInUse(i)%iS2 + 1
   end do
   call zoom_surfaces_shifted(k, +1)
+  call lm_surfaces_shifted(k, +1)
   call recount_optim_vars()
 end subroutine typed_surface_inserted
 
@@ -40,6 +43,7 @@ subroutine typed_surface_deleted(k)
   use mod_lens_data_manager, only: ldm
   use optim_types, only: nM, meritInUse, deleteConstraint, meritNameField
   use zoom_manager, only: zoom_surfaces_shifted
+  use lens_module, only: lm_surfaces_shifted
   use zoa_output, only: zoa_emit
   implicit none
   integer, intent(in) :: k
@@ -72,6 +76,7 @@ subroutine typed_surface_deleted(k)
     i = i + 1
   end do
   call zoom_surfaces_shifted(k, -1)
+  call lm_surfaces_shifted(k, -1)
   call recount_optim_vars()
 end subroutine typed_surface_deleted
 

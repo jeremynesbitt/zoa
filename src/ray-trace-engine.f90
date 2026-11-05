@@ -37,6 +37,7 @@ module mod_ray_trace_engine
    use mod_ray_aiming, only: aim_settings, aim_state, compute_aim_target, getzee1, &
                              rayderiv, newdel, missref, adjust_last_surface
    use mod_ray_messages, only: MSG_NONE, MSG_AIM_NOT_CONVERGED, MSG_ZERO_WAVELENGTH
+   use lens_module_math, only: lm_params, lm_trace
    implicit none
    private
 
@@ -90,6 +91,9 @@ module mod_ray_trace_engine
       type(surface_placement) :: place           ! tilts/decenters/thickness (TRNSF2 data)
       type(surface_apertures) :: aper            ! clear aperture/obscuration/erase (CACHEK data)
       type(surface_optics) :: optics             ! indices, modes, flags (HITSUR/INTERACK data)
+      ! lens module (CODE V MOD) whose front surface this is; active only
+      ! there -- the module's rear surface is the next one
+      type(lm_params) :: lmod
    end type
 
    ! Read-only inputs shared by every ray of one trace job (one field, one
@@ -221,6 +225,10 @@ contains
       real(real64) :: xl, xm, xn, yl, ym, yn
       real(real64) :: rn1, snind2, tarx, tary, test, d11, d12, d21, d22, mf1, mf2
       real(real64) :: ls, pn(3)
+      ! lens module crossing: the landing point on the rear surface and the
+      ! optical path, set at the module's front surface
+      real(real64) :: lm_xr, lm_yr, lm_opl
+      logical :: lm_ok
       logical :: revstr, ninty, refmiss, delfail, macfal, blocked
       type(hit_state) :: st
       type(aim_state) :: ast
@@ -502,6 +510,23 @@ contains
             l = st%l
             m = st%m
             n = st%n
+            ! lens module: turn at its front surface, land at its rear one
+            if (ctx%surf(i)%lmod%active) then
+               call lm_trace(ctx%surf(i)%lmod, x, y, l, m, n, 1000.0_real64*ctx%wavelength(iwl), &
+                             l, m, n, lm_xr, lm_yr, lm_opl, lm_ok)
+               if (.not. lm_ok) then
+                  res%raycod = [1, i]
+                  res%status = 1
+                  res%fail_surface = i
+                  res%fail_stage = FAIL_SURFACE
+                  return
+               end if
+            else if (i > obj) then
+               if (ctx%surf(i-1)%lmod%active) then
+                  x = lm_xr
+                  y = lm_yr
+               end if
+            end if
             if (st%rv) res%rr(RR_RV, i) = -1.0_real64
             if (.not. st%rv) res%rr(RR_RV, i) = 1.0_real64
 
@@ -545,6 +570,8 @@ contains
             res%rr(RR_OPL, i) = res%rr(RR_LEN, i)*abs(ctx%surf(i-1)%n_after(iwl))
             if (.not. st%rv) res%rr(RR_OPL, i) = res%rr(RR_OPL, i) + st%phase
             if (st%rv) res%rr(RR_OPL, i) = res%rr(RR_OPL, i) - st%phase
+            ! across a lens module the path is the module's, not the gap's
+            if (ctx%surf(i-1)%lmod%active) res%rr(RR_OPL, i) = lm_opl
 
             if (l == 0.0_real64) then
                if (n >= 0.0_real64) res%rr(RR_UX, i) = 0.0_real64

@@ -1,0 +1,170 @@
+All constraints removed
+
+
+
+
+LENS MODULE S1-S2
+  MFL 50.000000   MEN 0.000000
+  MFD 10.000000 deg   MED 20.000000   MWL 656.27 587.56 486.13
+  MCO (none)
+ENTRANCE PUPIL
+DIA       20.0000
+THI       -0.0000
+INFINITE CONJUGATES
+EFL       50.0000
+BFL       50.0000
+FFL       -50.0000
+FNO       2.5000
+IMG DIS   50.0000
+OAL       0.0000
+PARAXIAL IMAGE
+ HT      8.8163
+ANG       10.1028 DEG
+ENTRANCE PUPIL
+DIA       20.0000
+THI       -0.0000
+EXIT PUPIL
+DIA       20.0000
+THI       -0.0000
+RAYTRACE DATA (XZ AND YZ-PLANE) - (CFG # 1)
+ANGULAR OUTPUT MODE IS DEGREES
+SLOPES/ANGLES  MEASURED WITH RESPECT TO THE Z-AXIS
+
+SURF      X              Y              Z             XANG           YANG
+  0   -0.00000      -0.176327E+13    0.00000        0.00000        10.0000
+  1    0.00000        10.0000        0.00000        0.00000       -1.35611
+  2    0.00000        10.0000        0.00000        0.00000       -1.35611
+  3    0.00000        8.81635        0.00000        0.00000       -1.35611
+RAYTRACE DATA (XZ AND YZ-PLANE) - (CFG # 1)
+ANGULAR OUTPUT MODE IS DEGREES
+SLOPES/ANGLES  MEASURED WITH RESPECT TO THE Z-AXIS
+
+SURF      X              Y              Z             XANG           YANG
+  0   -0.00000      -0.176327E+13    0.00000        0.00000        10.0000
+  1    0.00000       -10.0000        0.00000        0.00000        20.6227
+  2    0.00000       -10.0000        0.00000        0.00000        20.6227
+  3    0.00000        8.81635        0.00000        0.00000        20.6227
+TEMPORARY CIRCULAR CLEAR APERTURE =   10.00
+ HAS BEEN ASSIGNED TO THE REFERENCE SURFACE
+ FOR THE CURRENT CAPFN CALCULATIONS
+TRACING       4096 RAYS AT WAVELENGTH 1
+ CAPFN RAY TRACING COMPLETED
+TEMPORARY CIRCULAR CLEAR APERTURE =   10.00
+ HAS BEEN REMOVED FROM THE REFERENCE SURFACE
+ FOR THE CURRENT CAPFN CALCULATIONS
+ PERFORMING "CAPFN" CALCULATIONS...
+RMSOPD =   0.300182482222499
+RAYTRACE DATA (XZ AND YZ-PLANE) - (CFG # 1)
+ANGULAR OUTPUT MODE IS DEGREES
+SLOPES/ANGLES  MEASURED WITH RESPECT TO THE Z-AXIS
+
+SURF      X              Y              Z             XANG           YANG
+  0   -0.00000      -0.176327E+13    0.00000        0.00000        10.0000
+  1    0.00000        10.0000        0.00000        0.00000       0.663919
+  2    0.00000        10.0000        0.00000        0.00000       0.663919
+  3    0.00000        10.5794        0.00000        0.00000       0.663919
+RAYTRACE DATA (XZ AND YZ-PLANE) - (CFG # 1)
+ANGULAR OUTPUT MODE IS DEGREES
+SLOPES/ANGLES  MEASURED WITH RESPECT TO THE Z-AXIS
+
+SURF      X              Y              Z             XANG           YANG
+  0   -0.00000      -0.176327E+13    0.00000        0.00000        10.0000
+  1    0.00000       -10.0000        0.00000        0.00000        22.7969
+  2    0.00000       -10.0000        0.00000        0.00000        22.7969
+  3    0.00000        11.0149        0.00000        0.00000        22.7969
+RAYENGINE OFF
+Lens module: the legacy tracer bends the rays but leaves out the module's optical path, so OPD is wrong (RAYENGINE is OFF)
+RAYTRACE DATA (XZ AND YZ-PLANE) - (CFG # 1)
+ANGULAR OUTPUT MODE IS DEGREES
+SLOPES/ANGLES  MEASURED WITH RESPECT TO THE Z-AXIS
+
+SURF      X              Y              Z             XANG           YANG
+  0   -0.00000      -0.176327E+13    0.00000        0.00000        10.0000
+  1    0.00000        10.0000        0.00000        0.00000       0.663919
+  2    0.00000        10.0000        0.00000        0.00000       0.663919
+  3    0.00000        10.5794        0.00000        0.00000       0.663919
+RAYENGINE ON
+LENS MODULE S1-S2
+  MFL 50.000000   MFF -40.000000   MBF 45.000000   MEN 0.000000
+  MFD 10.000000 deg   MED 20.000000   MWL 656.27 587.56 486.13
+  MCO  C1 2.000000  C3 -2.000000
+ENTRANCE PUPIL
+DIA       20.0000
+THI       -0.0000
+INFINITE CONJUGATES
+EFL       50.0000
+BFL       45.0000
+FFL       -40.0000
+FNO       2.5000
+IMG DIS   45.0000
+OAL       0.0000
+PARAXIAL IMAGE
+ HT      8.8163
+ANG       8.0822 DEG
+ENTRANCE PUPIL
+DIA       20.0000
+THI       -0.0000
+EXIT PUPIL
+DIA       25.0000
+THI       -17.5000
+PARAXIAL RAYTRACE DATA (YZ-PLANE) - (CFG # 1)
+(PUY AND PUCY) MEASURED WITH RESPECT TO THE Z-AXIS
+
+SURF      PY            PUY             PCY           PUCY
+  0   0.00000       0.100000E-11  -0.176327E+13   0.176327
+  1   10.0000      -0.200000        0.00000       0.141062
+  2   9.00000      -0.200000        2.46858       0.141062
+  3   0.00000      -0.200000        8.81635       0.141062
+File name to save is lensmod.zoa
+All constraints removed
+
+
+All constraints removed
+
+
+
+
+LENS MODULE S1-S2
+  MFL 50.000000   MFF -40.000000   MBF 45.000000   MEN 0.000000
+  MFD 10.000000 deg   MED 20.000000   MWL 656.27 587.56 486.13
+  MCO  C1 2.000000  C3 -2.000000  C11 2.500000
+ENTRANCE PUPIL
+DIA       20.0000
+THI       0.0000
+INFINITE CONJUGATES
+EFL       50.0000
+BFL       45.0000
+FFL       -40.0000
+FNO       2.5000
+IMG DIS   45.0000
+OAL       0.0000
+PARAXIAL IMAGE
+ HT      8.8163
+ANG       8.0822 DEG
+ENTRANCE PUPIL
+DIA       20.0000
+THI       0.0000
+EXIT PUPIL
+DIA       25.0000
+THI       -17.5000
+LENS MODULE S2-S3
+  MFL 50.000000   MFF -40.000000   MBF 45.000000   MEN 0.000000
+  MFD 10.000000 deg   MED 20.000000   MWL 656.27 587.56 486.13
+  MCO  C1 2.000000  C3 -2.000000  C11 2.500000
+LENS MODULE S1-S2
+  MFL 50.000000   MFF -40.000000   MBF 45.000000   MEN 0.000000
+  MFD 10.000000 deg   MED 20.000000   MWL 656.27 587.56 486.13
+  MCO  C1 2.000000  C3 -2.000000  C11 2.500000
+MOD: a lens module needs surfaces Sk and Sk+1 between the object and the image (Sk from 1 to 1)
+MOD: a lens module needs surfaces Sk and Sk+1 between the object and the image (Sk from 1 to 1)
+MFL: S3 is not a lens module (MOD S3 first)
+MFL: the focal length must not be 0
+MED: the entrance pupil diameter must be positive
+MRD: only an object at infinity (MRD 0) is supported so far
+MFD: OBJ (object height) needs a finite object, which lens modules do not support yet
+MCO: C27 (pupil spherical aberration) is not supported yet
+MCO: coefficients are C1-C3, C6-C8 (colour) and C11-C15
+MCO: 'X' is not a number
+MOD: CHR/ACH lens modules are not supported yet; use MWL and MCO C1-C8 for colour
+SPH: lens module on S1 removed
+No lens modules

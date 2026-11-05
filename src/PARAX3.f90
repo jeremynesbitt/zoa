@@ -8,6 +8,7 @@ SUBROUTINE ENEXRS
    use mod_surface, only: surf_thickness, surf_refractive_index, set_surf_thickness
    use mod_system, only: sys_astop, sys_astop_adj, sys_last_surf, sys_set_astop_adj, sys_telecentric
    use iso_fortran_env, only: real64
+   use lens_module, only: lm_par_transfer
    IMPLICIT NONE
 !
 !       THIS IS SUBROUTINE ENEXRS. IT IS CALLED FROM PRTRA1
@@ -135,9 +136,9 @@ SUBROUTINE ENEXRS
 !
 !       PY(2) = USED TO BE THE SAY VALUE WHICH MUST BE ADJUSTED NOW:
 !       PY(2)=PY(1)+(TH(1)*PUY(1))
-      PXTRAY(1,2)=PXTRAY(1,1)+(PXTRAY(2,1)*surf_thickness(1))
+      PXTRAY(1,2)=lm_par_transfer(2, PXTRAY(1,1), PXTRAY(2,1), surf_thickness(1), PXTRAY(2,0))
 !       PCY(2) = PCY(1)+(TH(1)*PUCY(1)) ; THIS IS THE TRANSFER EQUATION
-      PXTRAY(5,2)=PXTRAY(5,(1))+(surf_thickness(1)*PXTRAY(6,(1)))
+      PXTRAY(5,2)=lm_par_transfer(2, PXTRAY(5,1), PXTRAY(6,1), surf_thickness(1), PXTRAY(6,0))
 !
    ELSE
 !        NO EN ADJUSTMENT WAS REQUESTED, PROCEED WITH PROCESSING
@@ -244,10 +245,10 @@ SUBROUTINE ENEXRS
 !       AS ASTOP EX DOES NOT AFFECT SLOPES
 !
 !       PY(IM1) = PY(IM2)+TH(IM2)*PUY(IM2) ; THIS IS THE TRANSFER EQUATION
-      PXTRAY(1,IM1)=PXTRAY(1,(IM2))+(surf_thickness(IM2)*PXTRAY(2,(IM2)))
+      PXTRAY(1,IM1)=lm_par_transfer(IM1, PXTRAY(1,IM2), PXTRAY(2,IM2), surf_thickness(IM2), PXTRAY(2,MAX(IM2-1,0)))
 !
 !       PCY(IM1) = PCY(IM2)+TH(IM2)*PUCY(IM2) ; THIS IS THE TRANSFER EQUATION
-      PXTRAY(5,IM1)=PXTRAY(5,(IM2))+(surf_thickness(IM2)*PXTRAY(6,(IM2)))
+      PXTRAY(5,IM1)=lm_par_transfer(IM1, PXTRAY(5,IM2), PXTRAY(6,IM2), surf_thickness(IM2), PXTRAY(6,MAX(IM2-1,0)))
 !
    ELSE
 !       WE ARE DONE WITH THE ADJUSTMENTS
@@ -3837,6 +3838,7 @@ SUBROUTINE FINIYZ
    use mod_system, only: sys_wl_ref
    use mod_lens_data_manager, only: ldm
    use iso_fortran_env, only: real64
+   use lens_module, only: lm_par_transfer
    IMPLICIT NONE
 !
 !       THIS IS SUBROUTINE FINIYZ. THIS IS THE
@@ -3860,7 +3862,7 @@ SUBROUTINE FINIYZ
    IF(surf_has_pickups(K)) CALL PIKRES ! existence derived from PIKUP flags (pickup_manager)
 !
    IF(K.GT.0) THEN
-      PXTRAY(1,K)=PXTRAY(1,(K-1))+(surf_thickness(K-1)*PXTRAY(2,(K-1)))
+      PXTRAY(1,K)=lm_par_transfer(K, PXTRAY(1,(K-1)), PXTRAY(2,(K-1)), surf_thickness(K-1), PXTRAY(2,MAX(K-2,0)))
 !
       IF(surf_toric_flag(K).EQ.2.0D0) THEN
          CURV=surf_toric_curvature(K)
@@ -3891,7 +3893,7 @@ SUBROUTINE FINIYZ
 !
       PXTRAY(4,K)=ldm%getIndexRatio(K-1,K,INT(sys_wl_ref()))*PXTRAY(3,K)
 !
-      PXTRAY(5,K)=PXTRAY(5,(K-1))+(surf_thickness(K-1)*PXTRAY(6,(K-1)))
+      PXTRAY(5,K)=lm_par_transfer(K, PXTRAY(5,(K-1)), PXTRAY(6,(K-1)), surf_thickness(K-1), PXTRAY(6,MAX(K-2,0)))
 !
       IF(surf_toric_flag(K).EQ.2.0D0) THEN
          CURV=surf_toric_curvature(K)
@@ -3936,6 +3938,7 @@ SUBROUTINE FINIXZ
    use mod_system, only: sys_wl_ref
    use mod_lens_data_manager, only: ldm
    use iso_fortran_env, only: real64
+   use lens_module, only: lm_par_transfer
    IMPLICIT NONE
 !
 !       THIS IS SUBROUTINE FINIXZ. THIS IS THE
@@ -3958,7 +3961,7 @@ SUBROUTINE FINIXZ
 !
    IF(surf_has_pickups(K)) CALL PIKRES ! existence derived from PIKUP flags (pickup_manager)
 !
-   PXTRAX(1,K)=PXTRAX(1,(K-1))+(surf_thickness(K-1)*PXTRAX(2,(K-1)))
+   PXTRAX(1,K)=lm_par_transfer(K, PXTRAX(1,(K-1)), PXTRAX(2,(K-1)), surf_thickness(K-1), PXTRAX(2,MAX(K-2,0)))
 !
    IF(surf_toric_flag(K).EQ.1.0D0) THEN
       CURV=surf_toric_curvature(K)
@@ -3989,7 +3992,7 @@ SUBROUTINE FINIXZ
 !
    PXTRAX(4,K)=ldm%getIndexRatio(K-1,K,INT(sys_wl_ref()))*PXTRAX(3,K)
 !
-   PXTRAX(5,K)=PXTRAX(5,(K-1))+(surf_thickness(K-1)*PXTRAX(6,(K-1)))
+   PXTRAX(5,K)=lm_par_transfer(K, PXTRAX(5,(K-1)), PXTRAX(6,(K-1)), surf_thickness(K-1), PXTRAX(6,MAX(K-2,0)))
 !
    IF(surf_toric_flag(K).EQ.1.0D0) THEN
       CURV=surf_toric_curvature(K)

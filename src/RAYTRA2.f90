@@ -313,7 +313,25 @@ SUBROUTINE HIT17
    RETURN
 END
 ! SUB HITSUR.FOR
+! The surface intersection and interaction (HITSUR_CORE), then a lens module
+! (MOD) at surface R_I bends the ray -- so every legacy tracer, the
+! differential rays included, sees the module.
 SUBROUTINE HITSUR
+   use DATLEN
+   use lens_module, only: lm_any, lm_legacy_hit
+   IMPLICIT NONE
+   LOGICAL OK
+   CALL HITSUR_CORE
+   IF(STOPP.NE.0.OR..NOT.lm_any()) RETURN
+   CALL lm_legacy_hit(R_I, INT(WVN), R_X, R_Y, R_L, R_M, R_N, OK)
+   IF(.NOT.OK) THEN
+      STOPP=1
+      RAYCOD(1)=1
+      RAYCOD(2)=R_I
+   END IF
+   RETURN
+END
+SUBROUTINE HITSUR_CORE
 !
    use DATLEN
    use DATMAI

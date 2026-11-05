@@ -348,6 +348,8 @@ module procedure execSUR
     module procedure execSphere
         use strings, only: parse
         use mod_lens_data_manager
+        use lens_module, only: lm_store, lm_remove
+        use type_utils, only: int2str
         implicit none
 
         character(len=80) :: tokens(40)
@@ -360,6 +362,11 @@ module procedure execSUR
             return
         end if
         surfNum = getSurfNumFromSurfCommand(trim(tokens(2)))
+        ! a lens module's front surface goes back to an ordinary surface
+        if (lm_store(surfNum)%active) then
+            call lm_remove(surfNum)
+            call zoa_emit("SPH: lens module on S"//trim(int2str(surfNum))//" removed", "black")
+        end if
         call ldm%setSurfaceType(surfNum, 'SPH')
         call kdp_silent_begin()
         call kdp_lens_begin()

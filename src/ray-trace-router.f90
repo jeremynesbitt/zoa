@@ -122,6 +122,18 @@ contains
    ! .true.: the ray is fully handled -- traced by the engine (ON), or by
    ! both tracers with the legacy answer kept (CHECK).  .false.: the caller
    ! must run the legacy core.
+   ! The legacy tracer knows nothing of lens modules (CODE V MOD): say so,
+   ! once until the modules change, when a lens with one falls back to it.
+   subroutine warn_module_ignored(reason)
+      use lens_module, only: lm_any, lm_warned
+      use zoa_output, only: zoa_emit
+      character(len=*), intent(in) :: reason
+      if (.not. lm_any() .or. lm_warned) return
+      lm_warned = .true.
+      call zoa_emit('Lens module: the legacy tracer bends the rays but leaves out the '// &
+                    'module''s optical path, so OPD is wrong ('//trim(reason)//')', 'red')
+   end subroutine
+
    logical function route_legacy_trace(for_opt) result(handled)
       use mod_ray_trace_builder, only: ray_engine_mode, ENGINE_OFF, ENGINE_CHECK, &
                                        build_trace_context
@@ -137,7 +149,10 @@ contains
       integer :: iwl
 
       handled = .false.
-      if (ray_engine_mode == ENGINE_OFF) return
+      if (ray_engine_mode == ENGINE_OFF) then
+         call warn_module_ignored('RAYENGINE is OFF')
+         return
+      end if
 
       iwl = int(WW3)
       if (real(iwl, real64) /= WW3 .or. iwl < 1 .or. iwl > 10 .or. int(WVN) /= iwl) then
@@ -151,6 +166,7 @@ contains
       if (.not. ctx%supported) then
          rt_decl_lens = rt_decl_lens + 1
          call count_reason(ctx%reason)
+         call warn_module_ignored(ctx%reason)
          return
       end if
 

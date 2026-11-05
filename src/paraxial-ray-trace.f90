@@ -5,6 +5,7 @@ module paraxial_ray_trace_test
     use iso_fortran_env, only: real64
     contains
         SUBROUTINE PRTRA_NEW
+   use lens_module, only: lm_par_refract, lm_par_transfer
 
             
             use type_utils, only: real2str, bool2str, int2str
@@ -473,6 +474,7 @@ module paraxial_ray_trace_test
           PXTRAX(2,1)=(-(1.0D0/surf_thickness(1))*PXTRAX(1,1))+PXTRAX(2,1-1)
             IF(GLANAM(1,2).EQ.'IDEAL        ') &
           PXTRAX(2,1)=(-(1.0D0/surf_ideal_efl(1))*PXTRAX(1,1))+PXTRAX(2,1-1)
+            PXTRAX(2,1)=lm_par_refract(1, PXTRAX(1,1), PXTRAX(2,1-1), PXTRAX(2,1))
     
     !
     !       PIX(1)=CV(1)*PX(1)+PUX(0)
@@ -514,6 +516,7 @@ module paraxial_ray_trace_test
           PXTRAX(6,1)=(-(1.0D0/surf_thickness(1))*PXTRAX(5,1))+PXTRAX(6,1-1)
           IF(GLANAM(1,2).EQ.'IDEAL        ') &
           PXTRAX(6,1)=(-(1.0D0/surf_ideal_efl(1))*PXTRAX(5,1))+PXTRAX(6,1-1)
+          PXTRAX(6,1)=lm_par_refract(1, PXTRAX(5,1), PXTRAX(6,1-1), PXTRAX(6,1))
     !
     !       PICY(1)
     !       CHECK FOR Y-TORIC. IF FOUND SET CURV=surf_toric_curvature(-)
@@ -545,7 +548,7 @@ module paraxial_ray_trace_test
             IF(surf_has_pickups(COMI)) CALL PIKRES ! existence derived from PIKUP flags (pickup_manager)
     !
     !       PX(L) = PX(L-1)+TH(L-1)*PUX(L-1) ; THIS IS THE TRANSFER EQUATION
-            PXTRAX(1,L)=PXTRAX(1,(L-1))+(surf_thickness(L-1)*PXTRAX(2,(L-1)))
+            PXTRAX(1,L)=lm_par_transfer(L, PXTRAX(1,(L-1)), PXTRAX(2,(L-1)), surf_thickness(L-1), PXTRAX(2,MAX(L-2,0)))
     !
     !       PUX(L) =-CV(L)*PX(L)*((N'-N)/N')+(N/N')*PUX(L-1)
     !       CHECK FOR Y-TORIC. IF FOUND SET CURV=surf_toric_curvature(-)
@@ -566,6 +569,7 @@ module paraxial_ray_trace_test
           PXTRAX(2,L)=(-(1.0D0/surf_thickness(L))*PXTRAX(1,L))+PXTRAX(2,L-1)
             IF(GLANAM(L,2).EQ.'IDEAL        ') &
           PXTRAX(2,L)=(-(1.0D0/surf_ideal_efl(L))*PXTRAX(1,L))+PXTRAX(2,L-1)
+            PXTRAX(2,L)=lm_par_refract(L, PXTRAX(1,L), PXTRAX(2,L-1), PXTRAX(2,L))
     !
     !       PIX(L)=CV(1)*PX(L)+PUX(L-1)
     !       CHECK FOR Y-TORIC. IF FOUND SET CURV=surf_toric_curvature(-)
@@ -585,7 +589,7 @@ module paraxial_ray_trace_test
                     PXTRAX(4,L)=ldm%getIndexRatio(L-1,L,INT(sys_wl_ref()))*PXTRAX(3,L)
     !
     !       PCX(L) = PCX(L-1)+TH(L-1)*PUCX(L-1) ; THIS IS THE TRANSFER EQUATION
-            PXTRAX(5,L)=PXTRAX(5,(L-1))+(surf_thickness(L-1)*PXTRAX(6,(L-1)))
+            PXTRAX(5,L)=lm_par_transfer(L, PXTRAX(5,(L-1)), PXTRAX(6,(L-1)), surf_thickness(L-1), PXTRAX(6,MAX(L-2,0)))
     !
     !       PUCX(L) =-CV(L)*PCX(L)*((N'-N)/N')+(N/N')*PUCX(L-1)
     !       CHECK FOR Y-TORIC. IF FOUND SET CURV=surf_toric_curvature(-)
@@ -606,6 +610,7 @@ module paraxial_ray_trace_test
           PXTRAX(6,L)=(-(1.0D0/surf_thickness(L))*PXTRAX(5,L))+PXTRAX(6,L-1)
           IF(GLANAM(L,2).EQ.'IDEAL        ') &
           PXTRAX(6,L)=(-(1.0D0/surf_ideal_efl(L))*PXTRAX(5,L))+PXTRAX(6,L-1)
+          PXTRAX(6,L)=lm_par_refract(L, PXTRAX(5,L), PXTRAX(6,L-1), PXTRAX(6,L))
     !
     !       PICX(L)
     !       CHECK FOR Y-TORIC. IF FOUND SET CURV=surf_toric_curvature(-)
@@ -727,6 +732,7 @@ module paraxial_ray_trace_test
           PXTRAX(2,1)=(-(1.0D0/surf_thickness(1))*PXTRAX(1,1))+PXTRAX(2,1-1)
             IF(GLANAM(1,2).EQ.'IDEAL        ') &
           PXTRAX(2,1)=(-(1.0D0/surf_ideal_efl(1))*PXTRAX(1,1))+PXTRAX(2,1-1)
+            PXTRAX(2,1)=lm_par_refract(1, PXTRAX(1,1), PXTRAX(2,1-1), PXTRAX(2,1))
     !
     !       PIX(1)=CV(1)*PX(1)+PUX(0)
     !       CHECK FOR Y-TORIC. IF FOUND SET CURV=surf_toric_curvature(-)
@@ -767,6 +773,7 @@ module paraxial_ray_trace_test
           PXTRAX(6,1)=(-(1.0D0/surf_thickness(1))*PXTRAX(5,1))+PXTRAX(6,1-1)
           IF(GLANAM(1,2).EQ.'IDEAL        ') &
           PXTRAX(6,1)=(-(1.0D0/surf_ideal_efl(1))*PXTRAX(5,1))+PXTRAX(6,1-1)
+          PXTRAX(6,1)=lm_par_refract(1, PXTRAX(5,1), PXTRAX(6,1-1), PXTRAX(6,1))
     !
     !       PICX(1)
     !       CHECK FOR Y-TORIC. IF FOUND SET CURV=surf_toric_curvature(-)
@@ -798,7 +805,7 @@ module paraxial_ray_trace_test
             IF(surf_has_pickups(COMI)) CALL PIKRES ! existence derived from PIKUP flags (pickup_manager)
     !
     !       PX(L) = PX(L-1)+TH(L-1)*PUX(L-1) ; THIS IS THE TRANSFER EQUATION
-            PXTRAX(1,L)=PXTRAX(1,(L-1))+(surf_thickness(L-1)*PXTRAX(2,(L-1)))
+            PXTRAX(1,L)=lm_par_transfer(L, PXTRAX(1,(L-1)), PXTRAX(2,(L-1)), surf_thickness(L-1), PXTRAX(2,MAX(L-2,0)))
     !
     !       PUX(L) =-CV(L)*PX(L)*((N'-N)/N')+(N/N')*PUX(L-1)
     !       CHECK FOR Y-TORIC. IF FOUND SET CURV=surf_toric_curvature(-)
@@ -819,6 +826,7 @@ module paraxial_ray_trace_test
           PXTRAX(2,L)=(-(1.0D0/surf_thickness(L))*PXTRAX(1,L))+PXTRAX(2,L-1)
             IF(GLANAM(L,2).EQ.'IDEAL        ') &
           PXTRAX(2,L)=(-(1.0D0/surf_ideal_efl(L))*PXTRAX(1,L))+PXTRAX(2,L-1)
+            PXTRAX(2,L)=lm_par_refract(L, PXTRAX(1,L), PXTRAX(2,L-1), PXTRAX(2,L))
     !
     !       PIX(L)=CV(1)*PX(L)+PUX(L-1)
     !       CHECK FOR Y-TORIC. IF FOUND SET CURV=surf_toric_curvature(-)
@@ -838,7 +846,7 @@ module paraxial_ray_trace_test
                     PXTRAX(4,L)=ldm%getIndexRatio(L-1,L,INT(sys_wl_ref()))*PXTRAX(3,L)
     !
     !       PCX(L) = PCX(L-1)+TH(L-1)*PUCX(L-1) ; THIS IS THE TRANSFER EQUATION
-            PXTRAX(5,L)=PXTRAX(5,(L-1))+(surf_thickness(L-1)*PXTRAX(6,(L-1)))
+            PXTRAX(5,L)=lm_par_transfer(L, PXTRAX(5,(L-1)), PXTRAX(6,(L-1)), surf_thickness(L-1), PXTRAX(6,MAX(L-2,0)))
     !
     !       PUCX(L) =-CV(L)*PCX(L)*((N'-N)/N')+(N/N')*PUCX(L-1)
     !       CHECK FOR Y-TORIC. IF FOUND SET CURV=surf_toric_curvature(-)
@@ -859,6 +867,7 @@ module paraxial_ray_trace_test
           PXTRAX(6,L)=(-(1.0D0/surf_thickness(L))*PXTRAX(5,L))+PXTRAX(6,L-1)
           IF(GLANAM(L,2).EQ.'IDEAL        ') &
           PXTRAX(6,L)=(-(1.0D0/surf_ideal_efl(L))*PXTRAX(5,L))+PXTRAX(6,L-1)
+          PXTRAX(6,L)=lm_par_refract(L, PXTRAX(5,L), PXTRAX(6,L-1), PXTRAX(6,L))
     !
     !       PICX(L)
     !       CHECK FOR Y-TORIC. IF FOUND SET CURV=surf_toric_curvature(-)
@@ -916,7 +925,7 @@ module paraxial_ray_trace_test
     !
     !       PX(L) = PX(L-1)+TH(L-1)*PUX(L-1) ; THIS IS THE TRANSFER EQUATION
     !       NOW CALCULATE PX VALUE
-            PXTRAX(1,L)=PXTRAX(1,(L-1))+(surf_thickness(L-1)*PXTRAX(2,(L-1)))
+            PXTRAX(1,L)=lm_par_transfer(L, PXTRAX(1,(L-1)), PXTRAX(2,(L-1)), surf_thickness(L-1), PXTRAX(2,MAX(L-2,0)))
     !
     !       FINISHED WITH PX(L)
     !*******************************************************************************
@@ -940,6 +949,7 @@ module paraxial_ray_trace_test
           PXTRAX(2,L)=(-(1.0D0/surf_thickness(L))*PXTRAX(1,L))+PXTRAX(2,L-1)
             IF(GLANAM(L,2).EQ.'IDEAL        ') &
           PXTRAX(2,L)=(-(1.0D0/surf_ideal_efl(L))*PXTRAX(1,L))+PXTRAX(2,L-1)
+            PXTRAX(2,L)=lm_par_refract(L, PXTRAX(1,L), PXTRAX(2,L-1), PXTRAX(2,L))
     !
     !       PIX(L)=CV(1)*PX(L)+PUX(L-1)
     !       CHECK FOR Y-TORIC. IF FOUND SET CURV=surf_toric_curvature(-)
@@ -960,7 +970,7 @@ module paraxial_ray_trace_test
     !
     !       PCX(L) = PCX(L-1)+TH(L-1)*PUCX(L-1) ; THIS IS THE TRANSFER EQUATION
     !       NO CALCULATE PCX VALUE
-            PXTRAX(5,L)=PXTRAX(5,(L-1))+(surf_thickness(L-1)*PXTRAX(6,(L-1)))
+            PXTRAX(5,L)=lm_par_transfer(L, PXTRAX(5,(L-1)), PXTRAX(6,(L-1)), surf_thickness(L-1), PXTRAX(6,MAX(L-2,0)))
     !
     !       FINISHED WITH PCX(L)
     !************************************************************************
@@ -984,6 +994,7 @@ module paraxial_ray_trace_test
           PXTRAX(6,L)=(-(1.0D0/surf_thickness(L))*PXTRAX(5,L))+PXTRAX(6,L-1)
           IF(GLANAM(L,2).EQ.'IDEAL        ') &
           PXTRAX(6,L)=(-(1.0D0/surf_ideal_efl(L))*PXTRAX(5,L))+PXTRAX(6,L-1)
+          PXTRAX(6,L)=lm_par_refract(L, PXTRAX(5,L), PXTRAX(6,L-1), PXTRAX(6,L))
     !
     !       PICX(L)
     !       CHECK FOR Y-TORIC. IF FOUND SET CURV=surf_toric_curvature(-)
@@ -1101,6 +1112,7 @@ module paraxial_ray_trace_test
           PXTRAX(2,1)=(-(1.0D0/surf_thickness(1))*PXTRAX(1,1))+PXTRAX(2,1-1)
             IF(GLANAM(1,2).EQ.'IDEAL        ') &
           PXTRAX(2,1)=(-(1.0D0/surf_ideal_efl(1))*PXTRAX(1,1))+PXTRAX(2,1-1)
+            PXTRAX(2,1)=lm_par_refract(1, PXTRAX(1,1), PXTRAX(2,1-1), PXTRAX(2,1))
     !
     !       PIX(1)=CV(1)*PX(1)+PUX(0)
     !       CHECK FOR Y-TORIC. IF FOUND SET CURV=surf_toric_curvature(-)
@@ -1142,6 +1154,7 @@ module paraxial_ray_trace_test
           PXTRAX(6,1)=(-(1.0D0/surf_thickness(1))*PXTRAX(5,1))+PXTRAX(6,1-1)
           IF(GLANAM(1,2).EQ.'IDEAL        ') &
           PXTRAX(6,1)=(-(1.0D0/surf_ideal_efl(1))*PXTRAX(5,1))+PXTRAX(6,1-1)
+          PXTRAX(6,1)=lm_par_refract(1, PXTRAX(5,1), PXTRAX(6,1-1), PXTRAX(6,1))
     !
     !       PICX(1)
     !       CHECK FOR Y-TORIC. IF FOUND SET CURV=surf_toric_curvature(-)
@@ -1190,7 +1203,7 @@ module paraxial_ray_trace_test
     !*******************************************************************************
     !       PX(L)=PX(L-1)+CV(L-1)*PUX(L-1)
     !       NOW CALCULATE PX VALUE
-            PXTRAX(1,L)=PXTRAX(1,(L-1))+(surf_thickness(L-1)*PXTRAX(2,(L-1)))
+            PXTRAX(1,L)=lm_par_transfer(L, PXTRAX(1,(L-1)), PXTRAX(2,(L-1)), surf_thickness(L-1), PXTRAX(2,MAX(L-2,0)))
     !
     !       FINISHED WITH PX(L)
     !
@@ -1215,6 +1228,7 @@ module paraxial_ray_trace_test
           PXTRAX(2,L)=(-(1.0D0/surf_thickness(L))*PXTRAX(1,L))+PXTRAX(2,L-1)
             IF(GLANAM(L,2).EQ.'IDEAL        ') &
           PXTRAX(2,L)=(-(1.0D0/surf_ideal_efl(L))*PXTRAX(1,L))+PXTRAX(2,L-1)
+            PXTRAX(2,L)=lm_par_refract(L, PXTRAX(1,L), PXTRAX(2,L-1), PXTRAX(2,L))
     !
     !       PIX(L)=CV(1)*PX(L)+PUX(L-1)
     !       CHECK FOR Y-TORIC. IF FOUND SET CURV=surf_toric_curvature(-)
@@ -1236,7 +1250,7 @@ module paraxial_ray_trace_test
     !       PCX(L) = PCX(L-1)+TH(L-1)*PUCX(L-1) ; THIS IS THE TRANSFER EQUATION
     !*******************************************************************************
     !       NOW CALCULATE PCX VALUE
-            PXTRAX(5,L)=PXTRAX(5,(L-1))+(surf_thickness(L-1)*PXTRAX(6,(L-1)))
+            PXTRAX(5,L)=lm_par_transfer(L, PXTRAX(5,(L-1)), PXTRAX(6,(L-1)), surf_thickness(L-1), PXTRAX(6,MAX(L-2,0)))
     !
     !       FINISHED WITH PCX(L)
     !************************************************************************
@@ -1260,6 +1274,7 @@ module paraxial_ray_trace_test
           PXTRAX(6,L)=(-(1.0D0/surf_thickness(L))*PXTRAX(5,L))+PXTRAX(6,L-1)
           IF(GLANAM(L,2).EQ.'IDEAL        ') &
           PXTRAX(6,L)=(-(1.0D0/surf_ideal_efl(L))*PXTRAX(5,L))+PXTRAX(6,L-1)
+          PXTRAX(6,L)=lm_par_refract(L, PXTRAX(5,L), PXTRAX(6,L-1), PXTRAX(6,L))
     !
     !       PICX(L)
     !       CHECK FOR Y-TORIC. IF FOUND SET CURV=surf_toric_curvature(-)
@@ -1352,6 +1367,7 @@ function traNextSurf(lastSurf, surfIdx, lambdaIdx, useXZPlane, overridePos) resu
     use DATLEN, only: GLANAM
     use mod_lens_data_manager
     use mod_surface, only: surf_thickness, surf_ideal_efl
+    use lens_module, only: lm_par_refract, lm_par_transfer
     use type_utils, only: real2str ! DEBUG
 ! This function will do paraxial ray trace to the next surface
 ! Inputs:
@@ -1385,7 +1401,10 @@ function traNextSurf(lastSurf, surfIdx, lambdaIdx, useXZPlane, overridePos) resu
     if (present(overridePos)) then
         nextSurf(1) = overridePos
     else
-        nextSurf(1) = lastSurf(1)+ldm%getSurfThi(surfIdx-1)*lastSurf(2)
+        ! (across a lens module the height carries from H to H'; the slope
+        ! arriving at its flat front surface is that surface's incident slope)
+        nextSurf(1) = lm_par_transfer(surfIdx, lastSurf(1), lastSurf(2), &
+                                      ldm%getSurfThi(surfIdx-1), lastSurf(3))
     end if
     curv = ldm%getSurfCurv(surfIdx, useXZ)
 
@@ -1415,7 +1434,9 @@ function traNextSurf(lastSurf, surfIdx, lambdaIdx, useXZPlane, overridePos) resu
     IF(GLANAM(surfIdx,2).EQ.'PERFECT      ') &
     nextSurf(2)=(-(1.0D0/surf_thickness(surfIdx))*nextSurf(1))+lastSurf(2)
       IF(GLANAM(surfIdx,2).EQ.'IDEAL        ') &
-    nextSurf(2)=(-(1.0D0/surf_ideal_efl(surfIdx))*nextSurf(1))+lastSurf(2)  
+    nextSurf(2)=(-(1.0D0/surf_ideal_efl(surfIdx))*nextSurf(1))+lastSurf(2)
+    ! lens module front surface
+    nextSurf(2) = lm_par_refract(surfIdx, nextSurf(1), lastSurf(2), nextSurf(2))
 
     !PIY are incident slope 
     !PIY(L)=CV(1)*PY(L)+PUY(L-1)

@@ -51,6 +51,9 @@ contains
       use mod_surface, only: surf_clap_type, surf_coat_type, surf_cobs_ape_type, &
                              surf_cobs_era_type
       use type_utils, only: int2str
+      use lens_module, only: lm_params_for, lm_is_front, lm_any
+      use mod_system, only: sys_wl_ref, sys_units
+      use mod_surface, only: surf_tilt_flag, surf_decenter_flag
       type(trace_context), intent(out) :: ctx
       logical, intent(in), optional :: check_apertures, ana_aim
       integer :: s, w
@@ -124,6 +127,11 @@ contains
             ctx%surf(s)%n_after(w) = ldm%getSurfIndex(s, w)
             ctx%surf(s)%absorb(w) = abs_alpha(s, w)
          end do
+         ! lens module: its parameters, and the reference wavelength (its
+         ! aberrations are waves of it) in lens units
+         if (lm_is_front(s) .and. s < ctx%img) then
+            ctx%surf(s)%lmod = lm_params_for(s)
+         end if
       end do
 
       ! Support gate: decline anything the engine does not reproduce yet, so
@@ -167,6 +175,15 @@ contains
                   ctx%reason = 'surface '//trim(int2str(s))//' is a multi-hit surface'
                   return
                end if
+            end if
+         end if
+      end do
+      do s = ctx%obj + 1, ctx%img - 1
+         if (ctx%surf(s)%lmod%active) then
+            if (surf_tilt_flag(s) /= 0 .or. surf_tilt_flag(s+1) /= 0 .or. &
+                surf_decenter_flag(s) /= 0 .or. surf_decenter_flag(s+1) /= 0) then
+               ctx%reason = 'lens module on surface '//trim(int2str(s))//' is tilted or decentered'
+               return
             end if
          end if
       end do

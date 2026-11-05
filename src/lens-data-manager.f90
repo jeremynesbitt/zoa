@@ -1117,7 +1117,66 @@ module mod_lens_data_manager
             if (abs_on .and. .not. cv) write(fID, '(A)') 'SET ABS Y'
         end block
 
+        ! lens modules (CODE V syntax, so the same lines suit ZOA2CV)
+        block
+            use lens_module, only: lm_store, LM_FIELD_IMG
+            use lens_module_math, only: lm_params
+            type(lm_params) :: dflt
+            integer :: s, j
+            character(len=8) :: sk
+            do s = 0, curr_lens_data%num_surfaces
+                if (.not. lm_store(s)%active) cycle
+                associate (p => lm_store(s))
+                write(sk, '(A,I0)') 'S', s
+                write(fID, '(A)') 'MOD '//trim(sk)
+                if (p%efl /= 0.0d0) write(fID, '(A)') 'MFL '//trim(sk)//' '//num(p%efl)
+                if (p%mff_set) write(fID, '(A)') 'MFF '//trim(sk)//' '//num(p%mff)
+                if (p%mbf_set) write(fID, '(A)') 'MBF '//trim(sk)//' '//num(p%mbf)
+                if (p%men /= 0.0d0) write(fID, '(A)') 'MEN '//trim(sk)//' '//num(p%men)
+                if (p%mfd /= 0.0d0) then
+                    if (p%mfd_kind == LM_FIELD_IMG) then
+                        write(fID, '(A)') 'MFD '//trim(sk)//' IMG '//num(p%mfd)
+                    else
+                        write(fID, '(A)') 'MFD '//trim(sk)//' '//num(p%mfd)
+                    end if
+                end if
+                if (p%med /= 0.0d0) write(fID, '(A)') 'MED '//trim(sk)//' '//num(p%med)
+                if (any(p%mwl /= dflt%mwl)) write(fID, '(A)') 'MWL '//trim(sk)//' '// &
+                    num(p%mwl(1))//' '//num(p%mwl(2))//' '//num(p%mwl(3))
+                do j = 1, 15
+                    if (p%c(j) /= 0.0d0) write(fID, '(A,I0,A)') 'MCO '//trim(sk)//' C', j, &
+                        ' '//num(p%c(j))
+                end do
+                end associate
+            end do
+        end block
+
       contains
+
+        ! x as the shortest fixed-point number that reads back exactly
+        ! (50, 2.5, -200), else in full scientific notation
+        function num(x) result(str)
+            real(real64), intent(in) :: x
+            character(len=:), allocatable :: str
+            character(len=40) :: buf
+            real(real64) :: back
+            integer :: d, ios, n
+            logical :: exact
+            exact = .false.
+            do d = 0, 15
+                write(buf, '(F0.'//achar(48 + d/10)//achar(48 + mod(d, 10))//')') x
+                read(buf, *, iostat=ios) back
+                if (ios == 0 .and. back == x) then
+                    exact = .true.
+                    exit
+                end if
+            end do
+            if (.not. exact) write(buf, '(ES24.16)') x
+            buf = adjustl(buf)
+            n = len_trim(buf)
+            if (buf(n:n) == '.') n = n - 1
+            str = buf(1:n)
+        end function
 
         ! The glass of surface entry k (curr_lens_data numbering) as saved:
         ! name_CATALOG for a catalog glass, so a reload finds the same

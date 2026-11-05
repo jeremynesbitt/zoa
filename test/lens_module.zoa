@@ -1,0 +1,73 @@
+! Lens module (MOD): CODE V "eikonal-based lens", object at infinity
+LEN NEW
+INS S2
+EPD 20
+YAN 0 7 10
+PIM
+MOD S1
+MFL S1 50
+MFD S1 10
+MED S1 20
+! perfect module: EFL/BFL 50, every ray of a field lands on f*tan(theta)
+MOD
+FIR
+FOB 1
+RAY 1 0
+PRXYZ ALL
+RAY -1 0
+PRXYZ ALL
+! spherical only (C11 = 1 wave): RMS OPD ~0.30 wave on axis
+MCO S1 C11 1
+FOB 0
+CAPFN, 64
+SHO RMSOPD
+MCO S1 C11 0
+! coma (Designing Optics Using CODE V, Commands 7.1)
+MCO S1 C12 -200
+FOB 1
+RAY 1 0
+PRXYZ ALL
+RAY -1 0
+PRXYZ ALL
+! the legacy tracer bends the rays the same way
+RAYENGINE OFF
+FOB 1
+RAY 1 0
+PRXYZ ALL
+RAYENGINE ON
+! axial colour, principal planes moved: BFL 45, exit pupil 25 at -17.5
+MCO S1 C12 0
+MCO S1 C1 2
+MCO S1 C3 -2
+MFF S1 -40
+MBF S1 45
+MOD
+FIR
+PXTY ALL
+! save and restore
+MCO S1 C11 2.5
+SAV lensmod
+LEN NEW
+RES lensmod
+MOD
+FIR
+! the module follows a surface inserted in front of it
+INS S1
+MOD
+DEL S1
+MOD
+! bad input
+MOD S0
+MOD S2
+MFL S3 10
+MFL S1 0
+MED S1 -5
+MRD S1 0.5
+MFD S1 OBJ 5
+MCO S1 C27 1
+MCO S1 C4 1
+MCO S1 C11 x
+MOD S1 CHR
+! SPH removes the module
+SPH S1
+MOD
