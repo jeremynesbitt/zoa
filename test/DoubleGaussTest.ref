@@ -19,8 +19,8 @@ ENTRANCE PUPIL
 DIA       33.3300
 THI       58.9398
 EXIT PUPIL
-DIA       36.2892
-THI       -50.6533
+DIA       36.2584
+THI       -50.7450
    DOUBLE GAUSS
 SRF     HMY       UMY       HCY       UCY
 OBJ   0.00000   0.00000 *********   0.24933

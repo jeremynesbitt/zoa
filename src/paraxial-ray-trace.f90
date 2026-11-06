@@ -218,11 +218,6 @@ module paraxial_ray_trace_test
     !
     !               NOW ALL SOLVES ON SURFACE L HAVE BEEN HANDLED
           
-            if(L.EQ.INT(sys_last_surf()).AND.surf_thickness(L).NE.0) then 
-                
-                PXTRAY(1:4,L) = traNextSurf(PXTRAY(1:4,L),L+1, INT(sys_wl_ref()))
-                PXTRAY(5:8,L) = traNextSurf(PXTRAY(5:8,L),L+1, INT(sys_wl_ref()))                    
-            end if
     !
             END DO
     !       TRACE COMPLETED
@@ -293,6 +288,7 @@ module paraxial_ray_trace_test
                             END DO
     !       PARAXIAL TRACE COMPLETED
                             END IF
+            call defocusAtImage(PXTRAY)
     !       NOW CALL ENEXES TO RESOLVE ANY ASTOP EN AND/OR EX
     !       ENTRANCE/EXIT PUPIL ADJUSTMENTS.
     !       THIS CALL IS ONLY MADE FROM PRTRA1 AND ONLY
@@ -1305,6 +1301,7 @@ module paraxial_ray_trace_test
      8000                     CONTINUE
     !       PARAXIAL TRACE COMPLETED
                             END IF
+            call defocusAtImage(PXTRAX)
     !    Populate data object
     !     Dump data to paraxial ray trace interface
     
@@ -1449,6 +1446,22 @@ function traNextSurf(lastSurf, surfIdx, lambdaIdx, useXZPlane, overridePos) resu
 
 end function
 
+
+! A thickness on the image surface is a defocus (CODE V THI SI): the rays
+! carry on, unrefracted, to the shifted image plane, so the image-surface
+! heights are those there and the slopes are unchanged.  (This used to trace
+! on to a surface last+1, whose index is 0, which made every image slope NaN
+! -- and only in the YZ trace with an aperture stop.)
+subroutine defocusAtImage(P)
+    use mod_surface, only: surf_thickness
+    use mod_system, only: sys_last_surf
+    real(kind=real64), intent(inout) :: P(1:8,0:499)
+    integer :: SF
+    SF = INT(sys_last_surf())
+    if (surf_thickness(SF) == 0.0_real64) return
+    P(1,SF) = P(1,SF) + surf_thickness(SF)*P(2,SF)
+    P(5,SF) = P(5,SF) + surf_thickness(SF)*P(6,SF)
+end subroutine
 
 subroutine resolvePikup(L)
     use DATLEN, only: ALENS

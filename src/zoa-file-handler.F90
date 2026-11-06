@@ -825,6 +825,14 @@ function findDataFile(kind, name) result(path)
     nsub = 0
   end select
 
+  ! an absolute path is used as given
+  if (nm(1:1) == '/' .or. nm(1:1) == '\' .or. nm(2:2) == ':') then
+    path = nm
+    if (doesFileExist(trim(path))) return
+    path = ''
+    return
+  end if
+
   path = trim(home)//trim(nm)
   if (len_trim(home) > 0 .and. doesFileExist(trim(path))) return
 

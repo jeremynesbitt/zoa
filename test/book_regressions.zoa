@@ -1,0 +1,40 @@
+! Regressions found running the "Designing Optics Using CODE V" examples
+! a missing lens file is reported, and FIR without a lens refuses (crashed)
+RES nosuchlens
+FIR
+! THI SI (image defocus): paraxial slopes, THO, FNO and exit pupil stay
+! finite, and the exit pupil does not move with the defocus (was NaN)
+LEN NEW
+EPD 20
+INS S2
+RDY S1 120
+THI S1 5
+GLA S1 NBK7
+RDY S2 -32.4637
+PIM
+FIR
+THI SI -1
+PXTY ALL
+THO
+FIR
+THI SI 0
+! FLY keeps the image solve and the paraxial trace follows the flipped lens:
+! PIM 47.3762, SA -0.40526 (book Table 6.3; was the unflipped lens)
+FLY S1..2
+SUR SA
+THO
+! SCA rescales what the paraxial trace sees: EFL lands on 50 exactly
+LEN NEW
+EPD 20
+INS S2
+RDY S1 120
+THI S1 5
+GLA S1 NBK7
+RDY S2 -50
+PIM
+SCA EFL 50
+FIR
+! TOW headless runs its commands with ordinary output (segfaulted)
+TOW
+FIR
+GO

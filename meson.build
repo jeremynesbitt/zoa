@@ -652,6 +652,11 @@ test('lens_module', test_runner,
             meson.project_source_root() / 'test/lens_module.ref'],
      timeout: 120)
 
+test('book_regressions', test_runner,
+     args: [meson.project_source_root() / 'test/book_regressions.zoa',
+            meson.project_source_root() / 'test/book_regressions.ref'],
+     timeout: 120)
+
 test('glass_catalog', test_runner,
      args: [meson.project_source_root() / 'test/glass_catalog.zoa',
             meson.project_source_root() / 'test/glass_catalog.ref'],

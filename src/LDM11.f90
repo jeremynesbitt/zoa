@@ -4021,7 +4021,7 @@ SUBROUTINE BLKHEAD
 END
 ! SUB CVFLIP.FOR
 SUBROUTINE CVFLIP
-   use solve_manager, only: surf_has_any_solve
+   use solve_manager, only: surf_has_any_solve, surf_has_yz_curv_solve, surf_has_xz_curv_solve
 !
    use DATLEN
    use mod_surface
@@ -4039,6 +4039,8 @@ SUBROUTINE CVFLIP
 !       FLIP, I J
 !
    INTEGER I,J,ALLOERR,IJ,K,L,BCNT,JJ
+   real(real64) KEEPSLV(1:4)
+   LOGICAL DROPS
    real(real64) TEMPLEN
    CHARACTER TEMPGLA*13
    DIMENSION TEMPLEN(:,:),TEMPGLA(:,:)
@@ -4148,7 +4150,10 @@ SUBROUTINE CVFLIP
    END DO
 21 CONTINUE
    DO K=I,J
-      IF(surf_special_type(K).NE.0.0D0.OR.surf_has_any_solve(K)) THEN
+      ! the thickness solve on J (to the surface after the range) is kept
+      DROPS=surf_has_any_solve(K)
+      IF(K.EQ.J) DROPS=surf_has_yz_curv_solve(K).OR.surf_has_xz_curv_solve(K)
+      IF(surf_special_type(K).NE.0.0D0.OR.DROPS) THEN
          WRITE(OUTLYNE,*)'WARNING:'
          CALL SHOWIT(1)
          WRITE(OUTLYNE,*)'THERE ARE PIKUPS OR TILTS IN THE SURFACE NUMBER RANGE'
@@ -4183,6 +4188,10 @@ SUBROUTINE CVFLIP
 !
 !     3. APPLY FLIP SURFACES IGNORING ALL TILTS AND DECENTERS
 !     SOME THINGS JUST FLIP EXACTLY
+!     THE THICKNESS OF J (TO THE SURFACE AFTER THE RANGE) IS NOT FLIPPED,
+!     SO ITS THICKNESS SOLVE (E.G. PIM) STAYS: XZ IN SOLVE(3:4), YZ IN 6:7
+   KEEPSLV(1:2)=SOLVE(3:4,J)
+   KEEPSLV(3:4)=SOLVE(6:7,J)
    DO K=I,J
       BCNT=I+(J-K)
       ALENS(1:2,K)=TEMPLEN(1:2,BCNT)
@@ -4211,6 +4220,11 @@ SUBROUTINE CVFLIP
       call ldm%initRefractiveIndices(K)
       GLANAM(K,1:2)=TEMPGLA(BCNT,1:2)
    END DO
+   SOLVE(3:4,J)=KEEPSLV(1:2)
+   SOLVE(6:7,J)=KEEPSLV(3:4)
+!     THE FLIP WROTE ALENS DIRECTLY: REBUILD THE TYPED SURFACES, WHICH THE
+!     PARAXIAL TRACE READS (IT WAS STILL TRACING THE UNFLIPPED LENS)
+   call ldm%load_surfaces_from_alens()
    F1=0
    F6=1
    F22=1

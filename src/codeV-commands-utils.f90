@@ -337,6 +337,9 @@ contains
                 else
                     call loadLensFromZoaPath(trim(fileName))
                 end if
+            else
+                ! (was silent: the current lens stayed and nothing said so)
+                call zoa_emit("Error:  Lens file not found: "//trim(iptStr), "red")
             end if
         end if
     end procedure processZoaFileInput

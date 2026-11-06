@@ -107,103 +107,103 @@ DIA       10.4120
 THI       -10.2334
 ENTRANCE PUPIL
 DIA       7.6544
-THI       3.7829
+THI       3.8709
 INFINITE CONJUGATES
-EFL       51.1863
-BFL       47.4129
-FFL       -43.8302
-FNO       6.6872
-IMG DIS   66.5212
+EFL       50.0000
+BFL       44.2268
+FFL       -44.1507
+FNO       6.5322
+IMG DIS   44.2268
 OAL       12.7063
 PARAXIAL IMAGE
- HT      12.6630
-ANG       9.8187 DEG
+ HT      8.8163
+ANG       9.7030 DEG
 ENTRANCE PUPIL
 DIA       7.6544
-THI       3.7829
+THI       3.8709
 EXIT PUPIL
-DIA       8.2528
-THI       -7.7748
+DIA       7.9698
+THI       -7.8330
 
 
 ENTRANCE PUPIL
 DIA       7.6544
-THI       3.7829
+THI       3.8709
 INFINITE CONJUGATES
-EFL       51.1863
-BFL       47.4129
-FFL       -43.8302
-FNO       6.6872
-IMG DIS   66.5212
+EFL       50.0000
+BFL       44.2268
+FFL       -44.1507
+FNO       6.5322
+IMG DIS   44.2268
 OAL       12.7063
 PARAXIAL IMAGE
- HT      12.6630
-ANG       9.8187 DEG
+ HT      8.8163
+ANG       9.7030 DEG
 ENTRANCE PUPIL
 DIA       7.6544
-THI       3.7829
+THI       3.8709
 EXIT PUPIL
-DIA       8.2528
-THI       -7.7748
+DIA       7.9698
+THI       -7.8330
 
 ENTRANCE PUPIL
 DIA       7.6544
-THI       3.7829
+THI       3.8709
 INFINITE CONJUGATES
-EFL       51.1863
-BFL       47.4129
-FFL       -43.8302
-FNO       6.6872
-IMG DIS   66.5212
+EFL       50.0000
+BFL       44.2268
+FFL       -44.1507
+FNO       6.5322
+IMG DIS   44.2268
 OAL       12.7063
 PARAXIAL IMAGE
  HT      -0.0000
 ANG       -0.0000 DEG
 ENTRANCE PUPIL
 DIA       7.6544
-THI       3.7829
+THI       3.8709
 EXIT PUPIL
-DIA       8.2528
-THI       -7.7748
+DIA       7.9698
+THI       -7.8330
 
 ENTRANCE PUPIL
 DIA       7.6544
-THI       3.7829
+THI       3.8709
 INFINITE CONJUGATES
-EFL       51.1863
-BFL       47.4129
-FFL       -43.8302
-FNO       6.6872
-IMG DIS   66.5212
+EFL       50.0000
+BFL       44.2268
+FFL       -44.1507
+FNO       6.5322
+IMG DIS   44.2268
 OAL       12.7063
 PARAXIAL IMAGE
  HT      -0.0000
 ANG       -0.0000 DEG
 ENTRANCE PUPIL
 DIA       7.6544
-THI       3.7829
+THI       3.8709
 EXIT PUPIL
-DIA       8.2528
-THI       -7.7748
+DIA       7.9698
+THI       -7.8330
 ENTRANCE PUPIL
 DIA       7.6544
-THI       3.7829
+THI       3.8709
 INFINITE CONJUGATES
-EFL       51.1863
-BFL       47.4129
-FFL       -43.8302
-FNO       6.6872
-IMG DIS   66.5212
+EFL       50.0000
+BFL       44.2268
+FFL       -44.1507
+FNO       6.5322
+IMG DIS   44.2268
 OAL       12.7063
 PARAXIAL IMAGE
- HT      10.4189
-ANG       8.0787 DEG
+ HT      10.0000
+ANG       11.0057 DEG
 ENTRANCE PUPIL
 DIA       7.6544
-THI       3.7829
+THI       3.8709
 EXIT PUPIL
-DIA       8.2528
-THI       -7.7748
+DIA       7.9698
+THI       -7.8330
           RDY          THI     RMD          GLA          CCY     THC     GLC
 OBJ:    INFINITY    INFINITY                              100     100     100
 001:    11.48162    2.67905               N-SK16_SCHOTT  100     100     100
@@ -212,7 +212,7 @@ OBJ:    INFINITY    INFINITY                              100     100     100
 STO:    -28.727    1.14816               N-F2_SCHOTT    100     100     100
 005:    10.77742    3.82721                              100     100     100
 006:    38.47108    2.67905               N-SK16_SCHOTT  100     100     100
-007:    -24.020    66.52121                              100     100     100
+007:    -24.020    44.22685                              100     100     100
 IMG:    INFINITY    5.00000                              100     100     100
           RDY          THI     RMD          GLA          CCY     THC     GLC
 OBJ:    INFINITY    INFINITY                              100     100     100
@@ -222,7 +222,7 @@ OBJ:    INFINITY    INFINITY                              100     100     100
 STO:    -28.727    1.14816               N-F2_SCHOTT    100     100     100
 005:    10.77742    3.82721                              100     100     100
 006:    38.47108    2.67905               N-SK16_SCHOTT  100     100     100
-007:    -24.020    66.52121                              100     100     100
+007:    -24.020    44.22685                              100     100     100
 IMG:    INFINITY    5.00000                              100     100     100
           RDY          THI     RMD          GLA          CCY     THC     GLC
 OBJ:    INFINITY    INFINITY                              100     100     100
@@ -232,7 +232,7 @@ OBJ:    INFINITY    INFINITY                              100     100     100
 STO:    -28.727    1.14816               N-F2_SCHOTT    100     100     100
 005:    10.77742    3.82721                              100     100     100
 006:    38.47108    2.67905               N-SK16_SCHOTT  100     100     100
-007:    -24.020    66.52121                              100     100     100
+007:    -24.020    44.22685                              100     100     100
 IMG:    INFINITY    5.00000                              100     100     100
           RDY          THI     RMD          GLA          CCY     THC     GLC
 OBJ:    INFINITY    INFINITY                              100     100     100
@@ -242,7 +242,7 @@ STO:    28.72702    0.00000                              100     100     100
 004:    -15.309    2.67905               N-SK16_SCHOTT  100     100     100
 005:    -11.482    3.82721                              100     100     100
 006:    38.47108    2.67905               N-SK16_SCHOTT  100     100     100
-007:    -24.020    532.13336                              100     100     100
+007:    -24.020    33.78078                              100     100     100
 IMG:    INFINITY    5.00000                              100     100     100
  THE REQUESTED "FLIP" HAS BEEN PERFORMED
           RDY          THI     RMD          GLA          CCY     THC     GLC
@@ -253,7 +253,7 @@ STO:    15.30883    2.37287               N-BK7_SCHOTT   100     100     100
 004:    -28.727    1.14816               N-F2_SCHOTT    100     100     100
 005:    10.77742    3.82721                              100     100     100
 006:    38.47108    2.67905               N-SK16_SCHOTT  100     100     100
-007:    -24.020    66.52121                              100     100     100
+007:    -24.020    44.22685                              100     100     100
 IMG:    INFINITY    5.00000                              100     100     100
           RDY          THI     RMD          GLA          CCY     THC     GLC
 OBJ:    INFINITY    INFINITY                              100     100     100
@@ -263,7 +263,7 @@ STO:    15.30883    2.37287               N-BK7_SCHOTT   100     100     100
 004:    -28.727    0.00000               N-F2_SCHOTT    100     100     100
 005:    10.77742    0.00000                              100     100     100
 006:    38.47108    0.00000               N-SK16_SCHOTT  100     100     100
-007:    -24.020    74.99226                              100     100     100
+007:    -24.020    49.70821                              100     100     100
 IMG:    INFINITY    0.00000                              100     100     100
 All constraints removed
 

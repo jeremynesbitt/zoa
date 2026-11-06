@@ -626,7 +626,7 @@ INFINITE CONJUGATES
 EFL       50.0107
 BFL       38.5152
 FFL       -44.5831
-FNO       0.0000
+FNO       5.0011
 IMG DIS   38.5152
 OAL       16.6000
 PARAXIAL IMAGE
@@ -636,8 +636,8 @@ ENTRANCE PUPIL
 DIA       10.0000
 THI       6.7224
 EXIT PUPIL
-DIA       NaN
-THI       NaN
+DIA       9.7476
+THI       -10.2334
 PLOT: zoa_plot_1.png 1200x800
 All constraints removed
 

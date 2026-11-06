@@ -73,6 +73,7 @@ subroutine initializeGoDataTab(psm,plot_code, plotName, replot, objIdx)
 ! output to standard dialog
 ! eventually will look for special commands and generate settings for them
 subroutine tow_go(psm, cmdTOW)
+    use GLOBALS, only: HEADLESS_MODE
 
     class(zoaplot_setting_manager) :: psm
     character(len=*) :: cmdTOW
@@ -80,6 +81,12 @@ subroutine tow_go(psm, cmdTOW)
     integer :: objIdx
     logical :: replot
 
+    ! headless there is no tab to send the output to (building one crashed
+    ! in GTK): run the commands with their output where it normally goes
+    if (HEADLESS_MODE) then
+      CALL PROCESKDP(cmdTOW)
+      return
+    end if
 
     call initializeGoDataTab(psm,ID_TOW_TAB, "Output Data", replot, objIdx)
     

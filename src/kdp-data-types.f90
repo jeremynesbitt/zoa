@@ -1999,7 +1999,9 @@ subroutine calculateFirstOrderParameters(self, lData)
 
   I = 0
   J = lData%num_surfaces-1
-  IF(DABS(PXTRAY(2,J)).GE.1.0D-15) THEN
+  ! (a system with no power leaves the marginal slope at its ~1e-12 seed:
+  ! no F-number)
+  IF(DABS(PXTRAY(2,J)).GE.1.0D-10) THEN
     self%FNUM=-1.0D0/(2.0D0*PXTRAY(2,J))/lData%surf_index(J)
                     ELSE
                     self%FNUM=0.0D0
@@ -2025,7 +2027,9 @@ self%EXPUPDIA = EXDIAY
 ! axis.   
 
 self%ENPUPPOS = ENPUZ
-self%EXPUPPOS = EXPUZ+self%imageDistance
+! EXPUZ is measured from the image surface, which a defocus (its own
+! thickness, THI SI) moves beyond the last surface's thickness
+self%EXPUPPOS = EXPUZ+self%imageDistance+lData%thicknesses(lData%num_surfaces)
 
 
 end subroutine

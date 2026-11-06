@@ -325,6 +325,12 @@ subroutine FIR
 
   !call calcExitPupil(epRad, epPos)
   call curr_lens_data%update()
+  ! no lens (e.g. a headless session whose RES failed): the first-order
+  ! calculation indexes surface num_surfaces-2 and would run off the arrays
+  if (curr_lens_data%num_surfaces < 3) then
+    call zoa_emit("FIR: no lens is loaded", "red")
+    return
+  end if
   !PRINT *, "num surfaces is ", curr_lens_data%num_surfaces
   !call LogTermFOR("Exit Pupil Radius is "//real2str(epRad))
   !PRINT *, "Angle is ", curr_par_ray_trace % marginal_ray_angle(curr_lens_data % num_surfaces)

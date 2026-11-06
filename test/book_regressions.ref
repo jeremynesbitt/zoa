@@ -1,0 +1,113 @@
+Error:  Lens file not found: nosuchlens
+FIR: no lens is loaded
+All constraints removed
+
+
+ENTRANCE PUPIL
+DIA       20.0000
+THI       0.0000
+INFINITE CONJUGATES
+EFL       50.0000
+BFL       49.2902
+FFL       -47.3762
+FNO       2.5000
+IMG DIS   49.2902
+OAL       5.0000
+PARAXIAL IMAGE
+ HT      -0.0000
+ANG       -0.0000 DEG
+ENTRANCE PUPIL
+DIA       20.0000
+THI       0.0000
+EXIT PUPIL
+DIA       21.1077
+THI       -3.4790
+PARAXIAL RAYTRACE DATA (YZ-PLANE) - (CFG # 1)
+(PUY AND PUCY) MEASURED WITH RESPECT TO THE Z-AXIS
+
+SURF      PY            PUY             PCY           PUCY
+  0   0.00000       0.100000E-11    1.00000      -0.100000E-12
+  1   10.0000      -0.283931E-01    0.00000      -0.659283E-13
+  2   9.85803      -0.200000      -0.329641E-12  -0.947523E-13
+  3  0.200000      -0.200000      -0.490525E-11  -0.947523E-13
+New Lens From Template
+          Position 1, Wavelength = 587.6 nm
+SRF     SA3       CMA3      AST3      DIS3      PTZ3      AC3       LC3
+OBJ   0.00000   0.00000   0.00000   0.00000   0.00000   0.00000   0.00000
+STO  -0.00325   0.00000   0.00000   0.00000   0.00000   0.00000  -0.00000
+002  -1.13335  -0.00000   0.00000   0.00000   0.00000  -0.00000  -0.00000
+IMG   0.00000   0.00000   0.00000   0.00000   0.00000  -0.00000  -0.00000
+SUM  -1.13660  -0.00000   0.00000   0.00000   0.00000   0.00000   0.00000
+ENTRANCE PUPIL
+DIA       20.0000
+THI       0.0000
+INFINITE CONJUGATES
+EFL       50.0000
+BFL       49.2902
+FFL       -47.3762
+FNO       2.5000
+IMG DIS   49.2902
+OAL       5.0000
+PARAXIAL IMAGE
+ HT      -0.0000
+ANG       -0.0000 DEG
+ENTRANCE PUPIL
+DIA       20.0000
+THI       0.0000
+EXIT PUPIL
+DIA       21.1077
+THI       -3.4790
+          RDY          THI     RMD          GLA          CCY     THC     GLC
+OBJ:    INFINITY    INFINITY                              100     100     100
+001:    32.46370    5.00000               N-BK7_SCHOTT   100     100     100
+STO:    -120.000    47.37620                              100     100     100
+IMG:    INFINITY    0.00000                              100     100     100
+New Lens From Template
+          Position 1, Wavelength = 587.6 nm
+SRF     SA3       CMA3      AST3      DIS3      PTZ3      AC3       LC3
+OBJ   0.00000   0.00000   0.00000   0.00000   0.00000   0.00000   0.00000
+001  -0.16414   0.00000   0.00000   0.00000   0.00000   0.00000  -0.00000
+STO  -0.24112  -0.00000   0.00000   0.00000   0.00000  -0.00000  -0.00000
+IMG   0.00000   0.00000   0.00000   0.00000   0.00000  -0.00000  -0.00000
+SUM  -0.40526  -0.00000   0.00000   0.00000   0.00000   0.00000   0.00000
+All constraints removed
+
+
+ENTRANCE PUPIL
+DIA       14.4959
+THI       0.0000
+INFINITE CONJUGATES
+EFL       50.0000
+BFL       49.2902
+FFL       -48.2964
+FNO       3.4492
+IMG DIS   49.2902
+OAL       3.6240
+PARAXIAL IMAGE
+ HT      -0.0000
+ANG       -0.0000 DEG
+ENTRANCE PUPIL
+DIA       14.4959
+THI       0.0000
+EXIT PUPIL
+DIA       15.0073
+THI       -2.4735
+ENTRANCE PUPIL
+DIA       14.4959
+THI       0.0000
+INFINITE CONJUGATES
+EFL       50.0000
+BFL       49.2902
+FFL       -48.2964
+FNO       3.4492
+IMG DIS   49.2902
+OAL       3.6240
+PARAXIAL IMAGE
+ HT      -0.0000
+ANG       -0.0000 DEG
+ENTRANCE PUPIL
+DIA       14.4959
+THI       0.0000
+EXIT PUPIL
+DIA       15.0073
+THI       -2.4735
