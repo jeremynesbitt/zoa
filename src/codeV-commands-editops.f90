@@ -1180,6 +1180,12 @@ contains
             call kdp_lens_cmd('WV', w1=wv(1), w2=wv(2), w3=wv(3), w4=wv(4), w5=wv(5))
             if (numWavelengths > 5) &
             &  call kdp_lens_cmd('WV2', w1=wv(6), w2=wv(7), w3=wv(8), w4=wv(9), w5=wv(10))
+            ! CODE V: the reference wavelength defaults to the center one (left
+            ! of center for an even count) -- counting the wavelengths given,
+            ! not the 0.0 placeholders saved files carry; a REF after the WL
+            ! overrides it
+            if (count(wv > 0.0_real64) > 0) &
+            &  call kdp_lens_cmd('CW', w1=real((count(wv > 0.0_real64)+1)/2, real64))
             call kdp_lens_end()
             call kdp_silent_end()
         end if

@@ -21,12 +21,13 @@
 !   sys_set_wv_default(n,v) — set default wavelength WVn: n=1..10 -> SYSTEM(110+n)
 
 module mod_system
-  use DATLEN, only: SYSTEM
+  use DATLEN, only: SYSTEM, ALENS
   implicit none
   private
   public :: sys_wavelength, sys_wl_weight, sys_wv_default
   public :: sys_units, sys_wl_pri1, sys_wl_pri2, sys_wl_sec1, sys_wl_sec2
   public :: sys_wl_ref
+  public :: sys_naoy_slope, sys_naox_slope
   public :: clearSysArray
   public :: sys_say, sys_sax, sys_scy, sys_y1_scy, sys_scx, sys_x1_scx
   public :: sys_scy_fang_set, sys_scx_fang_set
@@ -446,6 +447,34 @@ contains
   function sys_naox() result(r)
     real(8) :: r
     r = SYSTEM(66)
+  end function
+
+  ! The paraxial object-space marginal slope an object NA sets: NAO is
+  ! n sin U (CODE V), so the slope is tan(asin(NAO/n)), n the object-space
+  ! index at the reference wavelength.  (The SAY/SAX setters used NAO itself
+  ! as the slope, so NAO 0.1 at 4x gave F/1.2562 working, not F/1.25.)
+  function sys_naoy_slope() result(r)
+    real(8) :: r
+    r = nao_slope(SYSTEM(65))
+  end function
+
+  function sys_naox_slope() result(r)
+    real(8) :: r
+    r = nao_slope(SYSTEM(66))
+  end function
+
+  function nao_slope(na) result(r)
+    real(8), intent(in) :: na
+    real(8) :: r, n0, s
+    integer :: w
+    w = int(SYSTEM(11))
+    n0 = 1.0d0
+    if (w >= 1 .and. w <= 5) n0 = ALENS(45+w, 0)
+    if (w >= 6 .and. w <= 10) n0 = ALENS(65+w, 0)
+    if (n0 == 0.0d0) n0 = 1.0d0
+    s = na/n0
+    if (abs(s) >= 1.0d0) s = sign(0.999999d0, s)
+    r = tan(asin(s))
   end function
 
   ! SYSTEM(67) — FNO explicitly-set flag (1=FNOY set, 2=FNOX set, 3=both)

@@ -38,3 +38,56 @@ FIR
 TOW
 FIR
 GO
+! an unknown glass is refused; the surface keeps its glass (was n=1.0)
+GLA S1 GERMLW_SPECIAL
+SUR SA
+! WL without REF: the reference is the center wavelength (book eye model,
+! Table 4.5: EFL 22.1078 / 16.5845 in air)
+LEN NEW
+WL 656.27 587.56 486.13
+EPD 6
+YAN 0 14 25
+INS S1..2
+STOP S2
+RDY S1 7.8
+THI S1 3.6
+GLA S1 WATER
+RDY S2 10
+THI S2 3.6
+GLA S2 1.415:47.0
+RDY S3 -6
+GLA S3 WATER
+RDY S4 -10
+PIM
+FIR
+! working F-number at finite conjugates from the real object angle (book
+! Table 3.2: FNO 7.4108 at 125 mm)
+LEN NEW
+EPD 20
+INS S2
+RDY S1 120
+THI S1 5
+GLA S1 NBK7
+RDY S2 -50
+PIM
+THI SO 125
+FIR
+! a concave mirror has a positive EFL (book: EFL = -R/2)
+LEN NEW
+EPD 20
+RDY S1 -100
+RMD S1 REFL
+PIM
+FIR
+! THO in CODE V's columns, colour F-C (book Table 9.3: AX -0.020445
+! -0.017544, LAT -0.005310 0.004822 at the default field)
+LEN NEW
+WL 656.2725 587.5618 486.1327
+EPD 5
+INS S2
+RDY S1 32.46367
+THI S1 5
+GLA S1 NBK7
+RDY S2 -120
+PIM
+THO

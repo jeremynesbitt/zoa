@@ -1993,6 +1993,10 @@ subroutine calculateFirstOrderParameters(self, lData)
     IF(((PXTRAY(2,I)*PXTRAY(6,J))-(PXTRAY(6,I)*PXTRAY(2,J))).NE.0.0D0) THEN
     self%EFL=-(((PXTRAY(2,I)*PXTRAY(5,I+1))-(PXTRAY(1,I+1)*PXTRAY(6,I)))/ &
     & ((PXTRAY(2,I)*PXTRAY(6,J))-(PXTRAY(6,I)*PXTRAY(2,J))))
+    ! CODE V: EFL = -y1/(n'u') with the image-space index signed, n' < 0
+    ! after an odd number of reflections, so a concave mirror is positive.
+    ! The indices here are stored positive.
+    IF(MOD(COUNT(GLANAM(1:J,2)(1:4).EQ.'REFL'),2).EQ.1) self%EFL=-self%EFL
       ELSE
     self%EFL=1.0D20
       END IF                    

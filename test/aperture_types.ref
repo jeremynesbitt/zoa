@@ -5,13 +5,13 @@ All constraints removed
 NAO is not set (the aperture is not defined by the object NA)
 NAO 0.100000
 ENTRANCE PUPIL
-DIA       530.7895
+DIA       533.4635
 THI       2613.5218
 INFINITE CONJUGATES
 EFL       660.0450
 BFL       -156.3833
 FFL       2599.7513
-FNO       1.2435
+FNO       1.2373
 AT USED CONJUGATES
 RED       0.2500
 FNO       1.2500
@@ -60,13 +60,13 @@ All constraints removed
 
 NAO 0.100000
 ENTRANCE PUPIL
-DIA       530.7895
+DIA       533.4635
 THI       2613.5218
 INFINITE CONJUGATES
 EFL       660.0450
 BFL       -156.3833
 FFL       2599.7513
-FNO       1.2435
+FNO       1.2373
 AT USED CONJUGATES
 RED       0.2500
 FNO       1.2500

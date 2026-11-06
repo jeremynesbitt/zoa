@@ -232,8 +232,8 @@ and `mod_vie_transform` inverts the same scale and offset.  Every lens-drawing
 PNG changed (the page is bigger and centred; nothing else moved).
 **The Windows baselines (`*.win.png` of stop_draw, vie_settings, vie_orient,
 plots_geom, mirror_example, debug_rmd, recmacro p1-p2, apertures_bes,
-plot_modifiers p5 -- and p10 from the spot-diagram fix) need regenerating on
-Windows.**
+plot_modifiers p5 -- and p10 from the spot-diagram fix -- and plots_seidel p1
+from the 2026-11-06 colour-term fix) need regenerating on Windows.**
 
 **Literals.** The 721 `MY_PLOT` calls with a literal page clip box now call
 `PAGE_PLOT(x,y,pen,mode)` / `PART_PLOT` (HARDWAR1.f90).  Two variants were
@@ -1001,3 +1001,30 @@ Not done yet:
   the real-ray OPD map.
 - CODE V .seq import/export of MOD lines is unverified (the .zoa save writes
   `MOD Sk` / `MFL Sk f` ... lines for both).
+
+---
+
+## Designing Optics Using CODE V: remaining gaps (2026-11-06)
+
+Every Bentley macro was run and the book's printed numbers compared.  Fixed:
+image defocus NaN, FLY/SCA stale lens, RES/FIR crash, TOW headless crash,
+unknown glass, REF default (center), working FNO, concave-mirror EFL sign, THO
+in CODE V columns with the F-C colour terms and the default field (test
+`book_regressions`).  Still open:
+- Real-ray aiming with the stop inside the lens: semi-apertures ~0.1% off the
+  book (stop 3.51996 vs 3.51584); CODE V fills the stop at its paraxial size.
+- WAV BES best focus -2.4888 vs -2.9753 (diffraction-energy criterion), and
+  RFO is refused when the last thickness has a solve (CODE V writes THI SI).
+- Glass by 6-digit code with a catalog suffix (617366_SCHOTT = F4); no GERMLW
+  in SPECIAL; F2 resolves to N-F2 (SCH2000 policy, 5th-digit indices).
+- Schwarzschild third-order DST differs from the book; Zoa's real distortion
+  agrees with an independent trace, so this is unresolved, not a known bug.
+- TOW collects the commands after it and runs them without their own GO:
+  `TOW; MTF; MFR 25; IFR 5; GO` (11.1) leaves MTF waiting.
+- Missing commands: AUT INT/DRA, SET VIG with no arguments (compute the
+  factors), two-sided constraints (DIY F5 < a > b), RDM, LEN alone, TITLE,
+  GLA without Sk, V3D/RAT/RND/AXE/VPT, VIE RFR/RAT COL, NA, EVA database items
+  ((SA W1), (Y R1 FL SI W1)), fifth-order THO (CODE V's FORDER).
+- Macro typos: Bentley4p2/12p1/13p1 have S1.2/S1.3 for S1..2/S1..3.
+- Planned: a SEIDEL command with Zemax-style Seidel tables (THO now prints
+  CODE V's transverse columns).

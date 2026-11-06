@@ -263,7 +263,7 @@ SUBROUTINE ERADJ
    use DATMAI
    use mod_surface, only: surf_thickness, set_surf_thickness
    use mod_system, only: sys_fno_hold_y, sys_fno_val_set, sys_fno_val_x, sys_fno_val_y, &
-      & sys_last_surf, sys_na_set, sys_naox, sys_naoy, sys_sax, sys_say, sys_telecentric, &
+      & sys_last_surf, sys_na_set, sys_naox, sys_naox_slope, sys_naoy, sys_naoy_slope, sys_sax, sys_say, sys_telecentric, &
       & sys_set_fno_flag_x, sys_set_fno_flag_y, sys_set_fno_hold_x, sys_set_fno_hold_y, &
       & sys_set_sax, sys_set_say
    use iso_fortran_env, only: real64
@@ -328,8 +328,8 @@ SUBROUTINE ERADJ
             RETURN
          ELSE
             IF(sys_na_set().EQ.1.0D0) THEN
-               call sys_set_say(surf_thickness(0)*sys_naoy())
-               call sys_set_sax(surf_thickness(0)*sys_naox())
+               call sys_set_say(surf_thickness(0)*sys_naoy_slope())
+               call sys_set_sax(surf_thickness(0)*sys_naox_slope())
             END IF
             IF(sys_fno_val_set().EQ.1.0D0) THEN
                call sys_set_say(surf_thickness(0)/(2.0D0*sys_fno_val_y()))
@@ -407,8 +407,8 @@ SUBROUTINE ERADJ
             RETURN
          ELSE
             IF(sys_na_set().EQ.1.0D0) THEN
-               call sys_set_say(surf_thickness(0)*sys_naoy())
-               call sys_set_sax(surf_thickness(0)*sys_naox())
+               call sys_set_say(surf_thickness(0)*sys_naoy_slope())
+               call sys_set_sax(surf_thickness(0)*sys_naox_slope())
             END IF
             IF(sys_fno_val_set().EQ.1.0D0) THEN
                call sys_set_say(surf_thickness(0)/(2.0D0*sys_fno_val_y()))

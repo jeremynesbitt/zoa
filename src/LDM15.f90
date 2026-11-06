@@ -331,7 +331,7 @@ SUBROUTINE LNSEOS1
    use DATMAI
    use mod_system, only: sys_astop, sys_fno_flag_x, sys_fno_flag_y, sys_fno_val_set, &
       & sys_fno_val_x, sys_fno_val_y, sys_high_cfg, sys_last_surf, sys_mode, &
-      & sys_na_set, sys_naox, sys_naoy, sys_pxim_fang_set, sys_pyim_fang_set, &
+      & sys_na_set, sys_naox, sys_naox_slope, sys_naoy, sys_naoy_slope, sys_pxim_fang_set, sys_pyim_fang_set, &
       & sys_ref_surf, sys_rxim_fang_set, sys_ryim_fang_set, sys_sax, sys_sax_float, &
       & sys_say, sys_say_float, sys_scx, sys_scx_fang, sys_scx_fang_set, sys_scx_set, &
       & sys_scy, sys_scy_fang, sys_scy_fang_set, sys_scy_set, sys_telecentric, &
@@ -1263,14 +1263,14 @@ SUBROUTINE LNSEOS1
                RETURN
             ELSE
                IF(sys_na_set().EQ.1.0D0) THEN
-                  call sys_set_say(surf_thickness(0)*sys_naoy())
+                  call sys_set_say(surf_thickness(0)*sys_naoy_slope())
                END IF
                IF(sys_na_set().EQ.2.0D0) THEN
-                  call sys_set_sax(surf_thickness(0)*sys_naox())
+                  call sys_set_sax(surf_thickness(0)*sys_naox_slope())
                END IF
                IF(sys_na_set().EQ.2.0D0) THEN
-                  call sys_set_say(surf_thickness(0)*sys_naoy())
-                  call sys_set_sax(surf_thickness(0)*sys_naox())
+                  call sys_set_say(surf_thickness(0)*sys_naoy_slope())
+                  call sys_set_sax(surf_thickness(0)*sys_naox_slope())
                END IF
                IF(sys_fno_val_set().EQ.1.0D0) THEN
                   call sys_set_say(surf_thickness(0)/(2.0D0*sys_fno_val_y()))
@@ -1333,14 +1333,14 @@ SUBROUTINE LNSEOS1
                RETURN
             ELSE
                IF(sys_na_set().EQ.1.0D0) THEN
-                  call sys_set_say(surf_thickness(0)*sys_naoy())
+                  call sys_set_say(surf_thickness(0)*sys_naoy_slope())
                END IF
                IF(sys_na_set().EQ.2.0D0) THEN
-                  call sys_set_sax(surf_thickness(0)*sys_naox())
+                  call sys_set_sax(surf_thickness(0)*sys_naox_slope())
                END IF
                IF(sys_na_set().EQ.3.0D0) THEN
-                  call sys_set_say(surf_thickness(0)*sys_naoy())
-                  call sys_set_sax(surf_thickness(0)*sys_naox())
+                  call sys_set_say(surf_thickness(0)*sys_naoy_slope())
+                  call sys_set_sax(surf_thickness(0)*sys_naox_slope())
                END IF
                IF(sys_fno_val_set().EQ.1.0D0) THEN
                   call sys_set_say(surf_thickness(0)/(2.0D0*sys_fno_val_y()))
@@ -1406,14 +1406,14 @@ SUBROUTINE LNSEOS1
                RETURN
             ELSE
                IF(sys_na_set().EQ.1.0D0) THEN
-                  call sys_set_say(surf_thickness(0)*sys_naoy())
+                  call sys_set_say(surf_thickness(0)*sys_naoy_slope())
                END IF
                IF(sys_na_set().EQ.2.0D0) THEN
-                  call sys_set_sax(surf_thickness(0)*sys_naox())
+                  call sys_set_sax(surf_thickness(0)*sys_naox_slope())
                END IF
                IF(sys_na_set().EQ.3.0D0) THEN
-                  call sys_set_say(surf_thickness(0)*sys_naoy())
-                  call sys_set_sax(surf_thickness(0)*sys_naox())
+                  call sys_set_say(surf_thickness(0)*sys_naoy_slope())
+                  call sys_set_sax(surf_thickness(0)*sys_naox_slope())
                END IF
                IF(sys_fno_val_set().EQ.1.0D0) THEN
                   call sys_set_say(surf_thickness(0)/(2.0D0*sys_fno_val_y()))
@@ -1476,14 +1476,14 @@ SUBROUTINE LNSEOS1
                RETURN
             ELSE
                IF(sys_na_set().EQ.1.0D0) THEN
-                  call sys_set_say(surf_thickness(0)*sys_naoy())
+                  call sys_set_say(surf_thickness(0)*sys_naoy_slope())
                END IF
                IF(sys_na_set().EQ.2.0D0) THEN
-                  call sys_set_sax(surf_thickness(0)*sys_naox())
+                  call sys_set_sax(surf_thickness(0)*sys_naox_slope())
                END IF
                IF(sys_na_set().EQ.3.0D0) THEN
-                  call sys_set_say(surf_thickness(0)*sys_naoy())
-                  call sys_set_sax(surf_thickness(0)*sys_naox())
+                  call sys_set_say(surf_thickness(0)*sys_naoy_slope())
+                  call sys_set_sax(surf_thickness(0)*sys_naox_slope())
                END IF
                IF(sys_fno_val_set().EQ.1.0D0) THEN
                   call sys_set_say(surf_thickness(0)/(2.0D0*sys_fno_val_y()))
@@ -1559,14 +1559,14 @@ SUBROUTINE LNSEOS1
          RETURN
       ELSE
          IF(sys_na_set().EQ.1.0D0) THEN
-            call sys_set_say(surf_thickness(0)*sys_naoy())
+            call sys_set_say(surf_thickness(0)*sys_naoy_slope())
          END IF
          IF(sys_na_set().EQ.2.0D0) THEN
-            call sys_set_sax(surf_thickness(0)*sys_naox())
+            call sys_set_sax(surf_thickness(0)*sys_naox_slope())
          END IF
          IF(sys_na_set().EQ.3.0D0) THEN
-            call sys_set_say(surf_thickness(0)*sys_naoy())
-            call sys_set_sax(surf_thickness(0)*sys_naox())
+            call sys_set_say(surf_thickness(0)*sys_naoy_slope())
+            call sys_set_sax(surf_thickness(0)*sys_naox_slope())
          END IF
          IF(sys_fno_val_set().EQ.1.0D0) THEN
             call sys_set_say(surf_thickness(0)/(2.0D0*sys_fno_val_y()))
@@ -1628,14 +1628,14 @@ SUBROUTINE LNSEOS1
                RETURN
             ELSE
                IF(sys_na_set().EQ.1.0D0) THEN
-                  call sys_set_say(surf_thickness(0)*sys_naoy())
+                  call sys_set_say(surf_thickness(0)*sys_naoy_slope())
                END IF
                IF(sys_na_set().EQ.2.0D0) THEN
-                  call sys_set_sax(surf_thickness(0)*sys_naox())
+                  call sys_set_sax(surf_thickness(0)*sys_naox_slope())
                END IF
                IF(sys_na_set().EQ.3.0D0) THEN
-                  call sys_set_say(surf_thickness(0)*sys_naoy())
-                  call sys_set_sax(surf_thickness(0)*sys_naox())
+                  call sys_set_say(surf_thickness(0)*sys_naoy_slope())
+                  call sys_set_sax(surf_thickness(0)*sys_naox_slope())
                END IF
                IF(sys_fno_val_set().EQ.1.0D0) THEN
                   call sys_set_say(surf_thickness(0)/(2.0D0*sys_fno_val_y()))
@@ -1689,14 +1689,14 @@ SUBROUTINE LNSEOS1
                RETURN
             ELSE
                IF(sys_na_set().EQ.1.0D0) THEN
-                  call sys_set_say(surf_thickness(0)*sys_naoy())
+                  call sys_set_say(surf_thickness(0)*sys_naoy_slope())
                END IF
                IF(sys_na_set().EQ.2.0D0) THEN
-                  call sys_set_sax(surf_thickness(0)*sys_naox())
+                  call sys_set_sax(surf_thickness(0)*sys_naox_slope())
                END IF
                IF(sys_na_set().EQ.3.0D0) THEN
-                  call sys_set_say(surf_thickness(0)*sys_naoy())
-                  call sys_set_sax(surf_thickness(0)*sys_naox())
+                  call sys_set_say(surf_thickness(0)*sys_naoy_slope())
+                  call sys_set_sax(surf_thickness(0)*sys_naox_slope())
                END IF
                IF(sys_fno_val_set().EQ.1.0D0) THEN
                   call sys_set_say(surf_thickness(0)/(2.0D0*sys_fno_val_y()))

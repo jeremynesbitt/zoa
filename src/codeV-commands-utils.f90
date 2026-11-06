@@ -588,19 +588,21 @@ contains
     !## cmd:      THO
     !## syntax:   THO
     !## category: Analysis
-    !## desc:     List the third-order (Seidel) aberration coefficients.
+    !## desc:     List the third-order aberrations as CODE V does: transverse
+    !##           SA TCO TAS SAS PTB DST, and AX LAT (axial and lateral
+    !##           colour, longest to shortest wavelength) for more than one
+    !##           wavelength, by surface and summed.  With no off-axis field
+    !##           the field terms are for CODE V's default field, tan 0.02.
     !##
     module procedure execTHO
         use global_widgets, only: sysConfig
         implicit none
         interface
-            subroutine MMAB3_NEW(YFLAG, idxWV, printTable)
-                logical, intent(in) :: YFLAG
+            subroutine THO_CODEV(idxWV)
                 integer, intent(in) :: idxWV
-                logical, optional, intent(in) :: printTable
             end subroutine
         end interface
-        call MMAB3_NEW(.TRUE., sysConfig%refWavelengthIndex, .TRUE.)
+        call THO_CODEV(sysConfig%refWavelengthIndex)
     end procedure execTHO
 
     !## cmd:      RAYREF

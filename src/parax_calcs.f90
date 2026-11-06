@@ -167,7 +167,7 @@ contains
                 use ISO_FORTRAN_ENV, only: real64
                 use kdp_data_types
                 use global_widgets, only: curr_lens_data, curr_par_ray_trace, sysConfig
-                use mod_system, only: sys_say, sys_naoy, sys_fno_val_y
+                use mod_system, only: sys_say, sys_naoy_slope, sys_fno_val_y
 
                 implicit none
                 real(kind=real64) :: pos1, ang0
@@ -185,10 +185,10 @@ contains
                         call sysConfig%getApertureFromSystemArr()
                         select case (sysConfig%currApertureID)
                         case (APER_OBJECT_NA)
-                            ! NAO is the marginal ray's slope from the axial
-                            ! object point (the engine's own definition:
-                            ! SAY = object distance * NAOY).
-                            ang0 = sys_naoy()
+                            ! NAO is n sin U (CODE V): the marginal ray's
+                            ! slope from the axial object point is
+                            ! tan(asin(NAO/n))
+                            ang0 = sys_naoy_slope()
                         case (APER_FNO)
                             ! object-space F/#: slope 1/(2 F/#)
                             ang0 = 1.0_real64/(2.0_real64*sys_fno_val_y())
@@ -233,7 +233,7 @@ contains
                 use ISO_FORTRAN_ENV, only: real64
                 use kdp_data_types
                 use global_widgets, only: curr_lens_data, curr_par_ray_trace, sysConfig
-                use mod_system, only: sys_sax, sys_naox, sys_fno_val_x
+                use mod_system, only: sys_sax, sys_naox_slope, sys_fno_val_x
 
                 implicit none
                 real(kind=real64) :: pos1, ang0
@@ -244,7 +244,7 @@ contains
                         call sysConfig%getApertureFromSystemArr()
                         select case (sysConfig%currApertureID)
                         case (APER_OBJECT_NA)
-                            ang0 = sys_naox()
+                            ang0 = sys_naox_slope()
                         case (APER_FNO)
                             ang0 = 1.0_real64/(2.0_real64*sys_fno_val_x())
                         case default
@@ -295,18 +295,24 @@ module seidel_calcs
             curr_par_ray_trace%CSeidel(1:5,0:curr_lens_data%num_surfaces-1)=MAB3(1:5,0:curr_lens_data%num_surfaces-1)
             curr_par_ray_trace%CXSeidel(1:5,0:curr_lens_data%num_surfaces-1)=XMAB3(1:5,0:curr_lens_data%num_surfaces-1)
 
-            PRINT *, "MAB3 is ", MAB3(6:10,0:curr_lens_data%num_surfaces-1)
-
-            ! Chromatic Aberrations
-
-            curr_par_ray_trace%CSeidel(6:7,0:curr_lens_data%num_surfaces-1)=COLORY(1:2,0:curr_lens_data%num_surfaces-1)
-            curr_par_ray_trace%CXSeidel(6:7,0:curr_lens_data%num_surfaces-1)=COLORX(1:2,0:curr_lens_data%num_surfaces-1)
+            ! Chromatic aberrations: primary axial and lateral colour,
+            !   AC = -y i  n (dn/n - dn'/n') / INV,  LC = -y ic n (...) / INV
+            ! (y the marginal height, i and ic the marginal and chief incidence
+            ! angles), dn between the longest and shortest wavelengths -- the
+            ! Seidel halves of CODE V's AX and LAT.  The legacy COLORY carried
+            ! an extra factor of the paraxial image height, so it grew with the
+            ! field, and used the PCW pair, which a WL change leaves stale.
+            call colourTerms(PXTRAY, curr_par_ray_trace%CSeidel)
+            call colourTerms(PXTRAX, curr_par_ray_trace%CXSeidel)
 
             ! TODO:  ADD Inverse Calcs
             if (.not.sysConfig%isUSystem()) then 
-                curr_par_ray_trace%CSeidel = curr_par_ray_trace%CSeidel/INV
-                curr_par_ray_trace%CXSeidel = curr_par_ray_trace%CXSeidel/INV
+                curr_par_ray_trace%CSeidel(1:5,:) = curr_par_ray_trace%CSeidel(1:5,:)/INV
+                curr_par_ray_trace%CXSeidel(1:5,:) = curr_par_ray_trace%CXSeidel(1:5,:)/INV
+                curr_par_ray_trace%CSeidel(6:7,:) = curr_par_ray_trace%CSeidel(6:7,:)/INV
+                curr_par_ray_trace%CXSeidel(6:7,:) = curr_par_ray_trace%CXSeidel(6:7,:)/INV
             end if
+
 
 
 
@@ -323,6 +329,42 @@ module seidel_calcs
                 & curr_par_ray_trace%CXSeidel(:,i)                
             end do   
                 
+
+         contains
+
+            subroutine colourTerms(P, C)
+                use mod_lens_data_manager, only: ldm
+                use mod_system, only: sys_wl_ref, sys_last_surf
+                real(kind=real64), intent(in) :: P(1:8,0:499)
+                real(kind=real64), intent(inout) :: C(:,0:)
+                integer :: k, wl, wlLong, wlShort, nw
+                real(kind=real64) :: lam, lamLong, lamShort, n, np, dn, dnp
+                C(6:7,:) = 0.0_real64
+                nw = sysConfig%numWavelengths
+                if (nw < 2) return
+                wlLong = 1; wlShort = 1
+                lamLong = sysConfig%getWavelength(1); lamShort = lamLong
+                do wl = 2, nw
+                    lam = sysConfig%getWavelength(wl)
+                    if (lam <= 0.0_real64) cycle
+                    if (lam > lamLong) then
+                        lamLong = lam; wlLong = wl
+                    end if
+                    if (lam < lamShort) then
+                        lamShort = lam; wlShort = wl
+                    end if
+                end do
+                if (wlLong == wlShort) return
+                do k = 1, min(INT(sys_last_surf()), ubound(C,2))
+                    n  = ldm%getSurfIndex(k-1, INT(sys_wl_ref()))
+                    np = ldm%getSurfIndex(k, INT(sys_wl_ref()))
+                    dn  = ldm%getSurfDispersion(k-1, wlLong, wlShort)
+                    dnp = ldm%getSurfDispersion(k, wlLong, wlShort)
+                    C(6,k) = -P(1,k)*P(3,k)*n*(dn/n - dnp/np)
+                    C(7,k) = -P(1,k)*P(7,k)*n*(dn/n - dnp/np)
+                end do
+            end subroutine
+
 
          end subroutine
 

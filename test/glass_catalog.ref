@@ -117,26 +117,26 @@ BASIC LENS DATA (RADIUS MODE)
 
 SURF  RADIUS        THICKNESS          MATERIAL          INDEX        V-NUM
   0    0.00000      0.100000E+14         AIR
-  1    15.0000       3.50000     SPECIAL SILICON         3.45263       350.
+  1    15.0000       3.50000     SPECIAL SILICON         3.43239       347.
   2    0.00000       3.10000             AIR
-  3*  -37.5300       1.50000     TESTCAT ZSILICON        3.45263       350.
+  3*  -37.5300       1.50000     TESTCAT ZSILICON        3.43239       347.
   3*REFS,STOP
   4    14.0800       5.00000             AIR
   5    50.2600       3.50000     SCHOTT  SK16            1.00000       0.00
-  6*  -31.3800      -5.72852             AIR
+  6*  -31.3800      -5.61992             AIR
   6*Solve
   7    0.00000       0.00000             LAST SURFACE
 BASIC LENS DATA (RADIUS MODE)
 
 SURF  RADIUS        THICKNESS          MATERIAL          INDEX        V-NUM
   0    0.00000      0.100000E+14         AIR
-  1    15.0000       3.50000     SPECIAL DIAMOND         2.38126      0.187E+04
+  1    15.0000       3.50000     SPECIAL DIAMOND         2.37948      0.186E+04
   2    0.00000       3.10000             AIR
-  3*  -37.5300       1.50000     TESTCAT ZDIAMOND        2.38126      0.187E+04
+  3*  -37.5300       1.50000     TESTCAT ZDIAMOND        2.37948      0.186E+04
   3*REFS,STOP
   4    14.0800       5.00000             AIR
   5    50.2600       3.50000     SCHOTT  SK16            1.00000       0.00
-  6*  -31.3800       20.6803             AIR
+  6*  -31.3800       20.8446             AIR
   6*Solve
   7    0.00000       0.00000             LAST SURFACE
 All constraints removed
@@ -219,13 +219,13 @@ BASIC LENS DATA (RADIUS MODE)
 
 SURF  RADIUS        THICKNESS          MATERIAL          INDEX        V-NUM
   0    0.00000      0.100000E+14         AIR
-  1    15.0000       3.50000     SPECIAL ZNSE            2.43760       395.
+  1    15.0000       3.50000     SPECIAL ZNSE            2.43314       394.
   2    0.00000       3.10000             AIR
-  3*  -37.5300       1.50000     SPECIAL GERMSC          4.04514       406.
+  3*  -37.5300       1.50000     SPECIAL GERMSC          4.02355       403.
   3*REFS,STOP
   4    14.0800       5.00000             AIR
-  5    50.2600       3.50000     SPECIAL KBR             1.53659       492.
-  6*  -31.3800      -24.7370             AIR
+  5    50.2600       3.50000     SPECIAL KBR             1.53551       491.
+  6*  -31.3800      -24.9311             AIR
   6*Solve
   7    0.00000       0.00000             LAST SURFACE
 REFRACTIVE INDEX DATA (WAVELENGTHS #6 TO #10)
@@ -493,13 +493,13 @@ BASIC LENS DATA (RADIUS MODE)
 
 SURF  RADIUS        THICKNESS          MATERIAL          INDEX        V-NUM
   0    0.00000      0.100000E+14         AIR
-  1    15.0000       3.50000     HIKARI  F8              1.60431       146.
+  1    15.0000       3.50000     HIKARI  F8              1.59873       144.
   2    0.00000       3.10000             AIR
-  3*  -37.5300       1.50000     SPECIAL POLYCARBONATE   1.59689       113.
+  3*  -37.5300       1.50000     SPECIAL POLYCARBONATE   1.58959       111.
   3*REFS,STOP
   4    14.0800       5.00000             AIR
-  5    50.2600       3.50000     SCHOTT  N-SK16          1.62632       221.
-  6*  -31.3800       37.3454             AIR
+  5    50.2600       3.50000     SCHOTT  N-SK16          1.62261       219.
+  6*  -31.3800       37.4630             AIR
   6*Solve
   7    0.00000       0.00000             LAST SURFACE
 Saved CODE V file GLASSRT.SEQ
@@ -511,13 +511,13 @@ BASIC LENS DATA (RADIUS MODE)
 
 SURF  RADIUS        THICKNESS          MATERIAL          INDEX        V-NUM
   0    0.00000      0.100000E+14         AIR
-  1    15.0000       3.50000     HIKARI  F8              1.60431       146.
+  1    15.0000       3.50000     HIKARI  F8              1.59873       144.
   2    0.00000       3.10000             AIR
-  3*  -37.5300       1.50000     SPECIAL POLYCARBONATE   1.59689       113.
+  3*  -37.5300       1.50000     SPECIAL POLYCARBONATE   1.58959       111.
   3*REFS,STOP
   4    14.0800       5.00000             AIR
-  5    50.2600       3.50000     SCHOTT  N-SK16          1.62632       221.
-  6*  -31.3800       37.3454             AIR
+  5    50.2600       3.50000     SCHOTT  N-SK16          1.62261       219.
+  6*  -31.3800       37.4630             AIR
   6*Solve
   7    0.00000       0.00000             LAST SURFACE
 All constraints removed

@@ -24,6 +24,18 @@ subroutine MMAB3_NEW(YFLAG, idxWV, printTable)
 
             REAL(kind=real64) :: INV
             character(len=40), dimension(7) :: colHeaders
+            real(kind=real64) :: chiefY(4,0:499), chiefX(4,0:499), fy, fx
+
+            ! No off-axis field: CODE V evaluates the field terms at a default
+            ! field, tan 0.02.  The chief ray otherwise has only its 1e-13
+            ! seed slope (every field term came out 0); it is linear in the
+            ! field, so scale it there for this calculation and restore it.
+            chiefY = PXTRAY(5:8,0:499)
+            chiefX = PXTRAX(5:8,0:499)
+            fy = defaultFieldScale(PXTRAY(6,0))
+            fx = defaultFieldScale(PXTRAX(6,0))
+            PXTRAY(5:8,0:499) = fy*PXTRAY(5:8,0:499)
+            PXTRAX(5:8,0:499) = fx*PXTRAX(5:8,0:499)
 
             CALL PRTRC
             CALL PRTRB
@@ -36,6 +48,8 @@ subroutine MMAB3_NEW(YFLAG, idxWV, printTable)
                 & qual_words=[character(len=6) :: "ALL", "I"], &
                 & qual_only_err_msg = "Test error message", &
                 & max_num_terms = 1)) then
+                     PXTRAY(5:8,0:499) = chiefY
+                     PXTRAX(5:8,0:499) = chiefX
                      CALL MACFAL
                      return
                  end if
@@ -44,6 +58,8 @@ subroutine MMAB3_NEW(YFLAG, idxWV, printTable)
             IF (curr_lens_data%num_surfaces.EQ.0) THEN
               call OUTKDP('LENS SYSTEM HAS NO SURFACES',1)
               call OUTKDP('NO PARAXIAL OR THIRD ORDER DATA EXISTS',1)
+              PXTRAY(5:8,0:499) = chiefY
+              PXTRAX(5:8,0:499) = chiefX
               CALL MACFAL
               RETURN
             END IF
@@ -59,6 +75,8 @@ subroutine MMAB3_NEW(YFLAG, idxWV, printTable)
             INV = calcInvariant()
 
             call calcSeidelTerms(INV)
+            PXTRAY(5:8,0:499) = chiefY
+            PXTRAX(5:8,0:499) = chiefX
 
             ! --- Populate result_builder with structured Seidel data ---
             call populate_seidel_result(idxWV)
@@ -102,6 +120,12 @@ subroutine MMAB3_NEW(YFLAG, idxWV, printTable)
             end if
 
 contains
+
+    real(kind=real64) function defaultFieldScale(slope0) result(f)
+        real(kind=real64), intent(in) :: slope0
+        f = 1.0_real64
+        if (slope0 /= 0.0_real64 .and. abs(slope0) < 1.0e-10_real64) f = 0.02_real64/slope0
+    end function
 
     ! Populate result_builder with structured Seidel data.
     ! CSeidel has dimensions (7, 0:num_surfaces).
@@ -171,3 +195,81 @@ contains
     end subroutine populate_seidel_result
 
 end subroutine
+
+! THO: the third-order aberrations as CODE V lists them -- transverse ray
+! aberrations in lens units, SA TCO TAS SAS PTB DST (and AX LAT with more
+! than one wavelength), surface by surface and summed.  From the Seidel
+! terms MMAB3_NEW computes (SA3 CMA3 AST3 DIS3 PTZ3 AC3 LC3):
+!   TCO = 3 CMA3, TAS = 3 AST3 + PTZ3, SAS = AST3 + PTZ3, PTB = PTZ3,
+!   DST = DIS3, AX = 2 AC3, LAT = 2 LC3.
+subroutine THO_CODEV(idxWV)
+    use global_widgets, only: curr_lens_data, curr_par_ray_trace, sysConfig
+    use iso_fortran_env, only: real64
+    use kdp_utils, only: OUTKDP
+    use type_utils, only: blankStr, int2str, real2str
+    use mod_lens_data_manager, only: ldm
+    use mod_system, only: sys_astop
+    implicit none
+    integer, intent(in) :: idxWV
+    interface
+        subroutine MMAB3_NEW(YFLAG, idxWV, printTable)
+            logical, intent(in) :: YFLAG
+            integer, intent(in) :: idxWV
+            logical, optional, intent(in) :: printTable
+        end subroutine
+    end interface
+    integer :: s, ns, nc, last
+    real(real64) :: t(8)
+    character(len=200) :: line
+    character(len=6) :: lbl
+    logical :: colour
+
+    call MMAB3_NEW(.TRUE., idxWV, .FALSE.)
+    if (.not. allocated(curr_par_ray_trace%CSeidel)) return
+    ns = curr_lens_data%num_surfaces        ! column ns holds the sum
+    last = ns - 1
+    colour = sysConfig%numWavelengths > 1
+    nc = 6
+    if (colour) nc = 8
+
+    call OUTKDP(trim(sysConfig%lensTitle))
+    call OUTKDP(blankStr(10)//"Position "//trim(int2str(ldm%getCurrentConfig()))//", Wavelength = "// &
+    & trim(real2str(1000.0*sysConfig%getWavelength(idxWV),1)) //" nm")
+    line = '           SA         TCO         TAS         SAS         PTB         DST'
+    if (colour) line = trim(line)//'          AX         LAT'
+    call OUTKDP(trim(line))
+    do s = 1, ns
+        if (s == last) then
+            ! the image surface only when it contributes (a curved image)
+            if (all(abs(curr_par_ray_trace%CSeidel(:,s)) < 5.0e-7_real64)) cycle
+        end if
+        call codevTerms(curr_par_ray_trace%CSeidel(:,s), t)
+        if (s == ns) then
+            lbl = ' SUM'
+        else if (s == last) then
+            lbl = ' IMG'
+        else if (s == int(sys_astop())) then
+            lbl = ' STO'
+        else
+            write(lbl, '(I4)') s
+        end if
+        write(line, '(A4,8F12.6)') lbl, t(1:nc)
+        call OUTKDP(trim(line))
+    end do
+
+contains
+
+    subroutine codevTerms(c, t)
+        real(real64), intent(in) :: c(7)
+        real(real64), intent(out) :: t(8)
+        t(1) = c(1)
+        t(2) = 3.0_real64*c(2)
+        t(3) = 3.0_real64*c(3) + c(5)
+        t(4) = c(3) + c(5)
+        t(5) = c(5)
+        t(6) = c(4)
+        t(7) = 2.0_real64*c(6)
+        t(8) = 2.0_real64*c(7)
+    end subroutine
+
+end subroutine THO_CODEV

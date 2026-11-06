@@ -316,6 +316,7 @@ subroutine FIR
   use zoa_output, only: zoa_emit
   use DATMAI
   use mod_kdp_api, only: kdp_get
+  use DATLEN, only: PXTRAY
 
   implicit none
   !real(kind=real64) :: epRad, epPos
@@ -377,7 +378,12 @@ subroutine FIR
     ! imageDistance is the last surface's thickness -- zero whenever the image
     ! plane sits on the final surface, so the line read 0.0000 for any such
     ! lens (e.g. LithoKotaro) regardless of its actual aperture.
-    call zoa_emit("FNO       "//trim(real2str(curr_par_ray_trace%FNUM,4)),"blue")
+    ! CODE V's working F-number is 1/(2 NA') with NA' = NAO/|m| and the
+    ! object NA from the real angle, n sin(atan u): the paraxial 1/(2 n'u')
+    ! times sqrt(1+u^2), u the object-space marginal slope (Designing Optics
+    ! Using CODE V Tables 3.2/3.3: 7.4108 and -3.9689)
+    call zoa_emit("FNO       "//trim(real2str(curr_par_ray_trace%FNUM* &
+    &  sqrt(1.0D0 + PXTRAY(2,0)**2),4)),"blue")
     call zoa_emit("OBJ DIS   "//trim(real2str(curr_par_ray_trace%objectDistance,4)),"blue")
     call zoa_emit("TT        "//trim(real2str(curr_par_ray_trace%TT,4)),"blue")
     call zoa_emit("IMG DIS   "//trim(real2str(curr_par_ray_trace%imageDistance,4)),"blue")

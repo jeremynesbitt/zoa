@@ -1000,7 +1000,7 @@ contains
             call parseModelGlassEntry(strInput, nd, vd)
             if (nd == 0.0_real64) then
                 call zoa_emit(trim(strInput)//' is not a glass code (nnn.vvv or nnnvvv)', 'red')
-                strOut = 'GLAK '//trim(strInput)
+                strOut = ''
                 return
             end if
             strOut = 'MODEL D'//strInput//','//real2str(nd)//','//real2str(vd)
@@ -1028,11 +1028,11 @@ contains
                     strOut = 'GLAK '//trim(altGlassName)
                 else
                     call zoa_emit(trim(strInput)//' not found in any catalog', 'red')
-                    strOut = 'GLAK '//trim(strInput)
+                    strOut = ''   ! keep the surface's glass (was a bogus n=1 glass)
                 end if
             else
                 call zoa_emit(trim(strInput)//' not found in any catalog', 'red')
-                strOut = 'GLAK '//trim(strInput)
+                strOut = ''   ! keep the surface's glass (was a bogus n=1 glass)
             end if
         else
             ! Plain glass name.  A private glass (PRV) comes first, then a
@@ -1058,7 +1058,7 @@ contains
                 strOut = 'GLAK '//trim(altGlassName)
             else if (.not. gdb%isGlassInAnyCatalog(trim(strInput))) then
                 call zoa_emit(trim(strInput)//' not found in any catalog', 'red')
-                strOut = 'GLAK '//trim(strInput)
+                strOut = ''   ! keep the surface's glass (was a bogus n=1 glass)
             else
                 strOut = 'GLAK '//trim(strInput)
             end if

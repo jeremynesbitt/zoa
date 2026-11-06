@@ -32,12 +32,10 @@ SURF      PY            PUY             PCY           PUCY
   3  0.200000      -0.200000      -0.490525E-11  -0.947523E-13
 New Lens From Template
           Position 1, Wavelength = 587.6 nm
-SRF     SA3       CMA3      AST3      DIS3      PTZ3      AC3       LC3
-OBJ   0.00000   0.00000   0.00000   0.00000   0.00000   0.00000   0.00000
-STO  -0.00325   0.00000   0.00000   0.00000   0.00000   0.00000  -0.00000
-002  -1.13335  -0.00000   0.00000   0.00000   0.00000  -0.00000  -0.00000
-IMG   0.00000   0.00000   0.00000   0.00000   0.00000  -0.00000  -0.00000
-SUM  -1.13660  -0.00000   0.00000   0.00000   0.00000   0.00000   0.00000
+           SA         TCO         TAS         SAS         PTB         DST
+ STO   -0.003250   -0.002340   -0.000846   -0.000471   -0.000284   -0.000113
+   2   -1.133347    0.114218   -0.004886   -0.002329   -0.001050    0.000078
+ SUM   -1.136597    0.111878   -0.005732   -0.002800   -0.001333   -0.000035
 ENTRANCE PUPIL
 DIA       20.0000
 THI       0.0000
@@ -64,12 +62,10 @@ STO:    -120.000    47.37620                              100     100     100
 IMG:    INFINITY    0.00000                              100     100     100
 New Lens From Template
           Position 1, Wavelength = 587.6 nm
-SRF     SA3       CMA3      AST3      DIS3      PTZ3      AC3       LC3
-OBJ   0.00000   0.00000   0.00000   0.00000   0.00000   0.00000   0.00000
-001  -0.16414   0.00000   0.00000   0.00000   0.00000   0.00000  -0.00000
-STO  -0.24112  -0.00000   0.00000   0.00000   0.00000  -0.00000  -0.00000
-IMG   0.00000   0.00000   0.00000   0.00000   0.00000  -0.00000  -0.00000
-SUM  -0.40526  -0.00000   0.00000   0.00000   0.00000   0.00000   0.00000
+           SA         TCO         TAS         SAS         PTB         DST
+   1   -0.164139   -0.028545   -0.002704   -0.001601   -0.001050   -0.000093
+ STO   -0.241125    0.054735   -0.004425   -0.001664   -0.000284    0.000126
+ SUM   -0.405264    0.026189   -0.007130   -0.003266   -0.001333    0.000033
 All constraints removed
 
 
@@ -111,3 +107,82 @@ THI       0.0000
 EXIT PUPIL
 DIA       15.0073
 THI       -2.4735
+GERMLW_SPECIAL not found in any catalog
+          RDY          THI     RMD          GLA          CCY     THC     GLC
+OBJ:    INFINITY    INFINITY                              100     100     100
+STO:    86.97559    3.62398               N-BK7_SCHOTT   100     100     100
+002:    -36.240    49.29017                              100     100     100
+IMG:    INFINITY    0.00000                              100     100     100
+All constraints removed
+
+
+
+
+ENTRANCE PUPIL
+DIA       6.0000
+THI       3.0526
+INFINITE CONJUGATES
+EFL       22.1078
+BFL       16.7492
+FFL       -15.0420
+FNO       2.7641
+IMG DIS   16.7492
+OAL       7.2000
+PARAXIAL IMAGE
+ HT      7.7335
+ANG       21.8675 DEG
+ENTRANCE PUPIL
+DIA       6.0000
+THI       3.0526
+EXIT PUPIL
+DIA       5.4993
+THI       -3.5136
+All constraints removed
+
+
+ENTRANCE PUPIL
+DIA       20.0000
+THI       0.0000
+INFINITE CONJUGATES
+EFL       68.9849
+BFL       68.0055
+FFL       -66.6344
+FNO       3.4492
+AT USED CONJUGATES
+RED       1.1819
+FNO       7.4108
+OBJ DIS   125.0000
+TT        279.5418
+IMG DIS   149.5418
+OAL       5.0000
+All constraints removed
+
+
+ENTRANCE PUPIL
+DIA       20.0000
+THI       0.0000
+INFINITE CONJUGATES
+EFL       50.0000
+BFL       -50.0000
+FFL       -50.0000
+FNO       2.5000
+IMG DIS   -50.0000
+OAL       0.0000
+PARAXIAL IMAGE
+ HT      -0.0000
+ANG       0.0000 DEG
+ENTRANCE PUPIL
+DIA       20.0000
+THI       0.0000
+EXIT PUPIL
+DIA       20.0000
+THI       0.0000
+All constraints removed
+
+
+New Lens From Template
+          Position 1, Wavelength = 587.6 nm
+           SA         TCO         TAS         SAS         PTB         DST          AX         LAT
+ STO   -0.002565   -0.001998   -0.000781   -0.000435   -0.000262   -0.000113   -0.020445   -0.005310
+   2   -0.003768    0.003106   -0.000925   -0.000356   -0.000071    0.000098   -0.017544    0.004822
+ SUM   -0.006332    0.001108   -0.001706   -0.000791   -0.000333   -0.000015   -0.037989   -0.000488
