@@ -72,11 +72,17 @@ subroutine initializeGoDataTab(psm,plot_code, plotName, replot, objIdx)
 ! At present, this will generate a zoadatatab, execute all of the commands in cmdTOW, and then redirect
 ! output to standard dialog
 ! eventually will look for special commands and generate settings for them
-subroutine tow_go(psm, cmdTOW)
+subroutine tow_go(psm, cmdTOW, optionOpen)
     use GLOBALS, only: HEADLESS_MODE
 
     class(zoaplot_setting_manager) :: psm
     character(len=*) :: cmdTOW
+    ! true when the commands left an option (MTF, SPO ...) open: CODE V's
+    ! TOW; MTF; ...; GO runs the option with that one GO
+    interface
+      logical function optionOpen()
+      end function
+    end interface
 
     integer :: objIdx
     logical :: replot
@@ -85,6 +91,7 @@ subroutine tow_go(psm, cmdTOW)
     ! in GTK): run the commands with their output where it normally goes
     if (HEADLESS_MODE) then
       CALL PROCESKDP(cmdTOW)
+      if (optionOpen()) CALL PROCESKDP('GO')
       return
     end if
 
@@ -93,6 +100,7 @@ subroutine tow_go(psm, cmdTOW)
     call ioConfig%setTextViewFromPtr(getTabTextView(objIdx))
     ! TODO:  This does not support mutiple windows.  Need to fix this after initial testing
     CALL PROCESKDP(cmdTOW)
+    if (optionOpen()) CALL PROCESKDP('GO')
     call ioConfig%setTextView(ID_TERMINAL_DEFAULT)
 
     call finalizeGoDataTab(psm, replot, objIdx)

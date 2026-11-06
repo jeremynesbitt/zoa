@@ -1347,6 +1347,17 @@ module codeV_commands
         ! strings kept their case in the fold above); handlers self-tokenize it.
         currentCommand = trim(segU)
         currentCommandRaw = trim(adjustl(seg))
+        ! TOW collects everything up to its GO -- legacy commands too (FIR,
+        ! which is not a zoaCmd, used to run at once, to the console)
+        if (cmd_loop == TOW_LOOP .and. token /= 'GO') then
+            if (len_trim(cmdTOW) == 0) then
+                cmdTOW = trim(adjustl(seg))
+            else
+                cmdTOW = trim(cmdTOW)//'; '//trim(adjustl(seg))
+            end if
+            handled = .TRUE.
+            return
+        end if
         handled = startCodeVLensUpdateCmd(token)
         if (.not. handled) call recordFallback(token)
     end function

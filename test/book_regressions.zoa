@@ -91,3 +91,12 @@ GLA S1 NBK7
 RDY S2 -120
 PIM
 THO
+! TOW collects legacy commands too (FIR ran at once before), and one GO runs
+! an option it opens (book 11.1: TOW; MTF; MFR 25; IFR 5; GO)
+RES osdtriplet
+TOW; FIR; GO
+TOW
+MTF
+MFR 25
+IFR 5
+GO

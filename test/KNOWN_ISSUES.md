@@ -1019,8 +1019,6 @@ in CODE V columns with the F-C colour terms and the default field (test
   in SPECIAL; F2 resolves to N-F2 (SCH2000 policy, 5th-digit indices).
 - Schwarzschild third-order DST differs from the book; Zoa's real distortion
   agrees with an independent trace, so this is unresolved, not a known bug.
-- TOW collects the commands after it and runs them without their own GO:
-  `TOW; MTF; MFR 25; IFR 5; GO` (11.1) leaves MTF waiting.
 - Missing commands: AUT INT/DRA, SET VIG with no arguments (compute the
   factors), two-sided constraints (DIY F5 < a > b), RDM, LEN alone, TITLE,
   GLA without Sk, V3D/RAT/RND/AXE/VPT, VIE RFR/RAT COL, NA, EVA database items

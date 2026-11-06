@@ -50,6 +50,7 @@ type  zoatabManager
    procedure :: findTabIndex
    procedure :: closeAllTabs
    procedure, public :: closeAllTabsSilent
+   procedure, public :: forgetTabsInNotebook
    procedure :: finalize_with_psm
    procedure, public :: saveTabsToZin
    procedure, public :: restoreTabsFromZin
@@ -786,6 +787,31 @@ end function
   ! Same removal loop as closeAllTabs, but without the modal YES/NO dialog --
   ! used when closing tabs programmatically (eg before restoring from a .zin
   ! companion file) where prompting the user makes no sense.
+  ! An undocked plot window is being destroyed (closed by the user, by
+  ! removePlotTab once empty, or at shutdown): forget the tabs that lived in
+  ! its notebook, without touching their widgets, which are going with it.
+  ! Left registered, their notebook pointer dangled and the next SAV (the
+  ! autosave on exit included) crashed in save_undocked_plots.
+  subroutine forgetTabsInNotebook(self, nb)
+    class(zoatabManager) :: self
+    type(c_ptr), value :: nb
+    integer :: i
+    if (.not. c_associated(nb) .or. c_associated(nb, self%notebook)) return
+    do i = 1, self%tabNum
+      if (.not. allocated(self%tabInfo(i)%tabObj)) cycle
+      if (.not. c_associated(self%tabInfo(i)%tabObj%notebook, nb)) cycle
+      select type (t => self%tabInfo(i)%tabObj)
+      class is (zoaplottab)
+        if (t%hasMplt) call t%mplt%clear()
+      end select
+      deallocate(self%tabInfo(i)%tabObj)
+    end do
+    do while (self%tabNum > 0)
+      if (allocated(self%tabInfo(self%tabNum)%tabObj)) exit
+      self%tabNum = self%tabNum - 1
+    end do
+  end subroutine
+
   subroutine closeAllTabsSilent(self)
     implicit none
     class(zoatabManager) :: self

@@ -38,8 +38,8 @@ contains
         end if
         if (cmd_loop == TOW_LOOP) then
             cmd_loop = 0
-            call curr_psm%addGenericSetting(999, "Command", real(999), -1.0, -1.0, ' ', trim(cmdTOW), UITYPE_ENTRY)
-            call tow_go(curr_psm, trim(cmdTOW))
+            call curr_psm%setGenericSetting(999, "Command", real(999), -1.0, -1.0, ' ', trim(cmdTOW), UITYPE_ENTRY)
+            call tow_go(curr_psm, trim(cmdTOW), optionOpen)
         end if
         if (cmd_loop == VIE_LOOP) then
             if (inLensUpdateLevel()) then
@@ -114,6 +114,13 @@ contains
         if (inLensUpdateLevel()) then
             call PROCESKDP('EOS')
         end if
+
+    contains
+
+        ! TOW: did its commands leave an option (MTF, SPO ...) waiting for GO?
+        logical function optionOpen()
+            optionOpen = cmd_loop /= 0
+        end function
     end procedure executeGo
 
     module procedure setLens

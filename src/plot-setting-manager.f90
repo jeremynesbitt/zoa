@@ -108,6 +108,7 @@ module plot_setting_manager
     procedure :: addScaleSetting
     procedure, public, pass(self) :: getFieldSetting
     procedure, public, pass(self) :: generatePlotCommand
+    procedure, public, pass(self) :: setGenericSetting
     procedure, public, pass(self) :: getSettingValueByCode
     procedure, public, pass(self) :: getCommandByCode
     procedure, public, pass(self) :: buildCoupledCmd
@@ -402,6 +403,27 @@ contains
       end if
 
 
+    end subroutine
+
+    ! addGenericSetting, but replacing a setting with the same ID: a replot
+    ! reloads the plot's settings, so adding again duplicated it (TOW's
+    ! Command, replayed as "TOW P1 ; FIR ; FIR ; GO" and run twice).
+    subroutine setGenericSetting(self, ID_CODE, label, default, min, max, baseCmd, fullCmd, UI_TYPE)
+      class (zoaplot_setting_manager) :: self
+      integer :: ID_CODE, UI_TYPE
+      character(len=*) :: label, baseCmd, fullCmd
+      real :: default, min, max
+      integer :: i
+      do i = 1, self%numSettings
+        if (self%ps(i)%ID /= ID_CODE) cycle
+        if (UI_TYPE /= UITYPE_ENTRY) then
+          call self%ps(i)%initialize(ID_CODE, label, default, min, max, baseCmd, fullCmd, UI_TYPE)
+        else
+          call self%ps(i)%initializeStr(ID_CODE, label, fullCmd, baseCmd, UI_TYPE)
+        end if
+        return
+      end do
+      call self%addGenericSetting(ID_CODE, label, default, min, max, baseCmd, fullCmd, UI_TYPE)
     end subroutine
 
     function getPowerOfTwoImageSetting(self) result(N)

@@ -58,6 +58,8 @@ SUR SA
 RES osdtriplet
 ETH
 
-! ---- TOW: enter loop (FIR is not a zoaCmd so executes; GO not called → no GUI crash) ----
+! ---- TOW: collects the commands up to GO (FIR included) and runs them at GO;
+! headless the output stays on the console ----
 TOW
 FIR
+GO

@@ -238,6 +238,12 @@ subroutine undock_Window(act, param, gdata) bind(c)
 
   type(zoatab) :: tstTab
   character(len=100), pointer :: tabName
+  interface
+    subroutine undocked_window_destroyed(widget, gdata) bind(c)
+      import :: c_ptr
+      type(c_ptr), value, intent(in) :: widget, gdata
+    end subroutine
+  end interface
   type(c_ptr) ::  scrolled_win, child
 
 
@@ -296,6 +302,8 @@ subroutine undock_Window(act, param, gdata) bind(c)
   call gtk_box_append(box2, newnotebook)
 
   call gtk_window_set_child(newwin, box2)  
+  ! when the window goes, its tabs go with it (see forgetTabsInNotebook)
+  call g_signal_connect(newwin, "destroy"//c_null_char, c_funloc(undocked_window_destroyed), newnotebook)
   call gtk_window_present(newwin)
   call updateMenuBar()
 
@@ -326,6 +334,16 @@ subroutine undock_Window(act, param, gdata) bind(c)
   call zoatabMgr%updateTabPositions()
 
 
+end subroutine
+
+! The "destroy" handler of an undocked plot window: its tabs leave the tab
+! manager with it.
+subroutine undocked_window_destroyed(widget, gdata) bind(c)
+  use iso_c_binding
+  use handlers, only: zoatabMgr
+  implicit none
+  type(c_ptr), value, intent(in) :: widget, gdata
+  call zoatabMgr%forgetTabsInNotebook(gdata)
 end subroutine
 
 !For docking/undocking
