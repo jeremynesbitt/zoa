@@ -994,9 +994,10 @@ Not done yet:
   tilted module surface) bends the rays but leaves out the module's optical
   path, so OPD-based analyses are wrong there; a one-time red warning says so.
 - Third-order (THO/Seidel) sums do not include the module's MCO aberrations.
-- Real-ray aberrations are applied to the direction cosines (Malus-consistent
-  with the OPD), so ray errors carry a 1/cos^3 factor over the pure
-  third-order fans: e.g. Commands 7.1 coma gives DY +1.763 / +2.199 at
-  pupil +1 / -1, not symmetric.
+- Ray errors are the textbook third-order ones, -(R/r') lambda dW/drho as a
+  slope change (user decision 2026-11-05; Commands 7.1 coma gives DY +1.763
+  at pupil +1 and -1).  The OPD is exactly W, so the two agree only to third
+  order -- at large aperture/field the fans are not the exact derivative of
+  the real-ray OPD map.
 - CODE V .seq import/export of MOD lines is unverified (the .zoa save writes
   `MOD Sk` / `MFL Sk f` ... lines for both).

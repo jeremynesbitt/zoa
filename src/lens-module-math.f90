@@ -16,9 +16,11 @@
 !     + C15 |H|^2 rho^2                                    (image terms)
 !     + Cax(lambda) rho^2 + Clat(lambda) (H.rho)           (colour)
 ! with Cax through (MWL1..3, C1..C3) and Clat through (MWL1..3, C6..C8),
-! quadratic in wavelength.  W is the OPD Zoa reports (chief path less ray path), so the module shortens the path by W*lambda and
-! turns the ray by the gradient of that path over the exit pupil (Malus), so
-! OPD maps and ray errors describe the same aberration.
+! quadratic in wavelength.  W is the OPD Zoa reports (chief path less ray
+! path), so the module shortens the path by W*lambda; the ray errors are the
+! textbook third-order ones, -(R/r') lambda dW/drho on the image plane (as in
+! Designing Optics Using CODE V 7.1.1), so a fan is exactly the derivative
+! of the OPD.
 !
 ! Only an object at infinity is modelled (MRD 0): the field of a ray is its
 ! direction, tan(theta) = (L/N, M/N).
@@ -111,7 +113,7 @@ contains
     real(real64), intent(out) :: lo, mo, no, xr, yr, opl
     logical, intent(out) :: ok
     real(real64) :: d1, d2, tx, ty, xh, yh, f, sgn, d, tmax, h(2), rho(2), xp, yp
-    real(real64) :: rp, w, g(2), ze, sp, mp, ltn, mtn, tnx, tny, nn
+    real(real64) :: rp, w, g(2), ze, sp, mp, tnx, tny
 
     lo = l; mo = m; no = n; xr = x; yr = y; opl = 0.0_real64
     ok = .false.
@@ -147,7 +149,9 @@ contains
       rho = [xp, yp]/(p%med/2.0_real64)
       call lm_wavefront(p, h, rho, lam_nm, w, g)
       ! exit pupil radius: the module's image of the entrance pupil
+      ! (sp from H', ze from H)
       ze = p%men - d1
+      sp = 0.0_real64
       mp = 1.0_real64
       if (ze /= 0.0_real64) then
         sp = 1.0_real64/(1.0_real64/f + 1.0_real64/ze)
@@ -158,14 +162,11 @@ contains
         ! Zoa's OPD is the chief ray's path less the ray's, so W waves of
         ! aberration (as MCO states it) is a path W*lambda shorter
         opl = opl - w*p%lam_ref
-        ! direction cosines turn by the gradient of the added path
-        ltn = tnx/sqrt(1.0_real64 + tnx**2 + tny**2) - p%lam_ref*g(1)/rp
-        mtn = tny/sqrt(1.0_real64 + tnx**2 + tny**2) - p%lam_ref*g(2)/rp
-        nn = 1.0_real64 - ltn**2 - mtn**2
-        if (nn <= 0.0_real64) return
-        nn = sqrt(nn)
-        tnx = ltn/nn
-        tny = mtn/nn
+        ! the textbook third-order ray error on the image (rear focal) plane,
+        ! eps = -(R/r') lambda dW/drho, R the exit pupil to image distance and
+        ! r' the exit pupil radius: a slope change over the distance f from H'
+        tnx = tnx - (f - sp)/f*p%lam_ref*g(1)/rp
+        tny = tny - (f - sp)/f*p%lam_ref*g(2)/rp
       end if
     end if
 

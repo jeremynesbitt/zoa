@@ -53,25 +53,25 @@ TEMPORARY CIRCULAR CLEAR APERTURE =   10.00
  HAS BEEN REMOVED FROM THE REFERENCE SURFACE
  FOR THE CURRENT CAPFN CALCULATIONS
  PERFORMING "CAPFN" CALCULATIONS...
-RMSOPD =   0.300182482222499
+RMSOPD =   0.300183784475537
 RAYTRACE DATA (XZ AND YZ-PLANE) - (CFG # 1)
 ANGULAR OUTPUT MODE IS DEGREES
 SLOPES/ANGLES  MEASURED WITH RESPECT TO THE Z-AXIS
 
 SURF      X              Y              Z             XANG           YANG
   0   -0.00000      -0.176327E+13    0.00000        0.00000        10.0000
-  1    0.00000        10.0000        0.00000        0.00000       0.663919
-  2    0.00000        10.0000        0.00000        0.00000       0.663919
-  3    0.00000        10.5794        0.00000        0.00000       0.663919
+  1    0.00000        10.0000        0.00000        0.00000       0.663495
+  2    0.00000        10.0000        0.00000        0.00000       0.663495
+  3    0.00000        10.5790        0.00000        0.00000       0.663495
 RAYTRACE DATA (XZ AND YZ-PLANE) - (CFG # 1)
 ANGULAR OUTPUT MODE IS DEGREES
 SLOPES/ANGLES  MEASURED WITH RESPECT TO THE Z-AXIS
 
 SURF      X              Y              Z             XANG           YANG
   0   -0.00000      -0.176327E+13    0.00000        0.00000        10.0000
-  1    0.00000       -10.0000        0.00000        0.00000        22.7969
-  2    0.00000       -10.0000        0.00000        0.00000        22.7969
-  3    0.00000        11.0149        0.00000        0.00000        22.7969
+  1    0.00000       -10.0000        0.00000        0.00000        22.3711
+  2    0.00000       -10.0000        0.00000        0.00000        22.3711
+  3    0.00000        10.5790        0.00000        0.00000        22.3711
 RAYENGINE OFF
 Lens module: the legacy tracer bends the rays but leaves out the module's optical path, so OPD is wrong (RAYENGINE is OFF)
 RAYTRACE DATA (XZ AND YZ-PLANE) - (CFG # 1)
@@ -80,9 +80,9 @@ SLOPES/ANGLES  MEASURED WITH RESPECT TO THE Z-AXIS
 
 SURF      X              Y              Z             XANG           YANG
   0   -0.00000      -0.176327E+13    0.00000        0.00000        10.0000
-  1    0.00000        10.0000        0.00000        0.00000       0.663919
-  2    0.00000        10.0000        0.00000        0.00000       0.663919
-  3    0.00000        10.5794        0.00000        0.00000       0.663919
+  1    0.00000        10.0000        0.00000        0.00000       0.663495
+  2    0.00000        10.0000        0.00000        0.00000       0.663495
+  3    0.00000        10.5790        0.00000        0.00000       0.663495
 RAYENGINE ON
 LENS MODULE S1-S2
   MFL 50.000000   MFF -40.000000   MBF 45.000000   MEN 0.000000
