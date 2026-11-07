@@ -8,6 +8,7 @@ contains
         use plot_functions, only: mtf_go, psf_go, vie_go, spo_go, seidel_go, ast_go, pma_go, rayaberration_go, rmsfield_go, zern_go, rad_go, fma_go, foo_go
         use optim_functions, only: aut_go
         use tow_functions, only: tow_go
+        use seidel_table, only: seidel_table_go
 
         if (cmd_loop == ID_PLOTTYPE_MTF) then
             call mtf_go(curr_psm)
@@ -110,6 +111,10 @@ contains
         if (cmd_loop == ZERN_LOOP) then
             call zern_go(curr_psm)
             cmd_loop = 0
+        end if
+        if (cmd_loop == ID_SEIDEL_TAB) then
+            cmd_loop = 0
+            call seidel_table_go(curr_psm)
         end if
         if (inLensUpdateLevel()) then
             call PROCESKDP('EOS')

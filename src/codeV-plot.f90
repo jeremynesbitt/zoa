@@ -513,6 +513,65 @@ contains
 
     end procedure    
 
+    !## cmd:      SEIDEL
+    !## syntax:   SEIDEL ; [SUNIT LENS|WAVES] ; GO
+    !## category: Analysis
+    !## desc:     Seidel aberration tables (OpticStudio's Seidel Coefficients):
+    !##           Seidel S1-S5, CL, CT and wavefront W040..W220T coefficients
+    !##           (in lens units, or waves with SUNIT WAVES), transverse and
+    !##           longitudinal coefficients and the Petzval radius, by surface
+    !##           with the sum last.  Opens a data tab that updates with the lens.
+    !##
+    module procedure execSeidelTable
+        implicit none
+        logical :: boolResult
+        type(zoaplot_setting_manager) :: psm
+
+        call psm%initialize(trim(iptStr))
+        call psm%addSeidelUnitsSetting()
+        boolResult = initiatePlotLoop(iptStr, ID_SEIDEL_TAB, psm)
+        if (boolResult .EQV. .FALSE.) then
+            call zoa_emit("Error in input. Should be either SEIDEL or SEIDEL PX, where X is the tab number", "red")
+        end if
+    end procedure
+
+    !## cmd:      SUNIT
+    !## syntax:   SUNIT LENS|WAVES
+    !## category: Plot Settings
+    !## desc:     Units of the SEIDEL Seidel and wavefront tables: lens units or
+    !##           waves at the reference wavelength.
+    !##
+    module procedure setSeidelUnits
+        use strings, only: parse
+        use command_utils, only: isInputNumber
+        implicit none
+        character(len=80) :: tokens(40)
+        integer :: numTokens, id
+        call parse(trim(iptStr), ' ', tokens, numTokens)
+        if (cmd_loop /= ID_SEIDEL_TAB) then
+            call zoa_emit("SUNIT is a SEIDEL setting (SEIDEL ; SUNIT WAVES ; GO)", "red")
+            return
+        end if
+        id = -1
+        if (numTokens >= 2) then
+            select case (trim(tokens(2)))
+            case ('LENS', 'L');  id = ID_SEIDEL_UNITS_LENS
+            case ('WAVES', 'WAVE', 'W'); id = ID_SEIDEL_UNITS_WAVES
+            case default
+                ! the settings combo sends the setting ID
+                if (isInputNumber(trim(tokens(2)))) then
+                    if (nint(str2real8(trim(tokens(2)))) == ID_SEIDEL_UNITS_LENS) id = ID_SEIDEL_UNITS_LENS
+                    if (nint(str2real8(trim(tokens(2)))) == ID_SEIDEL_UNITS_WAVES) id = ID_SEIDEL_UNITS_WAVES
+                end if
+            end select
+        end if
+        if (id < 0) then
+            call zoa_emit("SUNIT: usage: SUNIT LENS|WAVES", "red")
+            return
+        end if
+        call curr_psm%updateSetting(ID_SEIDEL_UNITS, id)
+    end procedure
+
     !## cmd:      PSF
     !## syntax:   PSF
     !## category: Plotting

@@ -1024,5 +1024,7 @@ in CODE V columns with the F-C colour terms and the default field (test
   GLA without Sk, V3D/RAT/RND/AXE/VPT, VIE RFR/RAT COL, NA, EVA database items
   ((SA W1), (Y R1 FL SI W1)), fifth-order THO (CODE V's FORDER).
 - Macro typos: Bentley4p2/12p1/13p1 have S1.2/S1.3 for S1..2/S1..3.
-- Planned: a SEIDEL command with Zemax-style Seidel tables (THO now prints
-  CODE V's transverse columns).
+- SEIDEL (2026-11-06) prints OpticStudio-style Seidel/wavefront/transverse/
+  longitudinal tables in a data tab; its signs follow the OpticStudio manual's
+  relations (S = -2n'u' x transverse) but have not been compared against
+  OpticStudio output on a real lens yet.

@@ -652,6 +652,11 @@ test('lens_module', test_runner,
             meson.project_source_root() / 'test/lens_module.ref'],
      timeout: 120)
 
+test('seidel_table', test_runner,
+     args: [meson.project_source_root() / 'test/seidel_table.zoa',
+            meson.project_source_root() / 'test/seidel_table.ref'],
+     timeout: 120)
+
 test('book_regressions', test_runner,
      args: [meson.project_source_root() / 'test/book_regressions.zoa',
             meson.project_source_root() / 'test/book_regressions.ref'],

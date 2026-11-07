@@ -364,6 +364,12 @@ module codeV_commands
    module subroutine execLensModule(iptStr)
     character(len=*) :: iptStr
    end subroutine execLensModule
+   module subroutine execSeidelTable(iptStr)
+    character(len=*) :: iptStr
+   end subroutine execSeidelTable
+   module subroutine setSeidelUnits(iptStr)
+    character(len=*) :: iptStr
+   end subroutine setSeidelUnits
    module subroutine updateAsphereTerms(iptStr)
     character(len=*) :: iptStr
    end subroutine updateAsphereTerms
@@ -902,6 +908,10 @@ module codeV_commands
         zoaCmds(830)%execFunc => execLensModule
         zoaCmds(831)%cmd = 'MCO'
         zoaCmds(831)%execFunc => execLensModule
+        zoaCmds(832)%cmd = 'SEIDEL'
+        zoaCmds(832)%execFunc => execSeidelTable
+        zoaCmds(833)%cmd = 'SUNIT'
+        zoaCmds(833)%execFunc => setSeidelUnits
         ! Tilt / decenter / pivot control codes (CODE V XDC..CDC, XOC..ZOC).
         block
             use zoa_ui, only: TILT_VAR_NAMES

@@ -116,6 +116,7 @@ srcs += files(
   'ui-table-funcs.f90',  
   'optimizer-ui.f90',
   'tow-functions.f90',
+  'seidel-table.f90',
   'ROUTEDRAWING.f90',
   'zoa-tab-manager.f90',
   'zoa-plot-manip-toolbar.f90',

@@ -1,0 +1,22 @@
+! SEIDEL: Seidel, wavefront, transverse and longitudinal coefficient tables
+! (OpticStudio's Seidel Coefficients) for the book's f/2.5 singlet at 10 deg,
+! C d F.  Transverse sums equal THO's: TSPH = SA, TTCO = TCO, TTFC = TAS,
+! TSFC = SAS, TPFC = PTB, TDIS = DST, TAXC = AX, TLAC = LAT.
+LEN NEW
+TIT 'OSDsinglet'
+EPD 20
+INS S2
+RDY S1 120
+THI S1 5
+GLA S1 NBK7
+RDY S2 -32.4637
+PIM
+YAN 0 7 10
+WL 656.27 587.56 486.13
+SEIDEL ; GO
+! the Seidel and wavefront tables in waves
+SEIDEL ; SUNIT WAVES ; GO
+THO
+! bad input
+SUNIT WAVES
+SEIDEL ; SUNIT FURLONGS ; GO

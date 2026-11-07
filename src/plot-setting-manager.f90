@@ -106,6 +106,7 @@ module plot_setting_manager
     
     procedure :: addWavelengthComboSetting, getWavelengthComboSetting
     procedure :: addScaleSetting
+    procedure, public :: addSeidelUnitsSetting, getSeidelUnitsSetting
     procedure, public, pass(self) :: getFieldSetting
     procedure, public, pass(self) :: generatePlotCommand
     procedure, public, pass(self) :: setGenericSetting
@@ -833,6 +834,26 @@ contains
         end select
       end do
     end subroutine
+
+    ! SEIDEL: Seidel and wavefront coefficients in lens units or in waves
+    ! (SUNIT LENS|WAVES; the combo sends the setting ID).
+    subroutine addSeidelUnitsSetting(self)
+      class (zoaplot_setting_manager) :: self
+      type(idText) :: set(2)
+      set(1)%text = "Lens units"
+      set(1)%id = ID_SEIDEL_UNITS_LENS
+      set(2)%text = "Waves"
+      set(2)%id = ID_SEIDEL_UNITS_WAVES
+      self%numSettings = self%numSettings + 1
+      call self%ps(self%numSettings)%initialize(ID_SEIDEL_UNITS, &
+      & "Units", real(ID_SEIDEL_UNITS_LENS), 0.0, 0.0, &
+      & "SUNIT", "SUNIT "//trim(int2str(ID_SEIDEL_UNITS_LENS)), UITYPE_COMBO, set=set)
+    end subroutine
+
+    logical function getSeidelUnitsSetting(self) result(inWaves)
+      class (zoaplot_setting_manager) :: self
+      inWaves = nint(self%getSettingValueByCode(ID_SEIDEL_UNITS)) == ID_SEIDEL_UNITS_WAVES
+    end function
 
     subroutine addRMSFieldSettings(self)
 

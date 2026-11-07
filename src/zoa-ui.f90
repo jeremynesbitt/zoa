@@ -28,6 +28,9 @@ integer, parameter :: ID_PLOTTYPE_MTF     = 1031
 
 
 integer, parameter :: ID_TOW_TAB  = 4001
+! SEIDEL: a data-only tab of Seidel, wavefront, transverse and longitudinal
+! aberration coefficients
+integer, parameter :: ID_SEIDEL_TAB  = 4002
 
 
 
@@ -137,6 +140,11 @@ integer, parameter :: ID_RSPH_BEST   = 1635
 ! Spot diagram: draw the Airy disk (radius 1.22*lambda*F/#) over the rays.
 integer, parameter :: ID_AIRY_OFF = 1636
 integer, parameter :: ID_AIRY_ON  = 1637
+
+! SEIDEL tables: Seidel and wavefront coefficients in lens units or waves
+integer, parameter :: ID_SEIDEL_UNITS = 1638
+integer, parameter :: ID_SEIDEL_UNITS_LENS  = 1639
+integer, parameter :: ID_SEIDEL_UNITS_WAVES = 1640
 
 !integer :: active_plot = -1
 

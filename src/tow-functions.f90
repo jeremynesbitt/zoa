@@ -3,7 +3,7 @@ module tow_functions
     !use global_widgets, only: ioConfig
     !use handlers, only: zoatabMgr, ioConfig
     use handlers, only: zoatabMgr, ioConfig, c_null_char, ID_TOW_TAB, ID_TERMINAL_DEFAULT
-    use plot_functions, only: zoaplot_setting_manager, getTabTextView
+    use plot_functions, only: zoaplot_setting_manager, getTabTextView, setPlotNum
     use type_utils, only: int2str, str2int
     implicit none
     
@@ -35,12 +35,11 @@ subroutine initializeGoDataTab(psm,plot_code, plotName, replot, objIdx)
       call zoatabMgr%updateInputCommand(objIdx, inputCmd)
       call zoatabMgr%clearDataTab(objIdx)
      else
-      pIdx = zoatabMgr%getNumberOfPlotsByCode(plot_code)
-     
-      psm%plotNum = pIdx+1 ! Noreplot so this is the next num
-
-      !TODO:  Fix this.  need to check if basecmd is multiple pieces or not
-      psm%baseCmd = trim(psm%baseCmd)//" P"//int2str(psm%plotNum)
+      ! A command that names a tab number that does not exist yet (a .zin
+      ! REPLAY record, a session restore) keeps that number -- appending
+      ! another one made "SEIDEL P1 P1"; otherwise take the lowest free one.
+      if (psm%plotNum < 1) psm%plotNum = zoatabMgr%getLowestAvailablePlotNum(plot_code)
+      call setPlotNum(psm%baseCmd, psm%plotNum)
       inputCmd = trim(psm%generatePlotCommand())
       tabName = plotName
       if  (psm%plotNum > 1) then

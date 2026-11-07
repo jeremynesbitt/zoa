@@ -163,12 +163,15 @@ module kdp_utils
   ! A Data tab table: one header line (each name right-aligned over its
   ! column) and one row per data(i,:), every value ES16.8 -- pastes into
   ! MATLAB/Python as a numeric matrix.
-  subroutine logColumns(headers, data)
+  subroutine logColumns(headers, data, rowLabels)
+    ! rowLabels (optional): a text first column (e.g. OBJ/STO/IMG surface
+    ! names) headed by headers(1); data then holds the remaining columns
     use iso_fortran_env, only: real64
     implicit none
     character(len=*), dimension(:), intent(in) :: headers
     real(real64), dimension(:,:), intent(in) :: data
-    integer :: W, i, j, n
+    character(len=*), dimension(:), intent(in), optional :: rowLabels
+    integer :: W, i, j, n, off
     character(len=:), allocatable :: lineStr
     character(len=20) :: fmt
 
@@ -182,8 +185,15 @@ module kdp_utils
       lineStr(j*W-n+1:j*W) = headers(j)(1:n)
     end do
     call OUTKDP(trim(lineStr))
+    off = 0
+    if (present(rowLabels)) off = W
     do i = 1, size(data, 1)
-      write(lineStr, fmt) data(i, :)
+      lineStr(:) = ' '
+      if (present(rowLabels)) then
+        n = min(len_trim(rowLabels(i)), W)
+        lineStr(W-n+1:W) = rowLabels(i)(1:n)
+      end if
+      write(lineStr(off+1:), fmt) data(i, :)
       call OUTKDP(trim(lineStr))
     end do
   end subroutine
