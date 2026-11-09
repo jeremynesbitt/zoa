@@ -59,6 +59,12 @@ module plot_setting_manager
     integer, parameter :: SETTING_FOO_LIS = 1776
     integer, parameter :: SETTING_FOO_ORI = 1777
     integer, parameter :: SETTING_FOO_AZI = 1778
+    ! SINRAYTRA (single ray trace): normalized field and pupil, coordinates.
+    integer, parameter :: SETTING_SRT_HX  = 1779
+    integer, parameter :: SETTING_SRT_HY  = 1780
+    integer, parameter :: SETTING_SRT_PX  = 1781
+    integer, parameter :: SETTING_SRT_PY  = 1782
+    integer, parameter :: SETTING_SRT_COO = 1783
     integer, parameter :: SETTING_ZERNIKE = 4
 
 
@@ -107,6 +113,7 @@ module plot_setting_manager
     procedure :: addWavelengthComboSetting, getWavelengthComboSetting
     procedure :: addScaleSetting
     procedure, public :: addSeidelUnitsSetting, getSeidelUnitsSetting
+    procedure, public :: addSinRayTraSettings, getSinRayTraSettings
     procedure, public, pass(self) :: getFieldSetting
     procedure, public, pass(self) :: generatePlotCommand
     procedure, public, pass(self) :: setGenericSetting
@@ -848,6 +855,55 @@ contains
       call self%ps(self%numSettings)%initialize(ID_SEIDEL_UNITS, &
       & "Units", real(ID_SEIDEL_UNITS_LENS), 0.0, 0.0, &
       & "SUNIT", "SUNIT "//trim(int2str(ID_SEIDEL_UNITS_LENS)), UITYPE_COMBO, set=set)
+    end subroutine
+
+    ! SINRAYTRA: Hx Hy Px Py (normalized field and pupil, as entries), the
+    ! wavelength (SETWV) and the coordinates (COO DIR|TAN; the combo sends
+    ! 1 or 2).
+    subroutine addSinRayTraSettings(self)
+      class (zoaplot_setting_manager) :: self
+      type(idText) :: coo(2)
+      coo(1)%text = "Direction Cosines"; coo(1)%id = 1
+      coo(2)%text = "Tangent Angle";     coo(2)%id = 2
+      self%numSettings = self%numSettings + 1
+      call self%ps(self%numSettings)%initializeStr(SETTING_SRT_HX, "Field X (Hx)", "0", "HX", UITYPE_ENTRY)
+      self%numSettings = self%numSettings + 1
+      call self%ps(self%numSettings)%initializeStr(SETTING_SRT_HY, "Field Y (Hy)", "1", "HY", UITYPE_ENTRY)
+      self%numSettings = self%numSettings + 1
+      call self%ps(self%numSettings)%initializeStr(SETTING_SRT_PX, "Pupil X (Px)", "0", "PX", UITYPE_ENTRY)
+      self%numSettings = self%numSettings + 1
+      call self%ps(self%numSettings)%initializeStr(SETTING_SRT_PY, "Pupil Y (Py)", "1", "PY", UITYPE_ENTRY)
+      call self%addWavelengthSetting()
+      self%numSettings = self%numSettings + 1
+      call self%ps(self%numSettings)%initialize(SETTING_SRT_COO, &
+      & "Coordinates", real(1),0.0,0.0, "COO ", "COO 1", UITYPE_COMBO, set=coo)
+    end subroutine
+
+    subroutine getSinRayTraSettings(self, hx, hy, px, py, iw, useTan)
+      use command_utils, only: isInputNumber
+      use type_utils, only: str2real8
+      class (zoaplot_setting_manager) :: self
+      real(kind=kind(1.0d0)), intent(out) :: hx, hy, px, py
+      integer, intent(out) :: iw
+      logical, intent(out) :: useTan
+      integer :: i
+      real(kind=kind(1.0d0)) :: v
+      hx = 0.0d0; hy = 1.0d0; px = 0.0d0; py = 1.0d0
+      do i = 1, self%numSettings
+        select case (self%ps(i)%ID)
+        case (SETTING_SRT_HX, SETTING_SRT_HY, SETTING_SRT_PX, SETTING_SRT_PY)
+          if (.not. isInputNumber(trim(self%ps(i)%defaultStr))) cycle
+          v = str2real8(trim(self%ps(i)%defaultStr))
+          select case (self%ps(i)%ID)
+          case (SETTING_SRT_HX); hx = v
+          case (SETTING_SRT_HY); hy = v
+          case (SETTING_SRT_PX); px = v
+          case default;          py = v
+          end select
+        end select
+      end do
+      iw = self%getWavelengthSetting()
+      useTan = nint(self%getSettingValueByCode(SETTING_SRT_COO)) == 2
     end subroutine
 
     logical function getSeidelUnitsSetting(self) result(inWaves)

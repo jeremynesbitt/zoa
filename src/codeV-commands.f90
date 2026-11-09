@@ -367,6 +367,12 @@ module codeV_commands
    module subroutine execSeidelTable(iptStr)
     character(len=*) :: iptStr
    end subroutine execSeidelTable
+   module subroutine execSinRayTra(iptStr)
+    character(len=*) :: iptStr
+   end subroutine execSinRayTra
+   module subroutine srtSetOption(iptStr)
+    character(len=*) :: iptStr
+   end subroutine srtSetOption
    module subroutine setSeidelUnits(iptStr)
     character(len=*) :: iptStr
    end subroutine setSeidelUnits
@@ -912,6 +918,8 @@ module codeV_commands
         zoaCmds(832)%execFunc => execSeidelTable
         zoaCmds(833)%cmd = 'SUNIT'
         zoaCmds(833)%execFunc => setSeidelUnits
+        zoaCmds(834)%cmd = 'SINRAYTRA'
+        zoaCmds(834)%execFunc => execSinRayTra
         ! Tilt / decenter / pivot control codes (CODE V XDC..CDC, XOC..ZOC).
         block
             use zoa_ui, only: TILT_VAR_NAMES
@@ -1173,6 +1181,14 @@ module codeV_commands
             select case (trim(iptCmd))
             case ('FFD', 'NFX', 'NFY', 'NRD', 'XMI', 'XMA', 'YMI', 'YMA', 'LIS')
                 call fmaSetOption(currentCommand); boolResult = .TRUE.; return
+            end select
+        end if
+
+        ! SINRAYTRA options (PX/PY/HX/HY/COO are claimed only inside it).
+        if (cmd_loop == ID_SINRAYTRA_TAB) then
+            select case (trim(iptCmd))
+            case ('HX', 'HY', 'PX', 'PY', 'COO')
+                call srtSetOption(currentCommand); boolResult = .TRUE.; return
             end select
         end if
 

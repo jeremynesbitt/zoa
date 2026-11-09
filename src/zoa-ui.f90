@@ -31,6 +31,8 @@ integer, parameter :: ID_TOW_TAB  = 4001
 ! SEIDEL: a data-only tab of Seidel, wavefront, transverse and longitudinal
 ! aberration coefficients
 integer, parameter :: ID_SEIDEL_TAB  = 4002
+! SINRAYTRA: a data-only tab with one real ray and its paraxial ray
+integer, parameter :: ID_SINRAYTRA_TAB = 4010
 
 
 

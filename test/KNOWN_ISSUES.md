@@ -1024,7 +1024,16 @@ in CODE V columns with the F-C colour terms and the default field (test
   GLA without Sk, V3D/RAT/RND/AXE/VPT, VIE RFR/RAT COL, NA, EVA database items
   ((SA W1), (Y R1 FL SI W1)), fifth-order THO (CODE V's FORDER).
 - Macro typos: Bentley4p2/12p1/13p1 have S1.2/S1.3 for S1..2/S1..3.
-- SEIDEL (2026-11-06) prints OpticStudio-style Seidel/wavefront/transverse/
-  longitudinal tables in a data tab; its signs follow the OpticStudio manual's
-  relations (S = -2n'u' x transverse) but have not been compared against
-  OpticStudio output on a real lens yet.
+- SEIDEL signs/factors unverified (to revisit with OpticStudio, deferred by
+  the user 2026-11-08).  SEIDEL (2026-11-06) prints OpticStudio-style
+  Seidel/wavefront/transverse/longitudinal tables in a data tab, derived from
+  the KDP Seidel terms with the OpticStudio manual's relations
+  (S = INV*c with INV = -2n'u'; longitudinal = -transverse/u').  Open:
+  (1) sign -- for an undercorrected positive singlet S1 comes out negative
+  (test/seidel_table: S1 SUM -0.4546 mm, W040 -0.0568 mm); OpticStudio may
+  print it positive.  (2) W040 factor -- the manual's table gives S1/2, its
+  text S1 = 8 W040; SEIDEL uses the standard W040 = S1/8.  (3) with no
+  off-axis field SEIDEL, like THO, uses CODE V's default tan 0.02 field;
+  OpticStudio would likely show zero field terms.  Check: run test/
+  seidel_table.zoa's singlet in OpticStudio and compare S1, W040 and the
+  TSPH..TLAC sums (the transverse sums already equal THO's columns).

@@ -9,6 +9,7 @@ contains
         use optim_functions, only: aut_go
         use tow_functions, only: tow_go
         use seidel_table, only: seidel_table_go
+        use single_ray_trace, only: sinraytra_go
 
         if (cmd_loop == ID_PLOTTYPE_MTF) then
             call mtf_go(curr_psm)
@@ -115,6 +116,10 @@ contains
         if (cmd_loop == ID_SEIDEL_TAB) then
             cmd_loop = 0
             call seidel_table_go(curr_psm)
+        end if
+        if (cmd_loop == ID_SINRAYTRA_TAB) then
+            cmd_loop = 0
+            call sinraytra_go(curr_psm)
         end if
         if (inLensUpdateLevel()) then
             call PROCESKDP('EOS')

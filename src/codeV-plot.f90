@@ -535,6 +535,76 @@ contains
         end if
     end procedure
 
+    !## cmd:      SINRAYTRA
+    !## syntax:   SINRAYTRA ; [HX x] [HY y] [PX x] [PY y] [SETWV n] [COO DIR|TAN] ; GO
+    !## category: Analysis
+    !## desc:     Single ray trace (OpticStudio's): one real ray and the matching
+    !##           paraxial ray at normalized field (HX, HY) and pupil (PX, PY)
+    !##           and wavelength n, surface by surface in local coordinates, with
+    !##           direction cosines (COO DIR, as PRLMN) or slope tangents (COO TAN,
+    !##           as PRREF).  Opens a data tab that updates with the lens.
+    !##           Defaults HX 0 HY 1 PX 0 PY 1, reference wavelength, DIR.
+    !##
+    module procedure execSinRayTra
+        implicit none
+        logical :: boolResult
+        type(zoaplot_setting_manager) :: psm
+
+        call psm%initialize(trim(iptStr))
+        call psm%addSinRayTraSettings()
+        boolResult = initiatePlotLoop(iptStr, ID_SINRAYTRA_TAB, psm)
+        if (boolResult .EQV. .FALSE.) then
+            call zoa_emit("Error in input. Should be either SINRAYTRA or SINRAYTRA PX, where X is the tab number", "red")
+        end if
+    end procedure
+
+    ! The SINRAYTRA options (claimed by the dispatcher only inside SINRAYTRA).
+    ! The settings panel sends the coordinates combo as its id (COO 1|2).
+    module procedure srtSetOption
+        use strings, only: parse
+        use command_utils, only: isInputNumber
+        use plot_setting_manager, only: SETTING_SRT_HX, SETTING_SRT_HY, SETTING_SRT_PX, &
+            SETTING_SRT_PY, SETTING_SRT_COO
+        implicit none
+        character(len=80) :: tokens(40)
+        integer :: numTokens, code, n
+        real(kind=real64) :: v
+
+        call parse(trim(iptStr), ' ', tokens, numTokens)
+        select case (trim(tokens(1)))
+        case ('COO')
+            n = 0
+            if (numTokens == 2) then
+                select case (trim(tokens(2)))
+                case ('DIR', '1', '1.0'); n = 1
+                case ('TAN', '2', '2.0'); n = 2
+                end select
+            end if
+            if (n == 0) then
+                call zoa_emit("Error:  SINRAYTRA: expected COO DIR|TAN", "red"); return
+            end if
+            call curr_psm%updateSetting(SETTING_SRT_COO, n)
+        case default
+            if (numTokens /= 2) then
+                call zoa_emit("Error:  SINRAYTRA: expected "//trim(tokens(1))//" value", "red"); return
+            end if
+            if (.not. isInputNumber(trim(tokens(2)))) then
+                call zoa_emit("Error:  SINRAYTRA: bad value "//trim(tokens(2)), "red"); return
+            end if
+            v = str2real8(trim(tokens(2)))
+            if (abs(v) > 1.0_real64) then
+                call zoa_emit("Error:  SINRAYTRA: "//trim(tokens(1))//" is normalized, -1..1", "red"); return
+            end if
+            select case (trim(tokens(1)))
+            case ('HX'); code = SETTING_SRT_HX
+            case ('HY'); code = SETTING_SRT_HY
+            case ('PX'); code = SETTING_SRT_PX
+            case default; code = SETTING_SRT_PY
+            end select
+            call curr_psm%updateSetting(code, trim(tokens(2)))
+        end select
+    end procedure
+
     !## cmd:      SUNIT
     !## syntax:   SUNIT LENS|WAVES
     !## category: Plot Settings

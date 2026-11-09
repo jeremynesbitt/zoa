@@ -1,0 +1,193 @@
+All constraints removed
+
+
+
+
+Title:        OSDsinglet
+Wavelength:   2 (587.56 nm)
+X Field:      0.0000
+Y Field:      1.0000
+X Pupil:      0.0000
+Y Pupil:      1.0000
+Coordinates:  Direction Cosines
+
+Coordinates are local to each surface; directions are after refraction.
+
+
+Real ray trace data
+         Surface               X               Y               Z        X-cosine        Y-cosine        Z-cosine        X-normal        Y-normal        Z-normal        Angle in     Path length
+             OBJ -0.00000000E+00 -1.76326981E+12  0.00000000E+00  0.00000000E+00  1.73648178E-01  9.84807753E-01  0.00000000E+00  0.00000000E+00  1.00000000E+00  1.00000000E+01  0.00000000E+00
+             STO  0.00000000E+00  1.00000002E+01  4.17392583E-01  0.00000000E+00  8.54593621E-02  9.96341657E-01 -0.00000000E+00 -8.33333348E-02  9.96521728E-01  1.47801919E+01  0.00000000E+00
+             002  0.00000000E+00  1.02506102E+01 -1.66082988E+00  0.00000000E+00 -4.07868158E-02  9.99167872E-01  0.00000000E+00  3.15756067E-01  9.48840401E-01  1.35040224E+01  2.93250565E+00
+             IMG  0.00000000E+00  8.17074943E+00  0.00000000E+00  0.00000000E+00 -4.07868158E-02  9.99167872E-01  0.00000000E+00  0.00000000E+00  1.00000000E+00  2.33756083E+00  5.09934585E+01
+
+
+Paraxial ray trace data
+         Surface               X               Y               Z        X-cosine        Y-cosine        Z-cosine
+             OBJ  0.00000000E+00 -1.76326981E+12  0.00000000E+00  0.00000000E+00  1.73648178E-01  9.84807753E-01
+             STO  0.00000000E+00  1.00000002E+01  0.00000000E+00  0.00000000E+00  8.75190887E-02  9.96162843E-01
+             002  0.00000000E+00  1.04392812E+01  0.00000000E+00  0.00000000E+00 -3.29081466E-02  9.99458380E-01
+             IMG  0.00000000E+00  8.81635321E+00  0.00000000E+00  0.00000000E+00 -3.29081466E-02  9.99458380E-01
+Title:        OSDsinglet
+Wavelength:   2 (587.56 nm)
+X Field:      0.0000
+Y Field:      0.0010
+X Pupil:      0.0010
+Y Pupil:      0.0000
+Coordinates:  Tangent Angle
+
+Coordinates are local to each surface; directions are after refraction.
+
+
+Real ray trace data
+         Surface               X               Y               Z       X-tangent       Y-tangent
+             OBJ -0.00000000E+00 -1.74532927E+09  0.00000000E+00  1.00000002E-15  1.74532927E-04
+             STO  1.00000002E-02  7.27220555E-11  4.16666682E-07 -2.83931133E-05  1.15066530E-04
+             002  9.85803466E-03  5.75332502E-04 -1.50185988E-06 -1.99999931E-04  1.65374025E-04
+             IMG -1.34980165E-09  8.72665079E-03  0.00000000E+00 -1.99999931E-04  1.65374025E-04
+
+
+Paraxial ray trace data
+         Surface               X               Y               Z       X-tangent       Y-tangent
+             OBJ  0.00000000E+00 -1.74532927E+09  0.00000000E+00  1.00000002E-15  1.74532927E-04
+             STO  1.00000002E-02  0.00000000E+00  0.00000000E+00 -2.83931128E-05  1.15066531E-04
+             002  9.85803461E-03  5.75332655E-04  0.00000000E+00 -1.99999909E-04  1.65374021E-04
+             IMG -1.73472348E-18  8.72665048E-03  0.00000000E+00 -1.99999909E-04  1.65374021E-04
+Title:        OSDsinglet
+Wavelength:   3 (486.13 nm)
+X Field:      0.0000
+Y Field:      0.0010
+X Pupil:      0.0000
+Y Pupil:      0.0010
+Coordinates:  Tangent Angle
+
+Coordinates are local to each surface; directions are after refraction.
+
+
+Real ray trace data
+         Surface               X               Y               Z       X-tangent       Y-tangent
+             OBJ -0.00000000E+00 -1.74532927E+09  0.00000000E+00  0.00000000E+00  1.74532927E-04
+             STO  0.00000000E+00  1.00000002E-02  4.16666687E-07  0.00000000E+00  8.60506914E-05
+             002  0.00000000E+00  1.04302535E-02 -1.67556673E-06  0.00000000E+00 -3.68326599E-05
+             IMG  0.00000000E+00  8.61476443E-03  0.00000000E+00  0.00000000E+00 -3.68326599E-05
+
+
+Paraxial ray trace data
+         Surface               X               Y               Z       X-tangent       Y-tangent
+             OBJ  0.00000000E+00 -1.74532927E+09  0.00000000E+00  0.00000000E+00  1.74532927E-04
+             STO  0.00000000E+00  1.00000002E-02  0.00000000E+00  0.00000000E+00  8.60506936E-05
+             002  0.00000000E+00  1.04302536E-02  0.00000000E+00  0.00000000E+00 -3.68326511E-05
+             IMG  0.00000000E+00  8.61476506E-03  0.00000000E+00  0.00000000E+00 -3.68326511E-05
+Title:        OSDsinglet
+Wavelength:   3 (486.13 nm)
+X Field:      0.5000
+Y Field:      0.5000
+X Pupil:      0.7000
+Y Pupil:      -0.7000
+Coordinates:  Direction Cosines
+
+Coordinates are local to each surface; directions are after refraction.
+
+
+Real ray trace data
+         Surface               X               Y               Z        X-cosine        Y-cosine        Z-cosine        X-normal        Y-normal        Z-normal        Angle in     Path length
+             OBJ -8.72686779E+10 -8.74886635E+11  0.00000000E+00  8.69333091E-03  8.71524493E-02  9.96157054E-01  0.00000000E+00  0.00000000E+00  1.00000000E+00  5.02468615E+00  0.00000000E+00
+             STO  7.00000012E+00 -7.00000012E+00  4.09030455E-01 -1.43407261E-02  7.72987271E-02  9.96904835E-01 -5.83333343E-02  5.83333343E-02  9.96591413E-01  4.18128373E+00  0.00000000E+00
+             002  6.95528463E+00 -6.75897673E+00 -1.48254336E+00 -1.47092218E-01  2.39402618E-01  9.59713638E-01  2.14248056E-01 -2.08201059E-01  9.54332274E-01  2.12176578E+01  3.11807715E+00
+             IMG -8.26489504E-01  5.90639150E+00  0.00000000E+00 -1.47092218E-01  2.39402618E-01  9.59713638E-01  0.00000000E+00  0.00000000E+00  1.00000000E+00  1.63187001E+01  5.29040507E+01
+
+
+Paraxial ray trace data
+         Surface               X               Y               Z        X-cosine        Y-cosine        Z-cosine
+             OBJ -8.72686779E+10 -8.74886635E+11  0.00000000E+00  8.69333091E-03  8.71524493E-02  9.96157054E-01
+             STO  7.00000012E+00 -7.00000012E+00  0.00000000E+00 -1.42395208E-02  7.72451364E-02  9.96910440E-01
+             002  6.92858187E+00 -6.61257747E+00  0.00000000E+00 -1.28916831E-01  2.17094895E-01  9.67600257E-01
+             IMG  3.61473427E-01  4.44637974E+00  0.00000000E+00 -1.28916831E-01  2.17094895E-01  9.67600257E-01
+Title:        OSDsinglet
+Wavelength:   2 (587.56 nm)
+X Field:      0.0000
+Y Field:      1.0000
+X Pupil:      0.0000
+Y Pupil:      1.0000
+Coordinates:  Tangent Angle
+
+Coordinates are local to each surface; directions are after refraction.
+
+
+Real ray trace data
+         Surface               X               Y               Z       X-tangent       Y-tangent
+             OBJ -0.00000000E+00 -1.76326981E+12  0.00000000E+00  0.00000000E+00  1.76326981E-01
+             STO  0.00000000E+00  1.00000002E+01  4.17392583E-01  0.00000000E+00  8.57731497E-02
+             002  0.00000000E+00  1.02506102E+01 -1.66082988E+00  0.00000000E+00 -4.08207839E-02
+             IMG  0.00000000E+00  8.17074943E+00  0.00000000E+00  0.00000000E+00 -4.08207839E-02
+
+
+Paraxial ray trace data
+         Surface               X               Y               Z       X-tangent       Y-tangent
+             OBJ  0.00000000E+00 -1.76326981E+12  0.00000000E+00  0.00000000E+00  1.76326981E-01
+             STO  0.00000000E+00  1.00000002E+01  0.00000000E+00  0.00000000E+00  8.78562068E-02
+             002  0.00000000E+00  1.04392812E+01  0.00000000E+00  0.00000000E+00 -3.29259800E-02
+             IMG  0.00000000E+00  8.81635321E+00  0.00000000E+00  0.00000000E+00 -3.29259800E-02
+PARAXIAL RAYTRACE DATA (YZ-PLANE) - (CFG # 1)
+(PUY AND PUCY) MEASURED WITH RESPECT TO THE Z-AXIS
+
+SURF      PY            PUY             PCY           PUCY
+  0   0.00000       0.100000E-11  -0.176327E+13   0.176327
+  1   10.0000      -0.283931E-01    0.00000       0.116249
+  2   9.85803      -0.200000       0.581247       0.167074
+  3   0.00000      -0.200000        8.81635       0.167074
+All constraints removed
+
+
+
+
+Title:        New Lens From Template
+Wavelength:   1 (587.56 nm)
+X Field:      0.0000
+Y Field:      1.0000
+X Pupil:      0.0000
+Y Pupil:      0.5000
+Coordinates:  Direction Cosines
+
+Coordinates are local to each surface; directions are after refraction.
+
+
+Real ray trace data
+         Surface               X               Y               Z        X-cosine        Y-cosine        Z-cosine        X-normal        Y-normal        Z-normal        Angle in     Path length
+             OBJ -0.00000000E+00 -1.74550649E+11  0.00000000E+00  0.00000000E+00  1.74524064E-02  9.99847695E-01  0.00000000E+00  0.00000000E+00  1.00000000E+00  1.00000000E+00  0.00000000E+00
+             STO  0.00000000E+00  5.00000009E+00 -1.25078227E-01  0.00000000E+00 -8.24945677E-02 -9.96591514E-01  0.00000000E+00  5.00000009E-02  9.98749218E-01  1.86598403E+00  0.00000000E+00
+             IMG  0.00000000E+00  8.71518106E-01  0.00000000E+00  0.00000000E+00 -8.24945677E-02 -9.96591514E-01  0.00000000E+00  0.00000000E+00  1.00000000E+00  4.73196806E+00  5.00455011E+01
+
+
+Paraxial ray trace data
+         Surface               X               Y               Z        X-cosine        Y-cosine        Z-cosine
+             OBJ  0.00000000E+00 -1.74550649E+11  0.00000000E+00  0.00000000E+00  1.74524064E-02  9.99847695E-01
+             STO  0.00000000E+00  5.00000009E+00  0.00000000E+00 -0.00000000E+00 -8.22651489E-02 -9.96610478E-01
+             IMG  0.00000000E+00  8.72753246E-01  0.00000000E+00 -0.00000000E+00 -8.22651489E-02 -9.96610478E-01
+INVALID CMD LEVEL COMMAND
+  Command: HX 0.5
+Error:  SINRAYTRA: HX is normalized, -1..1
+Error:  SINRAYTRA: expected COO DIR|TAN
+Title:        New Lens From Template
+Wavelength:   1 (587.56 nm)
+X Field:      0.0000
+Y Field:      1.0000
+X Pupil:      0.0000
+Y Pupil:      1.0000
+Coordinates:  Direction Cosines
+
+Coordinates are local to each surface; directions are after refraction.
+
+
+Real ray trace data
+         Surface               X               Y               Z        X-cosine        Y-cosine        Z-cosine        X-normal        Y-normal        Z-normal        Angle in     Path length
+             OBJ -0.00000000E+00 -1.74550649E+11  0.00000000E+00  0.00000000E+00  1.74524064E-02  9.99847695E-01  0.00000000E+00  0.00000000E+00  1.00000000E+00  1.00000000E+00  0.00000000E+00
+             STO  0.00000000E+00  1.00000002E+01 -5.01256307E-01  0.00000000E+00 -1.81863824E-01 -9.83323726E-01  0.00000000E+00  1.00000002E-01  9.94987437E-01  4.73917058E+00  0.00000000E+00
+             IMG  0.00000000E+00  8.45303110E-01  0.00000000E+00  0.00000000E+00 -1.81863824E-01 -9.83323726E-01  0.00000000E+00  0.00000000E+00  1.00000000E+00  1.04783412E+01  5.03381973E+01
+
+
+Paraxial ray trace data
+         Surface               X               Y               Z        X-cosine        Y-cosine        Z-cosine
+             OBJ  0.00000000E+00 -1.74550649E+11  0.00000000E+00  0.00000000E+00  1.74524064E-02  9.99847695E-01
+             STO  0.00000000E+00  1.00000002E+01  0.00000000E+00 -0.00000000E+00 -1.79577458E-01 -9.83743837E-01
+             IMG  0.00000000E+00  8.72753246E-01  0.00000000E+00 -0.00000000E+00 -1.79577458E-01 -9.83743837E-01
