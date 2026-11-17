@@ -115,12 +115,9 @@ contains
 
         result = rtsafe(rosenBrock, -100.0*1d0, 100.0*1d0, .001*1d0, info)
 
-        print *, "Reslt is ", result
         call rosenBrock(result, f, df)
-        print *, "Min Val is ", f
         print *, "Deriv is ", df
         call rosenBrock(1.0d0, f, df)
-        print *, "Min Val is ", f
         print *, "Deriv is ", df    
 
 
@@ -150,10 +147,7 @@ contains
 
         result = brent(-100*1d0,100*1d0,0*1d0,func_rosenBrock, .000001*1d0, xmin)
   
-        print *, "Reslt is ", result
         !call rosenBrock(result, f, df)
-        print *, "Min Val is ", xmin
-        print *, "Double Check Result is ", func_rosenBrock(xmin)
         !print *, "Deriv is ", df
         !call rosenBrock(1.0d0, f, df)
         !print *, "Min Val is ", f

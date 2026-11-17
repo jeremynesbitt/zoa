@@ -1,0 +1,40 @@
+! MTF THF: modulation at one frequency (FRE) through the focus positions
+! FFO/IFO/NFO.  Each position is the MTF with the image plane moved there; it
+! equals a real THI SI move of the image followed by plain MTF (checked below
+! on a singlet: the THF rows match the THI SI runs digit for digit).
+RES osdtriplet
+FFO -0.1
+IFO 0.025
+NFO 9
+MTF THF ; GO
+MTF THF ; SETFLD 3 ; FRE 100 ; GO
+! singlet: THF vs a real image move
+LEN NEW
+EPD 20
+YAN 0 5
+INS S2
+RDY S1 120
+THI S1 5
+GLA S1 NBK7
+RDY S2 -50
+THI S2 92.3
+FFO -0.2
+IFO 0.2
+NFO 3
+MTF THF ; SETFLD 2 ; FRE 50 ; NRD 32 ; GO
+FFO 0
+THI SI -0.2
+MTF ; SETFLD 2 ; MFR 50 ; IFR 50 ; NRD 32 ; GO
+THI SI 0.2
+MTF ; SETFLD 2 ; MFR 50 ; IFR 50 ; NRD 32 ; GO
+THI SI 0
+! plain MTF honours FFO (same numbers as THI SI 0.2 above)
+FFO 0.2
+MTF ; SETFLD 2 ; MFR 50 ; IFR 50 ; NRD 32 ; GO
+! one focus position; frequency beyond the cutoff
+NFO 1
+MTF THF ; FRE 600 ; NRD 32 ; GO
+! bad input
+MTF SIDEWAYS ; GO
+MTF THF ; FRE 0 ; FRE ABC ; NRD 32 ; GO
+MTF ; FRE 50 ; GO

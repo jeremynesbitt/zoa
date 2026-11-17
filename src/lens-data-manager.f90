@@ -861,7 +861,6 @@ module mod_lens_data_manager
 
         ! Code is 0.  Place it in if var_code is within range
         if (var_code > 0 .and. var_code <= ubound(self%vars,dim=2)) then 
-            print *, "UPdating value ", val
         self%vars(surf,var_code) = val
         ! Add variable count so optmizer knows
         ! Want to do it here but need to resolve circular dependency

@@ -65,6 +65,11 @@ module plot_setting_manager
     integer, parameter :: SETTING_SRT_PX  = 1781
     integer, parameter :: SETTING_SRT_PY  = 1782
     integer, parameter :: SETTING_SRT_COO = 1783
+    ! SPO THF: focus positions in a row or a column (ORI H|V; ids 1, 2)
+    integer, parameter :: SETTING_SPOT_ORI = 1784
+    integer, parameter :: ID_SPOT_ORI_H = 1, ID_SPOT_ORI_V = 2
+    ! MTF THF: the spatial frequency charted through focus (CODE V FRE)
+    integer, parameter :: SETTING_MTF_FRE = 1785
     integer, parameter :: SETTING_ZERNIKE = 4
 
 
@@ -114,6 +119,7 @@ module plot_setting_manager
     procedure :: addScaleSetting
     procedure, public :: addSeidelUnitsSetting, getSeidelUnitsSetting
     procedure, public :: addSinRayTraSettings, getSinRayTraSettings
+    procedure, public :: getSpotHorizontal
     procedure, public, pass(self) :: getFieldSetting
     procedure, public, pass(self) :: generatePlotCommand
     procedure, public, pass(self) :: setGenericSetting
@@ -347,15 +353,28 @@ contains
 
     end subroutine
 
-    subroutine addSpotDiagramSettings(self)
+    ! throughFocus (SPO THF): one field and one wavelength (no "All"), and
+    ! the orientation of the row of focus positions (ORI H|V).
+    subroutine addSpotDiagramSettings(self, throughFocus)
       
       class (zoaplot_setting_manager) :: self
-      type(idText) :: airySet(2)
+      logical, intent(in), optional :: throughFocus
+      type(idText) :: airySet(2), oriSet(2)
+      logical :: thf
 
-     
+      thf = .false.
+      if (present(throughFocus)) thf = throughFocus
 
-      call self%addFieldSetting(allowAll=.TRUE.)
-      call self%addWavelengthComboSetting()
+      call self%addFieldSetting(allowAll=.not. thf)
+      call self%addWavelengthComboSetting(allowAll=.not. thf)
+      if (thf) then
+        oriSet(1)%text = "Horizontal"; oriSet(1)%id = ID_SPOT_ORI_H
+        oriSet(2)%text = "Vertical";   oriSet(2)%id = ID_SPOT_ORI_V
+        self%numSettings = self%numSettings + 1
+        call self%ps(self%numSettings)%initialize(SETTING_SPOT_ORI, &
+        & "Focus Positions", real(ID_SPOT_ORI_H),0.0,0.0, &
+        & "ORI ", "ORI "//trim(int2str(ID_SPOT_ORI_H)), UITYPE_COMBO, set=oriSet)
+      end if
       call self%addSpotCalculationSetting()
       call self%addScaleSetting()
      
@@ -459,6 +478,12 @@ contains
     end function
 
     ! Since there is a lot of custom settings, write a method to get all settings
+    ! SPO THF: the focus positions in a row (else a column)
+    logical function getSpotHorizontal(self)
+      class (zoaplot_setting_manager) :: self
+      getSpotHorizontal = nint(self%getSettingValueByCode(SETTING_SPOT_ORI)) /= ID_SPOT_ORI_V
+    end function
+
     subroutine getSpotDiagramSettings(self, idxField, idxLambda, idxSpotCalcMethod, nRect, nRand, nRing, plotScale)
       class (zoaplot_setting_manager) :: self
       integer, intent(inout) :: idxField, idxLambda, idxSpotCalcMethod
@@ -1057,36 +1082,63 @@ contains
         integer :: newIdx
         integer :: i
 
-        !TODO:  Add error checking
+        ! The spin box (SETTING_WAVELENGTH) or the dropdown (the spot
+        ! diagram's, whose ids are the wavelength numbers plus ALL).  SETWV
+        ! from the command line used to reach only the spin box, so a
+        ! dropdown plot ignored it.
         do i=1,self%numSettings
-          if (self%ps(i)%ID == SETTING_WAVELENGTH) then
-            !call LogTermFOR("Found setting and changing to " //int2str(newIdx))
+          if (self%ps(i)%ID == SETTING_WAVELENGTH .and. newIdx /= ID_SETTING_WAVELENGTH_ALL) then
             self%ps(i)%default = real(newIdx)
             self%ps(i)%fullCmd = trim("SETWV "//int2str(newIdx))
+          end if
+          if (self%ps(i)%ID == ID_SETTING_WAVELENGTH_COMBO) then
+            self%ps(i)%default = real(newIdx)
+            if (newIdx == ID_SETTING_WAVELENGTH_ALL) then
+              self%ps(i)%fullCmd = "SETWV ALL"
+            else
+              self%ps(i)%fullCmd = trim("SETWV "//int2str(newIdx))
+            end if
           end if
         end do
 
       end subroutine 
 
 
-      subroutine addWavelengthComboSetting(self)
+      ! allowAll (default .true.) adds "All" and makes it the default;
+      ! without it the reference wavelength is the default.
+      subroutine addWavelengthComboSetting(self, allowAll)
         use global_widgets, only: sysConfig
 
         class(zoaplot_setting_manager) :: self
-        type(idText), dimension(sysConfig%numWavelengths+1) :: set
-        integer :: lambda, i
+        logical, intent(in), optional :: allowAll
+        type(idText), allocatable :: set(:)
+        integer :: i, iref
+        logical :: withAll
 
+        withAll = .true.
+        if (present(allowAll)) withAll = allowAll
+        if (withAll) then
+          allocate(set(sysConfig%numWavelengths+1))
+        else
+          allocate(set(sysConfig%numWavelengths))
+        end if
         do i=1,sysConfig%numWavelengths
           set(i)%text = int2str(i)
           set(i)%id = wlIndices(i)
-        end do         
-        set(i)%text = 'All'
-        set(i)%id = wlIndices(11)
-    
-          self%numSettings = self%numSettings + 1
-          call self%ps(self%numSettings)%initialize(ID_SETTING_WAVELENGTH_COMBO, & 
+        end do
+        self%numSettings = self%numSettings + 1
+        if (withAll) then
+          set(i)%text = 'All'
+          set(i)%id = wlIndices(11)
+          call self%ps(self%numSettings)%initialize(ID_SETTING_WAVELENGTH_COMBO, &
           & "Wavelength", real(wlIndices(11)),0.0,0.0, &
           & "SETWV ", "SETWV ALL", UITYPE_COMBO, set=set)
+        else
+          iref = max(1, min(sysConfig%numWavelengths, sysConfig%refWavelengthIndex))
+          call self%ps(self%numSettings)%initialize(ID_SETTING_WAVELENGTH_COMBO, &
+          & "Wavelength", real(iref),0.0,0.0, &
+          & "SETWV ", "SETWV "//trim(int2str(iref)), UITYPE_COMBO, set=set)
+        end if
 
 
       end subroutine

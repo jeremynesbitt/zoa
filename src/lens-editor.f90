@@ -159,7 +159,6 @@ contains
 
     type(c_ptr), value :: widget, gdata
     type(c_ptr) :: isurface
-    print *, "Exit called"
 
 
     !call cairo_destroy(rf_cairo_drawing_area)
@@ -186,7 +185,6 @@ contains
     type(c_ptr)  :: boxSolve, SolveLabel
     type(c_ptr)  :: lblAperture, AsphLabel
 
-    PRINT *, "ABOUT TO FIRE UP LENS EDITOR WINDOW!"
 
     ! Create a modal dialogue
     lens_editor_window = gtk_window_new()
@@ -285,17 +283,12 @@ end subroutine lens_editor_replot
       integer :: row, col
       integer(kind=c_int) :: ID_SETTING
   
-      PRINT *, "CALLING SOLVE EDITED PROC!"
       call convert_c_string(text, ftext)
       call getRowAndColFromCallback(renderer, path, row, col)
 
-      PRINT *,"Row is ", row
-      PRINT *, "Col is ", col
 
       if (col == 1) then
-        PRINT *, "Set by text"
         call hl_gtk_combo_set_by_text(ihSolv, row, col, trim(ftext), ID_SETTING)
-        PRINT *, "ID_SETTING is ", ID_SETTING
       end if      
 
       ! How to update column names
@@ -507,7 +500,6 @@ function buildLensEditTable() result(store)
     !type(c_ptr), dimension(numThickSolves+1) :: c_ptr_array
     type(c_ptr), dimension(:), allocatable :: c_ptr_array
 
-    PRINT *, "row is ", row
 
 
 
@@ -776,7 +768,6 @@ function buildLensEditTable() result(store)
     use iso_fortran_env, only: real64
     type(c_ptr), value, intent(in) :: widget, gdata
 
-    PRINT *, "Button clicked!"
     pData%scale = gtk_spin_button_get_value (sbScale)
     pData%offset = gtk_spin_button_get_value (sbOffset)
     pData%surf_ref = gtk_drop_down_get_selected(dropDown)
@@ -809,7 +800,6 @@ function buildLensEditTable() result(store)
   subroutine pickupCancel_click(widget, parentWin) bind(c)
     type(c_ptr), value, intent(in) :: widget, parentWin
 
-    PRINT *, "Button clicked!"
 
     ! This is a bad design but not sure what else to do to get rid of the "P" entry without
     ! yet another global
@@ -846,9 +836,7 @@ function buildLensEditTable() result(store)
     !pData%scale = curr_lens_data%pickups(3,row+1,pickup_type)
     !pData%offset = curr_lens_data%pickups(4,row+1,pickup_type)
 
-    PRINT *, "Call Update Solve Data from ui_solve"
     call sData%updateSolveData(curr_lens_data, row+1, solve_type)
-    PRINT *, "After Call Update Solve Data from ui_solve"
 
 
 
@@ -1027,7 +1015,6 @@ subroutine solveUpdate_click(widget, gdata) bind(c)
   integer :: selection
 
   call c_f_pointer(gdata, ID_SETTING)
-  PRINT *, "Button clicked!"
   sData%param1 = gtk_spin_button_get_value (sbScale)
   sData%param2 = gtk_spin_button_get_value (sbOffset)
   selection = gtk_drop_down_get_selected(dropDown)+1
@@ -1109,17 +1096,13 @@ integer :: surfIdx
 buff2 = gtk_entry_get_buffer(widget)
 call c_f_string_copy(gtk_entry_buffer_get_text(buff2), ftext)
 
-print *, "Val is ", trim(ftext)
 if (lowercase(ftext) == 'infinity') write(ftext, '(ES12.4E2)') INFINITY_DISTANCE
 cStr = gtk_widget_get_name(gtk_widget_get_parent(widget))
 call convert_c_string(cStr, rcCode)  
-print *, "Val is ", trim(rcCode)
 
 surfIdx = getSurfaceIndexFromRowColumnCode(trim(rcCode))
 
 call convert_c_string(data, cmd)  
-print *, "cmd is ", trim(cmd)
-print *, "cmd to process is ", trim(cmd)//" S"//trim(int2str(surfIdx))//" "//trim(ftext)
 call PROCESSILENT(trim(cmd)//" S"//trim(int2str(surfIdx))//" "//trim(ftext))
 ! The edit went through PROCESSILENT, not name_enter, so its deferred replot is
 ! never drained there. We are now back at top level (the command has returned),
@@ -1141,15 +1124,12 @@ integer :: surfIdx, colIdx
 buff2 = gtk_entry_get_buffer(widget)
 call c_f_string_copy(gtk_entry_buffer_get_text(buff2), ftext)
 
-print *, "Val is ", trim(ftext)
 cStr = gtk_widget_get_name(gtk_widget_get_parent(widget))
 call convert_c_string(cStr, rcCode)  
-print *, "Val is ", trim(rcCode)
 
 surfIdx = getSurfaceIndexFromRowColumnCode(trim(rcCode), colIdx)
 cmd = ldm%getExtraParamCmd(surfIdx, colIdx-extra_param_start+1)
 
-print *, "cmd is ", cmd
 if (len(trim(cmd)) > 0) then
   call PROCESSILENT(trim(cmd)//" S"//trim(int2str(surfIdx))//" "//trim(ftext))
   call notify_replot_flush()
@@ -1168,7 +1148,6 @@ subroutine removeSolve(act, avalue, btn) bind(c)
 
   cStr = gtk_widget_get_name(gtk_widget_get_parent(btn))
   call convert_c_string(cStr, rcCode)  
-  print *, "Val is ", trim(rcCode)
   surfIdx = getSurfaceIndexFromRowColumnCode(trim(rcCode), colIdx)
 
   sData%surf = surfIdx
@@ -1197,7 +1176,6 @@ subroutine removePickup(act, avalue, btn) bind(c)
 
   cStr = gtk_widget_get_name(gtk_widget_get_parent(btn))
   call convert_c_string(cStr, rcCode)
-  print *, "Val is ", trim(rcCode)
   surfIdx = getSurfaceIndexFromRowColumnCode(trim(rcCode), colIdx)
 
   ! PIKD command built by the pickup manager from the column's kind
@@ -1224,10 +1202,8 @@ subroutine enableSolve(act, avalue, btn) bind(c)
   !cStr = gtk_widget_get_name(btn)
   cStr = gtk_widget_get_name(gtk_widget_get_parent(btn))
   call convert_c_string(cStr, rcCode)  
-  print *, "Val is ", trim(rcCode)
   
   surfIdx = getSurfaceIndexFromRowColumnCode(trim(rcCode), colIdx)
-  print *, "surfIdx is ", surfIdx  
   mod_update = .FALSE.  
 
   select case (colIdx)
@@ -1252,10 +1228,8 @@ subroutine enablePickup(act, avalue, btn) bind(c)
   !cStr = gtk_widget_get_name(btn)
   cStr = gtk_widget_get_name(gtk_widget_get_parent(btn))
   call convert_c_string(cStr, rcCode)  
-  print *, "Val is ", trim(rcCode)
   
   surfIdx = getSurfaceIndexFromRowColumnCode(trim(rcCode), colIdx)
-  print *, "surfIdx is ", surfIdx
   mod_update = .FALSE.
 
   colCode = colToPikupJ(surfIdx, colIdx)
@@ -1276,10 +1250,8 @@ subroutine enableVar(act, avalue, btn) bind(c)
   !cStr = gtk_widget_get_name(btn)
   cStr = gtk_widget_get_name(gtk_widget_get_parent(btn))
   call convert_c_string(cStr, rcCode)
-  print *, "Val is ", trim(rcCode)
 
   surfIdx = getSurfaceIndexFromRowColumnCode(trim(rcCode), colIdx)
-  print *, "surfIdx is ", surfIdx
   mod_update = .FALSE.
 
   cmd = colToVarCmd(surfIdx, colIdx)
@@ -1337,10 +1309,8 @@ subroutine removeVar(act, avalue, btn) bind(c)
   !cStr = gtk_widget_get_name(btn)
   cStr = gtk_widget_get_name(gtk_widget_get_parent(btn))
   call convert_c_string(cStr, rcCode)
-  print *, "Val is ", trim(rcCode)
 
   surfIdx = getSurfaceIndexFromRowColumnCode(trim(rcCode), colIdx)
-  print *, "surfIdx is ", surfIdx
   mod_update = .FALSE.
 
   cmd = colToVarCmd(surfIdx, colIdx)
@@ -1541,8 +1511,13 @@ subroutine setup_cb(factory,listitem, gdata) bind(c)
 
   case(2)
      label = gtk_check_button_new()
-     if (.not.c_associated(refRadio)) refRadio = label
-     call gtk_check_button_set_group(label, refRadio)
+     ! the first button is the group; the others join it (not itself:
+     ! Gtk-CRITICAL "self != group")
+     if (.not.c_associated(refRadio)) then
+       refRadio = label
+     else
+       call gtk_check_button_set_group(label, refRadio)
+     end if
      call gtk_list_item_set_child(listitem,label)
   case(3) ! Surface Label   
     boxS = hl_gtk_box_new(horizontal=TRUE, spacing=0_c_int)
@@ -1805,11 +1780,9 @@ subroutine rebuildLensEditorTable()
   real(c_double) :: vPos, hPos
 
 
-  print *, "Rebuild lens table starting" 
  
   ! Get current position
   oldPos = getCurrentLensEditorRow()
-  print *, "Old Position is ", oldPos
 
   ! Get location of horizontal and vertical scrollbars so we can recreate.  This seems crazy
   ! but I am not sure how else to make sure the lens editor data matches the lens "Database" 
@@ -1819,7 +1792,6 @@ subroutine rebuildLensEditorTable()
   hadj = gtk_scrolled_window_get_hadjustment(swin)
   hPos = gtk_adjustment_get_value(hadj)
 
-  print *, "Value is ", gtk_adjustment_get_value(vadj)
 
 
   call clearColumnView()

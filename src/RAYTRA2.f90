@@ -1145,7 +1145,6 @@ SUBROUTINE GETZEE1
    IF(CC.NE.-1.0D0) ZTEST=1.0D0/((CC+1.0D0)*CV)
 
    if (DEBUGZEE) THEN
-      PRINT *, "GETZEE1 1121 YC IS ", YC
 
       if (ieee_is_nan(YC)) THEN
          PRINT *, "YC Nan Input to GETZEE1"
@@ -1185,7 +1184,6 @@ SUBROUTINE GETZEE1
    YA=YC
    ZA=ZC
    IF (DEBUGZEE) THEN
-      PRINT *, "GETZEE1 1155 YC IS ", YC
       IF (ieee_is_nan(YC)) THEN
          PRINT *, "GETZEE1 1152 YC Nan"
          DEBUGZEE = .FALSE.
@@ -1249,7 +1247,6 @@ SUBROUTINE GETZEE1
          ZC=(R_Z+(HV0*R_N))
       END IF
       IF (DEBUGZEE) THEN
-         PRINT *, "GETZEE1 1219 YC IS ", YC
          IF (ieee_is_nan(YC)) THEN
             PRINT *, "GETZEE1 1209 YC Nan"
             DEBUGZEE = .FALSE.
@@ -1292,7 +1289,6 @@ SUBROUTINE GETZEE1
          !  PRINT *, "YC is nan. R_Y=", R_Y, "HV1=",HV1
          !END IF
          if (DEBUGZEE) THEN
-            PRINT *, "GETZEE1 1249 YC IS ", YC
             IF (ieee_is_nan(YC)) THEN
                PRINT *, " AT END OF GETZEE1 YC Nan"
                DEBUGZEE = .FALSE.

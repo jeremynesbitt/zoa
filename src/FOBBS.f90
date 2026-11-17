@@ -5351,11 +5351,9 @@ SUBROUTINE FFOB
 
       IF(ICNT.NE.0) THEN
          IF (ICNT.EQ.1) THEN
-            PRINT *, "STOPP in 5616 is ", STOPP
 1235        FORMAT(A12, G15.7, G15.7, G15.7, G15.7, G15.7, I3, I3, I3)
             PRINT 1235, "B4 REFRAY",WW1,WW2,WW3,WW4,WW5,NEWOBJ,NEWREF,&
             &NEWIMG
-            PRINT *, "B4 REFRAY TRYY is ", TRYY
          END IF
          CALL REFRAY(OBJLEVEL)
          !PRINT *, "STOPP in 5618 is ", STOPP
@@ -5386,9 +5384,6 @@ SUBROUTINE FFOB
 
          ZEEERR=.FALSE.
          IF (ICNT.EQ.1) THEN
-            PRINT *, "YC FOBS 5674 BEFORE GETZEE1 is ", YC
-            PRINT *, "YSTRT FOBS 5674 BEFORE GETZEE1 is ", YSTRT
-            PRINT *, "ZSTRT FOBS 5674 BEFORE GETZEE1 is ", ZSTRT
 
             DEBUGZEE = .TRUE.
          END IF
@@ -5397,7 +5392,6 @@ SUBROUTINE FFOB
 
             DEBUGZEE = .FALSE.
 
-            PRINT *, "YC FOBBS 5680 AFTER GETZEE1 is ", YC
          END IF
 
          IF(ZEEERR) THEN

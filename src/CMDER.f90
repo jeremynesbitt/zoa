@@ -2911,7 +2911,6 @@ SUBROUTINE CMDER
          !    3.OR.WC.EQ.'RUSSIAN'.OR.WC.EQ.'GLAK'.OR.WC.EQ.'AIR'.OR.WC.EQ.
          !   4'SCH2000') THEN
          IF(WS(1:1).EQ.':') WS(1:80)=WS(2:80)
-         PRINT *, "Calling GLSRIN"
          CALL GLSRIN
          RETURN
       END IF

@@ -120,6 +120,9 @@ SUBROUTINE ONEBLANK(N,STRING1024)
 !
    CHARACTER STRING1024*1024
 10 CONTINUE
+!     nothing after word N (a bare "WL" line): collapsing blanks into
+!     blanks never ends
+   IF(LEN_TRIM(STRING1024(N+1:1024)).EQ.0) RETURN
    IF(STRING1024(N+1:N+2).EQ.' ') THEN
       STRING1024(1:1024)=STRING1024(1:N+1)//STRING1024((N+3):1024)//' '
       GO TO 10
@@ -3949,7 +3952,6 @@ call sysConfig%updateParameters()
          ! call EOS to force update
 
          IF (YESEOS) THEN
-            print *, "about to check if rebuildLensEditor needed"
             if (c_associated(lens_editor_window)) then
                print *, "Calling Lens Editor Update from CONTRO in UTILITTY5"
                call rebuildLensEditorTable()

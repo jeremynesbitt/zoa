@@ -112,7 +112,8 @@ contains
 
 
     character(len=100), target :: pltAst = "FIE; GO"
-    character(len=100), target :: pltSpd = "SPO; GO"
+    character(len=100), target :: pltSpd = "SPO FLD; GO"
+    character(len=100), target :: pltSpdThf = "SPO THF; GO"
     character(len=100), target :: pltRMS = "PLTRMS; GO"
     !character(len=100), target :: pltSPR = "SPR"
     character(len=100), target :: pltSPR = "PLTRMS; RMSDATA SPOT; GO"
@@ -136,7 +137,8 @@ contains
     
     character(len=100), target :: fanCmd = "RIM;GO"    
     character(len=100), target :: psfCmd = "PSF;GO"    
-    character(len=100), target :: mtfCmd = "MTF;GO"        
+    character(len=100), target :: mtfCmd = "MTF;GO"
+    character(len=100), target :: mtfThfCmd = "MTF THF; GO"
 
     character(len=100), target :: fioCmd = "FIO"
 
@@ -227,8 +229,17 @@ contains
     call addCommandMenuItem(menu_imagEval, "Plot Astigmatism, Distortion, and Field Curvature", &
     & "PltAst", pltAst, win)
 
-    call addCommandMenuItem(menu_imagEval, "Spot Diagram", &
-    & "PltSPD", pltSpd, win)
+    ! Spot Diagram submenu: per field, or one field through focus (the
+    ! focus positions are the system's FFO/IFO/NFO)
+    block
+      type(c_ptr) :: menu_spot
+      menu_spot = g_menu_new()
+      call addCommandMenuItem(menu_spot, "Spot Diagram through Field", &
+      & "PltSPD", pltSpd, win)
+      call addCommandMenuItem(menu_spot, "Spot Diagram through Focus", &
+      & "PltSPDTHF", pltSpdThf, win)
+      call g_menu_append_submenu(menu_imagEval, "Spot Diagram"//c_null_char, menu_spot)
+    end block
 
     call addCommandMenuItem(menu_imagEval, "RMS Wavefront Error vs Field", &
     & "RMSFIELD", pltRms, win)
@@ -314,8 +325,17 @@ contains
     call g_menu_append_submenu (menubar, "Diffraction Analysis"//c_null_char, menu_diff)    
     call addCommandMenuItem(menu_diff, "Point Spread Function", &
     & "PSFPlot", psfCmd, win)    
-    call addCommandMenuItem(menu_diff, "Modulation Transfer Function", &
-    & "MTFPlot", mtfCmd, win)            
+    ! MTF submenu: vs frequency, or one frequency through focus (the focus
+    ! positions are the system's FFO/IFO/NFO)
+    block
+      type(c_ptr) :: menu_mtf
+      menu_mtf = g_menu_new()
+      call addCommandMenuItem(menu_mtf, "MTF vs Frequency", &
+      & "MTFPlot", mtfCmd, win)
+      call addCommandMenuItem(menu_mtf, "MTF through Focus", &
+      & "MTFPlotTHF", mtfThfCmd, win)
+      call g_menu_append_submenu(menu_diff, "Modulation Transfer Function"//c_null_char, menu_mtf)
+    end block
 
     call g_menu_append_submenu (menubar, "Image Evaluation"//c_null_char, menu_imagEval)
 
@@ -456,8 +476,6 @@ contains
 
     if (fileSelected) then
 
-     PRINT *, "fileName is ", trim(fileName)
-     PRINT *, "fileDirectory is is ", trim(cdir)
 
      ! Set CodeV Dir
      existingCodeVDir = getCodeVDir()
@@ -483,8 +501,6 @@ contains
 
     if (fileSelected) then
 
-     PRINT *, "fileName is ", trim(fileName)
-     PRINT *, "fileDirectory is is ", trim(cdir)
 
      ! Set CodeV Dir
      existingCodeVDir = getCodeVDir()
@@ -549,8 +565,6 @@ contains
 
     if (fileSelected) then
 
-     PRINT *, "fileName is ", trim(fileName)
-     PRINT *, "fileDirectory is is ", trim(cdir)
 
      ! Shared lens-restore sequence (reset-if-needed + load + typed-store
      ! rebuild + undo baseline) -- same path RES/RESAUTO use. Called via the
@@ -582,8 +596,6 @@ contains
 
     if (fileSelected) then
 
-     PRINT *, "fileName is ", trim(getFileNameFromPath(fileName))
-     PRINT *, "fileDirectory is is ", trim(cdir)
 
      currDir = getSaveDirectory()
      call setSaveDirectory(trim(cdir))
@@ -638,7 +650,6 @@ contains
   subroutine quit_activated (act, param, win) bind(c)
     type(c_ptr), value, intent(in) :: act, param, win
 
-    print *, "QUIT!"
     call g_application_quit (app)
   end subroutine
 

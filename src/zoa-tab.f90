@@ -74,7 +74,6 @@ subroutine init_settingsgen(self, numListColumns, winWidth, name)
      if (numListColumns.GT.0.and.numListColumns.LT.2) Then
        self%columnLayout = numListColumns
      else
-       PRINT *, "Not a valid entry for column layout (1 or 2).  ignoring..."
      end if
    end if
 
@@ -721,7 +720,6 @@ subroutine init_zoaplottab(self, parent_window, tabTitle, ID_PLOTTYPE, canvas)
   end if
 
   call self%settings%initialize()
-  PRINT *, "Done with zoatab type initialization"
 
 end subroutine
 
@@ -848,6 +846,8 @@ subroutine updateGenericMultiPlot(self, mplt)
       if (associated(p)) call self%mplt%set(i,j,p)
     end do
   end do
+  ! a MULTIPLOT page: its subplots
+  call self%mplt%copyChildren(mplt)
 
   self%hasMplt = .true.
 
@@ -1527,10 +1527,13 @@ end function
    ! We create a vertical box container:
    call gtk_box_append(self%box1, self%expander)
    call gtk_widget_set_vexpand (self%box1, FALSE)
+   ! No settings (a MULTIPLOT page): an empty panel would suggest there
+   ! were some.  Kept but hidden (the sizing code still refers to it).
+   if (self%psm%numSettings == 0) call gtk_widget_set_visible(self%expander, FALSE)
 
 
    call gtk_box_append(self%box1, self%canvas)
-  
+
    scrolled_tab = gtk_scrolled_window_new()
    call gtk_scrolled_window_set_child(scrolled_tab, self%box1)
 
@@ -1627,7 +1630,6 @@ subroutine zoatab_newPlot(self)
 
   class(zoaplottab) :: self
   !type(c_ptr) :: parent_window
-  PRINT *, "Dummy Function never used, only by children"
 
 end subroutine
 

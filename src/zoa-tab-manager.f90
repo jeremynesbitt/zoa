@@ -1120,6 +1120,9 @@ subroutine saveTabsToZin(self, unit)
     class is (zoaplottab)
       if (t%hasMplt) recordKind = ZIN_KIND_DATA
     end select
+    ! a MULTIPLOT page is restored by re-running its script (its subplots
+    ! are whole multiplots, which the DATA record does not carry)
+    if (self%tabInfo(i)%tabObj%ID_PLOTTYPE == ID_PLOTTYPE_MULTIPLOT) recordKind = ZIN_KIND_REPLAY
 
     write(unit) int(recordKind, int32)
     write(unit) int(self%tabInfo(i)%tabObj%ID_PLOTTYPE, int32)

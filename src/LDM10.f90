@@ -1067,13 +1067,11 @@ SUBROUTINE OCD
 !               EFL
          I=0
          J=INT(sys_last_surf())
-         PRINT *, "J is ", J
          EFLY=-(((PXTRAY(2,I)*PXTRAY(5,I+1))-(PXTRAY(1,I+1)*PXTRAY(6,I)))/((PXTRAY(2,I)*PXTRAY(6,J))-(PXTRAY(6,I)*PXTRAY(2,J))))
          EFLX=-(((PXTRAX(2,I)*PXTRAX(5,I+1))-(PXTRAX(1,I+1)*PXTRAX(6,I)))/((PXTRAX(2,I)*PXTRAX(6,J))-(PXTRAX(6,I)*PXTRAX(2,J))))
 !               BACK FOCAL DISTANCE
          BFD=surf_thickness(J-1)
 !               F-NUMBER YZ
-         PRINT *, "PXTRAY(2,J) is ", PXTRAY(2,J)
          IF(DABS(PXTRAY(2,J)).GE.1.0D-15) THEN
             FNY=-1.0D0/(2.0D0*PXTRAY(2,J))
          ELSE

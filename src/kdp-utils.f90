@@ -16,7 +16,6 @@ module kdp_utils
     integer, optional :: code
 
     if(len(txt) > 140) then
-      PRINT *, "WARNING:  output text truncated due to input character length longer than OUTLYNE"
       OUTLYNE_LONG = txt
       call SHOWIT(20)
     else
@@ -314,8 +313,6 @@ module kdp_utils
         sEnd = curr_lens_data%num_surfaces
 
     end if
-    PRINT *, "sStart is ", sStart
-    PRINT *, "sEnd is ", sEnd
 
     if(.not.present(extraRowName)) sEnd = sEnd -1 
 

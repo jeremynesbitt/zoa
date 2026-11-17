@@ -120,7 +120,6 @@ contains
     use zoa_file_handler, only: saveCommandHistoryToFile
     type(c_ptr), value, intent(in) :: widget, event, gdata
 
-    print *, "Your destroy_signal() function has been invoked !"
     ! Some functions and subroutines need to know that it's finished:
     run_status = FALSE
     call saveCommandHistoryToFile(command_history, command_index)
@@ -197,13 +196,17 @@ contains
 
       ! Get scroll window and v adjustment.  Only for standard log 
 
-      scroll_win = gtk_widget_get_parent(ioConfig%textView)
-     
+      ! (the scrolled window around the view, if there is one: not every
+      ! output view is in one -- the macro window's is not, which gave four
+      ! Gtk-CRITICALs per line)
+      scroll_win = gtk_widget_get_ancestor(ioConfig%textView, gtk_scrolled_window_get_type())
+      if (c_associated(scroll_win)) then
         vAdj = gtk_scrolled_window_get_vadjustment(scroll_win)
 
         ! Set value to be upper limit - page size
         call gtk_adjustment_set_value(vAdj, gtk_adjustment_get_upper(vAdj) - &
         & gtk_adjustment_get_page_size(vAdj))
+      end if
      end if ! if text buffer is pointing to something real
 
 
@@ -414,7 +417,6 @@ contains
     call gtk_box_append(box1, createMenuIconBar(my_window))
 
 
-    PRINT *, "Create Notebook Object"
     notebook = gtk_notebook_new ()
     call gtk_widget_set_vexpand (notebook, TRUE)
 
@@ -558,7 +560,6 @@ contains
     ! saved alongside it (the window is presented and the tab manager is live).
     call gui_restore_startup_plots()
 
-    PRINT *, "DONE WITH INITKDP!"
 
     theme = gtk_icon_theme_get_for_display(gdk_display_get_default())
     call gtk_icon_theme_add_resource_path(theme, "/zoa/optical-analysisicons"//c_null_char)
@@ -593,7 +594,6 @@ subroutine populateSplashWindow(splashWin)
        &  c_new_line//'<span foreground="blue" size="large"> &
        &  Version '//zoaVersion// ' (beta)</span>' &
        &  //c_null_char, -1_c_int)
-    PRINT *, "Post Markup"
 
     call gtk_text_buffer_get_end_iter(splashBuff, c_loc(endIter))
 
@@ -772,7 +772,6 @@ subroutine removeTabTst(parent_notebook, child, pageNum, gdata) bind(c)
   !call gtk_scrolled_window_set_child(scrolled_win, child)
 
 
-  print *, "pageNum is ", pageNum
   do i=1,zoatabMgr%tabNum
     call LogTermDebug("ABout to check "//int2str(i))
  
@@ -874,7 +873,6 @@ end subroutine
         
         call gtk_widget_add_controller (child, gesture);       
 
-        PRINT *, "Modal ? ", gtk_window_get_modal(newwin)
 
         !call gtk_notebook_set_current_page(parent_notebook, 0_c_int)
         !call gtk_notebook_set_tab_pos(parent_notebook, 0_c_int)
@@ -947,7 +945,6 @@ end subroutine
         !call pending_events()
         call gtk_window_present(newwin)
 
-        PRINT *, "Modal ? ", gtk_window_get_modal(newwin)
 
         !call gtk_notebook_set_current_page(parent_notebook, 0_c_int)
         !call gtk_notebook_set_tab_pos(parent_notebook, 0_c_int)

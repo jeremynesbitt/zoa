@@ -265,7 +265,6 @@ contains
          RAYEXT = .false.
          POLEXT = .false.
          FAIL = .false.
-         if (.not. for_opt .and. side_effects) print *, "RAYTRA Failed 2370"
       case (FAIL_WAVELENGTH)
          STOPP = 1
          RAYEXT = .false.

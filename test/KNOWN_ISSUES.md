@@ -233,7 +233,11 @@ PNG changed (the page is bigger and centred; nothing else moved).
 **The Windows baselines (`*.win.png` of stop_draw, vie_settings, vie_orient,
 plots_geom, mirror_example, debug_rmd, recmacro p1-p2, apertures_bes,
 plot_modifiers p5 -- and p10 from the spot-diagram fix -- and plots_seidel p1
-from the 2026-11-06 colour-term fix) need regenerating on Windows.**
+from the 2026-11-06 colour-term fix; plots_geom p3 and plot_modifiers p1, p4,
+p9-p14 from 2026-11-13: spot RMS label now centred, RIM honours SETWV; the same
+spot plots again from 2026-11-16: spot panels isotropic, true spot shape; and the
+new mtf_focus and multiplot tests, which have Mac baselines only) need
+regenerating on Windows.**
 
 **Literals.** The 721 `MY_PLOT` calls with a literal page clip box now call
 `PAGE_PLOT(x,y,pen,mode)` / `PART_PLOT` (HARDWAR1.f90).  Two variants were
@@ -1037,3 +1041,27 @@ in CODE V columns with the F-C colour terms and the default field (test
   OpticStudio would likely show zero field terms.  Check: run test/
   seidel_table.zoa's singlet in OpticStudio and compare S1, W040 and the
   TSPH..TLAC sums (the transverse sums already equal THO's columns).
+
+## MULTIPLOT v1 (2026-11-16): what is deferred
+
+`MULTIPLOT rows cols ['title'] [Pn]; SUBPLOT r c [rspan cspan]; <analysis>; GO; ...; GO`
+captures each analysis's finished multiplot at `initializeGoPlot` /
+`finalizeGoPlot_new` (src/plot-composer.f90 holds the state) and draws the page
+by giving each subplot a cairo sub-surface (`mp_draw_composite`).  The page's
+script is the tab's command (redraw on a lens change; .zin REPLAY record).
+- **GUI path not exercised by the tests** (headless only): tab creation,
+  redraw on a lens change, resize, undock, .zin restore of a page.
+- **Not subplot-able**: VIE (legacy drawing), SEIDEL/SINRAYTRA (data tabs), TOW,
+  FAB, WAV, TRA -- refused at GO with a message.
+- **Small-cell appearance**: fonts scale by sqrt(region/natural size), floor
+  0.5; plots with fixed viewports (RIM's bottom panel, the all-fields spot
+  column squeezed into a wide cell) need per-plot tuning (plan step 3).
+- **Script records every command at the page's level, errors included**: a
+  bad SUBPLOT or a refused VIE re-reports on every redraw.
+- **Each subplot's go routine still creates its own GTK drawing area** in the
+  GUI, unused while composing (a widget leak per subplot per redraw).
+- **Subplot headings show NRD as the grid combo id** (`NRD 1628` = 32x32): the
+  power-of-two setting stores its dropdown id; MTF's NRD accepts both.
+- **Script limit 1040 characters** (tab plotCommand): longer pages draw but
+  are not redrawn (warned).
+- No settings panel and no plot toolbar tools on a page (by design for v1).

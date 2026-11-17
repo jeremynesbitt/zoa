@@ -222,7 +222,6 @@ function hl_zoa_combo_get_selected_list2_id (widget) result(ivalue)
 
 !        cstr = g_value_get_string(val)
 !          call convert_c_string(cstr, svalue)
-  PRINT *, "CHOICE is ", choice
 
   ! Get ING
   call clear_gvalue(iresult)
@@ -231,10 +230,8 @@ function hl_zoa_combo_get_selected_list2_id (widget) result(ivalue)
   ivalue = g_value_get_int(ival)
   call g_value_unset(ival)
 
-  PRINT *, "Integer Index is ", ivalue
 
 
-  PRINT *, "Callback works!"
 
 
 
@@ -269,7 +266,6 @@ function hl_zoa_combo_get_list2id_by_text(renderer, selectedText) result(ivalue)
     call convert_c_string(cstr, choice)   
 
   if (selectedText.EQ.choice) then
-     PRINT *, "Found correct combo entry!"
      call clear_gvalue(iresult)
      ival = c_loc(iresult)
      call gtk_tree_model_get_value(model, c_loc(tree_iter), 0_c_int, ival)
@@ -283,7 +279,6 @@ function hl_zoa_combo_get_list2id_by_text(renderer, selectedText) result(ivalue)
     call g_value_unset(sval)
     boolResult = gtk_tree_model_iter_next(model, c_loc(tree_iter))
     if (boolResult.EQ.0) then
-      PRINT *, "Reached end of model and no suitable matches found"
       return
     end if
   end if
@@ -323,7 +318,6 @@ subroutine hl_zoa_combo_set_selected_by_list2_id(widget, targetValue)
   else
     boolResult = gtk_tree_model_iter_next(model, c_loc(tree_iter))
     if (boolResult.EQ.0) then
-      PRINT *, "Reached end of model and no suitable matches found"
       return
     end if
   end if
@@ -395,7 +389,6 @@ subroutine combo_setting_callback (widget, gdata) bind(c)
 
 !        cstr = g_value_get_string(val)
 !          call convert_c_string(cstr, svalue)
-  PRINT *, "CHOICE is ", choice
 
   ! Get ING
   call clear_gvalue(iresult)
@@ -552,13 +545,11 @@ subroutine hl_gtk_combo_set_by_text(view, row, colno, targetText, ID_SETTING)
     call convert_c_string(cstr, choice)   
 
   if (targetText.EQ.choice) then
-     PRINT *, "Found correct combo entry!"
      call clear_gvalue(iresult)
      ival = c_loc(iresult)
      call gtk_tree_model_get_value(model, c_loc(citer), 0_c_int, ival)
      ivalue = g_value_get_int(ival)      
      call g_value_unset(ival)
-     PRINT *, "ivalue is ", ivalue
      ID_SETTING = ivalue
 
      call gtk_list_store_set_value(store, c_loc(viter), colno, sval)
@@ -573,7 +564,6 @@ subroutine hl_gtk_combo_set_by_text(view, row, colno, targetText, ID_SETTING)
     call g_value_unset(sval)
     boolResult = gtk_tree_model_iter_next(model, c_loc(citer))
     if (boolResult.EQ.0) then
-      PRINT *, "Reached end of model and no suitable matches found"
       return
     end if
   end if
@@ -646,7 +636,6 @@ else
   call g_value_unset(ival)
   boolResult = gtk_tree_model_iter_next(model, c_loc(citer))
   if (boolResult.EQ.0) then
-    PRINT *, "Reached end of model and no suitable matches found"
     return
   end if
 end if
@@ -799,7 +788,6 @@ subroutine convertCellData(iptData, outText, realData, intData)
 
   outText = trim(ftext)
 
-  PRINT *, "ftext is ", ftext
   if (present(realData)) then
     realData = str2real8(trim(ftext))
   end if
@@ -825,7 +813,6 @@ subroutine getRowAndColFromCallback(widget, path, row, col)
   pcol = g_object_get_data(widget, "column-number"//c_null_char)
   call c_f_pointer(pcol, icol)
 
-  PRINT *, "icol is ", icol  
 
   n = 0
   do i = 1, len_trim(fpath)

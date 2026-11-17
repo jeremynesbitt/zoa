@@ -317,10 +317,12 @@ contains
 
         call parse(trim(iptStr), ' ', tokens, numTokens) 
        
-        !TODO:  Add error checking (min and max wavelength within range)
+        ! a number (the dropdowns send their id, e.g. "2.0") or ALL
         if (numTokens  == 2) then
             if (isInputNumber(tokens(2))) then
-                call curr_psm%updateWavelengthSetting(str2int(trim(tokens(2))))
+                call curr_psm%updateWavelengthSetting(nint(str2real8(trim(tokens(2)))))
+            else if (trim(tokens(2)) == 'ALL') then
+                call curr_psm%updateWavelengthSetting(ID_SETTING_WAVELENGTH_ALL)
             end if
         end if
         
@@ -666,18 +668,48 @@ contains
     end procedure       
     
     !## cmd:      MTF
-    !## syntax:   MTF
+    !## syntax:   MTF [FRQ | THF] [Pn]
     !## category: Plotting
-    !## desc:     Modulation-transfer-function plot.
+    !## desc:     Modulation-transfer-function plot: vs frequency at focus FFO (FRQ, the default), or at one frequency (FRE) through the focus positions FFO/IFO/NFO (THF).
     !##
     module procedure execMTF
+        use strings, only: parse
+        use plot_functions, only: isPlotNumToken
+        use plot_setting_manager, only: SETTING_MTF_FRE
         implicit none
-        logical :: boolResult
         type(zoaplot_setting_manager) :: psm
-        real :: maxFreq
+        real :: maxFreq, fre
+        character(len=80) :: tokens(40), pTok
+        integer :: numTokens, k, plotCode
+        logical :: thf
 
+        ! MTF [FRQ | THF] [Pn].  THF tabs are their own plot type, so their
+        ! numbers P1, P2 ... are separate from the frequency plots'.
+        call parse(trim(iptStr), ' ', tokens, numTokens)
+        thf = .false.
+        pTok = ''
+        do k = 2, numTokens
+            select case (trim(tokens(k)))
+            case ('FRQ'); thf = .false.
+            case ('THF'); thf = .true.
+            case default
+                if (isPlotNumToken(trim(tokens(k)))) then
+                    pTok = tokens(k)
+                else
+                    call zoa_emit("Error:  MTF: expected MTF [FRQ|THF], not "//trim(tokens(k)), "red")
+                    return
+                end if
+            end select
+        end do
+        plotCode = ID_PLOTTYPE_MTF
+        if (thf) plotCode = ID_PLOTTYPE_MTF_THF
 
         call psm%initialize(trim(iptStr))
+        cmd_loop = plotCode
+        if (len_trim(pTok) > 0) then
+            if (checkForExistingPlot([character(len=80) :: tokens(1), pTok], psm, plotCode)) return
+        end if
+
         ! The pupil grid of the CAPFN that DOTF autocorrelates (64 x 64 by
         ! default; 16 x 16 is too coarse for the MTF).
         call psm%addPowerOfTwoImageSetting(64,16,128)
@@ -686,15 +718,21 @@ contains
         ! wavelength), like CODE V's default.
         call psm%addFieldSetting()
         maxFreq = getDefaultMaxFrequency()
-        call psm%addGenericSetting(SETTING_MAX_FREQUENCY, 'Maximum Frequency [lp]', maxFreq, &
-        & 0.0, 100000.0, 'MFR', 'MFR '//trim(real2str(maxFreq)), UITYPE_SPINBUTTON) 
-        call psm%addGenericSetting(SETTING_FREQUENCY_INTERVAL, 'Frequency Interval [lp]', maxFreq/100.0, &
-        & 0.0, 100000.0, 'IFR', 'IFR '//trim(real2str(maxFreq/100.0)), UITYPE_SPINBUTTON)          
-        boolResult = initiatePlotLoop(iptStr, ID_PLOTTYPE_MTF, psm)
-        if(boolResult .EQV. .FALSE.) then
-            call zoa_emit("Error in input. Should be either RIM or RIM PX, where X is plot num", "red")
+        if (thf) then
+            ! FRE: the frequency charted through focus.  Default a quarter of
+            ! the cutoff, rounded (CODE V's IFR default is too low to show
+            ! the focus dependence).
+            fre = real(max(1, nint(maxFreq/4.0)))
+            call psm%addGenericSetting(SETTING_MTF_FRE, 'Frequency [lp]', fre, &
+            & 0.0, 100000.0, 'FRE', 'FRE '//trim(real2str(fre)), UITYPE_SPINBUTTON)
+        else
+            call psm%addGenericSetting(SETTING_MAX_FREQUENCY, 'Maximum Frequency [lp]', maxFreq, &
+            & 0.0, 100000.0, 'MFR', 'MFR '//trim(real2str(maxFreq)), UITYPE_SPINBUTTON)
+            call psm%addGenericSetting(SETTING_FREQUENCY_INTERVAL, 'Frequency Interval [lp]', maxFreq/100.0, &
+            & 0.0, 100000.0, 'IFR', 'IFR '//trim(real2str(maxFreq/100.0)), UITYPE_SPINBUTTON)
         end if
+        curr_psm = psm
 
-    end procedure       
+    end procedure
 
 end submodule

@@ -200,7 +200,6 @@ module optimizer_ui
         type(c_ptr)  :: boxSolve, SolveLabel, conLabel
         type(c_ptr)  :: lblAperture, AsphLabel
     
-        PRINT *, "ABOUT TO FIRE UP OPTIMIZIER WINDOW!"
     
 
         call initConstraintColInfo()
@@ -252,7 +251,6 @@ module optimizer_ui
         ! shows up the next time the tab is selected.
         call g_signal_connect(nbk, "switch-page"//c_null_char, c_funloc(gen_switch_page_cb))
     
-        PRINT *, "FINISHED WITH OPTIMIZER WINDOW"
         !call gtk_box_append(box1, rf_cairo_drawing_area)
         !call gtk_window_set_child(lens_editor_window, rf_cairo_drawing_area)
         call gtk_window_set_child(optimizer_window, nbk)
@@ -494,7 +492,6 @@ module optimizer_ui
 
         type(c_ptr), value :: widget, gdata
         type(c_ptr) :: isurface
-        print *, "Exit called"
     
     
         !call cairo_destroy(rf_cairo_drawing_area)
@@ -669,7 +666,6 @@ module optimizer_ui
         integer :: numRows
         real(c_double) :: contribTotal, v
 
-        print *, "Num merit entries is ", nM
 
         ! Total objective f = sum weight*(value-target)^2 over the operand rows,
         ! so the Contribution column can be shown as each operand's % of f (the
@@ -1206,7 +1202,6 @@ module optimizer_ui
                     if (c_associated(cStr)) then 
                         call convert_c_string(cStr, ftext)
                         if (ftext == strName) then 
-                            print *, "Found right widget!  It's a miracle"
                             cv= tmpPtr
                             return 
                         end if
@@ -1233,7 +1228,6 @@ module optimizer_ui
                     if (c_associated(cStr)) then 
                         call convert_c_string(cStr, ftext)
                         if (ftext == strName) then 
-                            print *, "Found right widget!  It's a miracle"
                             model = gtk_column_view_get_model(tmpPtr)
                             return 
                         end if
@@ -1265,7 +1259,6 @@ module optimizer_ui
 
           cmd = getConstraintChangeCommand(model, row, col, trim(valTxt))
 
-          print *, "update cmd is ", trim(cmd)
           call PROCESKDP("UPD CON ; CHA "//trim(int2str(row+1))//" ; "//trim(cmd)//'; GO')
           call rebuildMeritTable(getColumnViewFromWidget(widget, "Constraint"))
         end subroutine       
@@ -1293,16 +1286,12 @@ module optimizer_ui
 
 
             call getRowAndColumnFromStrPtr(gtk_widget_get_name(widget),row,col)
-            print *, "row is ", row 
-            print *, "col is ", col
             currItem = gtk_drop_down_get_selected_item(widget)
             cStr = gtk_string_object_get_string(currItem)
             !cStr = g_value_get_string(cStr)
             call convert_c_string(cStr, ftext)            
-            print *, "text is ", trim(ftext)
 
             cmd = getConstraintChangeCommand(model, row, col, trim(ftext))
-            print *, "cmd is ", cmd
             call PROCESKDP("UPD CON ; CHA "//trim(int2str(row+1))//" ; "//trim(cmd)//'; GO')
             call rebuildMeritTable(getColumnViewFromWidget(widget, "Constraint"))
     

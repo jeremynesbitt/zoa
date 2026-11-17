@@ -86,7 +86,6 @@ SUBROUTINE ZMX2PRG
    SUB = 256
    write(substr, "(I3)") SUB
    readformat = '(A' // substr // ')'
-   PRINT *, "READFORMAT IS ", readformat
    SURFER=0
    HASNAO=.FALSE.
    HASFLOAT=.FALSE.
@@ -370,7 +369,6 @@ SUBROUTINE ZMX2PRG
 !
    PREV=AA//AA//AA//AA
    DO I=1,L
-      PRINT *, "Processing Zemax command ", TEMPC(I)(1:124)
       TEMPCC(1:1024)=TEMPC(I)(1:1024)
       TEMPCCC(1:1024)=TEMPC(I)(1:1024)
       IF(SURFTYPE.EQ.'EVENASPH') THEN
@@ -648,7 +646,6 @@ SUBROUTINE ZMX2PRG
 !     1 = OBJECT HT.
 !     2 = PARAX IMAGE HT.
 !     3 = REAL IMAGE HT.
-         PRINT *, "Field Type is ", FLDTYP
          TEMPC(I)(1:1024)=BL1024(1:1024)
          GO TO 8888
       END IF
@@ -657,7 +654,6 @@ SUBROUTINE ZMX2PRG
 
       IF(INDEX(TEMPC(I),'XFLN').GT.0 &
       &.OR.INDEX(TEMPC(I),'YFLN').GT.0) THEN
-         PRINT *, "Zemax convert field points started"
 !     MAX FIELD POS CONVERT TO SCY. SCY FANG, SCX AND SCX FANG
 !     BREAK OUT UP TO 25 NUMERIC WORDS AND RETURN THEM RIGHT ADJUSTED
 !     IN THE ARRAY WD WITH 0/1 OCCUPANCY FLAGS IN ARRAY WDEXIS
@@ -701,9 +697,7 @@ SUBROUTINE ZMX2PRG
          DO J=1,25
             IF(DABS(WD(J)).GT.MAX) MAX=DABS(WD(J))
          END DO
-         PRINT *, "FIELDTYPE IS ", FIELDTYPE
          IF(FIELDTYPE.EQ.'YAN') THEN
-            PRINT *, "Set Y Angle"
             WRITE(OUTLYNE2,2004) MAX
 
             SAVE_KDP(1)=SAVEINPT(1)
@@ -713,7 +707,6 @@ SUBROUTINE ZMX2PRG
             TEMPC(I)(1:1024)=BL1024(1:1024)
          END IF
          IF(FIELDTYPE.EQ.'XAN') THEN
-            PRINT *, "Set X Angle"
             WRITE(OUTLYNE2,2005) MAX
 
             CALL UPDATECV2INPUTANDPROCESCOMMAND(OUTLYNE2, SUB)
@@ -979,7 +972,6 @@ SUBROUTINE ZMX2PRG
 !     UNIT
       IF(TEMPC(I)(1:4).EQ.'UNIT') THEN
          IF(INDEX(TEMPC(I)(5:1024),'MM').GT.0) THEN
-            PRINT *, "Set Units to MM"
                         CALL KDP_EXEC('UNITS MM')
          ELSEIF(INDEX(TEMPC(I)(5:1024),'M ').GT.0) THEN
                         CALL KDP_EXEC('UNITS M')
@@ -997,7 +989,6 @@ SUBROUTINE ZMX2PRG
 !
 !     PROCESS EACH LINE INTO A KDP COMMAND AND THEN DISPLAY IT
       IF(TEMPC(I)(1:4).EQ.'SURF') THEN
-         PRINT *, "FOUND SURF, SURFER ", SURFER
          IF(.NOT.SURFIT) THEN
             SURFIT=.TRUE.
             GO TO 8888
@@ -1448,7 +1439,6 @@ SUBROUTINE ZMX2PRG
 2042     FORMAT('CV,',D23.15)
          SAVE_KDP(1)=SAVEINPT(1)
          INPUT(1:132)=OUTLYNE(1:132)
-         PRINT *, "INPUT IS ", INPUT(1:132)
          CALL PROCES
          REST_KDP(1)=RESTINPT(1)
          TEMPC(I)(1:1024)=BL1024(1:1024)
@@ -1812,8 +1802,6 @@ SUBROUTINE ZMX2PRG
    IF(GLASSA(1:3).EQ.'   ') GLASSA='AIR                        '
    WRITE(OUTLYNE,2016) GLASSA
 
-   PRINT *, "8888 SURF GLASSA is ", GLASSA
-   PRINT *, "LINE TO PROCES IS ", OUTLYNE(1:132)
    CALL KDP_EXEC(OUTLYNE(1:132))
 
    SURFER=SURFER+1

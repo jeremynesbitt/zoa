@@ -1,0 +1,18 @@
+! MULTIPLOT demo: a page of subplots for the Cooke triplet.
+! After it draws, change the lens (e.g. THI S6 ...) to see the page redraw.
+RES osdtriplet
+FFO -0.1
+IFO 0.025
+NFO 5
+MULTIPLOT 3 2 'Triplet at paraxial focus'
+SUBPLOT 1 1
+RIM ; GO
+SUBPLOT 1 2
+MTF ; MFR 200 ; IFR 10 ; GO
+SUBPLOT 2 1 1 2
+SPO THF ; ORI H ; GO
+SUBPLOT 3 1
+MTF THF ; FRE 100 ; GO
+SUBPLOT 3 2
+FIE ; GO
+GO

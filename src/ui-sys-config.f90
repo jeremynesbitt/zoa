@@ -73,6 +73,14 @@ contains
   procedure, public, pass(self) :: updateSettings => updateRayAimSettingsUI
 
 end type
+! Through-focus range (CODE V FFO / IFO / NFO)
+type, extends(zoa_settings_obj) :: ui_focus_settings
+
+contains
+  procedure, public, pass(self) :: createUI => createFocusSettingsUI
+  procedure, public, pass(self) :: updateSettings => updateFocusSettingsUI
+
+end type
 ! interface ui_field_settings
 !   module procedure :: ui_field_settings_constructor
 ! end interface
@@ -91,6 +99,7 @@ end type
   type(ui_field_settings) :: uiFieldSettings
   type(ui_wavelength_settings) :: uiWavelengthSettings
   type(ui_rayaim_settings) :: uiRayAimSettings
+  type(ui_focus_settings) :: uiFocusSettings
 
   real(kind=real64) :: absFields(2,10)
 
@@ -105,6 +114,11 @@ end type
   integer, parameter :: ID_SYSCON_EDGE_FACTOR = 7053
   integer, parameter :: ID_SYSCON_RSL = 7054
   integer, parameter :: ID_SYSCON_RSL_RADIUS = 7055
+  integer, parameter :: ID_SYSCON_FFO = 7056
+  integer, parameter :: ID_SYSCON_IFO = 7057
+  integer, parameter :: ID_SYSCON_NFO = 7058
+
+  type(c_ptr) :: spinButton_ffo, spinButton_ifo, spinButton_nfo
 
 
   type(c_ptr) :: spinButton_yAperture, spinButton_edgeFactor, spinButton_rslRadius
@@ -207,6 +221,38 @@ contains
 
   end subroutine
 
+  ! Through-focus range: each spin box sends its CODE V command.
+  subroutine createFocusSettingsUI(self)
+    use focus_settings, only: focus_first, focus_increment, focus_count, FOCUS_MAX_POSITIONS
+    class(ui_focus_settings) :: self
+    integer, target :: TARGET_FFO = ID_SYSCON_FFO
+    integer, target :: TARGET_IFO = ID_SYSCON_IFO
+    integer, target :: TARGET_NFO = ID_SYSCON_NFO
+
+    spinButton_ffo = gtk_spin_button_new(gtk_adjustment_new(value=focus_first(), &
+                       & lower=-1d6, upper=1d6, step_increment=0.01d0, page_increment=0.1d0, &
+                       & page_size=0d0), climb_rate=2d0, digits=4_c_int)
+    call self%addSpinBox("First Focus Position (FFO)", spinButton_ffo, &
+    & c_funloc(callback_sys_config_settings), c_loc(TARGET_FFO), ID_SYSCON_FFO)
+
+    spinButton_ifo = gtk_spin_button_new(gtk_adjustment_new(value=focus_increment(), &
+                       & lower=-1d6, upper=1d6, step_increment=0.01d0, page_increment=0.1d0, &
+                       & page_size=0d0), climb_rate=2d0, digits=4_c_int)
+    call self%addSpinBox("Focus Increment (IFO)", spinButton_ifo, &
+    & c_funloc(callback_sys_config_settings), c_loc(TARGET_IFO), ID_SYSCON_IFO)
+
+    spinButton_nfo = gtk_spin_button_new(gtk_adjustment_new(value=real(focus_count(), real64), &
+                       & lower=1d0, upper=real(FOCUS_MAX_POSITIONS, real64), step_increment=1d0, &
+                       & page_increment=1d0, page_size=0d0), climb_rate=1d0, digits=0_c_int)
+    call self%addSpinBox("Number of Focus Positions (NFO)", spinButton_nfo, &
+    & c_funloc(callback_sys_config_settings), c_loc(TARGET_NFO), ID_SYSCON_NFO)
+  end subroutine
+
+  ! (the values are pushed by refreshSysConfigUI)
+  subroutine updateFocusSettingsUI(self)
+    class(ui_focus_settings) :: self
+  end subroutine
+
   subroutine updateApertureSettingsUI(self)
     use hl_gtk_zoa
     class(ui_aperture_settings) :: self
@@ -264,6 +310,14 @@ contains
     ! Ray aiming, OPD reference sphere
     call uiRayAimSettings%updateSettings()
     call gtk_spin_button_set_value(spinButton_rslRadius, rslRadiusShown())
+
+    ! Through-focus range
+    block
+      use focus_settings, only: focus_first, focus_increment, focus_count
+      call gtk_spin_button_set_value(spinButton_ffo, focus_first())
+      call gtk_spin_button_set_value(spinButton_ifo, focus_increment())
+      call gtk_spin_button_set_value(spinButton_nfo, real(focus_count(), real64))
+    end block
 
     sysconfig_updating = .false.
   end subroutine
@@ -549,11 +603,9 @@ end subroutine
 
     nsel = hl_gtk_listn_get_selections(C_NULL_PTR, selections, view)
     if (nsel == 0) then
-       print *, "No selection"
        !return
     end if
 
-    if (nsel == 1) PRINT *, "Selection is ", selections(1)
 
 
 
@@ -581,7 +633,6 @@ end subroutine
   call convert_c_string(cstr, choice)
   call g_value_unset(val)
 
-  PRINT *, "CHOICE is ", choice
 
   ! Get ING
   call clear_gvalue(iresult)
@@ -590,7 +641,6 @@ end subroutine
   ivalue = g_value_get_int(ival)
   call g_value_unset(ival)
 
-  PRINT *, "Integer Index is ", ivalue
 
 
 
@@ -598,10 +648,8 @@ end subroutine
     !PRINT *, "ID_SETTING is ", ID_SETTING
 
     call c_f_string(path, fpath)
-    print *, "Combo sent changed signal from ", trim(fpath)
 
     read(fpath(1:2),'(i5)') rowSelection
-    print *, "Row selection is ", rowSelection
 
     sysConfig%wavelengthColorCodes(rowSelection+1) = ivalue
 
@@ -630,11 +678,9 @@ end subroutine
 
     nsel = hl_gtk_listn_get_selections(C_NULL_PTR, selections, view)
     if (nsel == 0) then
-       print *, "No selection"
        !return
     end if
 
-    if (nsel == 1) PRINT *, "Selection is ", selections(1)
 
 
 
@@ -662,7 +708,6 @@ end subroutine
   call convert_c_string(cstr, choice)
   call g_value_unset(val)
 
-  PRINT *, "CHOICE is ", choice
 
   ! Get ING
   call clear_gvalue(iresult)
@@ -671,7 +716,6 @@ end subroutine
   ivalue = g_value_get_int(ival)
   call g_value_unset(ival)
 
-  PRINT *, "Integer Index is ", ivalue
 
 
 
@@ -679,10 +723,8 @@ end subroutine
     !PRINT *, "ID_SETTING is ", ID_SETTING
 
     call c_f_string(path, fpath)
-    print *, "Combo sent changed signal from ", trim(fpath)
 
     read(fpath(1:2),'(i5)') rowSelection
-    print *, "Row selection is ", rowSelection
 
     sysConfig%fieldColorCodes(rowSelection+1) = ivalue
 
@@ -828,7 +870,6 @@ end function
 
     type(c_ptr), value :: widget, gdata
     type(c_ptr) :: isurface
-    print *, "Exit called"
     call gtk_window_destroy(sys_config_window)
     sys_config_window = c_null_ptr
     !call sysconfigwindow%labels%clear
@@ -924,7 +965,7 @@ subroutine sys_config_new(parent_window)
   type(c_ptr)  :: boxAperture, lblAperture
 
   type(c_ptr)  :: table, expander, box1, nbk, basicLabel, boxAsphere
-  type(c_ptr)  :: AsphLabel, expanderField, expanderWavelength, expanderRayAim
+  type(c_ptr)  :: AsphLabel, expanderField, expanderWavelength, expanderRayAim, expanderFocus
 
 
 
@@ -938,7 +979,6 @@ subroutine sys_config_new(parent_window)
 
 
   call sysConfig%updateParameters() ! Just in case any out of sync values
-  PRINT *, "ABOUT TO FIRE UP SYS CONFIG WINDOW!"
 
   ! Let core code refresh this panel when the lens/config changes elsewhere.
   block
@@ -985,6 +1025,10 @@ subroutine sys_config_new(parent_window)
     expanderRayAim = uiRayAimSettings%build()
     call uiRayAimSettings%updateSettings()    
 
+    call uiFocusSettings%initialize(numListColumns=1, winWidth=width, name="F_ocus:")
+    call uiFocusSettings%createUI()
+    expanderFocus = uiFocusSettings%build()
+
 
 
 
@@ -996,6 +1040,7 @@ subroutine sys_config_new(parent_window)
     call gtk_box_append(box1, expanderField)
     call gtk_box_append(box1, expanderWavelength)
     call gtk_box_append(box1, expanderRayAim)
+    call gtk_box_append(box1, expanderFocus)
     call gtk_window_set_child(sys_config_window, box1)
 
 
@@ -1008,7 +1053,6 @@ subroutine sys_config_new(parent_window)
   !pageIdx = gtk_notebook_append_page(nbk, boxAsphere, AsphLabel)
 
 
-  PRINT *, "FINISHED Setting up system config ui"
   !call gtk_box_append(box1, rf_cairo_drawing_area)
   !call gtk_window_set_child(sys_config_window, rf_cairo_drawing_area)
 !  call gtk_window_set_child(sys_config_window, nbk)
@@ -1024,14 +1068,12 @@ subroutine sys_config_new(parent_window)
   call gtk_widget_show(sys_config_window)
 
 
-  PRINT *, "SHOULD SEE GRAPHICS NOW!"
 end subroutine
 
 subroutine sys_config_new_plot(self)
 
   class(sysconfigtab) :: self
 
-  PRINT *, "SYS CONFIG ROUTINE CALLED VIA ZOA TAB!"
   call self%finalizeWindow()
 end
 
@@ -1147,6 +1189,19 @@ case (ID_SYSCON_Y_APERTURE)
          end if
        end block
 
+  case (ID_SYSCON_FFO, ID_SYSCON_IFO, ID_SYSCON_NFO)
+      block
+        use type_utils, only: compactReal
+        select case (ID_SETTING)
+        case (ID_SYSCON_FFO)
+          call PROCESKDP('FFO '//trim(compactReal(real(gtk_spin_button_get_value(spinButton_ffo), real64), 15)))
+        case (ID_SYSCON_IFO)
+          call PROCESKDP('IFO '//trim(compactReal(real(gtk_spin_button_get_value(spinButton_ifo), real64), 15)))
+        case default
+          call PROCESKDP('NFO '//trim(int2str(nint(gtk_spin_button_get_value(spinButton_nfo)))))
+        end select
+      end block
+
   case (ID_SYSCON_WAVELENGTH_REF)
        call PROCESKDP('REF '//trim(int2str(INT(gtk_spin_button_get_value (spinButton_refWavelength)))))
 
@@ -1160,7 +1215,6 @@ case (ID_SYSCON_Y_APERTURE)
 
 
   case default
-    PRINT *, "Nothing selected"
 
   end select
 

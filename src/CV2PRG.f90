@@ -35,6 +35,10 @@ SUBROUTINE CV2PRG
    LOGICAL HASFNO, HASNAO
    real(real64) PENDFNO, PENDNAO
    CHARACTER(len=40) FNOSTR
+!     System data run as Zoa commands once the lens exists (through-focus
+!     range FFO/IFO/NFO)
+   CHARACTER(len=80) PENDSYS(8)
+   INTEGER NPENDSYS, IPS
    LOGICAL :: COMMANDINFOCHECK, STRINGINPUTCHECK, CHECKMAXFLOATINPUTS
 !
    LOGICAL DOWV,DOWV2,CLAP1,CLAP2,CLDX,CLDY,CLTILT
@@ -71,12 +75,12 @@ SUBROUTINE CV2PRG
    SUB = 256
    write(substr, "(I3)") SUB
    readformat = '(A' // substr // ')'
-   PRINT *, "READFORMAT IS ", readformat
    SURFER=0
    HASFNO=.FALSE.
    PENDFNO=0.0D0
    HASNAO=.FALSE.
    PENDNAO=0.0D0
+   NPENDSYS=0
    ! Zoa's CODE V export uses radii without an explicit RDM command.
    ! Reset for every import; RDM N below explicitly selects curvature mode.
    RADON=.TRUE.
@@ -116,7 +120,6 @@ SUBROUTINE CV2PRG
 !       THIS SUBROUTINE IS CALLED CONVERT A FILE FROM CODE V TO PRG
 !     LENS INPUT FORMAT
 !
-   PRINT *, "CV2PRG Routine Started!"
 
    AA23='                       '
    BL1024=AA//AA//AA//AA//AA//AA//AA//AA//AA//AA &
@@ -289,7 +292,6 @@ SUBROUTINE CV2PRG
          END IF
 
       END DO
-      PRINT *, "J is ", J
 
       IF(.NOT.ADD.AND..NOT.OLDADD) THEN
 !     NOTHING TO ADD, WRITE A TEMPA VALUE
@@ -576,6 +578,17 @@ SUBROUTINE CV2PRG
 !        silently dropped; it is the NAO command, applied after the lens)
          HASNAO=.TRUE.
          PENDNAO=VALV
+         TEMPC(I)(1:1024)=BL1024(1:1024)
+         GO TO 8888
+      END IF
+!     FFO, IFO, NFO (through-focus range): Zoa commands of the same names,
+!     run after the lens is built
+      IF((TEMPC(I)(1:3).EQ.'FFO'.OR.TEMPC(I)(1:3).EQ.'IFO'.OR. &
+      &   TEMPC(I)(1:3).EQ.'NFO').AND.TEMPC(I)(4:4).EQ.' ') THEN
+         IF(NPENDSYS.LT.SIZE(PENDSYS)) THEN
+            NPENDSYS=NPENDSYS+1
+            PENDSYS(NPENDSYS)=TEMPC(I)(1:80)
+         END IF
          TEMPC(I)(1:1024)=BL1024(1:1024)
          GO TO 8888
       END IF
@@ -1121,7 +1134,6 @@ SUBROUTINE CV2PRG
             &TEMPC(I)(dotLoc+3:dotLoc+3)
             GLASSA='MODEL G'//TEMPC(I)(1:dotLoc+3)//&
             &','//AINDEX//','//AVNUMB
-            PRINT *, "GLASSA is ", GLASSA
             TEMPC(I)(1:1024)=BL1024(1:1024)
             GO TO 7777
          END IF
@@ -2147,6 +2159,9 @@ SUBROUTINE CV2PRG
       CALL PROCESKDP('FNO '//TRIM(FNOSTR))
    END IF
    IF(HASPIM) CALL PROCESKDP('PIM')
+   DO IPS=1,NPENDSYS
+      CALL PROCESKDP(TRIM(PENDSYS(IPS)))
+   END DO
    ! Converting a CODE V file replaces the lens: reset undo history with it as baseline.
    call undo_reset_baseline()
    RETURN

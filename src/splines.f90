@@ -40,8 +40,6 @@ SUBROUTINE SPLINE(X,Y,N,YP1,YPN,Y2)
    INTEGER NMAX,I,N,K
    PARAMETER (NMAX=250)
    DIMENSION X(N),Y(N),Y2(N),U(NMAX)
-   PRINT *, "N is ", N
-   PRINT *, "Y(N)) is ", Y(N)
    IF (YP1.GT..99D30) THEN
       Y2(1)=0.0D0
       U(1)=0.0D0

@@ -380,6 +380,14 @@ contains
     !## category: Optimization
     !## desc:     RMS spot-size operand (weighted objective term).
     !##
+    !## cmd:      SPO
+    !## syntax:   SPO [FLD | THF] ; [options] ; GO
+    !## category: Plotting
+    !## desc:     Spot diagram.  SPO / SPO FLD: one spot per field (or the chosen field),
+    !##           at focus FFO.  SPO THF: the chosen field and wavelength at each focus
+    !##           position FFO, FFO+IFO, ... (NFO of them) on one scale, in a row or a
+    !##           column (ORI H|V).  The rays are moved to each focus along their slopes.
+    !##
     module procedure execSPO
         use command_utils, only : isInputNumber
         use optim_types
@@ -418,16 +426,246 @@ contains
             return
         end if
 
-        call psm%initialize(trim(iptStr))
-        cmd_loop = SPO_LOOP
+        ! SPO [FLD | THF] [Pn]: FLD (the default) a spot per field at focus
+        ! FFO; THF one field at each focus position FFO, FFO+IFO, ... (NFO).
+        ! THF tabs are their own plot type, so their numbers P1, P2 ...
+        ! are separate from the field plots'.
+        block
+            use plot_functions, only: isPlotNumToken
+            integer :: k, plotCode
+            logical :: thf
+            character(len=80) :: pTok
+            thf = .false.
+            pTok = ''
+            do k = 2, numTokens
+                select case (trim(tokens(k)))
+                case ('FLD'); thf = .false.
+                case ('THF'); thf = .true.
+                case default
+                    if (isPlotNumToken(trim(tokens(k)))) then
+                        pTok = tokens(k)
+                    else
+                        call zoa_emit("Error:  SPO: expected SPO [FLD|THF], not "//trim(tokens(k)), "red")
+                        return
+                    end if
+                end select
+            end do
+            plotCode = ID_PLOTTYPE_SPOT_NEW
+            if (thf) plotCode = ID_PLOTTYPE_SPOT_THF
 
-        if (numTokens == 2) then
-            plotExists = checkForExistingPlot(tokens(1:2), psm, ID_PLOTTYPE_SPOT_NEW)
-            if (plotExists) return
-        end if
-        call psm%addSpotDiagramSettings()
-        curr_psm = psm
+            call psm%initialize(trim(iptStr))
+            cmd_loop = SPO_LOOP
+            if (len_trim(pTok) > 0) then
+                plotExists = checkForExistingPlot([character(len=80) :: tokens(1), pTok], psm, plotCode)
+                if (plotExists) return
+            end if
+            call psm%addSpotDiagramSettings(throughFocus=thf)
+            curr_psm = psm
+        end block
     end procedure execSPO
+
+    ! SPO options claimed only inside SPO: ORI H|V, the direction of the
+    ! row of focus positions in SPO THF (the dropdown sends 1 or 2).
+    module procedure spoSetOption
+        use plot_setting_manager, only: SETTING_SPOT_ORI, ID_SPOT_ORI_H, ID_SPOT_ORI_V
+        use plot_functions, only: spotIsThroughFocus
+        implicit none
+        character(len=80) :: tokens(40)
+        integer :: numTokens, n
+
+        call parse(trim(iptStr), ' ', tokens, numTokens)
+        if (.not. spotIsThroughFocus(curr_psm)) then
+            call zoa_emit("Error:  ORI applies to SPO THF (focus positions in a row or column)", "red")
+            return
+        end if
+        n = 0
+        if (numTokens == 2) then
+            select case (trim(tokens(2)))
+            case ('H', 'HOR', '1', '1.0'); n = ID_SPOT_ORI_H
+            case ('V', 'VER', '2', '2.0'); n = ID_SPOT_ORI_V
+            end select
+        end if
+        if (n == 0) then
+            call zoa_emit("Error:  SPO: expected ORI H|V", "red")
+            return
+        end if
+        call curr_psm%updateSetting(SETTING_SPOT_ORI, n)
+    end procedure spoSetOption
+
+    !## cmd:      MULTIPLOT
+    !## syntax:   MULTIPLOT rows cols ['title'] [Pn]
+    !## category: Plotting
+    !## desc:     Start a page of subplots (rows x cols cells, up to 6 x 6).  Each analysis that follows (RIM, SPO, MTF, PSF, ... ; GO) fills the next cell, or the one SUBPLOT chose; a GO with no analysis open draws the page.  The page redraws when the lens changes.
+    !##
+    module procedure execMULTIPLOT
+        use plot_composer, only: comp_active, comp_begin, comp_set_page
+        use plot_functions, only: multiplot_page_begin, isPlotNumToken
+        use command_utils, only: isInputNumber
+        implicit none
+        character(len=1024) :: tokens(40), rest
+        character(len=200) :: title
+        character(len=1100) :: script
+        integer :: numTokens, k, q1, q2, rows, cols, plotNum, objIdx
+        logical :: replot
+
+        if (comp_active()) then
+            call zoa_emit("Error:  MULTIPLOT: a page is already open; finish it with GO", "red")
+            return
+        end if
+        if (cmd_loop /= 0) then
+            call zoa_emit("Error:  MULTIPLOT: close the open command with GO first", "red")
+            return
+        end if
+
+        ! the title: the first quoted string (any case)
+        title = ''
+        rest = iptStr
+        q1 = scan(iptStr, "'"//'"')
+        if (q1 > 0) then
+            q2 = index(iptStr(q1+1:), iptStr(q1:q1))
+            if (q2 == 0) then
+                call zoa_emit("Error:  MULTIPLOT: the title has no closing quote", "red")
+                return
+            end if
+            title = iptStr(q1+1:q1+q2-1)
+            rest = iptStr(1:q1-1)//' '//iptStr(q1+q2+1:)
+        end if
+
+        call parse(trim(rest), ' ', tokens, numTokens)
+        rows = 0
+        cols = 0
+        plotNum = -1
+        do k = 2, numTokens
+            if (isPlotNumToken(trim(tokens(k)))) then
+                ! (P then digits, checked by isPlotNumToken)
+                read(tokens(k)(2:len_trim(tokens(k))), *) plotNum
+            else if (isInputNumber(trim(tokens(k))) .and. rows == 0) then
+                rows = nint(str2real8(trim(tokens(k))))
+            else if (isInputNumber(trim(tokens(k))) .and. cols == 0) then
+                cols = nint(str2real8(trim(tokens(k))))
+            else
+                rows = -1
+            end if
+        end do
+        if (rows < 1 .or. rows > 6 .or. cols < 1 .or. cols > 6) then
+            call zoa_emit("Error:  expected MULTIPLOT rows cols ['title'] (1 to 6 rows and columns)", "red")
+            return
+        end if
+
+        call multiplot_page_begin(plotNum, objIdx, replot)
+        write(script, '(A,I0,1X,I0)') 'MULTIPLOT ', rows, cols
+        if (len_trim(title) > 0) script = trim(script)//" '"//trim(title)//"'"
+        if (plotNum >= 1) script = trim(script)//' P'//trim(int2str(plotNum))
+        if (.not. comp_begin(rows, cols, trim(script), trim(title))) then
+            call zoa_emit("Error:  MULTIPLOT: pages nested too deeply", "red")
+            return
+        end if
+        call comp_set_page(objIdx, plotNum, replot)
+    end procedure execMULTIPLOT
+
+    !## cmd:      SUBPLOT
+    !## syntax:   SUBPLOT r c [rspan cspan]
+    !## category: Plotting
+    !## desc:     In a MULTIPLOT page: the next analysis fills the cell at row r, column c (spanning rspan rows and cspan columns).
+    !##
+    module procedure execSUBPLOT
+        use plot_composer, only: comp_active, comp_set_slot
+        use command_utils, only: isInputNumber
+        implicit none
+        character(len=80) :: tokens(40)
+        character(len=120) :: msg
+        integer :: numTokens, k, v(4)
+
+        call parse(trim(iptStr), ' ', tokens, numTokens)
+        if (.not. comp_active()) then
+            call zoa_emit("Error:  SUBPLOT is used in a MULTIPLOT page", "red")
+            return
+        end if
+        if (numTokens /= 3 .and. numTokens /= 5) then
+            call zoa_emit("Error:  expected SUBPLOT r c [rspan cspan]", "red")
+            return
+        end if
+        v = 1
+        do k = 2, numTokens
+            if (.not. isInputNumber(trim(tokens(k)))) then
+                call zoa_emit("Error:  expected SUBPLOT r c [rspan cspan]", "red")
+                return
+            end if
+            v(k-1) = nint(str2real8(trim(tokens(k))))
+        end do
+        if (.not. comp_set_slot(v(1), v(2), v(3), v(4), msg)) call zoa_emit("Error:  "//trim(msg), "red")
+    end procedure execSUBPLOT
+
+    ! The GO that closes a MULTIPLOT page (no analysis open): draw it.  Its
+    ! script -- everything from MULTIPLOT to here -- becomes the tab's
+    ! command, which redraws the page on a lens change.
+    module procedure multiplotGo
+        use plot_composer, only: comp_script, comp_get_page, comp_page, comp_end, comp_count
+        use plot_functions, only: multiplot_page_end
+        implicit none
+        character(len=:), allocatable :: script
+        integer :: objIdx, plotNum
+        logical :: replot
+
+        script = comp_script()//'; GO'
+        call comp_get_page(objIdx, plotNum, replot)
+        if (comp_count() == 0) call zoa_emit("MULTIPLOT: the page has no subplots", "red")
+        if (len(script) > 1040) then
+            call zoa_emit("MULTIPLOT: the page's commands are longer than 1040 characters; "// &
+            &             "it is drawn but cannot be redrawn", "red")
+            call multiplot_page_end(comp_page(), objIdx, replot, plotNum, ' ')
+        else
+            call multiplot_page_end(comp_page(), objIdx, replot, plotNum, script)
+        end if
+        call comp_end()
+    end procedure multiplotGo
+
+    !## cmd:      FRE
+    !## syntax:   FRE x
+    !## category: Plot Settings
+    !## desc:     MTF THF: the spatial frequency whose modulation is plotted through focus.
+    !##
+    ! MTF options claimed only inside MTF: NRD n (pupil grid 16, 32, 64 or
+    ! 128; the settings dropdown sends its entry id, also accepted) and, in
+    ! MTF THF, FRE x.
+    module procedure mtfSetOption
+        use plot_setting_manager, only: SETTING_MTF_FRE
+        use command_utils, only: isInputNumber
+        implicit none
+        character(len=80) :: tokens(40)
+        integer :: numTokens, n
+
+        call parse(trim(iptStr), ' ', tokens, numTokens)
+        if (trim(tokens(1)) == 'NRD') then
+            n = 0
+            if (numTokens == 2) then
+                if (isInputNumber(trim(tokens(2)))) n = nint(str2real8(trim(tokens(2))))
+            end if
+            select case (n)
+            case (16);  n = ID_16x16
+            case (32);  n = ID_32x32
+            case (64);  n = ID_64x64
+            case (128); n = ID_128x128
+            case (ID_16x16:ID_128x128)
+            case default; n = 0
+            end select
+            if (n == 0) then
+                call zoa_emit("Error:  MTF: expected NRD 16, 32, 64 or 128", "red")
+            else
+                call curr_psm%updateSetting(ID_DENSITY_POWER_OF_TWO, n)
+            end if
+            return
+        end if
+        if (numTokens == 2) then
+            if (isInputNumber(trim(tokens(2)))) then
+                if (str2real8(trim(tokens(2))) > 0.0_long) then
+                    call curr_psm%updateSetting(SETTING_MTF_FRE, str2real8(trim(tokens(2))))
+                    return
+                end if
+            end if
+        end if
+        call zoa_emit("Error:  MTF THF: expected FRE frequency (greater than 0)", "red")
+    end procedure mtfSetOption
 
     module procedure execSPO_old
         implicit none

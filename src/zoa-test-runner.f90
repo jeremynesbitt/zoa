@@ -78,7 +78,10 @@ program zoa_test_runner
   ! Each process uses its own plot directory; no wildcard cleanup is needed.
   call enable_plot_announcements()
 
-  ! Execute the test script (unit 6 stays suppressed to avoid PRINT noise)
+  ! Execute the test script (unit 6 stays suppressed to avoid PRINT noise;
+  ! ZOA_TEST_SHOW_PRINTS=1 lets it through, to find stray debug PRINTs)
+  call get_environment_variable('ZOA_TEST_SHOW_PRINTS', envval)
+  if (len_trim(envval) > 0) call restore_stdout()
   call process_zoa_file(trim(test_file))
 
   ! Restore stdout for status/output reporting

@@ -662,6 +662,26 @@ test('sinraytra', test_runner,
             meson.project_source_root() / 'test/sinraytra.ref'],
      timeout: 120)
 
+test('focus_range', test_runner,
+     args: [meson.project_source_root() / 'test/focus_range.zoa',
+            meson.project_source_root() / 'test/focus_range.ref'],
+     timeout: 120)
+
+test('spo_focus', test_runner,
+     args: [meson.project_source_root() / 'test/spo_focus.zoa',
+            meson.project_source_root() / 'test/spo_focus.ref'],
+     timeout: 120)
+
+test('mtf_focus', test_runner,
+     args: [meson.project_source_root() / 'test/mtf_focus.zoa',
+            meson.project_source_root() / 'test/mtf_focus.ref'],
+     timeout: 120)
+
+test('multiplot', test_runner,
+     args: [meson.project_source_root() / 'test/multiplot.zoa',
+            meson.project_source_root() / 'test/multiplot.ref'],
+     timeout: 120)
+
 test('book_regressions', test_runner,
      args: [meson.project_source_root() / 'test/book_regressions.zoa',
             meson.project_source_root() / 'test/book_regressions.ref'],

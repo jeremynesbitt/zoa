@@ -331,7 +331,6 @@ SUBROUTINE DRAWOPTICALSYSTEM(cairo_drawing_area, my_cairo_context, win_width, wi
     integer(kind=c_int), pointer :: ID_SETTING
 
 
-    PRINT *, "Trying to draw system!"
     !call LogTermFOR("DRAW ptr is "//int2str(INT(loc(cairo_drawing_area),4)))
 
     if (c_associated(gdata)) then
@@ -346,7 +345,6 @@ SUBROUTINE DRAWOPTICALSYSTEM(cairo_drawing_area, my_cairo_context, win_width, wi
     select case (ID_SETTING)
     case (ID_NEWPLOT_LENSDRAW)
 
-        PRINT *, "DRAWOS CALLED FROM LENSDRAW"
 
   case (ID_NEWPLOT_RAYFAN)
       PRINT *, "DRAWOS CALLED FROM RAYFAN"
@@ -375,7 +373,6 @@ SUBROUTINE DRAWOPTICALSYSTEM(cairo_drawing_area, my_cairo_context, win_width, wi
        NEUTARRAY(1:size(currVieData)) = currVieData(1:size(currVieData))
        end if
 
-      PRINT *, "STARTING TO DRAW LENS"
                        J=1
       READ(NEUTARRAY(1),1000) NEUTTOTAL
  1000 FORMAT(I9,32X)
@@ -782,7 +779,6 @@ SUBROUTINE DRAWOPTICALSYSTEM(cairo_drawing_area, my_cairo_context, win_width, wi
 
       GO TO 300
  999           CONTINUE
-      PRINT *, "EXITING DRAWING ROUTINE!"
 
 
       RETURN

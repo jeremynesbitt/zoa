@@ -54,7 +54,6 @@ subroutine POWSYM
   ! CALL PROCESKDP(ftext)
 
 
-PRINT *, "Magnification is ", curr_par_ray_trace%t_mag
 
 
 
@@ -338,7 +337,6 @@ subroutine FIR
 
   !call logger%logText("FIR Called!")
 
-  PRINT *, "Magnification is ", curr_par_ray_trace%t_mag
 
   call curr_par_ray_trace%calculateFirstOrderParameters(curr_lens_data)
 

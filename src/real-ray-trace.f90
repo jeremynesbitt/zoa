@@ -526,7 +526,6 @@ subroutine real_ray_trace_core(for_optimization)
       POLEXT=.FALSE.
       FAIL=.TRUE.
       if (.not. for_optimization) then
-         PRINT *, "RAYTRA FAILED LINE 1928 RAYTRA5.FOR"
       else
          IF(.NOT.SPDTRA.AND.F34.EQ.0.AND.F58.EQ.0) THEN
             CALL MACFAL
@@ -846,7 +845,6 @@ subroutine real_ray_trace_core(for_optimization)
       CALL HITSUR
       IF(STOPP.EQ.1) THEN
 !        [DIFF 9] HITSUR STOPP: PRINT only for non-opt
-         if (.not. for_optimization) PRINT *, "RAYTRA Failed 2370"
          RAYEXT=.FALSE.
          POLEXT=.FALSE.
          RETURN

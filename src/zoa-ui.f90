@@ -10,6 +10,12 @@ integer, parameter :: ID_NEWPLOT_RAYFAN   = 1002
 integer, parameter :: ID_PLOTTYPE_GENERIC = 1000
 integer, parameter :: ID_PLOTTYPE_SPOT     = 1003
 integer, parameter :: ID_PLOTTYPE_SPOT_NEW     = 2003
+! SPO THF: spot diagrams through focus (FFO/IFO/NFO)
+integer, parameter :: ID_PLOTTYPE_SPOT_THF     = 2004
+! MTF THF: modulation at one frequency through focus (FFO/IFO/NFO)
+integer, parameter :: ID_PLOTTYPE_MTF_THF      = 2005
+! MULTIPLOT: a page of subplots (other analyses' plots in a grid)
+integer, parameter :: ID_PLOTTYPE_MULTIPLOT    = 2006
 integer, parameter :: ID_PLOTTYPE_RMSFIELD     = 1011
 integer, parameter :: ID_PLOTTYPE_SPOT_VS_FIELD     = 1012
 integer, parameter :: ID_PLOTTYPE_ZERN_VS_FIELD     = 1013

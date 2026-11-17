@@ -2491,7 +2491,6 @@ SUBROUTINE SRTG(LBT,RTGERROR)
             !PRINT *, "I = ", I
             !PRINT *, " RD = ", RD
             !PRINT *, "Data says it is ", curr_lens_data%radii(I+1)
-            WRITE(*,1000)I,SPEC,RD,surf_thickness(I),GLANAM(I,1),GLANAM(I,2),INDEX,VNUM
             !curr_lens_data % curvatures(I+1) = surf_curvature(I)
             !curr_lens_data % thicknesses(I+1) = surf_thickness(I)
             !curr_lens_data % surf_index(I+1) = INDEX
@@ -2695,7 +2694,6 @@ SUBROUTINE SRTG(LBT,RTGERROR)
                            IF(DABS(VNUM).LT.100.0D0)WRITE(OUTLYNE,1005)I,SPEC,RD,surf_thickness(I),GLANAM(I,1),GLANAM(I,2),INDEX,VNUM
                            !PRINT *, "Writing here?  3036"
                            IF(DABS(VNUM).GE.100.0D0)WRITE(OUTLYNE,1000)I,SPEC,RD,surf_thickness(I),GLANAM(I,1),GLANAM(I,2),INDEX,VNUM
-                           PRINT *, "Writing here?  3040"
 
                            CALL SHOWIT(0)
                            IF(SPECF) THEN
@@ -2743,9 +2741,7 @@ SUBROUTINE SRTG(LBT,RTGERROR)
                      END IF
                   ELSE
                      IF(DABS(VNUM).LT.100.0D0)WRITE(OUTLYNE,1005)I,SPEC,RD,surf_thickness(I),GLANAM(I,1),GLANAM(I,2),INDEX,VNUM
-                     PRINT *, "Writing here?  3092"
                      IF(DABS(VNUM).GE.100.0D0)WRITE(OUTLYNE,1000)I,SPEC,RD,surf_thickness(I),GLANAM(I,1),GLANAM(I,2),INDEX,VNUM
-                     PRINT *, "Writing here?  3096"
                      CALL SHOWIT(0)
                      IF(SPECF) THEN
                         CALL SHRINKSPEC(SPECC)

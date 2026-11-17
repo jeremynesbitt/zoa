@@ -1307,7 +1307,6 @@ module paraxial_ray_trace_test
     
           SF = INT(sys_last_surf())
           call curr_par_ray_trace%add_lens_data(curr_lens_data)
-          PRINT *, "NUM SURFACES IS ", curr_par_ray_trace%num_surfaces
     
           curr_par_ray_trace%marginal_ray_height = PXTRAY(1,0:SF)
           curr_par_ray_trace%marginal_ray_angle = PXTRAY(2,0:SF)

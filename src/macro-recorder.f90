@@ -17,7 +17,7 @@ module macro_recorder
   implicit none
   private
   public :: rec_enter, rec_leave, rec_suppress_begin, rec_suppress_end
-  public :: rec_start, rec_stop, rec_is_recording, rec_count
+  public :: rec_start, rec_stop, rec_is_recording, rec_count, rec_depth, rec_suppress_level
 
   logical :: recording = .false.
   integer :: recUnit = -1
@@ -43,6 +43,19 @@ contains
   subroutine rec_leave()
     if (depth > 0) depth = depth - 1
   end subroutine
+
+  ! The current PROCESKDP nesting depth (1 = a command the user issued, or
+  ! a line of a script being run at that level; deeper = commands issued by
+  ! a running command).  MULTIPLOT records only its own level's commands.
+  integer function rec_depth()
+    rec_depth = depth
+  end function
+
+  ! The internal-work nesting (redrawing plots, restoring a .zin ...): 0 for
+  ! the user's own commands.
+  integer function rec_suppress_level()
+    rec_suppress_level = suppress
+  end function
 
   subroutine rec_suppress_begin()
     suppress = suppress + 1

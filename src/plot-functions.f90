@@ -17,6 +17,7 @@ module plot_functions
   use zoa_plot
   use data_registers
   use mod_kdp_api, only: kdp_fob, kdp_ray, kdp_spd, kdp_capfn, kdp_get, kdp_silent_begin, kdp_silent_end
+  use plot_composer, only: comp_active, comp_store
 
    use iso_fortran_env, only: real64
   implicit none
@@ -33,6 +34,10 @@ module plot_functions
       module subroutine mtf_go(psm)
         type(zoaplot_setting_manager) :: psm
       end subroutine mtf_go
+
+      module subroutine mtf_thf_go(psm)
+        type(zoaplot_setting_manager) :: psm
+      end subroutine mtf_thf_go
     end interface
 
     contains
@@ -400,11 +405,14 @@ end subroutine
 ! (DSPOTT(7)) and no wavelength weight (DSPOTT(17)).  Testing the position
 ! instead (X /= 0 and Y /= 0) also dropped every good ray lying on an axis --
 ! the chief ray of a ring pattern, a rectangular grid's centre row/column.
-subroutine getSpotData(xData,yData)
+subroutine getSpotData(xData,yData, delta)
   use GLOBALS
   use DATSP1, only: ITOT
   use iso_fortran_env
   real(kind=real64), allocatable, intent(inout) :: xData(:), yData(:)
+  ! focus shift: each ray carried on along its slope to the plane delta
+  ! from the image surface (DSPOTT 9/10 are its XZ/YZ slope angles)
+  real(kind=real64), intent(in), optional :: delta
   logical, allocatable :: ok(:)
   integer :: n
 
@@ -415,11 +423,79 @@ subroutine getSpotData(xData,yData)
   end if
   allocate(ok(n))
   ok = DSPOTT(7,1:n) == 0.0d0 .and. DSPOTT(17,1:n) /= 0.0d0
-  allocate(xData, source=pack(DSPOTT(1,1:n), ok))
-  allocate(yData, source=pack(DSPOTT(2,1:n), ok))
+  if (present(delta)) then
+    allocate(xData, source=pack(DSPOTT(1,1:n) + delta*tan(DSPOTT(9,1:n)), ok))
+    allocate(yData, source=pack(DSPOTT(2,1:n) + delta*tan(DSPOTT(10,1:n)), ok))
+  else
+    allocate(xData, source=pack(DSPOTT(1,1:n), ok))
+    allocate(yData, source=pack(DSPOTT(2,1:n), ok))
+  end if
 
 end subroutine
 
+! The RMS spot size SPD reports (focal systems), for the current spot data
+! moved to focus delta: about the energy-weighted centroid, RSS of X and Y,
+! as SPOT1 computes it (its RMS at delta = 0).
+real(kind=real64) function spotRmsAtFocus(delta) result(rms)
+  use GLOBALS
+  use DATSP1, only: ITOT
+  use DATLEN, only: COS_A_ANG, COS_B_ANG
+  use iso_fortran_env
+  real(kind=real64), intent(in) :: delta
+  real(kind=real64) :: w, spt, ap, x, y, cx, cy, mx, my, rmsx, rmsy
+  integer :: k, n
+
+  rms = 0.0d0
+  n = min(ITOT - 1, size(DSPOTT, 2))
+  w = 0.0d0; cx = 0.0d0; cy = 0.0d0
+  do k = 1, n
+    if (DSPOTT(7,k) /= 0.0d0) cycle
+    if (DSPOTT(12,k) /= 0.0d0) w = w + DSPOTT(12,k)
+    spt = DSPOTT(17,k)
+    if (spt == 0.0d0) cycle
+    ap = DSPOTT(11,k)
+    cx = cx + spt*(DSPOTT(1,k) + delta*tan(DSPOTT(9,k)))*ap
+    cy = cy + spt*(DSPOTT(2,k) + delta*tan(DSPOTT(10,k)))*ap
+  end do
+  if (w == 0.0d0) return
+  cx = cx/w; cy = cy/w
+  mx = 0.0d0; my = 0.0d0
+  do k = 1, n
+    if (DSPOTT(7,k) /= 0.0d0) cycle
+    spt = DSPOTT(17,k)
+    if (spt == 0.0d0) cycle
+    ap = DSPOTT(11,k)
+    x = DSPOTT(1,k) + delta*tan(DSPOTT(9,k))
+    y = DSPOTT(2,k) + delta*tan(DSPOTT(10,k))
+    mx = mx + spt*(x - cx)**2*ap
+    my = my + spt*(y - cy)**2*ap
+  end do
+  rmsx = 2.0d0*sqrt(mx/w)/COS_B_ANG
+  rmsy = 2.0d0*sqrt(my/w)/COS_A_ANG
+  rms = sqrt(rmsx*rmsx + rmsy*rmsy)
+end function
+
+! SPO THF (spots through focus) rather than SPO / SPO FLD (per field)
+logical function spotIsThroughFocus(psm)
+  use strings, only: parse
+  use plot_setting_manager, only: zoaplot_setting_manager
+  type(zoaplot_setting_manager), intent(in) :: psm
+  character(len=80) :: tokens(40)
+  character(len=len(psm%baseCmd)) :: cmd
+  integer :: n, k
+  spotIsThroughFocus = .false.
+  cmd = psm%baseCmd
+  call parse(cmd, ' ', tokens, n)
+  do k = 2, n
+    if (trim(tokens(k)) == 'THF') spotIsThroughFocus = .true.
+  end do
+end function
+
+! SPO [FLD]: one spot per field (or the chosen field), at focus FFO.
+! SPO THF:   the chosen field at each focus position FFO + (k-1)*IFO,
+!            k = 1..NFO, in a row or a column (ORI), on one scale.
+! The rays are traced once per field and wavelength and moved to each focus
+! along their slopes (the lens is not changed).
 subroutine spo_go(psm)
 
     use iso_fortran_env
@@ -432,6 +508,8 @@ subroutine spo_go(psm)
     use type_utils, only: int2str, str2int
     use plot_setting_manager
     use kdp_data_types, only: LENS_UNITS_INCHES, LENS_UNITS_CM, LENS_UNITS_M
+    use focus_settings, only: focus_first, focus_count, focus_position
+    use mod_system, only: sys_mode
     use DATMAI
     use DATSPD
     use DATLEN
@@ -442,54 +520,74 @@ subroutine spo_go(psm)
     IMPLICIT NONE
 
     type(multiplot) :: mplt
-    type(zoaplot), dimension(sysConfig%numFields) :: xyscat
+    type(zoaplot), allocatable :: xyscat(:)
     type(c_ptr) :: canvas
 
     type(zoaplot_setting_manager) :: psm
 
     integer :: iField, iLambda, iMethod, nRect, nRand, nRing
-    integer :: objIdx, i, j, iPanel, nPanels
-    logical :: replot, allWL
+    integer :: objIdx, i, j, iPanel, nPanels, plotCode
+    logical :: replot, allWL, thf, horiz
 
     real(kind=real64), allocatable :: xSpot(:), ySpot(:)
-    real(kind=real64) :: yAvg
+    real(kind=real64) :: yAvg, delta, rmsPanel, commonExtent
     real :: plotScale
     logical :: drawAiry
     integer, parameter :: AIRY_NPTS = 181
     real :: airyX(AIRY_NPTS), airyY(AIRY_NPTS), airyRadius, wlLensUnits, theta
     real :: spotExtent, airyScale
-    ! Data tab rows: field, wavelength, X, Y of every plotted ray
+    character(len=40) :: unitsTxt
+    ! Data tab rows: field, wavelength, focus, X, Y of every plotted ray
     real(kind=real64), allocatable :: rays(:,:)
     integer :: nRays
-    ! TODO:  Distable field here
     call psm%getSpotDiagramSettings(iField, iLambda, iMethod, nRect, nRand, nRing, plotScale)
     nRays = 0
+    thf = spotIsThroughFocus(psm)
+    unitsTxt = sysConfig%lensUnits(sysConfig%currLensUnitsID)%text
 
     allWL = .FALSE.
     if (iLambda == ID_SETTING_WAVELENGTH_ALL) then
       allWL = .TRUE.
       iLambda = 1
     end if
+    ! focus shifts are along the image-space ray slopes: focal systems only
+    if (sys_mode() > 2.0d0 .and. (thf .or. focus_first() /= 0.0d0)) then
+      call zoa_emit("SPO: focus positions (FFO/IFO/NFO) need a focal system; nominal focus used", "red")
+    end if
 
-    call initializeGoPlot(psm,ID_PLOTTYPE_SPOT_NEW, "Spot Diagram", replot, objIdx)
+    plotCode = ID_PLOTTYPE_SPOT_NEW
+    if (thf) plotCode = ID_PLOTTYPE_SPOT_THF
+    if (thf) then
+      call initializeGoPlot(psm, plotCode, "Spot Through Focus", replot, objIdx)
+    else
+      call initializeGoPlot(psm, plotCode, "Spot Diagram", replot, objIdx)
+    end if
 
     if (.not. HEADLESS_MODE) then
       call ioConfig%setTextViewFromPtr(getTabTextView(objIdx))
     end if
 
-    ! Field Point selects one field or, with ALL, every field stacked.  Decide
-    ! this before sizing the canvas: the drawing area has to match the panel
-    ! count or the plot is drawn into the wrong aspect ratio (a single field in
-    ! a 3-field-tall area came out stretched into an ellipse).
-    if (iField == ID_SETTING_FIELD_ALL) then
+    ! Field Point selects one field or, with ALL, every field stacked; THF
+    ! has one panel per focus position.  Decide this before sizing the
+    ! canvas: the drawing area has to match the panel count or the plot is
+    ! drawn into the wrong aspect ratio (a single field in a 3-field-tall
+    ! area came out stretched into an ellipse).
+    horiz = .false.
+    if (thf) then
+      nPanels = focus_count()
+      horiz = psm%getSpotHorizontal()
+    else if (iField == ID_SETTING_FIELD_ALL) then
       nPanels = sysConfig%numFields
     else
       nPanels = 1
     end if
+    allocate(xyscat(nPanels))
 
     ! Prep PLot
     if (HEADLESS_MODE) then
       canvas = c_null_ptr
+    else if (horiz) then
+      canvas = hl_gtk_drawing_area_new(size=[400*nPanels,400], has_alpha=FALSE)
     else
       canvas = hl_gtk_drawing_area_new(size=[400,400*nPanels], &
       & has_alpha=FALSE)
@@ -497,9 +595,15 @@ subroutine spo_go(psm)
 
     ! Todo:  change initialization to sepcify size, and then don't need to
     ! call gtk_drawing_area
-    call mplt%initialize(canvas, nPanels,1)
-    mplt%height = 400*nPanels
-    mplt%width = 400
+    if (horiz) then
+      call mplt%initialize(canvas, 1, nPanels)
+      mplt%height = 400
+      mplt%width = 400*nPanels
+    else
+      call mplt%initialize(canvas, nPanels,1)
+      mplt%height = 400*nPanels
+      mplt%width = 400
+    end if
 
     ! Airy disk radius = 1.22 * lambda * F/#, in lens units.  sysConfig returns
     ! the wavelength in micrometres, so convert it to whatever the lens is
@@ -525,7 +629,7 @@ subroutine spo_go(psm)
           airyY(j) = airyRadius*sin(theta)
         end do
         call OUTKDP("Airy radius = "//trim(real2str(airyRadius,6))//" "// &
-        & trim(sysConfig%lensUnits(sysConfig%currLensUnitsID)%text)// &
+        & trim(unitsTxt)// &
         & "   (1.22 * "//trim(real2str(sysConfig%getWavelength(iLambda),5))// &
         & "um * F/"//trim(real2str(curr_par_ray_trace%FNUM,4))//")")
       else
@@ -534,55 +638,95 @@ subroutine spo_go(psm)
       end if
     end if
 
-    do iPanel=1,nPanels
-      if (iField == ID_SETTING_FIELD_ALL) then
-        i = iPanel
-      else
-        i = iField
-      end if
-      ! silent: the Data tab gets the plotted rays below, not SPD's report
+    ! THF: one trace for every panel, and one scale across them (the point
+    ! is to compare the spots), unless SSI sets it
+    commonExtent = 0.0d0
+    if (thf) then
       call kdp_silent_begin()
-      call runKDPSpot(i, iLambda, iMethod, nRect, nRand, nRing)
+      call runKDPSpot(iField, iLambda, iMethod, nRect, nRand, nRing)
       call kdp_silent_end()
+      do iPanel = 1, nPanels
+        call getSpotData(xSpot, ySpot, panelFocus(iPanel))
+        if (size(ySpot) > 0) then
+          ySpot = ySpot - sum(ySpot)/size(ySpot)
+          commonExtent = max(commonExtent, maxval(abs(xSpot)), maxval(abs(ySpot)))
+        end if
+        deallocate(xSpot, ySpot)
+      end do
+    end if
+
+    do iPanel=1,nPanels
+      if (thf .or. iField /= ID_SETTING_FIELD_ALL) then
+        i = iField
+      else
+        i = iPanel
+      end if
+      delta = panelFocus(iPanel)
+      if (.not. thf) then
+        ! silent: the Data tab gets the plotted rays below, not SPD's report
+        call kdp_silent_begin()
+        call runKDPSpot(i, iLambda, iMethod, nRect, nRand, nRing)
+        call kdp_silent_end()
+      end if
       if(allocated(xSpot)) deallocate(xSpot)
       if(allocated(ySpot)) deallocate(ySpot)
 
-      call getSpotData(xSpot, ySpot)
+      call getSpotData(xSpot, ySpot, delta)
+      ! SPD's own RMS at nominal focus; moved, the same statistic there
+      rmsPanel = RMS
+      if (delta /= 0.0d0) rmsPanel = spotRmsAtFocus(delta)
 
       !Subtract Avg
       yAvg = (sum(ySpot)/size(ySpot))
       ySpot = ySpot - yAvg
-      call addRays(i, iLambda)
+      call addRays(i, iLambda, delta)
       spotExtent = real(max(maxval(abs(xSpot)), maxval(abs(ySpot))))
                                   
 
     ! TODO:  remove dependency on canvas here after checking it doesn't break anything.
-    call xyscat(i)%initialize(c_null_ptr, REAL(xSpot), REAL(ySpot), &
-    & xlabel='RMS = '//trim(real2str(RMS))//' '// &
-    & sysConfig%lensUnits(sysConfig%currLensUnitsID)%text//c_null_char, &
-    & ylabel=''//c_null_char, &
-    & title=''//c_null_char)
+    if (thf .or. delta /= 0.0d0) then
+      ! the focus above the spot, its RMS below (one line was as wide as a
+      ! panel of a row of focus positions)
+      call xyscat(iPanel)%initialize(c_null_ptr, REAL(xSpot), REAL(ySpot), &
+      & xlabel='RMS '//trim(real2str(rmsPanel))//' '// &
+      & trim(unitsTxt)//c_null_char, &
+      & ylabel=''//c_null_char, &
+      & title='Focus '//trim(compactReal(delta, 6))//c_null_char)
+    else
+      call xyscat(iPanel)%initialize(c_null_ptr, REAL(xSpot), REAL(ySpot), &
+      & xlabel='RMS = '//trim(real2str(rmsPanel))//' '// &
+      & trim(unitsTxt)//c_null_char, &
+      & ylabel=''//c_null_char, &
+      & title=''//c_null_char)
+    end if
 
 
-    call xyscat(i)%setLineStyleCode(-1)
+    call xyscat(iPanel)%setLineStyleCode(-1)
     
     if (plotScale /= 0) then 
-      call xyscat(i)%setYScale(real(plotScale,8))
-      call xyscat(i)%setXScale(real(plotScale,8))
+      call xyscat(iPanel)%setYScale(real(plotScale,8))
+      call xyscat(iPanel)%setXScale(real(plotScale,8))
+    else if (thf .and. commonExtent > 0.0d0) then
+      call xyscat(iPanel)%setYScale(commonExtent*1.05d0)
+      call xyscat(iPanel)%setXScale(commonExtent*1.05d0)
     end if
-    call xyscat(i)%removeGrids()
-    call xyscat(i)%removeLabels()
+    call xyscat(iPanel)%removeGrids()
+    call xyscat(iPanel)%removeLabels()
+    ! True shape: one length unit is the same on both axes, whatever the
+    ! panel's shape (a MULTIPLOT cell is rarely square; nor quite is the
+    ! default viewport) and however X and Y autoscale.
+    call xyscat(iPanel)%setIsotropic()
 
     ! Airy disk overlay (AIRY ON): a black circle of radius 1.22*lambda*F/#,
     ! drawn on every field point.  F/# is the working (image-space) F-number,
     ! since that is the cone that sets the diffraction limit.
     if (drawAiry .and. airyRadius > 0.0) then
-      call xyscat(i)%addXYPlot(airyX, airyY)
-      call xyscat(i)%setDataColorCode(PL_PLOT_BLACK)
-      call xyscat(i)%setLineStyleCode(1)
+      call xyscat(iPanel)%addXYPlot(airyX, airyY)
+      call xyscat(iPanel)%setDataColorCode(PL_PLOT_BLACK)
+      call xyscat(iPanel)%setLineStyleCode(1)
     end if
 
-    if (iPanel==1) call xyscat(i)%addScaleBar(POS_LOWER_RIGHT)      
+    if (iPanel==1) call xyscat(iPanel)%addScaleBar(POS_LOWER_RIGHT)      
 
     if (allWL) then
       do j=2,sysConfig%numWavelengths
@@ -591,16 +735,16 @@ subroutine spo_go(psm)
         call kdp_silent_end()
         if(allocated(xSpot)) deallocate(xSpot)
         if(allocated(ySpot)) deallocate(ySpot)
-        call getSpotData(xSpot, ySpot)
+        call getSpotData(xSpot, ySpot, delta)
         ! Subtract relative to first wavelength.  Should probably be relative to
         ! ref wavelength; revisit this after testing
         ySpot = ySpot - yAvg
-        call addRays(i, j)
+        call addRays(i, j, delta)
         spotExtent = max(spotExtent, &
         & real(max(maxval(abs(xSpot)), maxval(abs(ySpot)))))
-        call xyscat(i)%addXYPlot(real(xSpot), real(ySpot))
-        call xyscat(i)%setDataColorCode(sysConfig%wavelengthColorCodes(j))
-        call xyscat(i)%setLineStyleCode(-1)
+        call xyscat(iPanel)%addXYPlot(real(xSpot), real(ySpot))
+        call xyscat(iPanel)%setDataColorCode(sysConfig%wavelengthColorCodes(j))
+        call xyscat(iPanel)%setLineStyleCode(-1)
       end do
     end if
 
@@ -609,27 +753,41 @@ subroutine spo_go(psm)
     ! window around the data (and the disk, so it cannot be clipped) when the
     ! overlay is on and the user has not set an explicit scale.
     if (drawAiry .and. airyRadius > 0.0 .and. plotScale == 0) then
-      airyScale = max(spotExtent, airyRadius)*1.05
-      call xyscat(i)%setYScale(real(airyScale,8))
-      call xyscat(i)%setXScale(real(airyScale,8))
+      airyScale = max(spotExtent, real(commonExtent), airyRadius)*1.05
+      call xyscat(iPanel)%setYScale(real(airyScale,8))
+      call xyscat(iPanel)%setXScale(real(airyScale,8))
     end if
 
-    call mplt%set(nPanels-iPanel+1,1,xyscat(i))
-
-    
+    ! fields from the bottom up; focus positions left to right or top down
+    if (horiz) then
+      call mplt%set(1, iPanel, xyscat(iPanel))
+    else if (thf) then
+      call mplt%set(iPanel, 1, xyscat(iPanel))
+    else
+      call mplt%set(nPanels-iPanel+1,1,xyscat(iPanel))
+    end if
 
     end do
 
 
 
-    ! Data tab: every plotted ray, Y relative to the field's first-wavelength
+    ! Data tab: every plotted ray, Y relative to the panel's first-wavelength
     ! centroid exactly as drawn.
     if (nRays > 0) then
-      call OUTKDP('Spot diagram rays; X, Y in '// &
-      &           trim(sysConfig%lensUnits(sysConfig%currLensUnitsID)%text)// &
-      &           ', Y relative to the Y centroid of the first wavelength drawn')
-      call logColumns([character(len=20) :: 'Field', 'Wavelength', 'X', 'Y'], &
-      &               rays(1:nRays, :))
+      if (thf) then
+        call OUTKDP('Spot diagram rays through focus; focus, X, Y in '//trim(unitsTxt)// &
+        &           ', Y relative to the Y centroid at each focus')
+        call logColumns([character(len=20) :: 'Field', 'Wavelength', 'Focus', 'X', 'Y'], &
+        &               rays(1:nRays, :))
+      else
+        if (focus_first() /= 0.0d0) call OUTKDP('At focus FFO = '// &
+        &  trim(real2str(focus_first()))//' '//trim(unitsTxt))
+        call OUTKDP('Spot diagram rays; X, Y in '// &
+        &           trim(unitsTxt)// &
+        &           ', Y relative to the Y centroid of the first wavelength drawn')
+        call logColumns([character(len=20) :: 'Field', 'Wavelength', 'X', 'Y'], &
+        &               rays(1:nRays, [1, 2, 4, 5]))
+      end if
     end if
 
     !call ioConfig%setTextView(ID_TERMINAL_DEFAULT)
@@ -642,25 +800,39 @@ subroutine spo_go(psm)
 
   contains
 
-    ! Append the rays now in xSpot/ySpot (field f, wavelength w).
-    subroutine addRays(f, w)
+    ! the focus of panel k: THF's k-th position; otherwise FFO
+    real(kind=real64) function panelFocus(k)
+      integer, intent(in) :: k
+      panelFocus = 0.0d0
+      if (sys_mode() > 2.0d0) return
+      if (thf) then
+        panelFocus = focus_position(k)
+      else
+        panelFocus = focus_first()
+      end if
+    end function
+
+    ! Append the rays now in xSpot/ySpot (field f, wavelength w, focus d).
+    subroutine addRays(f, w, d)
       integer, intent(in) :: f, w
+      real(kind=real64), intent(in) :: d
       integer :: n
       real(kind=real64), allocatable :: grown(:,:)
       n = size(xSpot)
       if (.not. allocated(rays)) then
-        allocate(rays(max(n, 1024), 4))
+        allocate(rays(max(n, 1024), 5))
         nRays = 0
       end if
       if (nRays + n > size(rays, 1)) then
-        allocate(grown(max(2*size(rays, 1), nRays + n), 4))
+        allocate(grown(max(2*size(rays, 1), nRays + n), 5))
         grown(1:nRays, :) = rays(1:nRays, :)
         call move_alloc(grown, rays)
       end if
       rays(nRays+1:nRays+n, 1) = real(f, real64)
       rays(nRays+1:nRays+n, 2) = real(w, real64)
-      rays(nRays+1:nRays+n, 3) = xSpot
-      rays(nRays+1:nRays+n, 4) = ySpot
+      rays(nRays+1:nRays+n, 3) = d
+      rays(nRays+1:nRays+n, 4) = xSpot
+      rays(nRays+1:nRays+n, 5) = ySpot
       nRays = nRays + n
     end subroutine
 
@@ -840,9 +1012,7 @@ subroutine ast_go(psm)
 
      call psm%getAstigSettings(idxFieldXY, numPts, astMax, dstMax)
 
-     if (.not. HEADLESS_MODE) then
-       call initializeGoPlot(psm,ID_PLOTTYPE_AST, "Field Curv / Dist", replot, objIdx)
-     end if
+     call initializeGoPlot(psm,ID_PLOTTYPE_AST, "Field Curv / Dist", replot, objIdx)
 
      select case (idxFieldXY)
      case (ID_AST_FIELD_Y)
@@ -939,12 +1109,10 @@ CALL PROCESSILENT('DIST'//trim(ftext)//int2str(numPts))
   call mplt%set(1,numPlots,lin2)
   !call mplt%set(1,3,lin3)
 
-  if (HEADLESS_MODE) then
-    call mplt%draw()
-  else
-    call ioConfig%setTextView(ID_TERMINAL_DEFAULT)
-    call finalizeGoPlot_new(mplt, psm, replot, objIdx)
-  end if
+  if (.not. HEADLESS_MODE) call ioConfig%setTextView(ID_TERMINAL_DEFAULT)
+  ! (headless, finalizeGoPlot_new draws the PNG -- or hands the plot to a
+  ! MULTIPLOT page)
+  call finalizeGoPlot_new(mplt, psm, replot, objIdx)
 
 contains
 
@@ -1115,11 +1283,10 @@ subroutine rayaberration_go(psm)
       ! Set Fan Input - TODO:  add setting to change fan type
       write(ffieldstr, FMTFAN) sysConfig%refWavelengthIndex ,',',3
       
-      CALL PROCESKDP("YFAN, -1, 1, "//ffieldstr) 
+      CALL PROCESSILENT("YFAN, -1, 1, "//ffieldstr) 
       yOff(i) = curr_ray_fan_data%xyfan(2,2) ! only 3 points computed.  Min requireed to get ref value
       yOff64(i) = curr_ray_fan_data%xyfan(2,2)
     end do
-    print *, "yOff is ", yOff
 
     plotScale = psm%getSettingValueByCode(SETTING_SCALE)
     numPoints = psm%getDensitySetting()
@@ -1154,6 +1321,10 @@ subroutine rayaberration_go(psm)
     end if
 
     call mplt%initialize(canvas, sysConfig%numFields,2)
+    ! the canvas's size (headless used the 1200 x 500 default, which leaves
+    ! the bottom panel too little height)
+    mplt%width = 1200
+    mplt%height = 1200
 
     do i=1,sysConfig%numFields
 
@@ -2025,6 +2196,157 @@ logical function isPlotNumToken(tok)
     isPlotNumToken = .true.
 end function isPlotNumToken
 
+! MULTIPLOT page tab, at MULTIPLOT: find the page's tab P<plotNum>, or open a
+! new one (plotNum < 1: the next free number, returned), before the subplots
+! run, so they can write to its Data tab.  A new tab holds no command until
+! the page is finished (multiplot_page_end): a redraw in between must not
+! run half a script.  objIdx -1 headless.
+subroutine multiplot_page_begin(plotNum, objIdx, replot)
+    use handlers, only: zoatabMgr
+    use type_utils, only: int2str
+    USE GLOBALS, only: HEADLESS_MODE
+    implicit none
+    integer, intent(inout) :: plotNum
+    integer, intent(out) :: objIdx
+    logical, intent(out) :: replot
+    character(len=40) :: tabName
+
+    objIdx = -1
+    replot = .false.
+    if (HEADLESS_MODE) return
+    if (plotNum >= 1) replot = zoatabMgr%doesPlotExist_new(ID_PLOTTYPE_MULTIPLOT, objIdx, plotNum)
+    if (replot) then
+      call zoatabMgr%clearDataTab(objIdx)
+      return
+    end if
+    if (plotNum < 1) plotNum = zoatabMgr%getNumberOfPlotsByCode(ID_PLOTTYPE_MULTIPLOT) + 1
+    tabName = 'Multiplot'
+    if (plotNum > 1) tabName = trim(tabName)//' '//int2str(plotNum)
+    objIdx = zoatabMgr%addMultiPlotTab(ID_PLOTTYPE_MULTIPLOT, trim(tabName)//c_null_char)
+    call zoatabMgr%updateInputCommand(objIdx, ' ')
+end subroutine multiplot_page_begin
+
+! MULTIPLOT page, at its closing GO: draw the page (its tab, or headless the
+! PNG), and make the page's script the tab's command, which redraws it.
+subroutine multiplot_page_end(page, objIdx, replot, plotNum, script)
+    use handlers, only: zoatabMgr
+    use kdp_utils, only: OUTKDP
+    USE GLOBALS, only: HEADLESS_MODE
+    implicit none
+    type(multiplot) :: page
+    integer, intent(in) :: objIdx, plotNum
+    logical, intent(in) :: replot
+    character(len=*), intent(in) :: script
+    type(zoaplot_setting_manager) :: psm
+    logical :: haveTab
+
+    haveTab = pageTabExists(objIdx)
+    ! The Data tab ends with the page's commands: run them (a macro) to
+    ! draw the page again.
+    if (haveTab) call ioConfig%setTextViewFromPtr(getTabTextView(objIdx))
+    call OUTKDP('')
+    ! one command per line (a macro; a single line overflows the output line)
+    call OUTKDP('Page commands:')
+    block
+      integer :: a, b
+      a = 1
+      do while (a <= len_trim(script))
+        b = index(script(a:), ';')
+        if (b == 0) then
+          b = len_trim(script) + 1
+        else
+          b = a + b - 1
+        end if
+        if (len_trim(script(a:b-1)) > 0) call OUTKDP(trim(adjustl(script(a:b-1))))
+        a = b + 1
+      end do
+    end block
+    if (haveTab) call ioConfig%setTextView(ID_TERMINAL_DEFAULT)
+
+    if (HEADLESS_MODE) then
+      call page%draw()
+      return
+    end if
+    ! (its tab was closed while the page was composed: a lens was loaded)
+    if (.not. haveTab) return
+    call zoatabMgr%updateInputCommand(objIdx, script)
+    ! A new tab takes its drawing area from the plot (each analysis makes its
+    ! own in its go routine); the page makes one at its size.  A redraw
+    ! keeps the tab's.
+    if (.not. replot) page%area = hl_gtk_drawing_area_new( &
+    &   size=[page%width, page%height], has_alpha=FALSE)
+    call zoatabMgr%updateGenericMultiPlotTab(objIdx, page)
+    if (.not. replot) then
+      ! no settings panel: the page is changed by editing its script
+      call psm%initialize('MULTIPLOT')
+      psm%plotNum = plotNum
+      call zoaTabMgr%finalize_with_psm(objIdx, psm)
+      call zoaTabMgr%finalizeNewPlotTab(objIdx)
+      ! Full size, scrolling: fitted to the tab, a page of several plots
+      ! has unreadably small text (PLTSIZE AUTO fits it again).
+      block
+        use zoa_tab, only: zoaplottab
+        use iso_c_binding, only: c_int
+        select type (t => zoatabMgr%tabInfo(objIdx)%tabObj)
+        class is (zoaplottab)
+          call t%setFixedSize(int(page%width, c_int), int(page%height, c_int))
+        end select
+      end block
+    end if
+end subroutine multiplot_page_end
+
+! The MULTIPLOT page's tab objIdx is still open (GUI only).
+logical function pageTabExists(objIdx)
+    use handlers, only: zoatabMgr
+    USE GLOBALS, only: HEADLESS_MODE
+    implicit none
+    integer, intent(in) :: objIdx
+    pageTabExists = .false.
+    if (HEADLESS_MODE .or. objIdx < 1) return
+    if (objIdx > size(zoatabMgr%tabInfo)) return
+    if (.not. allocated(zoatabMgr%tabInfo(objIdx)%tabObj)) return
+    pageTabExists = zoatabMgr%tabInfo(objIdx)%tabObj%ID_PLOTTYPE == ID_PLOTTYPE_MULTIPLOT
+end function pageTabExists
+
+! An analysis starting while a MULTIPLOT page is composed: claim its region
+! and head its block of the page's Data tab.  objIdx = the page's tab, so
+! the analysis writes its data there (-1 headless: to the console).
+subroutine composeSubplotBegin(psm, objIdx)
+    use plot_composer, only: comp_claim_slot, comp_obj_idx, comp_set_page
+    use kdp_utils, only: OUTKDP
+    use zoa_output, only: zoa_emit
+    use type_utils, only: int2str
+    USE GLOBALS, only: HEADLESS_MODE
+    implicit none
+    type(zoaplot_setting_manager) :: psm
+    integer, intent(out) :: objIdx
+    integer :: r, c, rs, cs, plotNum
+    logical :: replot
+    character(len=1024) :: cmd
+
+    objIdx = comp_obj_idx()
+    if (.not. HEADLESS_MODE .and. .not. pageTabExists(objIdx)) then
+      ! its tab was closed (a lens loaded mid-page): the page gets a new one,
+      ! since the analysis writes its data to the tab
+      plotNum = -1
+      call multiplot_page_begin(plotNum, objIdx, replot)
+      call comp_set_page(objIdx, plotNum, .false.)
+    end if
+    if (.not. comp_claim_slot(r, c, rs, cs)) then
+      call zoa_emit('MULTIPLOT: the page is full; this plot is not added (use SUBPLOT r c)', 'red')
+      return
+    end if
+    ! the analysis's command, without its GO
+    cmd = psm%generatePlotCommand()
+    if (len_trim(cmd) > 5) then
+      if (cmd(len_trim(cmd)-4:len_trim(cmd)) == ' ; GO') cmd = cmd(1:len_trim(cmd)-5)
+    end if
+    if (objIdx > 0 .and. .not. HEADLESS_MODE) call ioConfig%setTextViewFromPtr(getTabTextView(objIdx))
+    call OUTKDP('')
+    call OUTKDP('Subplot '//trim(int2str(r))//','//trim(int2str(c))//': '//trim(cmd))
+    if (objIdx > 0 .and. .not. HEADLESS_MODE) call ioConfig%setTextView(ID_TERMINAL_DEFAULT)
+end subroutine composeSubplotBegin
+
 subroutine initializeGoPlot(psm, plot_code, plotName, replot, objIdx)
 
     use zoa_plot
@@ -2043,6 +2365,14 @@ subroutine initializeGoPlot(psm, plot_code, plotName, replot, objIdx)
     integer :: pIdx
     integer, intent(out) :: objIdx
     logical, intent(out) :: replot
+
+    ! A MULTIPLOT page is being composed: this plot fills a region of it (no
+    ! tab of its own); its data goes to the page's Data tab under a heading.
+    if (comp_active()) then
+      call composeSubplotBegin(psm, objIdx)
+      replot = .TRUE.
+      return
+    end if
 
     ! In headless mode skip all GTK tab machinery
     if (HEADLESS_MODE) then
@@ -2099,6 +2429,13 @@ subroutine initializeGoPlot(psm, plot_code, plotName, replot, objIdx)
 
     integer :: objIdx
     logical :: replot
+
+    ! A MULTIPLOT page is being composed: the plot goes to its region
+    if (comp_active()) then
+      call comp_store(mplt)
+      call mplt%clear()
+      return
+    end if
 
     ! In headless mode render directly to PNG via plplot; skip GTK tab machinery
     if (HEADLESS_MODE) then

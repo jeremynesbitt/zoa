@@ -22,7 +22,7 @@ module zoa_macro_ui
     integer, pointer :: fdata
     integer(kind=c_int) :: nsel
     integer(kind=c_int), dimension(:), allocatable :: selections
-    type(c_ptr) :: buffer
+    type(c_ptr) :: buffer, savedView
     character(len=256) :: svalue
 
     if (c_associated(gdata)) then
@@ -31,18 +31,19 @@ module zoa_macro_ui
        if (nsel == 0) return
 
        if (fdata == 0) then
-          ! Find and print the selected row(s)
-          print *, nsel,"Rows selected"
-          print *, selections
           call hl_gtk_list1_get_cell(ihlist, selections(1), svalue)
-          print *, "TXT IS ", svalue
           currSelection = svalue
+          ! Show the macro in this window, then return output to wherever it
+          ! was going: this callback can run while a command is mid-output
+          ! (updateTerminalLog pumps GTK events), and forcing the console
+          ! view sent the rest of that command's output (a plot's Data tab
+          ! table) to the console.
+          savedView = ioConfig%currentTextView()
           call ioConfig%setTextView(ID_TERMINAL_MACRO)
           buffer = gtk_text_view_get_buffer(ioConfig%textView)
           call hl_gtk_text_view_delete(c_null_ptr, buffer=buffer)
           call PROCESKDP('PRT zoa_macro:'//trim(svalue))
-          !CALL PROCESKDP('MFL '//svalue)
-          call ioConfig%setTextView(ID_TERMINAL_DEFAULT)
+          call ioConfig%returnToTextView(savedView)
           deallocate(selections)
 
        else    ! Delete the selected row
@@ -123,7 +124,6 @@ module zoa_macro_ui
     character(len=100), intent(inout) :: ftext
     buffer = gtk_entry_get_buffer(macroentry)
     call c_f_string_copy(gtk_entry_buffer_get_text(buffer), ftext)
-    print *, "Entered name as:",trim(ftext)
 
   end subroutine
 
@@ -187,7 +187,6 @@ module zoa_macro_ui
     resp = hl_gtk_message_dialog_show(msg, GTK_BUTTONS_OK, &
          & "ALERT"//c_null_char, &
          & type=GTK_MESSAGE_WARNING, parent=macro_ui_window)
-    print *, "hl_dialog.f90 resp=", resp
   end subroutine
 
   subroutine populatemacrolist()
@@ -202,7 +201,6 @@ module zoa_macro_ui
     ! Subdirectory files are listed as "subdir/filename.zoa".
     NUMINLIST = 0
     call getListofFilesInDirectoryRecursive(trim(getMacroDir()), '.zoa', MACARRAY, NUMINLIST)
-    PRINT *, "NUMINLIST IS ", NUMINLIST
     do i = 1, NUMINLIST
        line = MACARRAY(i)
        call hl_gtk_list1_ins(ihlist, trim(line)//c_null_char)
@@ -240,7 +238,7 @@ module zoa_macro_ui
       type(c_ptr), value, intent(in) ::  win
       type(c_ptr) :: base, ihscrollcontain, jbox, jbox2, abut, qbut
       type(c_ptr) :: macroentrylabel, buffer, pane, rightPane
-      type(c_ptr) :: leftPane, boxWin, rightPaneLabel, boxRight
+      type(c_ptr) :: boxWin, rightPaneLabel, boxRight
       integer, target :: iappend=0, idel=0
       integer :: ltr
 
@@ -255,11 +253,8 @@ module zoa_macro_ui
 
       ! Now make a column box & put it into the window
 
-      leftPane = gtk_scrolled_window_new()
       base = hl_gtk_box_new()
       boxWin = hl_gtk_box_new(GTK_ORIENTATION_VERTICAL, 5_c_int)
-      call gtk_window_set_child(leftPane, base)
-      !call gtk_window_set_child(leftPane, base)
       call gtk_window_set_child(macro_ui_window, boxWin)
 
     ! Now make a single column list with multiple selections enabled
@@ -322,10 +317,9 @@ module zoa_macro_ui
      call gtk_widget_set_size_request(rightPane, 200_c_int, -1_c_int)
     !
      buffer = gtk_text_view_get_buffer (macroTextView)
-     PRINT *, "Buffer is ", LOC(buffer)
      call ioConfig%registerTextView(macroTextView, ID_TERMINAL_MACRO)
 
-    call gtk_window_set_child(leftPane, base)
+    ! (base goes into the paned below)
 
     jbox = hl_gtk_box_new(horizontal=TRUE)
     call hl_gtk_box_pack(base, jbox)
@@ -341,7 +335,6 @@ module zoa_macro_ui
     call hl_gtk_box_pack(base,qbut)
 
     ! realize the window
-    PRINT *, "Create Paned Window"
     pane = gtk_paned_new(GTK_ORIENTATION_HORIZONTAL)
     call gtk_paned_set_start_child(pane, base)
     call gtk_paned_set_end_child(pane, rightPane)
@@ -356,7 +349,6 @@ module zoa_macro_ui
 
     call gtk_widget_show(macro_ui_window)
 
-    print *, "Test selection is ", trim(currSelection)
 
     end subroutine
 

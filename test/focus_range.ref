@@ -1,0 +1,66 @@
+Saved CODE V file BLANK.SEQ
+All constraints removed
+
+
+"SAY" MAY NOT BE SET TO ZERO
+RE-ENTER COMMAND
+AT THE CMD LEVEL, "CW" TAKES NO EXPLICIT INPUT
+RE-ENTER COMMAND
+AT THE CMD LEVEL, "SCY" AND "SCX"
+OR "SCY FANG" AND "SCX FANG"
+TAKE NO STRING OR NUMERIC INPUT
+RE-ENTER COMMAND
+AT THE CMD LEVEL, "SCY" AND "SCX"
+OR "SCY FANG" AND "SCX FANG"
+TAKE NO STRING OR NUMERIC INPUT
+RE-ENTER COMMAND
+INVALID CMD LEVEL COMMAND
+  Command: RD,  0.000000000000000D+00
+INVALID CMD LEVEL COMMAND
+  Command: TH,  0.000000000000000D+00
+INVALID CMD LEVEL COMMAND
+  Command: RD,  0.000000000000000D+00
+INVALID CMD LEVEL COMMAND
+  Command: TH,  0.000000000000000D+00
+INVALID CMD LEVEL COMMAND
+All constraints removed
+
+
+
+
+
+
+NFO 1
+Error:  NFO must be a whole number from 1 to 18
+Error:  NFO must be a whole number from 1 to 18
+FFO -0.1
+Error:  expected FFO value
+FFO -0.1
+IFO 0.05
+NFO 5
+File name to save is focustest.zoa
+All constraints removed
+
+
+FFO 0
+IFO 0
+NFO 1
+All constraints removed
+
+
+
+
+FFO -0.1
+IFO 0.05
+NFO 5
+Saved CODE V file FOCUSTRIP.SEQ
+All constraints removed
+
+
+All constraints removed
+
+
+
+FFO -0.1
+IFO 0.05
+NFO 5

@@ -71,7 +71,6 @@ contains
 
         if (processResult) then
             if (isInputNumber(trim(tokens(3)))) then
-                print *, "ABout to update Var with ", str2int(trim(tokens(3)))
                 call ldm%updateOptimVars(trim(tokens(1)), s0, sf, str2int(trim(tokens(3))))
                 call updateOptimVarsNew(trim(tokens(1)), s0, sf, str2int(trim(tokens(3))))
             end if
@@ -856,7 +855,9 @@ contains
         end block
         block
             use ref_sphere_settings, only: rsl_reset
+            use focus_settings, only: focus_reset
             call rsl_reset()
+            call focus_reset()          ! FFO/IFO/NFO belong to the lens
         end block
         ! the default edge aperture belongs to the lens (saved as DDR EDG):
         ! a new or loaded lens starts with no margin

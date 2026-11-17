@@ -79,7 +79,6 @@ module mod_psf
       COMMON/PSFPLOTER/PEXTENT,PSPACING,CNTX,CNTY
 !
       call LogTermDebug("doPSF beginning NRD is "//int2str(NRD))
-      print *, "NRD at beginning of DOPSF is ", INT(NRD)
 
       DEALLOCATE(F,PUP,FHOLDF,FHOLDF1,FIMG,STAT=ALLOERR)
       GPREG(101:110)=0.0D0
@@ -551,11 +550,6 @@ module mod_psf
         !TODO:  check SHTVALUE vs wavelength in um
         !currImg%pS = SHTVALUE/1000.0/(2*maxNA*REAL(TGR)/REAL(NRD)) 
         print *, "********************************!!!!!!!!!!*************************************"
-        print *, "MaxNA IS ", maxNA
-        print *, "TGR IS ", TGR
-        print *, "NRD IS ", INT(NRD)
-        print *, "pixel size psf90 is ", currImg%pS
-        print *, "TRG/NRD IS ", REAL(TGR)/REAL(NRD)
   
 
         APEAK=PEAKER

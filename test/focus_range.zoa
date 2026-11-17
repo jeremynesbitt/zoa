@@ -1,0 +1,34 @@
+! Through-focus range (CODE V FFO / IFO / NFO): system data that is set,
+! queried, saved with the lens, exported to CODE V and reset by a new lens.
+! (first: CODE V export/import of the startup lens, whose bare WL line hung
+! the importer)
+ZOA2CV blank.seq
+CV2PRG blank.seq
+RES osdtriplet
+NFO
+FFO -0.1
+IFO 0.05
+NFO 5
+! bad input
+NFO 19
+NFO 2.5
+FFO
+FFO A
+FFO
+IFO
+NFO
+SAV focustest
+LEN NEW
+FFO
+IFO
+NFO
+RES focustest
+FFO
+IFO
+NFO
+ZOA2CV focustrip.seq
+LEN NEW
+CV2PRG focustrip.seq
+FFO
+IFO
+NFO

@@ -66,7 +66,6 @@ subroutine aut_go()
     ! the first iteration and the run ended before the constraints were even
     ! satisfied -- the user expectation is "minimize spot subject to the
     ! constraints".
-    print *, "nM is ", nM
     if (numObjectives() == 0) then
         call zoa_emit("AUT: no operand defined; minimizing spot size (SPO)", "black")
         call addMeritEntry('SPO', ID_ROLE_OBJECTIVE, 0.0_long)
@@ -105,7 +104,6 @@ subroutine aut_go()
 
     meq = getNumberofEqualityConstraints()
 
-    print *, "nV is ", nV
     ! NOTE: an earlier version passed toldf=0.05 ("to limit search steps") --
     ! that stopped every run after one iteration once the frozen-typed-store
     ! bug was fixed (per-iteration |df| is naturally small), so it is gone.
@@ -113,7 +111,8 @@ subroutine aut_go()
                            xl,xu,linesearch_mode=linesearch_mode,status_ok=status_ok,&
                            report=report_iteration,&
                            alphamin=0.1_long, alphamax=1.0_long, &
-                           gradient_mode=gradient_mode, gradient_delta=gradient_delta)
+                           gradient_mode=gradient_mode, gradient_delta=gradient_delta, &
+                           iprint=0)   ! (the result is reported below)
 
     if (status_ok) then
         ! Don't allow commands called during optimization to pollute output log
@@ -133,11 +132,6 @@ subroutine aut_go()
             ! restoreTextView() here stranded the terminal on the hidden dump
             ! view (the user needed the TERM backdoor to get output back).
             call ioConfig%setTextView(ID_TERMINAL_DEFAULT)
-            write(*,*) ''
-            write(*,*) 'solution   :', x*varScale
-            write(*,*) 'istat      :', istat
-            write(*,*) 'iterations :', iterations
-            write(*,*) ''
             ! Report the solver's exit status to the user -- "silently
             ! stopped" is indistinguishable from "converged" otherwise.
             call zoa_emit("AUT: done after "//trim(int2str(iterations))// &

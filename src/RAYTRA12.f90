@@ -1064,7 +1064,6 @@ SUBROUTINE REFRAY(WPAS)
    ERRORVEC=DSQRT(((CX-XCHIEF_TARGET)**2)+((CY-YCHIEF_TARGET)**2))
    IF(sys_rxim_fang_set().NE.0.0D0.AND.sys_ryim_fang_set().NE.0.0D0.AND.&
    &ERRORVEC.GT.CAIMTOL) THEN
-      PRINT *, "Error Vector too big?"
       IF(KKKK.EQ.1) THEN
          IF(sys_rxim_fang_set().LT.0.0D0) THEN
             OLDCX=REFRY(1,NEWIMG)

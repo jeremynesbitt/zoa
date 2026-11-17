@@ -38,7 +38,6 @@ module ui_table_funcs
                
         ! Get current position
         oldPos = getCurrentTableRow(cv)
-        print *, "Old Position is ", oldPos
       
         ! Get location of horizontal and vertical scrollbars so we can recreate.  This seems crazy
         swin = gtk_widget_get_parent(cv) 
@@ -47,7 +46,6 @@ module ui_table_funcs
         hadj = gtk_scrolled_window_get_hadjustment(swin)
         hPos = gtk_adjustment_get_value(hadj)
       
-        print *, "Value is ", gtk_adjustment_get_value(vadj)
       
         call clearColumnView_opt(cv)
 

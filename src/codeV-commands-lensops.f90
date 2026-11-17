@@ -346,7 +346,6 @@ contains
             if (present(dirName)) then
                 ! PRINT (not LogTermFOR): absolute paths must stay out of
                 ! captured test output; unit 6 is suppressed in the test runner.
-                print *, "File name to save is "//trim(dirName)//trim(fName)
             end if
             call zoa_emit("File name to save is "//trim(fName), "black")
         end if
@@ -1143,7 +1142,6 @@ contains
         fullPath = trim(getTempDirectory())//getCurrentLensFileName()
         ! Emit only the filename; absolute paths must stay out of captured
         ! test output (full path still goes to the terminal via print).
-        print *, "Restoring from: "//trim(fullPath)
         call zoa_emit("Restoring from: "//trim(getCurrentLensFileName()), "black")
         ! Same shared lens-load sequence as RES, so session restore clears the
         ! same state the same way as every other lens-load path.
@@ -1778,5 +1776,63 @@ contains
         ! the usual end-of-update hook: refresh it here (no-op if closed).
         call notify_refresh_sysconfig()
     end procedure setRefSphereLocation
+
+    !## cmd:      FFO
+    !## syntax:   FFO first_focus_position
+    !## category: System Data
+    !## desc:     First focus position of the through-focus range, along the axis from the
+    !##           image surface (default 0).  SPO draws its spots at this focus; SPO THF
+    !##           at each of the NFO positions FFO, FFO+IFO, ...  Bare FFO shows it.
+    !##
+    !## cmd:      IFO
+    !## syntax:   IFO focus_increment
+    !## category: System Data
+    !## desc:     Increment between through-focus positions (default 0).
+    !##
+    !## cmd:      NFO
+    !## syntax:   NFO number_of_focus_positions
+    !## category: System Data
+    !## desc:     Number of through-focus positions, 1 to 18 (default 1).
+    !##
+    module procedure setFocusRange
+        use focus_settings, only: focus_set_first, focus_set_increment, focus_set_count, &
+            focus_first, focus_increment, focus_count, FOCUS_MAX_POSITIONS
+        use command_utils, only: isInputNumber
+        use type_utils, only: compactReal
+        use zoa_ui_callbacks, only: notify_replot, notify_refresh_sysconfig
+        implicit none
+        character(len=80) :: tokens(40)
+        integer :: numTokens, n
+        real(kind=real64) :: v
+
+        call parse(trim(iptStr), ' ', tokens, numTokens)
+        if (numTokens == 1) then
+            select case (trim(tokens(1)))
+            case ('FFO'); call zoa_emit("FFO "//trim(compactReal(focus_first(), 15)), "black")
+            case ('IFO'); call zoa_emit("IFO "//trim(compactReal(focus_increment(), 15)), "black")
+            case default; call zoa_emit("NFO "//trim(int2str(focus_count())), "black")
+            end select
+            return
+        end if
+        if (numTokens /= 2 .or. .not. isInputNumber(trim(tokens(2)))) then
+            call zoa_emit("Error:  expected "//trim(tokens(1))//" value", "red")
+            return
+        end if
+        v = str2real8(trim(tokens(2)))
+        select case (trim(tokens(1)))
+        case ('FFO'); call focus_set_first(v)
+        case ('IFO'); call focus_set_increment(v)
+        case default
+            n = nint(v)
+            if (abs(v - real(n, real64)) > 1.0e-9_real64 .or. n < 1 .or. n > FOCUS_MAX_POSITIONS) then
+                call zoa_emit("Error:  NFO must be a whole number from 1 to "// &
+                &  trim(int2str(FOCUS_MAX_POSITIONS)), "red")
+                return
+            end if
+            call focus_set_count(n)
+        end select
+        call notify_replot()
+        call notify_refresh_sysconfig()
+    end procedure setFocusRange
 
 end submodule mod_codev_lensops

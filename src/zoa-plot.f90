@@ -207,6 +207,14 @@ type :: multiplot
       character(len=80) :: bottomPanelBigLabel
       character(len=160) :: bottomPanelLittleLabel
       character(len=80) :: bottomPanelLegend
+
+      ! Composite page (MULTIPLOT): whole multiplots drawn in regions of a
+      ! rows x cols grid (m_rows x m_cols); childRegion(:,k) = row, col,
+      ! rows spanned, cols spanned.  A page with children draws only them.
+      integer :: nChildren = 0
+      logical :: isPage = .false.
+      type(multiplot), allocatable :: children(:)
+      integer, allocatable :: childRegion(:,:)
       !> The BNUPLOT terminal object to target.
       !class(terminal), pointer :: m_terminal => null()
   contains
@@ -226,6 +234,8 @@ type :: multiplot
       procedure, public, pass(self) :: loadFromBinary => mp_load_binary
 
       procedure :: addBottomPanel
+      procedure, public :: addChild => mp_add_child
+      procedure, public :: copyChildren => mp_copy_children
 
       !procedure, public :: is_title_defined => mp_has_title
       !procedure, public :: get_font_name => mp_get_font
@@ -334,13 +344,18 @@ contains
   end subroutine
 
   ! THIS SUB NEEDS REFACTORING!!
-  subroutine mp_draw(self)
+  ! cr, cw, ch: draw into this cairo context, cw x ch pixels (a region of a
+  ! MULTIPLOT page) instead of the plot's own canvas or PNG file.
+  recursive subroutine mp_draw(self, cr, cw, ch)
 
       use zoa_plot_output, only: set_plot_output, next_plot_path
 
       class(multiplot):: self
+      type(c_ptr), intent(in), optional :: cr
+      integer, intent(in), optional :: cw, ch
 
       type(c_ptr)  :: cc, cs, isurface
+      logical :: toCr
       character(len=20) :: string
       character(len=25) :: geometry
       character(len=512) :: plot_png_path
@@ -366,6 +381,12 @@ contains
       !      & 127, 85, 170/)
    
 
+      if (self%isPage .or. self%nChildren > 0) then
+        call mp_draw_composite(self)
+        return
+      end if
+      toCr = present(cr)
+
       ! Initialize plplot color map (shared by both modes)
       call plscmap0((/255, 0, 255, &
       & 0, 0, 0, 255, 255, 255, 127, 0, 0, 127, 255, 85, 170/),&
@@ -373,7 +394,16 @@ contains
       & 0, 0, 85, 170/),(/ 255, 0, 0, 0, 255, 255, 255, 0, 0, 0, 127, 255, 255,&
       & 127, 85, 170/))
 
-      if (HEADLESS_MODE) then
+      if (toCr) then
+        ! A region of a composite page: extcairo on the given context
+        cc = cr
+        call plsdev("extcairo")
+        plsetopt_rc = plsetopt("drvopt", "set_background=1")
+        if (plsetopt_rc .ne. 0) stop "plsetopt error"
+        write(geometry, "(I0,'x',I0)") cw, ch
+        plsetopt_rc = plsetopt('geometry', geometry)
+        if (plsetopt_rc .ne. 0) stop "plsetopt error"
+      else if (HEADLESS_MODE) then
         ! Headless: render to PNG file via pngcairo driver
         plot_png_path = next_plot_path()
         call plsdev("pngcairo")
@@ -437,7 +467,8 @@ contains
       
       call plstar(1_c_int,1_c_int)
 
-      if (.not. HEADLESS_MODE) call pl_cmd(PLESC_DEVINIT, cc)
+      if (toCr .or. .not. HEADLESS_MODE) call pl_cmd(PLESC_DEVINIT, cc)
+      if (toCr) call scaleRegionFonts()
 
       call pladv(0) ! Comment this out when using the subpage way!
       !
@@ -476,16 +507,18 @@ contains
         end do
       end do
 
-      call plvpor(0.0, 1.0, 0.00, 0.2)  
-      !call plgvpw (	p_xmin,p_xmax,p_ymin,p_ymax)
-      call plwind(0.0, 1.0, 0.05, 0.2)
-      call pljoin(0.0, 0.1, 1.0, 0.1)
-      call pljoin(0.6, 0.1, .6, 0.00)
-      call pljoin(0.0, .07, 0.6, 0.07)
-      call plschr(0.0, 0.75)
-      call plptex(0.3, .09, 0.0, 0.0, 0.5, trim(self%bottomPanelBigLabel)//c_null_char)
-      call plschr(0.0, 0.55)
-      call plptex(0.3, .074, 0.0, 0.0, 0.5, trim(self%bottomPanelLittleLabel)//c_null_char)
+      ! The panel: a band across the bottom 10% (below the last row's axis
+      ! label), the lens title and subtitle on the left, the wavelength
+      ! legend on the right.  Band coordinates 0..1 both ways.
+      call plvpor(0.0, 1.0, 0.00, 0.10)
+      call plwind(0.0, 1.0, 0.0, 1.0)
+      call pljoin(0.0, 0.98, 1.0, 0.98)
+      call pljoin(0.55, 0.98, 0.55, 0.0)
+      call plschr(0.0, 0.9)
+      call plptex(0.275, 0.55, 1.0, 0.0, 0.5, trim(self%bottomPanelBigLabel)//c_null_char)
+      call plschr(0.0, 0.7)
+      call plptex(0.275, 0.15, 1.0, 0.0, 0.5, trim(self%bottomPanelLittleLabel)//c_null_char)
+      call plschr(0.0, 1.0)
 
       !plotter%numLegendNames = 1
       !call plotter%drawBottomRightLegend(trim(self%bottomPanelLegend))
@@ -496,7 +529,8 @@ contains
       
       call plstar(self%m_cols,self%m_rows)
 
-        if (.not. HEADLESS_MODE) call pl_cmd(PLESC_DEVINIT, cc)
+        if (toCr .or. .not. HEADLESS_MODE) call pl_cmd(PLESC_DEVINIT, cc)
+        if (toCr) call scaleRegionFonts()
      
       do m=1, self%m_rows
         do n=1, self%m_cols
@@ -530,14 +564,194 @@ contains
       !    Don't forget to call PLEND to finish off!
       call plend
 
-      if (HEADLESS_MODE) then
+      if (toCr) then
+        ! the composite page owns the context and the output
+      else if (HEADLESS_MODE) then
         call set_plot_output(trim(plot_png_path), self%width, self%height)
       else
         call gtk_widget_queue_draw(self%area)
         call hl_gtk_drawing_area_cairo_destroy(self%cc)
       end if
 
+    contains
+
+      ! In a region of a MULTIPLOT page the plot is drawn smaller than its own
+      ! size; PLplot's character height does not follow the page size, so
+      ! scale the default height (the plots' own plschr calls are relative to
+      ! it) by how much smaller the region is.
+      subroutine scaleRegionFonts()
+        real(kind=pl_test_flt) :: defH, curH, f
+        ! PLplot's text size is absolute, not relative to the page, so text
+        ! is at its usual size in a cell at least as big as a standard
+        ! MULTIPLOT cell (plot_composer CELL_W x CELL_H = 900 x 600), and
+        ! shrinks only in smaller ones (a page fitted to its tab).
+        f = sqrt(min(real(cw)/900.0, real(ch)/600.0))
+        f = max(0.5, min(1.0, f))
+        call plgchr(defH, curH)
+        call plschr(defH*f, 1.0_pl_test_flt)
       end subroutine
+
+      end subroutine
+
+  ! A MULTIPLOT page: each child multiplot is drawn, by its own unchanged
+  ! drawing code, into a cairo sub-surface covering its region of the page's
+  ! rows x cols grid, below an optional title band.  The target is the tab's
+  ! backing surface, or (headless) an image surface written to the PNG.
+  recursive subroutine mp_draw_composite(self)
+      use zoa_plot_output, only: set_plot_output, next_plot_path
+      use g, only: g_object_get_data, g_object_set_data
+      use cairo, only: cairo_create, cairo_destroy, cairo_surface_destroy, &
+      &   cairo_image_surface_create, cairo_surface_create_for_rectangle, &
+      &   cairo_surface_write_to_png, cairo_surface_flush, cairo_surface_reference, &
+      &   cairo_set_source_rgb, cairo_paint, cairo_select_font_face, &
+      &   cairo_set_font_size, cairo_move_to, cairo_show_text, cairo_text_extents
+      use gtk, only: gtk_widget_queue_draw, CAIRO_FORMAT_RGB24, &
+      &   CAIRO_FONT_SLANT_NORMAL, CAIRO_FONT_WEIGHT_NORMAL
+      use iso_c_binding, only: c_double, c_associated, c_null_ptr, c_loc
+      class(multiplot) :: self
+      ! cairo_text_extents_t
+      type, bind(c) :: text_extents
+        real(c_double) :: x_bearing, y_bearing, width, height, x_advance, y_advance
+      end type
+      type(c_ptr) :: target, sub, crc
+      type(text_extents), target :: ext
+      character(len=512) :: pngPath
+      integer :: W, H, titleH, k, x0, y0, x1, y1, ios
+      real(c_double) :: cellW, cellH
+
+      W = self%width
+      H = self%height
+      target = c_null_ptr
+      if (HEADLESS_MODE) then
+        target = cairo_image_surface_create(CAIRO_FORMAT_RGB24, W, H)
+      else
+        if (c_associated(self%area)) &
+          target = g_object_get_data(self%area, "backing-surface"//c_null_char)
+        if (.not. c_associated(target)) then
+          target = cairo_image_surface_create(CAIRO_FORMAT_RGB24, W, H)
+          target = cairo_surface_reference(target)
+          if (c_associated(self%area)) &
+            call g_object_set_data(self%area, "backing-surface"//c_null_char, target)
+        end if
+        W = cairo_image_surface_get_width(target)
+        H = cairo_image_surface_get_height(target)
+      end if
+
+      ! white page, title band
+      crc = cairo_create(target)
+      call cairo_set_source_rgb(crc, 1.0_c_double, 1.0_c_double, 1.0_c_double)
+      call cairo_paint(crc)
+      titleH = 0
+      if (self%m_hasTitle .and. len_trim(self%m_title) > 0) then
+        titleH = 50
+        call cairo_select_font_face(crc, "Sans"//c_null_char, CAIRO_FONT_SLANT_NORMAL, &
+        &                           CAIRO_FONT_WEIGHT_NORMAL)
+        call cairo_set_font_size(crc, real(0.6*titleH, c_double))
+        call cairo_text_extents(crc, trim(self%m_title)//c_null_char, c_loc(ext))
+        call cairo_set_source_rgb(crc, 0.0_c_double, 0.0_c_double, 0.0_c_double)
+        call cairo_move_to(crc, real(0.5*W, c_double) - (ext%width/2 + ext%x_bearing), &
+        &                  real(0.75*titleH, c_double))
+        call cairo_show_text(crc, trim(self%m_title)//c_null_char)
+      end if
+      call cairo_destroy(crc)
+
+      cellW = real(W, c_double)/self%m_cols
+      cellH = real(H - titleH, c_double)/self%m_rows
+      do k = 1, self%nChildren
+        ! pixel edges from the grid lines, so neighbouring regions meet exactly
+        x0 = nint((self%childRegion(2,k) - 1)*cellW)
+        x1 = nint((self%childRegion(2,k) - 1 + self%childRegion(4,k))*cellW)
+        y0 = titleH + nint((self%childRegion(1,k) - 1)*cellH)
+        y1 = titleH + nint((self%childRegion(1,k) - 1 + self%childRegion(3,k))*cellH)
+        if (x1 - x0 < 2 .or. y1 - y0 < 2) cycle
+        sub = cairo_surface_create_for_rectangle(target, real(x0, c_double), real(y0, c_double), &
+        &                                        real(x1 - x0, c_double), real(y1 - y0, c_double))
+        crc = cairo_create(sub)
+        call self%children(k)%draw(crc, x1 - x0, y1 - y0)
+        call cairo_destroy(crc)
+        call cairo_surface_destroy(sub)
+      end do
+      call cairo_surface_flush(target)
+
+      if (HEADLESS_MODE) then
+        pngPath = next_plot_path()
+        ios = cairo_surface_write_to_png(target, trim(pngPath)//c_null_char)
+        call cairo_surface_destroy(target)
+        call set_plot_output(trim(pngPath), W, H)
+      else
+        if (c_associated(self%area)) call gtk_widget_queue_draw(self%area)
+      end if
+  end subroutine mp_draw_composite
+
+  ! Add a deep copy of child at region (row, col) spanning rspan x cspan of
+  ! this page's grid; a child already at that region is replaced.
+  subroutine mp_add_child(self, child, row, col, rspan, cspan)
+      class(multiplot), intent(inout) :: self
+      type(multiplot), intent(in) :: child
+      integer, intent(in) :: row, col, rspan, cspan
+      integer, parameter :: MAX_CHILDREN = 64
+      integer :: k, slot
+
+      if (.not. allocated(self%children)) then
+        allocate(self%children(MAX_CHILDREN))
+        allocate(self%childRegion(4, MAX_CHILDREN))
+        self%nChildren = 0
+      end if
+      slot = 0
+      do k = 1, self%nChildren
+        if (self%childRegion(1,k) == row .and. self%childRegion(2,k) == col) slot = k
+      end do
+      if (slot == 0) then
+        if (self%nChildren >= MAX_CHILDREN) return
+        self%nChildren = self%nChildren + 1
+        slot = self%nChildren
+      else
+        call self%children(slot)%clear()
+      end if
+      call mp_copy(self%children(slot), child)
+      self%childRegion(:,slot) = [row, col, rspan, cspan]
+  end subroutine mp_add_child
+
+  ! Deep copy of src's children (and their regions) into self, which has none.
+  recursive subroutine mp_copy_children(self, src)
+      class(multiplot), intent(inout) :: self
+      type(multiplot), intent(in) :: src
+      integer :: k
+      self%isPage = src%isPage
+      if (src%nChildren <= 0) return
+      allocate(self%children(size(src%children)))
+      allocate(self%childRegion(4, size(src%children)))
+      do k = 1, src%nChildren
+        call mp_copy(self%children(k), src%children(k))
+        self%childRegion(:,k) = src%childRegion(:,k)
+      end do
+      self%nChildren = src%nChildren
+  end subroutine mp_copy_children
+
+  ! Deep copy of a multiplot (its plots are copied by the list) into an
+  ! empty dst.
+  recursive subroutine mp_copy(dst, src)
+      type(multiplot), intent(inout) :: dst
+      type(multiplot), intent(in) :: src
+      class(zoaplot), pointer :: p
+      integer :: i, j
+      call dst%initialize(src%area, src%m_rows, src%m_cols)
+      dst%m_title = src%m_title
+      dst%m_hasTitle = src%m_hasTitle
+      dst%width = src%width
+      dst%height = src%height
+      dst%hasBottomPanel = src%hasBottomPanel
+      dst%bottomPanelBigLabel = src%bottomPanelBigLabel
+      dst%bottomPanelLittleLabel = src%bottomPanelLittleLabel
+      dst%bottomPanelLegend = src%bottomPanelLegend
+      do j = 1, src%m_cols
+        do i = 1, src%m_rows
+          p => src%get(i,j)
+          if (associated(p)) call dst%set(i,j,p)
+        end do
+      end do
+      call mp_copy_children(dst, src)
+  end subroutine mp_copy
 
       subroutine plotdata3d_init(self, x, y, z, xpts, ypts, dataColorCode, lineStyleCode)
         class(plotdata3d), intent(inout) :: self
@@ -972,26 +1186,12 @@ end subroutine
   if (self%addTextToPlot) then
     call plgchr(defCharHgt, currCharHgt)
     call plgvpd(p_xmin, p_xmax, p_ymin, p_ymax)
-    print *, 'vp p_xmin ', p_xmin
-    print *, 'vp p_xmax ', p_xmax
-    print *, 'vp p_ymin ', p_ymin
-    print *, 'vp p_ymax ', p_ymax   
     y_norm = p_ymax-p_ymin   
     call plgspa(p_xmin, p_xmax, p_ymin, p_ymax)
-    print *, 'mm p_xmin ', p_xmin
-    print *, 'mm p_xmax ', p_xmax
-    print *, 'mm p_ymin ', p_ymin
-    print *, 'mm p_ymax ', p_ymax
     y_abs = p_ymax-p_ymin
     call plgvpw(p_xmin, p_xmax, p_ymin, p_ymax) ! World
     !call plgspa(p_xmin, p_xmax, p_ymin, p_ymax) !mm
-    print *, 'defCharHgt is ', defCharHgt
-    print *, 'currCharHgt is ', currCharHgt
 
-    print *, 'p_xmin ', p_xmin
-    print *, 'p_xmax ', p_xmax
-    print *, 'p_ymin ', p_ymin
-    print *, 'p_ymax ', p_ymax
 
 
     do i=1,self%numTextLabels
@@ -1149,10 +1349,6 @@ end subroutine
 
       ! pljoin is used to draw the line, and it is in normalized device coords.  So need to convert to world coordinates
       call plgvpw (	p_xmin,p_xmax,p_ymin,p_ymax)        
-      print *, 'p_xmin ', p_xmin
-      print *, 'p_xmax ', p_xmax
-      print *, 'p_ymin ', p_ymin
-      print *, 'p_ymax ', p_ymax
       
       !TODO:  Abstract this and support all corners at minimum
       
@@ -1620,8 +1816,6 @@ end subroutine a2mnmx
       call plsurf3d(xdim, ydim, &
       & reshape(self%plotdatalist3d(i)%z, [xpts,ypts]), MAG_COLOR, clevel(nlevel:1)) 
       !PRINT *, "z is ", reshape(self%plotdatalist3d(i)%z, [xpts,ypts])
-      PRINT *, "X is ", xdim
-      PRINT *, "Y is ", ydim
 
                 
     end do
@@ -1779,7 +1973,7 @@ end subroutine cmap1_init
     class(zoaplot) :: self
 
     integer           :: type, i
-    integer           :: nlegend
+    integer           :: nlegend, nrowL, ncolL
     !integer :: nlegend = self%numLegendNames
 
 
@@ -1831,13 +2025,17 @@ end subroutine cmap1_init
     ! See doc here:  There are ALOT of arguments and easy to mess up and not get what you want
     ! http://plplot.org/docbook-manual/plplot-html-5.15.0/pllegend.html
     ! TODO:  Need to scale text scale, text spacing and x/y offset based on # of legend entries.
+    ! In the bottom panel's band (the current viewport), right of its
+    ! divider at 0.55: up to three rows of entries, row by row.
+    nrowL = min(3, nlegend)
+    ncolL = (nlegend + nrowL - 1)/nrowL
     call pllegend( legend_width, legend_height, &
-         PL_LEGEND_BACKGROUND + PL_LEGEND_BOUNDING_BOX, & 
-         PL_POSITION_VIEWPORT, &
-         -0.1_pl_test_flt, 0.7_pl_test_flt, 0.05_pl_test_flt, 0, & ! x offset, y offset, plot width (includes width of symbols), bg col
-         0, 1,nlegend, nlegend, & ! bb_style, nrow, ncol, number of legends
+         PL_LEGEND_ROW_MAJOR + PL_LEGEND_BACKGROUND, &
+         PL_POSITION_VIEWPORT + PL_POSITION_INSIDE + PL_POSITION_LEFT + PL_POSITION_TOP, &
+         0.57_pl_test_flt, 0.04_pl_test_flt, 0.04_pl_test_flt, 0, & ! x offset, y offset, plot width (includes width of symbols), bg col
+         0, 1, nrowL, ncolL, & ! bb_color, bb_style, nrow, ncolumn (the count is the arrays' size)
          opt_array, &
-         1.0_pl_test_flt, .50_pl_test_flt, 1.3_pl_test_flt, & ! text offset, text scale,text spacing
+         0.6_pl_test_flt, 0.65_pl_test_flt, 1.2_pl_test_flt, & ! text offset, text scale,text spacing
          1.0_pl_test_flt, text_colors, text, &
          box_colors, box_patterns, box_scales, box_line_widths, &
          line_colors, line_styles, line_widths, &
@@ -2703,9 +2901,19 @@ end subroutine
     end do
   end subroutine zin_read_plotdata3d_list
 
-  subroutine mp_clear(self)
+  recursive subroutine mp_clear(self)
     class(multiplot), intent(inout) :: self
+    integer :: k
 
+    if (allocated(self%children)) then
+      do k = 1, self%nChildren
+        call self%children(k)%clear()
+      end do
+      deallocate(self%children)
+    end if
+    if (allocated(self%childRegion)) deallocate(self%childRegion)
+    self%nChildren = 0
+    self%isPage = .false.
     call self%m_plots%clear()
     self%m_rows = 0
     self%m_cols = 0

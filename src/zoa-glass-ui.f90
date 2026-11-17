@@ -20,6 +20,7 @@ module zoa_glass_ui
     integer(kind=c_int) :: nsel
     integer(kind=c_int), dimension(:), allocatable :: selections
     character(len=32) :: svalue
+    type(c_ptr) :: savedView
 
     if (c_associated(gdata)) then
        call c_f_pointer(gdata, fdata)
@@ -27,19 +28,17 @@ module zoa_glass_ui
        if (nsel == 0) return
 
        if (fdata == 0) then
-          ! Find and print the selected row(s)
-          print *, nsel,"Rows selected"
-          print *, selections
           call hl_gtk_list1_get_cell(ihlist, selections(1), svalue)
-          print *, "TXT IS ", svalue
           deallocate(selections)
 
           ! Get text to display in secend window
+          ! (restore, not force the console: see macrolist_select)
+          savedView = ioConfig%currentTextView()
           call ioConfig%setTextView(ID_TERMINAL_GLASS)
           buffer = gtk_text_view_get_buffer(ioConfig%textView)
           call hl_gtk_text_view_delete(c_null_ptr, buffer=buffer)
           CALL PROCESKDP('GLASSP '//svalue)
-          call ioConfig%setTextView(ID_TERMINAL_DEFAULT)
+          call ioConfig%returnToTextView(savedView)
 
 
           ! Get index at wavelengths of interest
@@ -65,7 +64,6 @@ module zoa_glass_ui
     ! Now put 10 rows into it
     CALL GCATLOAD(NUMINLIST, CATARRAY)
     !CALL MACARRAY_LOAD(NUMINLIST, MACARRAY)
-    PRINT *, "NUMINLIST IS ", NUMINLIST
     do i=1,NUMINLIST-1
 
        line = CATARRAY(i)
@@ -79,7 +77,6 @@ module zoa_glass_ui
   subroutine glassui_destroy(widget, gdata) bind(c)
     type(c_ptr), value, intent(in) :: widget, gdata
 
-    print *, "Exit called"
     call gtk_window_destroy(gdata)
   end subroutine
 

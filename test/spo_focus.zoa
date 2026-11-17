@@ -1,0 +1,30 @@
+! SPO through focus: FFO/IFO/NFO focus positions.  The rays are moved along
+! their slopes to each focus; the spot at FFO 0.1 equals a real retrace with
+! the image moved 0.1 (RMS 5.5626058 both ways).
+LEN NEW
+EPD 20
+YAN 0 5
+INS S2
+RDY S1 120
+THI S1 5
+GLA S1 NBK7
+RDY S2 -50
+THI S2 92.3
+SPO ; RECTDENS 6 ; GO
+! SPO (FLD) honours FFO
+FFO 0.1
+SPO FLD ; RECTDENS 6 ; GO
+FFO 0
+THI S2 92.4
+SPO ; RECTDENS 6 ; GO
+THI S2 92.3
+! through focus: one field, NFO positions in a row (ORI V: a column)
+FFO -0.1
+IFO 0.1
+NFO 3
+SPO THF ; SETFLD 2 ; RECTDENS 6 ; GO
+SPO THF ; ORI V ; SETWV 1 ; RECTDENS 6 ; GO
+! bad input
+SPO SIDEWAYS ; GO
+SPO ; ORI V ; GO
+SPO THF ; ORI DIAGONAL ; GO

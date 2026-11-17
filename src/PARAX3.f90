@@ -3662,9 +3662,6 @@ SUBROUTINE FIRD
    ELSE
       EFLX=1.0D20
    END IF
-   PRINT *, "Debug BFL "
-   PRINT *, "I = ", I
-   PRINT *, "J = ", J
 
    IF(((PXTRAY(2,I)*PXTRAY(6,J))-(PXTRAY(6,I)*PXTRAY(2,J)))&
    &.NE.0.0D0) THEN
@@ -3674,7 +3671,6 @@ SUBROUTINE FIRD
       BFLY=1.0D20
    END IF
 
-   PRINT *, "BFLY is ", BFLY
    IF(((PXTRAX(2,I)*PXTRAX(6,J))-(PXTRAX(6,I)*PXTRAX(2,J)))&
    &.NE.0.0D0) THEN
       BFLX=-(((PXTRAX(2,I)*PXTRAX(5,J))-(PXTRAX(6,I)*PXTRAX(1,J)))/&
@@ -3925,7 +3921,6 @@ SUBROUTINE FINIYZ
       PXTRAY(8,K)=ldm%getIndexRatio(K-1,K,INT(sys_wl_ref()))*PXTRAY(7,K)
       RETURN
    ELSE
-      PRINT *, "Add logic for object surface here!"
    END IF
 END
 ! SUB FINIXZ.FOR

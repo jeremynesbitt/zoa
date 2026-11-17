@@ -5,14 +5,33 @@ contains
     module procedure executeGo
         use global_widgets, only: ioConfig
         use kdp_utils, only: inLensUpdateLevel
-        use plot_functions, only: mtf_go, psf_go, vie_go, spo_go, seidel_go, ast_go, pma_go, rayaberration_go, rmsfield_go, zern_go, rad_go, fma_go, foo_go
+        use plot_functions, only: mtf_go, mtf_thf_go, psf_go, vie_go, spo_go, seidel_go, ast_go, pma_go, rayaberration_go, rmsfield_go, zern_go, rad_go, fma_go, foo_go
         use optim_functions, only: aut_go
         use tow_functions, only: tow_go
         use seidel_table, only: seidel_table_go
         use single_ray_trace, only: sinraytra_go
+        use plot_composer, only: comp_active
+
+        ! In a MULTIPLOT page: GO with nothing open draws the page; analyses
+        ! that do not draw through the plot tabs cannot be subplots (yet).
+        if (comp_active()) then
+            select case (cmd_loop)
+            case (0)
+                call multiplotGo()
+                return
+            case (VIE_LOOP, TOW_LOOP, FAB_LOOP, WAV_LOOP, TRA_LOOP, ID_SEIDEL_TAB, ID_SINRAYTRA_TAB)
+                call zoa_emit("MULTIPLOT: this analysis cannot be a subplot (yet); it is skipped", "red")
+                cmd_loop = 0
+                return
+            end select
+        end if
 
         if (cmd_loop == ID_PLOTTYPE_MTF) then
             call mtf_go(curr_psm)
+            cmd_loop = 0
+        end if
+        if (cmd_loop == ID_PLOTTYPE_MTF_THF) then
+            call mtf_thf_go(curr_psm)
             cmd_loop = 0
         end if
         if (cmd_loop == ID_PLOTTYPE_PSF) then
@@ -483,10 +502,8 @@ contains
             select case(trim(tokens(1)))
             case('CY')
                 call setData(savStr, RAYRAY(5,surfaces(1)))
-                print *, "Data stored is ", RAYRAY(5,surfaces(1))
             case('CX')
                 call setData(savStr, RAYRAY(4,surfaces(1)))
-                print *, "Data stored is ", RAYRAY(4,surfaces(1))
             end select
         else
             call zoa_emit("Error:  Was unable to parse intput to get only one surface, field point and wavelength","red")

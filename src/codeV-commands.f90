@@ -477,6 +477,23 @@ module codeV_commands
    module subroutine setRefSphereLocation(iptStr)
     character(len=*) :: iptStr
    end subroutine setRefSphereLocation
+   module subroutine spoSetOption(iptStr)
+    character(len=*) :: iptStr
+   end subroutine spoSetOption
+   module subroutine mtfSetOption(iptStr)
+    character(len=*) :: iptStr
+   end subroutine mtfSetOption
+   module subroutine execMULTIPLOT(iptStr)
+    character(len=*) :: iptStr
+   end subroutine execMULTIPLOT
+   module subroutine execSUBPLOT(iptStr)
+    character(len=*) :: iptStr
+   end subroutine execSUBPLOT
+   module subroutine multiplotGo()
+   end subroutine multiplotGo
+   module subroutine setFocusRange(iptStr)
+    character(len=*) :: iptStr
+   end subroutine setFocusRange
    module subroutine execRAD(iptStr)
     character(len=*) :: iptStr
    end subroutine execRAD
@@ -920,6 +937,18 @@ module codeV_commands
         zoaCmds(833)%execFunc => setSeidelUnits
         zoaCmds(834)%cmd = 'SINRAYTRA'
         zoaCmds(834)%execFunc => execSinRayTra
+        ! Through-focus range (CODE V FFO / IFO / NFO)
+        zoaCmds(835)%cmd = 'FFO'
+        zoaCmds(835)%execFunc => setFocusRange
+        zoaCmds(836)%cmd = 'IFO'
+        zoaCmds(836)%execFunc => setFocusRange
+        zoaCmds(837)%cmd = 'NFO'
+        zoaCmds(837)%execFunc => setFocusRange
+        ! MULTIPLOT page of subplots (SUBPLOT r c picks the region)
+        zoaCmds(838)%cmd = 'MULTIPLOT'
+        zoaCmds(838)%execFunc => execMULTIPLOT
+        zoaCmds(839)%cmd = 'SUBPLOT'
+        zoaCmds(839)%execFunc => execSUBPLOT
         ! Tilt / decenter / pivot control codes (CODE V XDC..CDC, XOC..ZOC).
         block
             use zoa_ui, only: TILT_VAR_NAMES
@@ -1184,6 +1213,22 @@ module codeV_commands
             end select
         end if
 
+        ! SPO options (ORI is FOO's plot origin and a lens-draw word elsewhere)
+        if (cmd_loop == SPO_LOOP) then
+            if (trim(iptCmd) == 'ORI') then
+                call spoSetOption(currentCommand); boolResult = .TRUE.; return
+            end if
+        end if
+
+        ! MTF options: NRD (the pupil grid; the legacy NRD outside), and in
+        ! MTF THF, FRE (the frequency charted through focus)
+        if (cmd_loop == ID_PLOTTYPE_MTF .or. cmd_loop == ID_PLOTTYPE_MTF_THF) then
+            if (trim(iptCmd) == 'NRD' .or. &
+            &   (trim(iptCmd) == 'FRE' .and. cmd_loop == ID_PLOTTYPE_MTF_THF)) then
+                call mtfSetOption(currentCommand); boolResult = .TRUE.; return
+            end if
+        end if
+
         ! SINRAYTRA options (PX/PY/HX/HY/COO are claimed only inside it).
         if (cmd_loop == ID_SINRAYTRA_TAB) then
             select case (trim(iptCmd))
@@ -1373,6 +1418,14 @@ module codeV_commands
         ! strings kept their case in the fold above); handlers self-tokenize it.
         currentCommand = trim(segU)
         currentCommandRaw = trim(adjustl(seg))
+        ! A MULTIPLOT page records its script: every command at its level,
+        ! except the GO that closes the page (appended when it is drawn)
+        block
+            use plot_composer, only: comp_active, comp_record
+            if (comp_active()) then
+                if (.not. (token == 'GO' .and. cmd_loop == 0)) call comp_record(seg)
+            end if
+        end block
         ! TOW collects everything up to its GO -- legacy commands too (FIR,
         ! which is not a zoaCmd, used to run at once, to the console)
         if (cmd_loop == TOW_LOOP .and. token /= 'GO') then
@@ -1896,7 +1949,6 @@ module codeV_commands
         character(len=3), dimension(4) :: colHeaders
         real(kind=long), dimension(4,curr_lens_data%num_surfaces):: dataArray
 
-        print *, "Size of dataArray is ", size(dataArray,1)
         dataArray(1,:) = curr_par_ray_trace%marginal_ray_height
         dataArray(2,:) = curr_par_ray_trace%marginal_ray_angle        
         dataArray(3,:) = curr_par_ray_trace%chief_ray_height

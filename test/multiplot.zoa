@@ -1,0 +1,40 @@
+! MULTIPLOT: a page of subplots.  Each analysis fills the next cell (or the
+! SUBPLOT one); the GO with nothing open draws the page.  The page's
+! commands are recorded (they redraw it on a lens change) and listed last.
+RES osdtriplet
+FFO -0.1
+IFO 0.025
+NFO 5
+MULTIPLOT 3 2 'Triplet at paraxial focus'
+SUBPLOT 1 1
+RIM ; GO
+SUBPLOT 1 2
+MTF ; MFR 200 ; IFR 10 ; GO
+SUBPLOT 2 1 1 2
+SPO THF ; ORI H ; RECTDENS 6 ; GO
+SUBPLOT 3 1
+MTF THF ; FRE 100 ; NRD 32 ; GO
+SUBPLOT 3 2
+FIE ; GO
+GO
+! the listed commands draw the same page again (on one line, as a redraw
+! runs them)
+MULTIPLOT 3 2 'Triplet at paraxial focus'; SUBPLOT 1 1; RIM; GO; SUBPLOT 1 2; MTF; MFR 200; IFR 10; GO; SUBPLOT 2 1 1 2; SPO THF; ORI H; RECTDENS 6; GO; SUBPLOT 3 1; MTF THF; FRE 100; NRD 32; GO; SUBPLOT 3 2; FIE; GO; GO
+! no SUBPLOT: cells fill by rows; a full page refuses more
+MULTIPLOT 1 2
+SPO ; RECTDENS 6 ; GO
+MTF THF ; NRD 32 ; GO
+PMA ; GO
+GO
+! bad input
+SUBPLOT 1 1
+MULTIPLOT 0 2
+MULTIPLOT 2 7
+MULTIPLOT 2 2 'no end
+MULTIPLOT 2 2
+SUBPLOT 3 1
+SUBPLOT 1 2 1 2
+SUBPLOT 1
+MULTIPLOT 1 1
+VIE ; GO
+GO

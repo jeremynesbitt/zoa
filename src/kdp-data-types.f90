@@ -1384,6 +1384,13 @@ subroutine genSaveOutputText(self, fID, forCodeV)
       case (RSL_MODE_INF);   write(fID, '(A)') 'RSL INF'
       case (RSL_MODE_VALUE); write(fID, '(A)') 'RSL '//trim(compactReal(rsl_value(), 15))
       end select
+      ! through-focus range (CODE V FFO/IFO/NFO), only when set
+      block
+        use focus_settings, only: focus_first, focus_increment, focus_count
+        if (focus_first() /= 0.0_real64) write(fID, '(A)') 'FFO '//trim(compactReal(focus_first(), 15))
+        if (focus_increment() /= 0.0_real64) write(fID, '(A)') 'IFO '//trim(compactReal(focus_increment(), 15))
+        if (focus_count() /= 1) write(fID, '(A)') 'NFO '//trim(int2str(focus_count()))
+      end block
       select case (nint(sys_mode()))
       case (3); write(fID, '(A)') 'AFC YES'
       case (2); if (.not. cv) write(fID, '(A)') 'MODE UFOCAL'

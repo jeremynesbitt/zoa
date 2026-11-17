@@ -73,8 +73,6 @@ subroutine writeLogToDisk(self, logTxt)
   write(self%fileID, *) logTxt
   flush(self%fileID)
 
-  PRINT *, logTxt
-
 end subroutine
 
 subroutine logTextWithNum(self, logTxt, value)
