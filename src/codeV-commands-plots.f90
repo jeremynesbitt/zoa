@@ -253,7 +253,7 @@ contains
     !## cmd:      RIM
     !## syntax:   RIM
     !## category: Plotting
-    !## desc:     Ray-aberration (rim-ray fan) plot.
+    !## desc:     Ray-aberration (rim-ray fan) plot.  WFR Y plots the wave aberration (OPD, waves) instead.
     !##
     module procedure execRayAberrationPlot
         implicit none
@@ -265,6 +265,7 @@ contains
         call psm%addDensitySetting(64,8,128)
         call psm%addGenericSetting(SETTING_SCALE, 'Scale', 0.0, 0.0, 1000.0, 'SSI', 'SSI 0', UITYPE_SPINBUTTON)
         call psm%addWavelengthComboSetting()
+        call psm%addRimWfrSetting()
 
         boolResult = initiatePlotLoop(iptStr, ID_PLOTTYPE_RIM, psm)
         if (.not. boolResult) then
@@ -619,6 +620,33 @@ contains
         end if
         call comp_end()
     end procedure multiplotGo
+
+    !## cmd:      WFR
+    !## syntax:   WFR Y|N
+    !## category: Plot Settings
+    !## desc:     RIM: plot the wave aberration (OPD in waves) instead of the transverse ray aberration.
+    !##
+    ! (the settings dropdown sends its entry id: 1 = No, 2 = Yes)
+    module procedure rimSetOption
+        use plot_setting_manager, only: SETTING_RIM_WFR, ID_RIM_WFR_NO, ID_RIM_WFR_YES
+        implicit none
+        character(len=80) :: tokens(40)
+        integer :: numTokens, n
+
+        call parse(trim(iptStr), ' ', tokens, numTokens)
+        n = 0
+        if (numTokens == 2) then
+            select case (trim(tokens(2)))
+            case ('Y', 'YES', '2', '2.0'); n = ID_RIM_WFR_YES
+            case ('N', 'NO', '1', '1.0');  n = ID_RIM_WFR_NO
+            end select
+        end if
+        if (n == 0) then
+            call zoa_emit("Error:  RIM: expected WFR Y|N", "red")
+            return
+        end if
+        call curr_psm%updateSetting(SETTING_RIM_WFR, n)
+    end procedure rimSetOption
 
     !## cmd:      FRE
     !## syntax:   FRE x

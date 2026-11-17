@@ -3750,7 +3750,9 @@ SUBROUTINE FANS
    end if
 
    allocate(curr_ray_fan_data%relAper(INT(W4)))
-   allocate(curr_ray_fan_data%xyfan(INT(W4),2))
+   ! columns: X and Y transverse aberration; 3: OPD in waves (qualifier OPD)
+   allocate(curr_ray_fan_data%xyfan(INT(W4),3))
+   curr_ray_fan_data%xyfan = 0.0
 
    ! Compute value at XI=0 and use this as an offset.
    ! First test if this works before refactoring
@@ -4333,6 +4335,7 @@ SUBROUTINE FANS
       curr_ray_fan_data%relAper(IX) = XI
       curr_ray_fan_data%xyfan(IX,1) = XXDIF
       curr_ray_fan_data%xyfan(IX,2) = YYDIF
+      IF(WQ.EQ.'OPD') curr_ray_fan_data%xyfan(IX,3) = OPDW
 
 
       XI=LOWERL+(DBLE(IX)*DELTA)

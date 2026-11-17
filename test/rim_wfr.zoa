@@ -1,0 +1,12 @@
+! RIM WFR: the fans' wave aberration (OPD, waves of each fan's wavelength)
+! instead of the transverse ray aberration (CODE V RIM WFR).  The values are
+! the legacy fan OPD (YFAN/XFAN OPD).  Checked against the CAPFN wavefront
+! (PMA): on axis within 2e-5 waves (radial fit of the 33x33 map), at 10 deg
+! within 5e-6 waves (map extrapolated to pupil x = 0).
+RES osdtriplet
+RIM ; WFR Y ; GO
+RIM ; WFR Y ; SETWV 1 ; SETDENS 17 ; GO
+! back to transverse
+RIM ; WFR N ; SETWV 1 ; SETDENS 17 ; GO
+! bad input
+RIM ; WFR MAYBE ; GO

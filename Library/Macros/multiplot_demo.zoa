@@ -1,4 +1,6 @@
-! MULTIPLOT demo: a page of subplots for the Cooke triplet.
+! MULTIPLOT demo: a page of subplots for the Cooke triplet, after the
+! layout of a textbook design summary (wave fans, ray fans, spot through
+! focus, MTF, MTF through focus).
 ! After it draws, change the lens (e.g. THI S6 ...) to see the page redraw.
 RES osdtriplet
 FFO -0.1
@@ -6,13 +8,13 @@ IFO 0.025
 NFO 5
 MULTIPLOT 3 2 'Triplet at paraxial focus'
 SUBPLOT 1 1
-RIM ; GO
+RIM ; WFR Y ; GO
 SUBPLOT 1 2
-MTF ; MFR 200 ; IFR 10 ; GO
+RIM ; GO
 SUBPLOT 2 1 1 2
 SPO THF ; ORI H ; GO
 SUBPLOT 3 1
-MTF THF ; FRE 100 ; GO
+MTF ; MFR 200 ; IFR 10 ; GO
 SUBPLOT 3 2
-FIE ; GO
+MTF THF ; FRE 100 ; GO
 GO

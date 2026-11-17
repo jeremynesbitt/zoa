@@ -483,6 +483,9 @@ module codeV_commands
    module subroutine mtfSetOption(iptStr)
     character(len=*) :: iptStr
    end subroutine mtfSetOption
+   module subroutine rimSetOption(iptStr)
+    character(len=*) :: iptStr
+   end subroutine rimSetOption
    module subroutine execMULTIPLOT(iptStr)
     character(len=*) :: iptStr
    end subroutine execMULTIPLOT
@@ -1217,6 +1220,13 @@ module codeV_commands
         if (cmd_loop == SPO_LOOP) then
             if (trim(iptCmd) == 'ORI') then
                 call spoSetOption(currentCommand); boolResult = .TRUE.; return
+            end if
+        end if
+
+        ! RIM options (WFR: wave instead of ray aberration)
+        if (cmd_loop == ID_PLOTTYPE_RIM) then
+            if (trim(iptCmd) == 'WFR') then
+                call rimSetOption(currentCommand); boolResult = .TRUE.; return
             end if
         end if
 

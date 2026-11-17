@@ -70,6 +70,9 @@ module plot_setting_manager
     integer, parameter :: ID_SPOT_ORI_H = 1, ID_SPOT_ORI_V = 2
     ! MTF THF: the spatial frequency charted through focus (CODE V FRE)
     integer, parameter :: SETTING_MTF_FRE = 1785
+    ! RIM WFR: wave aberration (OPD, waves) instead of transverse aberration
+    integer, parameter :: SETTING_RIM_WFR = 1786
+    integer, parameter :: ID_RIM_WFR_NO = 1, ID_RIM_WFR_YES = 2
     integer, parameter :: SETTING_ZERNIKE = 4
 
 
@@ -139,6 +142,8 @@ module plot_setting_manager
 
     ! Spot Diagram Settings
     procedure, public, pass(self) :: addSpotDiagramSettings
+    procedure, public, pass(self) :: addRimWfrSetting
+    procedure, public :: getRimWfr
     procedure, public, pass(self) :: addSpotCalculationSetting
     procedure, public, pass(self) :: getSpotDiagramSettings
 
@@ -479,6 +484,24 @@ contains
 
     ! Since there is a lot of custom settings, write a method to get all settings
     ! SPO THF: the focus positions in a row (else a column)
+    ! RIM WFR No|Yes: plot wave aberration (OPD in waves) instead of the
+    ! transverse ray aberration (CODE V RIM WFR).
+    subroutine addRimWfrSetting(self)
+      class(zoaplot_setting_manager) :: self
+      type(idText) :: wfrSet(2)
+      wfrSet(1)%text = "Ray (transverse)"; wfrSet(1)%id = ID_RIM_WFR_NO
+      wfrSet(2)%text = "Wave (OPD)";       wfrSet(2)%id = ID_RIM_WFR_YES
+      self%numSettings = self%numSettings + 1
+      call self%ps(self%numSettings)%initialize(SETTING_RIM_WFR, &
+      & "Aberration", real(ID_RIM_WFR_NO),0.0,0.0, &
+      & "WFR ", "WFR "//trim(int2str(ID_RIM_WFR_NO)), UITYPE_COMBO, set=wfrSet)
+    end subroutine
+
+    logical function getRimWfr(self)
+      class(zoaplot_setting_manager) :: self
+      getRimWfr = nint(self%getSettingValueByCode(SETTING_RIM_WFR)) == ID_RIM_WFR_YES
+    end function
+
     logical function getSpotHorizontal(self)
       class (zoaplot_setting_manager) :: self
       getSpotHorizontal = nint(self%getSettingValueByCode(SETTING_SPOT_ORI)) /= ID_SPOT_ORI_V

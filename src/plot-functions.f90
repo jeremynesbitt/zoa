@@ -1259,8 +1259,26 @@ subroutine rayaberration_go(psm)
     integer :: nW
 
     character(len=100) :: xlabel, ylabel, title
+    ! WFR: wave aberration (the fans' OPD, waves) instead of the transverse
+    ! aberration (CODE V RIM WFR)
+    logical :: wfr
+    character(len=20) :: yCmd, xCmd, valPfxT, valPfxS
+    integer :: colT, colS
 
     call initializeGoPlot(psm,ID_PLOTTYPE_RIM, "Ray Aberration Fan", replot, objIdx)
+
+    wfr = psm%getRimWfr()
+    if (wfr) then
+      ! the fans' OPD qualifier: column 3 is the OPD in waves (relative to
+      ! the chief ray, so no offset is subtracted)
+      yCmd = "YFAN OPD, -1, 1, "; xCmd = "XFAN OPD, 0, 1, "
+      colT = 3; colS = 3
+      valPfxT = 'W_'; valPfxS = 'W_'
+    else
+      yCmd = "YFAN, -1, 1, "; xCmd = "XFAN, 0, 1, "
+      colT = 2; colS = 1
+      valPfxT = 'DY_'; valPfxS = 'DX_'
+    end if
 
 
     allWL = .FALSE.
@@ -1286,6 +1304,10 @@ subroutine rayaberration_go(psm)
       CALL PROCESSILENT("YFAN, -1, 1, "//ffieldstr) 
       yOff(i) = curr_ray_fan_data%xyfan(2,2) ! only 3 points computed.  Min requireed to get ref value
       yOff64(i) = curr_ray_fan_data%xyfan(2,2)
+      if (wfr) then
+        yOff(i) = 0.0
+        yOff64(i) = 0.0_real64
+      end if
     end do
 
     plotScale = psm%getSettingValueByCode(SETTING_SCALE)
@@ -1301,11 +1323,11 @@ subroutine rayaberration_go(psm)
     sagHdr(1) = 'RelPupilX'
     do j = 1, nW
       if (allWL) then
-        tanHdr(j+1) = 'DY_'//trim(real2str(1000.0*sysConfig%getWavelength(j),2))//'nm'
-        sagHdr(j+1) = 'DX_'//trim(real2str(1000.0*sysConfig%getWavelength(j),2))//'nm'
+        tanHdr(j+1) = trim(valPfxT)//trim(real2str(1000.0*sysConfig%getWavelength(j),2))//'nm'
+        sagHdr(j+1) = trim(valPfxS)//trim(real2str(1000.0*sysConfig%getWavelength(j),2))//'nm'
       else
-        tanHdr(j+1) = 'DY_'//trim(real2str(1000.0*sysConfig%getWavelength(lambda),2))//'nm'
-        sagHdr(j+1) = 'DX_'//trim(real2str(1000.0*sysConfig%getWavelength(lambda),2))//'nm'
+        tanHdr(j+1) = trim(valPfxT)//trim(real2str(1000.0*sysConfig%getWavelength(lambda),2))//'nm'
+        sagHdr(j+1) = trim(valPfxS)//trim(real2str(1000.0*sysConfig%getWavelength(lambda),2))//'nm'
       end if
     end do
 
@@ -1339,11 +1361,11 @@ subroutine rayaberration_go(psm)
       ! Set Fan Input - TODO:  add setting to change fan type
       write(ffieldstr, FMTFAN) lambda,',',numPoints
 
-      CALL PROCESSILENT("YFAN, -1, 1, "//ffieldstr)
+      CALL PROCESSILENT(trim(yCmd)//" "//ffieldstr)
       x = curr_ray_fan_data%relAper
-      y(1:numPoints) = curr_ray_fan_data%xyfan(1:numPoints,2)-yOff(i)
+      y(1:numPoints) = curr_ray_fan_data%xyfan(1:numPoints,colT)-yOff(i)
       tanD(:,1) = curr_ray_fan_data%relAper(1:numPoints)
-      tanD(:,2) = curr_ray_fan_data%xyfan(1:numPoints,2) - yOff64(i)
+      tanD(:,2) = curr_ray_fan_data%xyfan(1:numPoints,colT) - yOff64(i)
 
       
       ! Hide labels for off axis points
@@ -1353,6 +1375,7 @@ subroutine rayaberration_go(psm)
       else
         xlabel = 'Rel. Pupil Position'
         ylabel = 'Error '//trim(sysConfig%lensUnits(sysConfig%currLensUnitsID)%text)
+        if (wfr) ylabel = 'OPD waves'
       end if
 
       if (i==sysConfig%numFields) then
@@ -1372,10 +1395,10 @@ subroutine rayaberration_go(psm)
         if (allWL) then
           do j=2,sysConfig%numWavelengths
             write(ffieldstr, FMTFAN) j,',',numPoints
-            CALL PROCESSILENT("YFAN, -1, 1, "//ffieldstr)
+            CALL PROCESSILENT(trim(yCmd)//" "//ffieldstr)
             x = curr_ray_fan_data%relAper
-            y(1:numPoints) = curr_ray_fan_data%xyfan(1:numPoints,2)-yOff(i)
-            tanD(:,j+1) = curr_ray_fan_data%xyfan(1:numPoints,2) - yOff64(i)
+            y(1:numPoints) = curr_ray_fan_data%xyfan(1:numPoints,colT)-yOff(i)
+            tanD(:,j+1) = curr_ray_fan_data%xyfan(1:numPoints,colT) - yOff64(i)
             call lineplot(i)%addXYPlot(x,y)
             call lineplot(i)%setDataColorCode(sysConfig%wavelengthColorCodes(j))                  
           end do
@@ -1397,11 +1420,11 @@ subroutine rayaberration_go(psm)
 
       !Saggatial
       write(ffieldstr, FMTFAN) lambda,',',numPoints
-      CALL PROCESSILENT("XFAN, 0, 1, "//ffieldstr)
+      CALL PROCESSILENT(trim(xCmd)//" "//ffieldstr)
       x = curr_ray_fan_data%relAper
-      y(1:numPoints) = curr_ray_fan_data%xyfan(1:numPoints,1)
+      y(1:numPoints) = curr_ray_fan_data%xyfan(1:numPoints,colS)
       sagD(:,1) = curr_ray_fan_data%relAper(1:numPoints)
-      sagD(:,2) = curr_ray_fan_data%xyfan(1:numPoints,1)
+      sagD(:,2) = curr_ray_fan_data%xyfan(1:numPoints,colS)
 
       if (i==sysConfig%numFields) then
         title = 'Sagittal'
@@ -1419,9 +1442,9 @@ subroutine rayaberration_go(psm)
       if (allWL) then
         do j=2,sysConfig%numWavelengths
           write(ffieldstr, FMTFAN) j,',',numPoints
-          CALL PROCESSILENT("XFAN, 0, 1, "//ffieldstr)
-          y(1:numPoints) = curr_ray_fan_data%xyfan(1:numPoints,1)
-          sagD(:,j+1) = curr_ray_fan_data%xyfan(1:numPoints,1)
+          CALL PROCESSILENT(trim(xCmd)//" "//ffieldstr)
+          y(1:numPoints) = curr_ray_fan_data%xyfan(1:numPoints,colS)
+          sagD(:,j+1) = curr_ray_fan_data%xyfan(1:numPoints,colS)
           call sagplots(i)%addXYPlot(x,y)
           call sagplots(i)%setDataColorCode(sysConfig%wavelengthColorCodes(j))
         end do
@@ -1431,6 +1454,14 @@ subroutine rayaberration_go(psm)
 
       ! Data tab: this field's two fans, as drawn (DY less the chief-ray
       ! offset at the reference wavelength).
+      if (wfr) then
+        call OUTKDP('Field '//trim(int2str(i))//' ('//trim(sysConfig%getAbsYFieldText(i))// &
+        &           '): tangential fan, OPD [waves]')
+        call logColumns(tanHdr, tanD)
+        call OUTKDP('Field '//trim(int2str(i))//' ('//trim(sysConfig%getAbsYFieldText(i))// &
+        &           '): sagittal fan, OPD [waves]')
+        call logColumns(sagHdr, sagD)
+      else
       call OUTKDP('Field '//trim(int2str(i))//' ('//trim(sysConfig%getAbsYFieldText(i))// &
       &           '): tangential fan, DY ['// &
       &           trim(sysConfig%lensUnits(sysConfig%currLensUnitsID)%text)//']')
@@ -1439,14 +1470,20 @@ subroutine rayaberration_go(psm)
       &           '): sagittal fan, DX ['// &
       &           trim(sysConfig%lensUnits(sysConfig%currLensUnitsID)%text)//']')
       call logColumns(sagHdr, sagD)
+      end if
       
 
      !call mplt%set(2,i,sagplots(i))
 
      end do
 
-     call mplt%addBottomPanel(trim(sysConfig%lensTitle),  &
-     & "Ray Aberrations ("//sysConfig%getDimensions()//")",trim(real2str(1000.0*sysConfig%getWavelength(lambda),2))// " nm")
+     if (wfr) then
+       call mplt%addBottomPanel(trim(sysConfig%lensTitle),  &
+       & "Wave Aberration (waves)",trim(real2str(1000.0*sysConfig%getWavelength(lambda),2))// " nm")
+     else
+       call mplt%addBottomPanel(trim(sysConfig%lensTitle),  &
+       & "Ray Aberrations ("//sysConfig%getDimensions()//")",trim(real2str(1000.0*sysConfig%getWavelength(lambda),2))// " nm")
+     end if
      !call ioConfig%setTextView(ID_TERMINAL_DEFAULT)
      if (.not. HEADLESS_MODE) call ioConfig%restoreTextView()
 

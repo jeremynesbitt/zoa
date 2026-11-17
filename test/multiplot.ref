@@ -6,7 +6,7 @@ All constraints removed
 
 
 
-Subplot 1,1: RIM ; SETDENS 64 ; SSI 0 ; SETWV ALL
+Subplot 1,1: RIM ; SETDENS 64 ; SSI 0 ; SETWV ALL ; WFR 1
 Field 1 (0.00 deg): tangential fan, DY [mm]
        RelPupilY     DY_587.56nm     DY_486.13nm     DY_656.27nm     DY_435.84nm     DY_706.52nm
  -1.00000000E+00  6.71968283E-03  3.50737508E-04  5.40900650E-03 -1.38515001E-02  3.40094324E-03
@@ -577,7 +577,7 @@ GO
 GO
 PLOT: zoa_plot_1.png 1800x1850
 
-Subplot 1,1: RIM ; SETDENS 64 ; SSI 0 ; SETWV ALL
+Subplot 1,1: RIM ; SETDENS 64 ; SSI 0 ; SETWV ALL ; WFR 1
 Field 1 (0.00 deg): tangential fan, DY [mm]
        RelPupilY     DY_587.56nm     DY_486.13nm     DY_656.27nm     DY_435.84nm     DY_706.52nm
  -1.00000000E+00  6.71968283E-03  3.50737508E-04  5.40900650E-03 -1.38515001E-02  3.40094324E-03
