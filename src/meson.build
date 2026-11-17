@@ -120,7 +120,6 @@ srcs += files(
   'tow-functions.f90',
   'seidel-table.f90',
   'single-ray-trace.f90',
-  'ROUTEDRAWING.f90',
   'zoa-tab-manager.f90',
   'zoa-plot-manip-toolbar.f90',
   'zzhandlers.f90',
@@ -269,8 +268,7 @@ srcs += files(
   'ZMX2PRG.f90',
   'zoa-headless-init.f90',
   'zoa-test-capture.f90',
-  'zoa-plot-output.f90',
-  'zoa-headless-plot.f90'
+  'zoa-plot-output.f90'
 )
 
 plotcad5_src += files('PLOTCAD5.f90')

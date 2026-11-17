@@ -36,5 +36,10 @@ SUBPLOT 3 1
 SUBPLOT 1 2 1 2
 SUBPLOT 1
 MULTIPLOT 1 1
+SINRAYTRA ; GO
+GO
+! the lens drawing is a subplot like any other
+MULTIPLOT 1 2 'Layout and spots'
 VIE ; GO
+SPO ; RECTDENS 6 ; GO
 GO

@@ -19,7 +19,7 @@ contains
             case (0)
                 call multiplotGo()
                 return
-            case (VIE_LOOP, TOW_LOOP, FAB_LOOP, WAV_LOOP, TRA_LOOP, ID_SEIDEL_TAB, ID_SINRAYTRA_TAB)
+            case (TOW_LOOP, FAB_LOOP, WAV_LOOP, TRA_LOOP, ID_SEIDEL_TAB, ID_SINRAYTRA_TAB)
                 call zoa_emit("MULTIPLOT: this analysis cannot be a subplot (yet); it is skipped", "red")
                 cmd_loop = 0
                 return

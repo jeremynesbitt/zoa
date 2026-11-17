@@ -59,9 +59,6 @@ type  zoatabManager
   procedure, public :: sizeActivePlot
 
    !Support for KDP (now only VIE) plot
-   procedure :: addKDPPlotTab
-   procedure :: setKDPCallback
-   procedure :: updateKDPPlotTab
    procedure :: genSaveOutputText
 
    procedure :: updateUISettingsIfNeeded
@@ -304,29 +301,6 @@ end select
 
 end function
 
-subroutine setKDPCallback(self, idx, tabIndex)
-  use ROUTEMOD
-  !use kdp_draw, only: DRAWOPTICALSYSTEM
-  implicit none 
-
-  class(zoatabManager) :: self
-  type(zoatab) :: tmpTab
-  integer, target, intent(in) :: tabIndex
-  integer :: idx
-
-  integer, pointer :: ptr
-
-   ptr =>tabIndex
-
-   select type (tmpTab=>self%tabInfo(idx)%tabObj)
-   type is (zoaplottab)
-   call gtk_drawing_area_set_draw_func(tmpTab%canvas, &
-   & c_funloc(ROUTEDRAWING), c_loc(ptr), c_null_funptr)
-   tmpTab%usesKdpDraw = .TRUE.
-end select
-
-end subroutine
-
 function getTabIdxByID(self, key) result(tabIdx)
   class(zoatabManager) :: self
   character(len=*) :: key
@@ -349,66 +323,6 @@ end function
 
 
 ! Support the KDP way of plotting
-function addKDPPlotTab(self, PLOT_CODE, tabTitle) result(idx)
-  use kdp_draw, only: DRAWOPTICALSYSTEM
-  use type_utils, only: int2str
-  
-  implicit none
-  class(zoatabManager) :: self
-  type(zoatab) :: tmpTab
-  integer :: PLOT_CODE
-
-  character(len=*) :: tabTitle
-  integer :: idx  
-  !integer, target :: tabIdx
-
-
-  idx = self%findTabIndex()
-
-  !PRINT *, "idx is ", idx
-  call logger%logText('New Generic Tab Starting')
-
-  !call LogTermFOR("Setting up new KDP tab for tab idx "//int2str(idx))
-  allocate(zoaplottab :: self%tabInfo(idx)%tabObj)
-  call self%tabInfo(idx)%tabObj%initialize(self%notebook, tabTitle, PLOT_CODE)
-  !call gtk_drawing_area_set_draw_func(self%tabInfo(idx)%tabObj%canvas, &
-  !& c_funloc(ROUTEDRAWING), c_loc(TARGET_NEWPLOT_LENSDRAW), c_null_funptr)  
-  !ptr =tabIndices(idx)
-
-   call self%setKDPCallback(idx, tabIndices(idx))
-  !  if(idx==1) then
-  ! call gtk_drawing_area_set_draw_func(self%tabInfo(idx)%tabObj%canvas, &
-  ! & c_funloc(ROUTEDRAWING), c_loc(TARGET_LENSDRAW), c_null_funptr) 
-  !  else
-  !   call gtk_drawing_area_set_draw_func(self%tabInfo(idx)%tabObj%canvas, &
-  !   & c_funloc(ROUTEDRAWING), c_loc(TARGET_TST), c_null_funptr) 
-  !  end if
- 
-  select type (tmpTab => self%tabInfo(idx)%tabObj)
-  type is (zoaplottab)
-    tmpTab%useToolbar = .TRUE.
-  end select
-
-
-  !call gtk_widget_queue_draw(self%tabInfo(idx)%canvas)
-  
-end function
-
-subroutine updateKDPPlotTab(self, idx)
-  implicit none
-  class(zoatabManager) :: self
-  integer :: idx
-  type(zoaplottab) :: tmpTab
-
-  call self%updateUISettingsIfNeeded(idx)
-  select type (tmpTab=>self%tabInfo(idx)%tabObj)
-  type is (zoaplottab)
-  call gtk_widget_queue_draw(tmpTab%canvas)
-end select
-
-
-end subroutine
-
 ! It's possible the user via CLA, or another process (eg toolbar), updated settings 
 ! between the time the plot was created and it is redrawn.  
 ! This sub is to check for any differences and resolve them if needed.
@@ -961,16 +875,8 @@ subroutine exportActivePlotPng(self, fileName, ok)
     end if
     isurface = g_object_get_data(t%canvas, "backing-surface"//c_null_char)
     if (.not. c_associated(isurface)) then
-      ! A KDP-drawn tab (VIE) paints straight onto the context GTK hands its
-      ! draw func, so there is no surface to copy -- re-render it into one.
-      if (t%usesKdpDraw) then
-        call renderKdpTabToSurface(t, objIdx, isurface)
-        ownSurface = c_associated(isurface)
-      end if
-      if (.not. c_associated(isurface)) then
-        call zoa_emit("Active tab has no drawing surface yet", "red")
-        return
-      end if
+      call zoa_emit("Active tab has no drawing surface yet", "red")
+      return
     end if
     status = INT(cairo_surface_write_to_png(isurface, trim(fileName)//c_null_char))
     if (status == 0) then
@@ -1036,12 +942,10 @@ subroutine sizeActivePlot(self, mode, w, h)
     if (t%autoSize) then
       curW = gtk_widget_get_width(t%canvas)
       curH = gtk_widget_get_height(t%canvas)
-      if (.not. t%usesKdpDraw) then
-        isurface = g_object_get_data(t%canvas, "backing-surface"//c_null_char)
-        if (c_associated(isurface)) then
-          curW = cairo_image_surface_get_width(isurface)
-          curH = cairo_image_surface_get_height(isurface)
-        end if
+      isurface = g_object_get_data(t%canvas, "backing-surface"//c_null_char)
+      if (c_associated(isurface)) then
+        curW = cairo_image_surface_get_width(isurface)
+        curH = cairo_image_surface_get_height(isurface)
       end if
       call zoa_emit("PLTSIZE "//trim(int2str(curW))//" "//trim(int2str(curH))// &
       &             "  (automatic: follows the window)", "black")
@@ -1057,40 +961,6 @@ end subroutine sizeActivePlot
 
 ! Re-render a KDP-drawn tab (VIE) into a standalone image surface, the way its
 ! draw callback would paint the widget.  The caller owns the returned surface.
-subroutine renderKdpTabToSurface(t, tabIdx, isurface)
-  use cairo, only: cairo_image_surface_create, cairo_create, cairo_destroy, &
-  &                cairo_set_source_rgb, cairo_paint, cairo_surface_destroy
-  use kdp_draw, only: DRAWOPTICALSYSTEM
-  implicit none
-  class(zoaplottab), intent(in) :: t
-  integer, intent(in) :: tabIdx
-  type(c_ptr), intent(out) :: isurface
-  type(c_ptr) :: cr
-  integer(kind=c_int) :: w, h
-  ! DRAWOPTICALSYSTEM reads its plot selector through this pointer, so hand it
-  ! the same value setKDPCallback wired into the live draw func.
-  integer(kind=c_int), target :: drawSelector
-
-  isurface = c_null_ptr
-  w = gtk_widget_get_width(t%canvas)
-  h = gtk_widget_get_height(t%canvas)
-  ! Not realized yet (or hidden): fall back to the tab's own nominal size.
-  if (w <= 0) w = t%width
-  if (h <= 0) h = t%height
-  if (w <= 0 .or. h <= 0) return
-
-  isurface = cairo_image_surface_create(CAIRO_FORMAT_RGB24, w, h)
-  cr = cairo_create(isurface)
-  ! RGB24 starts zeroed, i.e. black, and the KDP routines draw in black
-  ! without painting a background of their own.
-  call cairo_set_source_rgb(cr, 1d0, 1d0, 1d0)
-  call cairo_paint(cr)
-  drawSelector = tabIdx
-  call DRAWOPTICALSYSTEM(t%canvas, cr, w, h, c_loc(drawSelector))
-  call cairo_destroy(cr)
-
-end subroutine renderKdpTabToSurface
-
 subroutine saveTabsToZin(self, unit)
   use iso_fortran_env, only: int32
   use mod_zin_io, only: zin_write_header, zin_write_str, ZIN_KIND_DATA, ZIN_KIND_REPLAY
@@ -1123,6 +993,8 @@ subroutine saveTabsToZin(self, unit)
     ! a MULTIPLOT page is restored by re-running its script (its subplots
     ! are whole multiplots, which the DATA record does not carry)
     if (self%tabInfo(i)%tabObj%ID_PLOTTYPE == ID_PLOTTYPE_MULTIPLOT) recordKind = ZIN_KIND_REPLAY
+    ! (and a lens drawing: its pen commands are not in the DATA record)
+    if (self%tabInfo(i)%tabObj%ID_PLOTTYPE == ID_PLOTTYPE_LENSDRAW) recordKind = ZIN_KIND_REPLAY
 
     write(unit) int(recordKind, int32)
     write(unit) int(self%tabInfo(i)%tabObj%ID_PLOTTYPE, int32)

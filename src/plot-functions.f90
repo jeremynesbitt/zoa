@@ -221,9 +221,11 @@ subroutine vie_go(psm)
     integer :: plot_code = ID_PLOTTYPE_LENSDRAW
     character(len=20) :: plotName = 'Lens Drawing'
 
-    character(len=1024) :: inputCmd, tabName
-    integer :: objIdx, pIdx
+    integer :: objIdx
     logical :: replot, prevSup, discardSup
+    type(c_ptr) :: canvas
+    type(multiplot) :: mplt
+    type(vieplot) :: vp
 
     ! Size the typed surfaces and fill each surface's ray-traced (display-only)
     ! clear-aperture extent, so the lens drawing can size surfaces without an
@@ -248,55 +250,62 @@ subroutine vie_go(psm)
       currVieData(1:size(NEUTARRAY)) = NEUTARRAY(1:size(NEUTARRAY))
     end if
 
+    ! The lens drawing is an ordinary plot: a vieplot holding this drawing's
+    ! pen commands, in a 1 x 1 multiplot, through the same tab / PNG /
+    ! MULTIPLOT path as every other plot.
+    call initializeGoPlot(psm, plot_code, plotName, replot, objIdx)
+    vie_renderer => vieRenderPen
     if (HEADLESS_MODE) then
-      ! Headless: render directly to PNG
-      block
-        use zoa_headless_plot, only: render_vie_to_png
-        use zoa_plot_output, only: next_plot_path
-        character(len=512) :: png_path
-        png_path = next_plot_path()
-        call render_vie_to_png(trim(png_path))
-      end block
-      return
+      canvas = c_null_ptr
+    else
+      canvas = hl_gtk_drawing_area_new(size=[1200,800], has_alpha=FALSE)
     end if
-
-    ! GUI path: create/update plot tab
-    pIdx = psm%plotNum
-    inputCmd = trim(psm%generatePlotCommand())
-    replot = .FALSE.
-    if (pIdx /= -1 ) then
-       replot = zoatabMgr%doesPlotExist_new(plot_code, objIdx, pIdx)
+    call mplt%initialize(canvas, 1, 1)
+    mplt%width = 1200
+    mplt%height = 800
+    if (allocated(currVieData)) then
+      allocate(vp%pen, source=currVieData)
+    else
+      allocate(vp%pen(0))
     end if
-
-    !replot = zoatabMgr%doesPlotExist(ID_PLOTTYPE_ZERN_VS_FIELD, objIdx)
-    if (replot) then
-      call zoatabMgr%updateInputCommand(objIdx, inputCmd)
-      call zoatabMgr%updateKDPPlotTab(objIdx)
-     else
-      ! A command that names a plot number that does not exist yet (a .zin
-      ! REPLAY record, a session restore) keeps that number; otherwise take
-      ! the lowest free one.
-      if (psm%plotNum < 1) psm%plotNum = zoatabMgr%getLowestAvailablePlotNum(plot_code)
-      call setPlotNum(psm%baseCmd, psm%plotNum)
-      inputCmd = trim(psm%generatePlotCommand())
-      tabName = plotName
-      if  (psm%plotNum > 1) then
-        tabName = trim(tabName)//" "//int2str(psm%plotNum)
-      end if  
-      objIdx = zoatabMgr%addKDPPlotTab(plot_code, &
-      & trim(tabName)//c_null_char)
-      call zoatabMgr%updateInputCommand(objIdx, inputCmd)
-      !objIdx = zoatabMgr%addGenericMultiPlotTab(plot_code, &
-      !& trim(tabName)//c_null_char, mplt)
-
-      call zoaTabMgr%finalize_with_psm(objIdx, psm, trim(inputCmd))
-      call zoaTabMgr%finalizeNewPlotTab(objIdx)
-    end if
-
-    
-
+    call mplt%set(1, 1, vp)
+    call finalizeGoPlot_new(mplt, psm, replot, objIdx)
 
 end subroutine
+
+! The vieplot renderer: draw a lens drawing's pen commands onto cr (w x h
+! pixels) with DRAWOPTICALSYSTEM, which reads them from currVieData.  The
+! latest VIE's data (currVieData) and the screen transform its tab's hover
+! readout uses are restored after, so drawing an older drawing (a MULTIPLOT
+! cell) does not disturb them.
+subroutine vieRenderPen(pen, cr, w, h)
+  use kdp_draw, only: DRAWOPTICALSYSTEM
+  use global_widgets, only: currVieData, vie_current_scale, vie_offset_x, vie_offset_y
+  use iso_c_binding, only: c_ptr, c_int, c_null_ptr
+  implicit none
+  character(len=42), intent(in) :: pen(:)
+  type(c_ptr), intent(in) :: cr
+  integer, intent(in) :: w, h
+  character(len=42), allocatable :: saved(:)
+  real(real64) :: s0, ox0, oy0
+  logical :: hadData
+
+  if (size(pen) < 1) return
+  hadData = allocated(currVieData)
+  if (hadData) call move_alloc(currVieData, saved)
+  s0 = vie_current_scale; ox0 = vie_offset_x; oy0 = vie_offset_y
+  allocate(currVieData, source=pen)
+  call DRAWOPTICALSYSTEM(c_null_ptr, cr, int(w, c_int), int(h, c_int), c_null_ptr)
+  deallocate(currVieData)
+  if (hadData) then
+    call move_alloc(saved, currVieData)
+    ! (same drawing as the tab's: keep the transform this draw computed)
+    if (size(currVieData) == size(pen)) then
+      if (all(currVieData == pen)) return
+    end if
+    vie_current_scale = s0; vie_offset_x = ox0; vie_offset_y = oy0
+  end if
+end subroutine vieRenderPen
 
 function getTabTextView(objIdx) result (dataTextView)
   use handlers, only: zoatabMgr
@@ -2447,6 +2456,16 @@ subroutine initializeGoPlot(psm, plot_code, plotName, replot, objIdx)
       objIdx = zoatabMgr%addMultiPlotTab(plot_code, &
       & trim(tabName)//c_null_char)
       call zoatabMgr%updateInputCommand(objIdx, inputCmd)
+      ! the lens drawing keeps its toolbar (zoom, refresh, hover readout)
+      if (plot_code == ID_PLOTTYPE_LENSDRAW) then
+        block
+          use zoa_tab, only: zoaplottab
+          select type (t => zoatabMgr%tabInfo(objIdx)%tabObj)
+          class is (zoaplottab)
+            t%useToolbar = .TRUE.
+          end select
+        end block
+      end if
     end if
 
 

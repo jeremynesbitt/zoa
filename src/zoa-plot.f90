@@ -186,6 +186,24 @@ contains
 
 end type barchart
 
+! VIE lens drawing: the KDP pen-command list (NEUTARRAY records), drawn with
+! cairo at whatever size it is given -- a tab, a MULTIPLOT cell or a PNG --
+! by the renderer registered in vie_renderer (DRAWOPTICALSYSTEM; a hook, as
+! the renderer's module depends on this one).
+type, extends(zoaplot) :: vieplot
+  character(len=42), allocatable :: pen(:)
+end type vieplot
+
+abstract interface
+  subroutine vie_render_iface(pen, cr, w, h)
+    import :: c_ptr
+    character(len=42), intent(in) :: pen(:)
+    type(c_ptr), intent(in) :: cr
+    integer, intent(in) :: w, h
+  end subroutine
+end interface
+procedure(vie_render_iface), pointer :: vie_renderer => null()
+
 type :: multiplot
       !> The collection of plot objects.
       type(list) :: m_plots
@@ -384,6 +402,17 @@ contains
       if (self%isPage .or. self%nChildren > 0) then
         call mp_draw_composite(self)
         return
+      end if
+      ! a lens drawing is drawn with cairo, not PLplot
+      if (self%m_rows == 1 .and. self%m_cols == 1) then
+        plotter => self%get(1,1)
+        if (associated(plotter)) then
+          select type (vp => plotter)
+          type is (vieplot)
+            call mp_draw_vie(self, vp, cr, cw, ch)
+            return
+          end select
+        end if
       end if
       toCr = present(cr)
 
@@ -592,6 +621,67 @@ contains
       end subroutine
 
       end subroutine
+
+  ! A lens drawing (a 1 x 1 multiplot holding a vieplot): the pen commands
+  ! rendered onto cr (a MULTIPLOT cell, already painted), or onto the tab's
+  ! backing surface, or (headless) an image surface written to the PNG.
+  subroutine mp_draw_vie(self, vp, cr, cw, ch)
+      use zoa_plot_output, only: set_plot_output, next_plot_path
+      use g, only: g_object_get_data, g_object_set_data
+      use cairo, only: cairo_create, cairo_destroy, cairo_surface_destroy, &
+      &   cairo_image_surface_create, cairo_surface_write_to_png, cairo_surface_flush, &
+      &   cairo_surface_reference, cairo_set_source_rgb, cairo_paint
+      use gtk, only: gtk_widget_queue_draw, CAIRO_FORMAT_RGB24
+      use iso_c_binding, only: c_double, c_associated, c_null_ptr
+      class(multiplot) :: self
+      type(vieplot), intent(in) :: vp
+      type(c_ptr), intent(in), optional :: cr
+      integer, intent(in), optional :: cw, ch
+      type(c_ptr) :: target, crc
+      integer :: W, H, ios
+      character(len=512) :: pngPath
+
+      if (.not. associated(vie_renderer) .or. .not. allocated(vp%pen)) return
+      if (present(cr)) then
+        call vie_renderer(vp%pen, cr, cw, ch)
+        return
+      end if
+
+      W = self%width
+      H = self%height
+      if (HEADLESS_MODE) then
+        target = cairo_image_surface_create(CAIRO_FORMAT_RGB24, W, H)
+      else
+        target = c_null_ptr
+        if (c_associated(self%area)) &
+          target = g_object_get_data(self%area, "backing-surface"//c_null_char)
+        if (.not. c_associated(target)) then
+          target = cairo_image_surface_create(CAIRO_FORMAT_RGB24, W, H)
+          target = cairo_surface_reference(target)
+          if (c_associated(self%area)) &
+            call g_object_set_data(self%area, "backing-surface"//c_null_char, target)
+        end if
+        W = cairo_image_surface_get_width(target)
+        H = cairo_image_surface_get_height(target)
+      end if
+
+      ! white page (an RGB24 surface starts black; the pen draws in black)
+      crc = cairo_create(target)
+      call cairo_set_source_rgb(crc, 1.0_c_double, 1.0_c_double, 1.0_c_double)
+      call cairo_paint(crc)
+      call vie_renderer(vp%pen, crc, W, H)
+      call cairo_destroy(crc)
+      call cairo_surface_flush(target)
+
+      if (HEADLESS_MODE) then
+        pngPath = next_plot_path()
+        ios = cairo_surface_write_to_png(target, trim(pngPath)//c_null_char)
+        call cairo_surface_destroy(target)
+        if (ios == 0) call set_plot_output(trim(pngPath), W, H)
+      else
+        if (c_associated(self%area)) call gtk_widget_queue_draw(self%area)
+      end if
+  end subroutine mp_draw_vie
 
   ! A MULTIPLOT page: each child multiplot is drawn, by its own unchanged
   ! drawing code, into a cairo sub-surface covering its region of the page's

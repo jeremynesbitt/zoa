@@ -542,7 +542,6 @@ type, extends(zoatab) ::  zoaplottab
   ! Set for tabs drawn imperatively by the legacy KDP routines (VIE) rather
   ! than from a multiplot.  Those never build a backing image surface, so
   ! anything that wants their pixels has to re-render them.
-  logical :: usesKdpDraw = .false.
   logical :: useToolbar
   ! Sizing (see PLOT_MIN_W): follow the tab, or a fixed size (PLTSIZE).
   logical :: autoSize = .true.
@@ -1007,7 +1006,7 @@ subroutine renderAtSize(self, w, h, exact)
   logical :: isExact
 
   if (.not. c_associated(self%canvas)) return
-  if (self%usesKdpDraw .or. .not. self%hasMplt) then
+  if (.not. self%hasMplt) then
     call gtk_widget_queue_draw(self%canvas)
     return
   end if
@@ -1551,6 +1550,9 @@ end function
 
 
    call gtk_notebook_set_current_page(self%dataNotebook, plotLoc)
+   ! The lens drawing has no data to list: just the plot, no Plot/Data tabs
+   if (self%ID_PLOTTYPE == ID_PLOTTYPE_LENSDRAW) &
+     call gtk_notebook_set_show_tabs(self%dataNotebook, FALSE)
 
    call self%finishTab(self%dataNotebook)
    call self%applySizingMode()

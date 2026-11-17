@@ -1052,8 +1052,10 @@ by giving each subplot a cairo sub-surface (`mp_draw_composite`).  The page's
 script is the tab's command (redraw on a lens change; .zin REPLAY record).
 - **GUI path not exercised by the tests** (headless only): tab creation,
   redraw on a lens change, resize, undock, .zin restore of a page.
-- **Not subplot-able**: VIE (legacy drawing), SEIDEL/SINRAYTRA (data tabs), TOW,
-  FAB, WAV, TRA -- refused at GO with a message.
+- **Not subplot-able**: SEIDEL/SINRAYTRA (data tabs), TOW, FAB, WAV, TRA --
+  refused at GO with a message.  (VIE is an ordinary plot since 2026-11-17: a
+  `vieplot` holding its pen commands, drawn by DRAWOPTICALSYSTEM onto any cairo
+  context; the KDP tab type, ROUTEDRAWING and render_vie_to_png are gone.)
 - **Small-cell appearance**: fonts scale by sqrt(region/natural size), floor
   0.5; plots with fixed viewports (RIM's bottom panel, the all-fields spot
   column squeezed into a wide cell) need per-plot tuning (plan step 3).
