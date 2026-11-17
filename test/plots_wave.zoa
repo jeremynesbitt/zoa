@@ -4,3 +4,5 @@ PMA;GO
 ZRNFLD;GO
 PSF;GO
 MTF;GO
+! a grid below CAPFN's minimum (16) snaps up to 16 (it used to crash)
+PMA ; SETDENS 9 ; GO

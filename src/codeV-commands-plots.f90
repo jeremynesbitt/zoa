@@ -285,7 +285,9 @@ contains
         type(zoaplot_setting_manager) :: psm
 
         call psm%initialize(trim(iptStr))
-        call psm%addDensitySetting(64,8,128)
+        ! CAPFN pupil grid: KDP needs NRD >= 16 (a smaller one gave no map
+        ! and PMA crashed reading it); SETDENS below 16 snaps up to 16.
+        call psm%addDensitySetting(64,16,128)
         call psm%addFieldSetting()
         call psm%addWavelengthSetting()
         call psm%addPMASettings()

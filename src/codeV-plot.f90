@@ -656,7 +656,9 @@ contains
 
 
         call psm%initialize(trim(iptStr))
-        call psm%addDensitySetting(64,8,128)
+        ! CAPFN pupil grid: KDP needs NRD >= 16 (it reset a smaller one to
+        ! 16 without saying so)
+        call psm%addDensitySetting(64,16,128)
         call psm%addFieldSetting()
         call psm%addWavelengthSetting()
 

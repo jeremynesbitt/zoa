@@ -236,7 +236,8 @@ plot_modifiers p5 -- and p10 from the spot-diagram fix -- and plots_seidel p1
 from the 2026-11-06 colour-term fix; plots_geom p3 and plot_modifiers p1, p4,
 p9-p14 from 2026-11-13: spot RMS label now centred, RIM honours SETWV; the same
 spot plots again from 2026-11-16: spot panels isotropic, true spot shape; and the
-new mtf_focus and multiplot tests, which have Mac baselines only) need
+new mtf_focus, multiplot and rim_wfr tests and plots_wave p4, which have
+Mac baselines only) need
 regenerating on Windows.**
 
 **Literals.** The 721 `MY_PLOT` calls with a literal page clip box now call
