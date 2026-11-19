@@ -27,6 +27,9 @@ module optim_types
         ! Wj Wm), reference ray Ri (AOI/AOR: 1 = chief .. 5).
         integer :: iS2 = -1, iW2 = 0, iR = 0
         real(long) :: px = 0.0_long, py = 0.0_long, hx = 0.0_long, hy = 0.0_long
+        ! an = constraint WTC moved into the CODE V error function (it stays
+        ! part of CDV, and is saved as "NAME = targ" + "WTC weight")
+        logical :: fromWTC = .false.
         procedure (meritFunc), pointer :: func
         contains
             procedure :: getConstraintTypeAsText
@@ -43,9 +46,17 @@ module optim_types
     ! or a lens is loaded; saved with the lens when not the default.
     real(kind=long), parameter :: IMP_DEFAULT = 0.01_long
     ! Exit controls (CODE V MXC / MNC): the maximum number of cycles, and the
-    ! minimum (0: none -- CODE V's default is 2, which would restart every
-    ! converged run; set MNC to ask for it).
-    integer, parameter :: MXC_DEFAULT = 25, MNC_DEFAULT = 0
+    ! minimum (a run that stops sooner is restarted).
+    integer, parameter :: MXC_DEFAULT = 25, MNC_DEFAULT = 2   ! CODE V defaults
+    ! The error function (CODE V ERR): AUTO uses the user's objective terms
+    ! when there are any and the CODE V error function (CDV) otherwise; CDV
+    ! / USR / BTH / CON as CODE V (CON: constraints only, least change).
+    integer, parameter :: ERR_AUTO = 0, ERR_CDV = 1, ERR_USR = 2, ERR_BTH = 3, ERR_CON = 4
+    ! CODE V error function ray grid and weights (DEL, WTA, OBS, SAP|MER|SAG).
+    ! DEL 0 = CODE V's default: 0.385, or 0.22 with aspheric surfaces.
+    real(kind=long), parameter :: CDV_DEL_DEFAULT = 0.0_long, CDV_WTA_DEFAULT = 0.5_long, &
+    &                             CDV_OBS_DEFAULT = 0.0_long
+    integer, parameter :: CDV_GRID = 0, CDV_SAP = 1, CDV_MER = 2, CDV_SAG = 3
     ! Constraint tolerance: a constraint is met when its residual (in its own
     ! units) is below this -- independent of IMP.  SLSQP has a single
     ! accuracy (acc = IMP) that also bounds the summed constraint violation,
@@ -60,6 +71,13 @@ module optim_types
     type optimizer
         real(kind=long) :: imp = IMP_DEFAULT
         integer :: mxc = MXC_DEFAULT, mnc = MNC_DEFAULT
+        ! INT Y: interactive -- ask after every cycle whether to go on
+        logical :: interactive = .false.
+        logical :: userStopped = .false.     ! this run was stopped at an INT prompt
+        integer :: errMode = ERR_AUTO
+        real(kind=long) :: cdvDel = CDV_DEL_DEFAULT, cdvWta = CDV_WTA_DEFAULT, &
+        &                  cdvObs = CDV_OBS_DEFAULT
+        integer :: cdvPattern = CDV_GRID
         ! User reference rays R6..R9 (CODE V RAY Rk Fj x y): relative pupil
         ! X, Y per field; defined(k, f) once given.
         real(kind=long) :: userRayPupil(2, 6:9, 25) = 0.0_long
@@ -96,6 +114,10 @@ module optim_types
 
     interface
         module function getSPO(self) result(res)
+            class(merit_entry) :: self
+            real(long) :: res
+        end function
+        module function getCodeVErrorFunction(self) result(res)
             class(merit_entry) :: self
             real(long) :: res
         end function
@@ -313,6 +335,9 @@ module optim_types
         call reg('SRN', getRayDataConstraint)
         call reg('SA',  getThirdOrderConstraint)
         call reg('DST', getThirdOrderConstraint)
+        ! the CODE V error function (ERR CDV): weighted RMS transverse ray
+        ! aberration over the DEL grid, all fields and wavelengths
+        call reg('CDV', getCodeVErrorFunction)
 
     contains
 
@@ -335,7 +360,33 @@ module optim_types
         &          (optim%mne /= GEN_MNE_DEFAULT) .OR. (optim%mna /= GEN_MNA_DEFAULT) .OR. &
         &          (optim%mae /= GEN_MAE_DEFAULT) .OR. (.not. optim%genConOn) .OR. &
         &          (optim%imp /= IMP_DEFAULT) .OR. (optim%mxc /= MXC_DEFAULT) .OR. &
-        &          (optim%mnc /= MNC_DEFAULT)
+        &          (optim%mnc /= MNC_DEFAULT) .OR. optim%interactive .OR. &
+        &          (optim%errMode /= ERR_AUTO) .OR. (optim%cdvDel /= CDV_DEL_DEFAULT) .OR. &
+        &          (optim%cdvWta /= CDV_WTA_DEFAULT) .OR. (optim%cdvObs /= CDV_OBS_DEFAULT) .OR. &
+        &          (optim%cdvPattern /= CDV_GRID)
+    end function
+
+    ! Objective terms the user wrote (not CDV, not WTC'd constraints).
+    integer function numUserObjectives()
+        integer :: i
+        numUserObjectives = 0
+        do i = 1, nM
+            if (meritInUse(i)%role /= ID_ROLE_OBJECTIVE) cycle
+            if (trim(meritInUse(i)%name) == 'CDV' .or. meritInUse(i)%fromWTC) cycle
+            numUserObjectives = numUserObjectives + 1
+        end do
+    end function
+
+    ! True when an objective term of this name is in the merit list.
+    logical function hasObjective(name)
+        character(len=*), intent(in) :: name
+        integer :: i
+        hasObjective = .false.
+        do i = 1, nM
+            if (meritInUse(i)%role == ID_ROLE_OBJECTIVE .and. trim(meritInUse(i)%name) == name) then
+                hasObjective = .true.; return
+            end if
+        end do
     end function
 
     ! Counts by role, derived from the merit list (no separate counters to drift).
@@ -506,7 +557,7 @@ module optim_types
         ! reference wavelength only: the Seidel sums are of its paraxial
         ! trace, so Wm is refused rather than silently ignored)
         case ('SA', 'TCO', 'TAS', 'SAS', 'PTB', 'DST'); lay = 'G'
-        case ('AX', 'LAT');                   lay = 'WV'
+        case ('AX', 'LAT');                   lay = 'GWV'
         case ('DIX', 'DIY');                  lay = 'F'
         case ('XCN', 'YCN');                  lay = 'FW'
         case ('AOI', 'AOR');                  lay = 'SRF'
@@ -1060,9 +1111,16 @@ module optim_types
             ! a bare numeric second token as an objective add (weight optional,
             ! so pre-weight files still load).
             do i=1,nM
-                if (meritInUse(i)%role == ID_ROLE_OBJECTIVE) then
+                if (meritInUse(i)%role == ID_ROLE_OBJECTIVE .and. .not. meritInUse(i)%fromWTC) then
                   write(fID, *) trim(meritInUse(i)%name)//trim(meritQualText(meritInUse(i)))// &
                   &  " "//real2str(meritInUse(i)%targ)//" "//real2str(meritInUse(i)%weight)
+                end if
+            end do
+            do i=1,nM
+                if (meritInUse(i)%fromWTC) then
+                  write(fID, *) trim(meritInUse(i)%name)//trim(meritQualText(meritInUse(i)))// &
+                  &  " = "//real2str(meritInUse(i)%targ)
+                  write(fID, *) "WTC "//real2str(meritInUse(i)%weight)
                 end if
             end do
             do i=1,nM
@@ -1082,6 +1140,21 @@ module optim_types
             if (optim%imp /= IMP_DEFAULT) write(fID,'(A,ES15.8)') " IMP ", optim%imp
             if (optim%mxc /= MXC_DEFAULT) write(fID,'(A,I0)') " MXC ", optim%mxc
             if (optim%mnc /= MNC_DEFAULT) write(fID,'(A,I0)') " MNC ", optim%mnc
+            if (optim%interactive) write(fID,'(A)') " INT Y"
+            select case (optim%errMode)
+            case (ERR_CDV); write(fID,'(A)') " ERR CDV"
+            case (ERR_USR); write(fID,'(A)') " ERR USR"
+            case (ERR_BTH); write(fID,'(A)') " ERR BTH"
+            case (ERR_CON); write(fID,'(A)') " ERR CON"
+            end select
+            if (optim%cdvDel /= CDV_DEL_DEFAULT) write(fID,*) "DEL "//real2str(optim%cdvDel)
+            if (optim%cdvWta /= CDV_WTA_DEFAULT) write(fID,*) "WTA "//real2str(optim%cdvWta)
+            if (optim%cdvObs /= CDV_OBS_DEFAULT) write(fID,*) "OBS "//real2str(optim%cdvObs)
+            select case (optim%cdvPattern)
+            case (CDV_SAP); write(fID,'(A)') " SAP Y"
+            case (CDV_MER); write(fID,'(A)') " MER Y"
+            case (CDV_SAG); write(fID,'(A)') " SAG Y"
+            end select
             write(fID, *) "GO"
         end if
         end if
@@ -1132,6 +1205,12 @@ module optim_types
         self%imp = IMP_DEFAULT
         self%mxc = MXC_DEFAULT
         self%mnc = MNC_DEFAULT
+        self%interactive = .false.
+        self%errMode = ERR_AUTO
+        self%cdvDel = CDV_DEL_DEFAULT
+        self%cdvWta = CDV_WTA_DEFAULT
+        self%cdvObs = CDV_OBS_DEFAULT
+        self%cdvPattern = CDV_GRID
         self%userRayDefined = .false.
         self%userRayPupil = 0.0_long
 

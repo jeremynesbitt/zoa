@@ -33,7 +33,7 @@ EVA ((EFL)
 THI S5 3.5
 ! --- EFL=20 without blanks in AUT
 CCY S1 0 ; CCY S2 0 ; CCY S3 0 ; CCY S4 0
-AUT ; EFL=40 ; MXC 30 ; GO
+AUT ; EFL=40 ; MXC 60 ; GO
 EVA (EFL)
 RES osdtriplet
 ! --- a glass from a catalog that does not have it says so
@@ -96,7 +96,7 @@ EVA ((@HALFEFL)*4)
 @BAD == (NOPE S1)
 EVA (@UNDEF)
 CCY S1 0 ; CCY S2 0 ; CCY S3 0 ; CCY S4 0
-AUT ; @HALFEFL = 22 ; GO
+AUT ; @HALFEFL = 22 ; MXC 60 ; GO
 EVA (EFL)
 ! --- FIE options
 RES osdtriplet
@@ -139,3 +139,47 @@ ROF 'G3'
 ROF L M N AOR SRL SRM SRN
 SIN SI 0 1 0 0
 ROF
+! --- CODE V defaults: MNC 2, RSI on axis at the reference wavelength, RSI Fk Rs
+RES osdtriplet
+AUT ; MNC ; GO
+ROF X Y Z
+RSI 0 1
+RSI F3 R2
+RSI F3 0 1
+RSI R2
+ROF
+! --- AX / LAT: CODE V transverse colour (THO's columns), Sk / Si..j, Wj..m
+THO
+EVA (AX W5..4)
+EVA (LAT W5..4)
+EVA (AX S3 W5..4)
+EVA (LAT S1..2 W5..4)
+EVA (AX)
+EVA (AX W1..9)
+CCY S1 0 ; CCY S2 0 ; CCY S3 0 ; CCY S4 0
+AUT ; AX W5..4 = 0 ; LAT W5..4 = 0 ; EFL = 50 ; GO
+EVA (AX W5..4)
+EVA (LAT W5..4)
+! --- INT (headless: the run continues), ERR modes, WTC, CDV grid controls
+RES osdtriplet
+EVA (CDV)
+CCY S1 0 ; CCY S2 0
+AUT ; INT Y ; INT MAYBE ; EFL = 52 ; GO
+EVA (EFL)
+RES osdtriplet
+CCY S1 0 ; CCY S2 0
+AUT ; ERR CON ; EFL = 52 ; GO
+EVA (EFL)
+RES osdtriplet
+CCY S1 0 ; CCY S2 0
+AUT ; EFL = 52 ; WTC 10 ; GO
+RES osdtriplet
+AUT ; DEL 0.2 ; WTA 0.3 ; OBS 0.1 ; MER Y ; GO
+EVA (CDV)
+AUT ; SAG Y ; GO
+EVA (CDV)
+AUT ; SAP Y ; GO
+EVA (CDV)
+AUT ; SAP N ; DEL 0 ; WTA 0.5 ; OBS 0 ; GO
+EVA (CDV)
+AUT ; DMD Y ; DMD N ; DEL 5 ; WTA 2 ; OBS 1 ; ERR FOO ; WTC 2 ; MER MAYBE ; GO

@@ -8,10 +8,10 @@ All constraints removed
 All constraints removed
 
 
-AUT: no operand defined; minimizing spot size (SPO)
+AUT: no operand defined; using the CODE V error function (CDV)
                                                           l
 CYCLE NUMBER 0
-   ERROR FUNCTION = 0.00024
+   ERROR FUNCTION = 0.00012
           RDY          THI     RMD          GLA          CCY     THC     GLC
 OBJ:    INFINITY    INFINITY                              100     100     100
 STO:    INFINITY    6.00000               N-BK7_SCHOTT   100     100     100
@@ -23,7 +23,7 @@ ASPHERES
                                                           l
 Name  Role        Typ  Target              Value               diff
 SA    Constraint  =    0.0000000000000000  -0.0284117247435784  -0.0284117247435784
-SPO   Operand          0.0000000000000000   0.0148603982408516   0.0148603982408516
+CDV   Operand          0.0000000000000000   0.0103822596728954   0.0103822596728954
                                                           l
 CYCLE NUMBER 1
    ERROR FUNCTION = 0.00000
@@ -38,7 +38,7 @@ ASPHERES
                                                           l
 Name  Role        Typ  Target              Value               diff
 SA    Constraint  =    0.0000000000000000  -0.0000000000000052  -0.0000000000000052
-SPO   Operand          0.0000000000000000   0.0006238387251682   0.0006238387251682
+CDV   Operand          0.0000000000000000   0.0004358034761615   0.0004358034761615
                                                           l
 CYCLE NUMBER 2
    ERROR FUNCTION = 0.00000
@@ -53,7 +53,7 @@ ASPHERES
                                                           l
 Name  Role        Typ  Target              Value               diff
 SA    Constraint  =    0.0000000000000000  -0.0000000000000052  -0.0000000000000052
-SPO   Operand          0.0000000000000000   0.0006238387251682   0.0006238387251682
+CDV   Operand          0.0000000000000000   0.0004358034761615   0.0004358034761615
 AUT: done after 2 iterations, status: Required accuracy for solution obtained
 ENTRANCE PUPIL
 DIA       20.0000

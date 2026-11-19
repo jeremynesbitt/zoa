@@ -1086,3 +1086,11 @@ Punted by the user after the High-priority pass (935dba3):
 - Also not done: SPO `ANN LEN` / `ANN INI`, PMA `ZFR EXP|EXS` (the
   qualifier is ignored; the fit is to the pupil-map grid), SIN `Zn` other
   than Z1.
+- **AUT DMD Y** (colour from D-d instead of tracing): refused with a note;
+  CDV traces every wavelength.
+- **CDV aperture weighting (WTA)** uses w = 1 - WTA*rho^2 (centre 1, rim
+  1 - WTA).  CODE V does not publish its formula; compare against CODE V if
+  a reference design is available.  CDV also has no CEN (centroid
+  reference), WFR (wavefront variance), TFO, WTX/WTY/WTW, NRR/NSP or CPA.
+- **INT Y** asks through the GUI's Yes/No dialog after every cycle; without
+  a GUI the run continues.  The dialog/abort path is untested by the suite.

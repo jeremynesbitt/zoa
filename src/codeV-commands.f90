@@ -274,6 +274,12 @@ module codeV_commands
    module subroutine updateOptimImprovementGoal(iptStr)
    character(len=*) :: iptStr
    end subroutine updateOptimImprovementGoal
+   module subroutine setErrorFunctionOption(iptStr)
+    character(len=*) :: iptStr
+   end subroutine setErrorFunctionOption
+   module subroutine setOptimInteractive(iptStr)
+    character(len=*) :: iptStr
+   end subroutine setOptimInteractive
    module subroutine updateOptimCycles(iptStr)
    character(len=*) :: iptStr
    end subroutine updateOptimCycles
@@ -1267,6 +1273,19 @@ module codeV_commands
         if (cmd_loop == AUT_LOOP .and. trim(iptCmd) == 'RAY') then
             call defineUserRay(currentCommand); boolResult = .TRUE.; return
         end if
+        ! AUT / TAR (a saved merit block): INT Y|N, interactive optimization
+        ! (INT is a legacy word elsewhere)
+        if ((cmd_loop == AUT_LOOP .or. cmd_loop == TAR_LOOP) .and. trim(iptCmd) == 'INT') then
+            call setOptimInteractive(currentCommand); boolResult = .TRUE.; return
+        end if
+        ! AUT / TAR: the error function controls (DEL, OBS, SAP, ... mean
+        ! other things outside it)
+        if (cmd_loop == AUT_LOOP .or. cmd_loop == TAR_LOOP) then
+            select case (trim(iptCmd))
+            case ('ERR', 'DEL', 'WTA', 'OBS', 'SAP', 'MER', 'SAG', 'DMD', 'WTC')
+                call setErrorFunctionOption(currentCommand); boolResult = .TRUE.; return
+            end select
+        end if
 
         ! FIE options (LSA, ZFO, FFD mean other things elsewhere)
         if (cmd_loop == ID_PLOTTYPE_AST) then
@@ -2047,9 +2066,13 @@ module codeV_commands
     ! If in VIE level it will save the rays intersection coordinates for use with plooting
     ! Format RSI fi..k wi..k relApeX relApeY
     !## cmd:      RSI
-    !## syntax:   RSI fi..k wi..k relApX relApY
+    !## syntax:   RSI [Fk|Fi..j] [Wn] XR YR  |  RSI Fk Rs  |  RSI [Wn] XR YR thXR thYR
     !## category: Analysis
-    !## desc:     Trace a single ray and report ray-intercept / OPD data.
+    !## desc:     Trace a single ray and list it surface by surface (see ROF).
+    !##           XR YR are relative pupil coordinates; without Fk the ray is
+    !##           on axis, without Wn at the reference wavelength (CODE V's
+    !##           defaults).  Rs (R1..R5) is a reference ray of field Fk,
+    !##           vignetting included; thXR thYR give a relative field.
     !##
     subroutine execRSI(iptStr)
         use global_widgets, only: sysConfig, curr_lens_data
@@ -2074,6 +2097,8 @@ module codeV_commands
         integer :: nNum
         real(kind=real64) :: numVals(4), fieldX, fieldY
         logical :: fieldGiven
+        integer :: refRay
+        real(kind=real64) :: vig(4)
 
         ! Structured-result locals
         integer :: nsurfs, surf_idx, nrows
@@ -2089,6 +2114,20 @@ module codeV_commands
         relApeY = 0.0
 
         call parse(trim(iptStr), ' ', tokens, numTokens)
+
+        ! Rs: a reference ray (R1 chief, R2/R3 upper/lower, R4/R5 +X/-X rim)
+        refRay = 0
+        do i = 2, numTokens
+            if (tokens(i)(1:1) == 'R' .and. len_trim(tokens(i)) == 2) then
+                if (index('12345', tokens(i)(2:2)) > 0) then
+                    refRay = index('12345', tokens(i)(2:2))
+                    ! (drop it: the other parsers see only F/W and numbers)
+                    tokens(i:numTokens-1) = tokens(i+1:numTokens)
+                    numTokens = numTokens - 1
+                    exit
+                end if
+            end if
+        end do
 
         ! CODE V's RSI XR YR thXR thYR: pupil X Y and relative field X Y -- one
         ! ray at that field, at the reference wavelength unless Wk is given.
@@ -2114,10 +2153,27 @@ module codeV_commands
                 allocate(wavelengths(1)); wavelengths(1) = sysConfig%getRefWavelengthIndex()
             end if
         else
-            fields = cmd_parser_get_int_input_for_prefix('f', tokens(1:numTokens))
-            wavelengths = cmd_parser_get_int_input_for_prefix('w', tokens(1:numTokens))
+            ! CODE V defaults: on axis without Fk, the reference wavelength
+            ! without Wk
+            if (any([(tokens(i)(1:1) == 'F', i = 2, numTokens)])) then
+                fields = cmd_parser_get_int_input_for_prefix('f', tokens(1:numTokens))
+            else
+                fieldGiven = .true.
+                fieldX = 0.0_real64; fieldY = 0.0_real64
+                allocate(fields(1)); fields(1) = 0
+            end if
+            if (any([(tokens(i)(1:1) == 'W', i = 2, numTokens)])) then
+                wavelengths = cmd_parser_get_int_input_for_prefix('w', tokens(1:numTokens))
+            else
+                allocate(wavelengths(1)); wavelengths(1) = sysConfig%getRefWavelengthIndex()
+            end if
             call cmd_parser_get_real_pair(tokens(1:numTokens), relApeX, relApeY, &
             & real1Bounds=[-1.0,1.0], real2Bounds=[-1.0,1.0])
+        end if
+        if (refRay > 0 .and. (fieldGiven .or. nNum > 0)) then
+            call zoa_emit("Error:  RSI: a reference ray goes with a field and no pupil "// &
+            &             "coordinates: RSI Fk Rs", "red")
+            return
         end if
         !fields = cmd_parser_get_fields(tokens(1:numTokens))
         do i=1,size(fields)
@@ -2147,6 +2203,16 @@ module codeV_commands
                 call kdp_fob(fieldY, fieldX)
             else
                 call kdp_fob(sysConfig%relativeFields(2,fields(j)), sysConfig%relativeFields(1,fields(j)))
+            end if
+            if (refRay > 0 .and. .not. fieldGiven) then
+                vig = sysConfig%getVignetting(fields(j))
+                relApeX = 0.0_real64; relApeY = 0.0_real64
+                select case (refRay)
+                case (2); relApeY =  (1.0_real64 - vig(1))
+                case (3); relApeY = -(1.0_real64 - vig(2))
+                case (4); relApeX =  (1.0_real64 - vig(3))
+                case (5); relApeX = -(1.0_real64 - vig(4))
+                end select
             end if
             !REST_KDP(1)=RESTINPT(1)
 

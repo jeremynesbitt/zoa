@@ -39,6 +39,125 @@ contains
         res = sum(rmsxyData)/(2.0_long*sum(wt))
     end function
 
+    ! CDV, the CODE V default error function: the weighted RMS of the
+    ! transverse ray aberrations (dx, dy at the image, from the reference
+    ! wavelength's chief ray of each field) over a grid of rays in the
+    ! vignetted pupil, every field (WTF weights) and wavelength (spectral
+    ! weights) traced.  The grid (DEL, OBS, SAP/MER/SAG):
+    !   * default: points (i+1/2)*DEL, (j+1/2)*DEL inside the unit circle --
+    !     all skew rays, none on the meridional or sagittal planes (CODE V:
+    !     DEL 0.385 gives 12 rays in the half pupil), DEL 0.22 when the lens
+    !     has aspheric surfaces;
+    !   * SAP Y: the square of grid points, unclipped;
+    !   * MER Y / SAG Y: the Y / X fan only, at multiples of DEL;
+    !   * OBS f: rays with relative radius below f are left out.
+    ! Aperture weight (WTA, default 0.5): w = 1 - WTA*rho^2, so the centre
+    ! counts fully and the rim (1 - WTA) -- Zoa's reading of CODE V's "weight
+    ! on aperture center", which is not published as a formula.
+    ! As an objective (target 0, weight 1) the error function is the
+    ! weighted mean square.  The pupil is the vignetted one (VUY.. -- SET
+    ! VIG derives them from the apertures); the rays are not clipped at each
+    ! clear aperture, which would make the error function jump as rays come
+    ! and go.  A ray that does not trace is left out.
+    module function getCodeVErrorFunction(self) result(res)
+        use global_widgets, only: sysConfig
+        use mod_kdp_api, only: kdp_fob, kdp_silent_begin, kdp_silent_end
+        use mod_ray_trace_engine, only: trace_context, ray_request, ray_result, trace_ray, RAY_OK
+        use mod_ray_trace_builder, only: build_trace_context
+        use mod_lens_data_manager, only: ldm
+        use mod_surface, only: surf_is_asphere, surf_conic
+        class(merit_entry) :: self
+        real(long) :: res
+        type(trace_context) :: ctx
+        type(ray_request) :: req
+        type(ray_result) :: rr
+        real(long), allocatable :: gx(:), gy(:)
+        real(long) :: del, wt(10), ww(10), vig(4), xc, yc, px, py, w, sw, swe, rho2
+        integer :: f, l, k, n, iref, img, nwl, i, j, m
+
+        res = 0.0_long
+        nwl = sysConfig%numWavelengths
+        iref = sysConfig%refWavelengthIndex
+        img = ldm%getLastSurf()
+
+        ! the grid on the unit pupil
+        del = optim%cdvDel
+        if (del <= 0.0_long) then
+            del = 0.385_long
+            do k = 1, img
+                if (surf_is_asphere(k) .or. surf_conic(k) /= 0.0_long) then
+                    del = 0.22_long; exit
+                end if
+            end do
+        end if
+        m = int(1.0_long/del) + 1
+        allocate(gx(4*(m+1)**2), gy(4*(m+1)**2))
+        n = 0
+        select case (optim%cdvPattern)
+        case (CDV_MER, CDV_SAG)
+            do i = -m, m
+                if (abs(i*del) > 1.0_long + 1.0e-9_long) cycle
+                n = n + 1
+                if (optim%cdvPattern == CDV_MER) then
+                    gx(n) = 0.0_long; gy(n) = i*del
+                else
+                    gx(n) = i*del; gy(n) = 0.0_long
+                end if
+            end do
+        case default
+            do i = -m, m - 1
+                do j = -m, m - 1
+                    px = (i + 0.5_long)*del; py = (j + 0.5_long)*del
+                    if (abs(px) > 1.0_long .or. abs(py) > 1.0_long) cycle
+                    if (optim%cdvPattern /= CDV_SAP .and. px*px + py*py > 1.0_long + 1.0e-9_long) cycle
+                    n = n + 1
+                    gx(n) = px; gy(n) = py
+                end do
+            end do
+        end select
+
+        wt = 0.0_long
+        wt(1:sysConfig%numFields) = max(sysConfig%fieldWeights(1:sysConfig%numFields), 0.0_long)
+        if (maxval(wt) <= 0.0_long) wt(1:sysConfig%numFields) = 1.0_long
+        ww = 0.0_long
+        ww(1:nwl) = max(sysConfig%spectralWeights(1:nwl), 0.0_long)
+        if (maxval(ww) <= 0.0_long) ww(1:nwl) = 1.0_long
+
+        sw = 0.0_long; swe = 0.0_long
+        do f = 1, sysConfig%numFields
+            if (wt(f) == 0.0_long) cycle
+            call kdp_silent_begin()
+            call kdp_fob(sysConfig%relativeFields(2,f), sysConfig%relativeFields(1,f))
+            call kdp_silent_end()
+            call build_trace_context(ctx, check_apertures=.false.)
+            if (.not. ctx%supported) cycle
+            ! the reference wavelength's chief ray
+            req%px = 0.0_long; req%py = 0.0_long; req%iwl = iref
+            req%for_optimization = .true.
+            call trace_ray(ctx, req, rr)
+            if (rr%status /= RAY_OK) cycle
+            xc = rr%rr(1, img); yc = rr%rr(2, img)
+            vig = sysConfig%getVignetting(f)
+            do l = 1, nwl
+                if (ww(l) == 0.0_long) cycle
+                do k = 1, n
+                    rho2 = gx(k)**2 + gy(k)**2
+                    if (optim%cdvObs > 0.0_long .and. rho2 < optim%cdvObs**2) cycle
+                    ! onto the vignetted pupil
+                    py = gy(k)*merge(1.0_long - vig(1), 1.0_long - vig(2), gy(k) >= 0.0_long)
+                    px = gx(k)*merge(1.0_long - vig(3), 1.0_long - vig(4), gx(k) >= 0.0_long)
+                    req%px = px; req%py = py; req%iwl = l
+                    call trace_ray(ctx, req, rr)
+                    if (rr%status /= RAY_OK) cycle
+                    w = wt(f)*ww(l)*max(0.0_long, 1.0_long - optim%cdvWta*min(rho2, 1.0_long))
+                    sw = sw + w
+                    swe = swe + w*((rr%rr(1, img) - xc)**2 + (rr%rr(2, img) - yc)**2)
+                end do
+            end do
+        end do
+        if (sw > 0.0_long) res = sqrt(swe/sw)
+    end function
+
     module function getEFLConstraint(self) result(res)
         use mod_lens_data_manager
         class(merit_entry) :: self
@@ -452,43 +571,45 @@ contains
         end do
     end subroutine
 
-    ! AX / LAT [Wj] [Wm] (CODE V, paraxial): axial colour = paraxial image
-    ! distance (from the last surface) at Wj minus at Wm; lateral colour =
-    ! paraxial chief ray height on the image at Wj minus at Wm.  Default Wj =
-    ! W1, Wm = the last wavelength (CODE V's defaults).
+    ! AX / LAT [Sk|Si..j] [Wj..m] (CODE V): primary transverse axial and
+    ! lateral colour between Wj and Wm (default W1 and the last wavelength),
+    ! as THO lists them (2 AC3, 2 LC3) -- summed over all surfaces, or the
+    ! contribution of Sk / the sum over Si..j.  (Until 2026-11-19 AX was the
+    ! longitudinal image-distance difference and LAT the paraxial chief-ray
+    ! height difference.)
     module function getColorConstraint(self) result(res)
-        use mod_lens_data_manager
-        use global_widgets, only: sysConfig
+        use global_widgets, only: curr_par_ray_trace, curr_lens_data, sysConfig
+        use seidel_calcs, only: colourPair
         class(merit_entry) :: self
         real(long) :: res
-        integer :: w1, w2, kLast
-        real(long) :: r1(8), r2(8)
+        interface
+            subroutine MMAB3_NEW(YFLAG, idxWV, printTable)
+                logical, intent(in) :: YFLAG
+                integer, intent(in) :: idxWV
+                logical, optional, intent(in) :: printTable
+            end subroutine
+        end interface
+        integer :: w1, w2, ns, s1, s2, row
 
+        res = 0.0_long
         w1 = merge(self%iW, 1, self%iW > 0)
         w2 = merge(self%iW2, sysConfig%numWavelengths, self%iW2 > 0)
-        if (trim(self%name) == 'AX') then
-            kLast = ldm%getLastSurf() - 1
-            call paraxialRayAt(kLast, w1, .false., r1)
-            call paraxialRayAt(kLast, w2, .false., r2)
-            res = imageDistance(r1) - imageDistance(r2)
+        if (w1 == w2) return
+        colourPair = [w1, w2]
+        call MMAB3_NEW(.TRUE., sysConfig%refWavelengthIndex, .FALSE.)
+        colourPair = 0
+        if (.not. allocated(curr_par_ray_trace%CSeidel)) return
+        row = merge(6, 7, trim(self%name) == 'AX')
+        ns = curr_lens_data%num_surfaces              ! column ns: the sum
+        if (self%iS >= 0) then
+            s1 = max(self%iS, lbound(curr_par_ray_trace%CSeidel, 2))
+            s2 = self%iS
+            if (self%iS2 >= 0) s2 = self%iS2
+            s2 = min(s2, ns - 1)
+            res = 2.0_long*sum(curr_par_ray_trace%CSeidel(row, s1:s2))
         else
-            kLast = ldm%getLastSurf()
-            call paraxialRayAt(kLast, w1, .false., r1)
-            call paraxialRayAt(kLast, w2, .false., r2)
-            res = r1(5) - r2(5)
+            res = 2.0_long*curr_par_ray_trace%CSeidel(row, ns)
         end if
-
-    contains
-
-        ! Where the marginal ray leaving the last surface crosses the axis.
-        real(long) function imageDistance(r)
-            real(long), intent(in) :: r(8)
-            if (r(2) /= 0.0_long) then
-                imageDistance = -r(1)/r(2)
-            else
-                imageDistance = 1.0e20_long
-            end if
-        end function
     end function
 
     ! DIX / DIY [Fk] (CODE V): distortion fraction of field k (default the

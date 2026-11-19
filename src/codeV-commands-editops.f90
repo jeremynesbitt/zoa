@@ -390,7 +390,7 @@ contains
             if (len_trim(t) < 2) exit
             if (index('SWZFR', t(1:1)) == 0) exit
             if (.not. (isInputNumber(trim(t(2:))) .or. trim(t) == 'SI' .or. trim(t) == 'SO' &
-            &          .or. (t(1:1) == 'S' .and. index(t, '..') > 0))) exit
+            &          .or. ((t(1:1) == 'S' .or. t(1:1) == 'W') .and. index(t, '..') > 0))) exit
 
             if (.not. takes(t(1:1))) then
                 call zoa_emit("Error:  "//trim(tokens(1))//" takes no "//trim(t)//" qualifier", "red")
@@ -410,6 +410,27 @@ contains
                 if (s1 /= s0) q%iS2 = s1
                 seenS = .true.
             case ('W')
+                ! Wj..m: the pair of a two-wavelength operand (AX, LAT)
+                if (index(t, '..') > 0 .and. index(lay, 'V') > 0 .and. nW == 0) then
+                    block
+                        integer :: p, a, b
+                        p = index(t, '..')
+                        a = -1; b = -1
+                        if (isInputNumber(t(2:p-1)) .and. isInputNumber(trim(t(p+2:)))) then
+                            a = str2int(t(2:p-1)); b = str2int(trim(t(p+2:)))
+                        end if
+                        if (a < 1 .or. b < 1 .or. a > sysConfig%numWavelengths .or. &
+                        &   b > sysConfig%numWavelengths) then
+                            call zoa_emit("Error:  bad wavelength pair "//trim(t)//" (W1..W"// &
+                            &  trim(int2str(sysConfig%numWavelengths))//")", "red")
+                            ok = .false.; return
+                        end if
+                        q%iW = a; q%iW2 = b; nW = 2
+                    end block
+                else if (index(t, '..') > 0) then
+                    call zoa_emit("Error:  "//trim(tokens(1))//" takes one wavelength, not "//trim(t), "red")
+                    ok = .false.; return
+                else
                 v = str2int(trim(t(2:)))
                 if (v < 1 .or. v > sysConfig%numWavelengths) then
                     call zoa_emit("Error:  wavelength "//trim(t)//" is not defined (W1..W"// &
@@ -424,6 +445,7 @@ contains
                 else
                     call zoa_emit("Error:  "//trim(tokens(1))//": too many wavelengths", "red")
                     ok = .false.; return
+                end if
                 end if
             case ('F')
                 v = str2int(trim(t(2:)))
@@ -1380,7 +1402,7 @@ contains
     !## cmd:      MNC
     !## syntax:   MNC n
     !## category: Optimization
-    !## desc:     AUT: the minimum number of optimization cycles (default 0, no minimum).
+    !## desc:     AUT: the minimum number of optimization cycles (default 2, as CODE V).
     !##
     module procedure updateOptimCycles
         use command_utils
@@ -1416,6 +1438,162 @@ contains
         end if
         if (optim%mnc > optim%mxc) call zoa_emit('Note:  MNC is more than MXC; MXC limits the run', "black")
     end procedure updateOptimCycles
+
+    !## cmd:      ERR
+    !## syntax:   ERR CDV|USR|BTH|CON
+    !## category: Optimization
+    !## desc:     AUT: the error function -- CDV the CODE V error function (weighted
+    !##           RMS transverse ray aberration over a pupil grid, all fields and
+    !##           wavelengths), USR the objective terms you defined (NAME targ
+    !##           weight), BTH both, CON constraints only (least change of the
+    !##           variables).  Without ERR: your terms if any, otherwise CDV.
+    !##
+    !## cmd:      DEL
+    !## syntax:   DEL pupil_increment
+    !## category: Optimization
+    !## desc:     AUT: the CDV ray grid spacing in pupil fractions (default 0.385, or
+    !##           0.22 when the lens has aspheric surfaces).  DEL 0 restores it.
+    !##
+    !## cmd:      WTA
+    !## syntax:   WTA weight
+    !## category: Optimization
+    !## desc:     AUT: CDV aperture weighting, w = 1 - WTA*rho^2 (default 0.5: the
+    !##           rim counts half as much as the centre; 0 weights all rays equally).
+    !##
+    !## cmd:      OBS
+    !## syntax:   OBS fraction
+    !## category: Optimization
+    !## desc:     AUT: CDV leaves out rays inside this fraction of the pupil radius
+    !##           (a central obscuration; default 0).
+    !##
+    !## cmd:      SAP
+    !## syntax:   SAP|MER|SAG [Y|N]
+    !## category: Optimization
+    !## desc:     AUT: the CDV ray pattern -- SAP the full square grid, MER only the
+    !##           meridional (Y) fan, SAG only the sagittal (X) fan.  N restores
+    !##           the default circular grid of skew rays.
+    !##
+    !## cmd:      WTC
+    !## syntax:   WTC weight
+    !## category: Optimization
+    !## desc:     AUT: put the preceding = constraint into the error function with
+    !##           this weight instead of solving it exactly.
+    !##
+    module procedure setErrorFunctionOption
+        use command_utils, only: isInputNumber
+        use optim_types
+        character(len=80) :: tokens(40)
+        integer :: numTokens
+        real(kind=real64) :: v
+        logical :: num
+
+        call parse(trim(iptStr), ' ', tokens, numTokens)
+        num = .false.
+        if (numTokens == 2) num = isInputNumber(trim(tokens(2)))
+        if (num) v = str2real8(trim(tokens(2)))
+        select case (trim(tokens(1)))
+        case ('ERR')
+            if (numTokens == 2) then
+                select case (trim(tokens(2)))
+                case ('CDV'); optim%errMode = ERR_CDV; return
+                case ('USR'); optim%errMode = ERR_USR; return
+                case ('BTH'); optim%errMode = ERR_BTH; return
+                case ('CON'); optim%errMode = ERR_CON; return
+                end select
+            end if
+            call zoa_emit("Error:  AUT: expected ERR CDV|USR|BTH|CON", "red")
+        case ('DEL')
+            if (num) then
+                if (v == 0.0_real64 .or. (v >= 0.01_real64 .and. v <= 1.0_real64)) then
+                    optim%cdvDel = v; return
+                end if
+            end if
+            call zoa_emit("Error:  AUT: expected DEL x, 0.01 <= x <= 1 (DEL 0: the default)", "red")
+        case ('WTA')
+            if (num) then
+                if (v >= 0.0_real64 .and. v <= 1.0_real64) then
+                    optim%cdvWta = v; return
+                end if
+            end if
+            call zoa_emit("Error:  AUT: expected WTA w, 0 <= w <= 1", "red")
+        case ('OBS')
+            if (num) then
+                if (v >= 0.0_real64 .and. v < 1.0_real64) then
+                    optim%cdvObs = v; return
+                end if
+            end if
+            call zoa_emit("Error:  AUT: expected OBS f, 0 <= f < 1", "red")
+        case ('SAP', 'MER', 'SAG')
+            block
+                logical :: yes
+                yes = .true.
+                if (numTokens == 2) then
+                    select case (trim(tokens(2)))
+                    case ('Y', 'YES'); yes = .true.
+                    case ('N', 'NO');  yes = .false.
+                    case default
+                        call zoa_emit("Error:  AUT: expected "//trim(tokens(1))//" [Y|N]", "red"); return
+                    end select
+                else if (numTokens > 2) then
+                    call zoa_emit("Error:  AUT: expected "//trim(tokens(1))//" [Y|N]", "red"); return
+                end if
+                if (.not. yes) then
+                    optim%cdvPattern = CDV_GRID
+                else if (trim(tokens(1)) == 'SAP') then
+                    optim%cdvPattern = CDV_SAP
+                else if (trim(tokens(1)) == 'MER') then
+                    optim%cdvPattern = CDV_MER
+                else
+                    optim%cdvPattern = CDV_SAG
+                end if
+            end block
+        case ('DMD')
+            if (numTokens == 2) then
+                if (trim(tokens(2)) == 'N' .or. trim(tokens(2)) == 'NO') return
+            end if
+            call zoa_emit("AUT: DMD (colour from D-d) is not available; every wavelength is traced", "red")
+        case ('WTC')
+            if (.not. num .or. v <= 0.0_real64) then
+                call zoa_emit("Error:  AUT: expected WTC weight (greater than 0)", "red"); return
+            end if
+            if (nM < 1) then
+                call zoa_emit("Error:  WTC: no constraint before it", "red"); return
+            end if
+            if (meritInUse(nM)%role /= ID_ROLE_CONSTRAINT .or. &
+            &   meritInUse(nM)%conType /= ID_CON_EXACT) then
+                call zoa_emit("Error:  WTC applies to the preceding = constraint", "red"); return
+            end if
+            meritInUse(nM)%role = ID_ROLE_OBJECTIVE
+            meritInUse(nM)%weight = v
+            meritInUse(nM)%fromWTC = .true.
+        end select
+    end procedure setErrorFunctionOption
+
+    !## cmd:      INT
+    !## syntax:   INT [Y|N]
+    !## category: Optimization
+    !## desc:     AUT: interactive optimization -- after every cycle, ask whether
+    !##           to continue (No stops with the lens at that cycle's solution).
+    !##           Default N.  Without a GUI the run continues (nothing to ask).
+    !##
+    module procedure setOptimInteractive
+        use optim_types, only: optim
+        character(len=80) :: tokens(40)
+        integer :: numTokens
+
+        call parse(trim(iptStr), ' ', tokens, numTokens)
+        if (numTokens == 1) then
+            optim%interactive = .true.
+            return
+        end if
+        if (numTokens == 2) then
+            select case (trim(tokens(2)))
+            case ('Y', 'YES'); optim%interactive = .true.;  return
+            case ('N', 'NO');  optim%interactive = .false.; return
+            end select
+        end if
+        call zoa_emit('Error:  AUT: expected INT [Y|N]', "red")
+    end procedure setOptimInteractive
 
     !## cmd:      RAY
     !## syntax:   RAY Rk Fj x y

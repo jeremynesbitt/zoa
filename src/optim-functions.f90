@@ -7,6 +7,11 @@ module optim_functions
    use iso_fortran_env, only: real64
     implicit none
 
+    ! The error function this run uses (ERR, resolved at GO) and, for ERR
+    ! CON, the starting variables (the objective is the change from them).
+    integer :: runErrMode = 0
+    real(long), allocatable :: xStart(:)
+
 contains
 
 subroutine aut_go()
@@ -66,9 +71,27 @@ subroutine aut_go()
     ! the first iteration and the run ended before the constraints were even
     ! satisfied -- the user expectation is "minimize spot subject to the
     ! constraints".
-    if (numObjectives() == 0) then
-        call zoa_emit("AUT: no operand defined; minimizing spot size (SPO)", "black")
-        call addMeritEntry('SPO', ID_ROLE_OBJECTIVE, 0.0_long)
+    ! The error function (CODE V ERR).  Without an ERR command: the user's
+    ! objective terms when there are any (Zoa's NAME targ weight lines),
+    ! otherwise the CODE V error function CDV.  CDV / BTH add the CDV term
+    ! when it is missing; ERR CON minimizes the change of the variables
+    ! subject to the constraints (a constant objective would end the run
+    ! before the constraints were met).
+    runErrMode = optim%errMode
+    if (runErrMode == ERR_AUTO) then
+        runErrMode = ERR_USR
+        if (numUserObjectives() == 0) runErrMode = ERR_CDV
+    end if
+    if (runErrMode == ERR_CDV .or. runErrMode == ERR_BTH) then
+        if (.not. hasObjective('CDV')) then
+            if (optim%errMode == ERR_AUTO) call zoa_emit( &
+            &   "AUT: no operand defined; using the CODE V error function (CDV)", "black")
+            call addMeritEntry('CDV', ID_ROLE_OBJECTIVE, 0.0_long)
+        end if
+    end if
+    if (runErrMode == ERR_USR .and. numUserObjectives() == 0) then
+        call zoa_emit("AUT: ERR USR but no objective terms are defined; using ERR CON", "red")
+        runErrMode = ERR_CON
     end if
 
 
@@ -99,6 +122,7 @@ subroutine aut_go()
     ! updateLensDuringOptimization applies x*s to the lens.
     call setVariableScales(x)
     x  = x/varScale
+    xStart = x
     where (abs(xl) < 1.0e30_long) xl = xl/varScale
     where (abs(xu) < 1.0e30_long) xu = xu/varScale
 
@@ -121,6 +145,7 @@ subroutine aut_go()
         call ioConfig%setTextView(ID_TERMINAL_KDPDUMP)
         block
             character(len=:), allocatable :: status_message
+            optim%userStopped = .false.
             call solver%optimize(x,istat,iterations,status_message)
             ! MNC: a run that stopped before the minimum number of cycles
             ! is continued from where it stopped (at most MNC restarts).
@@ -128,7 +153,8 @@ subroutine aut_go()
                 integer :: total, more, restarts
                 total = iterations
                 restarts = 0
-                do while (total < optim%mnc .and. total < optim%mxc .and. restarts < optim%mnc)
+                do while (total < optim%mnc .and. total < optim%mxc .and. restarts < optim%mnc &
+                &         .and. .not. optim%userStopped)
                     call solver%optimize(x,istat,more,status_message)
                     total = total + more
                     restarts = restarts + 1
@@ -280,10 +306,22 @@ subroutine optimizerFunc(me, x,f,c)
     f = 0
     do i=1,nM
         if (meritInUse(i)%role /= ID_ROLE_OBJECTIVE) cycle
+        ! ERR: CDV uses only the CODE V error function, USR only the user's
+        ! terms, CON none of them
+        select case (runErrMode)
+        case (ERR_CDV)
+            if (trim(meritInUse(i)%name) /= 'CDV' .and. .not. meritInUse(i)%fromWTC) cycle
+        case (ERR_USR)
+            if (trim(meritInUse(i)%name) == 'CDV') cycle
+        case (ERR_CON); cycle
+        end select
         val = meritInUse(i)%func()
         meritInUse(i)%val = val
         f = f + meritInUse(i)%weight * (val - meritInUse(i)%targ)**2
     end do
+    if (runErrMode == ERR_CON .and. allocated(xStart)) then
+        if (size(xStart) == size(x)) f = sum((x - xStart)**2)
+    end if
 
     ! Constraints: slsqp requires equality constraints first, then
     ! inequalities in the c(x) >= 0 convention.
@@ -421,6 +459,21 @@ subroutine report_iteration(me,iter,x,f,c)
         end block
     end if
     call ioConfig%restoreTextView()
+
+    ! INT Y: ask whether to go on (the GUI's Yes/No; headless always yes)
+    if (optim%interactive .and. iter >= 1) then
+        block
+            use zoa_ui_callbacks, only: query_yes_no
+            logical :: goOn
+            call query_yes_no("Cycle "//trim(int2str(iter))//": error function "// &
+            &   trim(real2str(f))//".  Continue optimizing?", "AUT (INT)", goOn)
+            if (.not. goOn) then
+                call me%abort()
+                optim%userStopped = .true.
+                call zoa_emit("AUT: stopped at cycle "//trim(int2str(iter))//" (INT)", "black")
+            end if
+        end block
+    end if
     ! CALL OUTKDP("Constraint   target    value     diff ")
     ! write(output_line,'(*(A20,1X))') 'EFL', &
     ! 'x(1)', 'x(2)', 'x(3)', &

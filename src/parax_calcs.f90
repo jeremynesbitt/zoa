@@ -264,6 +264,10 @@ contains
 end module
 
 module seidel_calcs
+! The wavelength pair of the chromatic Seidel terms (AC, LC): [0, 0] means
+! the longest and shortest wavelengths; the AX/LAT constraints set a CODE V
+! Wj..m pair for their evaluation and reset it.
+integer :: colourPair(2) = 0
 
         !type seidel_data, extends(lens_data)
 
@@ -354,6 +358,9 @@ module seidel_calcs
                         lamShort = lam; wlShort = wl
                     end if
                 end do
+                if (all(colourPair > 0) .and. all(colourPair <= nw)) then
+                    wlLong = colourPair(1); wlShort = colourPair(2)
+                end if
                 if (wlLong == wlShort) return
                 do k = 1, min(INT(sys_last_surf()), ubound(C,2))
                     n  = ldm%getSurfIndex(k-1, INT(sys_wl_ref()))
