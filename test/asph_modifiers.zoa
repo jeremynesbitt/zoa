@@ -22,7 +22,7 @@ AC S1 0
 KC S1 0
 SAV asphmod
 RES asphmod
-! 3) Optimization: singlet with SAS=0 constraint driven by the A4 coefficient
+! 3) Optimization: singlet with SA=0 constraint driven by the A4 coefficient
 ! (proves the optimizer actually varies an asphere coefficient).
 LEN NEW
 EPD 20.0
@@ -36,6 +36,6 @@ PIM
 SI 0.0 0.0
 AC S2 0
 AUT
-SAS = 0
+SA = 0
 GO
 LIS

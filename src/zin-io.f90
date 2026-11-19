@@ -10,9 +10,11 @@ module mod_zin_io
   private
 
   character(len=8), parameter, public :: ZIN_MAGIC = 'ZOAZIN  '
-  ! 2: zoaplot records end with the isotropic flag.  Version 1 files are
-  ! still read (zin_read_version tells the record readers which layout).
-  integer(int32), parameter, public :: ZIN_FORMAT_VERSION = 2_int32
+  ! 2: zoaplot records end with the isotropic flag.  3: image plot records
+  ! end with the display options (colour scale, contours, fill).  Older
+  ! files are still read (zin_read_version tells the record readers which
+  ! layout).
+  integer(int32), parameter, public :: ZIN_FORMAT_VERSION = 3_int32
   integer(int32), public :: zin_read_version = ZIN_FORMAT_VERSION
 
   ! Top-level record kind tags

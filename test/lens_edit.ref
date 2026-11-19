@@ -517,14 +517,7 @@ Active configuration: 2 of 2
 Dezoomed to position 2
 Zoom configurations: 1   active: 1
           RDY          THI     RMD          GLA          CCY     THC     GLC
-OBJ:    INFINITY    INFINITY                              100     100     100
-001:    15.00000    3.50000               N-SK16_SCHOTT  100     100     100
-002:    INFINITY    3.10000                              100     100     100
-STO:    -37.530    1.50000               N-F2_SCHOTT    100     100     100
 004:    14.08000    7.00000                              100     100     100
-005:    12.61000    3.50000               N-SK16_SCHOTT  100     100     100
-006:    -31.380    14.87505                              100     100     100
-IMG:    INFINITY    0.00000                              100     100     100
 All constraints removed
 
 

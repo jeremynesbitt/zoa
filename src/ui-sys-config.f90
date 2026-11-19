@@ -514,14 +514,11 @@ end subroutine
     end do
   end subroutine
 
-  ! "Set Vignetting..." button. CODE V computes vignetting by ray-tracing the
-  ! aperture limits; that search is not implemented yet (factors can be entered
-  ! directly in the +Y/-Y/+X/-X columns, or via the SET VIG command).
+  ! "Set Vignetting..." button: CODE V SET VIG -- the factors that make each
+  ! field's bundle consistent with the user apertures.
   subroutine callback_set_vignetting(widget, gdata) bind(c)
-    use zoa_output, only: zoa_emit
     type(c_ptr), value :: widget, gdata
-    call zoa_emit("Automatic 'Set Vignetting' is not yet implemented; enter "// &
-      & "factors directly in the +Y/-Y/+X/-X columns or use SET VIG.", "red")
+    call PROCESKDP('SET VIG')
   end subroutine
 
   function getComboBoxSelection(renderer, iter) result(ivalue)

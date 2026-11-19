@@ -430,7 +430,7 @@ At focus FFO -0.100000 mm
    190.0000    0.076521    0.076521    0.345081
    200.0000    0.077244    0.077244    0.315534
 
-Subplot 2,1: SPO THF ; SETFLD 1 ; SETWV 1 ; ORI 1 ; TRAC RECT ; SSI 0 ; RECTDENS 6.00000 ; NUMRAYS 2000 ; NUMRINGS 20 ; AIRY OFF
+Subplot 2,1: SPO THF ; SETFLD 1 ; SETWV 1 ; ORI 1 ; TRAC RECT ; SSI 0 ; ANN RMS 1 ; ANN SPO 2 ; RECTDENS 6.00000 ; NUMRAYS 2000 ; NUMRINGS 20 ; AIRY OFF
 Spot diagram rays through focus; focus, X, Y in mm, Y relative to the Y centroid at each focus
            Field      Wavelength           Focus               X               Y
   1.00000000E+00  1.00000000E+00 -1.00000000E-01 -1.20843402E-03 -1.20843402E-03
@@ -524,7 +524,7 @@ Diffraction limit 0.639790, cutoff 458.7855 cycles/mm
    -0.02500    0.426485    0.426485
     0.00000    0.346929    0.346929
 
-Subplot 3,2: FIE ; ASTFLD Y ; NUMPTS 10 ; AST 0 ; DST 0
+Subplot 3,2: FIE ; ASTFLD Y ; NUMPTS 10 ; AST 0 ; DST 0 ; LSA 0 ; ZFO 1
 Field curvature and distortion; field = Object Angle [deg]
            Field    FCurvTan[mm]    FCurvSag[mm]
   0.00000000E+00 -1.36749957E-08 -1.36750249E-08
@@ -1001,7 +1001,7 @@ At focus FFO -0.100000 mm
    190.0000    0.076521    0.076521    0.345081
    200.0000    0.077244    0.077244    0.315534
 
-Subplot 2,1: SPO THF ; SETFLD 1 ; SETWV 1 ; ORI 1 ; TRAC RECT ; SSI 0 ; RECTDENS 6.00000 ; NUMRAYS 2000 ; NUMRINGS 20 ; AIRY OFF
+Subplot 2,1: SPO THF ; SETFLD 1 ; SETWV 1 ; ORI 1 ; TRAC RECT ; SSI 0 ; ANN RMS 1 ; ANN SPO 2 ; RECTDENS 6.00000 ; NUMRAYS 2000 ; NUMRINGS 20 ; AIRY OFF
 Spot diagram rays through focus; focus, X, Y in mm, Y relative to the Y centroid at each focus
            Field      Wavelength           Focus               X               Y
   1.00000000E+00  1.00000000E+00 -1.00000000E-01 -1.20843402E-03 -1.20843402E-03
@@ -1095,7 +1095,7 @@ Diffraction limit 0.639790, cutoff 458.7855 cycles/mm
    -0.02500    0.426485    0.426485
     0.00000    0.346929    0.346929
 
-Subplot 3,2: FIE ; ASTFLD Y ; NUMPTS 10 ; AST 0 ; DST 0
+Subplot 3,2: FIE ; ASTFLD Y ; NUMPTS 10 ; AST 0 ; DST 0 ; LSA 0 ; ZFO 1
 Field curvature and distortion; field = Object Angle [deg]
            Field    FCurvTan[mm]    FCurvSag[mm]
   0.00000000E+00 -1.36749957E-08 -1.36750249E-08
@@ -1148,7 +1148,7 @@ GO
 GO
 PLOT: zoa_plot_2.png 1800x1850
 
-Subplot 1,1: SPO ; SETFLD ALL ; SETWV ALL ; TRAC RECT ; SSI 0 ; RECTDENS 6.00000 ; NUMRAYS 2000 ; NUMRINGS 20 ; AIRY OFF
+Subplot 1,1: SPO ; SETFLD ALL ; SETWV ALL ; TRAC RECT ; SSI 0 ; ANN RMS 1 ; ANN SPO 2 ; RECTDENS 6.00000 ; NUMRAYS 2000 ; NUMRINGS 20 ; AIRY OFF
 At focus FFO = -0.10000 mm
 Spot diagram rays; X, Y in mm, Y relative to the Y centroid of the first wavelength drawn
            Field      Wavelength               X               Y
@@ -5538,7 +5538,7 @@ PLOT: zoa_plot_4.png 1800x1200
 
 Subplot 1,1: VIE ; ORIENT YZ ELEV 26.20000 AZI 232.20000 ; NUMRAYS 7 ; DRAWSI 0 ; DRAWSF I ; SSI 1 ; SSI 1.00000 ; XOFF 0.00000 ; YOFF 0.00000
 
-Subplot 1,2: SPO ; SETFLD ALL ; SETWV ALL ; TRAC RECT ; SSI 0 ; RECTDENS 6.00000 ; NUMRAYS 2000 ; NUMRINGS 20 ; AIRY OFF
+Subplot 1,2: SPO ; SETFLD ALL ; SETWV ALL ; TRAC RECT ; SSI 0 ; ANN RMS 1 ; ANN SPO 2 ; RECTDENS 6.00000 ; NUMRAYS 2000 ; NUMRINGS 20 ; AIRY OFF
 At focus FFO = -0.10000 mm
 Spot diagram rays; X, Y in mm, Y relative to the Y centroid of the first wavelength drawn
            Field      Wavelength               X               Y

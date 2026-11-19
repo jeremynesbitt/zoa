@@ -305,7 +305,20 @@ contains
             call takeMeritQualifiers(tokens, numTokens, q, qOk)
             if (.not. qOk) return
 
-            if (numTokens == 3 .AND. .not. isInputNumber(trim(tokens(2)))) then
+            if (numTokens == 5 .AND. isRel(tokens(2)) .AND. isRel(tokens(4)) .AND. &
+            &   isInputNumber(trim(tokens(3))) .AND. isInputNumber(trim(tokens(5))) .AND. &
+            &   trim(tokens(2)) /= trim(tokens(4)) .AND. trim(tokens(2)) /= '=' .AND. &
+            &   trim(tokens(4)) /= '=') then
+                ! Two-sided bound (CODE V): NAME > a < b -- two constraints
+                if (cmd_loop == CON_UPDATE_LOOP) then
+                    call zoa_emit("Error:  one entry holds one bound; add NAME > a < b in AUT", "red")
+                    return
+                end if
+                call addConstraint(trim(tokens(1)), str2real8(tokens(3)), trim(tokens(2)), &
+                &                  iS=q%iS, iW=q%iW, iZ=q%iZ, iS2=q%iS2, iW2=q%iW2, iF=q%iF, iR=q%iR)
+                call addConstraint(trim(tokens(1)), str2real8(tokens(5)), trim(tokens(4)), &
+                &                  iS=q%iS, iW=q%iW, iZ=q%iZ, iS2=q%iS2, iW2=q%iW2, iF=q%iF, iR=q%iR)
+            else if (numTokens == 3 .AND. .not. isInputNumber(trim(tokens(2)))) then
                 ! Constraint form: NAME <op> value
                 if ((trim(tokens(2)) == '=' .OR. trim(tokens(2)) == '>' .OR. trim(tokens(2)) == '<') &
                 &   .AND. isInputNumber(trim(tokens(3)))) then
@@ -337,6 +350,11 @@ contains
         else
             call zoa_emit("Error:  Can only set constraint in AUT loop! ", "red")
         end if
+    contains
+        logical function isRel(t)
+            character(len=*), intent(in) :: t
+            isRel = trim(t) == '=' .or. trim(t) == '<' .or. trim(t) == '>'
+        end function
     end procedure updateConstraint
 
     ! Removes the qualifier tokens following the merit-entry name (tokens(1))
@@ -417,10 +435,20 @@ contains
                 q%iF = v
             case ('R')
                 v = str2int(trim(t(2:)))
-                if (v < 1 .or. v > 5) then
-                    call zoa_emit("Error:  ray "//trim(t)//" is not a reference ray (R1..R5)", "red")
-                    ok = .false.; return
-                end if
+                ! R6..R9 (user rays, RAY Rk Fj x y) only for the ray-data
+                ! operands; the others use the stored R1..R5
+                select case (trim(tokens(1)))
+                case ('X', 'Y', 'Z', 'L', 'M', 'N', 'SRL', 'SRM', 'SRN')
+                    if (v < 1 .or. v > 9) then
+                        call zoa_emit("Error:  ray "//trim(t)//" is not a reference ray (R1..R9)", "red")
+                        ok = .false.; return
+                    end if
+                case default
+                    if (v < 1 .or. v > 5) then
+                        call zoa_emit("Error:  ray "//trim(t)//" is not a reference ray (R1..R5)", "red")
+                        ok = .false.; return
+                    end if
+                end select
                 q%iR = v
             case ('Z')
                 v = str2int(trim(t(2:)))
@@ -1344,6 +1372,149 @@ contains
         end if
     end procedure updateOptimImprovementGoal
 
+    !## cmd:      MXC
+    !## syntax:   MXC n
+    !## category: Optimization
+    !## desc:     AUT: the maximum number of optimization cycles (default 25).
+    !##
+    !## cmd:      MNC
+    !## syntax:   MNC n
+    !## category: Optimization
+    !## desc:     AUT: the minimum number of optimization cycles (default 0, no minimum).
+    !##
+    module procedure updateOptimCycles
+        use command_utils
+        use optim_types, only: optim
+
+        character(len=80) :: tokens(40)
+        integer :: numTokens, n
+
+        call parse(trim(iptStr), ' ', tokens, numTokens)
+        if (numTokens == 1) then
+            if (trim(tokens(1)) == 'MXC') then
+                call zoa_emit('MXC (maximum cycles) = '//trim(int2str(optim%mxc)), "black")
+            else
+                call zoa_emit('MNC (minimum cycles) = '//trim(int2str(optim%mnc)), "black")
+            end if
+            return
+        end if
+        if (numTokens /= 2 .or. .not. isInputNumber(trim(tokens(2)))) then
+            call zoa_emit('Error:  Expect '//trim(tokens(1))//' n', "red")
+            return
+        end if
+        n = nint(str2real8(trim(tokens(2))))
+        if (trim(tokens(1)) == 'MXC') then
+            if (n < 1) then
+                call zoa_emit('Error:  MXC must be at least 1', "red"); return
+            end if
+            optim%mxc = n
+        else
+            if (n < 0) then
+                call zoa_emit('Error:  MNC must be 0 or more', "red"); return
+            end if
+            optim%mnc = n
+        end if
+        if (optim%mnc > optim%mxc) call zoa_emit('Note:  MNC is more than MXC; MXC limits the run', "black")
+    end procedure updateOptimCycles
+
+    !## cmd:      RAY
+    !## syntax:   RAY Rk Fj x y
+    !## category: Optimization
+    !## desc:     AUT: define user reference ray Rk (R6..R9) of field Fj at relative pupil x, y, for ray constraints (Y R6 F3 SI = 0).
+    !##
+    module procedure defineUserRay
+        use command_utils, only: isInputNumber
+        use optim_types, only: optim
+        use global_widgets, only: sysConfig
+        character(len=80) :: tokens(40)
+        integer :: numTokens, k, r, f, ios, nNum
+        real(real64) :: v(2)
+
+        call parse(trim(iptStr), ' ', tokens, numTokens)
+        r = 0; f = 0; nNum = 0
+        do k = 2, numTokens
+            select case (tokens(k)(1:1))
+            case ('R')
+                read(tokens(k)(2:), *, iostat=ios) r
+                if (ios /= 0) r = 0
+            case ('F')
+                read(tokens(k)(2:), *, iostat=ios) f
+                if (ios /= 0) f = 0
+            case default
+                if (isInputNumber(trim(tokens(k))) .and. nNum < 2) then
+                    nNum = nNum + 1
+                    v(nNum) = str2real8(trim(tokens(k)))
+                else
+                    nNum = 3
+                end if
+            end select
+        end do
+        if (r < 6 .or. r > 9 .or. f < 1 .or. f > min(sysConfig%numFields, size(optim%userRayDefined, 2)) &
+        &   .or. nNum /= 2) then
+            call zoa_emit("Error:  expected RAY Rk Fj x y  (k = 6..9, x y relative pupil)", "red")
+            return
+        end if
+        optim%userRayPupil(:, r, f) = v
+        optim%userRayDefined(r, f) = .true.
+    end procedure defineUserRay
+
+    !## cmd:      VLI
+    !## syntax:   VLI [IA] [Y|N]
+    !## category: Optimization
+    !## desc:     List the variables (free, code 0) and coupled parameters (codes 1-99) with their values.
+    !##
+    module procedure listVariables
+        use mod_lens_data_manager, only: ldm
+        use mod_surface, only: surf_asphere_coeff, surf_decenter_x, surf_decenter_y, &
+            surf_decenter_z, surf_alpha, surf_beta, surf_gamma, surf_pivot_x, surf_pivot_y, &
+            surf_pivot_z, surf_glass_name
+        character(len=3), parameter :: names(NUM_VAR_CODES) = [character(len=3) :: &
+            'CCY', 'THC', 'KC ', 'AC ', 'BC ', 'CC ', 'DC ', 'EC ', 'FC ', 'GC ', 'HC ', 'IC ', &
+            'GLC', 'XDC', 'YDC', 'ZDC', 'ADC', 'BDC', 'CDC', 'XOC', 'YOC', 'ZOC']
+        character(len=120) :: line
+        character(len=30) :: valTxt
+        integer :: s, j, code, n
+        real(real64) :: v
+
+        n = 0
+        do s = 0, ldm%getLastSurf()
+            do j = 1, min(NUM_VAR_CODES, ubound(ldm%vars, dim=2))
+                code = ldm%vars(s, j)
+                if (code < 0 .or. code >= 100) cycle
+                if (n == 0) call zoa_emit('   SURF  CODE   COUPLING          VALUE', "black")
+                n = n + 1
+                select case (j)
+                case (VAR_CURV);         v = ldm%getSurfCurv(s)
+                case (VAR_THI);          v = ldm%getSurfThi(s)
+                case (VAR_K);            v = ldm%getConicConstant(s)
+                case (VAR_A4:VAR_A20);   v = surf_asphere_coeff(s, 4 + 2*(j - VAR_A4))
+                case (VAR_XDE);          v = surf_decenter_x(s)
+                case (VAR_YDE);          v = surf_decenter_y(s)
+                case (VAR_ZDE);          v = surf_decenter_z(s)
+                case (VAR_ADE);          v = surf_alpha(s)
+                case (VAR_BDE);          v = surf_beta(s)
+                case (VAR_CDE);          v = surf_gamma(s)
+                case (VAR_XOD);          v = surf_pivot_x(s)
+                case (VAR_YOD);          v = surf_pivot_y(s)
+                case (VAR_ZOD);          v = surf_pivot_z(s)
+                case default;            v = 0.0_real64
+                end select
+                if (j == VAR_GLA) then
+                    valTxt = trim(surf_glass_name(s))
+                else
+                    write(valTxt, '(ES18.10)') v
+                end if
+                if (code == 0) then
+                    write(line, '(3X,A4,3X,A3,3X,A10,2X,A)') ldm%getSurfName(s), names(j), 'free', trim(valTxt)
+                else
+                    write(line, '(3X,A4,3X,A3,3X,A6,I3,3X,A)') ldm%getSurfName(s), names(j), 'group ', code, trim(valTxt)
+                end if
+                call zoa_emit(trim(line), "black")
+            end do
+        end do
+        if (n == 0) call zoa_emit('No variables (CCY Sk 0, THC Sk 0, ... make one)', "black")
+    end procedure listVariables
+
     !## cmd:      RMSDATA
     !## syntax:   RMSDATA WAVE|SPOT
     !## category: Plot Settings
@@ -1467,6 +1638,21 @@ contains
         what = trim(adjustl(iptStr))
         res = 0.0_long
         idx = 0
+        ok = .false.
+        if (present(okOut)) okOut = .false.
+        ! a plain number (an expression PROCESKDP has already evaluated:
+        ! EVA (EFL) arrives as EVA 50.0107...)
+        block
+            use command_utils, only: isInputNumber
+            if (isInputNumber(what)) then
+                res = str2real8(what)
+                if (present(okOut)) okOut = .true.
+                if (present(logResult)) then
+                    if (logResult) call LogTermUser(real2str(res))
+                end if
+                return
+            end if
+        end block
         ! "NAME [qualifiers]": a merit operand with its Sk / Si..j / Wm / Fk /
         ! Ri / Zn qualifiers, as in AUT.
         if (len(what) > 0) then
@@ -1502,9 +1688,11 @@ contains
             ok = .false.
         end if
         if (.not. ok) then
-            call zoa_emit("Error:  EVA cannot evaluate '"//what//"'", "red")
+            if (.not. present(okOut)) &
+                call zoa_emit("Error:  EVA cannot evaluate '"//what//"'", "red")
             return
         end if
+        if (present(okOut)) okOut = .true.
         if (present(logResult)) then
             if (logResult) then
                 call LogTermUser(real2str(res))
@@ -1606,6 +1794,8 @@ contains
         use mod_lens_data_manager, only: ldm
         use global_widgets, only: sysConfig
         use type_utils, only: str2real8
+        use command_utils, only: isInputNumber
+        use zoa_ui_callbacks, only: notify_replot
         implicit none
 
         character(len=80) :: tokens(40)
@@ -1621,12 +1811,25 @@ contains
             call PROCESKDP('SETCLAP REAL')
             call ldm%load_surfaces_from_alens()
         else if (numTokens >= 2 .and. trim(tokens(2)) == 'VIG') then
-            ! SET VIG <field> <vuy> <vly> <vux> <vlx>: per-field vignetting factors.
-            ! Missing factors default to 0 (no vignetting on that edge).
-            if (numTokens < 3) then
-                call zoa_emit("Usage: SET VIG <field> [vuy] [vly] [vux] [vlx]", "red")
+            ! SET VIG [Fk|Fi..j] (CODE V): compute the vignetting factors that
+            ! make each field's ray bundle consistent with the user apertures.
+            if (numTokens == 2) then
+                call setVignettingFromApertures(1, sysConfig%numFields)
                 return
             end if
+            if (.not. isInputNumber(trim(tokens(3)))) then
+                block
+                    integer :: f1, f2
+                    if (.not. parseFieldRange(trim(tokens(3)), sysConfig%numFields, f1, f2)) then
+                        call zoa_emit("Usage: SET VIG [Fk|Fi..j]  (or SET VIG <field> vuy vly vux vlx)", "red")
+                        return
+                    end if
+                    call setVignettingFromApertures(f1, f2)
+                end block
+                return
+            end if
+            ! SET VIG <field> <vuy> <vly> <vux> <vlx>: the factors themselves
+            ! (CODE V: VUY/VLY/VUX/VLX).  Missing factors default to 0.
             fld = nint(str2real8(tokens(3)))
             if (fld < 1 .or. fld > sysConfig%numFields) then
                 call zoa_emit("SET VIG: field index out of range", "red")
@@ -1662,5 +1865,109 @@ contains
             call zoa_emit("Unknown SET subcommand. Try: SET CAP, SET VIG, SET ABS", "red")
         end if
     end procedure execSET
+
+        ! Fk, Fi..j, FA (all), FL (last) -> f1..f2 within 1..nf
+        logical function parseFieldRange(tok, nf, f1, f2) result(ok)
+            character(len=*), intent(in) :: tok
+            integer, intent(in) :: nf
+            integer, intent(out) :: f1, f2
+            integer :: d, ios
+            ok = .false.
+            f1 = 0; f2 = 0
+            if (len(tok) < 2 .or. tok(1:1) /= 'F') return
+            if (tok == 'FA') then
+                f1 = 1; f2 = nf; ok = .true.; return
+            end if
+            d = index(tok, '..')
+            if (d > 0) then
+                f1 = fieldNum(tok(2:d-1)); f2 = fieldNum(tok(d+2:))
+            else
+                f1 = fieldNum(tok(2:)); f2 = f1
+            end if
+            ok = f1 >= 1 .and. f2 >= f1 .and. f2 <= nf
+        contains
+            integer function fieldNum(t)
+                character(len=*), intent(in) :: t
+                fieldNum = 0
+                if (t == 'L') then
+                    fieldNum = nf
+                else
+                    read(t, *, iostat=ios) fieldNum
+                    if (ios /= 0) fieldNum = 0
+                end if
+            end function
+        end function
+
+        ! For each field: the largest fraction of each pupil edge (+Y, -Y,
+        ! +X, -X) whose real ray, at the reference wavelength, gets past every
+        ! clear aperture and obscuration; the vignetting factor is 1 minus it
+        ! (bisection to 1e-5 of the pupil radius).
+        subroutine setVignettingFromApertures(f1, f2)
+            use mod_ray_trace_engine, only: trace_context, ray_request, ray_result, trace_ray, RAY_OK
+            use mod_ray_trace_builder, only: build_trace_context
+            use mod_system, only: sys_wl_ref
+            use type_utils, only: int2str, real2str
+            use global_widgets, only: sysConfig
+            use mod_kdp_api, only: kdp_fob
+            use zoa_ui_callbacks, only: notify_replot, notify_refresh_sysconfig
+            integer, intent(in) :: f1, f2
+            real(real64), parameter :: dirY(4) = [1d0, -1d0, 0d0, 0d0], dirX(4) = [0d0, 0d0, 1d0, -1d0]
+            type(trace_context) :: ctx
+            real(real64) :: v(4), lo, hi, mid
+            integer :: f, d, it, iwl
+            character(len=200) :: msg
+
+            iwl = int(sys_wl_ref())
+            do f = f1, f2
+                ! the field's chief ray at nominal vignetting (it sets the aim)
+                call sysConfig%setVignetting(f, 0d0, 0d0, 0d0, 0d0)
+                call kdp_silent_begin()
+                call kdp_fob(sysConfig%relativeFields(2,f), sysConfig%relativeFields(1,f))
+                call kdp_silent_end()
+                call build_trace_context(ctx, check_apertures=.true.)
+                if (.not. ctx%supported) then
+                    call zoa_emit("SET VIG: the ray trace does not support this lens ("// &
+                    &             trim(ctx%reason)//"); field "//trim(int2str(f))//" left unvignetted", "red")
+                    cycle
+                end if
+                if (.not. passes(0d0, 0d0)) then
+                    call zoa_emit("SET VIG: the chief ray of field "//trim(int2str(f))// &
+                    &             " is blocked by an aperture; field left unvignetted", "red")
+                    cycle
+                end if
+                do d = 1, 4
+                    if (passes(dirY(d), dirX(d))) then
+                        v(d) = 0d0
+                        cycle
+                    end if
+                    lo = 0d0; hi = 1d0
+                    do it = 1, 17
+                        mid = 0.5d0*(lo + hi)
+                        if (passes(mid*dirY(d), mid*dirX(d))) then
+                            lo = mid
+                        else
+                            hi = mid
+                        end if
+                    end do
+                    v(d) = 1d0 - lo
+                end do
+                call sysConfig%setVignetting(f, v(1), v(2), v(3), v(4))
+                write(msg, '(A,I0,A,4F9.5)') 'SET VIG: field ', f, '  VUY VLY VUX VLX =', v
+                call zoa_emit(trim(msg), "black")
+            end do
+            call notify_replot()
+            call notify_refresh_sysconfig()
+        contains
+            logical function passes(py, px)
+                real(real64), intent(in) :: py, px
+                type(ray_request) :: req
+                type(ray_result) :: res
+                req%py = py; req%px = px; req%iwl = iwl; req%weight = 1d0
+                req%for_optimization = .true.
+                call trace_ray(ctx, req, res)
+                passes = res%status == RAY_OK
+            end function
+        end subroutine
+
 
 end submodule mod_codev_editops

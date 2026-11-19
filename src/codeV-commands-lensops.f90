@@ -1018,13 +1018,19 @@ contains
                     ! e.g. NSK16 -> N-SK16 within the named catalog
                     strOut = trim(catalogName)//' N-'//trim(glassName(2:))
                 else if (gdb%isGlassInAnyCatalog(trim(glassName))) then
-                    ! glass not in named catalog but exists elsewhere
+                    ! glass not in named catalog but exists elsewhere: used,
+                    ! but never silently (BK7_HOYA must not quietly become
+                    ! Schott's BK7)
                     strOut = 'GLAK '//trim(glassName)
+                    call zoa_emit(trim(glassName)//' is not in the '//trim(catalogName)// &
+                    &   ' catalog; using it from the first catalog that has it (CSO order)', 'red')
                 else if (glassName(1:1) == 'N' .and. &
                          gdb%isGlassInAnyCatalog('N-'//trim(glassName(2:)))) then
                     ! e.g. NSK16_SCHOTT -> N-SK16 found in another catalog (e.g. SCH2000)
                     altGlassName = 'N-'//trim(glassName(2:))
                     strOut = 'GLAK '//trim(altGlassName)
+                    call zoa_emit(trim(glassName)//' is not in the '//trim(catalogName)// &
+                    &   ' catalog; using '//trim(altGlassName)//' from the first catalog that has it', 'red')
                 else
                     call zoa_emit(trim(strInput)//' not found in any catalog', 'red')
                     strOut = ''   ! keep the surface's glass (was a bogus n=1 glass)

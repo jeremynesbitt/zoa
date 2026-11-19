@@ -121,6 +121,126 @@ contains
 
     end function
 
+    ! SA TCO TAS SAS PTB DST [Sk|Si..j]: the third-order transverse
+    ! aberrations exactly as THO lists them (CODE V's definitions) -- summed
+    ! over all surfaces, or the contribution of Sk / the sum over Si..j, at
+    ! the reference wavelength (MMAB3_NEW's Seidel sums are of its paraxial
+    ! trace; CODE V's Wm is not supported yet).  From the Seidel sums c:
+    !   SA = c1, TCO = 3 c2, TAS = 3 c3 + c5, SAS = c3 + c5, PTB = c5,
+    !   DST = c4.
+    ! (TCO used to return c2 -- a third of it -- TAS another quantity, and
+    ! SAS the spherical aberration.)
+    module function getThirdOrderConstraint(self) result(res)
+        use global_widgets, only: curr_par_ray_trace, curr_lens_data, sysConfig
+        class(merit_entry) :: self
+        real(long) :: res
+        interface
+            subroutine MMAB3_NEW(YFLAG, idxWV, printTable)
+                logical, intent(in) :: YFLAG
+                integer, intent(in) :: idxWV
+                logical, optional, intent(in) :: printTable
+            end subroutine
+        end interface
+        real(long) :: c(7)
+        integer :: wl, ns, s1, s2
+
+        res = 0.0_long
+        wl = self%iW
+        if (wl <= 0) wl = sysConfig%refWavelengthIndex
+        call MMAB3_NEW(.TRUE., wl, .FALSE.)
+        if (.not. allocated(curr_par_ray_trace%CSeidel)) return
+        ns = curr_lens_data%num_surfaces              ! column ns: the sum
+        if (self%iS >= 0) then
+            s1 = self%iS
+            s2 = self%iS
+            if (self%iS2 >= 0) s2 = self%iS2
+            s1 = max(s1, lbound(curr_par_ray_trace%CSeidel, 2))
+            s2 = min(s2, ns - 1)
+            c = sum(curr_par_ray_trace%CSeidel(1:7, s1:s2), dim=2)
+        else
+            c = curr_par_ray_trace%CSeidel(1:7, ns)
+        end if
+        select case (trim(self%name))
+        case ('SA');  res = c(1)
+        case ('TCO'); res = 3.0_long*c(2)
+        case ('TAS'); res = 3.0_long*c(3) + c(5)
+        case ('SAS'); res = c(3) + c(5)
+        case ('PTB'); res = c(5)
+        case ('DST'); res = c(4)
+        end select
+    end function
+
+    ! X Y Z L M N SRL SRM SRN [Sk] [Ri] [Fj] [Wm] (CODE V): reference ray Ri
+    ! (default R1) of field Fj (default F1) at surface Sk (default the image),
+    ! wavelength Wm (default the reference) -- position, direction cosines,
+    ! surface normal, in the surface's local coordinates.  Traced on the
+    ! current lens every time (never a cached store: it is evaluated while
+    ! the optimizer changes the lens).
+    module function getRayDataConstraint(self) result(res)
+        use global_widgets, only: sysConfig
+        use mod_kdp_api, only: kdp_fob, kdp_ray, kdp_silent_begin, kdp_silent_end
+        use DATLEN, only: RAYRAY, RAYEXT, NEWOBJ, NEWIMG
+        use mod_lens_data_manager, only: ldm
+        class(merit_entry) :: self
+        real(long) :: res
+        integer :: f, r, w, s, row
+        real(long) :: vig(4), py, px
+
+        res = 0.0_long
+        f = merge(self%iF, 1, self%iF > 0)
+        r = merge(self%iR, 1, self%iR > 0)
+        w = merge(self%iW, sysConfig%refWavelengthIndex, self%iW > 0)
+        s = merge(self%iS, ldm%getLastSurf(), self%iS >= 0)
+        select case (trim(self%name))
+        case ('X');   row = 1
+        case ('Y');   row = 2
+        case ('Z');   row = 3
+        case ('L');   row = 4
+        case ('M');   row = 5
+        case ('N');   row = 6
+        case ('SRL'); row = 13
+        case ('SRM'); row = 14
+        case default; row = 15
+        end select
+        vig = sysConfig%getVignetting(f)
+        py = 0.0_long; px = 0.0_long
+        select case (r)
+        case (2); py =  (1.0_long - vig(1))
+        case (3); py = -(1.0_long - vig(2))
+        case (4); px =  (1.0_long - vig(3))
+        case (5); px = -(1.0_long - vig(4))
+        case (6:9)
+            if (f > size(optim%userRayDefined, 2)) return
+            if (.not. optim%userRayDefined(r, f)) return
+            px = optim%userRayPupil(1, r, f)
+            py = optim%userRayPupil(2, r, f)
+        end select
+        call kdp_silent_begin()
+        call kdp_fob(sysConfig%relativeFields(2,f), sysConfig%relativeFields(1,f))
+        call kdp_ray(py, px, real(w, long))
+        call kdp_silent_end()
+        if (.not. RAYEXT .or. s < NEWOBJ .or. s > NEWIMG) return
+        res = RAYRAY(row, s)
+    end function
+
+    ! @NAME: a user-defined constraint -- its expression, evaluated now.
+    module function getUDCConstraint(self) result(res)
+        use zoa_output, only: zoa_emit
+        class(merit_entry) :: self
+        real(long) :: res
+        integer :: i
+        logical :: ok
+        res = 0.0_long
+        if (.not. associated(udcEvaluator)) return
+        do i = 1, nUDC
+            if (udcNames(i) == self%name) then
+                res = udcEvaluator(trim(udcText(i)), ok)
+                if (.not. ok) call zoa_emit("Error:  "//trim(self%name)//" cannot be evaluated", "red")
+                return
+            end if
+        end do
+    end function
+
     ! AST3: third-order astigmatism sum, the AST3 SUM that THO prints.
     module function getSeidelAST3Constraint(self) result(res)
         use mod_analysis_manager
@@ -268,6 +388,9 @@ contains
         case ('TT');  res = curr_par_ray_trace%TT
         case ('ENP'); res = curr_par_ray_trace%ENPUPPOS
         case ('EXP'); res = curr_par_ray_trace%EXPUPPOS
+        ! IMD (CODE V): image distance plus defocus -- the thickness of the
+        ! surface before the image plus the image surface's own (THI SI)
+        case ('IMD'); res = surf_thickness(ldm%getLastSurf() - 1) + surf_thickness(ldm%getLastSurf())
         case ('EFY', 'EFX')
             if (self%iS < 0) then
                 res = curr_par_ray_trace%EFL

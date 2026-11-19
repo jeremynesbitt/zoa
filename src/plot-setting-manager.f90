@@ -73,6 +73,18 @@ module plot_setting_manager
     ! RIM WFR: wave aberration (OPD, waves) instead of transverse aberration
     integer, parameter :: SETTING_RIM_WFR = 1786
     integer, parameter :: ID_RIM_WFR_NO = 1, ID_RIM_WFR_YES = 2
+    ! FIE: LSA panel (0 none, -1 autoscale, x: +-x scale) and ZFO (field
+    ! curves from the axial focus; ids 1 No, 2 Yes)
+    integer, parameter :: SETTING_FIE_LSA = 1787, SETTING_FIE_ZFO = 1788
+    ! PMA display (CODE V DIS [INT], CON [SUP], ADW, RAN COL)
+    integer, parameter :: SETTING_PMA_DIS = 1789, SETTING_PMA_CON = 1790
+    integer, parameter :: SETTING_PMA_ADW = 1791, SETTING_PMA_COL = 1792
+    integer, parameter :: ID_PMA_DIS_MAP = 1, ID_PMA_DIS_INT = 2, ID_PMA_DIS_NONE = 3
+    integer, parameter :: ID_PMA_CON_NO = 1, ID_PMA_CON_YES = 2, ID_PMA_CON_SUP = 3
+    ! SPO annotations (CODE V ANN RMS / ANN SPO); 1 yes, 2 no
+    integer, parameter :: SETTING_SPOT_ANN_RMS = 1793, SETTING_SPOT_ANN_SPO = 1794
+    integer, parameter :: ID_ANN_YES = 1, ID_ANN_NO = 2
+    integer, parameter :: ID_FIE_ZFO_NO = 1, ID_FIE_ZFO_YES = 2
     integer, parameter :: SETTING_ZERNIKE = 4
 
 
@@ -131,6 +143,8 @@ module plot_setting_manager
     procedure, public, pass(self) :: buildCoupledCmd
 
     procedure, public, pass(self) :: addFieldSetting
+    procedure, public, pass(self) :: getPMADisplaySettings
+    procedure, public, pass(self) :: getSpotAnnotations
     procedure, public, pass(self) :: addDensitySetting   
     procedure, public, pass(self) :: getDensitySetting     
     procedure, public, pass(self) :: updateDensitySetting    
@@ -382,6 +396,21 @@ contains
       end if
       call self%addSpotCalculationSetting()
       call self%addScaleSetting()
+      ! ANN RMS (the RMS under each spot, on by default) and ANN SPO (the
+      ! full spot diameter, off by default)
+      block
+        type(idText) :: annSet(2)
+        annSet(1)%text = "Yes"; annSet(1)%id = ID_ANN_YES
+        annSet(2)%text = "No";  annSet(2)%id = ID_ANN_NO
+        self%numSettings = self%numSettings + 1
+        call self%ps(self%numSettings)%initialize(SETTING_SPOT_ANN_RMS, &
+        & "Show RMS (ANN RMS)", real(ID_ANN_YES),0.0,0.0, &
+        & "ANN RMS", "ANN RMS "//trim(int2str(ID_ANN_YES)), UITYPE_COMBO, set=annSet)
+        self%numSettings = self%numSettings + 1
+        call self%ps(self%numSettings)%initialize(SETTING_SPOT_ANN_SPO, &
+        & "Show full diameter (ANN SPO)", real(ID_ANN_NO),0.0,0.0, &
+        & "ANN SPO", "ANN SPO "//trim(int2str(ID_ANN_NO)), UITYPE_COMBO, set=annSet)
+      end block
      
 
       ! Add indvidual settings 
@@ -501,6 +530,14 @@ contains
       class(zoaplot_setting_manager) :: self
       getRimWfr = nint(self%getSettingValueByCode(SETTING_RIM_WFR)) == ID_RIM_WFR_YES
     end function
+
+    ! SPO annotations; a psm without the settings keeps the defaults
+    subroutine getSpotAnnotations(self, annRms, annSpo)
+      class (zoaplot_setting_manager) :: self
+      logical, intent(out) :: annRms, annSpo
+      annRms = nint(self%getSettingValueByCode(SETTING_SPOT_ANN_RMS)) /= ID_ANN_NO
+      annSpo = nint(self%getSettingValueByCode(SETTING_SPOT_ANN_SPO)) == ID_ANN_YES
+    end subroutine
 
     logical function getSpotHorizontal(self)
       class (zoaplot_setting_manager) :: self
@@ -648,6 +685,22 @@ contains
       & "Max Distortion in % (0 for autoscale)", 0.0, 0.0, 1.0e6, &
       & "DST", "DST 0", UITYPE_SPINBUTTON)
 
+      ! LSA: the longitudinal spherical aberration panel (CODE V FIE LSA)
+      self%numSettings = self%numSettings + 1
+      call self%ps(self%numSettings)%initialize(SETTING_FIE_LSA, &
+      & "LSA panel (0 none, -1 autoscale, x: max)", 0.0, -1.0, 1.0e6, &
+      & "LSA", "LSA 0", UITYPE_SPINBUTTON)
+
+      block
+        type(idText) :: zset(2)
+        zset(1)%text = "No";  zset(1)%id = ID_FIE_ZFO_NO
+        zset(2)%text = "Yes"; zset(2)%id = ID_FIE_ZFO_YES
+        self%numSettings = self%numSettings + 1
+        call self%ps(self%numSettings)%initialize(SETTING_FIE_ZFO, &
+        & "Field curves from axial focus (ZFO)", real(ID_FIE_ZFO_NO), 0.0, 0.0, &
+        & "ZFO ", "ZFO "//trim(int2str(ID_FIE_ZFO_NO)), UITYPE_COMBO, set=zset)
+      end block
+
     end subroutine
 
     subroutine getAstigSettings(self, idxFieldXY, numPts, astMax, dstMax)
@@ -687,6 +740,53 @@ contains
       & "Number of Zernikes to Fit (default 37)", real(PMA_MAX_ZERN), 1.0, real(PMA_MAX_ZERN), &
       & "ZFR", "ZFR "//int2str(PMA_MAX_ZERN), UITYPE_SPINBUTTON)
 
+      ! Map display: colour map (DIS Y), interferogram fringes (DIS INT Y) or
+      ! none (DIS N, for contours alone); contour lines CON Y / CON SUP Y
+      ! (unnumbered).  The combos send their ids.
+      block
+        type(idText) :: dset(3), cset(3)
+        dset(1)%text = "Colour map (DIS Y)";          dset(1)%id = ID_PMA_DIS_MAP
+        dset(2)%text = "Interferogram (DIS INT Y)";   dset(2)%id = ID_PMA_DIS_INT
+        dset(3)%text = "None (DIS N)";                dset(3)%id = ID_PMA_DIS_NONE
+        self%numSettings = self%numSettings + 1
+        call self%ps(self%numSettings)%initialize(SETTING_PMA_DIS, &
+        & "Display", real(ID_PMA_DIS_MAP), 0.0, 0.0, &
+        & "DIS", "DIS "//trim(int2str(ID_PMA_DIS_MAP)), UITYPE_COMBO, set=dset)
+        cset(1)%text = "No (CON N)";                  cset(1)%id = ID_PMA_CON_NO
+        cset(2)%text = "Numbered (CON Y)";            cset(2)%id = ID_PMA_CON_YES
+        cset(3)%text = "Unnumbered (CON SUP Y)";      cset(3)%id = ID_PMA_CON_SUP
+        self%numSettings = self%numSettings + 1
+        call self%ps(self%numSettings)%initialize(SETTING_PMA_CON, &
+        & "Contours", real(ID_PMA_CON_NO), 0.0, 0.0, &
+        & "CON", "CON "//trim(int2str(ID_PMA_CON_NO)), UITYPE_COMBO, set=cset)
+      end block
+      ! ADW [TIL|FOC] x_tilt [y_tilt [focus [piston]]], waves at the pupil edge
+      self%numSettings = self%numSettings + 1
+      call self%ps(self%numSettings)%initializeStr(SETTING_PMA_ADW, &
+      & "Added wavefront (ADW [TIL|FOC] xtilt ytilt focus piston)", "0", "ADW", UITYPE_ENTRY)
+      ! RAN COL SPE | RGB r g b (a ramp from black to r g b)
+      self%numSettings = self%numSettings + 1
+      call self%ps(self%numSettings)%initializeStr(SETTING_PMA_COL, &
+      & "Colour scale (SPE or RGB r g b)", "SPE", "RAN COL", UITYPE_ENTRY)
+
+    end subroutine
+
+    ! The PMA display settings: display mode and contour mode ids, the ADW
+    ! and RAN COL argument text.
+    subroutine getPMADisplaySettings(self, dis, con, adw, col)
+      class (zoaplot_setting_manager) :: self
+      integer, intent(out) :: dis, con
+      character(len=*), intent(out) :: adw, col
+      integer :: i
+      dis = ID_PMA_DIS_MAP; con = ID_PMA_CON_NO; adw = '0'; col = 'SPE'
+      do i = 1, self%numSettings
+        select case (self%ps(i)%ID)
+        case (SETTING_PMA_DIS); dis = nint(self%ps(i)%default)
+        case (SETTING_PMA_CON); con = nint(self%ps(i)%default)
+        case (SETTING_PMA_ADW); adw = adjustl(self%ps(i)%defaultStr)
+        case (SETTING_PMA_COL); col = adjustl(self%ps(i)%defaultStr)
+        end select
+      end do
     end subroutine
 
     ! "Number of Points" across the field (NUMPTS), as used by the vs-field
@@ -1209,11 +1309,14 @@ contains
       ! Field Point setting.  allowAll adds an "All" entry and makes it a
       ! dropdown -- for plots that can show every field at once (the spot
       ! diagram) rather than one at a time.
-      subroutine addFieldSetting(self, allowAll)
+      ! allowAll adds an 'All' entry, the default unless defaultField (a
+      ! field number) says otherwise.
+      subroutine addFieldSetting(self, allowAll, defaultField)
         use global_widgets, only: sysConfig
 
         class(zoaplot_setting_manager) :: self
         logical, optional, intent(in) :: allowAll
+        integer, optional, intent(in) :: defaultField
         type(idText), dimension(sysConfig%numFields+1) :: set
         integer :: fldPoint, i
         logical :: withAll
@@ -1230,9 +1333,15 @@ contains
           set(sysConfig%numFields+1)%id   = ID_SETTING_FIELD_ALL
 
           self%numSettings = self%numSettings + 1
-          call self%ps(self%numSettings)%initialize(SETTING_FIELD, &
-          & "Field Point", real(ID_SETTING_FIELD_ALL),0.0,0.0, &
-          & "SETFLD", "SETFLD ALL", UITYPE_COMBO, set=set)
+          if (present(defaultField)) then
+            call self%ps(self%numSettings)%initialize(SETTING_FIELD, &
+            & "Field Point", real(defaultField),0.0,0.0, &
+            & "SETFLD", "SETFLD "//trim(int2str(defaultField)), UITYPE_COMBO, set=set)
+          else
+            call self%ps(self%numSettings)%initialize(SETTING_FIELD, &
+            & "Field Point", real(ID_SETTING_FIELD_ALL),0.0,0.0, &
+            & "SETFLD", "SETFLD ALL", UITYPE_COMBO, set=set)
+          end if
         else
           fldPoint = 1 ! Default to first field
           self%numSettings = self%numSettings + 1

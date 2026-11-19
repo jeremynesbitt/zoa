@@ -469,14 +469,47 @@ contains
 
     ! SPO options claimed only inside SPO: ORI H|V, the direction of the
     ! row of focus positions in SPO THF (the dropdown sends 1 or 2).
+    !## cmd:      ANN
+    !## syntax:   ANN RMS|SPO [Y|N]
+    !## category: Plot Settings
+    !## desc:     SPO: annotate each spot with its RMS size (ANN RMS, on by default)
+    !##           and its full diameter, 100% of the rays about the centroid (ANN
+    !##           SPO, off by default).  ANN LEN / ANN INI are not available.
+    !##
     module procedure spoSetOption
-        use plot_setting_manager, only: SETTING_SPOT_ORI, ID_SPOT_ORI_H, ID_SPOT_ORI_V
+        use plot_setting_manager, only: SETTING_SPOT_ORI, ID_SPOT_ORI_H, ID_SPOT_ORI_V, &
+        &   SETTING_SPOT_ANN_RMS, SETTING_SPOT_ANN_SPO, ID_ANN_YES, ID_ANN_NO
         use plot_functions, only: spotIsThroughFocus
         implicit none
         character(len=80) :: tokens(40)
         integer :: numTokens, n
 
         call parse(trim(iptStr), ' ', tokens, numTokens)
+        if (trim(tokens(1)) == 'ANN') then
+            n = 0
+            if (numTokens == 2) then
+                n = ID_ANN_YES
+            else if (numTokens == 3) then
+                select case (trim(tokens(3)))
+                case ('Y', 'YES', '1', '1.0'); n = ID_ANN_YES
+                case ('N', 'NO', '2', '2.0');  n = ID_ANN_NO
+                end select
+            end if
+            if (n == 0 .or. numTokens < 2) then
+                call zoa_emit("Error:  SPO: expected ANN RMS|SPO [Y|N]", "red")
+                return
+            end if
+            select case (trim(tokens(2)))
+            case ('RMS'); call curr_psm%updateSetting(SETTING_SPOT_ANN_RMS, n)
+            case ('SPO'); call curr_psm%updateSetting(SETTING_SPOT_ANN_SPO, n)
+            case ('LEN', 'INI')
+                if (n == ID_ANN_YES) call zoa_emit("SPO: ANN "//trim(tokens(2))// &
+                &   " is not available (no lens-name or date annotation)", "red")
+            case default
+                call zoa_emit("Error:  SPO: expected ANN RMS|SPO [Y|N]", "red")
+            end select
+            return
+        end if
         if (.not. spotIsThroughFocus(curr_psm)) then
             call zoa_emit("Error:  ORI applies to SPO THF (focus positions in a row or column)", "red")
             return
@@ -650,22 +683,131 @@ contains
         call curr_psm%updateSetting(SETTING_RIM_WFR, n)
     end procedure rimSetOption
 
+    !## cmd:      LSA
+    !## syntax:   LSA [Y|N|x]
+    !## category: Plot Settings
+    !## desc:     FIE: add the longitudinal spherical aberration panel (x: its +-x scale).
+    !##
+    !## cmd:      ZFO
+    !## syntax:   ZFO Y|N
+    !## category: Plot Settings
+    !## desc:     FIE: field curves measured from the axial focus instead of the image surface.
+    !##
+    ! FIE options: LSA [Y|N|x], ZFO Y|N, FFD N (full field display: not yet)
+    module procedure fieSetOption
+        use plot_setting_manager, only: SETTING_FIE_LSA, SETTING_FIE_ZFO, ID_FIE_ZFO_NO, ID_FIE_ZFO_YES
+        use command_utils, only: isInputNumber
+        implicit none
+        character(len=80) :: tokens(40)
+        integer :: numTokens
+        character(len=8) :: a
+
+        call parse(trim(iptStr), ' ', tokens, numTokens)
+        a = ''
+        if (numTokens >= 2) a = tokens(2)
+        if (numTokens > 2) then
+            call zoa_emit("Error:  expected "//trim(tokens(1))//" Y|N"// &
+            &             merge("|x", "  ", trim(tokens(1)) == 'LSA'), "red")
+            return
+        end if
+        select case (trim(tokens(1)))
+        case ('LSA')
+            select case (trim(a))
+            case ('', 'Y', 'YES'); call curr_psm%updateSetting(SETTING_FIE_LSA, -1.0)
+            case ('N', 'NO');      call curr_psm%updateSetting(SETTING_FIE_LSA, 0.0)
+            case default
+                ! (nested: no short-circuit .and. -- str2real8 of a word aborts)
+                if (isInputNumber(trim(a))) then
+                    if (str2real8(trim(a)) >= -1.0_long) then
+                        call curr_psm%updateSetting(SETTING_FIE_LSA, str2real8(trim(a)))
+                        return
+                    end if
+                end if
+                call zoa_emit("Error:  expected LSA Y|N|x (x > 0: the plotted maximum)", "red")
+            end select
+        case ('ZFO')
+            select case (trim(a))
+            case ('', 'Y', 'YES', '2', '2.0'); call curr_psm%updateSetting(SETTING_FIE_ZFO, ID_FIE_ZFO_YES)
+            case ('N', 'NO', '1', '1.0');      call curr_psm%updateSetting(SETTING_FIE_ZFO, ID_FIE_ZFO_NO)
+            case default; call zoa_emit("Error:  expected ZFO Y|N", "red")
+            end select
+        case ('FFD')
+            select case (trim(a))
+            case ('N', 'NO')
+            case default
+                call zoa_emit("FFD: the full-field display is not available yet (FFD N)", "red")
+            end select
+        end select
+    end procedure fieSetOption
+
     !## cmd:      FRE
     !## syntax:   FRE x
     !## category: Plot Settings
     !## desc:     MTF THF: the spatial frequency whose modulation is plotted through focus.
     !##
+    !## cmd:      PLO FOC
+    !## syntax:   PLO FOC [Y|N]  |  PLO FRE [Y|N]
+    !## category: Plot Settings
+    !## desc:     Inside MTF: PLO FOC Y charts the modulation at one frequency
+    !##           (FRE) through the focus positions FFO/IFO/NFO (same as MTF THF);
+    !##           PLO FRE Y (or PLO FOC N) charts it against frequency, the default.
+    !##           The field and NRD choices made so far are kept.
+    !##
     ! MTF options claimed only inside MTF: NRD n (pupil grid 16, 32, 64 or
-    ! 128; the settings dropdown sends its entry id, also accepted) and, in
+    ! 128; the settings dropdown sends its entry id, also accepted), PLO
+    ! FOC|FRE (switch between the frequency and through-focus plots) and, in
     ! MTF THF, FRE x.
     module procedure mtfSetOption
-        use plot_setting_manager, only: SETTING_MTF_FRE
+        use plot_setting_manager, only: SETTING_MTF_FRE, SETTING_FIELD
         use command_utils, only: isInputNumber
         implicit none
         character(len=80) :: tokens(40)
         integer :: numTokens, n
+        logical :: wantThf
 
         call parse(trim(iptStr), ' ', tokens, numTokens)
+        if (trim(tokens(1)) == 'PLO') then
+            ! PLO FOC [Y|N] / PLO FRE [Y|N]: which of the two plots
+            wantThf = (cmd_loop == ID_PLOTTYPE_MTF_THF)
+            n = 0
+            if (numTokens >= 2 .and. numTokens <= 3) then
+                if (numTokens == 2) tokens(3) = 'Y'
+                select case (trim(tokens(3)))
+                case ('Y', 'YES', 'N', 'NO')
+                    select case (trim(tokens(2)))
+                    case ('FOC')
+                        n = 1; wantThf = (tokens(3)(1:1) == 'Y')
+                    case ('FRE')
+                        n = 1
+                        if (tokens(3)(1:1) == 'Y') then
+                            wantThf = .false.
+                        else if (cmd_loop == ID_PLOTTYPE_MTF) then
+                            call zoa_emit("MTF: PLO FRE N leaves nothing to plot; use PLO FOC Y "// &
+                            &             "for the through-focus plot", "red")
+                            return
+                        end if
+                    end select
+                end select
+            end if
+            if (n == 0) then
+                call zoa_emit("Error:  MTF: expected PLO FOC [Y|N] or PLO FRE [Y|N]", "red")
+                return
+            end if
+            if (wantThf .eqv. (cmd_loop == ID_PLOTTYPE_MTF_THF)) return
+            block
+                real :: fld, nrd
+                fld = curr_psm%getSettingValueByCode(SETTING_FIELD)
+                nrd = curr_psm%getSettingValueByCode(ID_DENSITY_POWER_OF_TWO)
+                if (wantThf) then
+                    call execMTF('MTF THF')
+                else
+                    call execMTF('MTF')
+                end if
+                call curr_psm%updateSetting(SETTING_FIELD, fld)
+                call curr_psm%updateSetting(ID_DENSITY_POWER_OF_TWO, nrd)
+            end block
+            return
+        end if
         if (trim(tokens(1)) == 'NRD') then
             n = 0
             if (numTokens == 2) then
@@ -696,6 +838,208 @@ contains
         end if
         call zoa_emit("Error:  MTF THF: expected FRE frequency (greater than 0)", "red")
     end procedure mtfSetOption
+
+    !## cmd:      DIS
+    !## syntax:   DIS [INT] [Y|N]
+    !## category: Plot Settings
+    !## desc:     PMA: colour map (DIS Y, the default), interferogram fringes
+    !##           (DIS INT Y, one fringe per wave) or none (DIS N, for contours alone).
+    !##           PSF: DIS Y is accepted (the plot is always drawn).
+    !##
+    !## cmd:      CON
+    !## syntax:   CON [SUP] [Y|N]
+    !## category: Plot Settings
+    !## desc:     PMA: contour lines over the map, numbered (CON Y) or not (CON SUP Y).
+    !##
+    !## cmd:      ADW
+    !## syntax:   ADW [TIL|FOC] x_tilt [y_tilt [focus [piston]]]
+    !## category: Plot Settings
+    !## desc:     PMA: add tilt, focus (rho^2) and piston to the wavefront, in waves
+    !##           at the pupil edge; TIL removes the best-fit tilt first, FOC the
+    !##           best-fit tilt and focus.  ADW 0 turns it off.
+    !##
+    !## cmd:      RAN COL
+    !## syntax:   RAN COL SPE | RGB [r [g [b]]]
+    !## category: Plot Settings
+    !## desc:     PMA: colour scale -- spectral rainbow (SPE, the default) or a ramp
+    !##           from black to the colour r g b (0..1 each; RGB 1 1 1 is grey).
+    !##
+    !## cmd:      LIS
+    !## syntax:   LIS [Y|N]
+    !## category: Plot Settings
+    !## desc:     PMA, PSF, MTF: accepted for CODE V compatibility; the listing is
+    !##           the plot's Data tab, which is always written.
+    !##
+    ! Options claimed by the dispatcher inside PMA (DIS CON ADW RAN LIS PLO
+    ! ZFR) and PSF/MTF (LIS, and DIS for PSF).  Combo settings arrive from the
+    ! settings panel as their ids (DIS 2, CON 3).
+    module procedure pmaSetOption
+        use plot_setting_manager, only: SETTING_PMA_DIS, SETTING_PMA_CON, SETTING_PMA_ADW, &
+        &   SETTING_PMA_COL, ID_PMA_DIS_MAP, ID_PMA_DIS_INT, ID_PMA_DIS_NONE, &
+        &   ID_PMA_CON_NO, ID_PMA_CON_YES, ID_PMA_CON_SUP
+        use command_utils, only: isInputNumber
+        implicit none
+        character(len=80) :: tokens(40), q, yn
+        integer :: numTokens, i, n
+        character(len=200) :: rest
+        logical :: isPMA
+
+        call parse(trim(iptStr), ' ', tokens, numTokens)
+        isPMA = (cmd_loop == ID_PLOTTYPE_OPD)
+        select case (trim(tokens(1)))
+        case ('LIS')
+            if (numTokens > 2) then
+                call zoa_emit("Error:  expected LIS [Y|N]", "red"); return
+            end if
+            if (numTokens == 2) then
+                if (.not. isYesNo(tokens(2))) then
+                    call zoa_emit("Error:  expected LIS [Y|N]", "red")
+                end if
+            end if
+        case ('DIS')
+            ! DIS [INT] [Y|N], or the combo's id
+            q = ''; yn = 'Y'
+            do i = 2, numTokens
+                if (trim(tokens(i)) == 'INT') then
+                    q = 'INT'
+                else
+                    yn = tokens(i)
+                end if
+            end do
+            if (.not. isPMA) then
+                if (len_trim(q) > 0 .or. .not. isYesNo(yn)) then
+                    call zoa_emit("Error:  PSF: expected DIS [Y|N]", "red")
+                else if (yn(1:1) == 'N') then
+                    call zoa_emit("PSF: the plot is always drawn (DIS N ignored)", "red")
+                end if
+                return
+            end if
+            n = 0
+            if (numTokens == 2 .and. isInputNumber(trim(tokens(2)))) then
+                n = nint(str2real8(trim(tokens(2))))
+                if (n < ID_PMA_DIS_MAP .or. n > ID_PMA_DIS_NONE) n = 0
+            else if (numTokens <= 3 .and. isYesNo(yn)) then
+                if (yn(1:1) == 'N') then
+                    n = ID_PMA_DIS_NONE
+                    if (len_trim(q) > 0) n = ID_PMA_DIS_MAP
+                else
+                    n = ID_PMA_DIS_MAP
+                    if (len_trim(q) > 0) n = ID_PMA_DIS_INT
+                end if
+            end if
+            if (n == 0) then
+                call zoa_emit("Error:  PMA: expected DIS [INT] [Y|N]", "red"); return
+            end if
+            call curr_psm%updateSetting(SETTING_PMA_DIS, n)
+        case ('CON')
+            q = ''; yn = 'Y'
+            do i = 2, numTokens
+                if (trim(tokens(i)) == 'SUP') then
+                    q = 'SUP'
+                else
+                    yn = tokens(i)
+                end if
+            end do
+            n = 0
+            if (numTokens == 2 .and. isInputNumber(trim(tokens(2)))) then
+                n = nint(str2real8(trim(tokens(2))))
+                if (n < ID_PMA_CON_NO .or. n > ID_PMA_CON_SUP) n = 0
+            else if (numTokens <= 3 .and. isYesNo(yn)) then
+                if (yn(1:1) == 'N') then
+                    n = ID_PMA_CON_NO
+                    if (len_trim(q) > 0) n = ID_PMA_CON_YES   ! CON SUP N: numbers back on
+                else
+                    n = ID_PMA_CON_YES
+                    if (len_trim(q) > 0) n = ID_PMA_CON_SUP
+                end if
+            end if
+            if (n == 0) then
+                call zoa_emit("Error:  PMA: expected CON [SUP] [Y|N]", "red"); return
+            end if
+            call curr_psm%updateSetting(SETTING_PMA_CON, n)
+        case ('ADW')
+            ! ADW [TIL|FOC] x_tilt [y_tilt [focus [piston]]]
+            rest = ''
+            n = 0
+            do i = 2, numTokens
+                if (i == 2 .and. (trim(tokens(2)) == 'TIL' .or. trim(tokens(2)) == 'FOC')) then
+                    rest = trim(tokens(2))
+                else if (isInputNumber(trim(tokens(i)))) then
+                    n = n + 1
+                    rest = trim(rest)//' '//trim(tokens(i))
+                else
+                    n = 99
+                end if
+            end do
+            if (n < 1 .or. n > 4) then
+                call zoa_emit("Error:  PMA: expected ADW [TIL|FOC] x_tilt [y_tilt [focus [piston]]]", "red")
+                return
+            end if
+            call curr_psm%updateSetting(SETTING_PMA_ADW, trim(adjustl(rest)))
+        case ('RAN')
+            n = 0
+            if (numTokens >= 3) then
+                if (trim(tokens(2)) == 'COL') then
+                    if (trim(tokens(3)) == 'SPE' .and. numTokens == 3) then
+                        n = 1; rest = 'SPE'
+                    else if (trim(tokens(3)) == 'RGB' .and. numTokens <= 6) then
+                        n = 1; rest = 'RGB'
+                        do i = 4, numTokens
+                            if (.not. isInputNumber(trim(tokens(i)))) then
+                                n = 0
+                            else if (str2real8(trim(tokens(i))) < 0.0_long .or. &
+                            &        str2real8(trim(tokens(i))) > 1.0_long) then
+                                n = 0
+                            else
+                                rest = trim(rest)//' '//trim(tokens(i))
+                            end if
+                        end do
+                    end if
+                else if (trim(tokens(2)) == 'SCA') then
+                    call zoa_emit("PMA: RAN SCA is not available yet (the colour scale spans the data)", "red")
+                    return
+                end if
+            end if
+            if (n == 0) then
+                call zoa_emit("Error:  PMA: expected RAN COL SPE or RAN COL RGB [r [g [b]]] (0..1)", "red")
+                return
+            end if
+            call curr_psm%updateSetting(SETTING_PMA_COL, trim(rest))
+        case ('PLO')
+            ! CODE V PLO Y|N is the oblique projection plot; Zoa's PLO SUR|BAR
+            ! chooses the map or the Zernike bar chart.
+            if (numTokens == 2) then
+                if (isYesNo(tokens(2))) then
+                    if (tokens(2)(1:1) == 'Y') call zoa_emit( &
+                    &   "PMA: the oblique projection plot is not available; the map is drawn", "red")
+                    return
+                end if
+            end if
+            call setPlotSettingGeneric(iptStr)
+        case ('ZFR')
+            ! ZFR [EXP|EXS] n
+            if (numTokens == 3) then
+                if (trim(tokens(2)) == 'EXP' .or. trim(tokens(2)) == 'EXS') then
+                    call zoa_emit("PMA: ZFR "//trim(tokens(2))//": the fit is to the pupil map's "// &
+                    &   "own grid; the qualifier is ignored", "red")
+                    call setPlotSettingGeneric('ZFR '//trim(tokens(3)))
+                    return
+                end if
+            end if
+            call setPlotSettingGeneric(iptStr)
+        end select
+
+    contains
+
+        logical function isYesNo(t)
+            character(len=*), intent(in) :: t
+            select case (trim(t))
+            case ('Y', 'YES', 'N', 'NO'); isYesNo = .true.
+            case default; isYesNo = .false.
+            end select
+        end function isYesNo
+
+    end procedure pmaSetOption
 
     module procedure execSPO_old
         implicit none

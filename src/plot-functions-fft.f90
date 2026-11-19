@@ -122,9 +122,11 @@ module procedure pma_go
     use plplot_extra
     use iso_c_binding, only: c_ptr, c_null_ptr
 
-  use plot_setting_manager, only: ID_PMA_BAR
+  use plot_setting_manager, only: ID_PMA_BAR, ID_PMA_DIS_INT, ID_PMA_DIS_NONE, &
+  &   ID_PMA_CON_NO
   use kdp_utils, only: OUTKDP, log2DData
   use iso_fortran_env, only: real64
+  use strings, only: parse
 
   character(len=1024) :: ffieldstr
   character(len=256) :: lineStr
@@ -143,6 +145,15 @@ module procedure pma_go
   type(multiplot) :: mplt
   real, allocatable :: termIdx(:), termVal(:)
 
+  ! display options (DIS, CON, ADW, RAN COL)
+  integer :: dis, con, nTok, nb, k, colorMode
+  character(len=80) :: adwTxt, colTxt, tok(40), adwMode
+  real(real64) :: adw(4)
+  real(real64), allocatable :: w(:), zplot(:)
+  logical, allocatable :: inside(:)
+  logical :: adwOn
+  real :: rgb(3)
+
   ! Zernike fit coefficients from the last FITZERN (COMMON/SOLU/X, same store
   ! LISTZERN and the ZRN command read).
   real(real64) :: X(1:96)
@@ -158,6 +169,7 @@ module procedure pma_go
   xpts = psm%getDensitySetting()
   ypts = xpts
   call psm%getPMASettings(plotType, nZern)
+  call psm%getPMADisplaySettings(dis, con, adwTxt, colTxt)
 
   call kdp_fob(sysConfig%relativeFields(2,fldIdx), sysConfig%relativeFields(1,fldIdx))
 
@@ -202,21 +214,92 @@ module procedure pma_go
       call OUTKDP(trim(lineStr))
     end do
   else
-    ! Surface map (default).
-    call zp3d%init3d(c_null_ptr, real(curr_opd%X),real(curr_opd%Y), &
-    & real(curr_opd%Z), xpts, ypts, &
-    & xlabel='X'//c_null_char, ylabel='Y'//c_null_char, &
-    & title='Optical Path Difference'//c_null_char)
+    ! Surface map (default).  Samples outside the pupil are X = Y = OPD = 0.
+    w = curr_opd%Z
+    inside = .not. (curr_opd%X == 0.0_real64 .and. curr_opd%Y == 0.0_real64 .and. &
+    &               curr_opd%Z == 0.0_real64)
+
+    ! ADW [TIL|FOC] x_tilt [y_tilt [focus [piston]]]: waves at the pupil
+    ! edge; TIL removes the best-fit tilt first, FOC tilt and focus.
+    call parse(trim(adwTxt), ' ', tok, nTok)
+    adwMode = ''
+    adw = 0.0_real64
+    k = 0
+    do i = 1, nTok
+      if (i == 1 .and. (trim(tok(1)) == 'TIL' .or. trim(tok(1)) == 'FOC')) then
+        adwMode = tok(1)
+      else if (isInputNumber(trim(tok(i))) .and. k < 4) then
+        k = k + 1
+        adw(k) = str2real8(trim(tok(i)))
+      end if
+    end do
+    adwOn = len_trim(adwMode) > 0 .or. any(adw /= 0.0_real64)
+    if (len_trim(adwMode) > 0) then
+      nb = 3
+      if (trim(adwMode) == 'FOC') nb = 4
+      call removeBestFit(curr_opd%X, curr_opd%Y, w, inside, nb)
+    end if
+    where (inside) w = w + adw(1)*curr_opd%X + adw(2)*curr_opd%Y + &
+    &      adw(3)*(curr_opd%X**2 + curr_opd%Y**2) + adw(4)
+
+    ! DIS INT: interferogram fringes, one per wave
+    if (dis == ID_PMA_DIS_INT) then
+      allocate(zplot(size(w)))
+      zplot = 0.0_real64
+      where (inside) zplot = 0.5_real64*(1.0_real64 + cos(2.0_real64*PI*w))
+    else
+      zplot = w
+    end if
+
+    ! RAN COL SPE | RGB r g b
+    call parse(trim(colTxt), ' ', tok, nTok)
+    colorMode = 0
+    rgb = 1.0
+    if (nTok >= 1) then
+      if (trim(tok(1)) == 'RGB') then
+        colorMode = 1
+        do i = 2, min(nTok, 4)
+          if (isInputNumber(trim(tok(i)))) rgb(i-1) = real(str2real8(trim(tok(i))))
+        end do
+      end if
+    end if
+    if (dis == ID_PMA_DIS_NONE .and. con == ID_PMA_CON_NO) then
+      call zoa_emit('PMA: DIS N without CON leaves nothing to draw; the map is drawn', 'red')
+      dis = 1
+    end if
+
+    if (dis == ID_PMA_DIS_INT) then
+      call zp3d%init3d(c_null_ptr, real(curr_opd%X),real(curr_opd%Y), &
+      & real(zplot), xpts, ypts, &
+      & xlabel='X'//c_null_char, ylabel='Y'//c_null_char, &
+      & title='Interferogram'//c_null_char)
+    else
+      call zp3d%init3d(c_null_ptr, real(curr_opd%X),real(curr_opd%Y), &
+      & real(zplot), xpts, ypts, &
+      & xlabel='X'//c_null_char, ylabel='Y'//c_null_char, &
+      & title='Optical Path Difference'//c_null_char)
+    end if
+    call zp3d%setImageOptions(colorMode, rgb, con - 1, dis /= ID_PMA_DIS_NONE)
     call mplt%set(1,1,zp3d)
 
-    ! Data tab: the map as (pupil X, pupil Y, OPD) points.
+    ! Data tab: the map as (pupil X, pupil Y, OPD) points -- the OPD after
+    ! ADW, and the fringe intensity that is plotted for DIS INT.
     call OUTKDP('Optical path difference map, field '//trim(int2str(fldIdx))// &
     &           ', wavelength '//trim(int2str(lambda))//', '// &
     &           trim(int2str(curr_opd%numPts))//' points')
-    write(lineStr, '(A)') '        Pupil X          Pupil Y       OPD [waves]'
+    if (adwOn) call OUTKDP('With ADW '//trim(adwTxt)//' (waves at the pupil edge)')
+    if (dis == ID_PMA_DIS_INT) then
+      write(lineStr, '(A)') '        Pupil X          Pupil Y       OPD [waves]    Fringe intensity'
+    else
+      write(lineStr, '(A)') '        Pupil X          Pupil Y       OPD [waves]'
+    end if
     call OUTKDP(trim(lineStr))
     do i = 1, curr_opd%numPts
-      write(lineStr, '(3F16.8)') curr_opd%X(i), curr_opd%Y(i), curr_opd%Z(i)
+      if (dis == ID_PMA_DIS_INT) then
+        write(lineStr, '(4F16.8)') curr_opd%X(i), curr_opd%Y(i), w(i), zplot(i)
+      else
+        write(lineStr, '(3F16.8)') curr_opd%X(i), curr_opd%Y(i), w(i)
+      end if
       call OUTKDP(trim(lineStr))
     end do
   end if
@@ -227,16 +310,61 @@ module procedure pma_go
 
 
 
+contains
+
+  ! Least-squares fit of piston + tilt (nb = 3) or piston + tilt + focus
+  ! (nb = 4, rho^2) over the inside samples, subtracted from w.
+  subroutine removeBestFit(x, y, w, inside, nb)
+    real(real64), intent(in) :: x(:), y(:)
+    real(real64), intent(inout) :: w(:)
+    logical, intent(in) :: inside(:)
+    integer, intent(in) :: nb
+    real(real64) :: a(4,4), b(4), f(4), piv
+    integer :: i, j, r, c
+
+    a = 0.0_real64; b = 0.0_real64
+    do i = 1, size(w)
+      if (.not. inside(i)) cycle
+      f = [1.0_real64, x(i), y(i), x(i)**2 + y(i)**2]
+      do r = 1, nb
+        b(r) = b(r) + f(r)*w(i)
+        do c = 1, nb
+          a(r,c) = a(r,c) + f(r)*f(c)
+        end do
+      end do
+    end do
+    ! Gaussian elimination (the normal matrix is symmetric positive definite)
+    do r = 1, nb
+      piv = a(r,r)
+      if (abs(piv) < 1.0e-30_real64) return
+      do j = r + 1, nb
+        f(1) = a(j,r)/piv
+        a(j,r:nb) = a(j,r:nb) - f(1)*a(r,r:nb)
+        b(j) = b(j) - f(1)*b(r)
+      end do
+    end do
+    do r = nb, 1, -1
+      b(r) = (b(r) - sum(a(r,r+1:nb)*b(r+1:nb)))/a(r,r)
+    end do
+    do i = 1, size(w)
+      if (.not. inside(i)) cycle
+      f = [1.0_real64, x(i), y(i), x(i)**2 + y(i)**2]
+      w(i) = w(i) - sum(b(1:nb)*f(1:nb))
+    end do
+  end subroutine removeBestFit
+
 end procedure pma_go
 
 module procedure mtf_go
-  ! Polychromatic diffraction MTF for one field, from the engine's DOTF (pupil
+  ! Polychromatic diffraction MTF from the engine's DOTF (pupil
   ! autocorrelation over the CAPFN wavefront, spectrally weighted): the Y
   ! (tangential for a Y field) and X (sagittal) responses at frequencies 0,
   ! IFR, 2*IFR, ... up to MFR, with the aberration-free curve of a circular
   ! pupil for reference.  The MTF is zero from the cutoff (shortest weighted
   ! wavelength) on, so those frequencies are not computed.  Computed at focus
-  ! FFO (system data), like SPO FLD.
+  ! FFO (system data), like SPO FLD.  One field, or with SETFLD ALL every
+  ! field on the one plot (CODE V's layout): tan solid, sag dashed, a colour
+  ! per field; the diffraction limit is the first field's.
   !
   ! It used to be the FFT of the PSF image, which got the frequency axis
   ! (integer division, wrong scale), the modulus (|Re|^2) and the pixel size
@@ -259,10 +387,11 @@ module procedure mtf_go
   type(multiplot) :: mplt
   character(len=100) :: lineStr
   character(len=30) :: unitStr
-  integer :: objIdx, iField, xpts, nPts, k
+  integer :: objIdx, iField, xpts, nPts, k, nF, j
+  integer, allocatable :: flds(:)
   logical :: replot, ok
   real(real64) :: maxFreq, dFreq, cutoff, delta
-  real(real64), allocatable :: f(:), mtfY(:), mtfX(:), mtfDL(:)
+  real(real64), allocatable :: f(:), mtfY(:,:), mtfX(:,:), mtfDL(:), cutF(:)
 
   call initializeGoPlot(psm, ID_PLOTTYPE_MTF, "MTF", replot, objIdx)
 
@@ -271,8 +400,14 @@ module procedure mtf_go
   maxFreq = psm%getSettingValueByCode(SETTING_MAX_FREQUENCY)
   dFreq = psm%getSettingValueByCode(SETTING_FREQUENCY_INTERVAL)
 
-  call mtfCutoff(iField, 'MTF', cutoff, ok)
-  if (.not. ok) return
+  call mtfFieldList(iField, 'MTF', flds)
+  nF = size(flds)
+  allocate(cutF(nF))
+  do j = 1, nF
+    call mtfCutoff(flds(j), 'MTF', cutF(j), ok)
+    if (.not. ok) return
+  end do
+  cutoff = cutF(1)
   if (maxFreq <= 0.0_real64) maxFreq = cutoff
   if (dFreq <= 0.0_real64) dFreq = maxFreq/100.0_real64
   nPts = int(maxFreq/dFreq + 1.0e-9_real64) + 1
@@ -288,26 +423,29 @@ module procedure mtf_go
     delta = 0.0_real64
   end if
 
-  allocate(f(nPts), mtfY(nPts), mtfX(nPts), mtfDL(nPts))
+  allocate(f(nPts), mtfY(nPts,nF), mtfX(nPts,nF), mtfDL(nPts))
   do k = 1, nPts
     f(k) = (k-1)*dFreq
   end do
-  call mtfAtFocus(iField, xpts, delta, f, cutoff, mtfY, mtfX)
+  do j = 1, nF
+    call mtfAtFocus(flds(j), xpts, delta, f, cutF(j), mtfY(:,j), mtfX(:,j))
+  end do
   mtfDL = mtfDiffLimit(f, cutoff)
 
   unitStr = mtfFreqUnits()
 
   ! Data tab
   if (.not. HEADLESS_MODE) call ioConfig%setTextViewFromPtr(getTabTextView(objIdx))
-  call OUTKDP('Polychromatic diffraction MTF, field '//trim(int2str(iField))// &
-  &           ', cutoff '//trim(real2str(cutoff, 4))//' '//trim(unitStr))
+  if (nF == 1) then
+    call OUTKDP('Polychromatic diffraction MTF, field '//trim(int2str(flds(1)))// &
+    &           ', cutoff '//trim(real2str(cutoff, 4))//' '//trim(unitStr))
+  else
+    call OUTKDP('Polychromatic diffraction MTF, fields 1-'//trim(int2str(nF))// &
+    &           ', cutoff (field 1) '//trim(real2str(cutoff, 4))//' '//trim(unitStr))
+  end if
   if (delta /= 0.0_real64) call OUTKDP('At focus FFO '//trim(real2str(delta, 6))// &
   &           ' '//trim(sysConfig%getLensUnitsText()))
-  call OUTKDP('  Frequency      Y (tan)     X (sag)   Diff. limit')
-  do k = 1, nPts
-    write(lineStr, '(F11.4,3F12.6)') f(k), mtfY(k), mtfX(k), mtfDL(k)
-    call OUTKDP(trim(lineStr))
-  end do
+  call mtfDataTable('  Frequency', '(F11.4)', f, mtfY, mtfX, flds, mtfDL)
   if (.not. HEADLESS_MODE) call ioConfig%setTextView(ID_TERMINAL_DEFAULT)
 
   if (HEADLESS_MODE) then
@@ -316,18 +454,8 @@ module procedure mtf_go
     canvas = hl_gtk_drawing_area_new(size=[1200,800], has_alpha=FALSE)
   end if
   call mplt%initialize(canvas, 1,1)
-  call xyscat%initialize(c_null_ptr, real(f), real(mtfY), &
-  & xlabel='Spatial Frequency ['//trim(unitStr)//']'//c_null_char, &
-  & ylabel='Modulation'//c_null_char, &
-  & title='Diffraction MTF (polychromatic)'//c_null_char)
-  call xyscat%setDataColorCode(PL_PLOT_BLUE)
-  call xyscat%addXYPlot(real(f), real(mtfX))
-  call xyscat%setDataColorCode(PL_PLOT_RED)
-  call xyscat%addXYPlot(real(f), real(mtfDL))
-  call xyscat%setDataColorCode(PL_PLOT_BLACK)
-  call xyscat%setLineStyleCode(2)
-  ! (the shared legend clips entries to about five characters)
-  call xyscat%addLegend([character(len=30) :: 'Tan', 'Sag', 'Limit'])
+  call mtfCurves(xyscat, real(f), mtfY, mtfX, mtfDL, flds, &
+  &  'Spatial Frequency ['//trim(unitStr)//']', 'Diffraction MTF (polychromatic)')
   call mplt%set(1,1,xyscat)
 
   call finalizeGoPlot_new(mplt, psm, replot, objIdx)
@@ -337,8 +465,9 @@ end procedure mtf_go
 module procedure mtf_thf_go
   ! MTF THF: the polychromatic diffraction modulation at one frequency (FRE),
   ! Y (tan) and X (sag), at each focus position FFO, FFO+IFO, ... (NFO) --
-  ! CODE V's MTF CHT FOC.  Each position is the MTF with the image plane
-  ! moved there (mtfAtFocus); the lens itself is not changed.
+  ! CODE V's MTF CHT FOC (PLO FOC Y inside MTF).  Each position is the MTF
+  ! with the image plane moved there (mtfAtFocus); the lens itself is not
+  ! changed.  One field, or every field (SETFLD ALL) as in mtf_go.
   USE GLOBALS
   use command_utils
   use zoa_output, only: zoa_emit
@@ -355,12 +484,12 @@ module procedure mtf_thf_go
   type(c_ptr) :: canvas
   type(zoaplot) :: xyscat
   type(multiplot) :: mplt
-  character(len=100) :: lineStr
   character(len=30) :: unitStr, lensUnits
-  integer :: objIdx, iField, xpts, nPos, k
+  integer :: objIdx, iField, xpts, nPos, k, nF, j
+  integer, allocatable :: flds(:)
   logical :: replot, ok
   real(real64) :: fre, cutoff, dl(1), mY(1), mX(1)
-  real(real64), allocatable :: z(:), mtfY(:), mtfX(:), mtfDL(:)
+  real(real64), allocatable :: z(:), mtfY(:,:), mtfX(:,:), mtfDL(:), cutF(:)
 
   call initializeGoPlot(psm, ID_PLOTTYPE_MTF_THF, "MTF Through Focus", replot, objIdx)
 
@@ -368,8 +497,14 @@ module procedure mtf_thf_go
   xpts = psm%getPowerOfTwoImageSetting()
   fre = psm%getSettingValueByCode(SETTING_MTF_FRE)
 
-  call mtfCutoff(iField, 'MTF THF', cutoff, ok)
-  if (.not. ok) return
+  call mtfFieldList(iField, 'MTF THF', flds)
+  nF = size(flds)
+  allocate(cutF(nF))
+  do j = 1, nF
+    call mtfCutoff(flds(j), 'MTF THF', cutF(j), ok)
+    if (.not. ok) return
+  end do
+  cutoff = cutF(1)
 
   nPos = focus_count()
   if (sys_mode() > 2.0_real64) then
@@ -380,14 +515,16 @@ module procedure mtf_thf_go
   if (fre >= cutoff) call zoa_emit("MTF THF: FRE "//trim(mtfNumText(fre))//" is beyond the cutoff "// &
   &   trim(real2str(cutoff, 4))//"; the modulation is zero", "red")
 
-  allocate(z(nPos), mtfY(nPos), mtfX(nPos), mtfDL(nPos))
+  allocate(z(nPos), mtfY(nPos,nF), mtfX(nPos,nF), mtfDL(nPos))
   dl = mtfDiffLimit([fre], cutoff)
   do k = 1, nPos
     z(k) = 0.0_real64
     if (sys_mode() <= 2.0_real64) z(k) = focus_position(k)
-    call mtfAtFocus(iField, xpts, z(k), [fre], cutoff, mY, mX)
-    mtfY(k) = mY(1)
-    mtfX(k) = mX(1)
+    do j = 1, nF
+      call mtfAtFocus(flds(j), xpts, z(k), [fre], cutF(j), mY, mX)
+      mtfY(k,j) = mY(1)
+      mtfX(k,j) = mX(1)
+    end do
     mtfDL(k) = dl(1)
   end do
 
@@ -396,15 +533,16 @@ module procedure mtf_thf_go
 
   ! Data tab
   if (.not. HEADLESS_MODE) call ioConfig%setTextViewFromPtr(getTabTextView(objIdx))
-  call OUTKDP('Polychromatic diffraction MTF through focus, field '//trim(int2str(iField))// &
-  &           ', frequency '//trim(mtfNumText(fre))//' '//trim(unitStr))
+  if (nF == 1) then
+    call OUTKDP('Polychromatic diffraction MTF through focus, field '//trim(int2str(flds(1)))// &
+    &           ', frequency '//trim(mtfNumText(fre))//' '//trim(unitStr))
+  else
+    call OUTKDP('Polychromatic diffraction MTF through focus, fields 1-'//trim(int2str(nF))// &
+    &           ', frequency '//trim(mtfNumText(fre))//' '//trim(unitStr))
+  end if
   call OUTKDP('Diffraction limit '//trim(real2str(dl(1), 6))//', cutoff '// &
   &           trim(real2str(cutoff, 4))//' '//trim(unitStr))
-  call OUTKDP('      Focus      Y (tan)     X (sag)')
-  do k = 1, nPos
-    write(lineStr, '(F11.5,2F12.6)') z(k), mtfY(k), mtfX(k)
-    call OUTKDP(trim(lineStr))
-  end do
+  call mtfDataTable('      Focus', '(F11.5)', z, mtfY, mtfX, flds)
   if (.not. HEADLESS_MODE) call ioConfig%setTextView(ID_TERMINAL_DEFAULT)
 
   if (HEADLESS_MODE) then
@@ -413,17 +551,9 @@ module procedure mtf_thf_go
     canvas = hl_gtk_drawing_area_new(size=[1200,800], has_alpha=FALSE)
   end if
   call mplt%initialize(canvas, 1,1)
-  call xyscat%initialize(c_null_ptr, real(z), real(mtfY), &
-  & xlabel='Focus Shift ['//trim(lensUnits)//']'//c_null_char, &
-  & ylabel='Modulation'//c_null_char, &
-  & title='MTF Through Focus, '//trim(mtfNumText(fre))//' '//trim(unitStr)//c_null_char)
-  call xyscat%setDataColorCode(PL_PLOT_BLUE)
-  call xyscat%addXYPlot(real(z), real(mtfX))
-  call xyscat%setDataColorCode(PL_PLOT_RED)
-  call xyscat%addXYPlot(real(z), real(mtfDL))
-  call xyscat%setDataColorCode(PL_PLOT_BLACK)
-  call xyscat%setLineStyleCode(2)
-  call xyscat%addLegend([character(len=30) :: 'Tan', 'Sag', 'Limit'])
+  call mtfCurves(xyscat, real(z), mtfY, mtfX, mtfDL, flds, &
+  &  'Focus Shift ['//trim(lensUnits)//']', &
+  &  'MTF Through Focus, '//trim(mtfNumText(fre))//' '//trim(unitStr))
   call mplt%set(1,1,xyscat)
 
   call finalizeGoPlot_new(mplt, psm, replot, objIdx)
@@ -526,6 +656,131 @@ subroutine mtfAtFocus(iField, xpts, delta, f, cutoff, mtfY, mtfX)
     CPFNEXT = .false.
   end if
 end subroutine mtfAtFocus
+
+! The fields an MTF plot draws: the one selected, or with SETFLD ALL every
+! field, as many as the plot has series for (tan + sag each, + the limit).
+subroutine mtfFieldList(iField, who, flds)
+  use global_widgets, only: sysConfig
+  use zoa_output, only: zoa_emit
+  use type_utils, only: int2str
+  integer, intent(in) :: iField
+  character(len=*), intent(in) :: who
+  integer, allocatable, intent(out) :: flds(:)
+  integer, parameter :: MAX_MTF_FIELDS = 12
+  integer :: n, j
+
+  if (iField /= ID_SETTING_FIELD_ALL) then
+    flds = [iField]
+    return
+  end if
+  n = sysConfig%numFields
+  if (n < 1) then
+    flds = [0]          ! mtfCutoff reports there is no field
+    return
+  end if
+  if (n > MAX_MTF_FIELDS) then
+    call zoa_emit(who//': plotting the first '//trim(int2str(MAX_MTF_FIELDS))// &
+    &             ' of '//trim(int2str(n))//' fields', 'red')
+    n = MAX_MTF_FIELDS
+  end if
+  flds = [(j, j = 1, n)]
+end subroutine mtfFieldList
+
+! Data tab table: x, then Y (tan) and X (sag) for each field, then the
+! diffraction limit when given.  One field keeps the single-field layout.
+subroutine mtfDataTable(xHead, xFmt, x, mY, mX, flds, dl)
+  use kdp_utils, only: OUTKDP
+  use type_utils, only: int2str
+  use iso_fortran_env, only: real64
+  character(len=*), intent(in) :: xHead, xFmt
+  real(real64), intent(in) :: x(:), mY(:,:), mX(:,:)
+  integer, intent(in) :: flds(:)
+  real(real64), intent(in), optional :: dl(:)
+  character(len=600) :: line
+  character(len=12) :: cell
+  integer :: k, j, p
+
+  if (size(flds) == 1) then
+    line = xHead//'      Y (tan)     X (sag)'
+    if (present(dl)) line = trim(line)//'   Diff. limit'
+  else
+    line = xHead
+    do j = 1, size(flds)
+      write(cell, '(A12)') 'F'//trim(int2str(flds(j)))//' Y (tan)'
+      line = trim(line)//cell
+      write(cell, '(A12)') 'F'//trim(int2str(flds(j)))//' X (sag)'
+      line = trim(line)//cell
+    end do
+    if (present(dl)) line = trim(line)//'   Diff. limit'
+  end if
+  call OUTKDP(trim(line))
+  do k = 1, size(x)
+    write(line, xFmt) x(k)
+    p = 11
+    do j = 1, size(flds)
+      write(line(p+1:p+24), '(2F12.6)') mY(k,j), mX(k,j)
+      p = p + 24
+    end do
+    if (present(dl)) write(line(p+1:p+12), '(F12.6)') dl(k)
+    call OUTKDP(trim(line))
+  end do
+end subroutine mtfDataTable
+
+! The plot's curves.  One field: Tan blue, Sag red, the limit black dashed.
+! Several: Tan solid and Sag dashed in a colour per field, the limit black;
+! the legend names the fields (it labels the first series, the Tan ones).
+subroutine mtfCurves(xyscat, x, mY, mX, dl, flds, xlabel, title)
+  use type_utils, only: int2str
+  use iso_fortran_env, only: real64
+  type(zoaplot), intent(inout) :: xyscat
+  real, intent(in) :: x(:)
+  real(real64), intent(in) :: mY(:,:), mX(:,:), dl(:)
+  integer, intent(in) :: flds(:)
+  character(len=*), intent(in) :: xlabel, title
+  integer, parameter :: fieldColors(12) = [PL_PLOT_BLUE, PL_PLOT_RED, PL_PLOT_GREEN, &
+  &  PL_PLOT_MAGENTA, PL_PLOT_BROWN, PL_PLOT_CYAN, PL_PLOT_BLUEVIOLET, PL_PLOT_SALMON, &
+  &  PL_PLOT_TURQUOISE, PL_PLOT_GREY, PL_PLOT_AQUAMARINE, PL_PLOT_PINK]
+  character(len=30), allocatable :: names(:)
+  integer :: j, nF
+
+  nF = size(flds)
+  if (nF == 1) then
+    call xyscat%initialize(c_null_ptr, x, real(mY(:,1)), &
+    & xlabel=xlabel//c_null_char, ylabel='Modulation'//c_null_char, &
+    & title=title//c_null_char)
+    call xyscat%setDataColorCode(PL_PLOT_BLUE)
+    call xyscat%addXYPlot(x, real(mX(:,1)))
+    call xyscat%setDataColorCode(PL_PLOT_RED)
+    call xyscat%addXYPlot(x, real(dl))
+    call xyscat%setDataColorCode(PL_PLOT_BLACK)
+    call xyscat%setLineStyleCode(2)
+    ! (the shared legend clips entries to about five characters)
+    call xyscat%addLegend([character(len=30) :: 'Tan', 'Sag', 'Limit'])
+    return
+  end if
+
+  call xyscat%initialize(c_null_ptr, x, real(mY(:,1)), &
+  & xlabel=xlabel//c_null_char, ylabel='Modulation'//c_null_char, &
+  & title=title//', tan solid, sag dashed'//c_null_char)
+  call xyscat%setDataColorCode(fieldColors(1))
+  do j = 2, nF
+    call xyscat%addXYPlot(x, real(mY(:,j)))
+    call xyscat%setDataColorCode(fieldColors(mod(j-1, 12) + 1))
+  end do
+  call xyscat%addXYPlot(x, real(dl))
+  call xyscat%setDataColorCode(PL_PLOT_BLACK)
+  do j = 1, nF
+    call xyscat%addXYPlot(x, real(mX(:,j)))
+    call xyscat%setDataColorCode(fieldColors(mod(j-1, 12) + 1))
+    call xyscat%setLineStyleCode(2)
+  end do
+  allocate(names(nF+1))
+  do j = 1, nF
+    names(j) = 'F'//trim(int2str(flds(j)))
+  end do
+  names(nF+1) = 'Limit'
+  call xyscat%addLegend(names)
+end subroutine mtfCurves
 
 ! Aberration-free reference: each weighted wavelength's circular-pupil MTF at
 ! its own cutoff (scaled from the shortest one), weight-averaged.

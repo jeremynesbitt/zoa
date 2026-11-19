@@ -150,6 +150,13 @@ module mod_ray_trace_engine
       ! and the spot diagram use) or RAYTRA (.false.: also fails a zero
       ! wavelength with code 12, and skips the reference-surface miss check).
       logical      :: for_optimization = .true.
+      ! Explicit start (CODE V SIN): the ray leaves the point (x1, y1) on the
+      ! tangent plane of surface NEWOBJ+1, in that surface's frame, with
+      ! direction tangents (tanx, tany) in the same frame -- no aiming, px/py
+      ! unused.  rr(:, obj) then holds that start point, not an object point.
+      logical      :: explicit = .false.
+      real(real64) :: x1 = 0.0_real64, y1 = 0.0_real64
+      real(real64) :: tanx = 0.0_real64, tany = 0.0_real64
    end type
 
    type :: ray_result
@@ -221,6 +228,7 @@ contains
       real(real64) :: ddelx, ddely, large
       real(real64) :: x1one, y1one, x1last, y1last, rxone, ryone, rxlast, rylast
       real(real64) :: xc1, yc1, zc1, mag, lstart, mstart, nstart, xang, yang
+      real(real64) :: ex_px, ex_py, ex_pz, ex_l, ex_m, ex_n   ! explicit start
       real(real64) :: x, y, z, l, m, n, xold, yold, zold, lold, mold, nold
       real(real64) :: xl, xm, xn, yl, ym, yn
       real(real64) :: rn1, snind2, tarx, tary, test, d11, d12, d21, d22, mf1, mf2
@@ -368,6 +376,37 @@ contains
       ast%y1aim = ast%r_ty
       ast%z1aim = ast%r_tz
 
+      ! ---- explicit start: the point on surface 1's tangent plane, in the
+      ! object frame (the direction is rotated with zero object thickness, so
+      ! a huge object distance cannot swamp it)
+      if (req%explicit) then
+         xstrt = req%x1
+         ystrt = req%y1
+         zstrt = 0.0_real64
+         call back_to_object(ctx%surf(obj+1)%place, ctx%surf(obj)%place%thickness, &
+                             xstrt, ystrt, zstrt)
+         ex_px = req%x1
+         ex_py = req%y1
+         ex_pz = 0.0_real64
+         call back_to_object(ctx%surf(obj+1)%place, 0.0_real64, ex_px, ex_py, ex_pz)
+         l = req%x1 + req%tanx
+         m = req%y1 + req%tany
+         n = 1.0_real64
+         call back_to_object(ctx%surf(obj+1)%place, 0.0_real64, l, m, n)
+         l = l - ex_px
+         m = m - ex_py
+         n = n - ex_pz
+         mag = sqrt(l*l + m*m + n*n)
+         ex_l = l/mag
+         ex_m = m/mag
+         ex_n = n/mag
+         ! hit_and_interact restarts the ray on surface 1 from the aim point
+         ! (in that surface's frame): make it the given point
+         ast%xaimol = req%x1
+         ast%yaimol = req%y1
+         ast%zaimol = 0.0_real64
+      end if
+
       ! ---- aim iteration: trace, check the landing point at NEWREF, step --
       newton_raphson: do
          revstr = ctx%surf(obj)%place%thickness < 0.0_real64
@@ -390,6 +429,11 @@ contains
          lstart = (ast%x1aim - xstrt)/mag
          mstart = (ast%y1aim - ystrt)/mag
          nstart = (ast%z1aim - zstrt)/mag
+         if (req%explicit) then
+            lstart = ex_l
+            mstart = ex_m
+            nstart = ex_n
+         end if
          ninty = .false.
          if (nstart < 0.0_real64) ninty = .true.
          if (ninty) st%rvstart = .true.
@@ -615,7 +659,7 @@ contains
             if (i == ref) then
                call compute_aim_target(ctx%surf(ref)%aper, ctx%aim, ww1, ww2, tarx, tary)
                test = sqrt(((tarx - x)**2) + ((tary - y)**2))
-               if (test <= ctx%aim_tol .or. .not. ctx%aim_on) then
+               if (test <= ctx%aim_tol .or. .not. ctx%aim_on .or. req%explicit) then
                   ! (RAYTRA2 only: RAYTRA does not check the reference miss)
                   if (req%for_optimization) then
                      refmiss = .false.

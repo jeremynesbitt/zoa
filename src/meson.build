@@ -100,6 +100,7 @@ srcs += files(
   'gtk-hl-zoa.f90',
   'zoa-plot.f90',
   'plot-composer.f90',
+  'expr-eval.f90',
   'zoa-macro-ui.f90',
   'zoa-glass-ui.f90',
   'zoamenubar.f90',

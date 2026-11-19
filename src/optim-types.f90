@@ -11,7 +11,7 @@ module optim_types
     !     minimize f(x)  subject to  c_eq(x)=0, c_ineq(x)>=0, xl<=x<=xu
     ! Objective terms feed f; constraint entries feed c.
     type :: merit_entry
-        character(len=4) :: name
+        character(len=32) :: name   ! (32: user-defined @NAMEs)
         integer :: role = ID_ROLE_OBJECTIVE  ! ID_ROLE_OBJECTIVE / ID_ROLE_CONSTRAINT
         integer :: conType = ID_CON_EXACT    ! =, >, < (constraints only)
         real(long) :: targ = 0.0_long
@@ -42,6 +42,10 @@ module optim_types
     ! Improvement goal (IMP): the solver's accuracy (acc).  Kept until changed
     ! or a lens is loaded; saved with the lens when not the default.
     real(kind=long), parameter :: IMP_DEFAULT = 0.01_long
+    ! Exit controls (CODE V MXC / MNC): the maximum number of cycles, and the
+    ! minimum (0: none -- CODE V's default is 2, which would restart every
+    ! converged run; set MNC to ask for it).
+    integer, parameter :: MXC_DEFAULT = 25, MNC_DEFAULT = 0
     ! Constraint tolerance: a constraint is met when its residual (in its own
     ! units) is below this -- independent of IMP.  SLSQP has a single
     ! accuracy (acc = IMP) that also bounds the summed constraint violation,
@@ -55,6 +59,11 @@ module optim_types
 
     type optimizer
         real(kind=long) :: imp = IMP_DEFAULT
+        integer :: mxc = MXC_DEFAULT, mnc = MNC_DEFAULT
+        ! User reference rays R6..R9 (CODE V RAY Rk Fj x y): relative pupil
+        ! X, Y per field; defined(k, f) once given.
+        real(kind=long) :: userRayPupil(2, 6:9, 25) = 0.0_long
+        logical :: userRayDefined(6:9, 25) = .false.
         ! General constraints (CODE V-style): global limits applied
         ! automatically to every VARIABLE thickness during AUT (set inside the
         ! loop, e.g. "AUT; MXT 14.0; GO").  Center-thickness limits become
@@ -111,6 +120,18 @@ module optim_types
             real(long) :: res
         end function
         module function getSeidelAST3Constraint(self) result(res)
+            class(merit_entry) :: self
+            real(long) :: res
+        end function
+        module function getThirdOrderConstraint(self) result(res)
+            class(merit_entry) :: self
+            real(long) :: res
+        end function
+        module function getRayDataConstraint(self) result(res)
+            class(merit_entry) :: self
+            real(long) :: res
+        end function
+        module function getUDCConstraint(self) result(res)
             class(merit_entry) :: self
             real(long) :: res
         end function
@@ -185,6 +206,23 @@ module optim_types
     ! Order matters for the UI name dropdowns: SPO first, then the six
     ! quantities historically usable as constraints.
     type(merit_entry), dimension(100) :: evaluators
+
+    ! User-defined constraints (CODE V @NAME == expression): the expression
+    ! text, evaluated each time through udcEvaluator (set by expr_eval,
+    ! which this module cannot use).
+    integer, parameter :: MAX_UDC = 40
+    character(len=32) :: udcNames(MAX_UDC) = ''
+    character(len=1024) :: udcText(MAX_UDC) = ''
+    integer :: nUDC = 0
+    abstract interface
+        function udc_eval_iface(text, ok) result(v)
+            import :: long
+            character(len=*), intent(in) :: text
+            logical, intent(out) :: ok
+            real(long) :: v
+        end function
+    end interface
+    procedure(udc_eval_iface), pointer :: udcEvaluator => null()
     ! The active merit function: objective terms + constraints, in the order
     ! the user defined them.
     type(merit_entry), dimension(100) :: meritInUse
@@ -210,6 +248,7 @@ module optim_types
 
         !Initialize for checking later
         evaluators(1:size(evaluators))%name = ''
+        nUDC = 0
 
         ! Role-agnostic evaluator registry.  Any of these can be used as an
         ! objective term (NAME targ [weight]) or a constraint (NAME = targ).
@@ -219,16 +258,17 @@ module optim_types
         evaluators(1)%func => getSPO
         evaluators(2)%name = 'EFL'
         evaluators(2)%func => getEFLConstraint
+        ! Third-order transverse aberrations, as CODE V (and THO) define them
         evaluators(3)%name = 'TCO'
-        evaluators(3)%func => getTransverseComaConstraint
+        evaluators(3)%func => getThirdOrderConstraint
         evaluators(4)%name = 'TAS'
-        evaluators(4)%func => getTransverseAstigmatismConstraint
+        evaluators(4)%func => getThirdOrderConstraint
         evaluators(5)%name = 'PTB'
-        evaluators(5)%func => getPetzvalBlurConstraint
+        evaluators(5)%func => getThirdOrderConstraint
         evaluators(6)%name = 'IMC'
         evaluators(6)%func => setDistanceToImagePlaneConstraint
         evaluators(7)%name = 'SAS'
-        evaluators(7)%func => getSphericalConstraint
+        evaluators(7)%func => getThirdOrderConstraint
         evaluators(8)%name = 'PTZ'
         evaluators(8)%func => getPetzvalCurvatureConstraint
         ! Paraxial ray trace data at a surface: [Sk] [Wm] [Zn] qualifiers.
@@ -260,6 +300,19 @@ module optim_types
         call reg('MXA', getRayAngleConstraint)
         call reg('XCN', getCentroidConstraint)
         call reg('YCN', getCentroidConstraint)
+        call reg('IMD', getFirstOrderConstraint)
+        ! reference-ray data at a surface (CODE V): X Y Z L M N SRL SRM SRN
+        call reg('X',   getRayDataConstraint)
+        call reg('Y',   getRayDataConstraint)
+        call reg('Z',   getRayDataConstraint)
+        call reg('L',   getRayDataConstraint)
+        call reg('M',   getRayDataConstraint)
+        call reg('N',   getRayDataConstraint)
+        call reg('SRL', getRayDataConstraint)
+        call reg('SRM', getRayDataConstraint)
+        call reg('SRN', getRayDataConstraint)
+        call reg('SA',  getThirdOrderConstraint)
+        call reg('DST', getThirdOrderConstraint)
 
     contains
 
@@ -281,7 +334,8 @@ module optim_types
         modified = (optim%mxt /= GEN_MXT_DEFAULT) .OR. (optim%mnt /= GEN_MNT_DEFAULT) .OR. &
         &          (optim%mne /= GEN_MNE_DEFAULT) .OR. (optim%mna /= GEN_MNA_DEFAULT) .OR. &
         &          (optim%mae /= GEN_MAE_DEFAULT) .OR. (.not. optim%genConOn) .OR. &
-        &          (optim%imp /= IMP_DEFAULT)
+        &          (optim%imp /= IMP_DEFAULT) .OR. (optim%mxc /= MXC_DEFAULT) .OR. &
+        &          (optim%mnc /= MNC_DEFAULT)
     end function
 
     ! Counts by role, derived from the merit list (no separate counters to drift).
@@ -402,7 +456,8 @@ module optim_types
         character(len=24) :: q
         q = meritQualText(e)
         if (len_trim(q) == 0) then
-            f = e%name
+            ! padded to the old 4-character field, so listings line up as before
+            f = e%name(1:max(4, len_trim(e%name)))
         else
             f = trim(e%name)//trim(q)
         end if
@@ -447,10 +502,15 @@ module optim_types
         select case (trim(name))
         case ('CT', 'ET', 'SD', 'ATC', 'ATE'); lay = 'S'
         case ('OAL', 'EFY', 'EFX');           lay = 'G'
+        ! third order: one surface's contribution or a range's sum (at the
+        ! reference wavelength only: the Seidel sums are of its paraxial
+        ! trace, so Wm is refused rather than silently ignored)
+        case ('SA', 'TCO', 'TAS', 'SAS', 'PTB', 'DST'); lay = 'G'
         case ('AX', 'LAT');                   lay = 'WV'
         case ('DIX', 'DIY');                  lay = 'F'
         case ('XCN', 'YCN');                  lay = 'FW'
         case ('AOI', 'AOR');                  lay = 'SRF'
+        case ('X', 'Y', 'Z', 'L', 'M', 'N', 'SRL', 'SRM', 'SRN'); lay = 'SRFW'
         end select
     end function
 
@@ -584,6 +644,34 @@ module optim_types
         &                  iS2=iS2, iW2=iW2, iF=iF, iR=iR)
 
     end subroutine
+
+    ! @NAME == text: store (or replace) a user-defined constraint and make
+    ! @NAME an operand (AUT @NAME = v, EVA (@NAME)).
+    subroutine defineUDC(name, text, ok)
+        character(len=*), intent(in) :: name, text
+        logical, intent(out) :: ok
+        integer :: i, k
+        ok = .false.
+        k = 0
+        do i = 1, nUDC
+            if (udcNames(i) == name) k = i
+        end do
+        if (k == 0) then
+            if (nUDC >= MAX_UDC) return
+            nUDC = nUDC + 1
+            k = nUDC
+            udcNames(k) = name
+            do i = 1, size(evaluators)
+                if (len_trim(evaluators(i)%name) == 0) then
+                    evaluators(i)%name = name
+                    evaluators(i)%func => getUDCConstraint
+                    exit
+                end if
+            end do
+        end if
+        udcText(k) = text
+        ok = .true.
+    end subroutine defineUDC
 
     function isNameInEvaluatorList(name) result(idx)
         character(len=*) :: name
@@ -992,6 +1080,8 @@ module optim_types
             if (optim%mae /= GEN_MAE_DEFAULT) write(fID,*) "MAE "//real2str(optim%mae)
             if (.not. optim%genConOn)     write(fID,*) "GENCON NO"
             if (optim%imp /= IMP_DEFAULT) write(fID,'(A,ES15.8)') " IMP ", optim%imp
+            if (optim%mxc /= MXC_DEFAULT) write(fID,'(A,I0)') " MXC ", optim%mxc
+            if (optim%mnc /= MNC_DEFAULT) write(fID,'(A,I0)') " MNC ", optim%mnc
             write(fID, *) "GO"
         end if
         end if
@@ -1040,6 +1130,10 @@ module optim_types
         self%mae = GEN_MAE_DEFAULT
         self%genConOn = .true.
         self%imp = IMP_DEFAULT
+        self%mxc = MXC_DEFAULT
+        self%mnc = MNC_DEFAULT
+        self%userRayDefined = .false.
+        self%userRayPupil = 0.0_long
 
     end subroutine removeAllConstraints
 

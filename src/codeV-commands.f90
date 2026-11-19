@@ -274,6 +274,18 @@ module codeV_commands
    module subroutine updateOptimImprovementGoal(iptStr)
    character(len=*) :: iptStr
    end subroutine updateOptimImprovementGoal
+   module subroutine updateOptimCycles(iptStr)
+   character(len=*) :: iptStr
+   end subroutine updateOptimCycles
+   module subroutine listVariables(iptStr)
+   character(len=*) :: iptStr
+   end subroutine listVariables
+   module subroutine defineUserRay(iptStr)
+   character(len=*) :: iptStr
+   end subroutine defineUserRay
+   module subroutine fieSetOption(iptStr)
+   character(len=*) :: iptStr
+   end subroutine fieSetOption
    module subroutine updateRMSPlotType(iptStr)
    character(len=*) :: iptStr
    end subroutine updateRMSPlotType
@@ -289,9 +301,10 @@ module codeV_commands
    module subroutine evaluateCmd(iptStr)
    character(len=*) :: iptStr
    end subroutine evaluateCmd
-   module function evalFunc(iptStr, logResult) result(res)
+   module function evalFunc(iptStr, logResult, okOut) result(res)
    character(len=*) :: iptStr
    logical, optional :: logResult
+   logical, optional, intent(out) :: okOut
    real(kind=long) :: res
    end function evalFunc
    module subroutine listConstraints(iptStr)
@@ -527,6 +540,12 @@ module codeV_commands
    module subroutine fooSetOption(iptStr)
     character(len=*) :: iptStr
    end subroutine fooSetOption
+   module subroutine pmaSetOption(iptStr)
+    character(len=*) :: iptStr
+   end subroutine pmaSetOption
+   module subroutine execSIN(iptStr)
+    character(len=*) :: iptStr
+   end subroutine execSIN
    module subroutine execFAB(iptStr)
     character(len=*) :: iptStr
    end subroutine execFAB
@@ -627,6 +646,14 @@ module codeV_commands
     ! PRV ... END: every line is private glass data (a label can be any word)
     integer, parameter :: PRV_LOOP = 11
     integer, parameter :: TRA_LOOP = 12
+
+    ! ROF (ray output format): the items RSI and SIN list, and their Fw.d
+    ! format.  nRof = 0 keeps RSI's own listing (X Y Z XANG YANG); SIN then
+    ! lists CODE V's default X Y Z TNX TNY LEN.
+    integer, parameter :: ROF_MAX = 15
+    character(len=4) :: rofItems(ROF_MAX) = ''
+    integer :: nRof = 0
+    integer :: rofW = 14, rofD = 6
 
 
     ! Views saved by nested kdp_silent_begin calls (see kdpApiSilenceOn).
@@ -952,6 +979,17 @@ module codeV_commands
         zoaCmds(838)%execFunc => execMULTIPLOT
         zoaCmds(839)%cmd = 'SUBPLOT'
         zoaCmds(839)%execFunc => execSUBPLOT
+        ! AUT exit controls: maximum / minimum number of cycles
+        zoaCmds(840)%cmd = 'MXC'
+        zoaCmds(840)%execFunc => updateOptimCycles
+        zoaCmds(841)%cmd = 'MNC'
+        zoaCmds(841)%execFunc => updateOptimCycles
+        zoaCmds(842)%cmd = 'VLI'
+        zoaCmds(842)%execFunc => listVariables
+        zoaCmds(843)%cmd = 'ROF'
+        zoaCmds(843)%execFunc => execROF
+        zoaCmds(844)%cmd = 'SIN'
+        zoaCmds(844)%execFunc => execSIN
         ! Tilt / decenter / pivot control codes (CODE V XDC..CDC, XOC..ZOC).
         block
             use zoa_ui, only: TILT_VAR_NAMES
@@ -1216,11 +1254,26 @@ module codeV_commands
             end select
         end if
 
-        ! SPO options (ORI is FOO's plot origin and a lens-draw word elsewhere)
+        ! SPO options (ORI is FOO's plot origin and a lens-draw word elsewhere;
+        ! ANN the annotations)
         if (cmd_loop == SPO_LOOP) then
-            if (trim(iptCmd) == 'ORI') then
+            if (trim(iptCmd) == 'ORI' .or. trim(iptCmd) == 'ANN') then
                 call spoSetOption(currentCommand); boolResult = .TRUE.; return
             end if
+        end if
+
+        ! AUT: RAY Rk Fj x y defines a user reference ray (RAY is the legacy
+        ! single-ray trace elsewhere)
+        if (cmd_loop == AUT_LOOP .and. trim(iptCmd) == 'RAY') then
+            call defineUserRay(currentCommand); boolResult = .TRUE.; return
+        end if
+
+        ! FIE options (LSA, ZFO, FFD mean other things elsewhere)
+        if (cmd_loop == ID_PLOTTYPE_AST) then
+            select case (trim(iptCmd))
+            case ('LSA', 'ZFO', 'FFD')
+                call fieSetOption(currentCommand); boolResult = .TRUE.; return
+            end select
         end if
 
         ! RIM options (WFR: wave instead of ray aberration)
@@ -1233,9 +1286,24 @@ module codeV_commands
         ! MTF options: NRD (the pupil grid; the legacy NRD outside), and in
         ! MTF THF, FRE (the frequency charted through focus)
         if (cmd_loop == ID_PLOTTYPE_MTF .or. cmd_loop == ID_PLOTTYPE_MTF_THF) then
-            if (trim(iptCmd) == 'NRD' .or. &
+            if (trim(iptCmd) == 'NRD' .or. trim(iptCmd) == 'PLO' .or. &
             &   (trim(iptCmd) == 'FRE' .and. cmd_loop == ID_PLOTTYPE_MTF_THF)) then
                 call mtfSetOption(currentCommand); boolResult = .TRUE.; return
+            end if
+        end if
+
+        ! PMA display options; LIS (the listing is the Data tab) in PMA, PSF
+        ! and MTF, and DIS in PSF.
+        if (cmd_loop == ID_PLOTTYPE_OPD) then
+            select case (trim(iptCmd))
+            case ('DIS', 'CON', 'ADW', 'RAN', 'LIS', 'PLO', 'ZFR')
+                call pmaSetOption(currentCommand); boolResult = .TRUE.; return
+            end select
+        end if
+        if (cmd_loop == ID_PLOTTYPE_PSF .or. cmd_loop == ID_PLOTTYPE_MTF .or. &
+        &   cmd_loop == ID_PLOTTYPE_MTF_THF) then
+            if (trim(iptCmd) == 'LIS' .or. (trim(iptCmd) == 'DIS' .and. cmd_loop == ID_PLOTTYPE_PSF)) then
+                call pmaSetOption(currentCommand); boolResult = .TRUE.; return
             end if
         end if
 
@@ -1314,7 +1382,14 @@ module codeV_commands
         if (cmd_loop == AUT_LOOP .or. cmd_loop == TAR_LOOP .or. cmd_loop == CON_UPDATE_LOOP) then
             block
                 use optim_types, only: isNameInEvaluatorList
-                if (isNameInEvaluatorList(trim(iptCmd)) > 0) then
+                ! (the full first word: iptCmd is cut to 8 characters, and
+                ! a user-defined @NAME can be longer)
+                character(len=80) :: w1
+                integer :: sp
+                sp = index(trim(adjustl(currentCommand))//' ', ' ')
+                w1 = adjustl(currentCommand)
+                w1 = w1(1:sp-1)
+                if (isNameInEvaluatorList(trim(w1)) > 0) then
                     call updateConstraint(currentCommand)
                     boolResult = .TRUE.
                     return
@@ -1420,6 +1495,10 @@ module codeV_commands
         ! (strings::uppercase does this): a title like TIT 'OSDmirror' keeps
         ! its case in currentCommand rather than being force-uppercased.
         segU = uppercase(adjustl(seg))
+        ! In AUT (and TAR / UPD CON) a constraint is NAME = value, NAME > a < b;
+        ! CODE V does not need blanks around = < > (EFL=20, imd=0).
+        if (cmd_loop == AUT_LOOP .or. cmd_loop == TAR_LOOP .or. cmd_loop == CON_UPDATE_LOOP) &
+            segU = spaceRelations(segU)
         call parse(trim(segU), ' ', tokens, numTokens)
         if (numTokens < 1) return
         token = tokens(1)                       ! len-8 truncation on assignment
@@ -1450,6 +1529,31 @@ module codeV_commands
         handled = startCodeVLensUpdateCmd(token)
         if (.not. handled) call recordFallback(token)
     end function
+
+    ! Blanks around each = < > outside quotes ("EFL=20" -> "EFL = 20").
+    function spaceRelations(t) result(o)
+        character(len=*), intent(in) :: t
+        character(len=len(t)+60) :: o
+        integer :: i, k
+        character :: q
+        o = ''
+        k = 0
+        q = ' '
+        do i = 1, len_trim(t)
+            if (q /= ' ') then
+                if (t(i:i) == q) q = ' '
+            else if (t(i:i) == "'" .or. t(i:i) == '"') then
+                q = t(i:i)
+            else if (index('=<>', t(i:i)) > 0 .and. k + 3 <= len(o)) then
+                o(k+1:k+3) = ' '//t(i:i)//' '
+                k = k + 3
+                cycle
+            end if
+            if (k + 1 > len(o)) exit
+            o(k+1:k+1) = t(i:i)
+            k = k + 1
+        end do
+    end function spaceRelations
 
     ! Fallback telemetry: tallies command words that fell through to a legacy
     ! router (a word never observed here over real use + the test suite is a
@@ -1800,6 +1904,142 @@ module codeV_commands
 
     end subroutine
 
+    !## cmd:      ROF
+    !## syntax:   ROF [item ...] ['Fw.d']
+    !## category: Analysis
+    !## desc:     Ray output format for RSI and SIN: the items listed per surface --
+    !##           X Y Z (intersection), L M N (direction cosines after the surface),
+    !##           TNX TNY (direction tangents), AOI AOR (angles of incidence and
+    !##           refraction, degrees), LEN (path length from the previous surface),
+    !##           SRL SRM SRN (surface normal) -- and the number format ('F12.8').
+    !##           ROF alone restores the defaults (RSI's X Y Z XANG YANG listing;
+    !##           SIN lists X Y Z TNX TNY LEN).
+    !##
+    subroutine execROF(iptStr)
+        use strings, only: parse
+        implicit none
+        character(len=*) :: iptStr
+        character(len=80) :: tokens(40), t
+        integer :: numTokens, i, n, w, d, ios, p
+        character(len=4) :: items(ROF_MAX)
+        logical :: fmtGiven
+
+        call parse(trim(iptStr), ' ', tokens, numTokens)
+        if (numTokens == 1) then
+            nRof = 0; rofItems = ''; rofW = 14; rofD = 6
+            return
+        end if
+        n = 0; fmtGiven = .false.; w = rofW; d = rofD
+        do i = 2, numTokens
+            t = tokens(i)
+            if (t(1:1) == "'" .or. t(1:1) == '"') then
+                ! 'Fw.d'
+                t = t(2:)
+                p = index(t, "'") + index(t, '"')
+                if (p > 0) t = t(1:p-1)
+                ios = 1
+                p = index(t, '.')
+                if (t(1:1) == 'F' .and. p > 2) then
+                    read(t(2:p-1), *, iostat=ios) w
+                    if (ios == 0) read(t(p+1:), *, iostat=ios) d
+                end if
+                if (ios /= 0 .or. w < 4 .or. w > 30 .or. d < 0 .or. d > w - 3) then
+                    call zoa_emit("Error:  ROF: expected a format like 'F12.6' (width 4..30)", "red")
+                    return
+                end if
+                fmtGiven = .true.
+                cycle
+            end if
+            select case (trim(t))
+            case ('X', 'Y', 'Z', 'L', 'M', 'N', 'TNX', 'TNY', 'AOI', 'AOR', 'LEN', 'SRL', 'SRM', 'SRN')
+                if (n == ROF_MAX) then
+                    call zoa_emit("Error:  ROF: at most 15 items", "red"); return
+                end if
+                n = n + 1
+                items(n) = trim(t)
+            case default
+                call zoa_emit("Error:  ROF: unknown item "//trim(t)// &
+                &   " (X Y Z L M N TNX TNY AOI AOR LEN SRL SRM SRN, or 'Fw.d')", "red")
+                return
+            end select
+        end do
+        if (n > 0) then
+            nRof = n; rofItems = ''; rofItems(1:n) = items(1:n)
+        else if (fmtGiven .and. nRof == 0) then
+            ! a format alone: CODE V's default items
+            nRof = 6; rofItems = ''
+            rofItems(1:6) = [character(len=4) :: 'X', 'Y', 'Z', 'TNX', 'TNY', 'LEN']
+        end if
+        rofW = w; rofD = d
+    end subroutine execROF
+
+    ! One ray's data per surface s0..s1, the ROF items in the ROF format
+    ! (a value too wide for it is written in E format).  rr is RAYRAY's
+    ! layout, columns lo.. (the object surface first).
+    subroutine printRayTable(rr, lo, s0, s1, items)
+        use kdp_utils, only: OUTKDP
+        use iso_fortran_env, only: real64
+        implicit none
+        integer, intent(in) :: lo, s0, s1
+        real(real64), intent(in) :: rr(:, lo:)
+        character(len=*), intent(in) :: items(:)
+        character(len=1000) :: line
+        character(len=40) :: cell, fmtF, fmtE
+        real(real64) :: v, rad2deg
+        integer :: s, k, p
+
+        rad2deg = 45.0_real64/atan(1.0_real64)
+        write(fmtF, '("(F",I0,".",I0,")")') rofW, rofD
+        write(fmtE, '("(ES",I0,".",I0,")")') rofW, max(1, min(rofD, rofW - 7))
+        line = 'SURF'
+        p = 4
+        do k = 1, size(items)
+            line(p+1:p+rofW+1) = repeat(' ', rofW + 1 - len_trim(items(k)))//trim(items(k))
+            p = p + rofW + 1
+        end do
+        call OUTKDP(trim(line))
+        do s = s0, s1
+            write(line, '(I4)') s
+            p = 4
+            do k = 1, size(items)
+                v = rayItemValue(rr(:, s), items(k))
+                write(cell, fmtF) v
+                if (index(cell(1:rofW), '*') > 0) write(cell, fmtE) v
+                line(p+1:p+rofW+1) = ' '//cell(1:rofW)
+                p = p + rofW + 1
+            end do
+            call OUTKDP(trim(line))
+        end do
+    contains
+        real(real64) function rayItemValue(c, item) result(r)
+            real(real64), intent(in) :: c(:)
+            character(len=*), intent(in) :: item
+            select case (trim(item))
+            case ('X'); r = c(1)
+            case ('Y'); r = c(2)
+            case ('Z'); r = c(3)
+            case ('L'); r = c(4)
+            case ('M'); r = c(5)
+            case ('N'); r = c(6)
+            case ('LEN'); r = c(8)
+            case ('AOI'); r = acos(max(-1.0_real64, min(1.0_real64, c(9))))*rad2deg
+            case ('AOR'); r = acos(max(-1.0_real64, min(1.0_real64, c(10))))*rad2deg
+            case ('SRL'); r = c(13)
+            case ('SRM'); r = c(14)
+            case ('SRN'); r = c(15)
+            case ('TNX', 'TNY')
+                if (c(6) == 0.0_real64) then
+                    r = huge(1.0_real64)
+                else if (trim(item) == 'TNX') then
+                    r = c(4)/c(6)
+                else
+                    r = c(5)/c(6)
+                end if
+            case default; r = 0.0_real64
+            end select
+        end function rayItemValue
+    end subroutine printRayTable
+
     ! This is a very important command that performs ray traces for a user defined
     ! number of field points, wavelengths, and relative aperture locations
     ! The output depends on the cmd level
@@ -1815,7 +2055,7 @@ module codeV_commands
         use global_widgets, only: sysConfig, curr_lens_data
         use command_utils, only : isInputNumber
         use strings, only: parse
-        use DATLEN, only: RAYRAY, NEWOBJ, NEWIMG
+        use DATLEN, only: RAYRAY, NEWOBJ, NEWIMG, RAYEXT
         use DATMAI, only: PII, TWOPII
         use result_builder
         use mod_kdp_api, only: kdp_fob, kdp_ray
@@ -1831,6 +2071,9 @@ module codeV_commands
         integer :: i, j
         integer :: nrayWavs, nrayFields
         logical :: multipleRays
+        integer :: nNum
+        real(kind=real64) :: numVals(4), fieldX, fieldY
+        logical :: fieldGiven
 
         ! Structured-result locals
         integer :: nsurfs, surf_idx, nrows
@@ -1847,10 +2090,35 @@ module codeV_commands
 
         call parse(trim(iptStr), ' ', tokens, numTokens)
 
-        fields = cmd_parser_get_int_input_for_prefix('f', tokens(1:numTokens))
-        wavelengths = cmd_parser_get_int_input_for_prefix('w', tokens(1:numTokens))
-        call cmd_parser_get_real_pair(tokens(1:numTokens), relApeX, relApeY, &
-        & real1Bounds=[-1.0,1.0], real2Bounds=[-1.0,1.0])
+        ! CODE V's RSI XR YR thXR thYR: pupil X Y and relative field X Y -- one
+        ! ray at that field, at the reference wavelength unless Wk is given.
+        nNum = 0
+        do i = 2, numTokens
+            if (isInputNumber(trim(tokens(i)))) then
+                nNum = nNum + 1
+                if (nNum <= 4) numVals(nNum) = str2real8(trim(tokens(i)))
+            end if
+        end do
+        if (nNum == 3 .or. nNum > 4) then
+            call zoa_emit("Error:  expected RSI [Fk] [Wk] XR YR  or  RSI [Wk] XR YR thXR thYR", "red")
+            return
+        end if
+        fieldGiven = nNum == 4
+        if (fieldGiven) then
+            relApeX = numVals(1); relApeY = numVals(2)
+            fieldY = numVals(4); fieldX = numVals(3)
+            allocate(fields(1)); fields(1) = 0
+            if (any([(tokens(i)(1:1) == 'W', i = 2, numTokens)])) then
+                wavelengths = cmd_parser_get_int_input_for_prefix('w', tokens(1:numTokens))
+            else
+                allocate(wavelengths(1)); wavelengths(1) = sysConfig%getRefWavelengthIndex()
+            end if
+        else
+            fields = cmd_parser_get_int_input_for_prefix('f', tokens(1:numTokens))
+            wavelengths = cmd_parser_get_int_input_for_prefix('w', tokens(1:numTokens))
+            call cmd_parser_get_real_pair(tokens(1:numTokens), relApeX, relApeY, &
+            & real1Bounds=[-1.0,1.0], real2Bounds=[-1.0,1.0])
+        end if
         !fields = cmd_parser_get_fields(tokens(1:numTokens))
         do i=1,size(fields)
             call LogTermFOR("RSI fields are "//int2str(fields(i)))
@@ -1875,7 +2143,11 @@ module codeV_commands
             ! TODO:  Put COLRAY value into sysConfig (current field Color)
             !COLRAY = sysConfig%fieldColorCodes(fields(j))
             !WRITE(INPUT, *) "FOB ", )
-            call kdp_fob(sysConfig%relativeFields(2,fields(j)))
+            if (fieldGiven) then
+                call kdp_fob(fieldY, fieldX)
+            else
+                call kdp_fob(sysConfig%relativeFields(2,fields(j)), sysConfig%relativeFields(1,fields(j)))
+            end if
             !REST_KDP(1)=RESTINPT(1)
 
 
@@ -1883,7 +2155,17 @@ module codeV_commands
       ! By definition RSI only traces a ray of a single angle
             !SAVE_KDP(1)=SAVEINPT(1)
             call kdp_ray(relApeY, relApeX, real(wavelengths(i), real64))
-            CALL PROCESKDP("PRXYZ ALL")
+            if (nRof > 0) then
+                ! ROF items: the table of the chosen ray data
+                if (RAYEXT) then
+                    call printRayTable(RAYRAY(:, NEWOBJ:NEWIMG), NEWOBJ, NEWOBJ, NEWIMG, &
+                    &                  rofItems(1:nRof))
+                else
+                    call zoa_emit("RSI: the ray does not trace", "red")
+                end if
+            else
+                CALL PROCESKDP("PRXYZ ALL")
+            end if
             !REST_KDP(1)=RESTINPT(1)
     end do ! fields
    end do  !  wavelengths
@@ -1923,7 +2205,12 @@ module codeV_commands
         end do
 
         call result_begin("raytrace")
-        call result_set_meta("field",   int2str(fields(nrayFields)))
+        if (fieldGiven) then
+            ! (a relative field, not a field number)
+            call result_set_meta("field", "("//trim(real2str(fieldX))//", "//trim(real2str(fieldY))//")")
+        else
+            call result_set_meta("field",   int2str(fields(nrayFields)))
+        end if
         call result_set_meta("wavelength", int2str(wavelengths(nrayWavs)))
         call result_set_meta("relApeX", real2str(relApeX))
         call result_set_meta("relApeY", real2str(relApeY))

@@ -25,7 +25,7 @@ subroutine aut_go()
     integer :: meq               !! number of equality constraints
 
     type(slsqp_solver)    :: solver      !! instantiate an slsqp solver
-    integer,parameter               :: max_iter = 25          !! maximum number of allowed iterations
+    integer                         :: max_iter               !! maximum number of cycles (MXC)
     real(long),dimension(nV) :: xl 
     real(long),dimension(nV) :: xu 
     real(long),dimension(nV,3) :: VARDATA
@@ -103,6 +103,7 @@ subroutine aut_go()
     where (abs(xu) < 1.0e30_long) xu = xu/varScale
 
     meq = getNumberofEqualityConstraints()
+    max_iter = optim%mxc
 
     ! NOTE: an earlier version passed toldf=0.05 ("to limit search steps") --
     ! that stopped every run after one iteration once the frozen-typed-store
@@ -121,6 +122,19 @@ subroutine aut_go()
         block
             character(len=:), allocatable :: status_message
             call solver%optimize(x,istat,iterations,status_message)
+            ! MNC: a run that stopped before the minimum number of cycles
+            ! is continued from where it stopped (at most MNC restarts).
+            block
+                integer :: total, more, restarts
+                total = iterations
+                restarts = 0
+                do while (total < optim%mnc .and. total < optim%mxc .and. restarts < optim%mnc)
+                    call solver%optimize(x,istat,more,status_message)
+                    total = total + more
+                    restarts = restarts + 1
+                end do
+                iterations = total
+            end block
             ! Apply the RETURNED solution to the lens: the last merit
             ! evaluation inside the solver is typically a gradient-probe or
             ! line-search point, not the solution, so without this the lens

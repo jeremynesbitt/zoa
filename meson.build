@@ -687,6 +687,11 @@ test('rim_wfr', test_runner,
             meson.project_source_root() / 'test/rim_wfr.ref'],
      timeout: 120)
 
+test('codev_intro', test_runner,
+     args: [meson.project_source_root() / 'test/codev_intro.zoa',
+            meson.project_source_root() / 'test/codev_intro.ref'],
+     timeout: 120)
+
 test('book_regressions', test_runner,
      args: [meson.project_source_root() / 'test/book_regressions.zoa',
             meson.project_source_root() / 'test/book_regressions.ref'],

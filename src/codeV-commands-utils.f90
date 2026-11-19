@@ -2958,4 +2958,96 @@ contains
 
     end procedure execSYSDATA
 
+    !## cmd:      SIN
+    !## syntax:   SIN [Sk|Si..j] [Wm] X1 Y1 tanX tanY
+    !## category: Analysis
+    !## desc:     Trace a single ray given by its position X1 Y1 on the tangent
+    !##           plane of surface 1 and its direction tangents tanX tanY there
+    !##           (no aiming at the stop -- useful when chief rays fail).  Lists
+    !##           the ROF items (default X Y Z TNX TNY LEN) at surfaces Si..j (all
+    !##           by default), at the reference wavelength unless Wm is given.
+    !##
+    module procedure execSIN
+        use strings, only: parse
+        use command_utils, only: isInputNumber
+        use global_widgets, only: sysConfig
+        use mod_lens_data_manager, only: ldm
+        use mod_ray_trace_engine, only: trace_context, ray_request, ray_result, trace_ray, RAY_OK
+        use mod_ray_trace_builder, only: build_trace_context
+        use mod_kdp_api, only: kdp_fob, kdp_silent_begin, kdp_silent_end
+        use iso_fortran_env, only: real64
+        use kdp_utils, only: OUTKDP
+        implicit none
+        character(len=80) :: tokens(40), t
+        integer :: numTokens, i, nNum, s0, s1, iwl, last
+        real(real64) :: v(4)
+        type(trace_context) :: ctx
+        type(ray_request) :: req
+        type(ray_result) :: res
+        character(len=4), allocatable :: items(:)
+        logical :: haveS
+
+        call parse(trim(iptStr), ' ', tokens, numTokens)
+        nNum = 0; haveS = .false.
+        s0 = 1; s1 = ldm%getLastSurf()
+        iwl = sysConfig%getRefWavelengthIndex()
+        do i = 2, numTokens
+            t = tokens(i)
+            if (isInputNumber(trim(t))) then
+                nNum = nNum + 1
+                if (nNum <= 4) v(nNum) = str2real8(trim(t))
+            else if (t(1:1) == 'S' .and. .not. haveS) then
+                if (.not. parseSurfaceSpec(trim(t), s0, s1)) return
+                haveS = .true.
+            else if (t(1:1) == 'W' .and. isInputNumber(trim(t(2:)))) then
+                iwl = nint(str2real8(trim(t(2:))))
+                if (iwl < 1 .or. iwl > sysConfig%numWavelengths) then
+                    call zoa_emit("Error:  SIN: no wavelength "//trim(t), "red"); return
+                end if
+            else if (trim(t) == 'Z1') then
+                ! the one zoom position (any other is refused below)
+            else
+                call zoa_emit("Error:  SIN: unexpected "//trim(t)// &
+                &   "; expected SIN [Sk|Si..j] [Wm] X1 Y1 tanX tanY", "red")
+                return
+            end if
+        end do
+        if (nNum /= 4) then
+            call zoa_emit("Error:  expected SIN [Sk|Si..j] [Wm] X1 Y1 tanX tanY", "red")
+            return
+        end if
+
+        ! (the context needs a traced chief ray; any field will do)
+        call kdp_silent_begin()
+        call kdp_fob(0.0_real64, 0.0_real64)
+        call kdp_silent_end()
+        call build_trace_context(ctx, check_apertures=.true.)
+        if (.not. ctx%supported) then
+            call zoa_emit("SIN: the ray trace does not support this lens ("//trim(ctx%reason)//")", "red")
+            return
+        end if
+        req%explicit = .true.
+        req%x1 = v(1); req%y1 = v(2); req%tanx = v(3); req%tany = v(4)
+        req%iwl = iwl
+        req%for_optimization = .false.
+        call trace_ray(ctx, req, res)
+
+        if (nRof > 0) then
+            items = rofItems(1:nRof)
+        else
+            items = [character(len=4) :: 'X', 'Y', 'Z', 'TNX', 'TNY', 'LEN']
+        end if
+        call OUTKDP('SIN ray: X1 '//trim(real2str(v(1)))//', Y1 '//trim(real2str(v(2)))// &
+        &   ', tanX '//trim(real2str(v(3)))//', tanY '//trim(real2str(v(4)))// &
+        &   ' at surface 1; wavelength '//trim(int2str(iwl)))
+        if (res%status /= RAY_OK) then
+            last = res%fail_surface - 1
+            call zoa_emit("SIN: the ray fails at surface "//trim(int2str(res%fail_surface))// &
+            &   " (code "//trim(int2str(res%status))//")", "red")
+            s1 = min(s1, last)
+        end if
+        s0 = max(s0, ctx%obj + 1)
+        if (s1 >= s0) call printRayTable(res%rr, ctx%obj, s0, s1, items)
+    end procedure execSIN
+
 end submodule mod_codev_utils

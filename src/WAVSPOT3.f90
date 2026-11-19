@@ -3940,7 +3940,7 @@ contains
 
             ! ---- the rays: each one independent, stored at its own row ------
 !$omp parallel do schedule(dynamic, 16) num_threads(nthr) if(nray >= 64) &
-!$omp&   default(shared) private(j, row, req, res, apx2, apr2)
+!$omp&   default(shared) private(j, row, res, apx2, apr2) firstprivate(req)
             DO j=1,nray
                row = 0.0D0
                IF(pkind.NE.2) THEN

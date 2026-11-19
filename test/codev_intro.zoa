@@ -1,0 +1,141 @@
+! Commands from an "Introduction to CODE V" course (2012), as CODE V writes
+! them.  Each block was a bug or a gap found running the course's examples.
+RES osdtriplet
+! --- SET VIG: vignetting computed from the user apertures (it crashed on
+! SET VIG F2).  Each factor puts that edge ray on an aperture edge: the
+! RSI checks trace field 3's edges, which land on Y=4 at S6, Y=-4.5 at S1
+! and radius 4.5 at S1.
+CIR S1 4.5
+CIR S6 4
+SET VIG
+SET VIG F2..3
+RSI F3 W1 0 0.55978
+RSI F3 W1 0 -0.68938
+SET VIG FX
+SET VIG 2 0.3 0.1 0.2 0.2
+DEL APE SA
+SET VIG
+! --- expressions in place of numbers (were ignored or rejected)
+EVA (EFL)
+EVA ((EFL)*2)
+EVA (sqrtf(2))
+THI S5 (THI S5)-1
+SUR S5
+EVA (THI SI-1)
+EVA (Y R1 F3 SI)
+EVA (Y R1 F3 SI W2)
+CIR S1 (14.6/2)
+TIT 'Cooke (expression-free title)'
+EVA (BOGUS S1)
+THI S5 (THI S99)
+EVA (1/0)
+EVA ((EFL)
+THI S5 3.5
+! --- EFL=20 without blanks in AUT
+CCY S1 0 ; CCY S2 0 ; CCY S3 0 ; CCY S4 0
+AUT ; EFL=40 ; MXC 30 ; GO
+EVA (EFL)
+RES osdtriplet
+! --- a glass from a catalog that does not have it says so
+GLA S5 BK7_Hoya
+GLA S5 N-SK16
+! --- RSI pupil X Y and field X Y; X fields
+RSI 0 1 0 0
+RSI 0 0 0 1
+RSI W2 0 -1 0 1
+RSI 0 1 0
+! --- SUR with surface ranges (listed every surface)
+SUR S2..3
+SUR SI-1
+SUR S9
+! --- AUT exit controls and variable listing
+RES osdtriplet
+MXC
+MNC
+MXC 0
+VLI
+CCY S1 0 ; CCY S2 0 ; THC S2 0 ; KC S1 0
+VLI
+! --- third-order operands are THO's (CODE V) quantities: SA TCO TAS SAS
+! PTB DST, total, one surface or a range (TCO was a third of it, TAS
+! another quantity, SAS the spherical aberration)
+THO
+EVA (SA)
+EVA (TCO)
+EVA (TAS)
+EVA (SAS)
+EVA (PTB)
+EVA (DST)
+EVA (SA S4)
+EVA (SA S1..3)
+EVA (SA W1)
+! --- IMD (image distance plus defocus), two-sided bounds
+EVA (IMD)
+RES osdtriplet
+DEL PIM
+CCY S1 0 ; CCY S2 0 ; THC S6 0
+AUT ; EFL=50 ; IMD > 35 < 36 ; GO
+EVA (IMD)
+EVA (EFL)
+! --- reference-ray constraints, user rays R6..R9
+RES osdtriplet
+CCY S1 0 ; CCY S2 0 ; CCY S3 0 ; CCY S4 0
+AUT ; Y R1 F3 SI = 8.5 ; M R2 F1 S2 < 0 ; GO
+EVA (Y R1 F3 SI)
+RSI F3 W1 0 0
+RES osdtriplet
+CCY S1 0 ; CCY S2 0 ; CCY S3 0 ; CCY S4 0
+AUT ; RAY R6 F3 0.5 0.5 ; Y R6 F3 SI = 9.0 ; RAY R6 F3 0.5 ; RAY R5 F1 0 0 ; GO
+RSI F3 W1 0.5 0.5
+! --- user-defined constraints
+RES osdtriplet
+@RI == ((M F2 R2 SI)-(M F2 R3 SI))*(L F2 R4 SI)/(2*(M F1 R2 SI)**2)
+EVA (@RI)
+@HALFEFL == (EFL)/2
+EVA ((@HALFEFL)*4)
+@BAD == (NOPE S1)
+EVA (@UNDEF)
+CCY S1 0 ; CCY S2 0 ; CCY S3 0 ; CCY S4 0
+AUT ; @HALFEFL = 22 ; GO
+EVA (EFL)
+! --- FIE options
+RES osdtriplet
+FIE ; LSA Y ; GO
+FIE ; LSA N ; ZFO Y ; GO
+FIE ; ZFO N ; AST CHR 0.5 ; GO
+FIE ; LSA MAYBE ; FFD Y ; FFD N ; GO
+! --- MTF PLO FOC / PLO FRE / all fields
+RES osdtriplet
+NFO 3 ; FFO -0.1 ; IFO 0.1
+MTF ; SETFLD ALL ; NRD 32 ; MFR 100 ; IFR 50 ; PLO FOC Y ; FRE 20 ; GO
+MTF THF ; NRD 32 ; PLO FRE ; MFR 100 ; IFR 50 ; GO
+MTF ; PLO FRE N ; PLO BAD ; NRD 32 ; MFR 100 ; IFR 50 ; GO
+! --- PSF / PMA display options
+RES osdtriplet
+PSF;SETDENS 16;LIS NO;DIS YES;DIS N;DIS INT;GO
+PMA;SETDENS 16;SETFLD 3;ADW FOC 1.5 0 0 0;LIS NO;DIS INT YES;RAN COL RGB 1 1 1;CON SUP;GO
+PMA;SETDENS 16;DIS N;CON Y;PLO N;ZFR EXS 36;GO
+PMA;SETDENS 16;DIS MAYBE;CON 7;ADW X;RAN COL RGB 2;RAN SCA 5;PLO Y;DIS N;CON N;GO
+! --- SPO ANN
+RES osdtriplet
+SPO ; RECTDENS 5 ; ANN SPO Y ; GO
+SPO ; RECTDENS 5 ; ANN SPO NO ; ANN RMS NO ; ANN LEN Y ; ANN FOO ; ANN RMS MAYBE ; GO
+! --- ROF / SIN
+RES osdtriplet
+ROF X Y Z TNX TNY AOI LEN 'F16.10'
+RSI F3 W2 0 0
+SIN W2 0 -1.1982133507 0 0.1763269807
+ROF
+RSI F3 W2 0 0
+ROF 'F8.5'
+SIN 0 1 0 0
+ROF
+SIN S2..4 0 1 0 0.1
+SIN 0 1
+SIN S99 0 0 0 0
+SIN W9 0 0 0 0
+ROF FOO
+ROF 'G3'
+ROF L M N AOR SRL SRM SRN
+SIN SI 0 1 0 0
+ROF

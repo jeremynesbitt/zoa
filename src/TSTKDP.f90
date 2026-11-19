@@ -354,10 +354,19 @@ contains
    ! One command segment: CodeV front door first, else the legacy parser.
    ! The legacy path keeps the segment's original case (PROCES/PRO2 upcases);
    ! only the front door folds case internally for its zoaCmds lookup.
-   subroutine routeSegment(seg)
+   subroutine routeSegment(segIn)
       use zoa_output, only: zoa_emit
-      character(len=*), intent(in) :: seg
-      if (len_trim(seg) == 0) return
+      use expr_eval, only: expand_expressions
+      character(len=*), intent(in) :: segIn
+      character(len=:), allocatable :: seg
+      logical :: ok
+      if (len_trim(segIn) == 0) return
+      ! CODE V expressions in place of numbers -- (THI SI-1), (3.66/2),
+      ! (EFL)*2 -- are replaced by their values first; a command whose
+      ! expression cannot be evaluated does not run.
+      call expand_expressions(segIn, seg, ok)
+      if (.not. ok) return
+      if (len_trim(seg) == 0) return          ! (a definition: @NAME == ...)
       if (dispatchCodeVSegment(seg)) return
       ! legacy commands still parse from the 140-character INPUT buffer
       if (len_trim(seg) > len(INPUT)) then

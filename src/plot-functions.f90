@@ -540,6 +540,11 @@ subroutine spo_go(psm)
 
     real(kind=real64), allocatable :: xSpot(:), ySpot(:)
     real(kind=real64) :: yAvg, delta, rmsPanel, commonExtent
+    ! ANN RMS / ANN SPO: the label under each spot; full diameter = twice
+    ! the largest ray distance from the first wavelength's centroid
+    logical :: annRms, annSpo
+    real(kind=real64) :: xAvgDia, maxR
+    character(len=160) :: annText
     real :: plotScale
     logical :: drawAiry
     integer, parameter :: AIRY_NPTS = 181
@@ -618,6 +623,7 @@ subroutine spo_go(psm)
     ! the wavelength in micrometres, so convert it to whatever the lens is
     ! dimensioned in; the F-number is the working (image-space) one.
     drawAiry = psm%getAirySetting()
+    call psm%getSpotAnnotations(annRms, annSpo)
     airyRadius = 0.0
     if (drawAiry) then
       select case (sysConfig%currLensUnitsID)
@@ -688,6 +694,12 @@ subroutine spo_go(psm)
       !Subtract Avg
       yAvg = (sum(ySpot)/size(ySpot))
       ySpot = ySpot - yAvg
+      maxR = 0.0d0
+      xAvgDia = 0.0d0
+      if (size(xSpot) > 0) then
+        xAvgDia = sum(xSpot)/size(xSpot)
+        maxR = maxval(sqrt((xSpot - xAvgDia)**2 + ySpot**2))
+      end if
       call addRays(i, iLambda, delta)
       spotExtent = real(max(maxval(abs(xSpot)), maxval(abs(ySpot))))
                                   
@@ -749,12 +761,27 @@ subroutine spo_go(psm)
         ! ref wavelength; revisit this after testing
         ySpot = ySpot - yAvg
         call addRays(i, j, delta)
+        if (size(xSpot) > 0) maxR = max(maxR, maxval(sqrt((xSpot - xAvgDia)**2 + ySpot**2)))
         spotExtent = max(spotExtent, &
         & real(max(maxval(abs(xSpot)), maxval(abs(ySpot)))))
         call xyscat(iPanel)%addXYPlot(real(xSpot), real(ySpot))
         call xyscat(iPanel)%setDataColorCode(sysConfig%wavelengthColorCodes(j))
         call xyscat(iPanel)%setLineStyleCode(-1)
       end do
+    end if
+
+    ! ANN RMS / ANN SPO (the defaults keep the RMS label as it always was)
+    if (.not. annRms .or. annSpo) then
+      annText = ''
+      if (annRms) annText = xyscat(iPanel)%xlabel(1:index(xyscat(iPanel)%xlabel, c_null_char)-1)
+      if (annSpo) then
+        if (len_trim(annText) > 0) then
+          annText = trim(annText)//', Dia '//trim(real2str(2.0d0*maxR))//' '//trim(unitsTxt)
+        else
+          annText = 'Dia '//trim(real2str(2.0d0*maxR))//' '//trim(unitsTxt)
+        end if
+      end if
+      xyscat(iPanel)%xlabel = trim(annText)//c_null_char
     end if
 
     ! The Airy disk is only a circle if the two axes share a scale, and the
@@ -988,7 +1015,8 @@ subroutine ast_go(psm)
     use zoa_output, only: zoa_emit
     use zoa_plot
     use kdp_utils, only: OUTKDP, logDataVsField, logColumns
-    use type_utils, only: int2str, str2int
+    use type_utils, only: int2str, str2int, real2str
+    use DATLEN, only: RAYRAY, RAYEXT, NEWIMG
     use DATMAI
 
 
@@ -1006,8 +1034,9 @@ subroutine ast_go(psm)
 
     integer :: numPts, numPtsDist, numPtsFC, idxFieldXY
     integer :: objIdx, numPlots, j
-    real :: astMax, dstMax
-    logical :: replot, lsa
+    real :: astMax, dstMax, lsaMax
+    logical :: replot, lsa, zfo
+    real(real64) :: zShift
 
      REAL:: DDTA(0:50), xDist(0:50), yDist(0:50), x1FC(0:50), x2FC(0:50), yFC(0:50)
 
@@ -1017,9 +1046,11 @@ subroutine ast_go(psm)
 
      !COMMON FLDAN, DDTA
 
-     lsa = .FALSE.
-
      call psm%getAstigSettings(idxFieldXY, numPts, astMax, dstMax)
+     ! LSA panel: 0 none, -1 autoscale, x > 0 its +-x scale
+     lsaMax = psm%getSettingValueByCode(SETTING_FIE_LSA)
+     lsa = lsaMax /= 0.0
+     zfo = nint(psm%getSettingValueByCode(SETTING_FIE_ZFO)) == ID_FIE_ZFO_YES
 
      call initializeGoPlot(psm,ID_PLOTTYPE_AST, "Field Curv / Dist", replot, objIdx)
 
@@ -1062,6 +1093,15 @@ subroutine ast_go(psm)
   CALL PROCESSILENT('FLDCV'//trim(ftext)//int2str(numPts))
   call getFieldCalcResult(x1FC, x2FC, yFC, numPtsFC, 3)
   call getFieldCalcResult64(fcTan, fcSag, fldFC, numPtsFC, 3)
+  ! ZFO: from the axial focus (the on-axis point, where T = S) rather than
+  ! the image surface -- the plot and its Data columns alike
+  if (zfo) then
+    zShift = fcTan(0)
+    fcTan(0:numPtsFC) = fcTan(0:numPtsFC) - zShift
+    fcSag(0:numPtsFC) = fcSag(0:numPtsFC) - zShift
+    x1FC(0:numPtsFC) = x1FC(0:numPtsFC) - real(zShift)
+    X2FC(0:numPtsFC) = X2FC(0:numPtsFC) - real(zShift)
+  end if
 
 
    call lin3%initialize(c_null_ptr, REAL(x1FC(0:numPtsFC)),yFC(0:numPtsFC), &
@@ -1102,8 +1142,46 @@ CALL PROCESSILENT('DIST'//trim(ftext)//int2str(numPts))
 
 
 
-  ! Prep lsa plot
+  ! LSA: where each on-axis ray (relative pupil height p, along Y) crosses
+  ! the axis, from the image surface, for every wavelength
   if (lsa) then
+    block
+      integer, parameter :: NP = 20
+      real(real64) :: pp(NP), la(NP, 10), yi, mi, ni
+      integer :: k, w, nw
+      character(len=20) :: hdr(11)
+      nw = sysConfig%numWavelengths
+      la = 0.0_real64
+      do k = 1, NP
+        pp(k) = real(k, real64)/NP
+      end do
+      call kdp_silent_begin()
+      do w = 1, nw
+        do k = 1, NP
+          call kdp_fob(0.0_real64, 0.0_real64)
+          call kdp_ray(pp(k), 0.0_real64, real(w, real64))
+          if (.not. RAYEXT) cycle
+          yi = RAYRAY(2, NEWIMG); mi = RAYRAY(5, NEWIMG); ni = RAYRAY(6, NEWIMG)
+          if (mi /= 0.0_real64) la(k, w) = -yi*ni/mi
+        end do
+      end do
+      call kdp_silent_end()
+      call lin1%initialize(c_null_ptr, real(la(:,1)), real(pp), &
+      & xlabel='LSA ['//trim(fcUnits())//']'//c_null_char, &
+      & ylabel='Relative Pupil'//c_null_char, title=''//c_null_char)
+      call lin1%setDataColorCode(sysConfig%wavelengthColorCodes(1))
+      do w = 2, nw
+        call lin1%addXYPlot(real(la(:,w)), real(pp))
+        call lin1%setDataColorCode(sysConfig%wavelengthColorCodes(w))
+      end do
+      if (lsaMax > 0.0) call lin1%setXScale(real(lsaMax, pl_test_flt))
+      hdr(1) = 'RelPupil'
+      do w = 1, nw
+        hdr(w+1) = 'LSA_'//trim(real2str(1000.0*sysConfig%getWavelength(w),2))//'nm'
+      end do
+      call OUTKDP('Longitudinal spherical aberration from the image surface ['//trim(fcUnits())//']')
+      call logColumns(hdr(1:nw+1), reshape([pp, reshape(la(:,1:nw), [NP*nw])], [NP, nw+1]))
+    end block
   end if
 
 

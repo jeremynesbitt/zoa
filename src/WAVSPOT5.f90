@@ -2786,7 +2786,7 @@ contains
             ! keep their pre-grid values).  Column 37 of failed rays is
             ! repaired serially below.
 !$omp parallel do collapse(2) schedule(dynamic, 16) num_threads(nthr) &
-!$omp&   default(shared) private(jy, jx, ww1v, ww2v, row, req, res, oopdv, rayok)
+!$omp&   default(shared) private(jy, jx, ww1v, ww2v, row, res, oopdv, rayok) firstprivate(req)
             DO jy=0,n-1
                DO jx=0,n-1
                   call grid_coords(iw, jy, jx, ww1v, ww2v)

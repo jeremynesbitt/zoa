@@ -31,16 +31,28 @@ module procedure execSUR
         !numSurfaces = curr_lens_data%num_surfaces
         !call LogTermFOR("Num Surfaces is "//trim(int2str(curr_lens_data%num_surfaces)))
 
+        integer :: s1, s2, k
+        logical :: rangeOk
+
         call parse(trim(iptStr), ' ', tokens, numTokens)
-        if (numTokens == 2 ) then
-            if (isSurfCommand(trim(tokens(2)))) then
+        ! SUR [Sk | Si..j | SA] [F]: no surface -> the surface pointer; F
+        ! (control codes) is accepted -- the listing always shows them.
+        s1 = ldm%getSurfacePointer(); s2 = s1
+        rangeOk = .true.
+        do k = 2, numTokens
+            if (trim(tokens(k)) == 'F') cycle
+            rangeOk = surfRange(trim(tokens(k)), s1, s2)
+            if (.not. rangeOk) exit
+        end do
+        if (rangeOk) then
+            block
                 !call logTermFOR("SUR Cmd here!")
                 ! SA
                 fullLine = blankStr(10)//"RDY"//blankStr(10)//"THI"//blankStr(5)//"RMD"//blankStr(10)//"GLA" &
                 & //blankStr(10)//"CCY"//blankStr(5)//"THC"//blankStr(5)//"GLC"
                 call zoa_emit(trim(fullLine), "black")
                 ! 12/12/24:  Change this to 0 indexed surfaees
-                do ii=0,ldm%getLastSurf()
+                do ii=s1,s2
                     surfTxt = ldm%getSurfName(ii)//':'
                     if (ldm%getSurfRad(ii) == 0) then
                         radTxt = 'INFINITY'
@@ -95,7 +107,7 @@ module procedure execSUR
                 ! end 
                 !
                 ! If there are special surfaces, print extra parameters.  For now only look for aspheres
-                do ii=0,ldm%getLastSurf()
+                do ii=s1,s2
                     if (ldm%getSurfTypeName(ii) == 'Asphere') then 
                         call zoa_emit('___', "black")
                         call zoa_emit('ASPHERES', "black")
@@ -108,17 +120,61 @@ module procedure execSUR
 
 
 
-            else
-
-            call zoa_emit("SUR Should have a surface identifier (S0, Sk, Si, SA)", "red")
-            end if
-
+            end block
         else
-            call zoa_emit("No Surface identifier given!  Please try again", "red")
-
+            call zoa_emit("Error:  expected SUR [Sk | Si..j | SA] [F]", "red")
         end if
 
+    contains
 
+        ! Sk, Si..j, SA, SO, SS, SI (with +-n: SI-1) -> s1..s2
+        logical function surfRange(t, a, b) result(ok)
+            character(len=*), intent(in) :: t
+            integer, intent(out) :: a, b
+            integer :: d
+            ok = .false.
+            a = 0; b = 0
+            if (t == 'SA') then
+                a = 0; b = ldm%getLastSurf(); ok = .true.; return
+            end if
+            d = index(t, '..')
+            if (d > 0) then
+                a = oneSurf(t(1:d-1))
+                if (t(d+2:d+2) == 'S') then          ! S2..SI as well as S2..3
+                    b = oneSurf(t(d+2:))
+                else
+                    b = oneSurf('S'//t(d+2:))
+                end if
+            else
+                a = oneSurf(t); b = a
+            end if
+            ok = a >= 0 .and. b >= a .and. b <= ldm%getLastSurf()
+        end function
+
+        integer function oneSurf(t) result(n)
+            character(len=*), intent(in) :: t
+            integer :: k, off, ios, base
+            n = -1
+            if (len(t) < 2 .or. t(1:1) /= 'S') return
+            k = scan(t(2:), '+-')
+            off = 0
+            if (k > 1) then
+                read(t(k+2:), *, iostat=ios) off
+                if (ios /= 0) return
+                if (t(k+1:k+1) == '-') off = -off
+            else
+                k = len(t)
+            end if
+            select case (t(2:k))
+            case ('O'); base = 0
+            case ('S'); base = ldm%getStopSurf()
+            case ('I'); base = ldm%getLastSurf()
+            case default
+                read(t(2:k), *, iostat=ios) base
+                if (ios /= 0) return
+            end select
+            n = base + off
+        end function
 
     end procedure
 

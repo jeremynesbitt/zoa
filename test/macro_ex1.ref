@@ -22,7 +22,7 @@ ASPHERES
 # 2 K -2.29523
                                                           l
 Name  Role        Typ  Target              Value               diff
-SAS   Constraint  =    0.0000000000000000  -0.0284117247435784  -0.0284117247435784
+SA    Constraint  =    0.0000000000000000  -0.0284117247435784  -0.0284117247435784
 SPO   Operand          0.0000000000000000   0.0148603982408516   0.0148603982408516
                                                           l
 CYCLE NUMBER 1
@@ -37,7 +37,7 @@ ASPHERES
 # 2 K -2.30091
                                                           l
 Name  Role        Typ  Target              Value               diff
-SAS   Constraint  =    0.0000000000000000  -0.0000000000000052  -0.0000000000000052
+SA    Constraint  =    0.0000000000000000  -0.0000000000000052  -0.0000000000000052
 SPO   Operand          0.0000000000000000   0.0006238387251682   0.0006238387251682
                                                           l
 CYCLE NUMBER 2
@@ -52,7 +52,7 @@ ASPHERES
 # 2 K -2.30091
                                                           l
 Name  Role        Typ  Target              Value               diff
-SAS   Constraint  =    0.0000000000000000  -0.0000000000000052  -0.0000000000000052
+SA    Constraint  =    0.0000000000000000  -0.0000000000000052  -0.0000000000000052
 SPO   Operand          0.0000000000000000   0.0006238387251682   0.0006238387251682
 AUT: done after 2 iterations, status: Required accuracy for solution obtained
 ENTRANCE PUPIL

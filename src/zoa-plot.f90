@@ -56,7 +56,7 @@ module zoa_plot
 
  ! Curves a single plot can hold (plotdatalist / plotdatalist3d are fixed
  ! size).  Callers that build a variable number of series must clamp to this.
- integer, parameter :: MAX_PLOT_SERIES = 9
+ integer, parameter :: MAX_PLOT_SERIES = 25
 
  ! Default multiplot canvas size.  A *_go routine that wants a different size
  ! assigns multiplot%width/height explicitly; code that needs to tell "the plot
@@ -90,7 +90,7 @@ type :: zoaplot
 
   logical :: useLegend = .false.
   ! AFAIK have to make character array a a fixed size
-  character(len=30)  :: legendNames(16) = ''
+  character(len=30)  :: legendNames(MAX_PLOT_SERIES) = ''
   integer :: numLegendNames = 0
 
   ! In case user wants to add text to plot
@@ -157,8 +157,18 @@ end type
 
 type, extends(zoaplot) :: zoaPlotImg
 type(plotdata3d), dimension(MAX_PLOT_SERIES) :: plotdatalist3d
+! Display options (PMA DIS/CON/RAN COL).  colorMode 0: spectral rainbow,
+! 1: ramp from black to rampRGB.  contourMode 0: none, 1: numbered lines,
+! 2: unnumbered.  fillImage .false. draws the contours alone.  Samples at
+! x = y = z = 0 are outside the pupil: no contours there.
+integer :: colorMode = 0
+real :: rampRGB(3) = 1.0
+integer :: contourMode = 0
+integer :: nContour = 10
+logical :: fillImage = .true.
 contains
 procedure, public ::  init3d => plotImg_initialize
+procedure, public :: setImageOptions => plotImg_setImageOptions
 procedure, public :: drawPlot => drawPlot_plotImg
 procedure, public, pass(self) :: savePlotToBinary => zpimg_save_binary
 procedure, public, pass(self) :: loadPlotFromBinary => zpimg_load_binary
@@ -942,6 +952,17 @@ contains
 
 end subroutine
 
+subroutine plotImg_setImageOptions(self, colorMode, rampRGB, contourMode, fillImage)
+  class(zoaPlotImg), intent(inout) :: self
+  integer, intent(in) :: colorMode, contourMode
+  real, intent(in) :: rampRGB(3)
+  logical, intent(in) :: fillImage
+  self%colorMode = colorMode
+  self%rampRGB = max(0.0, min(1.0, rampRGB))
+  self%contourMode = contourMode
+  self%fillImage = fillImage
+end subroutine
+
 subroutine plotImg_initialize(self, area, x, y, z, xpts, ypts, xlabel, ylabel, title)
   class(zoaPlotImg), intent(inout) :: self
   type(c_ptr), intent(in) :: area
@@ -1462,6 +1483,78 @@ end subroutine
 
     end subroutine
 
+  ! Contour lines of an image's samples (marching squares over the cells
+  ! whose four corners are all inside the pupil, so the lines stop at its
+  ! edge), nLev levels evenly spaced strictly between the inside min and
+  ! max, black; numbered (one label per level) when label is set.
+  subroutine imgContours(pd, xg, yg, nLev, label)
+    type(plotdata3d), intent(in) :: pd
+    real(kind=pl_test_flt), intent(in) :: xg(:), yg(:)
+    integer, intent(in) :: nLev
+    logical, intent(in) :: label
+    integer :: nx, ny, i, j, k, l, e, np, nSeg
+    logical, allocatable :: inside(:,:)
+    real(kind=pl_test_flt), allocatable :: z(:,:)
+    real(kind=pl_test_flt) :: zlo, zhi, lev, v(4), cx(4), cy(4), px(4), py(4), t
+    real(kind=pl_test_flt) :: labX, labY
+    character(len=16) :: txt
+    logical :: usable
+
+    nx = pd%xpts; ny = pd%ypts
+    if (nx < 2 .or. ny < 2 .or. size(pd%z) /= nx*ny) return
+    allocate(z(nx,ny), inside(nx,ny))
+    z = reshape(real(pd%z, pl_test_flt), [nx, ny])
+    inside = .true.
+    if (size(pd%x) == nx*ny .and. size(pd%y) == nx*ny) then
+      inside = reshape(.not. (pd%x == 0.0 .and. pd%y == 0.0 .and. pd%z == 0.0), [nx, ny])
+    end if
+    if (.not. any(inside)) return
+    zlo = minval(z, mask=inside); zhi = maxval(z, mask=inside)
+    if (zhi <= zlo) return
+
+    call plcol0(1)
+    call plschr(0.0_pl_test_flt, 0.6_pl_test_flt)
+    do l = 1, nLev
+      lev = zlo + (zhi - zlo)*real(l, pl_test_flt)/real(nLev + 1, pl_test_flt)
+      nSeg = 0
+      do j = 1, ny - 1
+        do i = 1, nx - 1
+          if (.not. (inside(i,j) .and. inside(i+1,j) .and. inside(i+1,j+1) .and. inside(i,j+1))) cycle
+          ! corners counter-clockwise
+          v  = [z(i,j), z(i+1,j), z(i+1,j+1), z(i,j+1)]
+          cx = [xg(i), xg(i+1), xg(i+1), xg(i)]
+          cy = [yg(j), yg(j), yg(j+1), yg(j+1)]
+          np = 0
+          do e = 1, 4
+            k = mod(e, 4) + 1
+            usable = (v(e) < lev .neqv. v(k) < lev)
+            if (usable) then
+              t = (lev - v(e))/(v(k) - v(e))
+              np = np + 1
+              px(np) = cx(e) + t*(cx(k) - cx(e))
+              py(np) = cy(e) + t*(cy(k) - cy(e))
+            end if
+          end do
+          if (np >= 2) call plline(px(1:2), py(1:2))
+          if (np == 4) call plline(px(3:4), py(3:4))
+          if (np >= 2) then
+            nSeg = nSeg + 1
+            ! the level's label goes at its first segment
+            if (nSeg == 1) then
+              labX = 0.5_pl_test_flt*(px(1) + px(2)); labY = 0.5_pl_test_flt*(py(1) + py(2))
+            end if
+          end if
+        end do
+      end do
+      if (label .and. nSeg > 0) then
+        write(txt, '(G0.3)') lev
+        call plptex(labX, labY, 1.0_pl_test_flt, 0.0_pl_test_flt, 0.5_pl_test_flt, &
+        &           trim(adjustl(txt))//c_null_char)
+      end if
+    end do
+    call plschr(0.0_pl_test_flt, 1.0_pl_test_flt)
+  end subroutine imgContours
+
   subroutine drawPlot_plotImg(self)
     
     class(zoaPlotImg), intent(in) :: self
@@ -1563,7 +1656,16 @@ end subroutine
    enddo
 
     !call getAxesLimits(self, xmin, xmax, ymin, ymax)
-    call cmap1_init(0)
+    if (self%colorMode == 1) then
+      ! RAN COL RGB: black to the chosen colour
+      call plscmap1n(256)
+      call plscmap1l(.true., [0.0_pl_test_flt, 1.0_pl_test_flt], &
+      &   [0.0_pl_test_flt, real(self%rampRGB(1), pl_test_flt)], &
+      &   [0.0_pl_test_flt, real(self%rampRGB(2), pl_test_flt)], &
+      &   [0.0_pl_test_flt, real(self%rampRGB(3), pl_test_flt)])
+    else
+      call cmap1_init(0)
+    end if
     call plwind(xmin, xmax, ymin, ymax)
 
 
@@ -1603,9 +1705,13 @@ end subroutine
       call plbox('bcnst'//c_null_char, 0.0_pl_test_flt, 0, 'bcnstv'//c_null_char, 0.0_pl_test_flt, 0)
       call pllab( trim(self%xlabel)//c_null_char, trim(self%ylabel)//c_null_char, trim(self%title)//c_null_char)
 
-      call plimage(reshape(self%plotDataList3d(i)%z, [xpts, ypts]), &
-      & xImgMin, xImgMax, yImgMin, yImgMax, zmin, zmax, &
-      & xImgMin, xImgMax, yImgMin, yImgMax)
+      if (self%fillImage) then
+        call plimage(reshape(self%plotDataList3d(i)%z, [xpts, ypts]), &
+        & xImgMin, xImgMax, yImgMin, yImgMax, zmin, zmax, &
+        & xImgMin, xImgMax, yImgMin, yImgMax)
+      end if
+      if (self%contourMode > 0) call imgContours(self%plotDataList3d(i), xg, yg, &
+      &   self%nContour, self%contourMode == 1)
       
       call plcol0(2)        
 
@@ -2822,6 +2928,11 @@ end subroutine
     self%dataColorCode = int(n32)
     read(unit, iostat=ios) n32; if (ios /= 0) return
     self%numSeries = int(n32)
+    ! (a corrupt file, or one from a build with more series, must not
+    ! overrun the fixed arrays)
+    if (self%numSeries < 0 .or. self%numSeries > MAX_PLOT_SERIES) then
+      self%numSeries = 0; ios = -1; return
+    end if
 
     do i = 1, self%numSeries
       read(unit, iostat=ios) n32; if (ios /= 0) return
@@ -2843,6 +2954,9 @@ end subroutine
     call zin_read_logical(unit, self%useLegend, ios); if (ios /= 0) return
     read(unit, iostat=ios) n32; if (ios /= 0) return
     self%numLegendNames = int(n32)
+    if (self%numLegendNames < 0 .or. self%numLegendNames > size(self%legendNames)) then
+      self%numLegendNames = 0; ios = -1; return
+    end if
     do i = 1, self%numLegendNames
       call zin_read_str(unit, self%legendNames(i), ios); if (ios /= 0) return
     end do
@@ -2901,6 +3015,11 @@ end subroutine
 
     call self%zoaplot%savePlotToBinary(unit)
     call zin_write_plotdata3d_list(unit, self%plotdatalist3d, self%numSeries)
+    write(unit) int(self%colorMode, int32)
+    write(unit) self%rampRGB
+    write(unit) int(self%contourMode, int32)
+    write(unit) int(self%nContour, int32)
+    call zin_write_logical(unit, self%fillImage)
   end subroutine zpimg_save_binary
 
   subroutine zpimg_load_binary(self, unit, ios)
@@ -2908,9 +3027,21 @@ end subroutine
     integer, intent(in) :: unit
     integer, intent(out) :: ios
 
+    integer(int32) :: n32
     call self%zoaplot%loadPlotFromBinary(unit, ios)
     if (ios /= 0) return
     call zin_read_plotdata3d_list(unit, self%plotdatalist3d, self%numSeries, ios)
+    if (ios /= 0) return
+    if (zin_read_version >= 3) then
+      read(unit, iostat=ios) n32; if (ios /= 0) return
+      self%colorMode = int(n32)
+      read(unit, iostat=ios) self%rampRGB; if (ios /= 0) return
+      read(unit, iostat=ios) n32; if (ios /= 0) return
+      self%contourMode = int(n32)
+      read(unit, iostat=ios) n32; if (ios /= 0) return
+      self%nContour = int(n32)
+      call zin_read_logical(unit, self%fillImage, ios); if (ios /= 0) return
+    end if
   end subroutine zpimg_load_binary
 
   ! Shared helper for zoaPlot3d/zoaPlotImg: writes plotdatalist3d(1:numSeries).

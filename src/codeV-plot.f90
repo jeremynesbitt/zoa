@@ -243,11 +243,21 @@ contains
 
         call parse(trim(iptStr), ' ', tokens, numTokens)
 
+        ! CODE V's FIE AST/DST CHR x: the value is taken; the curves are
+        ! still for the reference wavelength (said so, not silently dropped)
+        if (numTokens == 3 .and. trim(tokens(2)) == 'CHR') then
+            call zoa_emit(trim(tokens(1))//" CHR: curves for all wavelengths are not available yet; "// &
+            &             "reference wavelength only", "red")
+            tokens(2) = tokens(3)
+            numTokens = 2
+        end if
         if (numTokens == 2) then
             call curr_psm%applySettingCommand(trim(tokens(1)), trim(tokens(2)), found)
             if (.not. found) then
                 call zoa_emit(trim(tokens(1))//" is not a setting of the active plot", "red")
             end if
+        else
+            call zoa_emit("Error:  expected "//trim(tokens(1))//" value", "red")
         end if
 
     end procedure
@@ -717,8 +727,9 @@ contains
         call psm%addPowerOfTwoImageSetting(64,16,128)
 
         ! No wavelength setting: the MTF is polychromatic (DOTF weights every
-        ! wavelength), like CODE V's default.
-        call psm%addFieldSetting()
+        ! wavelength), like CODE V's default.  SETFLD ALL: every field on one
+        ! plot (field 1 stays the default).
+        call psm%addFieldSetting(allowAll=.true., defaultField=1)
         maxFreq = getDefaultMaxFrequency()
         if (thf) then
             ! FRE: the frequency charted through focus.  Default a quarter of
