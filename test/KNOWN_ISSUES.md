@@ -1068,3 +1068,21 @@ script is the tab's command (redraw on a lens change; .zin REPLAY record).
 - **Script limit 1040 characters** (tab plotCommand): longer pages draw but
   are not redrawn (warned).
 - No settings panel and no plot toolbar tools on a page (by design for v1).
+
+## Introduction to CODE V: deferred options (2026-11-19)
+
+Punted by the user after the High-priority pass (935dba3):
+
+- **Third-order operands at a chosen wavelength**: SA TCO TAS SAS PTB DST
+  (constraints and EVA items) use MMAB3_NEW, which is reference-wavelength
+  only, so a W qualifier is refused.
+- **FIE CHR** (field curves for every wavelength): accepted with a note,
+  reference wavelength only.
+- **FIE FFD Y** (full-field display): refused with a note; `FFD N` accepted.
+- **PMA RAN SCA** (colour-scale steps / range): refused with a note; the
+  scale always spans the data.
+- **PMA PLO Y** (oblique projection plot): not drawn; the map is drawn
+  instead.  `PLO N` is accepted silently.
+- Also not done: SPO `ANN LEN` / `ANN INI`, PMA `ZFR EXP|EXS` (the
+  qualifier is ignored; the fit is to the pupil-map grid), SIN `Zn` other
+  than Z1.
