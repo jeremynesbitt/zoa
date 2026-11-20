@@ -3,6 +3,14 @@
 All notable changes to Zoa are recorded here, newest first. Zoa is currently
 beta (0.x) software under active development.
 
+## 0.1.12 (beta)
+
+Many improvements to the command language, analyses and
+optimization, along with a number of fixes.
+
+> Zoa remains **beta** software under active development. Please back up your
+> work and report issues at https://github.com/jeremynesbitt/zoa/issues.
+
 ## 0.1.11 (beta)
 
 - **Multithreading support** for ray tracing (most analyses used by plotting routines, such as spot diagrams, rms vs field, etc). On by default using all processor cores; set it with the
