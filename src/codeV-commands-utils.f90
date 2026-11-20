@@ -243,6 +243,14 @@ contains
         call kdp_silent_end()
     end procedure setPickup
 
+    !## cmd:      PIK
+    !## syntax:   PIK XXX Sk [YYY] Sj [A [B]]  |  PIK PRO Sk Sj [A]  |  PIK DEC Sk Sj [A]
+    !## category: Surface Parameters
+    !## desc:     Pickup: parameter XXX (RDY, THI, K, A..I, GLA) of surface Sk follows
+    !##           parameter YYY (default XXX) of Sj, times A plus B.  PRO picks up the
+    !##           whole profile (curvature, conic, aspheric terms; A = -1 negates it),
+    !##           DEC the decenters and tilts (times A).  DEL PIK removes pickups.
+    !##
     module procedure parsePickupInput
         use command_utils, only : isInputNumber
         implicit none
@@ -571,7 +579,7 @@ contains
 
     !## cmd:      RECMACRO
     !## syntax:   RECMACRO 1 | RECMACRO 0 [file] | RECMACRO
-    !## category: Macros
+    !## category: Utilities
     !## desc:     Record a macro: 1 starts recording the commands you issue; 0 file stops and saves them (macro folder if no directory, .zoa added); 0 alone asks for the file (GUI); bare reports the status.
     !##
     module procedure execRECMACRO
@@ -2623,13 +2631,14 @@ contains
         call zoa_emit('RAYENGINE '//trim(names(ray_engine_mode)), 'black')
     end procedure execRAYENGINE
 
-    !## THREADS [n]
-    !##
-    !## Number of CPU threads the CAPFN ray grid (wavefront, spot, MTF and PSF
-    !## calculations) is traced with.  n = 0 is automatic (all cores), n = 1
-    !## is serial.  With no argument, reports the current setting and the
-    !## number of threads that will be used.  The setting is saved as a
-    !## preference.  Results do not depend on the thread count.
+    !## cmd:      THREADS
+    !## syntax:   THREADS [n]
+    !## category: Utilities
+    !## desc:     Number of CPU threads the CAPFN ray grid (wavefront, spot, MTF and PSF
+    !##           calculations) is traced with.  n = 0 is automatic (all cores), n = 1
+    !##           is serial.  With no argument, reports the current setting and the
+    !##           number of threads that will be used.  The setting is saved as a
+    !##           preference.  Results do not depend on the thread count.
     !##
     module procedure execTHREADS
         use GLOBALS, only: zoa_threads, HEADLESS_MODE
@@ -2772,7 +2781,7 @@ contains
     ! being DDR EDG 1.10.  Saved with the lens.  DDR / DDR ? reports it.
     !## cmd:      DDR
     !## syntax:   DDR [EDG f | ?]
-    !## category: System Data
+    !## category: System Parameters
     !## desc:     Default drawing rules: EDG f = default edge aperture as f times the clear aperture.
     !##
     module procedure execDDR
@@ -3016,6 +3025,221 @@ contains
         end function
 
     end procedure execSYSDATA
+
+    !## cmd:      HELP
+    !## syntax:   HELP|HEL [command | INDX | category | text*]
+    !## category: Utilities
+    !## desc:     Help for the Zoa commands: HELP alone lists the categories, HELP
+    !##           INDX every command, HELP RDY one command's syntax and description,
+    !##           HELP Plotting a category's commands, HELP SP* the commands
+    !##           starting with SP.  The text comes from help/commands.txt, which
+    !##           help/gen_docs.py makes from the documentation in the source.
+    !##
+    module procedure execHELP
+        use strings, only: parse, uppercase
+        use zoa_file_handler, only: findHelpDataFile
+        use kdp_utils, only: OUTKDP
+        implicit none
+        integer, parameter :: MAXH = 2000
+        character(len=80) :: tokens(40)
+        integer :: numTokens, n, i, k, u, ios, nShown
+        character(len=1024) :: path
+        character(len=4000) :: line
+        character(len=40), allocatable :: hCmd(:), hCat(:)
+        character(len=300), allocatable :: hSyn(:), hAls(:)
+        character(len=4000), allocatable :: hDes(:)
+        character(len=200) :: word
+        character(len=40) :: cats(60)
+        integer :: catN(60), nCat
+        logical :: prefix
+
+        call parse(trim(iptStr), ' ', tokens, numTokens)
+        path = findHelpDataFile()
+        if (len_trim(path) == 0) then
+            call zoa_emit("HELP: the help file (help/commands.txt) was not found; run "// &
+            &             "help/gen_docs.py", "red")
+            return
+        end if
+
+        ! the records: #CMD #ALS #SYN #CAT #DES, blank-line separated
+        allocate(hCmd(MAXH), hCat(MAXH), hSyn(MAXH), hAls(MAXH), hDes(MAXH))
+        n = 0
+        open(newunit=u, file=trim(path), status='old', action='read', iostat=ios)
+        if (ios /= 0) then
+            call zoa_emit("HELP: cannot read "//trim(path), "red"); return
+        end if
+        do
+            read(u, '(A)', iostat=ios) line
+            if (ios /= 0) exit
+            if (len_trim(line) < 5 .or. line(1:1) /= '#') cycle
+            select case (line(1:4))
+            case ('#CMD')
+                if (n == MAXH) exit
+                n = n + 1
+                hCmd(n) = adjustl(line(5:)); hAls(n) = hCmd(n); hSyn(n) = hCmd(n)
+                hCat(n) = 'Other'; hDes(n) = ''
+            case ('#ALS'); if (n > 0) hAls(n) = adjustl(line(5:))
+            case ('#SYN'); if (n > 0) hSyn(n) = adjustl(line(5:))
+            case ('#CAT'); if (n > 0) hCat(n) = adjustl(line(5:))
+            case ('#DES'); if (n > 0) hDes(n) = adjustl(line(5:))
+            end select
+        end do
+        close(u)
+
+        ! categories, in file order of first appearance
+        nCat = 0; catN = 0
+        do i = 1, n
+            k = findloc(cats(1:nCat), hCat(i), dim=1)
+            if (k == 0 .and. nCat < size(cats)) then
+                nCat = nCat + 1; cats(nCat) = hCat(i); k = nCat
+            end if
+            if (k > 0) catN(k) = catN(k) + 1
+        end do
+
+        ! alphabetical
+        block
+            integer :: a, b, tn
+            character(len=40) :: tc
+            do a = 1, nCat - 1
+                do b = a + 1, nCat
+                    if (cats(b) < cats(a)) then
+                        tc = cats(a); cats(a) = cats(b); cats(b) = tc
+                        tn = catN(a); catN(a) = catN(b); catN(b) = tn
+                    end if
+                end do
+            end do
+        end block
+
+        if (numTokens == 1) then
+            call OUTKDP('HELP [command | INDX | category | text*]   (HEL is the same)')
+            call OUTKDP('  HELP RDY        one command: its syntax and description')
+            call OUTKDP('  HELP INDX       every documented command, one line each')
+            call OUTKDP('  HELP Plotting   the commands of a category')
+            call OUTKDP('  HELP SP*        the commands starting with SP')
+            call OUTKDP('Categories:')
+            do k = 1, nCat
+                call OUTKDP('  '//trim(cats(k))//' ('//trim(int2str(catN(k)))//')')
+            end do
+            return
+        end if
+
+        word = tokens(2)
+        do k = 3, numTokens
+            word = trim(word)//' '//trim(tokens(k))
+        end do
+
+        if (trim(word) == 'INDX' .or. trim(word) == 'INDEX') then
+            do i = 1, n
+                call OUTKDP(lineOf(i))
+            end do
+            return
+        end if
+
+        ! a category (any case)
+        do k = 1, nCat
+            if (trim(uppercase(cats(k))) == trim(word)) then
+                call OUTKDP(trim(cats(k))//':')
+                do i = 1, n
+                    if (hCat(i) == cats(k)) call OUTKDP(lineOf(i))
+                end do
+                return
+            end if
+        end do
+
+        ! commands: exact (name or alias), or a prefix with a trailing *
+        prefix = (word(len_trim(word):len_trim(word)) == '*')
+        if (prefix) word = word(1:len_trim(word)-1)
+        nShown = 0
+        do i = 1, n
+            if (prefix) then
+                if (.not. startsWithAny(i)) cycle
+                call OUTKDP(lineOf(i))
+            else
+                if (.not. isAlias(i)) cycle
+                call showFull(i)
+            end if
+            nShown = nShown + 1
+        end do
+        if (nShown > 0) return
+        ! registered but undocumented?
+        do i = 1, size(zoaCmds)
+            if (trim(zoaCmds(i)%cmd) == trim(word)) then
+                call zoa_emit(trim(word)//": no help yet (the command exists; its "// &
+                &             "documentation has not been written)", "black")
+                return
+            end if
+        end do
+        call zoa_emit("HELP: nothing on "//trim(word)//" (HELP INDX lists the documented "// &
+        &             "commands; older KDP commands are in the original manual)", "black")
+
+    contains
+
+        ! one-line index entry: the name and its syntax
+        function lineOf(j) result(t)
+            integer, intent(in) :: j
+            character(len=200) :: t
+            t = hCmd(j)
+            if (len_trim(hCmd(j)) < 10) then
+                t(11:) = trim(hSyn(j))
+            else
+                t = trim(hCmd(j))//'  '//trim(hSyn(j))
+            end if
+        end function
+
+        logical function isAlias(j)
+            integer, intent(in) :: j
+            character(len=80) :: w(40)
+            integer :: nw, m
+            isAlias = (trim(hCmd(j)) == trim(word))
+            if (isAlias) return
+            call parse(trim(hAls(j)), ' ', w, nw)
+            do m = 1, nw
+                if (trim(w(m)) == trim(word)) isAlias = .true.
+            end do
+        end function
+
+        logical function startsWithAny(j)
+            integer, intent(in) :: j
+            character(len=80) :: w(40)
+            integer :: nw, m, L
+            L = len_trim(word)
+            startsWithAny = .false.
+            if (L == 0) then
+                startsWithAny = .true.; return
+            end if
+            call parse(trim(hCmd(j))//' '//trim(hAls(j)), ' ', w, nw)
+            do m = 1, nw
+                if (len_trim(w(m)) >= L) then
+                    if (w(m)(1:L) == word(1:L)) startsWithAny = .true.
+                end if
+            end do
+        end function
+
+        ! the syntax, the category, and the description wrapped at 76
+        subroutine showFull(j)
+            integer, intent(in) :: j
+            integer :: a, b, L
+            character(len=4000) :: d
+            call OUTKDP(trim(hSyn(j))//'     ['//trim(hCat(j))//']')
+            d = adjustl(hDes(j))
+            L = len_trim(d)
+            a = 1
+            do while (a <= L)
+                b = min(a + 73, L)
+                if (b < L) then
+                    k = index(d(a:b+1), ' ', back=.true.)
+                    if (k > 1) b = a + k - 2
+                end if
+                call OUTKDP('  '//d(a:b))
+                a = b + 1
+                do while (a <= L)
+                    if (d(a:a) /= ' ') exit
+                    a = a + 1
+                end do
+            end do
+        end subroutine
+
+    end procedure execHELP
 
     !## cmd:      SIN
     !## syntax:   SIN [Sk|Si..j] [Wm] X1 Y1 tanX tanY

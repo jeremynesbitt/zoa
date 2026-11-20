@@ -1127,9 +1127,13 @@ contains
         call notify_replot()
     end procedure setFieldWeights
 
-    ! VUY / VLY / VUX / VLX f1 [f2 ...] : vignetting factor (fraction of the
-    ! entrance-pupil radius clipped off at +Y / -Y / +X / -X) for fields 1..n
-    ! (CODE V).   VUY Fk f : field k only.
+    !## cmd:      VUY
+    !## syntax:   VUY|VLY|VUX|VLX f1 [f2 ...]  |  VUY Fk f
+    !## category: Fields & Wavelengths
+    !## desc:     Vignetting factors (CODE V): the fraction of the entrance-pupil radius
+    !##           cut off at +Y (VUY), -Y (VLY), +X (VUX), -X (VLX), for fields 1..n,
+    !##           or for field k alone.  SET VIG computes them from the apertures.
+    !##
     module procedure setVignettingList
         use global_widgets, only: sysConfig
         use zoa_ui_callbacks, only: notify_replot
@@ -1239,12 +1243,14 @@ contains
     !## desc:     Set the Y field angles (degrees).
     !##
     !## cmd:      YIM
-    !## syntax:   YIM h1 [h2 ...]
+    !## syntax:   YIM h1 [h2 ...]   (XIM for X)
+    !## alias:    XIM
     !## category: Fields & Wavelengths
     !## desc:     Set the Y paraxial image heights (field specification).
     !##
     !## cmd:      YRI
     !## syntax:   YRI h1 [h2 ...]   (XRI for X)
+    !## alias:    XRI
     !## category: Fields & Wavelengths
     !## desc:     Set the Y real image heights (field specification).
     !##
@@ -1335,6 +1341,7 @@ contains
 
     !## cmd:      S
     !## syntax:   S [rd th glass]
+    !## alias:    SO S0
     !## category: Surface Parameters
     !## desc:     Advance to / add the next surface (optionally set radius, thickness, glass).
     !##
@@ -2199,10 +2206,15 @@ contains
     end procedure deleteConstraints
 
     !## cmd:      SET
-    !## syntax:   SET <option> ...
+    !## syntax:   SET VIG|EPD|FNO|NA|NAO|APE|AAP|SAP|CAP|ABS ...
     !## category: Utilities
-    !## desc:     Set a system option (e.g. SET CAP, SET VIG, SET ABS Y|N -- bulk
-    !##           absorption from the glass catalogs in the real-ray energy).
+    !## desc:     Set data from ray tracing: SET VIG [Fk|Fi..j] the vignetting factors from
+    !##           the apertures; SET EPD|FNO|NA|NAO the pupil from the apertures (the
+    !##           largest axial beam they pass); SET APE|AAP|SAP [Sk|Si..j] [EDG]
+    !##           [CIR|REC|ELL [oversize [rotation]]] apertures from the ray footprint on
+    !##           surfaces without one (centred, decentred, Y-decentred); SET CAP clear
+    !##           apertures on every surface; SET ABS Y|N bulk absorption from the glass
+    !##           catalogs in the real-ray energy.
     !##
     module procedure execSET
         use mod_lens_data_manager, only: ldm

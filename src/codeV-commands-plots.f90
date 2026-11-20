@@ -1344,6 +1344,12 @@ contains
     ! objects, round-trips them through a temp .zin file, and compares every
     ! field for an exact match.  Headless-safe: no GTK calls anywhere in this
     ! path.  Test hook only -- not a user-facing command.
+    !## cmd:      ZINTEST
+    !## syntax:   ZINTEST
+    !## category: Diagnostics
+    !## desc:     Self-check of the .zin plot-file serializer (writes and reads back
+    !##           every plot kind); used by the test suite.
+    !##
     module procedure execZINTEST
         use kdp_utils, only: OUTKDP
         use zoa_plot, only: zoaplot, zoaPlot3d, multiplot, POS_UPPER_RIGHT, MAX_PLOT_SERIES

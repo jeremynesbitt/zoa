@@ -31,6 +31,10 @@ module zoa_file_handler
       character(len=1024) :: searchDirs(MAX_SEARCH_DIRS) = ''
       integer :: searchOrigin(MAX_SEARCH_DIRS) = 0
       integer :: nSearchDirs = 0
+      ! A folder holding the HELP data file (commands.txt) that comes before
+      ! the usual places -- the test runner points it at the repository's
+      ! help/ so a test reads its own commit's file.
+      character(len=1024) :: helpDataDir = ''
       ! getZoaPath sets the default asset folders on its first call only, so
       ! later calls cannot undo the preferences or a test's isolation.
       logical :: assetDirsInitialized = .false.
@@ -100,6 +104,40 @@ module zoa_file_handler
 
 
       end subroutine
+
+      ! The HEL/HELP data file (help/commands.txt, made by help/gen_docs.py):
+      ! the app bundle's Resources/help (macOS), the install's help folder,
+      ! help/ in each search-path folder, then help/ under the working
+      ! directory (a run from the repository).  '' when it is nowhere.
+      function findHelpDataFile() result(path)
+        use GLOBALS, only: basePath
+        character(len=1024) :: path
+        integer :: i
+#ifdef MACOS
+        type(c_ptr) :: ptr_macbundledir
+        character(len=1024) :: str_bundle_dir
+#endif
+        if (len_trim(helpDataDir) > 0) then
+          path = trim(helpDataDir)//'commands.txt'
+          if (doesFileExist(trim(path))) return
+        end if
+#ifdef MACOS
+        ptr_macbundledir = get_macos_bundle_dir()
+        call convert_c_string(ptr_macbundledir, str_bundle_dir)
+        path = trim(str_bundle_dir)//getFileSep()//'Resources'//getFileSep()// &
+        &      'help'//getFileSep()//'commands.txt'
+        if (doesFileExist(trim(path))) return
+#endif
+        path = trim(basePath)//'help'//getFileSep()//'commands.txt'
+        if (len_trim(basePath) > 0 .and. doesFileExist(trim(path))) return
+        do i = 1, nSearchDirs
+          path = trim(searchDirs(i))//'help'//getFileSep()//'commands.txt'
+          if (doesFileExist(trim(path))) return
+        end do
+        path = 'help'//getFileSep()//'commands.txt'
+        if (doesFileExist(trim(path))) return
+        path = ''
+      end function
 
       function isSPOFileOpen(fileTest) result(res)
         use DATMAI

@@ -142,10 +142,11 @@ contains
   !    own lenses, macros and CODE V/Zemax files, in Projects/, Macros/ and
   !    CodeV/), then <test folder>/../Library (the repository's install
   !    payload, e.g. the newlens.zoa template), so a test sees the files of
-  !    its own commit, never what happens to be installed.
+  !    its own commit, never what happens to be installed; HELP's data file
+  !    comes from <test folder>/../help likewise.
   subroutine isolate_test_files(script)
     use zoa_file_handler, only: setProjectDir, setMacroDir, setTempDir, setCodeVDir, &
-                                addSearchDir, SP_SESSION
+                                addSearchDir, SP_SESSION, helpDataDir
     character(len=*), intent(in) :: script
     character(len=512) :: testdir
     integer :: k
@@ -163,6 +164,8 @@ contains
     end if
     call addSearchDir(trim(testdir)//'/data', SP_SESSION)
     call addSearchDir(trim(testdir)//'/../Library', SP_SESSION)
+    ! HELP reads the commit's help/commands.txt
+    helpDataDir = trim(testdir)//'/../help/'
   end subroutine
 
   subroutine write_captured_to_stdout()

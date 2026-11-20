@@ -1,0 +1,20 @@
+RDY Sk X     [Surface Parameters]
+  Sets the radius of surface Sk to X. Sk can be S0 (object), S1..SN (surface
+  by number), or Si (current surface). X is the new radius value in current
+  lens units.
+REX|REY|ELX|ELY|ADX|ADY|ARO [OBS] [Sk|Si..j] value     [Apertures]
+  Clear aperture (or, with OBS, obscuration) of surface Sk (default: the
+  current surface): REX/REY rectangle and ELX/ELY ellipse X/Y semi-widths,
+  ADX/ADY its decenter, ARO its rotation (degrees).  CIR OBS r is a circular
+  obscuration.
+DAR|BEN|REV [Sk|Si..j] | RET [Sk] Sj     [Tilts and Decenters]
+  Decenter type of surface Sk (default: the current surface): DAR
+  decenter-and-return, BEN decenter-and-bend (mirrors), REV reversed
+  decenter, RET return to the coordinate system of surface Sj. DEL
+  DDA|DAR|BEN|REV Sk|Si..j removes them.
+ZINTEST   ZINTEST
+Tilts and Decenters:
+DAR       DAR|BEN|REV [Sk|Si..j] | RET [Sk] Sj
+GSC       GSC [Sj]
+XDE       XDE|YDE|ZDE|ADE|BDE|CDE|XOD|YOD|ZOD [Sk|Si..j] value
+HELP: nothing on XYZZY (HELP INDX lists the documented commands; older KDP commands are in the original manual)

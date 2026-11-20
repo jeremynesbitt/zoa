@@ -697,6 +697,15 @@ test('codev_lens_cmds', test_runner,
             meson.project_source_root() / 'test/codev_lens_cmds.ref'],
      timeout: 120)
 
+test('help', test_runner,
+     args: [meson.project_source_root() / 'test/help.zoa',
+            meson.project_source_root() / 'test/help.ref'],
+     timeout: 120)
+
+# help/commands.txt (read by HELP) must match the !## docblocks in the source
+test('help_data_current', find_program('python3'),
+     args: [meson.project_source_root() / 'help/gen_docs.py', '--check'])
+
 test('book_regressions', test_runner,
      args: [meson.project_source_root() / 'test/book_regressions.zoa',
             meson.project_source_root() / 'test/book_regressions.ref'],
@@ -719,6 +728,8 @@ if system == 'darwin'
     install_data(MacOSDir / 'AppIcon.icns', install_dir : 'Contents/Resources')
     install_data(MacOSDir / 'Info.plist', install_dir : 'Contents')
     install_subdir(meson.project_source_root() / 'help/html', install_dir : 'Contents/Resources/help', strip_directory: false)
+    # the HELP / HEL command's data (made by help/gen_docs.py)
+    install_data(meson.project_source_root() / 'help/commands.txt', install_dir : 'Contents/Resources/help')
   else
     warning('meson install makes a Zoa.app bundle and needs ' +
             '--prefix=/path/to/Zoa.app --bindir=Contents/MacOS; this build has prefix ' +

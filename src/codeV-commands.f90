@@ -549,6 +549,9 @@ module codeV_commands
    module subroutine pmaSetOption(iptStr)
     character(len=*) :: iptStr
    end subroutine pmaSetOption
+   module subroutine execHELP(iptStr)
+    character(len=*) :: iptStr
+   end subroutine execHELP
    module subroutine execCA(iptStr)
     character(len=*) :: iptStr
    end subroutine execCA
@@ -1021,6 +1024,10 @@ module codeV_commands
         zoaCmds(848)%execFunc => execCOP
         zoaCmds(849)%cmd = 'CA'
         zoaCmds(849)%execFunc => execCA
+        zoaCmds(850)%cmd = 'HELP'
+        zoaCmds(850)%execFunc => execHELP
+        zoaCmds(851)%cmd = 'HEL'
+        zoaCmds(851)%execFunc => execHELP
         ! Tilt / decenter / pivot control codes (CODE V XDC..CDC, XOC..ZOC).
         block
             use zoa_ui, only: TILT_VAR_NAMES

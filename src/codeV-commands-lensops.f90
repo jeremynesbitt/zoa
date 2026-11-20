@@ -874,7 +874,7 @@ contains
     ! FNBX HLD hold the F/#.  "FNO" or "FNO ?" reports the current value.
     !## cmd:      FNO
     !## syntax:   FNO [f | ?]
-    !## category: System Data
+    !## category: System Parameters
     !## desc:     Set (and hold) the image-space F/number, or report it.
     !##
     module procedure setFNO
@@ -929,7 +929,7 @@ contains
     ! NAOY and NAOX.  "NAO" or "NAO ?" reports the current value.
     !## cmd:      NAO
     !## syntax:   NAO [na | ?]
-    !## category: System Data
+    !## category: System Parameters
     !## desc:     Set the object-space numerical aperture, or report it.
     !##
     module procedure setNAO
@@ -977,7 +977,7 @@ contains
     ! CODE V has no equivalent).  Replaces a held FNO.  Engine: SAY FLOAT.
     !## cmd:      FLOAT
     !## syntax:   FLOAT
-    !## category: System Data
+    !## category: System Parameters
     !## desc:     Make the entrance pupil float with the stop surface's clear aperture.
     !##
     module procedure setFLOAT
@@ -1298,6 +1298,7 @@ contains
 
     !## cmd:      DAR
     !## syntax:   DAR|BEN|REV [Sk|Si..j] | RET [Sk] Sj
+    !## alias:    RET
     !## category: Tilts and Decenters
     !## desc:     Decenter type of surface Sk (default: the current surface):
     !##           DAR decenter-and-return, BEN decenter-and-bend (mirrors), REV reversed
@@ -1547,7 +1548,7 @@ contains
 
     !## cmd:      SOL
     !## syntax:   SOL [Sk|Si..j]
-    !## category: Solves
+    !## category: Surface Parameters
     !## desc:     List the solves of surfaces Sk..j (all by default) in CODE V form.
     !##
     module procedure execSOL
@@ -1879,7 +1880,7 @@ contains
 
     !## cmd:      AFC
     !## syntax:   AFC [Yes|No]
-    !## category: System Data
+    !## category: System Parameters
     !## desc:     Afocal (Yes) or focal (No) evaluation mode; bare AFC shows the mode.
     !##
     module procedure setAfocal
@@ -1916,7 +1917,7 @@ contains
 
     !## cmd:      WRL
     !## syntax:   WRL [filename]
-    !## category: Lens Files
+    !## category: File I/O
     !## desc:     Write the lens as CODE V commands (filename.seq); same as ZOA2CV.
     !##
     module procedure writeLensSeq
@@ -1974,7 +1975,7 @@ contains
 
     !## cmd:      ZLI
     !## syntax:   ZLI
-    !## category: Zoom
+    !## category: Zoom / Multi-Configuration
     !## desc:     List the zoom (multi-configuration) data; same as a bare ZOO.
     !##
     module procedure listZoom
@@ -1985,7 +1986,7 @@ contains
 
     !## cmd:      DEZ
     !## syntax:   DEZ k
-    !## category: Zoom
+    !## category: Zoom / Multi-Configuration
     !## desc:     Dezoom: keep zoom position k as the (single-configuration) lens and
     !##           remove the zoom data.
     !##
@@ -2062,7 +2063,7 @@ contains
 
     !## cmd:      RSL
     !## syntax:   RSL [INF | DEF | radius]
-    !## category: System Data
+    !## category: System Parameters
     !## desc:     OPD reference sphere: DEF (default) radius from the exit pupil for each
     !##           field; INF flat reference; radius = that radius for every field (positive:
     !##           sphere before the image).  Bare RSL shows the setting.
@@ -2111,19 +2112,19 @@ contains
 
     !## cmd:      FFO
     !## syntax:   FFO first_focus_position
-    !## category: System Data
+    !## category: System Parameters
     !## desc:     First focus position of the through-focus range, along the axis from the
     !##           image surface (default 0).  SPO draws its spots at this focus; SPO THF
     !##           at each of the NFO positions FFO, FFO+IFO, ...  Bare FFO shows it.
     !##
     !## cmd:      IFO
     !## syntax:   IFO focus_increment
-    !## category: System Data
+    !## category: System Parameters
     !## desc:     Increment between through-focus positions (default 0).
     !##
     !## cmd:      NFO
     !## syntax:   NFO number_of_focus_positions
-    !## category: System Data
+    !## category: System Parameters
     !## desc:     Number of through-focus positions, 1 to 18 (default 1).
     !##
     module procedure setFocusRange
