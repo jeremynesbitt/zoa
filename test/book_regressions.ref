@@ -70,42 +70,42 @@ All constraints removed
 
 
 ENTRANCE PUPIL
-DIA       14.4959
+DIA       20.0000
 THI       0.0000
 INFINITE CONJUGATES
 EFL       50.0000
 BFL       49.2902
 FFL       -48.2964
-FNO       3.4492
+FNO       2.5000
 IMG DIS   49.2902
 OAL       3.6240
 PARAXIAL IMAGE
  HT      -0.0000
 ANG       -0.0000 DEG
 ENTRANCE PUPIL
-DIA       14.4959
+DIA       20.0000
 THI       0.0000
 EXIT PUPIL
-DIA       15.0073
+DIA       20.7055
 THI       -2.4735
 ENTRANCE PUPIL
-DIA       14.4959
+DIA       20.0000
 THI       0.0000
 INFINITE CONJUGATES
 EFL       50.0000
 BFL       49.2902
 FFL       -48.2964
-FNO       3.4492
+FNO       2.5000
 IMG DIS   49.2902
 OAL       3.6240
 PARAXIAL IMAGE
  HT      -0.0000
 ANG       -0.0000 DEG
 ENTRANCE PUPIL
-DIA       14.4959
+DIA       20.0000
 THI       0.0000
 EXIT PUPIL
-DIA       15.0073
+DIA       20.7055
 THI       -2.4735
 GERMLW_SPECIAL not found in any catalog
           RDY          THI     RMD          GLA          CCY     THC     GLC

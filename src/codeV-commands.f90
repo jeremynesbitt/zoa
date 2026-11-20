@@ -549,6 +549,21 @@ module codeV_commands
    module subroutine pmaSetOption(iptStr)
     character(len=*) :: iptStr
    end subroutine pmaSetOption
+   module subroutine execCA(iptStr)
+    character(len=*) :: iptStr
+   end subroutine execCA
+   module subroutine execCOP(iptStr)
+    character(len=*) :: iptStr
+   end subroutine execCOP
+   module subroutine execAPE(iptStr)
+    character(len=*) :: iptStr
+   end subroutine execAPE
+   module subroutine execSOL(iptStr)
+    character(len=*) :: iptStr
+   end subroutine execSOL
+   module subroutine execVAR(iptStr)
+    character(len=*) :: iptStr
+   end subroutine execVAR
    module subroutine execSIN(iptStr)
     character(len=*) :: iptStr
    end subroutine execSIN
@@ -996,6 +1011,16 @@ module codeV_commands
         zoaCmds(843)%execFunc => execROF
         zoaCmds(844)%cmd = 'SIN'
         zoaCmds(844)%execFunc => execSIN
+        zoaCmds(845)%cmd = 'APE'
+        zoaCmds(845)%execFunc => execAPE
+        zoaCmds(846)%cmd = 'SOL'
+        zoaCmds(846)%execFunc => execSOL
+        zoaCmds(847)%cmd = 'VAR'
+        zoaCmds(847)%execFunc => execVAR
+        zoaCmds(848)%cmd = 'COP'
+        zoaCmds(848)%execFunc => execCOP
+        zoaCmds(849)%cmd = 'CA'
+        zoaCmds(849)%execFunc => execCA
         ! Tilt / decenter / pivot control codes (CODE V XDC..CDC, XOC..ZOC).
         block
             use zoa_ui, only: TILT_VAR_NAMES
@@ -1233,6 +1258,13 @@ module codeV_commands
         character(len=40) :: valStr
 
         boolResult = .FALSE.
+
+        ! Bare VAR is the legacy wavefront variance and bare CA a legacy word;
+        ! the CODE V forms take arguments (checked here: a word the front door
+        ! declines comes back through CMDER's hook)
+        if (trim(iptCmd) == 'VAR' .or. trim(iptCmd) == 'CA') then
+            if (len_trim(adjustl(currentCommand)) <= len_trim(iptCmd)) return
+        end if
 
         if (cmd_loop == PRV_LOOP) then
             call prvLine(currentCommand)
@@ -2417,6 +2449,9 @@ module codeV_commands
         else if (trim(t) == 'SI') then
             s0 = ldm%getLastSurf()
         else if (index(t, '..') > 0) then
+            ! Si..I: through the image surface (CODE V)
+            if (trim(t(index(t, '..')+2:)) == 'I') &
+            &   t = t(1:index(t, '..')+1)//trim(int2str(ldm%getLastSurf()))
             if (.not. cmd_parser_get_integer_range(trim(t(2:)), surfs)) then
                 call zoa_emit("Error:  bad surface range "//trim(t), "red")
                 return

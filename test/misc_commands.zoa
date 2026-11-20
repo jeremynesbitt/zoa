@@ -44,14 +44,15 @@ SUR SA
 SPH  S2
 SUR SA
 
-! ---- GLC: glass variable code (bookkeeping only; optimizer support TBD) ----
-! GLC Sk 0 marks the glass variable (SUR SA GLC column shows 0);
-! GLC Sk 100 freezes it again.
+! ---- GLC: glass variables ----
+! GLC Sk 0 turns the glass into its model glass and varies nd and vd (SUR SA
+! GLC column shows 0); GLC Sk 100 freezes it again; air has no glass to vary.
 RES osdtriplet
+GLC S1 0
+SUR SA
+GLC S1 100
+SUR SA
 GLC S2 0
-SUR SA
-GLC S2 100
-SUR SA
 
 ! ---- ETH: edge-thickness listing (typed-surface sag) ----
 ! Hand-verified: S1-S2 edge = 3.5 - sag(R=15, rho=5.87276) = 2.30256.

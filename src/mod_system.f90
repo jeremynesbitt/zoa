@@ -29,6 +29,11 @@ module mod_system
   public :: sys_wl_ref
   public :: sys_naoy_slope, sys_naox_slope
   public :: clearSysArray
+  ! CA (CODE V): 1 YES (entered apertures block rays), 0 NO (they are
+  ! ignored by the ray trace), -1 APE (entered apertures only -- the same
+  ! here, as Zoa has no ray-blocking default apertures).  Reset with the
+  ! system data on a new lens.
+  integer, public :: sys_ca_mode = 1
   public :: sys_say, sys_sax, sys_scy, sys_y1_scy, sys_scx, sys_x1_scx
   public :: sys_scy_fang_set, sys_scx_fang_set
   public :: sys_last_surf
@@ -725,6 +730,7 @@ contains
   ! where SSIZ is always 150; SYSTEM is declared SYSTEM(1:150) in DATLEN).
   subroutine clearSysArray()
     SYSTEM = 0.0D0
+    sys_ca_mode = 1
   end subroutine
 
   subroutine sys_set_units(val)

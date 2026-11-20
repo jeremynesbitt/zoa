@@ -220,6 +220,15 @@ contains
     real(real64) :: scale, offset
 
     do s = 0, int(sys_last_surf())
+      ! PIK PRO / PIK DEC (CODE V group pickups): profile (NPRO = scale -1)
+      ! and the decenter/tilt set, written once from its Y-decenter member
+      if (pickup_get(s, 11, src, scale, offset)) &
+        write(fID, *) 'PIK PRO S'//trim(int2str(s))//' S'//trim(int2str(src))
+      if (pickup_get(s, 12, src, scale, offset)) &
+        write(fID, *) 'PIK PRO S'//trim(int2str(s))//' S'//trim(int2str(src))//' -1'
+      if (pickup_get(s, 13, src, scale, offset)) &
+        write(fID, *) 'PIK DEC S'//trim(int2str(s))//' S'//trim(int2str(src))//' '// &
+        &  trim(compactReal(scale, 15))
       do k = 1, NUM_PICKUP_KINDS
         if (len_trim(PIKUP_KINDS(k)%cli) == 0) cycle
         if (.not. pickup_get(s, PIKUP_KINDS(k)%j, src, scale, offset)) cycle

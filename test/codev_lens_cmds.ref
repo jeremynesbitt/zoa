@@ -1,0 +1,717 @@
+All constraints removed
+
+
+
+
+
+
+          RDY          THI     RMD          GLA          CCY     THC     GLC
+004:    14.08000    5.00000     REFL                     100     100     100
+          RDY          THI     RMD          GLA          CCY     THC     GLC
+004:    14.08000    5.00000                              100     100     100
+SURF  TYPE  SHAPE        Y-SEMI        X-SEMI           ADY           ADX       ARO
+   2   CLR  CIR        4.000000                    0.000000      0.000000    0.0000
+   3   CLR  REC        1.500000      2.000000      0.200000      0.000000    0.0000
+   4   OBS  CIR        0.500000                    0.000000      0.000000    0.0000
+   5   EDG  CIR        6.000000                    0.000000      0.000000    0.0000
+   #  SURF  TYPE  SHAPE        Y-SEMI        X-SEMI           ADY           ADX       ARO
+   1     3   CLR  REC        1.500000      2.000000      0.200000      0.000000    0.0000
+   2     4   OBS  CIR        0.500000                    0.000000      0.000000    0.0000
+   3     5   EDG  CIR        6.000000                    0.000000      0.000000    0.0000
+SURF  TYPE  SHAPE        Y-SEMI        X-SEMI           ADY           ADX       ARO
+   4   OBS  CIR        0.500000                    0.000000      0.000000    0.0000
+APE: HOL applies to non-sequential surfaces (none here)
+SURF  TYPE  SHAPE        Y-SEMI        X-SEMI           ADY           ADX       ARO
+  (none)
+Error:  expected DEL APE Sk|Si..j|SA [CLR|EDG|OBS]
+DEL APE: HOL applies to non-sequential surfaces; nothing deleted
+S6:  PIM (THI S6 paraxial image)
+S6:  PIM (THI S6 paraxial image)
+No solves
+VAR S4: CCY
+VAR S5: CCY THC KC AC
+   SURF  CODE   COUPLING          VALUE
+    004   CCY          free    7.1022727273E-02
+    005   CCY          free    1.9896538002E-02
+    005   THC          free    3.5000000000E+00
+    005   KC           free   -3.0000000000E-01
+    005   AC           free    1.0000000000E-05
+"VAR" REQUIRES AN EXISTING CAPFN
+NO ACTION TAKEN
+Error:  surface S99 is not in the lens (S0..S7)
+All constraints removed
+
+
+
+
+
+
+          RDY          THI     RMD          GLA          CCY     THC     GLC
+005:    -25.000    3.50000               N-SK16_SCHOTT  100     100     100
+006:    25.00000    -13.924                              100     100     100
+___
+ASPHERES
+# 5 K -0.30000
+___
+ASPHERES
+# 6 K -0.30000
+Error:  PIK PRO: the factor must be 1 or -1 (scaled profiles are not available)
+SURF              X              Y              Z
+   0       0.000000      -0.000000       0.000000
+   1       0.000000       0.000000       0.000000
+   2       0.000000       0.000000       0.000000
+   3       0.000000       0.000000       0.000000
+   4       0.000000       0.000000       0.000000
+   5       0.000000       0.000000       0.000000
+   6       0.000000       0.000000       0.000000
+   7       0.000000       0.000000       0.000000
+SURF              X              Y              Z
+   0       0.000000      -0.000000       0.000000
+   1       0.000000       0.575012       0.006613
+   2       0.000000       0.044244       0.000000
+   3       0.000000      -0.000000       0.000000
+   4       0.000000      -0.513296       0.009359
+   5       0.000000      -0.697282      -0.009725
+   6       0.000000      -0.815221       0.013294
+   7       0.000000       0.226188       0.000000
+SURF              X              Y              Z
+   0       0.000000      -0.000000       0.000000
+   1       0.000000       0.575012       0.006613
+   2       0.000000       0.044244       0.000000
+   3       0.000000      -0.000000       0.000000
+   4       0.000000      -1.013536       0.036527
+   5      -0.000000      -1.386757      -0.038483
+   6      -0.000000      -1.631068       0.053247
+   7       0.000000       0.504076       0.000000
+SURF              X              Y              Z
+   0       0.000000      -0.000000       0.000000
+   1       0.000000       0.230023       0.001058
+   2       0.000000       0.017696       0.000000
+   3       0.000000       0.000000       0.000000
+   4       0.000000      -0.405306       0.005835
+   5      -0.000000      -0.535943      -0.005745
+   6      -0.000000      -0.621568       0.007728
+   7       0.000000       0.144876       0.000000
+All constraints removed
+
+
+
+
+
+
+4.87905
+100.00000
+4.96992
+9.92284
+All constraints removed
+
+
+
+
+
+
+9.75600
+All constraints removed
+
+
+
+
+
+
+          RDY          THI     RMD          GLA          CCY     THC     GLC
+001:    30.00000    7.00000               N-SK16_SCHOTT  100     100     100
+002:    INFINITY    3.10000                              100     100     100
+STO:    -37.530    1.50000               N-F2_SCHOTT    100     100     100
+All constraints removed
+
+
+
+
+
+
+20.00000
+          RDY          THI     RMD          GLA          CCY     THC     GLC
+STO:    45.21687    -1.807               N-F2_SCHOTT    100     100     100
+004:    -16.964    -6.024                              100     100     100
+All constraints removed
+
+
+
+
+
+
+60.00000
+          RDY          THI     RMD          GLA          CCY     THC     GLC
+001:    0.00000    0.00000               N-SK16_SCHOTT  100     100     100
+          RDY          THI     RMD          GLA          CCY     THC     GLC
+001:    0.00000    0.00000               N-SK16_SCHOTT  100     100     100
+All constraints removed
+
+
+
+
+
+
+30.00000
+Error:  SCA: unexpected FOO
+Error:  expected SCA FAC|OAL|TT|EFL|EFY|EFX [Si..j] [SPC] value
+Error:  SCA TT takes no surface range
+All constraints removed
+
+
+
+
+
+
+          RDY          THI     RMD          GLA          CCY     THC     GLC
+OBJ:    INFINITY    INFINITY                              100     100     100
+001:    15.00000    3.50000               N-SK16_SCHOTT  100     100     100
+002:    INFINITY    3.10000                              100     100     100
+STO:    -37.530    1.50000               N-F2_SCHOTT    100     100     100
+004:    15.00000    3.50000               N-SK16_SCHOTT  100     100     100
+005:    INFINITY    3.10000                              100     100     100
+006:    14.08000    5.00000                              100     100     100
+007:    50.26000    3.50000               N-SK16_SCHOTT  100     100     100
+008:    -31.380    9.31694                              100     100     100
+IMG:    INFINITY    0.00000                              100     100     100
+___
+ASPHERES
+# 1 K -0.40000
+___
+ASPHERES
+# 4 K -0.40000
+SURF  TYPE  SHAPE        Y-SEMI        X-SEMI           ADY           ADX       ARO
+   1   CLR  CIR        6.000000                    0.000000      0.000000    0.0000
+   4   CLR  CIR        6.000000                    0.000000      0.000000    0.0000
+All constraints removed
+
+
+
+
+
+
+          RDY          THI     RMD          GLA          CCY     THC     GLC
+001:    50.26000    3.50000               N-SK16_SCHOTT  100     100     100
+002:    -31.380    38.51522                              100     100     100
+003:    15.00000    3.50000               N-SK16_SCHOTT  100     100     100
+COP: copying from a library lens (* filespec, FLX/FLY/NEG) is not available; COP Sk|Si..j Sn copies within the lens
+All constraints removed
+
+
+
+
+
+
+SET VIG: field 3  VUY VLY VUX VLX =  0.17760  0.63087  0.44301  0.44301
+SET VIG: field 3  VUY VLY VUX VLX =  0.00000  0.00000  0.00000  0.00000
+SET VIG: field 3  VUY VLY VUX VLX =  0.17760  0.63087  0.44301  0.44301
+Error:  expected CA YES|NO|APE
+All constraints removed
+
+
+
+
+
+
+SET EPD: no clear aperture limits the beam (CIR Sk r on the stop, or CA YES)
+SET EPD: EPD 10.000001
+2.00000
+SET FNO: FNO 5.001073
+2.00000
+SET NAO: the object is at infinity; the pupil is set as EPD 10.000002
+SET NA: image NA 0.099979 (paraxial); Zoa has no NA pupil form, so the pupil is set as EPD 10.000002
+All constraints removed
+
+
+
+
+
+
+SURF  TYPE  SHAPE        Y-SEMI        X-SEMI           ADY           ADX       ARO
+   1   CLR  CIR        5.898458                    0.000000      0.000000    0.0000
+   2   CLR  CIR        5.278221                    0.000000      0.000000    0.0000
+   3   CLR  CIR        3.912225                    0.000000      0.000000    0.0000
+   4   CLR  CIR        4.009092                    0.000000      0.000000    0.0000
+   5   CLR  CIR        5.299333                    0.000000      0.000000    0.0000
+   6   CLR  CIR        5.627466                    0.000000      0.000000    0.0000
+SURF  TYPE  SHAPE        Y-SEMI        X-SEMI           ADY           ADX       ARO
+   1   CLR  REC        5.499363      5.022321     -0.499095      0.000000    0.0000
+   2   CLR  ELL        4.968344      4.834576     -0.365872      0.000000   30.0000
+   3   EDG  CIR        3.912225                    0.000000      0.000000    0.0000
+   5   CLR  CIR        4.576006                    0.723327      0.000000    0.0000
+   6   CLR  CIR        4.721434                    0.906032      0.000000    0.0000
+SET VIG: field 1  VUY VLY VUX VLX =  0.00000  0.00000  0.00000  0.00000
+SET VIG: field 2  VUY VLY VUX VLX =  0.00000  0.00000  0.00000  0.00000
+SET VIG: field 3  VUY VLY VUX VLX =  0.00000  0.00000  0.00000  0.00000
+Error:  SET APE takes only [Sk|Si..j]
+Error:  SET SAP takes no rotation
+All constraints removed
+
+
+
+
+
+
+GLC S1: N-SK16 varies as model glass nd 1.62041, vd 60.324
+GLC S3: N-F2 varies as model glass nd 1.62005, vd 36.431
+GLC S5: N-SK16 varies as model glass nd 1.62041, vd 60.324
+   SURF  CODE   COUPLING          VALUE
+    001   GLC          free  MODEL
+    001   GLC IND      free    1.6204100000E+00
+    001   GLC DLN      free    6.0323600000E+01
+    STO   GLC          free  MODEL
+    STO   GLC IND      free    1.6200500000E+00
+    005   GLC          free  MODEL
+    005   GLC IND      free    1.6204100000E+00
+    005   GLC DLN      free    6.0323600000E+01
+AUT: no operand defined; using the CODE V error function (CDV)
+                                                          l
+CYCLE NUMBER 0
+   ERROR FUNCTION = 0.00007
+          RDY          THI     RMD          GLA          CCY     THC     GLC
+OBJ:    INFINITY    INFINITY                              100     100     100
+001:    15.00000    3.50000               D620.603_MODEL 0       100     0
+002:    INFINITY    3.10000                              0       100     100
+STO:    -37.530    1.50000               D620.364_MODEL 100     100     0
+004:    14.08000    5.00000                              100     100     100
+005:    50.26000    3.50000               D620.603_MODEL 100     100     0
+006:    -31.380    38.51476                              100     100     100
+IMG:    INFINITY    0.00000                              100     100     100
+                                                          l
+Name  Role        Typ  Target              Value               diff
+EFL   Constraint  =   50.0000000000000000  50.0102619107434521   0.0102619107434521
+AX W2 W3  Constraint  =    0.0000000000000000   0.0010787866243631   0.0010787866243631
+CDV   Operand          0.0000000000000000   0.0083474781860536   0.0083474781860536
+                                                          l
+CYCLE NUMBER 1
+   ERROR FUNCTION = 0.00006
+          RDY          THI     RMD          GLA          CCY     THC     GLC
+OBJ:    INFINITY    INFINITY                              100     100     100
+001:    15.03419    3.50000               D620.605_MODEL 0       100     0
+002:    24934690.000000000    3.10000                              0       100     100
+STO:    -37.530    1.50000               D623.364_MODEL 100     100     0
+004:    14.08000    5.00000                              100     100     100
+005:    50.26000    3.50000               D627.604_MODEL 100     100     0
+006:    -31.380    38.66526                              100     100     100
+IMG:    INFINITY    0.00000                              100     100     100
+                                                          l
+Name  Role        Typ  Target              Value               diff
+EFL   Constraint  =   50.0000000000000000  49.9977535504588246  -0.0022464495411754
+AX W2 W3  Constraint  =    0.0000000000000000   0.0000069442726664   0.0000069442726664
+CDV   Operand          0.0000000000000000   0.0079690725287744   0.0079690725287744
+                                                          l
+CYCLE NUMBER 2
+   ERROR FUNCTION = 0.00006
+          RDY          THI     RMD          GLA          CCY     THC     GLC
+OBJ:    INFINITY    INFINITY                              100     100     100
+001:    15.03180    3.50000               D621.605_MODEL 0       100     0
+002:    13693089.000000000    3.10000                              0       100     100
+STO:    -37.530    1.50000               D624.364_MODEL 100     100     0
+004:    14.08000    5.00000                              100     100     100
+005:    50.26000    3.50000               D627.604_MODEL 100     100     0
+006:    -31.380    38.63319                              100     100     100
+IMG:    INFINITY    0.00000                              100     100     100
+                                                          l
+Name  Role        Typ  Target              Value               diff
+EFL   Constraint  =   50.0000000000000000  49.9998558991085815  -0.0001441008914185
+AX W2 W3  Constraint  =    0.0000000000000000   0.0000003796039310   0.0000003796039310
+CDV   Operand          0.0000000000000000   0.0078990202397770   0.0078990202397770
+                                                          l
+CYCLE NUMBER 3
+   ERROR FUNCTION = 0.00006
+          RDY          THI     RMD          GLA          CCY     THC     GLC
+OBJ:    INFINITY    INFINITY                              100     100     100
+001:    15.02684    3.50000               D627.605_MODEL 0       100     0
+002:    3929851.7500000000    3.10000                              0       100     100
+STO:    -37.530    1.50000               D629.364_MODEL 100     100     0
+004:    14.08000    5.00000                              100     100     100
+005:    50.26000    3.50000               D626.603_MODEL 100     100     0
+006:    -31.380    38.48265                              100     100     100
+IMG:    INFINITY    0.00000                              100     100     100
+                                                          l
+Name  Role        Typ  Target              Value               diff
+EFL   Constraint  =   50.0000000000000000  49.9972298068135927  -0.0027701931864073
+AX W2 W3  Constraint  =    0.0000000000000000   0.0000081161991584   0.0000081161991584
+CDV   Operand          0.0000000000000000   0.0076698590501214   0.0076698590501214
+                                                          l
+CYCLE NUMBER 4
+   ERROR FUNCTION = 0.00006
+          RDY          THI     RMD          GLA          CCY     THC     GLC
+OBJ:    INFINITY    INFINITY                              100     100     100
+001:    15.02908    3.50000               D634.605_MODEL 0       100     0
+002:    2155021.5000000000    3.10000                              0       100     100
+STO:    -37.530    1.50000               D636.364_MODEL 100     100     0
+004:    14.08000    5.00000                              100     100     100
+005:    50.26000    3.50000               D626.603_MODEL 100     100     0
+006:    -31.380    38.35578                              100     100     100
+IMG:    INFINITY    0.00000                              100     100     100
+                                                          l
+Name  Role        Typ  Target              Value               diff
+EFL   Constraint  =   50.0000000000000000  49.9978617983350304  -0.0021382016649696
+AX W2 W3  Constraint  =    0.0000000000000000   0.0000074490090923   0.0000074490090923
+CDV   Operand          0.0000000000000000   0.0075358027997647   0.0075358027997647
+                                                          l
+CYCLE NUMBER 5
+   ERROR FUNCTION = 0.00006
+          RDY          THI     RMD          GLA          CCY     THC     GLC
+OBJ:    INFINITY    INFINITY                              100     100     100
+001:    15.03673    3.50000               D638.605_MODEL 0       100     0
+002:    1564490.2500000000    3.10000                              0       100     100
+STO:    -37.530    1.50000               D640.364_MODEL 100     100     0
+004:    14.08000    5.00000                              100     100     100
+005:    50.26000    3.50000               D627.602_MODEL 100     100     0
+006:    -31.380    38.28842                              100     100     100
+IMG:    INFINITY    0.00000                              100     100     100
+                                                          l
+Name  Role        Typ  Target              Value               diff
+EFL   Constraint  =   50.0000000000000000  49.9993256457663691  -0.0006743542336309
+AX W2 W3  Constraint  =    0.0000000000000000   0.0000034014977646   0.0000034014977646
+CDV   Operand          0.0000000000000000   0.0074522580394138   0.0074522580394138
+                                                          l
+CYCLE NUMBER 6
+   ERROR FUNCTION = 0.00005
+          RDY          THI     RMD          GLA          CCY     THC     GLC
+OBJ:    INFINITY    INFINITY                              100     100     100
+001:    15.04536    3.50000               D641.605_MODEL 0       100     0
+002:    1296606.0000000000    3.10000                              0       100     100
+STO:    -37.530    1.50000               D644.364_MODEL 100     100     0
+004:    14.08000    5.00000                              100     100     100
+005:    50.26000    3.50000               D628.601_MODEL 100     100     0
+006:    -31.380    38.26962                              100     100     100
+IMG:    INFINITY    0.00000                              100     100     100
+                                                          l
+Name  Role        Typ  Target              Value               diff
+EFL   Constraint  =   50.0000000000000000  49.9998951983867812  -0.0001048016132188
+AX W2 W3  Constraint  =    0.0000000000000000   0.0000012954956387   0.0000012954956387
+CDV   Operand          0.0000000000000000   0.0074063990129763   0.0074063990129763
+                                                          l
+CYCLE NUMBER 7
+   ERROR FUNCTION = 0.00005
+          RDY          THI     RMD          GLA          CCY     THC     GLC
+OBJ:    INFINITY    INFINITY                              100     100     100
+001:    15.04633    3.50000               D641.605_MODEL 0       100     0
+002:    1250623.8750000000    3.10000                              0       100     100
+STO:    -37.530    1.50000               D644.364_MODEL 100     100     0
+004:    14.08000    5.00000                              100     100     100
+005:    50.26000    3.50000               D629.601_MODEL 100     100     0
+006:    -31.380    38.28439                              100     100     100
+IMG:    INFINITY    0.00000                              100     100     100
+                                                          l
+Name  Role        Typ  Target              Value               diff
+EFL   Constraint  =   50.0000000000000000  49.9999798826690167  -0.0000201173309833
+AX W2 W3  Constraint  =    0.0000000000000000   0.0000001114521417   0.0000001114521417
+CDV   Operand          0.0000000000000000   0.0073972570614883   0.0073972570614883
+                                                          l
+CYCLE NUMBER 8
+   ERROR FUNCTION = 0.00005
+          RDY          THI     RMD          GLA          CCY     THC     GLC
+OBJ:    INFINITY    INFINITY                              100     100     100
+001:    15.04358    3.50000               D640.605_MODEL 0       100     0
+002:    1212165.6250000000    3.10000                              0       100     100
+STO:    -37.530    1.50000               D644.364_MODEL 100     100     0
+004:    14.08000    5.00000                              100     100     100
+005:    50.26000    3.50000               D630.601_MODEL 100     100     0
+006:    -31.380    38.30275                              100     100     100
+IMG:    INFINITY    0.00000                              100     100     100
+                                                          l
+Name  Role        Typ  Target              Value               diff
+EFL   Constraint  =   50.0000000000000000  49.9999889685492107  -0.0000110314507893
+AX W2 W3  Constraint  =    0.0000000000000000   0.0000001080774815   0.0000001080774815
+CDV   Operand          0.0000000000000000   0.0073895710604910   0.0073895710604910
+                                                          l
+CYCLE NUMBER 9
+   ERROR FUNCTION = 0.00005
+          RDY          THI     RMD          GLA          CCY     THC     GLC
+OBJ:    INFINITY    INFINITY                              100     100     100
+001:    15.03205    3.50000               D639.605_MODEL 0       100     0
+002:    1102408.8750000000    3.10000                              0       100     100
+STO:    -37.530    1.50000               D644.364_MODEL 100     100     0
+004:    14.08000    5.00000                              100     100     100
+005:    50.26000    3.50000               D631.600_MODEL 100     100     0
+006:    -31.380    38.33736                              100     100     100
+IMG:    INFINITY    0.00000                              100     100     100
+                                                          l
+Name  Role        Typ  Target              Value               diff
+EFL   Constraint  =   50.0000000000000000  50.0000332537420888   0.0000332537420888
+AX W2 W3  Constraint  =    0.0000000000000000   0.0000004725193056   0.0000004725193056
+CDV   Operand          0.0000000000000000   0.0073716826944793   0.0073716826944793
+                                                          l
+CYCLE NUMBER 10
+   ERROR FUNCTION = 0.00005
+          RDY          THI     RMD          GLA          CCY     THC     GLC
+OBJ:    INFINITY    INFINITY                              100     100     100
+001:    14.99860    3.50000               D637.605_MODEL 0       100     0
+002:    873742.37500000000    3.10000                              0       100     100
+STO:    -37.530    1.50000               D646.364_MODEL 100     100     0
+004:    14.08000    5.00000                              100     100     100
+005:    50.26000    3.50000               D634.598_MODEL 100     100     0
+006:    -31.380    38.39706                              100     100     100
+IMG:    INFINITY    0.00000                              100     100     100
+                                                          l
+Name  Role        Typ  Target              Value               diff
+EFL   Constraint  =   50.0000000000000000  50.0002981212410162   0.0002981212410162
+AX W2 W3  Constraint  =    0.0000000000000000   0.0000024735672496   0.0000024735672496
+CDV   Operand          0.0000000000000000   0.0073306190768774   0.0073306190768774
+                                                          l
+CYCLE NUMBER 11
+   ERROR FUNCTION = 0.00005
+          RDY          THI     RMD          GLA          CCY     THC     GLC
+OBJ:    INFINITY    INFINITY                              100     100     100
+001:    14.91609    3.50000               D634.606_MODEL 0       100     0
+002:    573870.06250000000    3.10000                              0       100     100
+STO:    -37.530    1.50000               D650.364_MODEL 100     100     0
+004:    14.08000    5.00000                              100     100     100
+005:    50.26000    3.50000               D641.594_MODEL 100     100     0
+006:    -31.380    38.49469                              100     100     100
+IMG:    INFINITY    0.00000                              100     100     100
+                                                          l
+Name  Role        Typ  Target              Value               diff
+EFL   Constraint  =   50.0000000000000000  50.0010875121268654   0.0010875121268654
+AX W2 W3  Constraint  =    0.0000000000000000   0.0000135512115889   0.0000135512115889
+CDV   Operand          0.0000000000000000   0.0072400483675707   0.0072400483675707
+                                                          l
+CYCLE NUMBER 12
+   ERROR FUNCTION = 0.00005
+          RDY          THI     RMD          GLA          CCY     THC     GLC
+OBJ:    INFINITY    INFINITY                              100     100     100
+001:    14.76116    3.50000               D630.608_MODEL 0       100     0
+002:    345633.09375000000    3.10000                              0       100     100
+STO:    -37.530    1.50000               D661.364_MODEL 100     100     0
+004:    14.08000    5.00000                              100     100     100
+005:    50.26000    3.50000               D652.586_MODEL 100     100     0
+006:    -31.380    38.61620                              100     100     100
+IMG:    INFINITY    0.00000                              100     100     100
+                                                          l
+Name  Role        Typ  Target              Value               diff
+EFL   Constraint  =   50.0000000000000000  50.0010973759506996   0.0010973759506996
+AX W2 W3  Constraint  =    0.0000000000000000   0.0000490088274856   0.0000490088274856
+CDV   Operand          0.0000000000000000   0.0070771997643157   0.0070771997643157
+                                                          l
+CYCLE NUMBER 13
+   ERROR FUNCTION = 0.00005
+          RDY          THI     RMD          GLA          CCY     THC     GLC
+OBJ:    INFINITY    INFINITY                              100     100     100
+001:    14.57941    3.50000               D628.610_MODEL 0       100     0
+002:    233972.84375000000    3.10000                              0       100     100
+STO:    -37.530    1.50000               D675.364_MODEL 100     100     0
+004:    14.08000    5.00000                              100     100     100
+005:    50.26000    3.50000               D664.576_MODEL 100     100     0
+006:    -31.380    38.68610                              100     100     100
+IMG:    INFINITY    0.00000                              100     100     100
+                                                          l
+Name  Role        Typ  Target              Value               diff
+EFL   Constraint  =   50.0000000000000000  49.9969278132960824  -0.0030721867039176
+AX W2 W3  Constraint  =    0.0000000000000000   0.0000715763545992   0.0000715763545992
+CDV   Operand          0.0000000000000000   0.0069081905786502   0.0069081905786502
+                                                          l
+CYCLE NUMBER 14
+   ERROR FUNCTION = 0.00005
+          RDY          THI     RMD          GLA          CCY     THC     GLC
+OBJ:    INFINITY    INFINITY                              100     100     100
+001:    14.52496    3.50000               D629.611_MODEL 0       100     0
+002:    212655.89062500000    3.10000                              0       100     100
+STO:    -37.530    1.50000               D681.364_MODEL 100     100     0
+004:    14.08000    5.00000                              100     100     100
+005:    50.26000    3.50000               D668.573_MODEL 100     100     0
+006:    -31.380    38.66099                              100     100     100
+IMG:    INFINITY    0.00000                              100     100     100
+                                                          l
+Name  Role        Typ  Target              Value               diff
+EFL   Constraint  =   50.0000000000000000  49.9984027183202642  -0.0015972816797358
+AX W2 W3  Constraint  =    0.0000000000000000   0.0000076275500162   0.0000076275500162
+CDV   Operand          0.0000000000000000   0.0068888738885083   0.0068888738885083
+                                                          l
+CYCLE NUMBER 15
+   ERROR FUNCTION = 0.00005
+          RDY          THI     RMD          GLA          CCY     THC     GLC
+OBJ:    INFINITY    INFINITY                              100     100     100
+001:    14.53400    3.50000               D630.611_MODEL 0       100     0
+002:    215232.89062500000    3.10000                              0       100     100
+STO:    -37.530    1.50000               D681.364_MODEL 100     100     0
+004:    14.08000    5.00000                              100     100     100
+005:    50.26000    3.50000               D667.574_MODEL 100     100     0
+006:    -31.380    38.64463                              100     100     100
+IMG:    INFINITY    0.00000                              100     100     100
+                                                          l
+Name  Role        Typ  Target              Value               diff
+EFL   Constraint  =   50.0000000000000000  50.0000416794489411   0.0000416794489411
+AX W2 W3  Constraint  =    0.0000000000000000   0.0000001005576312   0.0000001005576312
+CDV   Operand          0.0000000000000000   0.0068894875121972   0.0068894875121972
+                                                          l
+CYCLE NUMBER 16
+   ERROR FUNCTION = 0.00005
+          RDY          THI     RMD          GLA          CCY     THC     GLC
+OBJ:    INFINITY    INFINITY                              100     100     100
+001:    14.54421    3.50000               D630.611_MODEL 0       100     0
+002:    218513.98437500000    3.10000                              0       100     100
+STO:    -37.530    1.50000               D680.364_MODEL 100     100     0
+004:    14.08000    5.00000                              100     100     100
+005:    50.26000    3.50000               D666.574_MODEL 100     100     0
+006:    -31.380    38.62884                              100     100     100
+IMG:    INFINITY    0.00000                              100     100     100
+                                                          l
+Name  Role        Typ  Target              Value               diff
+EFL   Constraint  =   50.0000000000000000  50.0000471459463256   0.0000471459463256
+AX W2 W3  Constraint  =    0.0000000000000000   0.0000000623543904   0.0000000623543904
+CDV   Operand          0.0000000000000000   0.0068881596226412   0.0068881596226412
+                                                          l
+CYCLE NUMBER 17
+   ERROR FUNCTION = 0.00005
+          RDY          THI     RMD          GLA          CCY     THC     GLC
+OBJ:    INFINITY    INFINITY                              100     100     100
+001:    14.55508    3.50000               D631.611_MODEL 0       100     0
+002:    222760.18750000000    3.10000                              0       100     100
+STO:    -37.530    1.50000               D680.364_MODEL 100     100     0
+004:    14.08000    5.00000                              100     100     100
+005:    50.26000    3.50000               D665.574_MODEL 100     100     0
+006:    -31.380    38.61324                              100     100     100
+IMG:    INFINITY    0.00000                              100     100     100
+                                                          l
+Name  Role        Typ  Target              Value               diff
+EFL   Constraint  =   50.0000000000000000  50.0000466829737604   0.0000466829737604
+AX W2 W3  Constraint  =    0.0000000000000000   0.0000000070552698   0.0000000070552698
+CDV   Operand          0.0000000000000000   0.0068861128708235   0.0068861128708235
+                                                          l
+CYCLE NUMBER 18
+   ERROR FUNCTION = 0.00005
+          RDY          THI     RMD          GLA          CCY     THC     GLC
+OBJ:    INFINITY    INFINITY                              100     100     100
+001:    14.58011    3.50000               D632.611_MODEL 0       100     0
+002:    235037.85937500000    3.10000                              0       100     100
+STO:    -37.530    1.50000               D679.364_MODEL 100     100     0
+004:    14.08000    5.00000                              100     100     100
+005:    50.26000    3.50000               D663.574_MODEL 100     100     0
+006:    -31.380    38.58060                              100     100     100
+IMG:    INFINITY    0.00000                              100     100     100
+                                                          l
+Name  Role        Typ  Target              Value               diff
+EFL   Constraint  =   50.0000000000000000  50.0002071302147115   0.0002071302147115
+AX W2 W3  Constraint  =    0.0000000000000000  -0.0000001861509787  -0.0000001861509787
+CDV   Operand          0.0000000000000000   0.0068797418144757   0.0068797418144757
+                                                          l
+CYCLE NUMBER 19
+   ERROR FUNCTION = 0.00005
+          RDY          THI     RMD          GLA          CCY     THC     GLC
+OBJ:    INFINITY    INFINITY                              100     100     100
+001:    14.62311    3.50000               D634.612_MODEL 0       100     0
+002:    264310.09375000000    3.10000                              0       100     100
+STO:    -37.530    1.50000               D677.364_MODEL 100     100     0
+004:    14.08000    5.00000                              100     100     100
+005:    50.26000    3.50000               D660.574_MODEL 100     100     0
+006:    -31.380    38.53075                              100     100     100
+IMG:    INFINITY    0.00000                              100     100     100
+                                                          l
+Name  Role        Typ  Target              Value               diff
+EFL   Constraint  =   50.0000000000000000  50.0004715564215800   0.0004715564215800
+AX W2 W3  Constraint  =    0.0000000000000000  -0.0000006860050920  -0.0000006860050920
+CDV   Operand          0.0000000000000000   0.0068651923776642   0.0068651923776642
+                                                          l
+CYCLE NUMBER 20
+   ERROR FUNCTION = 0.00005
+          RDY          THI     RMD          GLA          CCY     THC     GLC
+OBJ:    INFINITY    INFINITY                              100     100     100
+001:    14.70003    3.50000               D637.615_MODEL 0       100     0
+002:    357104.06250000000    3.10000                              0       100     100
+STO:    -37.530    1.50000               D672.364_MODEL 100     100     0
+004:    14.08000    5.00000                              100     100     100
+005:    50.26000    3.50000               D654.571_MODEL 100     100     0
+006:    -31.380    38.45390                              100     100     100
+IMG:    INFINITY    0.00000                              100     100     100
+                                                          l
+Name  Role        Typ  Target              Value               diff
+EFL   Constraint  =   50.0000000000000000  50.0009992931476503   0.0009992931476503
+AX W2 W3  Constraint  =    0.0000000000000000   0.0000004620643550   0.0000004620643550
+CDV   Operand          0.0000000000000000   0.0068313915175999   0.0068313915175999
+                                                          l
+CYCLE NUMBER 21
+   ERROR FUNCTION = 0.00005
+          RDY          THI     RMD          GLA          CCY     THC     GLC
+OBJ:    INFINITY    INFINITY                              100     100     100
+001:    14.80385    3.50000               D640.621_MODEL 0       100     0
+002:    824123.06250000000    3.10000                              0       100     100
+STO:    -37.530    1.50000               D665.364_MODEL 100     100     0
+004:    14.08000    5.00000                              100     100     100
+005:    50.26000    3.50000               D647.563_MODEL 100     100     0
+006:    -31.380    38.36951                              100     100     100
+IMG:    INFINITY    0.00000                              100     100     100
+                                                          l
+Name  Role        Typ  Target              Value               diff
+EFL   Constraint  =   50.0000000000000000  50.0005343533385371   0.0005343533385371
+AX W2 W3  Constraint  =    0.0000000000000000   0.0000178887246172   0.0000178887246172
+CDV   Operand          0.0000000000000000   0.0067692668241243   0.0067692668241243
+                                                          l
+CYCLE NUMBER 22
+   ERROR FUNCTION = 0.00004
+          RDY          THI     RMD          GLA          CCY     THC     GLC
+OBJ:    INFINITY    INFINITY                              100     100     100
+001:    14.87508    3.50000               D640.628_MODEL 0       100     0
+002:    -3394625.7500000000    3.10000                              0       100     100
+STO:    -37.530    1.50000               D658.364_MODEL 100     100     0
+004:    14.08000    5.00000                              100     100     100
+005:    50.26000    3.50000               D641.553_MODEL 100     100     0
+006:    -31.380    38.33876                              100     100     100
+IMG:    INFINITY    0.00000                              100     100     100
+                                                          l
+Name  Role        Typ  Target              Value               diff
+EFL   Constraint  =   50.0000000000000000  49.9985718538855153  -0.0014281461144847
+AX W2 W3  Constraint  =    0.0000000000000000   0.0000470085713721   0.0000470085713721
+CDV   Operand          0.0000000000000000   0.0066996566025104   0.0066996566025104
+                                                          l
+CYCLE NUMBER 23
+   ERROR FUNCTION = 0.00004
+          RDY          THI     RMD          GLA          CCY     THC     GLC
+OBJ:    INFINITY    INFINITY                              100     100     100
+001:    14.86512    3.50000               D637.632_MODEL 0       100     0
+002:    -1363278.8750000000    3.10000                              0       100     100
+STO:    -37.530    1.50000               D656.364_MODEL 100     100     0
+004:    14.08000    5.00000                              100     100     100
+005:    50.26000    3.50000               D641.548_MODEL 100     100     0
+006:    -31.380    38.39129                              100     100     100
+IMG:    INFINITY    0.00000                              100     100     100
+                                                          l
+Name  Role        Typ  Target              Value               diff
+EFL   Constraint  =   50.0000000000000000  49.9999682463466542  -0.0000317536533458
+AX W2 W3  Constraint  =    0.0000000000000000   0.0000228153717452   0.0000228153717452
+CDV   Operand          0.0000000000000000   0.0066648768624833   0.0066648768624833
+                                                          l
+CYCLE NUMBER 24
+   ERROR FUNCTION = 0.00004
+          RDY          THI     RMD          GLA          CCY     THC     GLC
+OBJ:    INFINITY    INFINITY                              100     100     100
+001:    14.83028    3.50000               D635.633_MODEL 0       100     0
+002:    -1636016.3750000000    3.10000                              0       100     100
+STO:    -37.530    1.50000               D657.364_MODEL 100     100     0
+004:    14.08000    5.00000                              100     100     100
+005:    50.26000    3.50000               D644.545_MODEL 100     100     0
+006:    -31.380    38.45605                              100     100     100
+IMG:    INFINITY    0.00000                              100     100     100
+                                                          l
+Name  Role        Typ  Target              Value               diff
+EFL   Constraint  =   50.0000000000000000  50.0004978694172024   0.0004978694172024
+AX W2 W3  Constraint  =    0.0000000000000000   0.0000060364508123   0.0000060364508123
+CDV   Operand          0.0000000000000000   0.0066537135047276   0.0066537135047276
+                                                          l
+CYCLE NUMBER 25
+   ERROR FUNCTION = 0.00004
+          RDY          THI     RMD          GLA          CCY     THC     GLC
+OBJ:    INFINITY    INFINITY                              100     100     100
+001:    14.83126    3.50000               D635.633_MODEL 0       100     0
+002:    -1533190.1250000000    3.10000                              0       100     100
+STO:    -37.530    1.50000               D657.364_MODEL 100     100     0
+004:    14.08000    5.00000                              100     100     100
+005:    50.26000    3.50000               D644.544_MODEL 100     100     0
+006:    -31.380    38.45960                              100     100     100
+IMG:    INFINITY    0.00000                              100     100     100
+                                                          l
+Name  Role        Typ  Target              Value               diff
+EFL   Constraint  =   50.0000000000000000  49.9999987146216327  -0.0000012853783673
+AX W2 W3  Constraint  =    0.0000000000000000   0.0000002335397547   0.0000002335397547
+CDV   Operand          0.0000000000000000   0.0066536190358863   0.0066536190358863
+AUT: done after 26 iterations, status: More than max_iter iterations in slsqp
+0.00000
+50.00000
+   SURF  CODE   COUPLING          VALUE
+    001   CCY          free    6.7425163402E-02
+    002   CCY          free   -6.5223482827E-07
+GLC S2: no glass to vary (air or mirror)
+Error:  expected GLC Sk|Si..j [A..E|IND|DLN] 0|100

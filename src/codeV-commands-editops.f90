@@ -3,6 +3,9 @@ use mod_kdp_api, only: kdp_silent_begin, kdp_silent_end, kdp_lens_begin, &
                        kdp_lens_end, kdp_chg, kdp_lens_cmd
 use iso_fortran_env, only: real64
 implicit none
+    ! the last SCA factor (SCA SPC applies it to the specification data)
+    real(kind=real64) :: lastScaleFactor = 1.0_real64
+
 contains
 
     !## cmd:      CCY
@@ -46,6 +49,11 @@ contains
         processResult = .FALSE.
         call parse(iptStr, ' ', tokens, numTokens)
 
+        if (trim(tokens(1)) == 'GLC') then
+            call glassVariables()
+            return
+        end if
+
         if (numTokens == 3) then
             dotLoc = index(tokens(2), '..')
             if (dotLoc > 0) then
@@ -77,6 +85,89 @@ contains
         else
             call zoa_emit("Error:  Variable code must be number "//trim(tokens(3)), "red")
         end if
+
+    contains
+
+        ! GLC Sk|Si..j [A|B|C|D|E|IND|DLN] 0|100|n (CODE V): vary the glass.
+        ! A catalog glass becomes its equivalent model glass (nd, vd); IND
+        ! varies nd only, DLN vd only, otherwise both.  A..E (CODE V: keep to a
+        ! glass-map boundary) vary both within the simple map nd 1.4..2.1, vd
+        ! 15..100 that bounds every glass variable here.
+        subroutine glassVariables()
+            use mod_surface, only: surf_fict_n, surf_fict_v
+            use DATLEN, only: GLANAM
+            use glass_catalog, only: gc_find_catalog, gc_find_glass, gc_index
+            character(len=4) :: which
+            integer :: n, s, ic, ig
+            real(real64) :: nd, nF, nC, vd
+            character(len=40) :: lbl, orig
+            which = 'BOTH'
+            if (numTokens == 4) then
+                select case (trim(tokens(3)))
+                case ('IND'); which = 'IND'
+                case ('DLN'); which = 'DLN'
+                case ('A', 'B', 'C', 'D', 'E')
+                case default
+                    call zoa_emit("Error:  expected GLC Sk|Si..j [A..E|IND|DLN] 0|100", "red"); return
+                end select
+            else if (numTokens /= 3) then
+                call zoa_emit("Error:  expected GLC Sk|Si..j [A..E|IND|DLN] 0|100", "red"); return
+            end if
+            if (.not. isInputNumber(trim(tokens(numTokens)))) then
+                call zoa_emit("Error:  GLC: the code must be a number (0, 100 or a coupling group)", "red")
+                return
+            end if
+            n = str2int(trim(tokens(numTokens)))
+            if (.not. parseSurfaceSpec(trim(tokens(2)), s0, sf)) return
+            do s = max(s0, 1), sf
+                if (n /= 100) then
+                    ! the glass as a model glass first
+                    if (GLANAM(s, 1)(1:5) /= 'MODEL') then
+                        if (len_trim(GLANAM(s, 2)) == 0 .or. GLANAM(s, 2)(1:3) == 'AIR' .or. &
+                        &   GLANAM(s, 2)(1:4) == 'REFL') then
+                            call zoa_emit("GLC S"//trim(int2str(s))//": no glass to vary (air or mirror)", "red")
+                            cycle
+                        end if
+                        ic = gc_find_catalog(trim(GLANAM(s, 1)))
+                        ig = 0
+                        if (ic > 0) then
+                            if (.not. gc_find_glass(ic, trim(GLANAM(s, 2)), ig)) ig = 0
+                        end if
+                        if (ig == 0) then
+                            call zoa_emit("GLC S"//trim(int2str(s))//": "//trim(GLANAM(s, 2))// &
+                            &   " is not a catalog glass; cannot vary it", "red")
+                            cycle
+                        end if
+                        nd = gc_index(ic, ig, 0.5875618_real64)
+                        nF = gc_index(ic, ig, 0.4861327_real64)
+                        nC = gc_index(ic, ig, 0.6562725_real64)
+                        vd = (nd - 1.0_real64)/(nF - nC)
+                        write(lbl, '(F0.6,":",F0.4)') nd, vd
+                        orig = GLANAM(s, 2)
+                        call setGlass('GLA S'//trim(int2str(s))//' '//trim(lbl))
+                        call zoa_emit("GLC S"//trim(int2str(s))//": "//trim(orig)// &
+                        &   " varies as model glass nd "//trim(real2str(surf_fict_n(s), 5))// &
+                        &   ", vd "//trim(real2str(surf_fict_v(s), 3)), "black")
+                    end if
+                end if
+                if (which /= 'DLN') then
+                    call ldm%updateOptimVars('GLCN', s, s, n)
+                    call updateOptimVarsNew('GLCN', s, s, n)
+                end if
+                if (which /= 'IND') then
+                    call ldm%updateOptimVars('GLCV', s, s, n)
+                    call updateOptimVarsNew('GLCV', s, s, n)
+                end if
+                ! the lens editor's GLC column
+                if (n == 100) then
+                    if (ldm%vars(s, VAR_GLN) == 100 .and. ldm%vars(s, VAR_GLV) == 100) &
+                    &   call ldm%updateOptimVars('GLC', s, s, 100)
+                else
+                    call ldm%updateOptimVars('GLC', s, s, n)
+                end if
+            end do
+        end subroutine glassVariables
+
     end procedure updateVarCodes
 
     ! Unified merit-entry parser, dispatched for every registered evaluator
@@ -1303,30 +1394,172 @@ contains
     end procedure setSurfaceCodeVStyle
 
     !## cmd:      SCA
-    !## syntax:   SCA EFL X
+    !## syntax:   SCA FAC|OAL|TT|EFL|EFY|EFX [Si..j] [SPC] value  |  SCA DIM I|C|M  |  SCA SPC
     !## category: Lens System Commands
-    !## desc:     Scale the system (e.g. SCA EFL 50 scales to an EFL of 50).
+    !## desc:     Scale the lens, or the segment Si..j: FAC by a factor (negative flips
+    !##           it), OAL to that overall length (Si..Sj vertices), TT to that total
+    !##           track, EFL/EFY/EFX to that focal length (of the segment, with
+    !##           Si..j).  The specification data (EPD, object heights) is scaled too
+    !##           only with SPC; SCA SPC scales it by the last factor afterwards.
+    !##           SCA DIM I|C|M converts the lens and its specification data to
+    !##           inches, centimetres or millimetres.
     !##
     module procedure scaleSystem
         use command_utils, only : isInputNumber
+        use mod_lens_data_manager, only: ldm
+        use mod_system, only: sys_units
+        use mod_surface, only: surf_thickness, set_surf_thickness
+        use expr_eval, only: eval_expression
+        use mod_parsed_command, only: kdp_exec
+        use DATLEN, only: SYSTEM, ALENS
+        use zoa_ui_callbacks, only: notify_replot
         implicit none
 
-        character(len=80) :: tokens(40)
-        integer :: numTokens
+        character(len=80) :: tokens(40), what, rng
+        integer :: numTokens, k, s0, s1, img
+        logical :: spc, haveV, ok
+        real(kind=real64) :: v, cur, f, thj, conv(4)
+        real(kind=real64), allocatable :: sysSave(:)
+        character(len=200) :: msg
+        character(len=40) :: ftxt
 
         call parse(trim(iptStr), ' ', tokens, numTokens)
-        if (numTokens == 3) then
-            select case(tokens(2))
-            case('EFL')
-                if (isInputNumber(tokens(3))) then
-                    call PROCESSILENT('SC FY, '//trim(tokens(3))// ", 0")
+        what = ''; rng = ''; spc = .false.; haveV = .false.
+        do k = 2, numTokens
+            select case (trim(tokens(k)))
+            case ('FAC', 'OAL', 'TT', 'EFL', 'EFY', 'EFX', 'DIM')
+                what = tokens(k)
+            case ('SPC')
+                spc = .true.
+            case default
+                if (isInputNumber(trim(tokens(k))) .and. .not. haveV) then
+                    v = str2real8(trim(tokens(k))); haveV = .true.
+                else if (tokens(k)(1:1) == 'S' .and. len_trim(rng) == 0) then
+                    rng = tokens(k)
+                else if (trim(what) == 'DIM' .and. len_trim(tokens(k)) == 1) then
+                    rng = tokens(k)          ! the DIM target I/C/M
                 else
-                    call zoa_emit("Error!  Could not convert 3rd token to numeric value", "red")
+                    call zoa_emit("Error:  SCA: unexpected "//trim(tokens(k)), "red"); return
                 end if
             end select
-        else
-            call zoa_emit("Error!  SCA format is SCA VAR VAL.  Eg SCA EFL 50", "red")
+        end do
+
+        img = ldm%getLastSurf()
+        ! SCA SPC: the specification data by the last factor
+        if (len_trim(what) == 0 .and. spc .and. .not. haveV) then
+            call scaleSpecOnly(lastScaleFactor)
+            return
         end if
+
+        if (trim(what) == 'DIM') then
+            ! units 1 in, 2 cm, 3 mm, 4 m: millimetres per unit
+            conv = [25.4_real64, 10.0_real64, 1.0_real64, 1000.0_real64]
+            select case (trim(rng))
+            case ('I'); k = 1
+            case ('C'); k = 2
+            case ('M'); k = 3
+            case default
+                call zoa_emit("Error:  expected SCA DIM I|C|M", "red"); return
+            end select
+            f = conv(nint(sys_units()))/conv(k)
+            call applyScale(f, -1, -1, .true.)
+            call setDim('DIM '//trim(rng))
+            return
+        end if
+
+        if (len_trim(what) == 0 .or. .not. haveV) then
+            call zoa_emit("Error:  expected SCA FAC|OAL|TT|EFL|EFY|EFX [Si..j] [SPC] value", "red")
+            return
+        end if
+        s0 = -1; s1 = -1
+        if (len_trim(rng) > 0) then
+            if (.not. parseSurfaceSpec(trim(rng), s0, s1)) return
+            if (trim(what) == 'TT') then
+                call zoa_emit("Error:  SCA TT takes no surface range", "red"); return
+            end if
+        end if
+
+        select case (trim(what))
+        case ('FAC')
+            f = v
+        case default
+            ! the current value through the evaluator of the same name
+            if (trim(what) == 'EFL') what = 'EFY'
+            if (len_trim(rng) > 0) then
+                call eval_expression('('//trim(what)//' '//trim(rng)//')', cur, ok, msg)
+            else
+                call eval_expression('('//trim(what)//')', cur, ok, msg)
+            end if
+            if (.not. ok .or. cur == 0.0_real64) then
+                call zoa_emit("Error:  SCA: "//trim(what)//" is "//merge('zero          ', 'not computable', ok), "red")
+                return
+            end if
+            f = v/cur
+        end select
+        if (f == 0.0_real64) then
+            call zoa_emit("Error:  SCA: the factor cannot be 0", "red"); return
+        end if
+        call applyScale(f, s0, s1, spc)
+
+    contains
+
+        ! Legacy SC over S(i)..S(j) (all surfaces when i < 0), keeping Sj's own
+        ! thickness (the gap after the segment) and, without SPC, the
+        ! specification data.
+        subroutine applyScale(fac, i, j, withSpec)
+            real(kind=real64), intent(in) :: fac
+            integer, intent(in) :: i, j
+            logical, intent(in) :: withSpec
+            write(ftxt, '(F32.17)') fac
+            sysSave = SYSTEM
+            call kdp_silent_begin()
+            if (i >= 0) then
+                thj = surf_thickness(j)
+                call kdp_exec('SC '//trim(adjustl(ftxt))//', '//trim(int2str(i))//', '// &
+                &             trim(int2str(j)))
+            else
+                call kdp_exec('SC '//trim(adjustl(ftxt)))
+            end if
+            call kdp_silent_end()
+            if (.not. withSpec) SYSTEM = sysSave
+            call kdp_silent_begin()
+            call kdp_lens_begin()
+            if (i >= 0 .and. j < img) then
+                call kdp_chg(j)
+                call kdp_lens_cmd('TH', w1=thj)
+            end if
+            call kdp_lens_end()
+            call kdp_silent_end()
+            lastScaleFactor = fac
+            call notify_replot()
+        end subroutine applyScale
+
+        ! The specification data only (as legacy SC scales it).
+        subroutine scaleSpecOnly(fac)
+            real(kind=real64), intent(in) :: fac
+            real(kind=real64), allocatable :: lensSave(:,:)
+            if (fac == 1.0_real64) then
+                call zoa_emit("SCA SPC: no previous scale factor (1)", "black"); return
+            end if
+            ! scale everything, then put the lens surfaces back
+            lensSave = ALENS
+            call kdp_silent_begin()
+            call kdp_exec('SC '//trim(adjustl(ftxt_of(fac))))
+            call kdp_silent_end()
+            ALENS = lensSave
+            call kdp_silent_begin()
+            call kdp_lens_begin()
+            call kdp_lens_end()
+            call kdp_silent_end()
+            call notify_replot()
+        end subroutine scaleSpecOnly
+
+        function ftxt_of(x) result(t)
+            real(kind=real64), intent(in) :: x
+            character(len=40) :: t
+            write(t, '(F32.17)') x
+        end function
+
     end procedure scaleSystem
 
     module function getDefaultMaxFrequency() result(maxFreq)
@@ -1645,10 +1878,11 @@ contains
         use mod_lens_data_manager, only: ldm
         use mod_surface, only: surf_asphere_coeff, surf_decenter_x, surf_decenter_y, &
             surf_decenter_z, surf_alpha, surf_beta, surf_gamma, surf_pivot_x, surf_pivot_y, &
-            surf_pivot_z, surf_glass_name
-        character(len=3), parameter :: names(NUM_VAR_CODES) = [character(len=3) :: &
+            surf_pivot_z, surf_glass_name, surf_fict_n, surf_fict_v
+        character(len=7), parameter :: names(NUM_VAR_CODES) = [character(len=7) :: &
             'CCY', 'THC', 'KC ', 'AC ', 'BC ', 'CC ', 'DC ', 'EC ', 'FC ', 'GC ', 'HC ', 'IC ', &
-            'GLC', 'XDC', 'YDC', 'ZDC', 'ADC', 'BDC', 'CDC', 'XOC', 'YOC', 'ZOC']
+            'GLC', 'XDC', 'YDC', 'ZDC', 'ADC', 'BDC', 'CDC', 'XOC', 'YOC', 'ZOC', &
+            'GLC IND', 'GLC DLN']
         character(len=120) :: line
         character(len=30) :: valTxt
         integer :: s, j, code, n
@@ -1675,6 +1909,8 @@ contains
                 case (VAR_XOD);          v = surf_pivot_x(s)
                 case (VAR_YOD);          v = surf_pivot_y(s)
                 case (VAR_ZOD);          v = surf_pivot_z(s)
+                case (VAR_GLN);          v = surf_fict_n(s)
+                case (VAR_GLV);          v = surf_fict_v(s)
                 case default;            v = 0.0_real64
                 end select
                 if (j == VAR_GLA) then
@@ -1683,9 +1919,9 @@ contains
                     write(valTxt, '(ES18.10)') v
                 end if
                 if (code == 0) then
-                    write(line, '(3X,A4,3X,A3,3X,A10,2X,A)') ldm%getSurfName(s), names(j), 'free', trim(valTxt)
+                    write(line, '(3X,A4,3X,A7,A10,2X,A)') ldm%getSurfName(s), names(j), 'free', trim(valTxt)
                 else
-                    write(line, '(3X,A4,3X,A3,3X,A6,I3,3X,A)') ldm%getSurfName(s), names(j), 'group ', code, trim(valTxt)
+                    write(line, '(3X,A4,3X,A7,A6,I3,3X,A)') ldm%getSurfName(s), names(j), 'group ', code, trim(valTxt)
                 end if
                 call zoa_emit(trim(line), "black")
             end do
@@ -2039,10 +2275,307 @@ contains
                     call zoa_emit("Usage: SET ABS Y|N", "red"); return
                 end select
             end block
+        else if (numTokens >= 2 .and. any(trim(tokens(2)) == ['EPD', 'FNO', 'NA ', 'NAO'])) then
+            ! SET EPD|FNO|NA|NAO [Y|N]: the pupil from the apertures
+            if (numTokens >= 3) then
+                if (tokens(3)(1:1) == 'N') return
+            end if
+            call setPupilFromApertures(trim(tokens(2)))
+        else if (numTokens >= 2 .and. any(trim(tokens(2)) == ['APE', 'AAP', 'SAP'])) then
+            call setAperturesFromRays(tokens, numTokens)
         else
-            call zoa_emit("Unknown SET subcommand. Try: SET CAP, SET VIG, SET ABS", "red")
+            call zoa_emit("Unknown SET subcommand. Try: SET CAP, SET VIG, SET ABS, SET EPD|FNO|NAO, "// &
+            &             "SET APE|AAP|SAP", "red")
         end if
     end procedure execSET
+
+    ! SET EPD|FNO|NA|NAO (CODE V): the largest axial beam the apertures pass,
+    ! as the pupil specification.  On axis a relative pupil height scales the
+    ! entrance pupil linearly, so the largest relative height h that passes
+    ! (in +-Y and +-X; bisection) gives EPD' = h * EPD, which is then set in
+    ! the requested form.
+    subroutine setPupilFromApertures(form)
+        use global_widgets, only: sysConfig, curr_par_ray_trace
+        use mod_lens_data_manager, only: ldm
+        use mod_ray_trace_engine, only: trace_context, ray_request, ray_result, trace_ray, RAY_OK
+        use mod_ray_trace_builder, only: build_trace_context
+        use mod_kdp_api, only: kdp_fob
+        use mod_system, only: sys_wl_ref
+        use mod_surface, only: surf_thickness
+        use DATLEN, only: PXTRAY
+        character(len=*), intent(in) :: form
+        type(trace_context) :: ctx
+        real(real64) :: h, lo, hi, mid, epd0, epd1, dirY(4), dirX(4), u0, val
+        integer :: d, it, iwl
+        logical :: limited
+
+        dirY = [1.0_real64, -1.0_real64, 0.0_real64, 0.0_real64]
+        dirX = [0.0_real64, 0.0_real64, 1.0_real64, -1.0_real64]
+        iwl = int(sys_wl_ref())
+        epd0 = curr_par_ray_trace%ENPUPDIA
+        if (epd0 <= 0.0_real64) then
+            call zoa_emit("SET "//form//": the lens has no entrance pupil to scale", "red"); return
+        end if
+        ! the beam is sized by apertures: without any (or with CA NO) a ray
+        ! failure elsewhere would pass for the limit
+        block
+            use mod_lens_data_manager, only: get_aperture_spec
+            use mod_system, only: sys_ca_mode
+            integer :: sk, shp
+            real(real64) :: a1, a2, a3, a4, a5
+            limited = .false.
+            do sk = 1, ldm%getLastSurf()
+                call get_aperture_spec(sk, .false., shp, a1, a2, a3, a4, a5)
+                if (shp > 0) limited = .true.
+            end do
+            if (.not. limited .or. sys_ca_mode == 0) then
+                call zoa_emit("SET "//form//": no clear aperture limits the beam (CIR Sk r on the "// &
+                &             "stop, or CA YES)", "red")
+                return
+            end if
+        end block
+        call kdp_silent_begin()
+        call kdp_fob(0.0_real64, 0.0_real64)
+        call kdp_silent_end()
+        call build_trace_context(ctx, check_apertures=.true.)
+        if (.not. ctx%supported) then
+            call zoa_emit("SET "//form//": the ray trace does not support this lens ("// &
+            &             trim(ctx%reason)//")", "red")
+            return
+        end if
+        if (.not. passes(0.0_real64, 0.0_real64)) then
+            call zoa_emit("SET "//form//": the axial chief ray is blocked by an aperture", "red"); return
+        end if
+        h = huge(1.0_real64)
+        limited = .false.
+        do d = 1, 4
+            lo = 0.0_real64; hi = 1.0_real64
+            do while (passes(hi*dirY(d), hi*dirX(d)))
+                lo = hi; hi = 2.0_real64*hi
+                if (hi > 1024.0_real64) exit
+            end do
+            if (hi > 1024.0_real64) cycle
+            limited = .true.
+            do it = 1, 40
+                mid = 0.5_real64*(lo + hi)
+                if (passes(mid*dirY(d), mid*dirX(d))) then
+                    lo = mid
+                else
+                    hi = mid
+                end if
+            end do
+            h = min(h, lo)
+        end do
+        if (.not. limited) then
+            call zoa_emit("SET "//form//": no aperture limits the axial beam (set CIR on the stop?)", "red")
+            return
+        end if
+        epd1 = h*epd0
+        call setEPD('EPD '//trim(real2str(epd1, 10)))
+        select case (form)
+        case ('EPD')
+            call zoa_emit("SET EPD: EPD "//trim(real2str(epd1, 6)), "black")
+        case ('FNO')
+            val = curr_par_ray_trace%FNUM
+            call setFNO('FNO '//trim(real2str(val, 10)))
+            call zoa_emit("SET FNO: FNO "//trim(real2str(val, 6)), "black")
+        case ('NAO', 'NA')
+            if (form == 'NAO') then
+                if (abs(surf_thickness(0)) >= 1.0e10_real64) then
+                    call zoa_emit("SET NAO: the object is at infinity; the pupil is set as EPD "// &
+                    &             trim(real2str(epd1, 6)), "red")
+                    return
+                end if
+                u0 = PXTRAY(2, 0)
+                val = abs(ldm%getSurfIndex(0, iwl))*sin(atan(abs(u0)))
+                call setNAO('NAO '//trim(real2str(val, 10)))
+                call zoa_emit("SET NAO: NAO "//trim(real2str(val, 6)), "black")
+            else
+                val = 0.0_real64
+                if (curr_par_ray_trace%FNUM /= 0.0_real64) val = 1.0_real64/(2.0_real64*abs(curr_par_ray_trace%FNUM))
+                call zoa_emit("SET NA: image NA "//trim(real2str(val, 6))//" (paraxial); Zoa has no NA "// &
+                &             "pupil form, so the pupil is set as EPD "//trim(real2str(epd1, 6)), "black")
+            end if
+        end select
+    contains
+        logical function passes(py, px)
+            real(real64), intent(in) :: py, px
+            type(ray_request) :: req
+            type(ray_result) :: res
+            req%py = py; req%px = px; req%iwl = iwl; req%for_optimization = .true.
+            call trace_ray(ctx, req, res)
+            passes = res%status == RAY_OK
+        end function
+    end subroutine setPupilFromApertures
+
+    ! SET APE|AAP|SAP [Sk|Si..j] [EDG] [L'label'] [CIR|REC|ELL [oversize [rotation]]]
+    ! (CODE V): apertures on the surfaces that have none, from the ray
+    ! footprint -- the rim of every field's vignetted pupil (72 points), all
+    ! wavelengths, apertures ignored.  APE: a centred circle through the
+    ! farthest ray.  AAP: decentred to the footprint centre, a circle, or a
+    ! rectangle when the footprint's aspect ratio is under 0.75 (or as asked),
+    ! rotated by `rotation`.  SAP: like AAP decentred in Y only (X symmetric).
+    ! EDG makes edge apertures (circular) instead of clear apertures.
+    subroutine setAperturesFromRays(tokens, numTokens)
+        use global_widgets, only: sysConfig
+        use mod_lens_data_manager, only: ldm, get_aperture_spec
+        use mod_ray_trace_engine, only: trace_context, ray_request, ray_result, trace_ray, RAY_OK
+        use mod_ray_trace_builder, only: build_trace_context
+        use mod_kdp_api, only: kdp_fob
+        use zoa_ui_callbacks, only: notify_replot
+        use command_utils, only: isInputNumber
+        character(len=80), intent(in) :: tokens(:)
+        integer, intent(in) :: numTokens
+        integer, parameter :: NRIM = 72
+        character(len=3) :: mode, shp
+        logical :: edg, haveS, shpGiven
+        integer :: k, s0, s1, sk, img, f, l, t, np, shape, nNum
+        real(real64) :: over, rot, nums(2), vig(4), th, py, px, cx, cy, hx, hy, r, sc, c, sn
+        real(real64) :: ys, xs, yd, xd, tilt
+        real(real64), allocatable :: px_(:,:), py_(:,:)
+        integer, allocatable :: cnt(:)
+        type(trace_context) :: ctx
+        type(ray_request) :: req
+        type(ray_result) :: res
+
+        mode = tokens(2)(1:3)
+        edg = .false.; haveS = .false.; shp = ''; nNum = 0; shpGiven = .false.
+        img = ldm%getLastSurf()
+        s0 = 1; s1 = img - 1
+        do k = 3, numTokens
+            select case (trim(tokens(k)))
+            case ('EDG'); edg = .true.
+            case ('CIR', 'REC', 'ELL'); shp = tokens(k)(1:3); shpGiven = .true.
+            case default
+                if (tokens(k)(1:2) == "L'" .or. tokens(k)(1:2) == 'L"') cycle
+                if (isInputNumber(trim(tokens(k))) .and. nNum < 2) then
+                    nNum = nNum + 1; nums(nNum) = str2real8(trim(tokens(k)))
+                else if (.not. haveS .and. tokens(k)(1:1) == 'S') then
+                    if (.not. parseSurfaceSpec(trim(tokens(k)), s0, s1)) return
+                    haveS = .true.
+                else
+                    call zoa_emit("Error:  expected SET "//mode//" [Sk|Si..j] [EDG] [CIR|REC|ELL "// &
+                    &             "[oversize [rotation]]]", "red")
+                    return
+                end if
+            end select
+        end do
+        if (mode == 'APE' .and. (len_trim(shp) > 0 .or. nNum > 0 .or. edg)) then
+            call zoa_emit("Error:  SET APE takes only [Sk|Si..j]", "red"); return
+        end if
+        over = 0.0_real64; rot = 0.0_real64
+        if (nNum >= 1) over = nums(1)
+        if (nNum >= 2) rot = nums(2)
+        if (mode == 'SAP' .and. nNum >= 2) then
+            call zoa_emit("Error:  SET SAP takes no rotation", "red"); return
+        end if
+        if (edg .and. (shp == 'REC' .or. shp == 'ELL')) then
+            call zoa_emit("SET "//mode//": edge apertures are circular here; making circles", "red")
+            shp = 'CIR'
+        end if
+        s0 = max(s0, 1); s1 = min(s1, img)
+
+        ! the footprint, in each surface's local coordinates
+        allocate(px_(sysConfig%numFields*sysConfig%numWavelengths*NRIM, s0:s1), &
+        &        py_(sysConfig%numFields*sysConfig%numWavelengths*NRIM, s0:s1), cnt(s0:s1))
+        cnt = 0
+        do f = 1, sysConfig%numFields
+            call kdp_silent_begin()
+            call kdp_fob(sysConfig%relativeFields(2,f), sysConfig%relativeFields(1,f))
+            call kdp_silent_end()
+            call build_trace_context(ctx, check_apertures=.false.)
+            if (.not. ctx%supported) cycle
+            vig = sysConfig%getVignetting(f)
+            do l = 1, sysConfig%numWavelengths
+                do t = 1, NRIM
+                    th = 2.0_real64*acos(-1.0_real64)*(t - 1)/NRIM
+                    py = sin(th)*merge(1.0_real64 - vig(1), 1.0_real64 - vig(2), sin(th) >= 0.0_real64)
+                    px = cos(th)*merge(1.0_real64 - vig(3), 1.0_real64 - vig(4), cos(th) >= 0.0_real64)
+                    req%py = py; req%px = px; req%iwl = l; req%for_optimization = .true.
+                    call trace_ray(ctx, req, res)
+                    if (res%status /= RAY_OK) cycle
+                    do sk = s0, s1
+                        cnt(sk) = cnt(sk) + 1
+                        px_(cnt(sk), sk) = res%rr(1, sk)
+                        py_(cnt(sk), sk) = res%rr(2, sk)
+                    end do
+                end do
+            end do
+        end do
+
+        do sk = s0, s1
+            np = cnt(sk)
+            if (np == 0) cycle
+            ! only surfaces without one
+            if (edg) then
+                if (ldm%getEdgeSemiAperture(sk) /= 0.0_real64) cycle
+            else
+                call get_aperture_spec(sk, .false., shape, ys, xs, yd, xd, tilt)
+                if (shape /= 0) cycle
+            end if
+            if (mode == 'APE') then
+                r = maxval(sqrt(px_(1:np, sk)**2 + py_(1:np, sk)**2))
+                call put('CIR', r, 0.0_real64, 0.0_real64, 0.0_real64, 0.0_real64)
+                cycle
+            end if
+            ! AAP/SAP: centre and half-widths, in the aperture's rotated frame
+            c = cos(rot*acos(-1.0_real64)/180.0_real64); sn = sin(rot*acos(-1.0_real64)/180.0_real64)
+            cx = 0.5_real64*(maxval(px_(1:np, sk)) + minval(px_(1:np, sk)))
+            cy = 0.5_real64*(maxval(py_(1:np, sk)) + minval(py_(1:np, sk)))
+            if (mode == 'SAP') cx = 0.0_real64
+            hx = maxval(abs( c*(px_(1:np, sk) - cx) + sn*(py_(1:np, sk) - cy)))
+            hy = maxval(abs(-sn*(px_(1:np, sk) - cx) + c*(py_(1:np, sk) - cy)))
+            select case (shp)
+            case ('CIR')
+            case ('REC', 'ELL')
+            case default
+                shp = 'CIR'
+                if (min(hx, hy) < 0.75_real64*max(hx, hy)) shp = 'REC'
+            end select
+            select case (shp)
+            case ('CIR')
+                r = maxval(sqrt((px_(1:np, sk) - cx)**2 + (py_(1:np, sk) - cy)**2))
+                call put('CIR', r + over, r + over, cx, cy, 0.0_real64)
+            case ('REC')
+                call put('REC', hy + over, hx + over, cx, cy, rot)
+            case ('ELL')
+                ! scaled so the ellipse holds every footprint point
+                sc = sqrt(maxval(((c*(px_(1:np, sk) - cx) + sn*(py_(1:np, sk) - cy))/max(hx, 1.0e-12_real64))**2 + &
+                &                ((-sn*(px_(1:np, sk) - cx) + c*(py_(1:np, sk) - cy))/max(hy, 1.0e-12_real64))**2))
+                call put('ELL', hy*sc + over, hx*sc + over, cx, cy, rot)
+            end select
+            ! shp stays as asked; reset the automatic choice per surface
+            if (.not. shpGiven) shp = ''
+        end do
+        call notify_replot()
+
+    contains
+
+        ! the commands a user would type
+        subroutine put(kind, a, b, dx, dy, ro)
+            character(len=*), intent(in) :: kind
+            real(real64), intent(in) :: a, b, dx, dy, ro
+            character(len=8) :: sTxt
+            sTxt = 'S'//trim(int2str(sk))
+            if (edg) then
+                call execCIR('CIR '//trim(sTxt)//' EDG '//trim(real2str(a, 8)))
+                return
+            end if
+            select case (kind)
+            case ('CIR'); call execCIR('CIR '//trim(sTxt)//' '//trim(real2str(a, 8)))
+            case ('REC')
+                call setApertureValue('REX '//trim(sTxt)//' '//trim(real2str(b, 8)))
+                call setApertureValue('REY '//trim(sTxt)//' '//trim(real2str(a, 8)))
+            case ('ELL')
+                call setApertureValue('ELX '//trim(sTxt)//' '//trim(real2str(b, 8)))
+                call setApertureValue('ELY '//trim(sTxt)//' '//trim(real2str(a, 8)))
+            end select
+            if (abs(dx) > 1.0e-9_real64) call setApertureValue('ADX '//trim(sTxt)//' '//trim(real2str(dx, 8)))
+            if (abs(dy) > 1.0e-9_real64) call setApertureValue('ADY '//trim(sTxt)//' '//trim(real2str(dy, 8)))
+            if (ro /= 0.0_real64) call setApertureValue('ARO '//trim(sTxt)//' '//trim(real2str(ro, 8)))
+        end subroutine put
+
+    end subroutine setAperturesFromRays
 
         ! Fk, Fi..j, FA (all), FL (last) -> f1..f2 within 1..nf
         logical function parseFieldRange(tok, nf, f1, f2) result(ok)

@@ -453,6 +453,7 @@ SUBROUTINE PIKRES
    use DATMAI
    use mod_system, only: sys_last_surf
    use mod_lens_data_manager, only: ldm
+   use pickup_manager, only: surf_has_pickups, NUM_PICKUP_KINDS
    use iso_fortran_env, only: real64
    IMPLICIT NONE
 !
@@ -473,11 +474,13 @@ SUBROUTINE PIKRES
 !
 !       ARE THERE PIKUPS ON THIS SURFACE ?
 !
-   IF(surf_special_type(I).GT.0.0D0) THEN
+   ! (From the PIKUP existence flags, not the ALENS(34) counter: that slot
+   ! is also the ASI flag, which a PRO pickup copies from its source --
+   ! zeroing the counter, so the pickup was never resolved again.)
+   IF(surf_has_pickups(I)) THEN
 !       YES, RESOLVE THEM
-!       HOW MANY ARE THERE ? THERE ARE surf_special_type(I) OF THEM
-!       SET PIKUP COUNTER PIKCNT
-      PIKCNT=INT(surf_special_type(I))
+!       SET PIKUP COUNTER PIKCNT (the number of pickups on the surface)
+      PIKCNT=COUNT(PIKUP(1,I,1:NUM_PICKUP_KINDS).GT.0.0D0)
       DO 10 K=PIKCNT,0,-1
          DO 20 J=1,PSIZ
             IF(PIKUP(1,I,J).GT.0.0D0) THEN

@@ -619,11 +619,14 @@ contains
                 ! DEL APE SA: delete clear apertures AND edge apertures on all
                 ! surfaces (SA = "surfaces, all").  Silent, like DEL VIG, so it can
                 ! be used in reset macros (newlens.zoa) without polluting output.
-                if (numTokens >= 3 .and. trim(tokens(3)) == 'SA') then
+                ! DEL APE Sk|Si..j [CLR|EDG|OBS] (CODE V): one kind or all of
+                ! them on those surfaces.  An L'label' is accepted (a surface
+                ! has at most one aperture of each kind here).
+                if (numTokens == 3 .and. trim(tokens(3)) == 'SA') then
                     call ldm%deleteAllApertures()
                     call notify_replot()
                 else
-                    call zoa_emit("Expected 'DEL APE SA'", "red")
+                    call deleteApertures()
                 end if
             case('PIK')
                 call deletePickups()
@@ -682,6 +685,46 @@ contains
         ! DEL PIK [XXX] [Sk|Si..j] (CODE V): delete all pickups, or those for
         ! parameter XXX, on the given surfaces (default all).  Zoom (Zk) and
         ! coefficient (Ck) ranges are not supported (no zoom pickups in Zoa).
+        subroutine deleteApertures()
+            integer :: k, s0, s1, sk
+            character(len=3) :: kind
+            kind = ''
+            s0 = -1
+            do k = 3, numTokens
+                select case (trim(tokens(k)))
+                case ('CLR', 'EDG', 'OBS')
+                    kind = tokens(k)(1:3)
+                case ('HOL')
+                    call zoa_emit("DEL APE: HOL applies to non-sequential surfaces; nothing deleted", "red")
+                    return
+                case default
+                    if (tokens(k)(1:2) == "L'" .or. tokens(k)(1:2) == 'L"') cycle
+                    if (s0 >= 0) then
+                        call zoa_emit("Error:  expected DEL APE Sk|Si..j|SA [CLR|EDG|OBS]", "red"); return
+                    end if
+                    if (trim(tokens(k)) == 'SA') then
+                        s0 = 1; s1 = ldm%getLastSurf()
+                    else if (.not. parseSurfaceSpec(trim(tokens(k)), s0, s1)) then
+                        return
+                    end if
+                end select
+            end do
+            if (s0 < 0) then
+                call zoa_emit("Error:  expected DEL APE Sk|Si..j|SA [CLR|EDG|OBS]", "red"); return
+            end if
+            call kdp_silent_begin()
+            call kdp_lens_begin()
+            do sk = max(s0, 1), s1
+                if (kind == '' .or. kind == 'CLR' .or. kind == 'OBS') call kdp_chg(sk)
+                if (kind == '' .or. kind == 'CLR') call kdp_lens_cmd('CLAPD')
+                if (kind == '' .or. kind == 'OBS') call kdp_lens_cmd('COBSD')
+                if (kind == '' .or. kind == 'EDG') call ldm%setEdgeSemiAperture(sk, 0.0_real64)
+            end do
+            call kdp_lens_end()
+            call kdp_silent_end()
+            call notify_replot()
+        end subroutine deleteApertures
+
         subroutine deletePickups()
             use pickup_manager, only: PIKUP_KINDS, NUM_PICKUP_KINDS, &
                                       pickup_j_from_cli, pickup_on_surf
@@ -984,6 +1027,12 @@ contains
         character(len=20) :: modelLabel
         character(len=40) :: glassName, catalogName, altGlassName
 
+        ! GLA Sk REFL: a mirror (CODE V; the same as RMD Sk REFL); GLA Sk AIR
+        if (trim(strInput) == 'REFL' .or. trim(strInput) == 'AIR') then
+            strOut = trim(strInput)
+            return
+        end if
+
         colonLoc     = index(strInput, ':')
         underscoreLoc = index(strInput, '_')
 
@@ -1085,6 +1134,11 @@ contains
         integer :: nt
 
         call parse(trim(glassCmd), ' ,', tk, nt)
+        if (nt == 1) then
+            ! REFL / AIR: one-word lens commands
+            if (trim(tk(1)) == 'REFL' .or. trim(tk(1)) == 'AIR') call kdp_lens_cmd(trim(tk(1)))
+            return
+        end if
         if (nt < 2) return
         if (trim(tk(1)) == 'MODEL') then
             if (nt < 4) return
@@ -1319,6 +1373,278 @@ contains
             end if
         end subroutine
     end procedure setDecenterType
+
+    !## cmd:      CA
+    !## syntax:   CA YES|NO|APE
+    !## category: Apertures
+    !## desc:     Whether the entered apertures are used: YES (default) they block
+    !##           rays, NO the ray trace ignores them, APE entered apertures only
+    !##           (the same as YES here).  The lens drawing always shows them.
+    !##
+    module procedure execCA
+        use mod_system, only: sys_ca_mode
+        use zoa_ui_callbacks, only: notify_replot
+        implicit none
+        character(len=80) :: tokens(40)
+        integer :: numTokens
+        call parse(trim(iptStr), ' ', tokens, numTokens)
+        if (numTokens == 2) then
+            select case (trim(tokens(2)))
+            case ('Y', 'YES'); sys_ca_mode = 1
+            case ('N', 'NO');  sys_ca_mode = 0
+            case ('APE');      sys_ca_mode = -1
+            case default
+                call zoa_emit("Error:  expected CA YES|NO|APE", "red"); return
+            end select
+            call notify_replot()
+            return
+        end if
+        call zoa_emit("Error:  expected CA YES|NO|APE", "red")
+    end procedure execCA
+
+    !## cmd:      COP
+    !## syntax:   COP Sk|Si..j Sn
+    !## category: Lens System Commands
+    !## desc:     Copy surfaces Sk..j of the lens and insert the copies ahead of Sn:
+    !##           curvature, thickness, glass, conic and aspheric terms, apertures,
+    !##           decenters.  Solves and pickups are not copied (they refer to
+    !##           other surfaces).  Copying from a library lens is not available.
+    !##
+    module procedure execCOP
+        use mod_lens_data_manager, only: ldm
+        use DATLEN, only: ALENS, GLANAM
+        use zoa_ui_callbacks, only: notify_replot
+        implicit none
+        character(len=80) :: tokens(40)
+        integer :: numTokens, s0, s1, sn, d0, d1, n, t, src, dst
+        real(kind=real64) :: edg
+
+        call parse(trim(iptStr), ' ', tokens, numTokens)
+        if (numTokens > 3) then
+            call zoa_emit("COP: copying from a library lens (* filespec, FLX/FLY/NEG) is not "// &
+            &             "available; COP Sk|Si..j Sn copies within the lens", "red")
+            return
+        end if
+        if (numTokens /= 3) then
+            call zoa_emit("Error:  expected COP Sk|Si..j Sn", "red"); return
+        end if
+        if (.not. parseSurfaceSpec(trim(tokens(2)), s0, s1)) return
+        if (.not. parseSurfaceSpec(trim(tokens(3)), sn, d1)) return
+        if (s0 < 1 .or. sn < 1 .or. sn /= d1) then
+            call zoa_emit("Error:  COP: copy surfaces 1..I into the lens (Sn one surface after "// &
+            &             "the object)", "red")
+            return
+        end if
+        if (s1 >= ldm%getLastSurf()) then
+            call zoa_emit("Error:  COP: the image surface cannot be copied", "red"); return
+        end if
+        n = s1 - s0 + 1
+        ! the blank surfaces first (INS keeps a PIM solve with the last surface)
+        do t = 0, n - 1
+            call insertSurf('INS S'//trim(int2str(sn + t)))
+        end do
+        call kdp_silent_begin()
+        call kdp_lens_begin()
+        do t = 0, n - 1
+            src = s0 + t
+            if (src >= sn) src = src + n             ! moved up by the insertion
+            dst = sn + t
+            ALENS(:, dst) = ALENS(:, src)
+            GLANAM(dst, :) = GLANAM(src, :)
+            edg = ldm%getEdgeSemiAperture(src)
+            call ldm%setEdgeSemiAperture(dst, edg)
+        end do
+        ! (the copies carry no solves or pickups)
+        call kdp_lens_end(refreshAll=.true.)
+        call kdp_silent_end()
+        call notify_replot()
+    end procedure execCOP
+
+    !## cmd:      APE
+    !## syntax:   APE [Sk|Si..j|SA] [F] [CLR|EDG|OBS]
+    !## category: Apertures
+    !## desc:     List the apertures of surfaces Sk..j (all by default): clear
+    !##           apertures (CLR), edges (EDG) and obscurations (OBS) -- shape,
+    !##           Y and X semi-widths, decenters and rotation.  F numbers them.
+    !##
+    module procedure execAPE
+        use mod_lens_data_manager, only: ldm, get_aperture_spec
+        use kdp_utils, only: OUTKDP
+        implicit none
+        character(len=80) :: tokens(40)
+        integer :: numTokens, k, s0, s1, sk, shape, n
+        character(len=3) :: kind
+        logical :: numbered, haveS
+        real(kind=real64) :: ys, xs, yd, xd, tilt, edg
+        character(len=160) :: line
+
+        call parse(trim(iptStr), ' ', tokens, numTokens)
+        kind = ''; numbered = .false.; haveS = .false.
+        s0 = 1; s1 = ldm%getLastSurf()
+        do k = 2, numTokens
+            select case (trim(tokens(k)))
+            case ('CLR', 'EDG', 'OBS'); kind = tokens(k)(1:3)
+            case ('HOL')
+                call zoa_emit("APE: HOL applies to non-sequential surfaces (none here)", "black")
+                return
+            case ('F'); numbered = .true.
+            case ('SA'); s0 = 1; s1 = ldm%getLastSurf()
+            case default
+                if (haveS .or. .not. parseSurfaceSpec(trim(tokens(k)), s0, s1)) then
+                    if (haveS) call zoa_emit("Error:  expected APE [Sk|Si..j] [F] [CLR|EDG|OBS]", "red")
+                    return
+                end if
+                haveS = .true.
+            end select
+        end do
+
+        line = 'SURF  TYPE  SHAPE        Y-SEMI        X-SEMI           ADY           ADX       ARO'
+        if (numbered) line = '   #  '//line
+        call OUTKDP(trim(line))
+        n = 0
+        do sk = max(s0, 0), s1
+            if (kind == '' .or. kind == 'CLR') then
+                call get_aperture_spec(sk, .false., shape, ys, xs, yd, xd, tilt)
+                call row('CLR', shape, ys, xs, yd, xd, tilt)
+            end if
+            if (kind == '' .or. kind == 'EDG') then
+                edg = ldm%getEdgeSemiAperture(sk)
+                if (edg /= 0.0_real64) call row('EDG', 1, edg, edg, 0.0_real64, 0.0_real64, 0.0_real64)
+            end if
+            if (kind == '' .or. kind == 'OBS') then
+                call get_aperture_spec(sk, .true., shape, ys, xs, yd, xd, tilt)
+                call row('OBS', shape, ys, xs, yd, xd, tilt)
+            end if
+        end do
+        if (n == 0) call OUTKDP('  (none)')
+
+    contains
+
+        subroutine row(t, shp, a, b, c, d, e)
+            character(len=*), intent(in) :: t
+            integer, intent(in) :: shp
+            real(kind=real64), intent(in) :: a, b, c, d, e
+            character(len=4) :: nm
+            character(len=160) :: body
+            select case (shp)
+            case (1); nm = 'CIR'
+            case (2); nm = 'REC'
+            case (3); nm = 'ELL'
+            case (4:); nm = 'OTH'
+            case default; return
+            end select
+            n = n + 1
+            write(body, '(I4,2X,A4,2X,A4,1X,4F14.6,F10.4)') sk, t, nm, a, b, c, d, e
+            if (shp == 1) body(32:45) = ' '          ! a circle: X semi = Y
+            if (numbered) then
+                write(line, '(I4,2X,A)') n, trim(body)
+            else
+                line = body
+            end if
+            call OUTKDP(trim(line))
+        end subroutine
+    end procedure execAPE
+
+    !## cmd:      SOL
+    !## syntax:   SOL [Sk|Si..j]
+    !## category: Solves
+    !## desc:     List the solves of surfaces Sk..j (all by default) in CODE V form.
+    !##
+    module procedure execSOL
+        use mod_lens_data_manager, only: ldm
+        use solve_manager, only: solve_code, solve_kind_at, solve_target, solve_save_line, &
+        &   SLV_YZ_THI_SLOT, SLV_XZ_THI_SLOT, SLV_YZ_CURV_SLOT, SLV_XZ_CURV_SLOT
+        use kdp_utils, only: OUTKDP
+        implicit none
+        character(len=80) :: tokens(40)
+        integer :: numTokens, s0, s1, sk, k, kidx, n
+        integer, parameter :: slots(4) = [SLV_YZ_CURV_SLOT, SLV_XZ_CURV_SLOT, &
+        &                                 SLV_YZ_THI_SLOT, SLV_XZ_THI_SLOT]
+        character(len=280) :: line
+
+        call parse(trim(iptStr), ' ', tokens, numTokens)
+        s0 = 0; s1 = ldm%getLastSurf()
+        if (numTokens == 2) then
+            if (trim(tokens(2)) /= 'SA') then
+                if (.not. parseSurfaceSpec(trim(tokens(2)), s0, s1)) return
+            end if
+        else if (numTokens > 2) then
+            call zoa_emit("Error:  expected SOL [Sk|Si..j]", "red"); return
+        end if
+        n = 0
+        do sk = s0, s1
+            do k = 1, 4
+                kidx = solve_kind_at(slots(k), solve_code(sk, slots(k)))
+                if (kidx == 0) cycle
+                line = solve_save_line(sk, kidx, solve_target(sk, slots(k)))
+                if (len_trim(line) == 0) cycle
+                if (trim(line) == 'PIM') line = 'PIM (THI S'//trim(int2str(sk))//' paraxial image)'
+                call OUTKDP('S'//trim(int2str(sk))//':  '//trim(line))
+                n = n + 1
+            end do
+        end do
+        if (n == 0) call OUTKDP('No solves')
+    end procedure execSOL
+
+    !## cmd:      VAR
+    !## syntax:   VAR Sk|Si..j
+    !## category: Optimization
+    !## desc:     Vary every parameter of surfaces Sk..j that can vary: curvature,
+    !##           thickness (not the image surface's), and on conic/aspheric
+    !##           surfaces K and the aspheric coefficients present.  Parameters held
+    !##           by a solve or a pickup are skipped.  (Bare VAR is the legacy
+    !##           wavefront variance.)
+    !##
+    module procedure execVAR
+        use mod_lens_data_manager, only: ldm
+        use mod_surface, only: surf_conic, surf_is_asphere, surf_asphere_coeff
+        use solve_manager, only: surf_has_curv_solve, surf_has_thi_solve
+        use pickup_manager, only: pickup_on_surf
+        implicit none
+        character(len=80) :: tokens(40)
+        integer :: numTokens, s0, s1, sk, k, img
+        character(len=200) :: done
+        character(len=2), parameter :: aCodes(9) = ['AC', 'BC', 'CC', 'DC', 'EC', 'FC', 'GC', 'HC', 'IC']
+        integer, parameter :: aOrder(9) = [4, 6, 8, 10, 12, 14, 16, 18, 20]
+        integer, parameter :: aPik(9) = [5, 6, 7, 8, 27, 28, 29, 30, 31]
+
+        call parse(trim(iptStr), ' ', tokens, numTokens)
+        if (numTokens /= 2) then
+            call zoa_emit("Error:  expected VAR Sk|Si..j", "red"); return
+        end if
+        if (.not. parseSurfaceSpec(trim(tokens(2)), s0, s1)) return
+        img = ldm%getLastSurf()
+        do sk = max(s0, 1), s1
+            done = ''
+            if (.not. surf_has_curv_solve(sk) .and. .not. (pickup_on_surf(sk, 1) .or. &
+            &   pickup_on_surf(sk, 2) .or. pickup_on_surf(sk, 11) .or. pickup_on_surf(sk, 12))) then
+                call updateVarCodes('CCY S'//trim(int2str(sk))//' 0')
+                done = trim(done)//' CCY'
+            end if
+            if (sk < img .and. .not. surf_has_thi_solve(sk) .and. &
+            &   .not. (pickup_on_surf(sk, 3) .or. pickup_on_surf(sk, 32))) then
+                call updateVarCodes('THC S'//trim(int2str(sk))//' 0')
+                done = trim(done)//' THC'
+            end if
+            if ((surf_conic(sk) /= 0.0_real64 .or. surf_is_asphere(sk)) .and. &
+            &   .not. (pickup_on_surf(sk, 4) .or. pickup_on_surf(sk, 11) .or. pickup_on_surf(sk, 12))) then
+                call updateVarCodes('KC S'//trim(int2str(sk))//' 0')
+                done = trim(done)//' KC'
+                do k = 1, 9
+                    if (surf_asphere_coeff(sk, aOrder(k)) == 0.0_real64) cycle
+                    if (pickup_on_surf(sk, aPik(k)) .or. pickup_on_surf(sk, 11) .or. &
+                    &   pickup_on_surf(sk, 12)) cycle
+                    call updateVarCodes(aCodes(k)//' S'//trim(int2str(sk))//' 0')
+                    done = trim(done)//' '//aCodes(k)
+                end do
+            end if
+            if (len_trim(done) == 0) then
+                call zoa_emit('VAR S'//trim(int2str(sk))//': nothing to vary (solves/pickups)', 'black')
+            else
+                call zoa_emit('VAR S'//trim(int2str(sk))//':'//trim(done), 'black')
+            end if
+        end do
+    end procedure execVAR
 
     !## cmd:      REX
     !## syntax:   REX|REY|ELX|ELY|ADX|ADY|ARO [OBS] [Sk|Si..j] value

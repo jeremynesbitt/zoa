@@ -240,7 +240,7 @@ integer, parameter :: VAR_A14 = 9   ! FC
 integer, parameter :: VAR_A16 = 10  ! GC
 integer, parameter :: VAR_A18 = 11  ! HC
 integer, parameter :: VAR_A20 = 12  ! IC
-integer, parameter :: VAR_GLA = 13  ! GLC (glass variable; optimizer support TBD)
+integer, parameter :: VAR_GLA = 13  ! GLC bookkeeping (lens editor); the variables are GLN/GLV
 ! Tilts and decenters (CODE V XDC..CDC) and the tilt pivot point (XOC..ZOC).
 integer, parameter :: VAR_XDE = 14
 integer, parameter :: VAR_YDE = 15
@@ -251,7 +251,10 @@ integer, parameter :: VAR_CDE = 19
 integer, parameter :: VAR_XOD = 20
 integer, parameter :: VAR_YOD = 21
 integer, parameter :: VAR_ZOD = 22
-integer, parameter :: NUM_VAR_CODES = 22
+! Glass variables (GLC [IND|DLN]): the model glass's nd and vd.
+integer, parameter :: VAR_GLN = 23
+integer, parameter :: VAR_GLV = 24
+integer, parameter :: NUM_VAR_CODES = 24
 ! CODE V control-code names for VAR_XDE..VAR_ZOD, in code order.
 character(len=3), parameter :: TILT_VAR_NAMES(9) = &
   ['XDC', 'YDC', 'ZDC', 'ADC', 'BDC', 'CDC', 'XOC', 'YOC', 'ZOC']

@@ -1094,3 +1094,32 @@ Punted by the user after the High-priority pass (935dba3):
   reference), WFR (wavefront variance), TFO, WTX/WTY/WTW, NRR/NSP or CPA.
 - **INT Y** asks through the GUI's Yes/No dialog after every cycle; without
   a GUI the run continues.  The dialog/abort path is untested by the suite.
+
+## Introduction to CODE V, Medium list: what is not covered (2026-11-19)
+
+- **PIK PRO Sk Sj A**: only A = 1 (PRO) or -1 (NPRO, KDP's negated
+  profile); a scaled profile is refused.  PIK DEC scales the decenters and
+  tilts by A (KDP YD/XD/ZD/ALPHA/BETA/GAMMA pickups).
+- **COP**: within the current lens only (no `* filespec`, FLX/FLY/NEG/FNX/
+  FNY, final_thickness); solves and pickups are not copied.
+- **CA NO|APE** acts on the ray trace (blocking); the lens drawing always
+  shows the entered apertures.  APE = YES here (no ray-blocking default
+  apertures exist).
+- **SET NA**: Zoa has no image-space NA pupil form; SET NA reports the
+  paraxial NA and sets the pupil as EPD.  SET EPD/FNO/NA/NAO need a clear
+  aperture (any ray failure would otherwise pass for the limit).
+- **SET AAP/SAP**: footprint from 72 rim rays per field and wavelength
+  (vignetted pupil, apertures ignored); edge apertures (EDG) are circular
+  only; labels (L'..') are accepted and ignored.
+- **GLC A..E**: CODE V keeps the glass inside a glass-map boundary; here
+  every glass variable is bounded by the box nd 1.4..2.1, vd 15..100, and
+  A..E behave like plain GLC.  The model glass's partial dispersion is not
+  varied.
+- **SCA**: segment EFL (SCA EFY Si..j) uses the EFY evaluator of the
+  segment; SCA DIM scales the specification data with the lens.
+- Fixed on the way: PIKRES resolved a surface only while ALENS(34) (the
+  pickup counter, also the ASI flag) was > 0, so a PRO pickup -- which
+  copies the source's ASI flag -- was never resolved again; it now gates on
+  the PIKUP existence flags.  Legacy SC printed "INVALID QUALIFIER" after
+  every plain SC (the scaling changed SQ mid-routine).  Model glasses are
+  saved as nd:vd (the D-code label rounded them).

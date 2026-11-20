@@ -785,11 +785,19 @@ module optim_types
     subroutine applyVariable(s, code, v)
         use mod_kdp_api, only: kdp_lens_cmd
         use mod_surface, only: surf_pivot_x, surf_pivot_y, surf_pivot_z, &
-        &                      surf_focus_dx, surf_focus_dy, surf_focus_dz
+        &                      surf_focus_dx, surf_focus_dy, surf_focus_dz, surf_fict_n, surf_fict_v
         integer, intent(in) :: s, code
         real(long), intent(in) :: v
-        real(long) :: p(3), d(3)
+        real(long) :: p(3), d(3), nd, vd
+        character(len=20) :: lbl
         select case (code)
+        case (VAR_GLN, VAR_GLV)
+            ! the model glass, with the other of nd/vd as it is
+            nd = surf_fict_n(s); vd = surf_fict_v(s)
+            if (code == VAR_GLN) nd = v
+            if (code == VAR_GLV) vd = v
+            write(lbl, '("D",I0,".",I0)') nint((nd - 1.0_long)*1000), nint(vd*10)
+            call kdp_lens_cmd('MODEL', wq=trim(lbl), w1=nd, w2=vd)
         case (VAR_ADE); call kdp_lens_cmd('ALPHA', w1=v)
         case (VAR_CDE); call kdp_lens_cmd('GAMMA', w1=v)
         case (VAR_XOD:VAR_ZOD)
@@ -927,10 +935,12 @@ module optim_types
             VAR_CODE = VAR_XDE + findloc(TILT_VAR_NAMES, varName, dim=1) - 1
         case('IC')
             VAR_CODE = VAR_A20
-        ! NOTE: 'GLC' (glass variable, VAR_GLA) is deliberately NOT mapped here:
-        ! the optimizer has no glass-variable support yet, so GLC only updates
-        ! the ldm%vars bookkeeping (lens-editor icon / GLC command) via
-        ! ldm%updateOptimVars.  Add it here when glass optimization lands.
+        ! 'GLC' itself (VAR_GLA) is lens-editor bookkeeping; the glass
+        ! variables are the model glass's nd and vd (GLC [IND|DLN]).
+        case('GLCN')
+            VAR_CODE = VAR_GLN
+        case('GLCV')
+            VAR_CODE = VAR_GLV
         case default
             return
         end select
@@ -1050,6 +1060,8 @@ module optim_types
             outCmd = asphVarCmds(int_code - VAR_A4 + 1)
         case(VAR_XDE:VAR_ZOD)
             outCmd = TILT_VAR_NAMES(int_code - VAR_XDE + 1)
+        case(VAR_GLN, VAR_GLV)
+            outCmd = 'GLC'
         end select
 
     end function
@@ -1101,7 +1113,14 @@ module optim_types
                 VARDATA = optim%gatherVariableData()
                 ! Once VARS is properly populated, spit it out
                 do i=1,nV
-                    write(fID,*) trim(getVarCmd(VARS(i,2)))//" S"//trim(int2str(VARS(i,1)))//" 0"
+                    select case (VARS(i,2))
+                    case (VAR_GLN)
+                        write(fID,*) "GLC S"//trim(int2str(VARS(i,1)))//" IND 0"
+                    case (VAR_GLV)
+                        write(fID,*) "GLC S"//trim(int2str(VARS(i,1)))//" DLN 0"
+                    case default
+                        write(fID,*) trim(getVarCmd(VARS(i,2)))//" S"//trim(int2str(VARS(i,1)))//" 0"
+                    end select
                 end do
             end if
             if (nM > 0 .OR. genSettingsModified()) then
@@ -1218,7 +1237,7 @@ module optim_types
 
     function gatherVariableData(self) result(VARDATA)
         use mod_lens_data_manager
-        use mod_surface, only: surf_asphere_coeff
+        use mod_surface, only: surf_asphere_coeff, surf_fict_n, surf_fict_v
         implicit none
         class(optimizer) :: self
         real(long), dimension(nV,3) :: VARDATA
@@ -1261,6 +1280,15 @@ module optim_types
                         VARDATA(ctr,1) = tiltVarValue(i, j)
                         VARDATA(ctr,2) = -0.1*huge(0.0_long)
                         VARDATA(ctr,3) = 0.1*huge(0.0_long)
+                    ! glass: within a simple glass map (nd 1.4..2.1, vd 15..100)
+                    case(VAR_GLN)
+                        VARDATA(ctr,1) = surf_fict_n(i)
+                        VARDATA(ctr,2) = 1.4_long
+                        VARDATA(ctr,3) = 2.1_long
+                    case(VAR_GLV)
+                        VARDATA(ctr,1) = surf_fict_v(i)
+                        VARDATA(ctr,2) = 15.0_long
+                        VARDATA(ctr,3) = 100.0_long
                 end select
                     
                 end if

@@ -66,6 +66,11 @@ contains
       ctx%img = NEWIMG
       ctx%check_apertures = .true.
       if (present(check_apertures)) ctx%check_apertures = check_apertures
+      ! CA NO: the entered apertures do not block rays
+      block
+         use mod_system, only: sys_ca_mode
+         if (sys_ca_mode == 0) ctx%check_apertures = .false.
+      end block
 
       ctx%aim_on = sys_ray_aiming() /= 0.0_real64
       ctx%telecentric = sys_telecentric() /= 0.0_real64

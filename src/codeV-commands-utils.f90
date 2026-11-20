@@ -251,6 +251,12 @@ contains
         integer :: numTokens, si, sj
 
         call parse(trim(iptStr), ' ', tokens, numTokens)
+        if (numTokens >= 2) then
+            if (trim(tokens(2)) == 'PRO' .or. trim(tokens(2)) == 'DEC') then
+                call groupPickup()
+                return
+            end if
+        end if
         select case(numTokens)
         case (:3)
             call zoa_emit("Error!  Not enough arguments!  Format is PIK PARAM Si [PARAM] Sj [sf off]", "red")
@@ -316,6 +322,59 @@ contains
                 end if
             end if
         end select
+    contains
+
+        ! PIK PRO Sk Sj [A] -- surface Sk takes Sj's profile (curvature, conic,
+        ! aspheric terms); A = -1 negates it (other factors are not available).
+        ! PIK DEC Sk Sj [A] -- Sk takes Sj's decenters and tilts, scaled by A.
+        subroutine groupPickup()
+            use mod_kdp_api, only: kdp_silent_begin, kdp_silent_end, kdp_lens_begin, &
+                                   kdp_lens_end, kdp_chg, kdp_lens_cmd
+            integer :: k
+            real(kind=long) :: a
+            character(len=6), parameter :: decQ(6) = ['YD    ', 'XD    ', 'ZD    ', &
+            &                                         'ALPHA ', 'BETA  ', 'GAMMA ']
+            if (numTokens < 4 .or. numTokens > 5) then
+                call zoa_emit("Error:  expected PIK "//trim(tokens(2))//" Sk Sj [A]", "red"); return
+            end if
+            si = getSurfNumFromSurfCommand(trim(tokens(3)))
+            sj = getSurfNumFromSurfCommand(trim(tokens(4)))
+            if (si == -1 .or. sj == -1) then
+                call zoa_emit("Error:  PIK "//trim(tokens(2))//": bad surface", "red"); return
+            end if
+            if (si == sj) then
+                call zoa_emit("Error:  PIK "//trim(tokens(2))//": a surface cannot pick up from itself", "red")
+                return
+            end if
+            a = 1.0_long
+            if (numTokens == 5) then
+                if (.not. isInputNumber(trim(tokens(5)))) then
+                    call zoa_emit("Error:  PIK "//trim(tokens(2))//": bad factor "//trim(tokens(5)), "red")
+                    return
+                end if
+                a = str2real8(trim(tokens(5)))
+            end if
+            if (trim(tokens(2)) == 'PRO' .and. abs(a) /= 1.0_long) then
+                call zoa_emit("Error:  PIK PRO: the factor must be 1 or -1 (scaled profiles "// &
+                &             "are not available)", "red")
+                return
+            end if
+            call kdp_silent_begin()
+            call kdp_lens_begin()
+            call kdp_chg(si)
+            if (trim(tokens(2)) == 'PRO') then
+                call kdp_lens_cmd('PIKUP', wq=trim(merge('PRO ', 'NPRO', a > 0.0_long)), &
+                &                 w1=real(sj, long))
+            else
+                do k = 1, 6
+                    call kdp_lens_cmd('PIKUP', wq=trim(decQ(k)), w1=real(sj, long), &
+                    &                 w2=a, w3=0.0_long)
+                end do
+            end if
+            call kdp_lens_end()
+            call kdp_silent_end()
+        end subroutine groupPickup
+
     end procedure parsePickupInput
 
     module procedure processZoaFileInput

@@ -1751,8 +1751,15 @@ SUBROUTINE SCALLE
    COMMON/LUMPY/DUMPY
 !
    INTEGER OLDCFG,I
+   ! The command as entered: the scaling routines run commands of their own
+   ! that change the parse globals, so plain "SC f" went on to the "SC FY"
+   ! branch afterwards and reported an invalid qualifier.
+   INTEGER SQ0
+   CHARACTER WC0*8
 !
 !
+   SQ0=SQ
+   WC0=WC
 !       RESET NEWOBJ,NEWREF AND NEWIMG
    CALL RESSUR
 !
@@ -1783,7 +1790,7 @@ SUBROUTINE SCALLE
          RETURN
       END IF
    END IF
-   IF(WC.EQ.'SC'.AND.SQ.EQ.0) THEN
+   IF(WC0.EQ.'SC'.AND.SQ0.EQ.0) THEN
 !*************************************************
 !       SIMPLE SCALE FACTOR
 !
@@ -1830,7 +1837,7 @@ SUBROUTINE SCALLE
 !       DON'T SCALE
    END IF
 !*********************************************************
-   IF(WC.EQ.'WSC'.AND.SQ.EQ.0) THEN
+   IF(WC0.EQ.'WSC'.AND.SQ0.EQ.0) THEN
 !*********************************************************
 !       SIMPLE WORKING SCALE FACTOR
       IF(W1.EQ.0.0D0) THEN
@@ -1875,7 +1882,7 @@ SUBROUTINE SCALLE
    END IF
 !*****************************************************
 !
-   IF(WC.EQ.'SC'.AND.SQ.EQ.1) THEN
+   IF(WC0.EQ.'SC'.AND.SQ0.EQ.1) THEN
       IF(WQ.NE.'FY') THEN
 !*****************************************************
          CALL REPORT_ERROR_AND_FAIL('INVALID QUALIFIER USED WITH "SC"'//'\n'//'RE-ENTER COMMAND', 1)
@@ -1924,7 +1931,7 @@ SUBROUTINE SCALLE
    END IF
 !
 !*********************************************************
-   IF(WC.EQ.'WSC'.AND.SQ.EQ.1) THEN
+   IF(WC0.EQ.'WSC'.AND.SQ0.EQ.1) THEN
 !*******************************************************
       IF(WQ.NE.'FY') THEN
          CALL REPORT_ERROR_AND_FAIL(&

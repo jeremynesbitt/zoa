@@ -1,0 +1,146 @@
+! CODE V lens commands (Introduction to CODE V, Medium list, 2026-11-19)
+! ---- GLA REFL / AIR
+RES osdtriplet
+GLA S4 REFL
+SUR S4
+GLA S4 AIR
+SUR S4
+! ---- apertures: CIR Sk EDG, APE listing, DEL APE Sk|Si..j [CLR|EDG|OBS]
+CIR S2 4
+REX S3 2 ; REY S3 1.5 ; ADY S3 0.2
+CIR S4 OBS 0.5
+CIR S5 EDG 6
+APE
+APE S3..5 F
+APE OBS
+APE HOL
+DEL APE S5 EDG
+DEL APE S3 OBS
+DEL APE S4
+DEL APE S2..3 CLR
+APE
+DEL APE
+DEL APE S2 HOL
+! ---- SOL listing
+SOL
+SOL S6
+SOL S1..3
+! ---- VAR Sk|Si..j (bare VAR stays the legacy wavefront variance)
+K S5 -0.3
+A S5 1e-5
+PIK THI S4 S2
+VAR S4..5
+VLI
+VAR
+VAR S99
+! ---- PIK PRO / PIK DEC (the pickups follow their source)
+RES osdtriplet
+K S1 -0.5
+PIK PRO S6 S1
+PIK PRO S5 S1 -1
+RDY S1 25
+K S1 -0.3
+SUR S5..6
+PIK PRO S4 S1 2
+ROF X Y Z
+RSI S4 0 0
+YDE S2 0.5
+PIK DEC S4 S2
+RSI S4 0 0
+PIK DEC S4 S2 2
+RSI S4 0 0
+YDE S2 0.2
+RSI S4 0 0
+ROF
+! ---- SCA (SPC scales the specification data too)
+RES osdtriplet
+EVA (Y R2 F1 S1)
+SCA EFL 100
+EVA (EFL)
+EVA (Y R2 F1 S1)
+SCA SPC
+EVA (Y R2 F1 S1)
+RES osdtriplet
+SCA EFL SPC 100
+EVA (Y R2 F1 S1)
+RES osdtriplet
+SCA FAC S1..2 2
+SUR S1..3
+RES osdtriplet
+SCA OAL S1..6 20
+EVA (OAL S1..6)
+SCA S3..I FAC -1
+SUR S3..4
+RES osdtriplet
+SCA TT 60
+EVA (TT)
+SCA DIM I
+SUR S1
+SCA DIM M
+SUR S1
+RES osdtriplet
+SCA EFY S1..2 30
+EVA (EFY S1..2)
+SCA FOO 3
+SCA FAC
+SCA TT S2..3 5
+! ---- COP
+RES osdtriplet
+K S1 -0.4
+CIR S1 6
+COP S1..2 S4
+SUR SA
+APE
+RES osdtriplet
+COP S5..6 S1
+SUR S1..3
+COP S1 S4 * FOO
+! ---- CA YES|NO|APE
+RES osdtriplet
+CIR S1 3
+SET VIG F3
+CA NO
+SET VIG F3
+CA APE
+SET VIG F3
+CA YES
+CA MAYBE
+! ---- SET EPD|FNO|NA|NAO, SET APE|AAP|SAP
+RES osdtriplet
+SET EPD
+CIR S3 2
+SET EPD
+EVA (Y R2 F1 S3)
+SET FNO
+EVA (Y R2 F1 S3)
+SET NAO
+SET NA
+SET EPD N
+RES osdtriplet
+SET APE
+APE
+DEL APE SA
+SET AAP S5..6
+SET SAP S1 REC 0.1
+SET AAP S2 ELL 0 30
+SET AAP S3 EDG
+APE
+SET VIG
+SET APE S2 REC
+SET SAP S1 REC 0 10
+! ---- GLC [IND|DLN|A..E] (model glass nd/vd variables)
+RES osdtriplet
+GLC S1 0
+GLC S3 IND 0
+GLC S5 A 0
+VLI
+CCY S1 0 ; CCY S2 0
+AUT ; EFL = 50 ; AX W2..3 = 0 ; GO
+EVA (AX W2..3)
+EVA (EFL)
+GLC S1 100
+GLC S3 IND 100
+GLC S5 100
+VLI
+GLC S2 0
+GLC S1 Q 0

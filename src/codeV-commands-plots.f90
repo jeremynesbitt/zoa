@@ -1084,6 +1084,12 @@ contains
         ! Edge (physical) aperture.  Two forms, mirroring CIR:
         !   CIR EDG <value>      -> current surface (surface pointer), used in .zoa
         !   CIR EDG Sk <value>   -> explicit surface k
+        ! (CODE V's order, CIR Sk EDG r, is accepted too)
+        if (numTokens == 4) then
+            if (trim(tokens(3)) == 'EDG' .and. isSurfCommand(trim(tokens(2)))) then
+                tokens(3) = tokens(2); tokens(2) = 'EDG'
+            end if
+        end if
         if (trim(tokens(2)) == 'EDG') then
             block
                 character(len=80) :: valStr

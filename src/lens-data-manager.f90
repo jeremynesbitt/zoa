@@ -743,6 +743,10 @@ module mod_lens_data_manager
             VAR_CODE = VAR_A20
         case('GLC')
             VAR_CODE = VAR_GLA
+        case('GLCN')                ! internal: GLC IND (nd)
+            VAR_CODE = VAR_GLN
+        case('GLCV')                ! internal: GLC DLN (vd)
+            VAR_CODE = VAR_GLV
         case default
             return
         end select
@@ -1187,6 +1191,17 @@ module mod_lens_data_manager
             character(len=64) :: nm
             nm = curr_lens_data%glassnames(k)
             if (len_trim(nm) == 0) return
+            ! a model glass as its exact nd:vd (its D-code label rounds them:
+            ! a varied or converted glass came back changed)
+            if (GLANAM(k-1,1)(1:5) == 'MODEL') then
+                block
+                    use mod_surface, only: surf_fict_n, surf_fict_v
+                    use type_utils, only: compactReal
+                    nm = trim(compactReal(surf_fict_n(k-1), 12))//':'// &
+                    &    trim(compactReal(surf_fict_v(k-1), 12))
+                end block
+                return
+            end if
             ! (a private glass is named bare, as CODE V does)
             if (gdb%isNameInCatalog(trim(GLANAM(k-1,1))) .and. GLANAM(k-1,1) /= 'PRV') &
                 nm = trim(nm)//'_'//trim(GLANAM(k-1,1))
