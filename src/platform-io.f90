@@ -49,6 +49,9 @@ contains
     if (saved_stdout >= 0) error stop 'stdout already suppressed'
     flush(output_unit)
 #if defined(WINDOWS) && (defined(__INTEL_COMPILER) || defined(__INTEL_LLVM_COMPILER))
+    ! A previous restore followed by WRITE reconnects this unit to CONOUT$.
+    ! Disconnect it before opening a new scratch file (server requests repeat).
+    close(output_unit)
     open(unit=output_unit, status='scratch', action='write')
     saved_stdout = 0
 #else

@@ -21,6 +21,7 @@ module plot_functions
 
    use iso_fortran_env, only: real64
   implicit none
+  private :: spotPanelFocus, appendSpotRays
 
     interface
       module subroutine psf_go(psm)
@@ -661,7 +662,7 @@ subroutine spo_go(psm)
       call runKDPSpot(iField, iLambda, iMethod, nRect, nRand, nRing)
       call kdp_silent_end()
       do iPanel = 1, nPanels
-        call getSpotData(xSpot, ySpot, panelFocus(iPanel))
+        call getSpotData(xSpot, ySpot, spotPanelFocus(iPanel, thf))
         if (size(ySpot) > 0) then
           ySpot = ySpot - sum(ySpot)/size(ySpot)
           commonExtent = max(commonExtent, maxval(abs(xSpot)), maxval(abs(ySpot)))
@@ -676,7 +677,7 @@ subroutine spo_go(psm)
       else
         i = iPanel
       end if
-      delta = panelFocus(iPanel)
+      delta = spotPanelFocus(iPanel, thf)
       if (.not. thf) then
         ! silent: the Data tab gets the plotted rays below, not SPD's report
         call kdp_silent_begin()
@@ -700,7 +701,7 @@ subroutine spo_go(psm)
         xAvgDia = sum(xSpot)/size(xSpot)
         maxR = maxval(sqrt((xSpot - xAvgDia)**2 + ySpot**2))
       end if
-      call addRays(i, iLambda, delta)
+      call appendSpotRays(rays, nRays, xSpot, ySpot, i, iLambda, delta)
       spotExtent = real(max(maxval(abs(xSpot)), maxval(abs(ySpot))))
                                   
 
@@ -760,7 +761,7 @@ subroutine spo_go(psm)
         ! Subtract relative to first wavelength.  Should probably be relative to
         ! ref wavelength; revisit this after testing
         ySpot = ySpot - yAvg
-        call addRays(i, j, delta)
+        call appendSpotRays(rays, nRays, xSpot, ySpot, i, j, delta)
         if (size(xSpot) > 0) maxR = max(maxR, maxval(sqrt((xSpot - xAvgDia)**2 + ySpot**2)))
         spotExtent = max(spotExtent, &
         & real(max(maxval(abs(xSpot)), maxval(abs(ySpot)))))
@@ -834,11 +835,15 @@ subroutine spo_go(psm)
 
     !call finalizeGoPlot(mplt, psm, ID_PLOTTYPE_SPOT_NEW, "Spot Diagram")
 
-  contains
+end subroutine spo_go
 
+    ! Explicit arguments avoid an ifx 2024.2 host-association failure here.
     ! the focus of panel k: THF's k-th position; otherwise FFO
-    real(kind=real64) function panelFocus(k)
+    real(kind=real64) function spotPanelFocus(k, thf) result(panelFocus)
+      use focus_settings, only: focus_first, focus_position
+      use mod_system, only: sys_mode
       integer, intent(in) :: k
+      logical, intent(in) :: thf
       panelFocus = 0.0d0
       if (sys_mode() > 2.0d0) return
       if (thf) then
@@ -849,7 +854,10 @@ subroutine spo_go(psm)
     end function
 
     ! Append the rays now in xSpot/ySpot (field f, wavelength w, focus d).
-    subroutine addRays(f, w, d)
+    subroutine appendSpotRays(rays, nRays, xSpot, ySpot, f, w, d)
+      real(kind=real64), allocatable, intent(inout) :: rays(:,:)
+      integer, intent(inout) :: nRays
+      real(kind=real64), intent(in) :: xSpot(:), ySpot(:)
       integer, intent(in) :: f, w
       real(kind=real64), intent(in) :: d
       integer :: n
@@ -871,9 +879,6 @@ subroutine spo_go(psm)
       rays(nRays+1:nRays+n, 5) = ySpot
       nRays = nRays + n
     end subroutine
-
-end subroutine
-
 
 subroutine seidel_go(psm)
     USE GLOBALS
