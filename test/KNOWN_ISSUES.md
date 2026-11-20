@@ -1123,3 +1123,14 @@ Punted by the user after the High-priority pass (935dba3):
   the PIKUP existence flags.  Legacy SC printed "INVALID QUALIFIER" after
   every plain SC (the scaling changed SQ mid-routine).  Model glasses are
   saved as nd:vd (the D-code label rounded them).
+
+## Optimizer can step into a lens where no ray traces (2026-11-20)
+
+With a heavily weighted objective term (e.g. `EFL = 52 ; WTC 10` with
+`CCY S1` and `CCY S4` varying on osdtriplet) the first SLSQP step can land on
+a lens where every ray fails.  CDV now counts each failed ray with an
+aberration the size of the entrance-pupil radius (before, failed rays were
+left out and such a lens scored 0), but the error function is flat there, so
+the solver stops with "Required accuracy".  Wanted: a step limit / backtrack
+when the ray trace fails, or a penalty that grows with the distance into the
+failure region.

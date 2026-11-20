@@ -2017,7 +2017,9 @@ subroutine fma_go(psm)
   vmaxAbs = 0.0_real64; at = 0.0_real64
   do j = 1, nfy
     do i = 1, nfx
-      if (ok(i,j) .and. abs(val(i,j)) >= vmaxAbs) then
+      ! (values equal to rounding count as ties: the last one wins on every
+      ! compiler -- symmetric field points used to depend on the last bit)
+      if (ok(i,j) .and. abs(val(i,j)) >= vmaxAbs*(1.0_real64 - 1.0e-9_real64)) then
         vmaxAbs = abs(val(i,j)); at = [xs(i), ys(j)]
       end if
     end do

@@ -161,17 +161,20 @@ AUT ; AX W5..4 = 0 ; LAT W5..4 = 0 ; EFL = 50 ; GO
 EVA (AX W5..4)
 EVA (LAT W5..4)
 ! --- INT (headless: the run continues), ERR modes, WTC, CDV grid controls
+! (CCY S3 + THC S3 vary: with the flat S2 a variable, the result depended on
+! the compiler; with S1 the weighted WTC run stepped into a lens where no ray
+! traces -- see KNOWN_ISSUES)
 RES osdtriplet
 EVA (CDV)
-CCY S1 0 ; CCY S2 0
+CCY S3 0 ; THC S3 0
 AUT ; INT Y ; INT MAYBE ; EFL = 52 ; GO
 EVA (EFL)
 RES osdtriplet
-CCY S1 0 ; CCY S2 0
+CCY S3 0 ; THC S3 0
 AUT ; ERR CON ; EFL = 52 ; GO
 EVA (EFL)
 RES osdtriplet
-CCY S1 0 ; CCY S2 0
+CCY S3 0 ; THC S3 0
 AUT ; EFL = 52 ; WTC 10 ; GO
 RES osdtriplet
 AUT ; DEL 0.2 ; WTA 0.3 ; OBS 0.1 ; MER Y ; GO

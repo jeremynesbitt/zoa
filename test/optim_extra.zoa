@@ -1,12 +1,14 @@
 RES osdtriplet
 ! ---- Constraint commands work inside AUT loop ----
-! Run a short optimisation: CCY S3 + THC S3 as variables, TAS as constraint.
-! LCON lists constraints after the loop; DCON ALL clears them.
+! Run a short optimisation: CCY S3 + THC S3 as variables, TAS and EFL as
+! constraints (attainable together: it converges in a few cycles -- the old
+! TAS + TCO pair could not both be met and ended in compiler-dependent ray-aim
+! failures).  LCON lists constraints after the loop; DCON ALL clears them.
 AUT
 CCY S3 0
 THC S3 0
 TAS = 0.01
-TCO = 0.005
+EFL = 50
 GO
 LCON
 DCON ALL

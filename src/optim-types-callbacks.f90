@@ -58,9 +58,12 @@ contains
     ! weighted mean square.  The pupil is the vignetted one (VUY.. -- SET
     ! VIG derives them from the apertures); the rays are not clipped at each
     ! clear aperture, which would make the error function jump as rays come
-    ! and go.  A ray that does not trace is left out.
+    ! and go.  A ray that does not trace counts with an aberration as large as
+    ! the entrance-pupil radius (all of a field's rays when its chief ray
+    ! fails): left out, a lens on which nothing traced scored 0, and the
+    ! optimizer could run into one.
     module function getCodeVErrorFunction(self) result(res)
-        use global_widgets, only: sysConfig
+        use global_widgets, only: sysConfig, curr_par_ray_trace
         use mod_kdp_api, only: kdp_fob, kdp_silent_begin, kdp_silent_end
         use mod_ray_trace_engine, only: trace_context, ray_request, ray_result, trace_ray, RAY_OK
         use mod_ray_trace_builder, only: build_trace_context
@@ -72,8 +75,9 @@ contains
         type(ray_request) :: req
         type(ray_result) :: rr
         real(long), allocatable :: gx(:), gy(:)
-        real(long) :: del, wt(10), ww(10), vig(4), xc, yc, px, py, w, sw, swe, rho2
+        real(long) :: del, wt(10), ww(10), vig(4), xc, yc, px, py, w, sw, swe, rho2, pen
         integer :: f, l, k, n, iref, img, nwl, i, j, m
+        logical :: chiefOk
 
         res = 0.0_long
         nwl = sysConfig%numWavelengths
@@ -123,6 +127,10 @@ contains
         ww(1:nwl) = max(sysConfig%spectralWeights(1:nwl), 0.0_long)
         if (maxval(ww) <= 0.0_long) ww(1:nwl) = 1.0_long
 
+        ! the aberration a failed ray counts with
+        pen = 0.5_long*abs(curr_par_ray_trace%ENPUPDIA)
+        if (pen <= 0.0_long) pen = 1.0_long
+
         sw = 0.0_long; swe = 0.0_long
         do f = 1, sysConfig%numFields
             if (wt(f) == 0.0_long) cycle
@@ -135,23 +143,32 @@ contains
             req%px = 0.0_long; req%py = 0.0_long; req%iwl = iref
             req%for_optimization = .true.
             call trace_ray(ctx, req, rr)
-            if (rr%status /= RAY_OK) cycle
-            xc = rr%rr(1, img); yc = rr%rr(2, img)
+            chiefOk = (rr%status == RAY_OK)
+            if (chiefOk) then
+                xc = rr%rr(1, img); yc = rr%rr(2, img)
+            end if
             vig = sysConfig%getVignetting(f)
             do l = 1, nwl
                 if (ww(l) == 0.0_long) cycle
                 do k = 1, n
                     rho2 = gx(k)**2 + gy(k)**2
                     if (optim%cdvObs > 0.0_long .and. rho2 < optim%cdvObs**2) cycle
+                    w = wt(f)*ww(l)*max(0.0_long, 1.0_long - optim%cdvWta*min(rho2, 1.0_long))
+                    sw = sw + w
+                    if (.not. chiefOk) then
+                        swe = swe + w*pen**2
+                        cycle
+                    end if
                     ! onto the vignetted pupil
                     py = gy(k)*merge(1.0_long - vig(1), 1.0_long - vig(2), gy(k) >= 0.0_long)
                     px = gx(k)*merge(1.0_long - vig(3), 1.0_long - vig(4), gx(k) >= 0.0_long)
                     req%px = px; req%py = py; req%iwl = l
                     call trace_ray(ctx, req, rr)
-                    if (rr%status /= RAY_OK) cycle
-                    w = wt(f)*ww(l)*max(0.0_long, 1.0_long - optim%cdvWta*min(rho2, 1.0_long))
-                    sw = sw + w
-                    swe = swe + w*((rr%rr(1, img) - xc)**2 + (rr%rr(2, img) - yc)**2)
+                    if (rr%status /= RAY_OK) then
+                        swe = swe + w*pen**2
+                    else
+                        swe = swe + w*((rr%rr(1, img) - xc)**2 + (rr%rr(2, img) - yc)**2)
+                    end if
                 end do
             end do
         end do

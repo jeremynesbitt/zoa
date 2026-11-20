@@ -8,7 +8,7 @@ All constraints removed
 FIELD MAP (DST, %; 5 x 5 field points)
 Field: Object Angle [deg]
 Min   0.0000E+00   Max   8.1797E-02   RMS   5.5557E-02
-Largest |value|   8.1797E-02 at X -10.0000, Y 10.0000
+Largest |value|   8.1797E-02 at X 10.0000, Y 10.0000
    Y \ X  -10.0000   -5.0000    0.0000    5.0000   10.0000
  10.0000  8.18E-02  6.47E-02  5.53E-02  6.47E-02  8.18E-02
   5.0000  6.47E-02  3.05E-02  1.60E-02  3.05E-02  6.47E-02
@@ -45,7 +45,7 @@ PLOT: zoa_plot_1.png 1200x500
 FIELD MAP (RWE, waves; 3 x 3 field points; NRD 20)
 Field: Object Angle [deg]
 Min   1.6208E-01   Max   8.3147E-01   RMS   6.5953E-01
-Largest |value|   8.3147E-01 at X -10.0000, Y -10.0000
+Largest |value|   8.3147E-01 at X 10.0000, Y 10.0000
         XField        YField   RWE[waves]
  -1.000000E+01 -1.000000E+01  8.314732E-01
   0.000000E+00 -1.000000E+01  5.298921E-01

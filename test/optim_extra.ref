@@ -23,503 +23,68 @@ IMG:    INFINITY    0.00000                              100     100     100
                                                           l
 Name  Role        Typ  Target              Value               diff
 TAS   Constraint  =    0.0100000000000000   0.0034319515286199  -0.0065680484713801
-TCO   Constraint  =    0.0050000000000000  -0.0068038803944280  -0.0118038803944280
+EFL   Constraint  =   50.0000000000000000  49.9315386770798781  -0.0684613229201219
 CDV   Operand          0.0000000000000000   0.0091356201191049   0.0091356201191049
 MNE           S3  >    2.0000000000000000   2.7968714291497068   0.7968714291497068
                                                           l
 CYCLE NUMBER 1
-   ERROR FUNCTION = 0.00120
+   ERROR FUNCTION = 0.00010
           RDY          THI     RMD          GLA          CCY     THC     GLC
 OBJ:    INFINITY    INFINITY                              100     100     100
 001:    15.00000    3.50000               N-SK16_SCHOTT  100     100     100
 002:    INFINITY    3.10000                              100     100     100
-STO:    -42.947    2.64193               N-F2_SCHOTT    0       0       100
+STO:    -37.383    2.20897               N-F2_SCHOTT    0       0       100
 004:    14.08000    5.00000                              100     100     100
 005:    50.26000    3.50000               N-SK16_SCHOTT  100     100     100
-006:    -31.380    34.12166                              100     100     100
+006:    -31.380    37.73124                              100     100     100
 IMG:    INFINITY    0.00000                              100     100     100
                                                           l
 Name  Role        Typ  Target              Value               diff
-TAS   Constraint  =    0.0100000000000000   0.0082677427125231  -0.0017322572874769
-TCO   Constraint  =    0.0050000000000000   0.0013995950747982  -0.0036004049252018
-CDV   Operand          0.0000000000000000   0.0346261140064056   0.0346261140064056
-MNE           S3  >    2.0000000000000000   3.4118072217324569   1.4118072217324569
+TAS   Constraint  =    0.0100000000000000   0.0099740040309009  -0.0000259959690991
+EFL   Constraint  =   50.0000000000000000  50.0001531060150839   0.0001531060150839
+CDV   Operand          0.0000000000000000   0.0101407580933088   0.0101407580933088
+MNE           S3  >    2.0000000000000000   3.0068852547911353   1.0068852547911353
                                                           l
 CYCLE NUMBER 2
-   ERROR FUNCTION = 0.00266
+   ERROR FUNCTION = 0.00010
           RDY          THI     RMD          GLA          CCY     THC     GLC
 OBJ:    INFINITY    INFINITY                              100     100     100
 001:    15.00000    3.50000               N-SK16_SCHOTT  100     100     100
 002:    INFINITY    3.10000                              100     100     100
-STO:    -47.509    3.05535               N-F2_SCHOTT    0       0       100
+STO:    -37.383    2.20986               N-F2_SCHOTT    0       0       100
 004:    14.08000    5.00000                              100     100     100
 005:    50.26000    3.50000               N-SK16_SCHOTT  100     100     100
-006:    -31.380    31.83866                              100     100     100
+006:    -31.380    37.73012                              100     100     100
 IMG:    INFINITY    0.00000                              100     100     100
                                                           l
 Name  Role        Typ  Target              Value               diff
-TAS   Constraint  =    0.0100000000000000   0.0092972260478704  -0.0007027739521296
-TCO   Constraint  =    0.0050000000000000   0.0037930830573667  -0.0012069169426333
-CDV   Operand          0.0000000000000000   0.0515697660350156   0.0515697660350156
-MNE           S3  >    2.0000000000000000   3.8071663438360011   1.8071663438360011
+TAS   Constraint  =    0.0100000000000000   0.0099999991409836  -0.0000000008590164
+EFL   Constraint  =   50.0000000000000000  50.0000000004393073   0.0000000004393073
+CDV   Operand          0.0000000000000000   0.0101463333624312   0.0101463333624312
+MNE           S3  >    2.0000000000000000   3.0077768174301567   1.0077768174301567
                                                           l
 CYCLE NUMBER 3
-   ERROR FUNCTION = 0.00340
+   ERROR FUNCTION = 0.00010
           RDY          THI     RMD          GLA          CCY     THC     GLC
 OBJ:    INFINITY    INFINITY                              100     100     100
 001:    15.00000    3.50000               N-SK16_SCHOTT  100     100     100
 002:    INFINITY    3.10000                              100     100     100
-STO:    -49.819    3.24068               N-F2_SCHOTT    0       0       100
+STO:    -37.383    2.20986               N-F2_SCHOTT    0       0       100
 004:    14.08000    5.00000                              100     100     100
 005:    50.26000    3.50000               N-SK16_SCHOTT  100     100     100
-006:    -31.380    30.88247                              100     100     100
+006:    -31.380    37.73012                              100     100     100
 IMG:    INFINITY    0.00000                              100     100     100
                                                           l
 Name  Role        Typ  Target              Value               diff
-TAS   Constraint  =    0.0100000000000000   0.0094135385485861  -0.0005864614514139
-TCO   Constraint  =    0.0050000000000000   0.0040334564526291  -0.0009665435473709
-CDV   Operand          0.0000000000000000   0.0583221195159776   0.0583221195159776
-MNE           S3  >    2.0000000000000000   3.9846188468623520   1.9846188468623520
-                                                          l
-CYCLE NUMBER 4
-   ERROR FUNCTION = 0.00345
-          RDY          THI     RMD          GLA          CCY     THC     GLC
-OBJ:    INFINITY    INFINITY                              100     100     100
-001:    15.00000    3.50000               N-SK16_SCHOTT  100     100     100
-002:    INFINITY    3.10000                              100     100     100
-STO:    -49.965    3.24943               N-F2_SCHOTT    0       0       100
-004:    14.08000    5.00000                              100     100     100
-005:    50.26000    3.50000               N-SK16_SCHOTT  100     100     100
-006:    -31.380    30.82870                              100     100     100
-IMG:    INFINITY    0.00000                              100     100     100
-                                                          l
-Name  Role        Typ  Target              Value               diff
-TAS   Constraint  =    0.0100000000000000   0.0093616003908175  -0.0006383996091825
-TCO   Constraint  =    0.0050000000000000   0.0040945410589947  -0.0009054589410053
-CDV   Operand          0.0000000000000000   0.0587183978694365   0.0587183978694365
-MNE           S3  >    2.0000000000000000   3.9929046480092394   1.9929046480092392
-                                                          l
-CYCLE NUMBER 5
-   ERROR FUNCTION = 0.00343
-          RDY          THI     RMD          GLA          CCY     THC     GLC
-OBJ:    INFINITY    INFINITY                              100     100     100
-001:    15.00000    3.50000               N-SK16_SCHOTT  100     100     100
-002:    INFINITY    3.10000                              100     100     100
-STO:    -49.923    3.24931               N-F2_SCHOTT    0       0       100
-004:    14.08000    5.00000                              100     100     100
-005:    50.26000    3.50000               N-SK16_SCHOTT  100     100     100
-006:    -31.380    30.84138                              100     100     100
-IMG:    INFINITY    0.00000                              100     100     100
-                                                          l
-Name  Role        Typ  Target              Value               diff
-TAS   Constraint  =    0.0100000000000000   0.0094277095735442  -0.0005722904264558
-TCO   Constraint  =    0.0050000000000000   0.0040174638722054  -0.0009825361277946
-CDV   Operand          0.0000000000000000   0.0586008917236650   0.0586008917236650
-MNE           S3  >    2.0000000000000000   3.9929168893283364   1.9929168893283367
-                                                          l
-CYCLE NUMBER 6
-   ERROR FUNCTION = 0.00343
-          RDY          THI     RMD          GLA          CCY     THC     GLC
-OBJ:    INFINITY    INFINITY                              100     100     100
-001:    15.00000    3.50000               N-SK16_SCHOTT  100     100     100
-002:    INFINITY    3.10000                              100     100     100
-STO:    -49.904    3.24929               N-F2_SCHOTT    0       0       100
-004:    14.08000    5.00000                              100     100     100
-005:    50.26000    3.50000               N-SK16_SCHOTT  100     100     100
-006:    -31.380    30.84704                              100     100     100
-IMG:    INFINITY    0.00000                              100     100     100
-                                                          l
-Name  Role        Typ  Target              Value               diff
-TAS   Constraint  =    0.0100000000000000   0.0094582296791842  -0.0005417703208158
-TCO   Constraint  =    0.0050000000000000   0.0039818645111099  -0.0010181354888901
-CDV   Operand          0.0000000000000000   0.0585480107811416   0.0585480107811416
-MNE           S3  >    2.0000000000000000   3.9929602475108199   1.9929602475108201
-                                                          l
-CYCLE NUMBER 7
-   ERROR FUNCTION = 0.00343
-          RDY          THI     RMD          GLA          CCY     THC     GLC
-OBJ:    INFINITY    INFINITY                              100     100     100
-001:    15.00000    3.50000               N-SK16_SCHOTT  100     100     100
-002:    INFINITY    3.10000                              100     100     100
-STO:    -49.902    3.24929               N-F2_SCHOTT    0       0       100
-004:    14.08000    5.00000                              100     100     100
-005:    50.26000    3.50000               N-SK16_SCHOTT  100     100     100
-006:    -31.380    30.84758                              100     100     100
-IMG:    INFINITY    0.00000                              100     100     100
-                                                          l
-Name  Role        Typ  Target              Value               diff
-TAS   Constraint  =    0.0100000000000000   0.0094611930559973  -0.0005388069440027
-TCO   Constraint  =    0.0050000000000000   0.0039784074957627  -0.0010215925042373
-CDV   Operand          0.0000000000000000   0.0585429325394935   0.0585429325394935
-MNE           S3  >    2.0000000000000000   3.9929660050833906   1.9929660050833906
-                                                          l
-CYCLE NUMBER 8
-   ERROR FUNCTION = 0.00343
-          RDY          THI     RMD          GLA          CCY     THC     GLC
-OBJ:    INFINITY    INFINITY                              100     100     100
-001:    15.00000    3.50000               N-SK16_SCHOTT  100     100     100
-002:    INFINITY    3.10000                              100     100     100
-STO:    -49.902    3.24929               N-F2_SCHOTT    0       0       100
-004:    14.08000    5.00000                              100     100     100
-005:    50.26000    3.50000               N-SK16_SCHOTT  100     100     100
-006:    -31.380    30.84762                              100     100     100
-IMG:    INFINITY    0.00000                              100     100     100
-                                                          l
-Name  Role        Typ  Target              Value               diff
-TAS   Constraint  =    0.0100000000000000   0.0094613945509893  -0.0005386054490107
-TCO   Constraint  =    0.0050000000000000   0.0039781724329774  -0.0010218275670226
-CDV   Operand          0.0000000000000000   0.0585425876032800   0.0585425876032800
-MNE           S3  >    2.0000000000000000   3.9929664064408641   1.9929664064408643
-                                                          l
-CYCLE NUMBER 9
-   ERROR FUNCTION = 0.00343
-          RDY          THI     RMD          GLA          CCY     THC     GLC
-OBJ:    INFINITY    INFINITY                              100     100     100
-001:    15.00000    3.50000               N-SK16_SCHOTT  100     100     100
-002:    INFINITY    3.10000                              100     100     100
-STO:    -49.902    3.24929               N-F2_SCHOTT    0       0       100
-004:    14.08000    5.00000                              100     100     100
-005:    50.26000    3.50000               N-SK16_SCHOTT  100     100     100
-006:    -31.380    30.84752                              100     100     100
-IMG:    INFINITY    0.00000                              100     100     100
-                                                          l
-Name  Role        Typ  Target              Value               diff
-TAS   Constraint  =    0.0100000000000000   0.0094608652432664  -0.0005391347567336
-TCO   Constraint  =    0.0050000000000000   0.0039787899192643  -0.0010212100807357
-CDV   Operand          0.0000000000000000   0.0585434936873672   0.0585434936873672
-MNE           S3  >    2.0000000000000000   3.9929653513125767   1.9929653513125767
-                                                          l
-CYCLE NUMBER 10
-   ERROR FUNCTION = 0.00343
-          RDY          THI     RMD          GLA          CCY     THC     GLC
-OBJ:    INFINITY    INFINITY                              100     100     100
-001:    15.00000    3.50000               N-SK16_SCHOTT  100     100     100
-002:    INFINITY    3.10000                              100     100     100
-STO:    -49.902    3.24929               N-F2_SCHOTT    0       0       100
-004:    14.08000    5.00000                              100     100     100
-005:    50.26000    3.50000               N-SK16_SCHOTT  100     100     100
-006:    -31.380    30.84763                              100     100     100
-IMG:    INFINITY    0.00000                              100     100     100
-                                                          l
-Name  Role        Typ  Target              Value               diff
-TAS   Constraint  =    0.0100000000000000   0.0094614823012231  -0.0005385176987769
-TCO   Constraint  =    0.0050000000000000   0.0039780700639974  -0.0010219299360026
-CDV   Operand          0.0000000000000000   0.0585424372337455   0.0585424372337455
-MNE           S3  >    2.0000000000000000   3.9929665770952742   1.9929665770952742
-                                                          l
-CYCLE NUMBER 11
-   ERROR FUNCTION = 0.00343
-          RDY          THI     RMD          GLA          CCY     THC     GLC
-OBJ:    INFINITY    INFINITY                              100     100     100
-001:    15.00000    3.50000               N-SK16_SCHOTT  100     100     100
-002:    INFINITY    3.10000                              100     100     100
-STO:    -49.902    3.24929               N-F2_SCHOTT    0       0       100
-004:    14.08000    5.00000                              100     100     100
-005:    50.26000    3.50000               N-SK16_SCHOTT  100     100     100
-006:    -31.380    30.84760                              100     100     100
-IMG:    INFINITY    0.00000                              100     100     100
-                                                          l
-Name  Role        Typ  Target              Value               diff
-TAS   Constraint  =    0.0100000000000000   0.0094613011473918  -0.0005386988526082
-TCO   Constraint  =    0.0050000000000000   0.0039782813970685  -0.0010217186029315
-CDV   Operand          0.0000000000000000   0.0585427474055662   0.0585427474055662
-MNE           S3  >    2.0000000000000000   3.9929662178208885   1.9929662178208885
-RAY FAILED TO CONVERGE TO REFERENCE SURFACE RAY-AIM POINT
-RAY FAILED TO CONVERGE TO REFERENCE SURFACE RAY-AIM POINT
-RAY FAILED TO CONVERGE TO REFERENCE SURFACE RAY-AIM POINT
-RAY FAILED TO CONVERGE TO REFERENCE SURFACE RAY-AIM POINT
-RAY FAILED TO CONVERGE TO REFERENCE SURFACE RAY-AIM POINT
-RAY FAILED TO CONVERGE TO REFERENCE SURFACE RAY-AIM POINT
-RAY FAILED TO CONVERGE TO REFERENCE SURFACE RAY-AIM POINT
-RAY FAILED TO CONVERGE TO REFERENCE SURFACE RAY-AIM POINT
-                                                          l
-CYCLE NUMBER 12
-   ERROR FUNCTION = 0.00343
-          RDY          THI     RMD          GLA          CCY     THC     GLC
-OBJ:    INFINITY    INFINITY                              100     100     100
-001:    15.00000    3.50000               N-SK16_SCHOTT  100     100     100
-002:    INFINITY    3.10000                              100     100     100
-STO:    -49.902    3.24929               N-F2_SCHOTT    0       0       100
-004:    14.08000    5.00000                              100     100     100
-005:    50.26000    3.50000               N-SK16_SCHOTT  100     100     100
-006:    -31.380    30.84763                              100     100     100
-IMG:    INFINITY    0.00000                              100     100     100
-                                                          l
-Name  Role        Typ  Target              Value               diff
-TAS   Constraint  =    0.0100000000000000   0.0094614627510107  -0.0005385372489893
-TCO   Constraint  =    0.0050000000000000   0.0039780928711823  -0.0010219071288177
-CDV   Operand          0.0000000000000000   0.0585424707692424   0.0585424707692424
-MNE           S3  >    2.0000000000000000   3.9929665400068890   1.9929665400068888
-                                                          l
-CYCLE NUMBER 13
-   ERROR FUNCTION = 0.00343
-          RDY          THI     RMD          GLA          CCY     THC     GLC
-OBJ:    INFINITY    INFINITY                              100     100     100
-001:    15.00000    3.50000               N-SK16_SCHOTT  100     100     100
-002:    INFINITY    3.10000                              100     100     100
-STO:    -49.902    3.24929               N-F2_SCHOTT    0       0       100
-004:    14.08000    5.00000                              100     100     100
-005:    50.26000    3.50000               N-SK16_SCHOTT  100     100     100
-006:    -31.380    30.84760                              100     100     100
-IMG:    INFINITY    0.00000                              100     100     100
-                                                          l
-Name  Role        Typ  Target              Value               diff
-TAS   Constraint  =    0.0100000000000000   0.0094612986793913  -0.0005387013206087
-TCO   Constraint  =    0.0050000000000000   0.0039782842762224  -0.0010217157237776
-CDV   Operand          0.0000000000000000   0.0585427516792694   0.0585427516792694
-MNE           S3  >    2.0000000000000000   3.9929662142389337   1.9929662142389337
-RAY FAILED TO CONVERGE TO REFERENCE SURFACE RAY-AIM POINT
-RAY FAILED TO CONVERGE TO REFERENCE SURFACE RAY-AIM POINT
-RAY FAILED TO CONVERGE TO REFERENCE SURFACE RAY-AIM POINT
-RAY FAILED TO CONVERGE TO REFERENCE SURFACE RAY-AIM POINT
-                                                          l
-CYCLE NUMBER 14
-   ERROR FUNCTION = 0.00343
-          RDY          THI     RMD          GLA          CCY     THC     GLC
-OBJ:    INFINITY    INFINITY                              100     100     100
-001:    15.00000    3.50000               N-SK16_SCHOTT  100     100     100
-002:    INFINITY    3.10000                              100     100     100
-STO:    -49.902    3.24929               N-F2_SCHOTT    0       0       100
-004:    14.08000    5.00000                              100     100     100
-005:    50.26000    3.50000               N-SK16_SCHOTT  100     100     100
-006:    -31.380    30.84763                              100     100     100
-IMG:    INFINITY    0.00000                              100     100     100
-                                                          l
-Name  Role        Typ  Target              Value               diff
-TAS   Constraint  =    0.0100000000000000   0.0094614630931467  -0.0005385369068533
-TCO   Constraint  =    0.0050000000000000   0.0039780924720483  -0.0010219075279517
-CDV   Operand          0.0000000000000000   0.0585424702322493   0.0585424702322493
-MNE           S3  >    2.0000000000000000   3.9929665420206133   1.9929665420206133
-                                                          l
-CYCLE NUMBER 15
-   ERROR FUNCTION = 0.00343
-          RDY          THI     RMD          GLA          CCY     THC     GLC
-OBJ:    INFINITY    INFINITY                              100     100     100
-001:    15.00000    3.50000               N-SK16_SCHOTT  100     100     100
-002:    INFINITY    3.10000                              100     100     100
-STO:    -49.902    3.24929               N-F2_SCHOTT    0       0       100
-004:    14.08000    5.00000                              100     100     100
-005:    50.26000    3.50000               N-SK16_SCHOTT  100     100     100
-006:    -31.380    30.84760                              100     100     100
-IMG:    INFINITY    0.00000                              100     100     100
-                                                          l
-Name  Role        Typ  Target              Value               diff
-TAS   Constraint  =    0.0100000000000000   0.0094612987202316  -0.0005387012797684
-TCO   Constraint  =    0.0050000000000000   0.0039782842285781  -0.0010217157714219
-CDV   Operand          0.0000000000000000   0.0585427516583289   0.0585427516583289
-MNE           S3  >    2.0000000000000000   3.9929662156598589   1.9929662156598591
-RAY FAILED TO CONVERGE TO REFERENCE SURFACE RAY-AIM POINT
-RAY FAILED TO CONVERGE TO REFERENCE SURFACE RAY-AIM POINT
-RAY FAILED TO CONVERGE TO REFERENCE SURFACE RAY-AIM POINT
-RAY FAILED TO CONVERGE TO REFERENCE SURFACE RAY-AIM POINT
-RAY FAILED TO CONVERGE TO REFERENCE SURFACE RAY-AIM POINT
-RAY FAILED TO CONVERGE TO REFERENCE SURFACE RAY-AIM POINT
-                                                          l
-CYCLE NUMBER 16
-   ERROR FUNCTION = 0.00343
-          RDY          THI     RMD          GLA          CCY     THC     GLC
-OBJ:    INFINITY    INFINITY                              100     100     100
-001:    15.00000    3.50000               N-SK16_SCHOTT  100     100     100
-002:    INFINITY    3.10000                              100     100     100
-STO:    -49.902    3.24929               N-F2_SCHOTT    0       0       100
-004:    14.08000    5.00000                              100     100     100
-005:    50.26000    3.50000               N-SK16_SCHOTT  100     100     100
-006:    -31.380    30.84763                              100     100     100
-IMG:    INFINITY    0.00000                              100     100     100
-                                                          l
-Name  Role        Typ  Target              Value               diff
-TAS   Constraint  =    0.0100000000000000   0.0094614631563086  -0.0005385368436914
-TCO   Constraint  =    0.0050000000000000   0.0039780923983638  -0.0010219076016362
-CDV   Operand          0.0000000000000000   0.0585424701730960   0.0585424701730960
-MNE           S3  >    2.0000000000000000   3.9929665434859958   1.9929665434859958
-                                                          l
-CYCLE NUMBER 17
-   ERROR FUNCTION = 0.00343
-          RDY          THI     RMD          GLA          CCY     THC     GLC
-OBJ:    INFINITY    INFINITY                              100     100     100
-001:    15.00000    3.50000               N-SK16_SCHOTT  100     100     100
-002:    INFINITY    3.10000                              100     100     100
-STO:    -49.902    3.24929               N-F2_SCHOTT    0       0       100
-004:    14.08000    5.00000                              100     100     100
-005:    50.26000    3.50000               N-SK16_SCHOTT  100     100     100
-006:    -31.380    30.84760                              100     100     100
-IMG:    INFINITY    0.00000                              100     100     100
-                                                          l
-Name  Role        Typ  Target              Value               diff
-TAS   Constraint  =    0.0100000000000000   0.0094612987820133  -0.0005387012179867
-TCO   Constraint  =    0.0050000000000000   0.0039782841565043  -0.0010217158434957
-CDV   Operand          0.0000000000000000   0.0585427516015437   0.0585427516015437
-MNE           S3  >    2.0000000000000000   3.9929662171226119   1.9929662171226119
-RAY FAILED TO CONVERGE TO REFERENCE SURFACE RAY-AIM POINT
-RAY FAILED TO CONVERGE TO REFERENCE SURFACE RAY-AIM POINT
-RAY FAILED TO CONVERGE TO REFERENCE SURFACE RAY-AIM POINT
-RAY FAILED TO CONVERGE TO REFERENCE SURFACE RAY-AIM POINT
-                                                          l
-CYCLE NUMBER 18
-   ERROR FUNCTION = 0.00343
-          RDY          THI     RMD          GLA          CCY     THC     GLC
-OBJ:    INFINITY    INFINITY                              100     100     100
-001:    15.00000    3.50000               N-SK16_SCHOTT  100     100     100
-002:    INFINITY    3.10000                              100     100     100
-STO:    -49.902    3.24929               N-F2_SCHOTT    0       0       100
-004:    14.08000    5.00000                              100     100     100
-005:    50.26000    3.50000               N-SK16_SCHOTT  100     100     100
-006:    -31.380    30.84763                              100     100     100
-IMG:    INFINITY    0.00000                              100     100     100
-                                                          l
-Name  Role        Typ  Target              Value               diff
-TAS   Constraint  =    0.0100000000000000   0.0094614632014331  -0.0005385367985669
-TCO   Constraint  =    0.0050000000000000   0.0039780923457219  -0.0010219076542781
-CDV   Operand          0.0000000000000000   0.0585424701448253   0.0585424701448253
-MNE           S3  >    2.0000000000000000   3.9929665449155491   1.9929665449155491
-                                                          l
-CYCLE NUMBER 19
-   ERROR FUNCTION = 0.00343
-          RDY          THI     RMD          GLA          CCY     THC     GLC
-OBJ:    INFINITY    INFINITY                              100     100     100
-001:    15.00000    3.50000               N-SK16_SCHOTT  100     100     100
-002:    INFINITY    3.10000                              100     100     100
-STO:    -49.902    3.24929               N-F2_SCHOTT    0       0       100
-004:    14.08000    5.00000                              100     100     100
-005:    50.26000    3.50000               N-SK16_SCHOTT  100     100     100
-006:    -31.380    30.84760                              100     100     100
-IMG:    INFINITY    0.00000                              100     100     100
-                                                          l
-Name  Role        Typ  Target              Value               diff
-TAS   Constraint  =    0.0100000000000000   0.0094612988370362  -0.0005387011629638
-TCO   Constraint  =    0.0050000000000000   0.0039782840923149  -0.0010217159076851
-CDV   Operand          0.0000000000000000   0.0585427515563152   0.0585427515563152
-MNE           S3  >    2.0000000000000000   3.9929662185715591   1.9929662185715589
-RAY FAILED TO CONVERGE TO REFERENCE SURFACE RAY-AIM POINT
-RAY FAILED TO CONVERGE TO REFERENCE SURFACE RAY-AIM POINT
-RAY FAILED TO CONVERGE TO REFERENCE SURFACE RAY-AIM POINT
-RAY FAILED TO CONVERGE TO REFERENCE SURFACE RAY-AIM POINT
-RAY FAILED TO CONVERGE TO REFERENCE SURFACE RAY-AIM POINT
-RAY FAILED TO CONVERGE TO REFERENCE SURFACE RAY-AIM POINT
-RAY FAILED TO CONVERGE TO REFERENCE SURFACE RAY-AIM POINT
-RAY FAILED TO CONVERGE TO REFERENCE SURFACE RAY-AIM POINT
-RAY FAILED TO CONVERGE TO REFERENCE SURFACE RAY-AIM POINT
-                                                          l
-CYCLE NUMBER 20
-   ERROR FUNCTION = 0.00343
-          RDY          THI     RMD          GLA          CCY     THC     GLC
-OBJ:    INFINITY    INFINITY                              100     100     100
-001:    15.00000    3.50000               N-SK16_SCHOTT  100     100     100
-002:    INFINITY    3.10000                              100     100     100
-STO:    -49.902    3.24929               N-F2_SCHOTT    0       0       100
-004:    14.08000    5.00000                              100     100     100
-005:    50.26000    3.50000               N-SK16_SCHOTT  100     100     100
-006:    -31.380    30.84763                              100     100     100
-IMG:    INFINITY    0.00000                              100     100     100
-                                                          l
-Name  Role        Typ  Target              Value               diff
-TAS   Constraint  =    0.0100000000000000   0.0094614632585280  -0.0005385367414720
-TCO   Constraint  =    0.0050000000000000   0.0039780922791152  -0.0010219077208848
-CDV   Operand          0.0000000000000000   0.0585424700960494   0.0585424700960494
-MNE           S3  >    2.0000000000000000   3.9929665463686201   1.9929665463686201
-                                                          l
-CYCLE NUMBER 21
-   ERROR FUNCTION = 0.00343
-          RDY          THI     RMD          GLA          CCY     THC     GLC
-OBJ:    INFINITY    INFINITY                              100     100     100
-001:    15.00000    3.50000               N-SK16_SCHOTT  100     100     100
-002:    INFINITY    3.10000                              100     100     100
-STO:    -49.902    3.24929               N-F2_SCHOTT    0       0       100
-004:    14.08000    5.00000                              100     100     100
-005:    50.26000    3.50000               N-SK16_SCHOTT  100     100     100
-006:    -31.380    30.84760                              100     100     100
-IMG:    INFINITY    0.00000                              100     100     100
-                                                          l
-Name  Role        Typ  Target              Value               diff
-TAS   Constraint  =    0.0100000000000000   0.0094612988947196  -0.0005387011052804
-TCO   Constraint  =    0.0050000000000000   0.0039782840250217  -0.0010217159749783
-CDV   Operand          0.0000000000000000   0.0585427515065333   0.0585427515065333
-MNE           S3  >    2.0000000000000000   3.9929662200258074   1.9929662200258074
-RAY FAILED TO CONVERGE TO REFERENCE SURFACE RAY-AIM POINT
-RAY FAILED TO CONVERGE TO REFERENCE SURFACE RAY-AIM POINT
-RAY FAILED TO CONVERGE TO REFERENCE SURFACE RAY-AIM POINT
-RAY FAILED TO CONVERGE TO REFERENCE SURFACE RAY-AIM POINT
-RAY FAILED TO CONVERGE TO REFERENCE SURFACE RAY-AIM POINT
-RAY FAILED TO CONVERGE TO REFERENCE SURFACE RAY-AIM POINT
-RAY FAILED TO CONVERGE TO REFERENCE SURFACE RAY-AIM POINT
-RAY FAILED TO CONVERGE TO REFERENCE SURFACE RAY-AIM POINT
-                                                          l
-CYCLE NUMBER 22
-   ERROR FUNCTION = 0.00343
-          RDY          THI     RMD          GLA          CCY     THC     GLC
-OBJ:    INFINITY    INFINITY                              100     100     100
-001:    15.00000    3.50000               N-SK16_SCHOTT  100     100     100
-002:    INFINITY    3.10000                              100     100     100
-STO:    -49.902    3.24929               N-F2_SCHOTT    0       0       100
-004:    14.08000    5.00000                              100     100     100
-005:    50.26000    3.50000               N-SK16_SCHOTT  100     100     100
-006:    -31.380    30.84763                              100     100     100
-IMG:    INFINITY    0.00000                              100     100     100
-                                                          l
-Name  Role        Typ  Target              Value               diff
-TAS   Constraint  =    0.0100000000000000   0.0094614633127735  -0.0005385366872265
-TCO   Constraint  =    0.0050000000000000   0.0039780922158328  -0.0010219077841672
-CDV   Operand          0.0000000000000000   0.0585424700521525   0.0585424700521525
-MNE           S3  >    2.0000000000000000   3.9929665478160148   1.9929665478160146
-                                                          l
-CYCLE NUMBER 23
-   ERROR FUNCTION = 0.00343
-          RDY          THI     RMD          GLA          CCY     THC     GLC
-OBJ:    INFINITY    INFINITY                              100     100     100
-001:    15.00000    3.50000               N-SK16_SCHOTT  100     100     100
-002:    INFINITY    3.10000                              100     100     100
-STO:    -49.902    3.24929               N-F2_SCHOTT    0       0       100
-004:    14.08000    5.00000                              100     100     100
-005:    50.26000    3.50000               N-SK16_SCHOTT  100     100     100
-006:    -31.380    30.84761                              100     100     100
-IMG:    INFINITY    0.00000                              100     100     100
-                                                          l
-Name  Role        Typ  Target              Value               diff
-TAS   Constraint  =    0.0100000000000000   0.0094613750943140  -0.0005386249056860
-TCO   Constraint  =    0.0050000000000000   0.0039781951310274  -0.0010218048689726
-CDV   Operand          0.0000000000000000   0.0585426210927158   0.0585426210927158
-MNE           S3  >    2.0000000000000000   3.9929663726590778   1.9929663726590781
-                                                          l
-CYCLE NUMBER 24
-   ERROR FUNCTION = 0.00343
-          RDY          THI     RMD          GLA          CCY     THC     GLC
-OBJ:    INFINITY    INFINITY                              100     100     100
-001:    15.00000    3.50000               N-SK16_SCHOTT  100     100     100
-002:    INFINITY    3.10000                              100     100     100
-STO:    -49.901    3.24929               N-F2_SCHOTT    0       0       100
-004:    14.08000    5.00000                              100     100     100
-005:    50.26000    3.50000               N-SK16_SCHOTT  100     100     100
-006:    -31.380    30.84784                              100     100     100
-IMG:    INFINITY    0.00000                              100     100     100
-                                                          l
-Name  Role        Typ  Target              Value               diff
-TAS   Constraint  =    0.0100000000000000   0.0094625948006882  -0.0005374051993118
-TCO   Constraint  =    0.0050000000000000   0.0039767722218915  -0.0010232277781085
-CDV   Operand          0.0000000000000000   0.0585405332246886   0.0585405332246886
-MNE           S3  >    2.0000000000000000   3.9929688058354014   1.9929688058354016
-                                                          l
-CYCLE NUMBER 25
-   ERROR FUNCTION = 0.00343
-          RDY          THI     RMD          GLA          CCY     THC     GLC
-OBJ:    INFINITY    INFINITY                              100     100     100
-001:    15.00000    3.50000               N-SK16_SCHOTT  100     100     100
-002:    INFINITY    3.10000                              100     100     100
-STO:    -49.901    3.24929               N-F2_SCHOTT    0       0       100
-004:    14.08000    5.00000                              100     100     100
-005:    50.26000    3.50000               N-SK16_SCHOTT  100     100     100
-006:    -31.380    30.84783                              100     100     100
-IMG:    INFINITY    0.00000                              100     100     100
-                                                          l
-Name  Role        Typ  Target              Value               diff
-TAS   Constraint  =    0.0100000000000000   0.0094625888361876  -0.0005374111638124
-TCO   Constraint  =    0.0050000000000000   0.0039767791801086  -0.0010232208198914
-CDV   Operand          0.0000000000000000   0.0585405434652405   0.0585405434652405
-MNE           S3  >    2.0000000000000000   3.9929687947745300   1.9929687947745300
-AUT: done after 26 iterations, status: More than max_iter iterations in slsqp
+TAS   Constraint  =    0.0100000000000000   0.0099999991409836  -0.0000000008590164
+EFL   Constraint  =   50.0000000000000000  50.0000000004393073   0.0000000004393073
+CDV   Operand          0.0000000000000000   0.0101463333624312   0.0101463333624312
+MNE           S3  >    2.0000000000000000   3.0077768174301567   1.0077768174301567
+AUT: done after 3 iterations, status: Required accuracy for solution obtained
   #   NAME   ROLE         TYPE        TARGET   WEIGHT
   -   ----   ----------   ----   -----------   ------
   1   TAS    Constraint   =          0.01000
-  2   TCO    Constraint   =          0.00500
+  2   EFL    Constraint   =         50.00000
   3   CDV    Operand                 0.00000   1.00000
 General (variable thicknesses): MXT 12.00000  MNT 2.00000  MNE 2.00000  MNA 0.10000  MAE 0.00250
 All constraints removed
@@ -540,8 +105,7 @@ TEMPORARY CIRCULAR CLEAR APERTURE =   3.912
  FOR THE CURRENT CAPFN CALCULATIONS
  PERFORMING "CAPFN" CALCULATIONS...
 CAUTION MESSAGE ONLY:
-PUPIL FUCTION MIGHT NOT BE SAMPLED SUFFICIENTLY
- POSSIBLY USE A DENSER RAY GRID
+(P-V) OPD EXCEEDS 1.0 WAVE,
 USE CAUTION INTERPRETING DIFFRACTION BASED RESULTS.
 
     WEIGHT CALCULATION
@@ -569,59 +133,59 @@ ENTRANCE PUPIL
 DIA       10.0000
 THI       6.7224
 INFINITE CONJUGATES
-EFL       44.0689
-BFL       30.8476
-FFL       -38.7073
-FNO       4.4069
-IMG DIS   30.8476
-OAL       18.3495
+EFL       50.0000
+BFL       37.7299
+FFL       -44.6733
+FNO       5.0000
+IMG DIS   37.7299
+OAL       17.3101
 PARAXIAL IMAGE
- HT      7.7705
-ANG       10.4148 DEG
+ HT      8.8163
+ANG       10.3848 DEG
 ENTRANCE PUPIL
 DIA       10.0000
 THI       6.7224
 EXIT PUPIL
-DIA       9.7005
-THI       -11.9012
+DIA       9.7284
+THI       -10.9122
 ENTRANCE PUPIL
 DIA       10.0000
 THI       6.7224
 INFINITE CONJUGATES
-EFL       44.0689
-BFL       30.8476
-FFL       -38.7073
-FNO       4.4069
-IMG DIS   30.8476
-OAL       18.3495
+EFL       50.0000
+BFL       37.7299
+FFL       -44.6733
+FNO       5.0000
+IMG DIS   37.7299
+OAL       17.3101
 PARAXIAL IMAGE
- HT      7.7705
-ANG       10.4148 DEG
+ HT      8.8163
+ANG       10.3848 DEG
 ENTRANCE PUPIL
 DIA       10.0000
 THI       6.7224
 EXIT PUPIL
-DIA       9.7005
-THI       -11.9012
+DIA       9.7284
+THI       -10.9122
 ENTRANCE PUPIL
 DIA       10.0000
 THI       6.7224
 INFINITE CONJUGATES
-EFL       44.0689
-BFL       30.8476
-FFL       -38.7073
-FNO       4.4069
-IMG DIS   30.8476
-OAL       18.3495
+EFL       50.0000
+BFL       37.7299
+FFL       -44.6733
+FNO       5.0000
+IMG DIS   37.7299
+OAL       17.3101
 PARAXIAL IMAGE
- HT      7.7705
-ANG       10.4148 DEG
+ HT      8.8163
+ANG       10.3848 DEG
 ENTRANCE PUPIL
 DIA       10.0000
 THI       6.7224
 EXIT PUPIL
-DIA       9.7005
-THI       -11.9012
+DIA       9.7284
+THI       -10.9122
 All constraints removed
 
 

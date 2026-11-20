@@ -410,7 +410,10 @@ module procedure mtf_go
   cutoff = cutF(1)
   if (maxFreq <= 0.0_real64) maxFreq = cutoff
   if (dFreq <= 0.0_real64) dFreq = maxFreq/100.0_real64
-  nPts = int(maxFreq/dFreq + 1.0e-9_real64) + 1
+  ! (MFR and IFR are stored in single precision: their ratio is an integer
+  ! only to ~1e-6, so a tighter tolerance dropped or kept the last frequency
+  ! depending on the compiler's rounding)
+  nPts = int(maxFreq/dFreq + 1.0e-4_real64) + 1
   if (nPts > MAX_FREQ_POINTS) then
     call zoa_emit('MTF: MFR/IFR asks for '//trim(int2str(nPts))//' frequencies; using the first '// &
     &             trim(int2str(MAX_FREQ_POINTS)), 'red')

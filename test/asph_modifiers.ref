@@ -439,7 +439,7 @@ All constraints removed
 AUT: no operand defined; using the CODE V error function (CDV)
                                                           l
 CYCLE NUMBER 0
-   ERROR FUNCTION = 25.53625
+   ERROR FUNCTION = 58.22697
           RDY          THI     RMD          GLA          CCY     THC     GLC
 OBJ:    INFINITY    INFINITY                              100     100     100
 STO:    INFINITY    6.00000               N-BK7_SCHOTT   100     100     100
@@ -451,10 +451,10 @@ ASPHERES
                                                           l
 Name  Role        Typ  Target              Value               diff
 SA    Constraint  =    0.0000000000000000 -11.5034123169995866 -11.5034123169995866
-CDV   Operand          0.0000000000000000   5.0533444421259626   5.0533444421259626
+CDV   Operand          0.0000000000000000   7.6306615337394543   7.6306615337394543
                                                           l
 CYCLE NUMBER 1
-   ERROR FUNCTION = 15.61588
+   ERROR FUNCTION = 29.83619
           RDY          THI     RMD          GLA          CCY     THC     GLC
 OBJ:    INFINITY    INFINITY                              100     100     100
 STO:    INFINITY    6.00000               N-BK7_SCHOTT   100     100     100
@@ -466,10 +466,10 @@ ASPHERES
                                                           l
 Name  Role        Typ  Target              Value               diff
 SA    Constraint  =    0.0000000000000000  -0.0000000007868714  -0.0000000007868714
-CDV   Operand          0.0000000000000000   3.9517057769962949   3.9517057769962949
+CDV   Operand          0.0000000000000000   5.4622589736776899   5.4622589736776899
                                                           l
 CYCLE NUMBER 2
-   ERROR FUNCTION = 15.61588
+   ERROR FUNCTION = 29.83619
           RDY          THI     RMD          GLA          CCY     THC     GLC
 OBJ:    INFINITY    INFINITY                              100     100     100
 STO:    INFINITY    6.00000               N-BK7_SCHOTT   100     100     100
@@ -481,7 +481,7 @@ ASPHERES
                                                           l
 Name  Role        Typ  Target              Value               diff
 SA    Constraint  =    0.0000000000000000  -0.0000000007868714  -0.0000000007868714
-CDV   Operand          0.0000000000000000   3.9517057769962949   3.9517057769962949
+CDV   Operand          0.0000000000000000   5.4622589736776899   5.4622589736776899
 AUT: done after 2 iterations, status: Required accuracy for solution obtained
 CURRENT LENS DATA LISTING
 New Lens From Template
